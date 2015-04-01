@@ -4,12 +4,12 @@ A camera viewport for React Native. This module is currently in the very early s
 
 ## Getting started
 
-1. `npm install react-native-camera --save`
+1. `npm install react-native-camera@latest --save`
 2. In XCode, in the project navigator right click `Libraries` ➜ `Add Files to [your project's name]`
 3. Go to `node_modules` ➜ `react-native-camera` and add `RCTCamera.xcodeproj`
 4. Add `libRCTCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
 5. Click `RCTCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../react-native/React` and `$(SRCROOT)/../../React` - mark both as `recursive`.
-5. Run (`Cmd+R`)
+5. Run your project (`Cmd+R`)
 
 ## Usage
 
