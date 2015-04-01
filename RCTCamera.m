@@ -5,9 +5,14 @@
 
 @implementation RCTCamera
 
-- (void)setSrc:(NSString *)source
+- (void)setOrientation:(NSInteger)orientation
 {
-    
+    [[(AVCaptureVideoPreviewLayer *)[[self viewfinder] layer] connection] setVideoOrientation:orientation];
+}
+
+- (void)setAspect:(NSString *)aspect
+{
+    [(AVCaptureVideoPreviewLayer *)[[self viewfinder] layer] setVideoGravity:aspect];
 }
 
 - (id)init
@@ -19,15 +24,14 @@
 
         [[self viewfinder] setSession:session];
         [self addSubview:_viewfinder];
-        
+
         NSError *error = nil;
-        
+
         NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
         AVCaptureDevice *captureDevice = [devices firstObject];
-        
+
         AVCaptureDevicePosition position = AVCaptureDevicePositionBack;
-        AVCaptureVideoOrientation interfaceOrientation = (AVCaptureVideoOrientation)UIInterfaceOrientationMaskLandscape;
-        
+
         for (AVCaptureDevice *device in devices)
         {
             if ([device position] == position)
@@ -36,22 +40,22 @@
                 break;
             }
         }
-        
+
         AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
-        
+
         if (error)
         {
             NSLog(@"%@", error);
         }
-        
+
         if ([session canAddInput:captureDeviceInput])
         {
             [session addInput:captureDeviceInput];
-            
-//            [[(AVCaptureVideoPreviewLayer *)[[self viewfinder] layer] connection] setVideoOrientation:(AVCaptureVideoOrientation)interfaceOrientation];
+
+            [[(AVCaptureVideoPreviewLayer *)[[self viewfinder] layer] connection] setVideoOrientation:AVCaptureVideoOrientationPortrait];
             [(AVCaptureVideoPreviewLayer *)[[self viewfinder] layer] setVideoGravity:AVLayerVideoGravityResizeAspectFill];
         }
-        
+
         [session startRunning];
 
     }

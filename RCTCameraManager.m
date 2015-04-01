@@ -12,13 +12,31 @@
     return [[RCTCamera alloc] init];
 }
 
+RCT_EXPORT_VIEW_PROPERTY(aspect, NSString);
 RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
+
+- (NSDictionary *)constantsToExport
+{
+    return @{
+      @"aspects": @{
+        @"Stretch": AVLayerVideoGravityResize,
+        @"Fit": AVLayerVideoGravityResizeAspect,
+        @"Fill": AVLayerVideoGravityResizeAspectFill
+      },
+      @"orientations": @{
+        @"LandscapeLeft": @(AVCaptureVideoOrientationLandscapeLeft),
+        @"LandscapeRight": @(AVCaptureVideoOrientationLandscapeRight),
+        @"Portrait": @(AVCaptureVideoOrientationPortrait),
+        @"PortraitUpsideDown": @(AVCaptureVideoOrientationPortraitUpsideDown)
+      }
+    };
+}
 
 - (void)checkDeviceAuthorizationStatus:(RCTResponseSenderBlock) callback
 {
     RCT_EXPORT();
     NSString *mediaType = AVMediaTypeVideo;
-    
+
     [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
         callback(@[[NSNull null], @(granted)]);
     }];

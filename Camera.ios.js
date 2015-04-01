@@ -11,7 +11,8 @@ var merge = require('merge');
 
 var Camera = React.createClass({
   propTypes: {
-    orientation: PropTypes.integer,
+    aspect: PropTypes.string,
+    orientation: PropTypes.string,
   },
 
   mixins: [NativeMethodsMixin],
@@ -36,10 +37,15 @@ var Camera = React.createClass({
 
   render: function() {
     var style = flattenStyle([styles.base, this.props.style]);
-    var orientation = this.props.orientation;
+    var aspect = this.props.aspect || 'Fill';
+    var orientation = this.props.orientation || 'Portrait';
+
+    aspect = NativeModules.CameraManager.aspects[aspect];
+    orientation = NativeModules.CameraManager.orientations[orientation];
 
     var nativeProps = merge(this.props, {
       style,
+      aspect: aspect,
       orientation: orientation,
     });
 
@@ -48,7 +54,7 @@ var Camera = React.createClass({
 });
 
 var RCTCamera = createReactIOSNativeComponentClass({
-  validAttributes: merge(ReactIOSViewAttributes.UIView, { orientation: true }),
+  validAttributes: merge(ReactIOSViewAttributes.UIView, { aspect: true, orientation: true }),
   uiViewClassName: 'RCTCamera',
 });
 
