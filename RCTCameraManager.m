@@ -13,6 +13,7 @@
 }
 
 RCT_EXPORT_VIEW_PROPERTY(aspect, NSString);
+RCT_EXPORT_VIEW_PROPERTY(camera, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 
 - (NSDictionary *)constantsToExport
@@ -22,6 +23,10 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
         @"Stretch": AVLayerVideoGravityResize,
         @"Fit": AVLayerVideoGravityResizeAspect,
         @"Fill": AVLayerVideoGravityResizeAspectFill
+      },
+      @"cameras": @{
+        @"Front": @(AVCaptureDevicePositionFront),
+        @"Back": @(AVCaptureDevicePositionBack)
       },
       @"orientations": @{
         @"LandscapeLeft": @(AVCaptureVideoOrientationLandscapeLeft),

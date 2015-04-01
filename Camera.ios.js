@@ -38,14 +38,17 @@ var Camera = React.createClass({
   render: function() {
     var style = flattenStyle([styles.base, this.props.style]);
     var aspect = this.props.aspect || 'Fill';
+    var camera = this.props.camera || 'Back';
     var orientation = this.props.orientation || 'Portrait';
 
     aspect = NativeModules.CameraManager.aspects[aspect];
+    camera = NativeModules.CameraManager.cameras[camera];
     orientation = NativeModules.CameraManager.orientations[orientation];
 
     var nativeProps = merge(this.props, {
       style,
       aspect: aspect,
+      camera: camera,
       orientation: orientation,
     });
 
@@ -54,7 +57,11 @@ var Camera = React.createClass({
 });
 
 var RCTCamera = createReactIOSNativeComponentClass({
-  validAttributes: merge(ReactIOSViewAttributes.UIView, { aspect: true, orientation: true }),
+  validAttributes: merge(ReactIOSViewAttributes.UIView, {
+    aspect: true,
+    camera: true,
+    orientation: true
+  }),
   uiViewClassName: 'RCTCamera',
 });
 
