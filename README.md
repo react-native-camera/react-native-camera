@@ -13,7 +13,7 @@ A camera viewport for React Native. This module is currently in the very early s
 All you need is to `require` the `react-native-camera` module and then use the
 `<Camera/>` tag.
 
-```
+```javascript
 var React = require('react-native');
 var {
   AppRegistry,
