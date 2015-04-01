@@ -27,7 +27,11 @@ var cameraApp = React.createClass({
   render: function() {
     return (
       <View>
-        <Camera style={{height: 200, width: 200}}/>
+        <Camera
+          aspect="Stretch"
+          orientation="PortraitUpsideDown"
+          style={{height: 200, width: 200}}
+        />
       </View>
     );
   }
