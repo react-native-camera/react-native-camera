@@ -1,6 +1,6 @@
 # react-native-camera
 
-A camera viewport for React Native. This module is currently in the very early stages of development and does not support image capture at this time, though it is coming.
+A camera viewport for React Native. This module is currently in the very early stages of development, currently supporting camera switching and basic image capture.
 
 ## Getting started
 
