@@ -9,20 +9,17 @@
 
 - (void)setAspect:(NSString *)aspect
 {
-    RCTCameraManager *cameraManager = [RCTCameraManager sharedManager];
-    [cameraManager setAspect:aspect];
+    [_cameraManager setAspect:aspect];
 }
 
 - (void)setCamera:(NSInteger)camera
 {
-    RCTCameraManager *cameraManager = [RCTCameraManager sharedManager];
-    [cameraManager setCamera:camera];
+    [_cameraManager setCamera:camera];
 }
 
 - (void)setOrientation:(NSInteger)orientation
 {
-    RCTCameraManager *cameraManager = [RCTCameraManager sharedManager];
-    [cameraManager setOrientation:orientation];
+    [_cameraManager setOrientation:orientation];
 }
 
 - (id)init
