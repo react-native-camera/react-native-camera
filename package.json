@@ -1,7 +1,11 @@
 {
   "name": "react-native-camera",
-  "version": "0.0.2",
-  "description": "A <Camera> element for React Native",
+  "repository": {
+    "type" : "git",
+    "url" : "http://github.com/lwansbrough/react-native-camera.git"
+  },
+  "version": "0.0.3",
+  "description": "A Camera element for React Native",
   "main": "Camera.ios.js",
   "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
   "dependencies": {

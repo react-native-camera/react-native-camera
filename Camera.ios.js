@@ -12,6 +12,7 @@ var merge = require('merge');
 var Camera = React.createClass({
   propTypes: {
     aspect: PropTypes.string,
+    camera: PropTypes.string,
     orientation: PropTypes.string,
   },
 
@@ -24,7 +25,10 @@ var Camera = React.createClass({
 
   getInitialState: function() {
     return {
-      isAuthorized: false
+      isAuthorized: false,
+      aspect: this.props.aspect || 'Fill',
+      camera: this.props.camera || 'Back',
+      orientation: this.props.orientation || 'Portrait'
     };
   },
 
@@ -37,13 +41,10 @@ var Camera = React.createClass({
 
   render: function() {
     var style = flattenStyle([styles.base, this.props.style]);
-    var aspect = this.props.aspect || 'Fill';
-    var camera = this.props.camera || 'Back';
-    var orientation = this.props.orientation || 'Portrait';
 
-    aspect = NativeModules.CameraManager.aspects[aspect];
-    camera = NativeModules.CameraManager.cameras[camera];
-    orientation = NativeModules.CameraManager.orientations[orientation];
+    aspect = NativeModules.CameraManager.aspects[this.state.aspect];
+    camera = NativeModules.CameraManager.cameras[this.state.camera];
+    orientation = NativeModules.CameraManager.orientations[this.state.orientation];
 
     var nativeProps = merge(this.props, {
       style,
@@ -54,6 +55,15 @@ var Camera = React.createClass({
 
     return <RCTCamera {... nativeProps} />
   },
+
+  switch: function() {
+    this.state.camera = this.state.camera == 'Back' ? 'Front' : 'Back';
+    this.setState(this.state);
+  },
+
+  takePicture: function(cb) {
+    NativeModules.CameraManager.takePicture(cb);
+  }
 });
 
 var RCTCamera = createReactIOSNativeComponentClass({

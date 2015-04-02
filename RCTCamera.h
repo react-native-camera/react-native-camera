@@ -2,12 +2,11 @@
 #import <AVFoundation/AVFoundation.h>
 #import "ViewfinderView.h"
 
-@class AVCaptureSession;
+@class RCTCameraManager;
 
 @interface RCTCamera : UIView
 
-@property (nonatomic) AVCaptureSession *session;
+@property (nonatomic) RCTCameraManager *cameraManager;
 @property (nonatomic) ViewfinderView *viewfinder;
-@property (nonatomic) AVCaptureDeviceInput *captureDeviceInput;
 
 @end
