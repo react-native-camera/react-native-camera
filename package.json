@@ -4,7 +4,7 @@
     "type" : "git",
     "url" : "http://github.com/lwansbrough/react-native-camera.git"
   },
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A Camera element for React Native",
   "main": "Camera.ios.js",
   "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",

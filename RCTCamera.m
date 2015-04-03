@@ -9,17 +9,23 @@
 
 - (void)setAspect:(NSString *)aspect
 {
-    [_cameraManager setAspect:aspect];
+    dispatch_async([_cameraManager sessionQueue], ^{
+        [_cameraManager setAspect:aspect];
+    });
 }
 
 - (void)setCamera:(NSInteger)camera
 {
-    [_cameraManager setCamera:camera];
+    dispatch_async([_cameraManager sessionQueue], ^{
+        [_cameraManager setCamera:camera];
+    });
 }
 
 - (void)setOrientation:(NSInteger)orientation
 {
-    [_cameraManager setOrientation:orientation];
+    dispatch_async([_cameraManager sessionQueue], ^{
+        [_cameraManager setOrientation:orientation];
+    });
 }
 
 - (id)init
@@ -48,13 +54,13 @@
 
 - (void)insertReactSubview:(UIView *)view atIndex:(NSInteger)atIndex
 {
-    RCTLogError(@"Camera does not support subviews");
+    [_viewfinder insertSubview:view atIndex:atIndex + 1];
     return;
 }
 
 - (void)removeReactSubview:(UIView *)subview
 {
-    RCTLogError(@"Camera does not support subviews");
+    [subview removeFromSuperview];
     return;
 }
 

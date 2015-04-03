@@ -4,6 +4,10 @@
 #import "RCTUtils.h"
 #import <AVFoundation/AVFoundation.h>
 
+static void * CapturingStillImageContext = &CapturingStillImageContext;
+static void * RecordingContext = &RecordingContext;
+static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDeviceAuthorizedContext;
+
 @implementation RCTCameraManager
 
 + (id)sharedManager {
@@ -51,37 +55,43 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 - (id)init {
     if ((self = [super init])) {
         [self setSession:[[AVCaptureSession alloc] init]];
-        [_session setSessionPreset:AVCaptureSessionPresetHigh];
+        [[self session] setSessionPreset:AVCaptureSessionPresetHigh];
 
-        NSError *error = nil;
+        dispatch_queue_t sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
+        [self setSessionQueue:sessionQueue];
 
-        AVCaptureDevice *captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:AVCaptureDevicePositionBack];
+        [[self session] startRunning];
 
-        _captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+        dispatch_async(sessionQueue, ^{
+            NSError *error = nil;
 
+            AVCaptureDevice *captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:AVCaptureDevicePositionBack];
+            AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
 
-        if (error)
-        {
-            NSLog(@"%@", error);
-        }
+            if (error)
+            {
+                NSLog(@"%@", error);
+            }
 
-        if ([_session canAddInput:_captureDeviceInput])
-        {
-            [_session addInput:_captureDeviceInput];
+            if ([[self session] canAddInput:captureDeviceInput])
+            {
+                [[self session] addInput:captureDeviceInput];
+                [self setCaptureDeviceInput:captureDeviceInput];
 
-            [[(AVCaptureVideoPreviewLayer *)_currentCamera.viewfinder.layer connection] setVideoOrientation:AVCaptureVideoOrientationPortrait];
-            [(AVCaptureVideoPreviewLayer *)_currentCamera.viewfinder.layer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-        }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[(AVCaptureVideoPreviewLayer *)[[[self currentCamera] viewfinder] layer] connection] setVideoOrientation:AVCaptureVideoOrientationPortrait];
+                    [(AVCaptureVideoPreviewLayer *)[[[self currentCamera] viewfinder] layer] setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+                });
+            }
 
-        AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
-        if ([_session canAddOutput:stillImageOutput])
-        {
-            [_stillImageOutput setOutputSettings:@{AVVideoCodecKey : AVVideoCodecJPEG}];
-            [_session addOutput:stillImageOutput];
-            [self setStillImageOutput:stillImageOutput];
-        }
-
-        [_session startRunning];
+            AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
+            if ([[self session] canAddOutput:stillImageOutput])
+            {
+                [stillImageOutput setOutputSettings:@{AVVideoCodecKey : AVVideoCodecJPEG}];
+                [[self session] addOutput:stillImageOutput];
+                [self setStillImageOutput:stillImageOutput];
+            }
+        });
     }
     return self;
 }
@@ -97,72 +107,77 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 
 - (void)setAspect:(NSString *)aspect
 {
-    [(AVCaptureVideoPreviewLayer *)_currentCamera.viewfinder.layer setVideoGravity:aspect];
+    [(AVCaptureVideoPreviewLayer *)[[[self currentCamera] viewfinder] layer] setVideoGravity:aspect];
 }
 
 
 - (void)setCamera:(NSInteger)camera
 {
-    //    AVCaptureDevice *currentVideoDevice = [_captureDeviceInput device];
-    AVCaptureDevicePosition position = (AVCaptureDevicePosition)camera;
-    AVCaptureDevice *videoDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:(AVCaptureDevicePosition)position];
+    dispatch_async([self sessionQueue], ^{
+        AVCaptureDevice *currentCaptureDevice = [[self captureDeviceInput] device];
+        AVCaptureDevicePosition position = (AVCaptureDevicePosition)camera;
+        AVCaptureDevice *captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:(AVCaptureDevicePosition)position];
 
-    NSError *error = nil;
-    AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+        NSError *error = nil;
+        AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
 
-    if (error)
-    {
-        NSLog(@"%@", error);
-    }
+        if (error)
+        {
+            NSLog(@"%@", error);
+        }
 
-    [[self session] beginConfiguration];
+        [[self session] beginConfiguration];
 
-    [[self session] removeInput:[self captureDeviceInput]];
+        [[self session] removeInput:[self captureDeviceInput]];
 
+        if ([[self session] canAddInput:captureDeviceInput])
+        {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:currentCaptureDevice];
 
-    if ([[self session] canAddInput:videoDeviceInput])
-    {
-        //        [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:currentVideoDevice];
-        //
-        //        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:videoDevice];
-        //
-        [[self session] addInput:videoDeviceInput];
-        [self setCaptureDeviceInput:videoDeviceInput];
-    }
-    else
-    {
-        [[self session] addInput:_captureDeviceInput];
-    }
+            [self setFlashMode:AVCaptureFlashModeAuto forDevice:captureDevice];
 
-    [[self session] commitConfiguration];
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:captureDevice];
+            [[self session] addInput:captureDeviceInput];
+            [self setCaptureDeviceInput:captureDeviceInput];
+        }
+        else
+        {
+            [[self session] addInput:[self captureDeviceInput]];
+        }
+
+        [[self session] commitConfiguration];
+    });
 }
 
 - (void)setOrientation:(NSInteger)orientation
 {
-    [[(AVCaptureVideoPreviewLayer *)_currentCamera.viewfinder.layer connection] setVideoOrientation:orientation];
+    [[(AVCaptureVideoPreviewLayer *)[[[self currentCamera] viewfinder] layer] connection] setVideoOrientation:orientation];
 }
 
 - (void)takePicture:(RCTResponseSenderBlock) callback {
     RCT_EXPORT();
-    // Update the orientation on the still image output video connection before capturing.
-    [[[self stillImageOutput] connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[[(AVCaptureVideoPreviewLayer *)_currentCamera.viewfinder.layer connection] videoOrientation]];
+    dispatch_async([self sessionQueue], ^{
+        // Update the orientation on the still image output video connection before capturing.
+        [[[self stillImageOutput] connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[[(AVCaptureVideoPreviewLayer *)[[[self currentCamera] viewfinder] layer] connection] videoOrientation]];
 
-    // Flash set to Auto for Still Capture
-    //    [AVCamViewController setFlashMode:AVCaptureFlashModeAuto forDevice:[[self videoDeviceInput] device]];
+        // Flash set to Auto for Still Capture
+        [self setFlashMode:AVCaptureFlashModeAuto forDevice:[[self captureDeviceInput] device]];
 
-    // Capture a still image.
-    [[self stillImageOutput] captureStillImageAsynchronouslyFromConnection:[[self stillImageOutput] connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
+        // Capture a still image.
+        [[self stillImageOutput] captureStillImageAsynchronouslyFromConnection:[[self stillImageOutput] connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
 
-        if (imageDataSampleBuffer)
-        {
-            NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-            NSString *imageBase64 = [imageData base64EncodedStringWithOptions:0];
-            callback(@[[NSNull null], imageBase64]);
-        }
-        else {
-            callback(@[RCTMakeError(error.description, nil, nil)]);
-        }
-    }];
+            if (imageDataSampleBuffer)
+            {
+                NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+                UIImage *image = [[UIImage alloc] initWithData:imageData];
+                NSString *imageBase64 = [UIImageJPEGRepresentation(image, 1.0) base64EncodedStringWithOptions:0];
+                callback(@[[NSNull null], imageBase64]);
+            }
+            else {
+                callback(@[RCTMakeError([error description], nil, nil)]);
+            }
+        }];
+    });
 }
 
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
@@ -180,6 +195,56 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
     }
 
     return captureDevice;
+}
+
+- (void)setFlashMode:(AVCaptureFlashMode)flashMode forDevice:(AVCaptureDevice *)device
+{
+    if ([device hasFlash] && [device isFlashModeSupported:flashMode])
+    {
+        NSError *error = nil;
+        if ([device lockForConfiguration:&error])
+        {
+            [device setFlashMode:flashMode];
+            [device unlockForConfiguration];
+        }
+        else
+        {
+            NSLog(@"%@", error);
+        }
+    }
+}
+
+- (void)subjectAreaDidChange:(NSNotification *)notification
+{
+    CGPoint devicePoint = CGPointMake(.5, .5);
+    [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:NO];
+}
+
+- (void)focusWithMode:(AVCaptureFocusMode)focusMode exposeWithMode:(AVCaptureExposureMode)exposureMode atDevicePoint:(CGPoint)point monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
+{
+    dispatch_async([self sessionQueue], ^{
+        AVCaptureDevice *device = [[self captureDeviceInput] device];
+        NSError *error = nil;
+        if ([device lockForConfiguration:&error])
+        {
+            if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:focusMode])
+            {
+                [device setFocusMode:focusMode];
+                [device setFocusPointOfInterest:point];
+            }
+            if ([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:exposureMode])
+            {
+                [device setExposureMode:exposureMode];
+                [device setExposurePointOfInterest:point];
+            }
+            [device setSubjectAreaChangeMonitoringEnabled:monitorSubjectAreaChange];
+            [device unlockForConfiguration];
+        }
+        else
+        {
+            NSLog(@"%@", error);
+        }
+    });
 }
 
 @end

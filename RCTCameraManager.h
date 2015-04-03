@@ -5,6 +5,7 @@
 
 @interface RCTCameraManager : RCTViewManager
 
+@property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) AVCaptureSession *session;
 @property (nonatomic) AVCaptureDeviceInput *captureDeviceInput;
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;

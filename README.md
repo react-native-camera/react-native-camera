@@ -2,6 +2,8 @@
 
 A camera viewport for React Native. This module is currently in the very early stages of development, currently supporting camera switching and basic image capture.
 
+Note: The capture feature is currently not working properly. Pull requests welcome.
+
 ## Getting started
 
 1. `npm install react-native-camera@latest --save`
@@ -87,6 +89,9 @@ The `switch()` method toggles between the `Front` and `Back` cameras.
 #### `takePicture(callback)`
 
 Basic implementation of image capture. This method is subject to change, but currently works by accepting a callback like `function(err, base64EncodedJpeg) { ... }`.
+
+### Subviews
+This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
 
 ------------
 
