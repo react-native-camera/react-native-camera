@@ -9,52 +9,46 @@
 
 - (void)setAspect:(NSString *)aspect
 {
-    dispatch_async([_cameraManager sessionQueue], ^{
-        [_cameraManager setAspect:aspect];
-    });
+    [(AVCaptureVideoPreviewLayer *)[[self viewfinder] layer] setVideoGravity:aspect];
 }
 
 - (void)setCamera:(NSInteger)camera
 {
-    dispatch_async([_cameraManager sessionQueue], ^{
-        [_cameraManager setCamera:camera];
-    });
+    [[self cameraManager] setCamera:camera];
 }
 
 - (void)setOrientation:(NSInteger)orientation
 {
-    dispatch_async([_cameraManager sessionQueue], ^{
-        [_cameraManager setOrientation:orientation];
-    });
+    [[self cameraManager] setOrientation:orientation];
 }
 
 - (id)init
 {
     if ((self = [super init])) {
         [self setCameraManager:[RCTCameraManager sharedManager]];
-        _viewfinder = [[ViewfinderView alloc] init];
+        [self setViewfinder:[[ViewfinderView alloc] init]];
 
-        [[self viewfinder] setSession:_cameraManager.session];
-        [self addSubview:_viewfinder];
+        [[self viewfinder] setSession:[[self cameraManager] session]];
+        [self addSubview:[self viewfinder]];
     }
     return self;
 }
 
 - (NSArray *)reactSubviews
 {
-    NSArray *subviews = @[_viewfinder];
+    NSArray *subviews = @[[self viewfinder]];
     return subviews;
 }
 
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    _viewfinder.frame = self.bounds;
+    [[self viewfinder] setFrame:[self bounds]];
 }
 
 - (void)insertReactSubview:(UIView *)view atIndex:(NSInteger)atIndex
 {
-    [_viewfinder insertSubview:view atIndex:atIndex + 1];
+    [[self viewfinder] insertSubview:view atIndex:atIndex + 1];
     return;
 }
 

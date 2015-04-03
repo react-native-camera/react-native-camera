@@ -13,7 +13,6 @@
 
 + (id)sharedManager;
 - (id)init;
-- (void)setAspect:(NSString *) aspect;
 - (void)setCamera:(NSInteger) camera;
 - (void)setOrientation:(NSInteger) orientation;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;

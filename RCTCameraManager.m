@@ -60,8 +60,6 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
         dispatch_queue_t sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
         [self setSessionQueue:sessionQueue];
 
-        [[self session] startRunning];
-
         dispatch_async(sessionQueue, ^{
             NSError *error = nil;
 
@@ -77,11 +75,6 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
             {
                 [[self session] addInput:captureDeviceInput];
                 [self setCaptureDeviceInput:captureDeviceInput];
-
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [[(AVCaptureVideoPreviewLayer *)[[[self currentCamera] viewfinder] layer] connection] setVideoOrientation:AVCaptureVideoOrientationPortrait];
-                    [(AVCaptureVideoPreviewLayer *)[[[self currentCamera] viewfinder] layer] setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-                });
             }
 
             AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
@@ -91,6 +84,8 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
                 [[self session] addOutput:stillImageOutput];
                 [self setStillImageOutput:stillImageOutput];
             }
+
+            [[self session] startRunning];
         });
     }
     return self;
@@ -103,11 +98,6 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
     [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
         callback(@[[NSNull null], @(granted)]);
     }];
-}
-
-- (void)setAspect:(NSString *)aspect
-{
-    [(AVCaptureVideoPreviewLayer *)[[[self currentCamera] viewfinder] layer] setVideoGravity:aspect];
 }
 
 
