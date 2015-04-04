@@ -1,8 +1,12 @@
 # react-native-camera
 
-A camera viewport for React Native. This module is currently in the very early stages of development, currently supporting camera switching and basic image capture.
+A camera viewport for React Native. This module is currently in the very early stages of development.
 
-Note: The capture feature is currently not working properly. Pull requests welcome.
+## Known Issues
+Becauase this module is still in early development, there are plenty of issues that need to be sorted out. Some of which I am sure I'm unaware of at this point. Below is a list of known issues. Pull requests are welcome for any of these issues!
+
+- [`takePicture` captures first frame from output buffer instead of current frame](https://github.com/lwansbrough/react-native-camera/issues/10)
+- [Camera module may cause app to crash in simulator](https://github.com/lwansbrough/react-native-camera/issues/8)
 
 ## Getting started
 
@@ -54,7 +58,7 @@ var cameraApp = React.createClass({
 AppRegistry.registerComponent('cameraApp', () => cameraApp);
 ```
 
-### Properties
+## Properties
 
 #### `aspect`
 
@@ -78,7 +82,7 @@ The `orientation` property allows you to specify the current orientation of the 
 TODO: Add support for an `Auto` value to automatically adjust for orientation changes.
 
 
-### Component methods
+## Component methods
 
 You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to your `<Camera>` element, then you can use `this.refs.camera.switch()`, etc. inside your component.
 
@@ -91,8 +95,17 @@ The `switch()` method toggles between the `Front` and `Back` cameras.
 
 Basic implementation of image capture. This method is subject to change, but currently works by accepting a callback like `function(err, base64EncodedJpeg) { ... }`.
 
-### Subviews
+## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
+
+## Todo
+These are some features I think would be important/beneficial to have included with this module. Pull requests welcome!
+
+- [ ] Video support
+- [ ] Flash mode setting
+- [ ] Automatic orientation adjustment
+- [ ] Tap to focus
+- [ ] Optional facial recognition (w/ ability to style box around face)
 
 ------------
 
