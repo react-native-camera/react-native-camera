@@ -3,7 +3,7 @@
 A camera viewport for React Native. This module is currently in the very early stages of development.
 
 ## Known Issues
-Becauase this module is still in early development, there are plenty of issues that need to be sorted out. Some of which I am sure I'm unaware of at this point. Below is a list of known issues. Pull requests are welcome for any of these issues!
+Because this module is still in early development, there are plenty of issues that need to be sorted out. Some of which I am sure I'm unaware of at this point. Below is a list of known issues. Pull requests are welcome for any of these issues!
 
 - [`takePicture` captures first frame from output buffer instead of current frame](https://github.com/lwansbrough/react-native-camera/issues/10)
 - [Camera module may cause app to crash in simulator](https://github.com/lwansbrough/react-native-camera/issues/8)
