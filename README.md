@@ -3,9 +3,8 @@
 A camera viewport for React Native. This module is currently in the very early stages of development.
 
 ## Known Issues
-Because this module is still in early development, there are plenty of issues that need to be sorted out. Some of which I am sure I'm unaware of at this point. Below is a list of known issues. Pull requests are welcome for any of these issues!
+Below is a list of known issues. Pull requests are welcome for any of these issues!
 
-- [`takePicture` captures first frame from output buffer instead of current frame](https://github.com/lwansbrough/react-native-camera/issues/10)
 - [Camera module may cause app to crash in simulator](https://github.com/lwansbrough/react-native-camera/issues/8)
 
 ## Getting started
@@ -42,6 +41,7 @@ var cameraApp = React.createClass({
             <Camera
               ref="cam"
               aspect="Stretch"
+              type="Front"
               orientation="PortraitUpsideDown"
               style={{height: 200, width: 200}}
             />
@@ -66,11 +66,11 @@ Values: `Fit`, `Fill` (default), `Stretch`
 
 The `aspect` property allows you to define how your viewfinder renders the camera's view. For instance, if you have a square viewfinder and you want to fill the it entirely, you have two options: `Fill`, where the aspect ratio of the camera's view is preserved by cropping the view or `Stretch`, where the aspect ratio is skewed in order to fit the entire image inside the viewfinder. The other option is `Fit`, which ensures the camera's entire view fits inside your viewfinder without altering the aspect ratio.
 
-#### `camera`
+#### `type`
 
 Values: `Front`, `Back` (default)
 
-Use the `camera` property to specify which camera to use.
+Use the `type` property to specify which camera to use.
 
 
 #### `orientation`
