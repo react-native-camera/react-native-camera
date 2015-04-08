@@ -10,6 +10,7 @@
 		4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */; };
 		4107014F1ACB732B00C6AA39 /* ViewfinderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014C1ACB732B00C6AA39 /* ViewfinderView.m */; };
+		41644DE51AD5D5A400701D70 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 41644DE41AD5D5A400701D70 /* UIImage+Resize.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,6 +33,8 @@
 		4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCameraManager.m; sourceTree = "<group>"; };
 		4107014B1ACB732B00C6AA39 /* ViewfinderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewfinderView.h; sourceTree = "<group>"; };
 		4107014C1ACB732B00C6AA39 /* ViewfinderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewfinderView.m; sourceTree = "<group>"; };
+		41644DE31AD5D5A400701D70 /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
+		41644DE41AD5D5A400701D70 /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Resize.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,6 +51,8 @@
 		410701241ACB719800C6AA39 = {
 			isa = PBXGroup;
 			children = (
+				41644DE31AD5D5A400701D70 /* UIImage+Resize.h */,
+				41644DE41AD5D5A400701D70 /* UIImage+Resize.m */,
 				410701471ACB732B00C6AA39 /* RCTCamera.h */,
 				410701481ACB732B00C6AA39 /* RCTCamera.m */,
 				410701491ACB732B00C6AA39 /* RCTCameraManager.h */,
@@ -122,6 +127,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,
+				41644DE51AD5D5A400701D70 /* UIImage+Resize.m in Sources */,
 				4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */,
 				4107014F1ACB732B00C6AA39 /* ViewfinderView.m in Sources */,
 			);
@@ -241,6 +247,7 @@
 				410701431ACB723B00C6AA39 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
