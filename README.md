@@ -5,6 +5,7 @@ A camera viewport for React Native. This module is currently in the very early s
 ## Known Issues
 Below is a list of known issues. Pull requests are welcome for any of these issues!
 
+- `takePicture()` crashes on `react-native >= 0.3.5`
 - [Camera module may cause app to crash in simulator](https://github.com/lwansbrough/react-native-camera/issues/8)
 
 ## Getting started
