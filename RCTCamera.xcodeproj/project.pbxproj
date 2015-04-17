@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */; };
-		4107014F1ACB732B00C6AA39 /* ViewfinderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014C1ACB732B00C6AA39 /* ViewfinderView.m */; };
 		41644DE51AD5D5A400701D70 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 41644DE41AD5D5A400701D70 /* UIImage+Resize.m */; };
 /* End PBXBuildFile section */
 
@@ -31,8 +30,6 @@
 		410701481ACB732B00C6AA39 /* RCTCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCamera.m; sourceTree = "<group>"; };
 		410701491ACB732B00C6AA39 /* RCTCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTCameraManager.h; sourceTree = "<group>"; };
 		4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCameraManager.m; sourceTree = "<group>"; };
-		4107014B1ACB732B00C6AA39 /* ViewfinderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewfinderView.h; sourceTree = "<group>"; };
-		4107014C1ACB732B00C6AA39 /* ViewfinderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewfinderView.m; sourceTree = "<group>"; };
 		41644DE31AD5D5A400701D70 /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
 		41644DE41AD5D5A400701D70 /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Resize.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -57,8 +54,6 @@
 				410701481ACB732B00C6AA39 /* RCTCamera.m */,
 				410701491ACB732B00C6AA39 /* RCTCameraManager.h */,
 				4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */,
-				4107014B1ACB732B00C6AA39 /* ViewfinderView.h */,
-				4107014C1ACB732B00C6AA39 /* ViewfinderView.m */,
 				410701301ACB723B00C6AA39 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -129,7 +124,6 @@
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,
 				41644DE51AD5D5A400701D70 /* UIImage+Resize.m in Sources */,
 				4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */,
-				4107014F1ACB732B00C6AA39 /* ViewfinderView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
