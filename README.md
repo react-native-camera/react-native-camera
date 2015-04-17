@@ -1,11 +1,10 @@
 # react-native-camera
 
-A camera viewport for React Native. This module is currently in the very early stages of development. **Module is blowing up right now with recent changes from the core React Native team. Change is good! But it's breaking this module. Be warned.**
+A camera viewport for React Native. This module is currently in the very early stages of development.
 
 ## Known Issues
 Below is a list of known issues. Pull requests are welcome for any of these issues!
 
-- Viewfinder *does not work*. This is a temporary issue that I'm resolving, but right now it will appear as the module is not working. The camera does in fact work though.
 - [Camera module may cause app to crash in simulator](https://github.com/lwansbrough/react-native-camera/issues/8)
 
 ## Getting started

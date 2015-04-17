@@ -13,8 +13,7 @@ RCT_EXPORT_MODULE();
 
 - (UIView *)view
 {
-    self.currentCamera = [[RCTCamera alloc] initWithManager:self];
-    return self.currentCamera;
+    return [[RCTCamera alloc] initWithManager:self];
 }
 
 RCT_EXPORT_VIEW_PROPERTY(aspect, NSString);
@@ -45,8 +44,12 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 - (id)init {
 
     if ((self = [super init])) {
+
         self.session = [AVCaptureSession new];
         self.session.sessionPreset = AVCaptureSessionPresetHigh;
+
+        self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
+        self.previewLayer.needsDisplayOnBoundsChange = YES;
 
         self.sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
 
@@ -136,16 +139,19 @@ RCT_EXPORT_METHOD(changeCamera:(NSInteger)camera) {
         [self.session addInput:self.captureDeviceInput];
     }
 
-
     [self.session commitConfiguration];
 }
 
+RCT_EXPORT_METHOD(changeAspect:(NSString *)aspect) {
+    self.previewLayer.videoGravity = aspect;
+}
+
 RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
-    ((AVCaptureVideoPreviewLayer *)self.currentCamera.viewfinder.layer).connection.videoOrientation = orientation;
+    self.previewLayer.connection.videoOrientation = orientation;
 }
 
 RCT_EXPORT_METHOD(takePicture:(RCTResponseSenderBlock)callback) {
-    [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:((AVCaptureVideoPreviewLayer *)self.currentCamera.viewfinder.layer).connection.videoOrientation];
+    [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
 
         if (imageDataSampleBuffer)

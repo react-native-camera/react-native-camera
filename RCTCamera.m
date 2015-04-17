@@ -3,7 +3,6 @@
 #import "RCTCameraManager.h"
 #import "RCTLog.h"
 #import "RCTUtils.h"
-#import "ViewfinderView.h"
 
 #import <AVFoundation/AVFoundation.h>
 
@@ -11,7 +10,7 @@
 
 - (void)setAspect:(NSString *)aspect
 {
-    [(AVCaptureVideoPreviewLayer *)[_viewfinder layer] setVideoGravity:aspect];
+    [self.manager changeAspect:aspect];
 }
 
 - (void)setType:(NSInteger)camera
@@ -31,24 +30,18 @@
 
 - (id)initWithManager:(RCTCameraManager*)manager
 {
+
     if ((self = [super init])) {
         self.manager = manager;
-        self.viewfinder = [[ViewfinderView alloc] init];
-        self.viewfinder.session = self.manager.session;
     }
     return self;
-}
-
-- (NSArray *)reactSubviews
-{
-    NSArray *subviews = @[self.viewfinder];
-    return subviews;
 }
 
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    [self.viewfinder setFrame:self.bounds];
+    self.manager.previewLayer.frame = self.bounds;
+    [self.layer insertSublayer:self.manager.previewLayer atIndex:0];
 }
 
 - (void)insertReactSubview:(UIView *)view atIndex:(NSInteger)atIndex

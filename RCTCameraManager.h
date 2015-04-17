@@ -11,8 +11,9 @@
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
 @property (nonatomic) id runtimeErrorHandlingObserver;
 @property (nonatomic) NSInteger presetCamera;
-@property (nonatomic) RCTCamera *currentCamera;
+@property (nonatomic) AVCaptureVideoPreviewLayer *previewLayer;
 
+- (void)changeAspect:(NSString *)aspect;
 - (void)changeCamera:(NSInteger)camera;
 - (void)changeOrientation:(NSInteger)orientation;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;
