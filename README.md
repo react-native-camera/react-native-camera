@@ -81,6 +81,11 @@ The `orientation` property allows you to specify the current orientation of the 
 
 TODO: Add support for an `Auto` value to automatically adjust for orientation changes.
 
+#### `onBarCodeRead`
+
+Will call the specified method when a barcode is detected in the camera's view.
+
+Event contains `data` (the data in the barcode) and `bounds` (the rectangle which outlines the barcode.)
 
 ## Component methods
 

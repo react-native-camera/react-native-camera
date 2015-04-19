@@ -3,12 +3,13 @@
 
 @class RCTCamera;
 
-@interface RCTCameraManager : RCTViewManager
+@interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate>
 
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) AVCaptureSession *session;
 @property (nonatomic) AVCaptureDeviceInput *captureDeviceInput;
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
+@property (nonatomic) AVCaptureMetadataOutput *metadataOutput;
 @property (nonatomic) id runtimeErrorHandlingObserver;
 @property (nonatomic) NSInteger presetCamera;
 @property (nonatomic) AVCaptureVideoPreviewLayer *previewLayer;

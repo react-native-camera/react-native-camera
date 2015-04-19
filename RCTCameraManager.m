@@ -1,6 +1,7 @@
 #import "RCTCameraManager.h"
 #import "RCTCamera.h"
 #import "RCTBridge.h"
+#import "RCTEventDispatcher.h"
 #import "RCTUtils.h"
 #import "RCTLog.h"
 #import "UIView+React.h"
@@ -80,6 +81,14 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
                 stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
                 [self.session addOutput:stillImageOutput];
                 self.stillImageOutput = stillImageOutput;
+            }
+
+            AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
+            if ([self.session canAddOutput:metadataOutput]) {
+                [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
+                [self.session addOutput:metadataOutput];
+                [metadataOutput setMetadataObjectTypes:metadataOutput.availableMetadataObjectTypes];
+                self.metadataOutput = metadataOutput;
             }
 
             __weak RCTCameraManager *weakSelf = self;
@@ -166,6 +175,44 @@ RCT_EXPORT_METHOD(takePicture:(RCTResponseSenderBlock)callback) {
             callback(@[RCTMakeError(error.description, nil, nil)]);
         }
     }];
+}
+
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
+
+    NSArray *barcodeTypes = @[
+        AVMetadataObjectTypeUPCECode,
+        AVMetadataObjectTypeCode39Code,
+        AVMetadataObjectTypeCode39Mod43Code,
+        AVMetadataObjectTypeEAN13Code,
+        AVMetadataObjectTypeEAN8Code,
+        AVMetadataObjectTypeCode93Code,
+        AVMetadataObjectTypeCode128Code,
+        AVMetadataObjectTypePDF417Code,
+        AVMetadataObjectTypeQRCode,
+        AVMetadataObjectTypeAztecCode
+    ];
+
+    for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
+        for (id barcodeType in barcodeTypes) {
+            if (metadata.type == barcodeType) {
+
+                [self.bridge.eventDispatcher sendDeviceEventWithName:@"CameraBarCodeRead"
+                    body:@{
+                        @"data": metadata.stringValue,
+                        @"bounds": @{
+                            @"origin": @{
+                                @"x": [NSString stringWithFormat:@"%f", metadata.bounds.origin.x],
+                                @"y": [NSString stringWithFormat:@"%f", metadata.bounds.origin.y]
+                            },
+                            @"size": @{
+                                @"height": [NSString stringWithFormat:@"%f", metadata.bounds.size.height],
+                                @"width": [NSString stringWithFormat:@"%f", metadata.bounds.size.width],
+                            }
+                        }
+                    }];
+            }
+        }
+    }
 }
 
 

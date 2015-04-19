@@ -1,4 +1,5 @@
 var React = require('React');
+var DeviceEventEmitter = require('RCTDeviceEventEmitter');
 var NativeModules = require('NativeModules');
 var ReactIOSViewAttributes = require('ReactIOSViewAttributes');
 var StyleSheet = require('StyleSheet');
@@ -37,6 +38,11 @@ var Camera = React.createClass({
       this.state.isAuthorized = isAuthorized;
       this.setState(this.state);
     }).bind(this));
+    this.cameraBarCodeReadListener = DeviceEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead);
+  },
+
+  componentWillUnmount: function() {
+    this.cameraBarCodeReadListener.remove();
   },
 
   render: function() {
@@ -50,10 +56,14 @@ var Camera = React.createClass({
       style,
       aspect: aspect,
       type: type,
-      orientation: orientation,
+      orientation: orientation
     });
 
     return <RCTCamera {... nativeProps} />
+  },
+
+  _onBarCodeRead(e) {
+    this.props.onBarCodeRead && this.props.onBarCodeRead(e);
   },
 
   switch: function() {
