@@ -8,8 +8,8 @@
   "description": "A Camera component for React Native. Also reads barcodes.",
   "main": "Camera.ios.js",
   "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
-  "dependencies": {
-    "react-native": "0.3.1"
+  "peerDependencies": {
+    "react-native": "^0.4.0"
   },
   "keywords": [
     "react-native",
