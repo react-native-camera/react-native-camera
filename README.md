@@ -2,6 +2,8 @@
 
 A camera viewport for React Native. This module is currently in the very early stages of development.
 
+![](https://i.imgur.com/5j2JdUk.gif)
+
 ## Known Issues
 Below is a list of known issues. Pull requests are welcome for any of these issues!
 
