@@ -62,17 +62,19 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
             }
 
             AVCaptureDevice *captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
-            AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+            if (captureDevice != nil) {
+                AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
 
-            if (error)
-            {
-                NSLog(@"%@", error);
-            }
+                if (error)
+                {
+                    NSLog(@"%@", error);
+                }
 
-            if ([self.session canAddInput:captureDeviceInput])
-            {
-                [self.session addInput:captureDeviceInput];
-                self.captureDeviceInput = captureDeviceInput;
+                if ([self.session canAddInput:captureDeviceInput])
+                {
+                    [self.session addInput:captureDeviceInput];
+                    self.captureDeviceInput = captureDeviceInput;
+                }
             }
 
             AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
@@ -121,12 +123,17 @@ RCT_EXPORT_METHOD(changeCamera:(NSInteger)camera) {
     AVCaptureDevicePosition position = (AVCaptureDevicePosition)camera;
     AVCaptureDevice *captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:(AVCaptureDevicePosition)position];
 
+    if (captureDevice == nil) {
+        return;
+    }
+
     NSError *error = nil;
     AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
 
     if (error)
     {
         NSLog(@"%@", error);
+        return;
     }
 
     [self.session beginConfiguration];

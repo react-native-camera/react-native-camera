@@ -41,6 +41,7 @@
 {
     [super layoutSubviews];
     self.manager.previewLayer.frame = self.bounds;
+    [self setBackgroundColor:[UIColor redColor]];
     [self.layer insertSublayer:self.manager.previewLayer atIndex:0];
 }
 
