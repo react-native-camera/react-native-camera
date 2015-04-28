@@ -48,9 +48,9 @@ var Camera = React.createClass({
   render: function() {
     var style = flattenStyle([styles.base, this.props.style]);
 
-    aspect = NativeModules.CameraManager.aspects[this.state.aspect];
-    type = NativeModules.CameraManager.cameras[this.state.type];
-    orientation = NativeModules.CameraManager.orientations[this.state.orientation];
+    var aspect = NativeModules.CameraManager.aspects[this.state.aspect];
+    var type = NativeModules.CameraManager.cameras[this.state.type];
+    var orientation = NativeModules.CameraManager.orientations[this.state.orientation];
 
     var nativeProps = merge(this.props, {
       style,
