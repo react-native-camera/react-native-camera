@@ -8,16 +8,6 @@
 #import "UIImage+Resize.h"
 #import <AVFoundation/AVFoundation.h>
 
-typedef NS_ENUM(NSInteger, RCTCameraCaptureMode) {
-    RCTCameraCaptureModeStill = 0,
-    RCTCameraCaptureModeVideo = 1
-};
-
-typedef NS_ENUM(NSInteger, RCTCameraCaptureTarget) {
-    RCTCameraCaptureTargetMemory = 0,
-    RCTCameraCaptureTargetDisk = 1
-};
-
 @implementation RCTCameraManager
 
 RCT_EXPORT_MODULE();
@@ -35,13 +25,13 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 {
     return @{
       @"Aspect": @{
-        @"stretch": AVLayerVideoGravityResize,
-        @"fit": AVLayerVideoGravityResizeAspect,
-        @"fill": AVLayerVideoGravityResizeAspectFill
+        @"stretch": @(RCTCameraAspectStretch),
+        @"fit": @(RCTCameraAspectFit),
+        @"fill": @(RCTCameraAspectFill)
       },
-      @"Camera": @{
-        @"front": @(AVCaptureDevicePositionFront),
-        @"back": @(AVCaptureDevicePositionBack)
+      @"Type": @{
+        @"front": @(RCTCameraTypeFront),
+        @"back": @(RCTCameraTypeBack)
       },
       @"CaptureMode": @{
         @"still": @(RCTCameraCaptureModeStill),
@@ -52,10 +42,11 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
         @"disk": @(RCTCameraCaptureTargetDisk)
       },
       @"Orientation": @{
-        @"landscapeLeft": @(AVCaptureVideoOrientationLandscapeLeft),
-        @"landscapeRight": @(AVCaptureVideoOrientationLandscapeRight),
-        @"portrait": @(AVCaptureVideoOrientationPortrait),
-        @"portraitUpsideDown": @(AVCaptureVideoOrientationPortraitUpsideDown)
+        @"auto": @(RCTCameraOrientationAuto),
+        @"landscapeLeft": @(RCTCameraOrientationLandscapeLeft),
+        @"landscapeRight": @(RCTCameraOrientationLandscapeRight),
+        @"portrait": @(RCTCameraOrientationPortrait),
+        @"portraitUpsideDown": @(RCTCameraOrientationPortraitUpsideDown)
       }
     };
 }
@@ -119,7 +110,7 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
                     [strongSelf.session startRunning];
                 });
             }]];
-
+            
             [self.session startRunning];
         });
     }

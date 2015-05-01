@@ -12,7 +12,7 @@ var merge = require('merge');
 
 var constants = {
   Aspect: NativeModules.CameraManager.Aspect,
-  Camera: NativeModules.CameraManager.Camera,
+  Type: NativeModules.CameraManager.Type,
   CaptureMode: NativeModules.CameraManager.CaptureMode,
   CaptureTarget: NativeModules.CameraManager.CaptureTarget,
   Orientation: NativeModules.CameraManager.Orientation
@@ -20,9 +20,26 @@ var constants = {
 
 var Camera = React.createClass({
   propTypes: {
-    aspect: PropTypes.string,
-    type: PropTypes.string,
-    orientation: PropTypes.string,
+    aspect: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+    captureMode: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+    captureTarget: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+    type: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+    orientation: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ])
   },
 
   mixins: [NativeMethodsMixin],
@@ -35,8 +52,8 @@ var Camera = React.createClass({
   getDefaultProps() {
     return {
       aspect: constants.Aspect.fill,
-      type: constants.Camera.back,
-      orientation: constants.Orientation.portrait,
+      type: constants.Type.back,
+      orientation: constants.Orientation.auto,
       captureMode: constants.CaptureMode.still,
       captureTarget: constants.CaptureTarget.memory
     };
@@ -67,39 +84,53 @@ var Camera = React.createClass({
         type = this.props.type,
         orientation = this.props.orientation;
 
-    switch (aspect.toLowerCase()) {
-      case 'fill':
-        aspect = constants.Aspect.fill;
-        break;
-      case 'fit':
-        aspect = constants.Aspect.fit;
-        break;
-      case 'stretch':
-        aspect = constants.Aspect.stretch;
-        break;
-      default:
-        break;
-    }
+    var legacyProps = {
+      aspect: {
+        Fill: constants.Aspect.fill,
+        Fit: constants.Aspect.fit,
+        Stretch: constants.Aspect.stretch
+      },
+      orientation: {
+        LandscapeLeft: constants.Orientation.landscapeLeft,
+        LandscapeRight: constants.Orientation.landscapeRight,
+        Portrait: constants.Orientation.portrait,
+        PortraitUpsideDown: constants.Orientation.portraitUpsideDown
+      },
+      type: {
+        Front: constants.Type.front,
+        Back: constants.Type.back
+      }
+    };
 
-    if (typeof orientation !== 'number') {
-      switch (orientation.toLowerCase()) {
-        case 'landscapeleft':
-          orientation = constants.Orientation.landscapeLeft;
-          break;
-        case 'landscaperight':
-          orientation = constants.Orientation.landscapeRight;
-          break;
-        case 'portrait':
-          orientation = constants.Orientation.portrait;
-          break;
-        case 'portraitUpsideDown':
-          orientation = constants.Orientation.portraitUpsideDown;
-          break;
+    var foundLegacyAspect = legacyProps.aspect[aspect];
+    var foundLegacyOrientation = legacyProps.orientation[orientation];
+    var foundLegacyType = legacyProps.type[type];
+
+    if (__DEV__) {
+      if (foundLegacyAspect > -1) {
+        console.log(`RCTCamera: aspect="${aspect}" is deprecated, use aspect={Camera.constants.Aspect.${foundLegacyAspect}} instead.`);
+        aspect = foundLegacyAspect;
+      }
+      if (foundLegacyOrientation > -1) {
+        console.log(`RCTCamera: orientation="${orientation}" is deprecated, use orientation={Camera.constants.Orientation.${foundLegacyOrientation}} instead.`);
+        orientation = foundLegacyOrientation;
+      }
+      if (foundLegacyType > -1) {
+        console.log(`RCTCamera: type="${type}" is deprecated, use type={Camera.constants.Type.${foundLegacyType}} instead.`);
+        type = foundLegacyType;
       }
     }
 
-    if (typeof type !== 'number') {
-      type = constants.Camera[type];
+    if (typeof aspect === 'string') {
+      aspect = constants.Aspect[aspect];
+    }
+
+    if (typeof orientation === 'string') {
+      orientation = constants.Orientation[orientation];
+    }
+
+    if (typeof type === 'string') {
+      type = constants.Type[type];
     }
 
     var nativeProps = merge(this.props, {
@@ -127,6 +158,14 @@ var Camera = React.createClass({
       mode: this.props.captureMode,
       target: this.props.captureTarget
     }, options);
+
+    if (typeof options.mode === 'string') {
+      options.mode = constants.CaptureMode[options.mode];
+    }
+
+    if (typeof options.target === 'string') {
+      options.target = constants.CaptureMode[options.target];
+    }
 
     NativeModules.CameraManager.capture(options, cb);
   }

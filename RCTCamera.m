@@ -13,19 +13,26 @@
     [self.manager changeAspect:aspect];
 }
 
-- (void)setType:(NSInteger)camera
+- (void)setType:(NSInteger)type
 {
     if (self.manager.session.isRunning) {
-        [self.manager changeCamera:camera];
+        [self.manager changeCamera:type];
     }
     else {
-        self.manager.presetCamera = camera;
+        self.manager.presetCamera = type;
     }
 }
 
 - (void)setOrientation:(NSInteger)orientation
 {
-    [self.manager changeOrientation:orientation];
+    if (orientation == RCTCameraOrientationAuto) {
+        [self.manager changeOrientation:[UIApplication sharedApplication].statusBarOrientation];
+        [[NSNotificationCenter defaultCenter] addObserver:self  selector:@selector(orientationChanged:)    name:UIDeviceOrientationDidChangeNotification  object:nil];
+    }
+    else {
+        [[NSNotificationCenter defaultCenter]removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+        [self.manager changeOrientation:orientation];
+    }
 }
 
 - (id)initWithManager:(RCTCameraManager*)manager
@@ -41,7 +48,7 @@
 {
     [super layoutSubviews];
     self.manager.previewLayer.frame = self.bounds;
-    [self setBackgroundColor:[UIColor redColor]];
+    [self setBackgroundColor:[UIColor blackColor]];
     [self.layer insertSublayer:self.manager.previewLayer atIndex:0];
 }
 
@@ -55,6 +62,11 @@
 {
     [subview removeFromSuperview];
     return;
+}
+
+- (void)orientationChanged:(NSNotification *)notification{
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    [self.manager changeOrientation:orientation];
 }
 
 @end

@@ -3,6 +3,35 @@
 
 @class RCTCamera;
 
+typedef NS_ENUM(NSInteger, RCTCameraAspect) {
+    RCTCameraAspectFill = 0,
+    RCTCameraAspectFit = 1,
+    RCTCameraAspectStretch = 2
+};
+
+typedef NS_ENUM(NSInteger, RCTCameraCaptureMode) {
+    RCTCameraCaptureModeStill = 0,
+    RCTCameraCaptureModeVideo = 1
+};
+
+typedef NS_ENUM(NSInteger, RCTCameraCaptureTarget) {
+    RCTCameraCaptureTargetMemory = 0,
+    RCTCameraCaptureTargetDisk = 1
+};
+
+typedef NS_ENUM(NSInteger, RCTCameraOrientation) {
+    RCTCameraOrientationAuto = 0,
+    RCTCameraOrientationLandscapeLeft = AVCaptureVideoOrientationLandscapeLeft,
+    RCTCameraOrientationLandscapeRight = AVCaptureVideoOrientationLandscapeRight,
+    RCTCameraOrientationPortrait = AVCaptureVideoOrientationPortrait,
+    RCTCameraOrientationPortraitUpsideDown = AVCaptureVideoOrientationPortraitUpsideDown
+};
+
+typedef NS_ENUM(NSInteger, RCTCameraType) {
+    RCTCameraTypeFront = AVCaptureDevicePositionFront,
+    RCTCameraTypeBack = AVCaptureDevicePositionBack
+};
+
 @interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate>
 
 @property (nonatomic) dispatch_queue_t sessionQueue;
@@ -18,7 +47,6 @@
 - (void)changeCamera:(NSInteger)camera;
 - (void)changeOrientation:(NSInteger)orientation;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;
-- (void)takePicture:(RCTResponseSenderBlock)callback;
-- (void)capturePictureToDisk:(RCTResponseSenderBlock)callback;
+- (void)capture:(NSDictionary*)options callback:(RCTResponseSenderBlock)callback;
 
 @end

@@ -7,7 +7,6 @@ A camera module for React Native.
 ## Known Issues
 Below is a list of known issues. Pull requests are welcome for any of these issues!
 
-- Orientation is not set correctly upon device rotation
 - Stills captured to disk will not be cleaned up and thus must be managed manually for now
 
 ## Getting started
@@ -38,7 +37,7 @@ var Camera = require('react-native-camera');
 var cameraApp = React.createClass({
   getInitialState() {
     return {
-      cameraType: Camera.constants.Camera.back
+      cameraType: Camera.constants.Type.back
     }
   },
 
@@ -75,12 +74,11 @@ var cameraApp = React.createClass({
   },
   _switchCamera() {
     var state = this.state;
-    state.cameraType = state.cameraType === Camera.constants.Camera.back
-      ? Camera.constants.Camera.front : Camera.constants.Camera.back;
+    state.cameraType = state.cameraType === Camera.constants.Type.back
+      ? Camera.constants.Type.front : Camera.constants.Type.back;
     this.setState(state);
   },
   _takePicture() {
-    var that = this;
     this.refs.cam.capture(function(err, data) {
       console.log(err, data);
     });
@@ -114,18 +112,18 @@ This property allows you to specify the target output of the captured image data
 
 #### `type`
 
-Values: `Camera.constants.Camera.front` or `"front"`, `Camera.constants.Camera.back` or `"back"` (default)
+Values: `Camera.constants.Type.front` or `"front"`, `Camera.constants.Type.back` or `"back"` (default)
 
 Use the `type` property to specify which camera to use.
 
 
 #### `orientation`
 
-Values: `Camera.constants.Orientation.landscapeLeft` or `"landscapeLeft"`, `Camera.constants.Orientation.landscapeRight` or `"landscapeRight"`, `Camera.constants.Orientation.portrait` or `"portrait"` (default), `Camera.constants.Orientation.portraitUpsideDown` or `"portraitUpsideDown"`
+Values:
+`Camera.constants.Orientation.auto` or `"auto"` (default),
+`Camera.constants.Orientation.landscapeLeft` or `"landscapeLeft"`, `Camera.constants.Orientation.landscapeRight` or `"landscapeRight"`, `Camera.constants.Orientation.portrait` or `"portrait"`, `Camera.constants.Orientation.portraitUpsideDown` or `"portraitUpsideDown"`
 
 The `orientation` property allows you to specify the current orientation of the phone to ensure the viewfinder is "the right way up."
-
-*TODO: Add support for an `Auto` value to automatically adjust for orientation changes.*
 
 #### `onBarCodeRead`
 
@@ -151,7 +149,7 @@ These are some features I think would be important/beneficial to have included w
 
 - [ ] Video support
 - [ ] Flash mode setting
-- [ ] Automatic orientation adjustment
+- [x] Automatic orientation adjustment
 - [ ] Tap to focus
 - [ ] Optional facial recognition (w/ ability to style box around face)
 
