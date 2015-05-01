@@ -73,7 +73,12 @@ var Camera = React.createClass({
 
   takePicture: function(cb) {
     NativeModules.CameraManager.takePicture(cb);
+  },
+
+  capturePictureToDisk: function(cb) {
+    NativeModules.CameraManager.capturePictureToDisk(cb)
   }
+
 });
 
 var RCTCamera = createReactIOSNativeComponentClass({
