@@ -8,6 +8,16 @@
 #import "UIImage+Resize.h"
 #import <AVFoundation/AVFoundation.h>
 
+typedef NS_ENUM(NSInteger, RCTCameraCaptureMode) {
+    RCTCameraCaptureModeStill = 0,
+    RCTCameraCaptureModeVideo = 1
+};
+
+typedef NS_ENUM(NSInteger, RCTCameraCaptureTarget) {
+    RCTCameraCaptureTargetMemory = 0,
+    RCTCameraCaptureTargetDisk = 1
+};
+
 @implementation RCTCameraManager
 
 RCT_EXPORT_MODULE();
@@ -32,6 +42,14 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
       @"Camera": @{
         @"front": @(AVCaptureDevicePositionFront),
         @"back": @(AVCaptureDevicePositionBack)
+      },
+      @"CaptureMode": @{
+        @"still": @(RCTCameraCaptureModeStill),
+        @"video": @(RCTCameraCaptureModeVideo)
+      },
+      @"CaptureTarget": @{
+        @"memory": @(RCTCameraCaptureTargetMemory),
+        @"disk": @(RCTCameraCaptureTargetDisk)
       },
       @"Orientation": @{
         @"landscapeLeft": @(AVCaptureVideoOrientationLandscapeLeft),
@@ -166,25 +184,19 @@ RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
     self.previewLayer.connection.videoOrientation = orientation;
 }
 
-RCT_EXPORT_METHOD(takePicture:(RCTResponseSenderBlock)callback) {
-    [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
-    [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
-
-        if (imageDataSampleBuffer)
-        {
-            NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-            UIImage *image = [UIImage imageWithData:imageData];
-            UIImage *rotatedImage = [image resizedImage:CGSizeMake(image.size.width, image.size.height) interpolationQuality:kCGInterpolationDefault];
-            NSString *imageBase64 = [UIImageJPEGRepresentation(rotatedImage, 1.0) base64EncodedStringWithOptions:0];
-            callback(@[[NSNull null], imageBase64]);
-        }
-        else {
-            callback(@[RCTMakeError(error.description, nil, nil)]);
-        }
-    }];
+RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback) {
+    NSInteger captureMode = [[options valueForKey:@"mode"] intValue];
+    NSInteger captureTarget = [[options valueForKey:@"target"] intValue];
+    
+    if (captureMode == RCTCameraCaptureModeStill) {
+        [self captureStill:captureTarget callback:callback];
+    }
+    else if (captureMode == RCTCameraCaptureModeVideo) {
+        // waiting for incoming PRs
+    }
 }
 
-RCT_EXPORT_METHOD(capturePictureToDisk:(RCTResponseSenderBlock)callback) {
+-(void)captureStill:(NSInteger)target callback:(RCTResponseSenderBlock)callback {
     [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
 
@@ -193,10 +205,16 @@ RCT_EXPORT_METHOD(capturePictureToDisk:(RCTResponseSenderBlock)callback) {
             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
             UIImage *image = [UIImage imageWithData:imageData];
             UIImage *rotatedImage = [image resizedImage:CGSizeMake(image.size.width, image.size.height) interpolationQuality:kCGInterpolationDefault];
-            NSString *uuid = [[NSUUID UUID] UUIDString];
-            NSString *fullPath = [self saveImage:rotatedImage withName:uuid];
-
-            callback(@[[NSNull null], fullPath]);
+            
+            NSString *responseString;
+            
+            if (target == RCTCameraCaptureTargetMemory) {
+                responseString = [UIImageJPEGRepresentation(rotatedImage, 1.0) base64EncodedStringWithOptions:0];
+            }
+            else if (target == RCTCameraCaptureTargetDisk) {
+                responseString = [self saveImage:rotatedImage withName:[[NSUUID UUID] UUIDString]];
+            }
+            callback(@[[NSNull null], responseString]);
         }
         else {
             callback(@[RCTMakeError(error.description, nil, nil)]);
@@ -211,7 +229,6 @@ RCT_EXPORT_METHOD(capturePictureToDisk:(RCTResponseSenderBlock)callback) {
     NSData *data = UIImageJPEGRepresentation(image, 1.0);
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *fullPath = [documentsDirectory stringByAppendingPathComponent:name];
-    NSLog(@"writing path %@", fullPath);
 
     [fileManager createFileAtPath:fullPath contents:data attributes:nil];
     return fullPath;

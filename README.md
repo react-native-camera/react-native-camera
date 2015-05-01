@@ -1,6 +1,6 @@
 # react-native-camera
 
-A camera viewport for React Native. This module is currently in the very early stages of development.
+A camera module for React Native.
 
 ![](https://i.imgur.com/5j2JdUk.gif)
 
@@ -8,6 +8,7 @@ A camera viewport for React Native. This module is currently in the very early s
 Below is a list of known issues. Pull requests are welcome for any of these issues!
 
 - Orientation is not set correctly upon device rotation
+- Stills captured to disk will not be cleaned up and thus must be managed manually for now
 
 ## Getting started
 
@@ -35,25 +36,54 @@ var {
 var Camera = require('react-native-camera');
 
 var cameraApp = React.createClass({
-  render: function() {
+  getInitialState() {
+    return {
+      cameraType: Camera.constants.Camera.back
+    }
+  },
+
+  render() {
+
     return (
-      <View>
+      <Camera
+        ref="cam"
+        style={styles.container}
+        onBarCodeRead={this._onBarCodeRead}
+        type={this.state.cameraType}
+      >
+        <Text style={styles.welcome}>
+          Welcome to React Native!
+        </Text>
+        <Text style={styles.instructions}>
+          To get started, edit index.ios.js{'\n'}
+          Press Cmd+R to reload
+        </Text>
+        <View>
+          {preview}
+        </View>
         <TouchableHighlight onPress={this._switchCamera}>
-          <View>
-            <Camera
-              ref="cam"
-              aspect="Stretch"
-              type="Front"
-              orientation="PortraitUpsideDown"
-              style={{height: 200, width: 200}}
-            />
-          </View>
+          <Text>The old switcheroo</Text>
         </TouchableHighlight>
-      </View>
+        <TouchableHighlight onPress={this._takePicture}>
+          <Text>Take Picture</Text>
+        </TouchableHighlight>
+      </Camera>
     );
   },
-  _switchCamera: function() {
-    this.refs.cam.switch();
+  _onBarCodeRead(e) {
+    console.log(e);
+  },
+  _switchCamera() {
+    var state = this.state;
+    state.cameraType = state.cameraType === Camera.constants.Camera.back
+      ? Camera.constants.Camera.front : Camera.constants.Camera.back;
+    this.setState(state);
+  },
+  _takePicture() {
+    var that = this;
+    this.refs.cam.capture(function(err, data) {
+      console.log(err, data);
+    });
   }
 });
 
@@ -64,24 +94,38 @@ AppRegistry.registerComponent('cameraApp', () => cameraApp);
 
 #### `aspect`
 
-Values: `Fit`, `Fill` (default), `Stretch`
+Values: `Camera.constants.Aspect.fit` or `"fit"`, `Camera.constants.Aspect.fill` or `"fill"` (default), `Camera.constants.Aspect.stretch` or `"stretch"`
 
-The `aspect` property allows you to define how your viewfinder renders the camera's view. For instance, if you have a square viewfinder and you want to fill the it entirely, you have two options: `Fill`, where the aspect ratio of the camera's view is preserved by cropping the view or `Stretch`, where the aspect ratio is skewed in order to fit the entire image inside the viewfinder. The other option is `Fit`, which ensures the camera's entire view fits inside your viewfinder without altering the aspect ratio.
+The `aspect` property allows you to define how your viewfinder renders the camera's view. For instance, if you have a square viewfinder and you want to fill the it entirely, you have two options: `"fill"`, where the aspect ratio of the camera's view is preserved by cropping the view or `"stretch"`, where the aspect ratio is skewed in order to fit the entire image inside the viewfinder. The other option is `"fit"`, which ensures the camera's entire view fits inside your viewfinder without altering the aspect ratio.
+
+
+#### `captureMode`
+
+Values: `Camera.constants.CaptureMode.still` (default)
+
+The type of capture that will be performed by the camera - either a still image or (hopefully soon, video).
+
+#### `captureTarget`
+
+Values: `Camera.constants.CaptureTarget.memory` (default), `Camera.constants.CaptureTarget.disk`
+
+This property allows you to specify the target output of the captured image data. By default the image binary is sent back as a base 64 encoded string. The disk output has been shown to improve capture response time, so that is the recommended value.
+
 
 #### `type`
 
-Values: `Front`, `Back` (default)
+Values: `Camera.constants.Camera.front` or `"front"`, `Camera.constants.Camera.back` or `"back"` (default)
 
 Use the `type` property to specify which camera to use.
 
 
 #### `orientation`
 
-Values: `LandscapeLeft`, `LandscapeRight`, `Portrait` (default), `PortraitUpsideDown`
+Values: `Camera.constants.Orientation.landscapeLeft` or `"landscapeLeft"`, `Camera.constants.Orientation.landscapeRight` or `"landscapeRight"`, `Camera.constants.Orientation.portrait` or `"portrait"` (default), `Camera.constants.Orientation.portraitUpsideDown` or `"portraitUpsideDown"`
 
 The `orientation` property allows you to specify the current orientation of the phone to ensure the viewfinder is "the right way up."
 
-TODO: Add support for an `Auto` value to automatically adjust for orientation changes.
+*TODO: Add support for an `Auto` value to automatically adjust for orientation changes.*
 
 #### `onBarCodeRead`
 
@@ -89,18 +133,15 @@ Will call the specified method when a barcode is detected in the camera's view.
 
 Event contains `data` (the data in the barcode) and `bounds` (the rectangle which outlines the barcode.)
 
+*TODO: Only emit one event for each barcode scanned.*
+
 ## Component methods
 
-You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to your `<Camera>` element, then you can use `this.refs.camera.switch()`, etc. inside your component.
+You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to your `<Camera>` element, then you can use `this.refs.camera.capture(cb)`, etc. inside your component.
 
-#### `switch()`
+#### `capture([options,] callback)`
 
-The `switch()` method toggles between the `Front` and `Back` cameras.
-
-
-#### `takePicture(callback)`
-
-Basic implementation of image capture. This method is subject to change, but currently works by accepting a callback like `function(err, base64EncodedJpeg) { ... }`.
+Captures data from the camera. What is captured is based on the `captureMode` and `captureTarget` props. `captureMode` tells the camera whether you want a still image or -- in the future, this is not currently supported -- video. `captureTarget` allows you to specify how you want the data to be captured and sent back to you. The available `target`s are `Camera.constants.CaptureTarget.memory` and `Camera.constants.CaptureTarget.disk` - the latter has been shown to dramatically improve camera performance.
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.

@@ -10,6 +10,14 @@ var NativeMethodsMixin = require('NativeMethodsMixin');
 var flattenStyle = require('flattenStyle');
 var merge = require('merge');
 
+var constants = {
+  Aspect: NativeModules.CameraManager.Aspect,
+  Camera: NativeModules.CameraManager.Camera,
+  CaptureMode: NativeModules.CameraManager.CaptureMode,
+  CaptureTarget: NativeModules.CameraManager.CaptureTarget,
+  Orientation: NativeModules.CameraManager.Orientation
+};
+
 var Camera = React.createClass({
   propTypes: {
     aspect: PropTypes.string,
@@ -24,34 +32,23 @@ var Camera = React.createClass({
     validAttributes: ReactIOSViewAttributes.UIView
   },
 
-  Aspect: {
-    stretch: NativeModules.CameraManager.Aspect.stretch,
-    fit: NativeModules.CameraManager.Aspect.fit,
-    fill: NativeModules.CameraManager.Aspect.fill
-  },
-
-  Camera: {
-    front: NativeModules.CameraManager.Camera.front,
-    back: NativeModules.CameraManager.Camera.back
-  },
-
-  Orientation: {
-    landscapeLeft: NativeModules.CameraManager.Orientation.landscapeLeft,
-    landscapeRight: NativeModules.CameraManager.Orientation.landscapeRight,
-    portrait: NativeModules.CameraManager.Orientation.portrait,
-    portraitUpsideDown: NativeModules.CameraManager.Orientation.portraitUpsideDown
-  },
-
-  getInitialState: function() {
+  getDefaultProps() {
     return {
-      isAuthorized: false,
-      aspect: this.props.aspect || 'Fill',
-      type: this.props.type || 'Back',
-      orientation: this.props.orientation || 'Portrait'
+      aspect: constants.Aspect.fill,
+      type: constants.Camera.back,
+      orientation: constants.Orientation.portrait,
+      captureMode: constants.CaptureMode.still,
+      captureTarget: constants.CaptureTarget.memory
     };
   },
 
-  componentWillMount: function() {
+  getInitialState() {
+    return {
+      isAuthorized: false
+    };
+  },
+
+  componentWillMount() {
     NativeModules.CameraManager.checkDeviceAuthorizationStatus((function(err, isAuthorized) {
       this.state.isAuthorized = isAuthorized;
       this.setState(this.state);
@@ -59,16 +56,51 @@ var Camera = React.createClass({
     this.cameraBarCodeReadListener = DeviceEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead);
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount() {
     this.cameraBarCodeReadListener.remove();
   },
 
-  render: function() {
+  render() {
     var style = flattenStyle([styles.base, this.props.style]);
 
-    var aspect = NativeModules.CameraManager.aspects[this.state.aspect];
-    var type = NativeModules.CameraManager.cameras[this.state.type];
-    var orientation = NativeModules.CameraManager.orientations[this.state.orientation];
+    var aspect = this.props.aspect,
+        type = this.props.type,
+        orientation = this.props.orientation;
+
+    switch (aspect.toLowerCase()) {
+      case 'fill':
+        aspect = constants.Aspect.fill;
+        break;
+      case 'fit':
+        aspect = constants.Aspect.fit;
+        break;
+      case 'stretch':
+        aspect = constants.Aspect.stretch;
+        break;
+      default:
+        break;
+    }
+
+    if (typeof orientation !== 'number') {
+      switch (orientation.toLowerCase()) {
+        case 'landscapeleft':
+          orientation = constants.Orientation.landscapeLeft;
+          break;
+        case 'landscaperight':
+          orientation = constants.Orientation.landscapeRight;
+          break;
+        case 'portrait':
+          orientation = constants.Orientation.portrait;
+          break;
+        case 'portraitUpsideDown':
+          orientation = constants.Orientation.portraitUpsideDown;
+          break;
+      }
+    }
+
+    if (typeof type !== 'number') {
+      type = constants.Camera[type];
+    }
 
     var nativeProps = merge(this.props, {
       style,
@@ -84,17 +116,19 @@ var Camera = React.createClass({
     this.props.onBarCodeRead && this.props.onBarCodeRead(e);
   },
 
-  switch: function() {
-    this.state.type = this.state.type == 'Back' ? 'Front' : 'Back';
-    this.setState(this.state);
-  },
+  capture(options, cb) {
 
-  takePicture: function(cb) {
-    NativeModules.CameraManager.takePicture(cb);
-  },
+    if (arguments.length == 1) {
+      cb = options;
+      options = {};
+    }
 
-  capturePictureToDisk: function(cb) {
-    NativeModules.CameraManager.capturePictureToDisk(cb)
+    options = Object.assign({}, {
+      mode: this.props.captureMode,
+      target: this.props.captureTarget
+    }, options);
+
+    NativeModules.CameraManager.capture(options, cb);
   }
 
 });
@@ -112,4 +146,5 @@ var styles = StyleSheet.create({
   base: { },
 });
 
+Camera.constants = constants;
 module.exports = Camera;
