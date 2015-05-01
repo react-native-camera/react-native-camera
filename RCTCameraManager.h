@@ -19,5 +19,6 @@
 - (void)changeOrientation:(NSInteger)orientation;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;
 - (void)takePicture:(RCTResponseSenderBlock)callback;
+- (void)capturePictureToDisk:(RCTResponseSenderBlock)callback;
 
 @end
