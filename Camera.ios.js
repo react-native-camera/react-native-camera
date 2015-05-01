@@ -24,6 +24,24 @@ var Camera = React.createClass({
     validAttributes: ReactIOSViewAttributes.UIView
   },
 
+  Aspect: {
+    stretch: NativeModules.CameraManager.Aspect.stretch,
+    fit: NativeModules.CameraManager.Aspect.fit,
+    fill: NativeModules.CameraManager.Aspect.fill
+  },
+
+  Camera: {
+    front: NativeModules.CameraManager.Camera.front,
+    back: NativeModules.CameraManager.Camera.back
+  },
+
+  Orientation: {
+    landscapeLeft: NativeModules.CameraManager.Orientation.landscapeLeft,
+    landscapeRight: NativeModules.CameraManager.Orientation.landscapeRight,
+    portrait: NativeModules.CameraManager.Orientation.portrait,
+    portraitUpsideDown: NativeModules.CameraManager.Orientation.portraitUpsideDown
+  },
+
   getInitialState: function() {
     return {
       isAuthorized: false,

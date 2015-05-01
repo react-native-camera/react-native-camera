@@ -24,20 +24,20 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 - (NSDictionary *)constantsToExport
 {
     return @{
-      @"aspects": @{
-        @"Stretch": AVLayerVideoGravityResize,
-        @"Fit": AVLayerVideoGravityResizeAspect,
-        @"Fill": AVLayerVideoGravityResizeAspectFill
+      @"Aspect": @{
+        @"stretch": AVLayerVideoGravityResize,
+        @"fit": AVLayerVideoGravityResizeAspect,
+        @"fill": AVLayerVideoGravityResizeAspectFill
       },
-      @"cameras": @{
-        @"Front": @(AVCaptureDevicePositionFront),
-        @"Back": @(AVCaptureDevicePositionBack)
+      @"Camera": @{
+        @"front": @(AVCaptureDevicePositionFront),
+        @"back": @(AVCaptureDevicePositionBack)
       },
-      @"orientations": @{
-        @"LandscapeLeft": @(AVCaptureVideoOrientationLandscapeLeft),
-        @"LandscapeRight": @(AVCaptureVideoOrientationLandscapeRight),
-        @"Portrait": @(AVCaptureVideoOrientationPortrait),
-        @"PortraitUpsideDown": @(AVCaptureVideoOrientationPortraitUpsideDown)
+      @"Orientation": @{
+        @"landscapeLeft": @(AVCaptureVideoOrientationLandscapeLeft),
+        @"landscapeRight": @(AVCaptureVideoOrientationLandscapeRight),
+        @"portrait": @(AVCaptureVideoOrientationPortrait),
+        @"portraitUpsideDown": @(AVCaptureVideoOrientationPortraitUpsideDown)
       }
     };
 }
