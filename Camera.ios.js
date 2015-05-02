@@ -86,19 +86,19 @@ var Camera = React.createClass({
 
     var legacyProps = {
       aspect: {
-        Fill: constants.Aspect.fill,
-        Fit: constants.Aspect.fit,
-        Stretch: constants.Aspect.stretch
+        Fill: 'fill',
+        Fit: 'fit',
+        Stretch: 'stretch'
       },
       orientation: {
-        LandscapeLeft: constants.Orientation.landscapeLeft,
-        LandscapeRight: constants.Orientation.landscapeRight,
-        Portrait: constants.Orientation.portrait,
-        PortraitUpsideDown: constants.Orientation.portraitUpsideDown
+        LandscapeLeft: 'landscapeLeft',
+        LandscapeRight: 'landscapeRight',
+        Portrait: 'portrait',
+        PortraitUpsideDown: 'portraitUpsideDown'
       },
       type: {
-        Front: constants.Type.front,
-        Back: constants.Type.back
+        Front: 'front',
+        Back: 'back'
       }
     };
 
@@ -107,17 +107,17 @@ var Camera = React.createClass({
     var foundLegacyType = legacyProps.type[type];
 
     if (__DEV__) {
-      if (foundLegacyAspect > -1) {
+      if (foundLegacyAspect) {
         console.log(`RCTCamera: aspect="${aspect}" is deprecated, use aspect={Camera.constants.Aspect.${foundLegacyAspect}} instead.`);
-        aspect = foundLegacyAspect;
+        aspect = constants.Aspect[foundLegacyAspect];
       }
-      if (foundLegacyOrientation > -1) {
+      if (foundLegacyOrientation) {
         console.log(`RCTCamera: orientation="${orientation}" is deprecated, use orientation={Camera.constants.Orientation.${foundLegacyOrientation}} instead.`);
-        orientation = foundLegacyOrientation;
+        orientation = constants.Orientation[foundLegacyOrientation];
       }
-      if (foundLegacyType > -1) {
+      if (foundLegacyType) {
         console.log(`RCTCamera: type="${type}" is deprecated, use type={Camera.constants.Type.${foundLegacyType}} instead.`);
-        type = foundLegacyType;
+        type = constants.Type[foundLegacyType];
       }
     }
 
