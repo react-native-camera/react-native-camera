@@ -8,9 +8,22 @@
 
 @implementation RCTCamera
 
-- (void)setAspect:(NSString *)aspect
+- (void)setAspect:(NSInteger)aspect
 {
-    [self.manager changeAspect:aspect];
+    NSString *aspectString;
+    switch (aspect) {
+      default:
+      case RCTCameraAspectFill:
+        aspectString = AVLayerVideoGravityResizeAspectFill;
+        break;
+      case RCTCameraAspectFit:
+        aspectString = AVLayerVideoGravityResizeAspect;
+        break;
+      case RCTCameraAspectStretch:
+        aspectString = AVLayerVideoGravityResize;
+        break;
+    }
+    [self.manager changeAspect:aspectString];
 }
 
 - (void)setType:(NSInteger)type
