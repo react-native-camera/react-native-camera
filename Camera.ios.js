@@ -164,7 +164,7 @@ var Camera = React.createClass({
     }
 
     if (typeof options.target === 'string') {
-      options.target = constants.CaptureMode[options.target];
+      options.target = constants.CaptureTarget[options.target];
     }
 
     NativeModules.CameraManager.capture(options, cb);
