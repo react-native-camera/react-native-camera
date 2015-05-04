@@ -17,7 +17,7 @@ RCT_EXPORT_MODULE();
     return [[RCTCamera alloc] initWithManager:self];
 }
 
-RCT_EXPORT_VIEW_PROPERTY(aspect, NSString);
+RCT_EXPORT_VIEW_PROPERTY(aspect, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(type, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 
