@@ -57,9 +57,6 @@ var cameraApp = React.createClass({
           To get started, edit index.ios.js{'\n'}
           Press Cmd+R to reload
         </Text>
-        <View>
-          {preview}
-        </View>
         <TouchableHighlight onPress={this._switchCamera}>
           <Text>The old switcheroo</Text>
         </TouchableHighlight>
@@ -83,6 +80,25 @@ var cameraApp = React.createClass({
       console.log(err, data);
     });
   }
+});
+
+
+var styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  welcome: {
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 10,
+  },
+  instructions: {
+    textAlign: 'center',
+    color: '#333333',
+  },
 });
 
 AppRegistry.registerComponent('cameraApp', () => cameraApp);
