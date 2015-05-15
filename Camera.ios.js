@@ -1,9 +1,9 @@
 var React = require('React');
 var DeviceEventEmitter = require('RCTDeviceEventEmitter');
 var NativeModules = require('NativeModules');
-var ReactIOSViewAttributes = require('ReactIOSViewAttributes');
+var ReactNativeViewAttributes = require('ReactNativeViewAttributes');
 var StyleSheet = require('StyleSheet');
-var createReactIOSNativeComponentClass = require('createReactIOSNativeComponentClass');
+var createReactNativeComponentClass = require('createReactNativeComponentClass');
 var PropTypes = require('ReactPropTypes');
 var StyleSheetPropType = require('StyleSheetPropType');
 var NativeMethodsMixin = require('NativeMethodsMixin');
@@ -46,7 +46,7 @@ var Camera = React.createClass({
 
   viewConfig: {
     uiViewClassName: 'UIView',
-    validAttributes: ReactIOSViewAttributes.UIView
+    validAttributes: ReactNativeViewAttributes.UIView
   },
 
   getDefaultProps() {
@@ -172,8 +172,8 @@ var Camera = React.createClass({
 
 });
 
-var RCTCamera = createReactIOSNativeComponentClass({
-  validAttributes: merge(ReactIOSViewAttributes.UIView, {
+var RCTCamera = createReactNativeComponentClass({
+  validAttributes: merge(ReactNativeViewAttributes.UIView, {
     aspect: true,
     type: true,
     orientation: true
