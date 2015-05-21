@@ -46,6 +46,7 @@ typedef NS_ENUM(NSInteger, RCTCameraType) {
 - (void)changeAspect:(NSString *)aspect;
 - (void)changeCamera:(NSInteger)camera;
 - (void)changeOrientation:(NSInteger)orientation;
+- (void)changeTorchToLevel:(float)torchLevel;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;
 - (void)capture:(NSDictionary*)options callback:(RCTResponseSenderBlock)callback;
 

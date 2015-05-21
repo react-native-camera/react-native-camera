@@ -141,6 +141,12 @@ Values:
 
 The `orientation` property allows you to specify the current orientation of the phone to ensure the viewfinder is "the right way up."
 
+#### `torchLevel`
+
+Value: A floating-point number between 0.0 (default) and 1.0.
+
+Use the `torchLevel` property to turn the torch mode on (> 0.0) or off (0.0).
+
 #### `onBarCodeRead`
 
 Will call the specified method when a barcode is detected in the camera's view.

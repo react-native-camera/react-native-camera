@@ -20,6 +20,7 @@ RCT_EXPORT_MODULE();
 RCT_EXPORT_VIEW_PROPERTY(aspect, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(type, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
+RCT_EXPORT_VIEW_PROPERTY(torchLevel, float);
 
 - (NSDictionary *)constantsToExport
 {
@@ -173,6 +174,32 @@ RCT_EXPORT_METHOD(changeAspect:(NSString *)aspect) {
 
 RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
     self.previewLayer.connection.videoOrientation = orientation;
+}
+
+RCT_EXPORT_METHOD(changeTorchToLevel:(float)torchLevel) {
+    AVCaptureDevice *device = [self.captureDeviceInput device];
+    NSError *error = nil;
+    BOOL success = NO;
+    
+    if ([device hasTorch]) {
+        if ([device lockForConfiguration:&error])
+        {
+            if (torchLevel <= 0.0) {
+                [device setTorchMode:AVCaptureTorchModeOff];
+            }
+            else {
+                if (torchLevel >= 1.0)
+                    torchLevel = AVCaptureMaxAvailableTorchLevel;
+                success = [device setTorchModeOnWithLevel:torchLevel error:&error];
+                NSLog(@"%@", error);
+            }
+            [device unlockForConfiguration];
+        }
+        else
+        {
+            NSLog(@"%@", error);
+        }
+    }
 }
 
 RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback) {
