@@ -48,6 +48,11 @@
     }
 }
 
+- (void)setTorchLevel:(float)torchLevel
+{
+    [self.manager changeTorchToLevel:torchLevel];
+}
+
 - (id)initWithManager:(RCTCameraManager*)manager
 {
 

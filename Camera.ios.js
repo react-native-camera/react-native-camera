@@ -39,7 +39,8 @@ var Camera = React.createClass({
     orientation: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
-    ])
+    ]),
+    torchLevel: PropTypes.number
   },
 
   mixins: [NativeMethodsMixin],
@@ -55,7 +56,8 @@ var Camera = React.createClass({
       type: constants.Type.back,
       orientation: constants.Orientation.auto,
       captureMode: constants.CaptureMode.still,
-      captureTarget: constants.CaptureTarget.memory
+      captureTarget: constants.CaptureTarget.memory,
+      torchLevel: 0
     };
   },
 
@@ -82,7 +84,8 @@ var Camera = React.createClass({
 
     var aspect = this.props.aspect,
         type = this.props.type,
-        orientation = this.props.orientation;
+        orientation = this.props.orientation,
+        torchLevel = this.props.torchLevel;
 
     var legacyProps = {
       aspect: {
@@ -137,7 +140,8 @@ var Camera = React.createClass({
       style,
       aspect: aspect,
       type: type,
-      orientation: orientation
+      orientation: orientation,
+      torchLevel: torchLevel
     });
 
     return <RCTCamera {... nativeProps} />
@@ -176,7 +180,8 @@ var RCTCamera = createReactNativeComponentClass({
   validAttributes: merge(ReactNativeViewAttributes.UIView, {
     aspect: true,
     type: true,
-    orientation: true
+    orientation: true,
+    torchLevel: true
   }),
   uiViewClassName: 'RCTCamera',
 });
