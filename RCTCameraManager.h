@@ -32,6 +32,12 @@ typedef NS_ENUM(NSInteger, RCTCameraType) {
     RCTCameraTypeBack = AVCaptureDevicePositionBack
 };
 
+typedef NS_ENUM(NSInteger, RCTCameraFlashMode) {
+    RCTCameraFlashModeOff = AVCaptureFlashModeOff,
+    RCTCameraFlashModeOn = AVCaptureFlashModeOn,
+    RCTCameraFlashModeAuto = AVCaptureFlashModeAuto
+};
+
 @interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate>
 
 @property (nonatomic) dispatch_queue_t sessionQueue;
@@ -46,6 +52,7 @@ typedef NS_ENUM(NSInteger, RCTCameraType) {
 - (void)changeAspect:(NSString *)aspect;
 - (void)changeCamera:(NSInteger)camera;
 - (void)changeOrientation:(NSInteger)orientation;
+- (void)changeFlashMode:(NSInteger)flashMode;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;
 - (void)capture:(NSDictionary*)options callback:(RCTResponseSenderBlock)callback;
 

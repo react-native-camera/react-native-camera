@@ -15,7 +15,8 @@ var constants = {
   Type: NativeModules.CameraManager.Type,
   CaptureMode: NativeModules.CameraManager.CaptureMode,
   CaptureTarget: NativeModules.CameraManager.CaptureTarget,
-  Orientation: NativeModules.CameraManager.Orientation
+  Orientation: NativeModules.CameraManager.Orientation,
+  FlashMode: NativeModules.CameraManager.FlashMode
 };
 
 var Camera = React.createClass({
@@ -39,6 +40,10 @@ var Camera = React.createClass({
     orientation: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
+    ]),
+    flashMode: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
     ])
   },
 
@@ -55,7 +60,8 @@ var Camera = React.createClass({
       type: constants.Type.back,
       orientation: constants.Orientation.auto,
       captureMode: constants.CaptureMode.still,
-      captureTarget: constants.CaptureTarget.memory
+      captureTarget: constants.CaptureTarget.memory,
+      flashMode: constants.FlashMode.off,
     };
   },
 
@@ -82,7 +88,8 @@ var Camera = React.createClass({
 
     var aspect = this.props.aspect,
         type = this.props.type,
-        orientation = this.props.orientation;
+        orientation = this.props.orientation,
+        flashMode = this.props.flashMode;
 
     var legacyProps = {
       aspect: {
@@ -99,12 +106,18 @@ var Camera = React.createClass({
       type: {
         Front: 'front',
         Back: 'back'
+      },
+      flashMode: {
+        Off: 'off',
+        On: 'on',
+        Auto: 'auto'
       }
     };
 
     var foundLegacyAspect = legacyProps.aspect[aspect];
     var foundLegacyOrientation = legacyProps.orientation[orientation];
     var foundLegacyType = legacyProps.type[type];
+    var foundLegacyFlashMode = legacyProps.flashMode[flashMode];
 
     if (__DEV__) {
       if (foundLegacyAspect) {
@@ -137,7 +150,8 @@ var Camera = React.createClass({
       style,
       aspect: aspect,
       type: type,
-      orientation: orientation
+      orientation: orientation,
+      flashMode: flashMode,
     });
 
     return <RCTCamera {... nativeProps} />
@@ -176,7 +190,8 @@ var RCTCamera = createReactNativeComponentClass({
   validAttributes: merge(ReactNativeViewAttributes.UIView, {
     aspect: true,
     type: true,
-    orientation: true
+    orientation: true,
+    flashMode: true,
   }),
   uiViewClassName: 'RCTCamera',
 });

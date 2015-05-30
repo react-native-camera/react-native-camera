@@ -48,6 +48,11 @@
     }
 }
 
+- (void)setFlashMode:(NSInteger)flashMode
+{
+    [self.manager changeFlashMode:flashMode];
+}
+
 - (id)initWithManager:(RCTCameraManager*)manager
 {
 
