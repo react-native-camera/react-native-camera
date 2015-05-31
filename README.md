@@ -149,6 +149,15 @@ Event contains `data` (the data in the barcode) and `bounds` (the rectangle whic
 
 *TODO: Only emit one event for each barcode scanned.*
 
+#### `flashMode`
+
+Values:
+`Camera.constants.FlashMode.on`,
+`Camera.constants.FlashMode.off`,
+`Camera.constants.FlashMode.auto`
+
+Use the `flashMode` property to specify the camera flash mode.
+
 ## Component methods
 
 You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to your `<Camera>` element, then you can use `this.refs.camera.capture(cb)`, etc. inside your component.
@@ -164,7 +173,7 @@ This component supports subviews, so if you wish to use the camera view as a bac
 These are some features I think would be important/beneficial to have included with this module. Pull requests welcome!
 
 - [ ] Video support
-- [ ] Flash mode setting
+- [x] Flash mode setting
 - [x] Automatic orientation adjustment
 - [ ] Tap to focus
 - [ ] Optional facial recognition (w/ ability to style box around face)

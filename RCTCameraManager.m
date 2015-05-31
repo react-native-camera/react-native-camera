@@ -20,6 +20,7 @@ RCT_EXPORT_MODULE();
 RCT_EXPORT_VIEW_PROPERTY(aspect, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(type, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
+RCT_EXPORT_VIEW_PROPERTY(flashMode, NSInteger);
 
 - (NSDictionary *)constantsToExport
 {
@@ -47,6 +48,11 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
         @"landscapeRight": @(RCTCameraOrientationLandscapeRight),
         @"portrait": @(RCTCameraOrientationPortrait),
         @"portraitUpsideDown": @(RCTCameraOrientationPortraitUpsideDown)
+      },
+      @"FlashMode": @{
+        @"off": @(RCTCameraFlashModeOff),
+        @"on": @(RCTCameraFlashModeOn),
+        @"auto": @(RCTCameraFlashModeAuto)
       }
     };
 }
@@ -110,7 +116,7 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
                     [strongSelf.session startRunning];
                 });
             }]];
-            
+
             [self.session startRunning];
         });
     }
@@ -126,6 +132,10 @@ RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTResponseSenderBlock) callba
     }];
 }
 
+RCT_EXPORT_METHOD(changeFlashMode:(NSInteger)flashMode) {
+    AVCaptureDevice *currentCaptureDevice = [self.captureDeviceInput device];
+    [self setFlashMode:flashMode forDevice:currentCaptureDevice];
+}
 
 RCT_EXPORT_METHOD(changeCamera:(NSInteger)camera) {
     AVCaptureDevice *currentCaptureDevice = [self.captureDeviceInput device];
@@ -178,7 +188,7 @@ RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
 RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback) {
     NSInteger captureMode = [[options valueForKey:@"mode"] intValue];
     NSInteger captureTarget = [[options valueForKey:@"target"] intValue];
-    
+
     if (captureMode == RCTCameraCaptureModeStill) {
         [self captureStill:captureTarget callback:callback];
     }
@@ -196,7 +206,7 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlo
             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
             UIImage *image = [UIImage imageWithData:imageData];
             UIImage *rotatedImage = [image resizedImage:CGSizeMake(image.size.width, image.size.height) interpolationQuality:kCGInterpolationDefault];
-            
+
             NSString *responseString;
             
             if (target == RCTCameraCaptureTargetMemory) {
