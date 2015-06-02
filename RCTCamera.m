@@ -82,6 +82,11 @@
     return;
 }
 
+- (void)removeFromSuperview
+{
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+}
+
 - (void)orientationChanged:(NSNotification *)notification{
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     [self.manager changeOrientation:orientation];
