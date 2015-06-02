@@ -6,6 +6,7 @@
 #import "RCTLog.h"
 #import "UIView+React.h"
 #import "UIImage+Resize.h"
+#import <AssetsLibrary/ALAssetsLibrary.h>
 #import <AVFoundation/AVFoundation.h>
 
 @implementation RCTCameraManager
@@ -40,7 +41,8 @@ RCT_EXPORT_VIEW_PROPERTY(flashMode, NSInteger);
       },
       @"CaptureTarget": @{
         @"memory": @(RCTCameraCaptureTargetMemory),
-        @"disk": @(RCTCameraCaptureTargetDisk)
+        @"disk": @(RCTCameraCaptureTargetDisk),
+        @"cameraRoll": @(RCTCameraCaptureTargetCameraRoll)
       },
       @"Orientation": @{
         @"auto": @(RCTCameraOrientationAuto),
@@ -163,8 +165,6 @@ RCT_EXPORT_METHOD(changeCamera:(NSInteger)camera) {
     {
         [NSNotificationCenter.defaultCenter removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:currentCaptureDevice];
 
-        //            [self setFlashMode:AVCaptureFlashModeAuto forDevice:captureDevice];
-
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:captureDevice];
         [self.session addInput:captureDeviceInput];
         self.captureDeviceInput = captureDeviceInput;
@@ -214,6 +214,17 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlo
             }
             else if (target == RCTCameraCaptureTargetDisk) {
                 responseString = [self saveImage:rotatedImage withName:[[NSUUID UUID] UUIDString]];
+            }
+            else if (target == RCTCameraCaptureTargetCameraRoll) {
+                [[[ALAssetsLibrary alloc] init] writeImageToSavedPhotosAlbum:rotatedImage.CGImage metadata:nil completionBlock:^(NSURL* url, NSError* error) {
+                    if (error == nil) {
+                        callback(@[[NSNull null], [url absoluteString]]);
+                    }
+                    else {
+                        callback(@[RCTMakeError(error.description, nil, nil)]);
+                    }
+                }];
+                return;
             }
             callback(@[[NSNull null], responseString]);
         }
