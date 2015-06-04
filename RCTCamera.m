@@ -84,6 +84,7 @@
 
 - (void)removeFromSuperview
 {
+  [super removeFromSuperview];
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
