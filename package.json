@@ -9,9 +9,7 @@
   "main": "Camera.ios.js",
   "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
   "nativePackage": true,
-  "peerDependencies": {
-    "react-native": "^0.5.0"
-  },
+  "peerDependencies": {},
   "keywords": [
     "react-native",
     "react",
