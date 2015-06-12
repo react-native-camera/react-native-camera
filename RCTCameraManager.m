@@ -197,41 +197,59 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlo
     }
 }
 
--(void)captureStill:(NSInteger)target callback:(RCTResponseSenderBlock)callback {
-    [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
-    [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
-
-        if (imageDataSampleBuffer)
-        {
+- (void)captureStill:(NSInteger)target callback:(RCTResponseSenderBlock)callback {
+    if ([[[UIDevice currentDevice].model lowercaseString] rangeOfString:@"simulator"].location != NSNotFound){
+    
+        CGSize size = CGSizeMake(720, 1280);
+        UIGraphicsBeginImageContextWithOptions(size, YES, 0);
+            [[UIColor whiteColor] setFill];
+            UIRectFill(CGRectMake(0, 0, size.width, size.height));
+            UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        
+        [self storeImage:image target:target callback:callback];
+        
+    } else {
+    
+        [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
+        
+        [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
             UIImage *image = [UIImage imageWithData:imageData];
-            UIImage *rotatedImage = [image resizedImage:CGSizeMake(image.size.width, image.size.height) interpolationQuality:kCGInterpolationDefault];
+            if (image)
+            {
+                [self storeImage:image target:target callback:callback];
+            }
+            else {
+                callback(@[RCTMakeError(error.description, nil, nil)]);
+            }
+        }];
+    }
+}
 
-            NSString *responseString;
-            
-            if (target == RCTCameraCaptureTargetMemory) {
-                responseString = [UIImageJPEGRepresentation(rotatedImage, 1.0) base64EncodedStringWithOptions:0];
+- (void)storeImage:(UIImage*)image target:(NSInteger)target callback:(RCTResponseSenderBlock)callback {
+    UIImage *rotatedImage = [image resizedImage:CGSizeMake(image.size.width, image.size.height) interpolationQuality:kCGInterpolationDefault];
+
+    NSString *responseString;
+    
+    if (target == RCTCameraCaptureTargetMemory) {
+        responseString = [UIImageJPEGRepresentation(rotatedImage, 1.0) base64EncodedStringWithOptions:0];
+    }
+    else if (target == RCTCameraCaptureTargetDisk) {
+        responseString = [self saveImage:rotatedImage withName:[[NSUUID UUID] UUIDString]];
+    }
+    else if (target == RCTCameraCaptureTargetCameraRoll) {
+        [[[ALAssetsLibrary alloc] init] writeImageToSavedPhotosAlbum:rotatedImage.CGImage metadata:nil completionBlock:^(NSURL* url, NSError* error) {
+            if (error == nil) {
+                callback(@[[NSNull null], [url absoluteString]]);
             }
-            else if (target == RCTCameraCaptureTargetDisk) {
-                responseString = [self saveImage:rotatedImage withName:[[NSUUID UUID] UUIDString]];
+            else {
+                callback(@[RCTMakeError(error.description, nil, nil)]);
             }
-            else if (target == RCTCameraCaptureTargetCameraRoll) {
-                [[[ALAssetsLibrary alloc] init] writeImageToSavedPhotosAlbum:rotatedImage.CGImage metadata:nil completionBlock:^(NSURL* url, NSError* error) {
-                    if (error == nil) {
-                        callback(@[[NSNull null], [url absoluteString]]);
-                    }
-                    else {
-                        callback(@[RCTMakeError(error.description, nil, nil)]);
-                    }
-                }];
-                return;
-            }
-            callback(@[[NSNull null], responseString]);
-        }
-        else {
-            callback(@[RCTMakeError(error.description, nil, nil)]);
-        }
-    }];
+        }];
+        return;
+    }
+    callback(@[[NSNull null], responseString]);
 }
 
 - (NSString *)saveImage:(UIImage *)image withName:(NSString *)name {
