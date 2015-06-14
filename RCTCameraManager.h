@@ -45,6 +45,7 @@ typedef NS_ENUM(NSInteger, RCTCameraFlashMode) {
 @property (nonatomic) AVCaptureSession *session;
 @property (nonatomic) AVCaptureDeviceInput *captureDeviceInput;
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
+@property (nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 @property (nonatomic) AVCaptureMetadataOutput *metadataOutput;
 @property (nonatomic) id runtimeErrorHandlingObserver;
 @property (nonatomic) NSInteger presetCamera;
@@ -56,5 +57,6 @@ typedef NS_ENUM(NSInteger, RCTCameraFlashMode) {
 - (void)changeFlashMode:(NSInteger)flashMode;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;
 - (void)capture:(NSDictionary*)options callback:(RCTResponseSenderBlock)callback;
+- (void)stopCapture;
 
 @end

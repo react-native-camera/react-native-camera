@@ -182,6 +182,10 @@ var Camera = React.createClass({
     }
 
     NativeModules.CameraManager.capture(options, cb);
+  },
+
+  stopCapture() {
+    NativeModules.CameraManager.stopCapture();
   }
 
 });
