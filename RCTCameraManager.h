@@ -39,6 +39,12 @@ typedef NS_ENUM(NSInteger, RCTCameraFlashMode) {
     RCTCameraFlashModeAuto = AVCaptureFlashModeAuto
 };
 
+typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
+    RCTCameraTorchModeOff = AVCaptureTorchModeOff,
+    RCTCameraTorchModeOn = AVCaptureTorchModeOn,
+    RCTCameraTorchModeAuto = AVCaptureTorchModeAuto
+};
+
 @interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate>
 
 @property (nonatomic) dispatch_queue_t sessionQueue;
@@ -54,6 +60,7 @@ typedef NS_ENUM(NSInteger, RCTCameraFlashMode) {
 - (void)changeCamera:(NSInteger)camera;
 - (void)changeOrientation:(NSInteger)orientation;
 - (void)changeFlashMode:(NSInteger)flashMode;
+- (void)changeTorchMode:(NSInteger)torchMode;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;
 - (void)capture:(NSDictionary*)options callback:(RCTResponseSenderBlock)callback;
 
