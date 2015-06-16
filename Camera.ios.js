@@ -16,7 +16,8 @@ var constants = {
   CaptureMode: NativeModules.CameraManager.CaptureMode,
   CaptureTarget: NativeModules.CameraManager.CaptureTarget,
   Orientation: NativeModules.CameraManager.Orientation,
-  FlashMode: NativeModules.CameraManager.FlashMode
+  FlashMode: NativeModules.CameraManager.FlashMode,
+  TorchMode: NativeModules.CameraManager.TorchMode,
 };
 
 var Camera = React.createClass({
@@ -44,6 +45,10 @@ var Camera = React.createClass({
     flashMode: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
+    ]),
+    torchMode: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
     ])
   },
 
@@ -62,6 +67,7 @@ var Camera = React.createClass({
       captureMode: constants.CaptureMode.still,
       captureTarget: constants.CaptureTarget.memory,
       flashMode: constants.FlashMode.off,
+      torchMode: constants.TorchMode.off
     };
   },
 
@@ -89,7 +95,8 @@ var Camera = React.createClass({
     var aspect = this.props.aspect,
         type = this.props.type,
         orientation = this.props.orientation,
-        flashMode = this.props.flashMode;
+        flashMode = this.props.flashMode,
+        torchMode = this.props.torchMode;
 
     var legacyProps = {
       aspect: {
@@ -152,6 +159,7 @@ var Camera = React.createClass({
       type: type,
       orientation: orientation,
       flashMode: flashMode,
+      torchMode: torchMode
     });
 
     return <RCTCamera {... nativeProps} />
@@ -192,6 +200,7 @@ var RCTCamera = createReactNativeComponentClass({
     type: true,
     orientation: true,
     flashMode: true,
+    torchMode: true
   }),
   uiViewClassName: 'RCTCamera',
 });

@@ -53,6 +53,11 @@
     [self.manager changeFlashMode:flashMode];
 }
 
+- (void)setTorchMode:(NSInteger)torchMode
+{
+    [self.manager changeTorchMode:torchMode];
+}
+
 - (id)initWithManager:(RCTCameraManager*)manager
 {
 

@@ -22,6 +22,7 @@ RCT_EXPORT_VIEW_PROPERTY(aspect, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(type, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(flashMode, NSInteger);
+RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
 
 - (NSDictionary *)constantsToExport
 {
@@ -55,6 +56,11 @@ RCT_EXPORT_VIEW_PROPERTY(flashMode, NSInteger);
         @"off": @(RCTCameraFlashModeOff),
         @"on": @(RCTCameraFlashModeOn),
         @"auto": @(RCTCameraFlashModeAuto)
+      },
+      @"TorchMode": @{
+        @"off": @(RCTCameraTorchModeOff),
+        @"on": @(RCTCameraTorchModeOn),
+        @"auto": @(RCTCameraTorchModeAuto)
       }
     };
 }
@@ -183,6 +189,23 @@ RCT_EXPORT_METHOD(changeAspect:(NSString *)aspect) {
 
 RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
     self.previewLayer.connection.videoOrientation = orientation;
+}
+
+RCT_EXPORT_METHOD(changeTorchMode:(NSInteger)torchMode) {
+    AVCaptureDevice *device = [self.captureDeviceInput device];
+    NSError *error = nil;
+    
+    if ([device hasTorch]) {
+        if ([device lockForConfiguration:&error])
+        {
+            [device setTorchMode: torchMode];
+            [device unlockForConfiguration];
+        }
+        else
+        {
+            NSLog(@"%@", error);
+        }
+    }
 }
 
 RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback) {

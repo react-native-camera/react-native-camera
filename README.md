@@ -158,6 +158,15 @@ Values:
 
 Use the `flashMode` property to specify the camera flash mode.
 
+#### `torchMode`
+
+Values:
+`Camera.constants.TorchMode.on`,
+`Camera.constants.TorchMode.off`,
+`Camera.constants.TorchMode.auto`
+
+Use the `torchMode` property to specify the camera torch mode.
+
 ## Component methods
 
 You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to your `<Camera>` element, then you can use `this.refs.camera.capture(cb)`, etc. inside your component.
