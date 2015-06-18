@@ -108,7 +108,7 @@
             break;
 
         default:
-            [NSException raise:NSInvalidArgumentException format:@"Unsupported content mode: %d", contentMode];
+            [NSException raise:NSInvalidArgumentException format:@"Unsupported content mode: %ld", (long)contentMode];
     }
 
     CGSize newSize = CGSizeMake(self.size.width * ratio, self.size.height * ratio);
@@ -133,7 +133,7 @@
     // Build a context that's the same dimensions as the new size
     CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
     if((bitmapInfo == kCGImageAlphaLast) || (bitmapInfo == kCGImageAlphaNone))
-        bitmapInfo = kCGImageAlphaNoneSkipLast;
+        bitmapInfo = (CGBitmapInfo)kCGImageAlphaNoneSkipLast;
 
     CGContextRef bitmap = CGBitmapContextCreate(NULL,
                                                 newRect.size.width,
@@ -163,6 +163,9 @@
     return newImage;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
+
 // Returns an affine transform that takes into account the image orientation when drawing a scaled image
 - (CGAffineTransform)transformForOrientation:(CGSize)newSize {
     CGAffineTransform transform = CGAffineTransformIdentity;
@@ -185,6 +188,10 @@
             transform = CGAffineTransformTranslate(transform, 0, newSize.height);
             transform = CGAffineTransformRotate(transform, -M_PI_2);
             break;
+        case UIImageOrientationUpMirrored:
+        case UIImageOrientationUp:
+            // TODO
+            break;
     }
 
     switch (self.imageOrientation) {
@@ -198,6 +205,12 @@
         case UIImageOrientationRightMirrored:  // EXIF = 7
             transform = CGAffineTransformTranslate(transform, newSize.height, 0);
             transform = CGAffineTransformScale(transform, -1, 1);
+            break;
+        case UIImageOrientationUp:
+        case UIImageOrientationDown:
+        case UIImageOrientationLeft:
+        case UIImageOrientationRight:
+            // TODO
             break;
     }
 
