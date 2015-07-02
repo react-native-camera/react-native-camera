@@ -12,6 +12,7 @@ var merge = require('merge');
 
 var constants = {
   Aspect: NativeModules.CameraManager.Aspect,
+  BarCodeType: NativeModules.CameraManager.BarCodeType,
   Type: NativeModules.CameraManager.Type,
   CaptureMode: NativeModules.CameraManager.CaptureMode,
   CaptureTarget: NativeModules.CameraManager.CaptureTarget,
