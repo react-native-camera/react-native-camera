@@ -9,10 +9,7 @@
 #import <AssetsLibrary/ALAssetsLibrary.h>
 #import <AVFoundation/AVFoundation.h>
 
-@implementation RCTCameraManager {
-    NSInteger videoTarget;
-    RCTResponseSenderBlock videoCallback;
-}
+@implementation RCTCameraManager
 
 RCT_EXPORT_MODULE();
 
@@ -224,9 +221,11 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlo
         }
 
         Float64 totalSeconds = [[options valueForKey:@"totalSeconds"] floatValue];
-        int32_t preferredTimeScale = [[options valueForKey:@"preferredTimeScale"] intValue];
-        CMTime maxDuration = CMTimeMakeWithSeconds(totalSeconds || 60, preferredTimeScale | 30);
-        self.movieFileOutput.maxRecordedDuration = maxDuration;
+        if (totalSeconds > -1) {
+            int32_t preferredTimeScale = [[options valueForKey:@"preferredTimeScale"] intValue];
+            CMTime maxDuration = CMTimeMakeWithSeconds(totalSeconds, preferredTimeScale);
+            self.movieFileOutput.maxRecordedDuration = maxDuration;
+        }
 
         [self captureVideo:captureTarget callback:callback];
     }
@@ -294,25 +293,26 @@ RCT_EXPORT_METHOD(stopCapture) {
 }
 
 -(void)captureVideo:(NSInteger)target callback:(RCTResponseSenderBlock)callback {
+  
     [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
+  
     //Create temporary URL to record to
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
     NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:outputPath])
-    {
+    if ([fileManager fileExistsAtPath:outputPath]) {
         NSError *error;
-        if ([fileManager removeItemAtPath:outputPath error:&error] == NO)
-        {
+        if ([fileManager removeItemAtPath:outputPath error:&error] == NO) {
             callback(@[RCTMakeError(error.description, nil, nil)]);
             return;
         }
     }
+  
     //Start recording
     [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
     
-    videoCallback = callback;
-    videoTarget = target;
+    self.videoCallback = callback;
+    self.videoTarget = target;
 }
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput
@@ -321,62 +321,50 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
                 error:(NSError *)error
 {
     
-    NSLog(@"didFinishRecordingToOutputFileAtURL - enter");
-    
-    BOOL RecordedSuccessfully = YES;
-    if ([error code] != noErr)
-    {
+    BOOL recordSuccess = YES;
+    if ([error code] != noErr) {
         // A problem occurred: Find out if the recording was successful.
         id value = [[error userInfo] objectForKey:AVErrorRecordingSuccessfullyFinishedKey];
-        if (value)
-        {
-            RecordedSuccessfully = [value boolValue];
+        if (value) {
+            recordSuccess = [value boolValue];
         }
     }
-    if (RecordedSuccessfully)
-    {
-        //----- RECORDED SUCESSFULLY -----
-        NSLog(@"didFinishRecordingToOutputFileAtURL - success");
-        
-        if (videoTarget == RCTCameraCaptureTargetCameraRoll) {
-            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-            if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputFileURL])
-            {
-                [library writeVideoAtPathToSavedPhotosAlbum:outputFileURL
-                                            completionBlock:^(NSURL *assetURL, NSError *error)
-                 {
-                     if (error)
-                     {
-                         videoCallback(@[RCTMakeError(error.description, nil, nil)]);
-                         return;
-                     }
-                     
-                     videoCallback(@[[NSNull null], [assetURL absoluteString]]);
-                 }];
-            }
+    if (!recordSuccess) {
+        self.videoCallback(@[RCTMakeError(@"Error while recording", nil, nil)]);
+        return;
+    }
+  
+    if (self.videoTarget == RCTCameraCaptureTargetCameraRoll) {
+        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+        if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputFileURL]) {
+          [library writeVideoAtPathToSavedPhotosAlbum:outputFileURL
+                                  completionBlock:^(NSURL *assetURL, NSError *error) {
+                                      if (error) {
+                                          self.videoCallback(@[RCTMakeError(error.description, nil, nil)]);
+                                          return;
+                                      }
+                                    
+                                      self.videoCallback(@[[NSNull null], [assetURL absoluteString]]);
+                                    }];
         }
-        else if (videoTarget == RCTCameraCaptureTargetDisk) {
-            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-            NSString *documentsDirectory = [paths firstObject];
-            NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"mov"];
-            
-            NSFileManager * fileManager = [ NSFileManager defaultManager];
-            NSError * error = nil;
-
-            //copying destination
-            if ( !( [ fileManager copyItemAtPath:[outputFileURL path] toPath:fullPath error:&error ]) )
-            {
-                videoCallback(@[RCTMakeError(error.description, nil, nil)]);
-                return;
-            }
-            videoCallback(@[[NSNull null], fullPath]);
+    }
+    else if (self.videoTarget == RCTCameraCaptureTargetDisk) {
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsDirectory = [paths firstObject];
+        NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"mov"];
+    
+        NSFileManager * fileManager = [NSFileManager defaultManager];
+        NSError * error = nil;
+    
+        //copying destination
+        if (!([fileManager copyItemAtPath:[outputFileURL path] toPath:fullPath error:&error])) {
+            self.videoCallback(@[RCTMakeError(error.description, nil, nil)]);
+            return;
         }
-        else {
-            videoCallback(@[RCTMakeError(@"Target not supported", nil, nil)]);
-        }
-        
-    } else {
-        videoCallback(@[RCTMakeError(@"Error while recording", nil, nil)]);
+        self.videoCallback(@[[NSNull null], fullPath]);
+    }
+    else {
+        self.videoCallback(@[RCTMakeError(@"Target not supported", nil, nil)]);
     }
 }
 

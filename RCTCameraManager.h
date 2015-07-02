@@ -39,7 +39,7 @@ typedef NS_ENUM(NSInteger, RCTCameraFlashMode) {
     RCTCameraFlashModeAuto = AVCaptureFlashModeAuto
 };
 
-@interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate>
+@interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate>
 
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) AVCaptureSession *session;
@@ -50,6 +50,8 @@ typedef NS_ENUM(NSInteger, RCTCameraFlashMode) {
 @property (nonatomic) id runtimeErrorHandlingObserver;
 @property (nonatomic) NSInteger presetCamera;
 @property (nonatomic) AVCaptureVideoPreviewLayer *previewLayer;
+@property (nonatomic) NSInteger videoTarget;
+@property (nonatomic, strong) RCTResponseSenderBlock videoCallback;
 
 - (void)changeAspect:(NSString *)aspect;
 - (void)changeCamera:(NSInteger)camera;
