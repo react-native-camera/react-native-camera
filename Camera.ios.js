@@ -152,6 +152,10 @@ var Camera = React.createClass({
     if (typeof orientation === 'string') {
       orientation = constants.Orientation[orientation];
     }
+    
+    if (typeof torchMode === 'string') {
+      torchMode = constants.TorchMode[torchMode];
+    }
 
     if (typeof type === 'string') {
       type = constants.Type[type];

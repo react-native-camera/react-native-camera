@@ -174,11 +174,6 @@ RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTResponseSenderBlock) callba
     }];
 }
 
-RCT_EXPORT_METHOD(changeFlashMode:(NSInteger)flashMode) {
-    AVCaptureDevice *currentCaptureDevice = [self.captureDeviceInput device];
-    [self setFlashMode:flashMode forDevice:currentCaptureDevice];
-}
-
 RCT_EXPORT_METHOD(changeCamera:(NSInteger)camera) {
     AVCaptureDevice *currentCaptureDevice = [self.captureDeviceInput device];
     AVCaptureDevicePosition position = (AVCaptureDevicePosition)camera;
@@ -221,6 +216,19 @@ RCT_EXPORT_METHOD(changeAspect:(NSString *)aspect) {
     self.previewLayer.videoGravity = aspect;
 }
 
+RCT_EXPORT_METHOD(changeFlashMode:(NSInteger)flashMode) {
+    AVCaptureDevice *device = [self.captureDeviceInput device];
+    NSError *error = nil;
+  
+    if (![device hasFlash]) return;
+    if (![device lockForConfiguration:&error]) {
+        NSLog(@"%@", error);
+        return;
+    }
+    [self setFlashMode:flashMode forDevice:device];
+    [device unlockForConfiguration];
+}
+
 RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
     self.previewLayer.connection.videoOrientation = orientation;
 }
@@ -229,17 +237,13 @@ RCT_EXPORT_METHOD(changeTorchMode:(NSInteger)torchMode) {
     AVCaptureDevice *device = [self.captureDeviceInput device];
     NSError *error = nil;
     
-    if ([device hasTorch]) {
-        if ([device lockForConfiguration:&error])
-        {
-            [device setTorchMode: torchMode];
-            [device unlockForConfiguration];
-        }
-        else
-        {
-            NSLog(@"%@", error);
-        }
+    if (![device hasTorch]) return;
+    if (![device lockForConfiguration:&error]) {
+        NSLog(@"%@", error);
+        return;
     }
+    [device setTorchMode: torchMode];
+    [device unlockForConfiguration];
 }
 
 RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback) {
