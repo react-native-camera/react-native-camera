@@ -113,18 +113,12 @@ var Camera = React.createClass({
       type: {
         Front: 'front',
         Back: 'back'
-      },
-      flashMode: {
-        Off: 'off',
-        On: 'on',
-        Auto: 'auto'
       }
     };
 
     var foundLegacyAspect = legacyProps.aspect[aspect];
     var foundLegacyOrientation = legacyProps.orientation[orientation];
     var foundLegacyType = legacyProps.type[type];
-    var foundLegacyFlashMode = legacyProps.flashMode[flashMode];
 
     if (__DEV__) {
       if (foundLegacyAspect) {
@@ -143,6 +137,10 @@ var Camera = React.createClass({
 
     if (typeof aspect === 'string') {
       aspect = constants.Aspect[aspect];
+    }
+    
+    if (typeof flashMode === 'string') {
+      flashMode = constants.FlashMode[flashMode];
     }
 
     if (typeof orientation === 'string') {
