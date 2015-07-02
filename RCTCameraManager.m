@@ -32,6 +32,18 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
         @"fit": @(RCTCameraAspectFit),
         @"fill": @(RCTCameraAspectFill)
       },
+      @"BarCodeType": @{
+        @"upce": AVMetadataObjectTypeUPCECode,
+        @"code39": AVMetadataObjectTypeCode39Code,
+        @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
+        @"ean13": AVMetadataObjectTypeEAN13Code,
+        @"ean8":  AVMetadataObjectTypeEAN8Code,
+        @"code93": AVMetadataObjectTypeCode93Code,
+        @"code138": AVMetadataObjectTypeCode128Code,
+        @"pdf417": AVMetadataObjectTypePDF417Code,
+        @"qr": AVMetadataObjectTypeQRCode,
+        @"aztec": AVMetadataObjectTypeAztecCode
+      },
       @"Type": @{
         @"front": @(RCTCameraTypeFront),
         @"back": @(RCTCameraTypeBack)
@@ -308,6 +320,7 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlo
 
                 [self.bridge.eventDispatcher sendDeviceEventWithName:@"CameraBarCodeRead"
                     body:@{
+                        @"type": metadata.type,
                         @"data": metadata.stringValue,
                         @"bounds": @{
                             @"origin": @{
