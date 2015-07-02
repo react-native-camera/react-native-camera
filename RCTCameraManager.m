@@ -281,7 +281,7 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlo
 
     NSData *data = UIImageJPEGRepresentation(image, 1.0);
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *fullPath = [documentsDirectory stringByAppendingPathComponent:name];
+    NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:name] stringByAppendingPathExtension:@"jpg"];
 
     [fileManager createFileAtPath:fullPath contents:data attributes:nil];
     return fullPath;
