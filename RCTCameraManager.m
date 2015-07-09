@@ -32,6 +32,18 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
         @"fit": @(RCTCameraAspectFit),
         @"fill": @(RCTCameraAspectFill)
       },
+      @"BarCodeType": @{
+        @"upce": AVMetadataObjectTypeUPCECode,
+        @"code39": AVMetadataObjectTypeCode39Code,
+        @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
+        @"ean13": AVMetadataObjectTypeEAN13Code,
+        @"ean8":  AVMetadataObjectTypeEAN8Code,
+        @"code93": AVMetadataObjectTypeCode93Code,
+        @"code138": AVMetadataObjectTypeCode128Code,
+        @"pdf417": AVMetadataObjectTypePDF417Code,
+        @"qr": AVMetadataObjectTypeQRCode,
+        @"aztec": AVMetadataObjectTypeAztecCode
+      },
       @"Type": @{
         @"front": @(RCTCameraTypeFront),
         @"back": @(RCTCameraTypeBack)
@@ -99,6 +111,21 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
                     self.captureDeviceInput = captureDeviceInput;
                 }
             }
+     
+            AVCaptureDevice *audioCaptureDevice = [self deviceWithMediaType:AVMediaTypeAudio preferringPosition:self.presetCamera];
+            if (audioCaptureDevice != nil) {
+                AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
+                
+                if (error)
+                {
+                    NSLog(@"%@", error);
+                }
+                
+                if ([self.session canAddInput:audioInput])
+                {
+                    [self.session addInput:audioInput];
+                }
+            }
 
             AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
             if ([self.session canAddOutput:stillImageOutput])
@@ -106,6 +133,13 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
                 stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
                 [self.session addOutput:stillImageOutput];
                 self.stillImageOutput = stillImageOutput;
+            }
+            
+            AVCaptureMovieFileOutput *movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+            if ([self.session canAddOutput:movieFileOutput])
+            {
+                [self.session addOutput:movieFileOutput];
+                self.movieFileOutput = movieFileOutput;
             }
 
             AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
@@ -138,11 +172,6 @@ RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTResponseSenderBlock) callba
     [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
         callback(@[[NSNull null], @(granted)]);
     }];
-}
-
-RCT_EXPORT_METHOD(changeFlashMode:(NSInteger)flashMode) {
-    AVCaptureDevice *currentCaptureDevice = [self.captureDeviceInput device];
-    [self setFlashMode:flashMode forDevice:currentCaptureDevice];
 }
 
 RCT_EXPORT_METHOD(changeCamera:(NSInteger)camera) {
@@ -187,6 +216,19 @@ RCT_EXPORT_METHOD(changeAspect:(NSString *)aspect) {
     self.previewLayer.videoGravity = aspect;
 }
 
+RCT_EXPORT_METHOD(changeFlashMode:(NSInteger)flashMode) {
+    AVCaptureDevice *device = [self.captureDeviceInput device];
+    NSError *error = nil;
+  
+    if (![device hasFlash]) return;
+    if (![device lockForConfiguration:&error]) {
+        NSLog(@"%@", error);
+        return;
+    }
+    [self setFlashMode:flashMode forDevice:device];
+    [device unlockForConfiguration];
+}
+
 RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
     self.previewLayer.connection.videoOrientation = orientation;
 }
@@ -195,17 +237,13 @@ RCT_EXPORT_METHOD(changeTorchMode:(NSInteger)torchMode) {
     AVCaptureDevice *device = [self.captureDeviceInput device];
     NSError *error = nil;
     
-    if ([device hasTorch]) {
-        if ([device lockForConfiguration:&error])
-        {
-            [device setTorchMode: torchMode];
-            [device unlockForConfiguration];
-        }
-        else
-        {
-            NSLog(@"%@", error);
-        }
+    if (![device hasTorch]) return;
+    if (![device lockForConfiguration:&error]) {
+        NSLog(@"%@", error);
+        return;
     }
+    [device setTorchMode: torchMode];
+    [device unlockForConfiguration];
 }
 
 RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback) {
@@ -216,7 +254,25 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlo
         [self captureStill:captureTarget callback:callback];
     }
     else if (captureMode == RCTCameraCaptureModeVideo) {
-        // waiting for incoming PRs
+        if (self.movieFileOutput.recording) {
+            callback(@[RCTMakeError(@"Already Recording", nil, nil)]);
+            return;
+        }
+
+        Float64 totalSeconds = [[options valueForKey:@"totalSeconds"] floatValue];
+        if (totalSeconds > -1) {
+            int32_t preferredTimeScale = [[options valueForKey:@"preferredTimeScale"] intValue];
+            CMTime maxDuration = CMTimeMakeWithSeconds(totalSeconds, preferredTimeScale);
+            self.movieFileOutput.maxRecordedDuration = maxDuration;
+        }
+
+        [self captureVideo:captureTarget callback:callback];
+    }
+}
+
+RCT_EXPORT_METHOD(stopCapture) {
+    if (self.movieFileOutput.recording) {
+        [self.movieFileOutput stopRecording];
     }
 }
 
@@ -275,13 +331,89 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlo
     callback(@[[NSNull null], responseString]);
 }
 
+-(void)captureVideo:(NSInteger)target callback:(RCTResponseSenderBlock)callback {
+  
+    [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
+  
+    //Create temporary URL to record to
+    NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
+    NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:outputPath]) {
+        NSError *error;
+        if ([fileManager removeItemAtPath:outputPath error:&error] == NO) {
+            callback(@[RCTMakeError(error.description, nil, nil)]);
+            return;
+        }
+    }
+  
+    //Start recording
+    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+    
+    self.videoCallback = callback;
+    self.videoTarget = target;
+}
+
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput
+didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
+      fromConnections:(NSArray *)connections
+                error:(NSError *)error
+{
+    
+    BOOL recordSuccess = YES;
+    if ([error code] != noErr) {
+        // A problem occurred: Find out if the recording was successful.
+        id value = [[error userInfo] objectForKey:AVErrorRecordingSuccessfullyFinishedKey];
+        if (value) {
+            recordSuccess = [value boolValue];
+        }
+    }
+    if (!recordSuccess) {
+        self.videoCallback(@[RCTMakeError(@"Error while recording", nil, nil)]);
+        return;
+    }
+  
+    if (self.videoTarget == RCTCameraCaptureTargetCameraRoll) {
+        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+        if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputFileURL]) {
+          [library writeVideoAtPathToSavedPhotosAlbum:outputFileURL
+                                  completionBlock:^(NSURL *assetURL, NSError *error) {
+                                      if (error) {
+                                          self.videoCallback(@[RCTMakeError(error.description, nil, nil)]);
+                                          return;
+                                      }
+                                    
+                                      self.videoCallback(@[[NSNull null], [assetURL absoluteString]]);
+                                    }];
+        }
+    }
+    else if (self.videoTarget == RCTCameraCaptureTargetDisk) {
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsDirectory = [paths firstObject];
+        NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"mov"];
+    
+        NSFileManager * fileManager = [NSFileManager defaultManager];
+        NSError * error = nil;
+    
+        //copying destination
+        if (!([fileManager copyItemAtPath:[outputFileURL path] toPath:fullPath error:&error])) {
+            self.videoCallback(@[RCTMakeError(error.description, nil, nil)]);
+            return;
+        }
+        self.videoCallback(@[[NSNull null], fullPath]);
+    }
+    else {
+        self.videoCallback(@[RCTMakeError(@"Target not supported", nil, nil)]);
+    }
+}
+
 - (NSString *)saveImage:(UIImage *)image withName:(NSString *)name {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths firstObject];
 
     NSData *data = UIImageJPEGRepresentation(image, 1.0);
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *fullPath = [documentsDirectory stringByAppendingPathComponent:name];
+    NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:name] stringByAppendingPathExtension:@"jpg"];
 
     [fileManager createFileAtPath:fullPath contents:data attributes:nil];
     return fullPath;
@@ -308,6 +440,7 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlo
 
                 [self.bridge.eventDispatcher sendDeviceEventWithName:@"CameraBarCodeRead"
                     body:@{
+                        @"type": metadata.type,
                         @"data": metadata.stringValue,
                         @"bounds": @{
                             @"origin": @{

@@ -45,16 +45,19 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
     RCTCameraTorchModeAuto = AVCaptureTorchModeAuto
 };
 
-@interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate>
+@interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate>
 
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) AVCaptureSession *session;
 @property (nonatomic) AVCaptureDeviceInput *captureDeviceInput;
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
+@property (nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 @property (nonatomic) AVCaptureMetadataOutput *metadataOutput;
 @property (nonatomic) id runtimeErrorHandlingObserver;
 @property (nonatomic) NSInteger presetCamera;
 @property (nonatomic) AVCaptureVideoPreviewLayer *previewLayer;
+@property (nonatomic) NSInteger videoTarget;
+@property (nonatomic, strong) RCTResponseSenderBlock videoCallback;
 
 - (void)changeAspect:(NSString *)aspect;
 - (void)changeCamera:(NSInteger)camera;
@@ -63,5 +66,6 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 - (void)changeTorchMode:(NSInteger)torchMode;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;
 - (void)capture:(NSDictionary*)options callback:(RCTResponseSenderBlock)callback;
+- (void)stopCapture;
 
 @end

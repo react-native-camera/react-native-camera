@@ -10,7 +10,7 @@
   "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
   "nativePackage": true,
   "peerDependencies": {
-    "react-native": ">=0.4.3"
+    "react-native": "*"
   },
   "keywords": [
     "react-native",
