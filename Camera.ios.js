@@ -27,6 +27,7 @@ var Camera = React.createClass({
       PropTypes.string,
       PropTypes.number
     ]),
+    captureAudio: PropTypes.bool,
     captureMode: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
@@ -65,6 +66,7 @@ var Camera = React.createClass({
       aspect: constants.Aspect.fill,
       type: constants.Type.back,
       orientation: constants.Orientation.auto,
+      captureAudio: true,
       captureMode: constants.CaptureMode.still,
       captureTarget: constants.CaptureTarget.memory,
       flashMode: constants.FlashMode.off,
@@ -185,6 +187,7 @@ var Camera = React.createClass({
     }
 
     options = Object.assign({}, {
+      audio: this.props.captureAudio,
       mode: this.props.captureMode,
       target: this.props.captureTarget
     }, options);
@@ -207,8 +210,10 @@ var Camera = React.createClass({
   },
 
   stopCapture() {
-    this.setState({ isRecording: false });
-    NativeModules.CameraManager.stopCapture();
+    if (this.state.isRecording) {
+      NativeModules.CameraManager.stopCapture();
+      this.setState({ isRecording: false });
+    }
   }
 
 });

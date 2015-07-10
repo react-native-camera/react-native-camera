@@ -112,6 +112,12 @@ Values: `Camera.constants.Aspect.fit` or `"fit"`, `Camera.constants.Aspect.fill`
 
 The `aspect` property allows you to define how your viewfinder renders the camera's view. For instance, if you have a square viewfinder and you want to fill the it entirely, you have two options: `"fill"`, where the aspect ratio of the camera's view is preserved by cropping the view or `"stretch"`, where the aspect ratio is skewed in order to fit the entire image inside the viewfinder. The other option is `"fit"`, which ensures the camera's entire view fits inside your viewfinder without altering the aspect ratio.
 
+#### `captureAudio`
+
+Values: `true` (default), `false` (Boolean)
+
+*Applies to video capture mode only.* Specifies whether or not audio should be captured with the video.
+
 
 #### `captureMode`
 
@@ -173,7 +179,13 @@ You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to 
 
 #### `capture([options,] callback)`
 
-Captures data from the camera. What is captured is based on the `captureMode` and `captureTarget` props. `captureMode` tells the camera whether you want a still image or -- in the future, this is not currently supported -- video. `captureTarget` allows you to specify how you want the data to be captured and sent back to you. The available `target`s are `Camera.constants.CaptureTarget.memory` and `Camera.constants.CaptureTarget.disk` - the latter has been shown to dramatically improve camera performance.
+Captures data from the camera. What is captured is based on the `captureMode` and `captureTarget` props. `captureMode` tells the camera whether you want a still image or video. `captureTarget` allows you to specify how you want the data to be captured and sent back to you. The available `target`s are `Camera.constants.CaptureTarget.memory` and `Camera.constants.CaptureTarget.disk` - the latter has been shown to dramatically improve camera performance.
+
+Supported options:
+
+ - `audio` (See `captureAudio` under Properties)
+ - `mode` (See  `captureMode` under Properties)
+ - `target` (See `captureTarget` under Properties)
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
@@ -181,7 +193,7 @@ This component supports subviews, so if you wish to use the camera view as a bac
 ## Todo
 These are some features I think would be important/beneficial to have included with this module. Pull requests welcome!
 
-- [ ] Video support
+- [x] Video support
 - [x] Flash mode setting
 - [x] Automatic orientation adjustment
 - [ ] Tap to focus
