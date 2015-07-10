@@ -77,6 +77,21 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
            };
 }
 
+- (NSArray *)getBarCodeTypes {
+  return @[
+    AVMetadataObjectTypeUPCECode,
+    AVMetadataObjectTypeCode39Code,
+    AVMetadataObjectTypeCode39Mod43Code,
+    AVMetadataObjectTypeEAN13Code,
+    AVMetadataObjectTypeEAN8Code,
+    AVMetadataObjectTypeCode93Code,
+    AVMetadataObjectTypeCode128Code,
+    AVMetadataObjectTypePDF417Code,
+    AVMetadataObjectTypeQRCode,
+    AVMetadataObjectTypeAztecCode
+  ];
+}
+
 - (id)init {
   
   if ((self = [super init])) {
@@ -271,6 +286,7 @@ RCT_EXPORT_METHOD(stopCapture) {
       else if (type == AVMediaTypeVideo) {
         self.videoCaptureDeviceInput = captureDeviceInput;
       }
+      [self.metadataOutput setMetadataObjectTypes:self.metadataOutput.availableMetadataObjectTypes];
     }
     
     [self.session commitConfiguration];
@@ -440,21 +456,8 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
   
-  NSArray *barcodeTypes = @[
-                            AVMetadataObjectTypeUPCECode,
-                            AVMetadataObjectTypeCode39Code,
-                            AVMetadataObjectTypeCode39Mod43Code,
-                            AVMetadataObjectTypeEAN13Code,
-                            AVMetadataObjectTypeEAN8Code,
-                            AVMetadataObjectTypeCode93Code,
-                            AVMetadataObjectTypeCode128Code,
-                            AVMetadataObjectTypePDF417Code,
-                            AVMetadataObjectTypeQRCode,
-                            AVMetadataObjectTypeAztecCode
-                            ];
-  
   for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
-    for (id barcodeType in barcodeTypes) {
+    for (id barcodeType in [self getBarCodeTypes]) {
       if (metadata.type == barcodeType) {
         
         [self.bridge.eventDispatcher sendDeviceEventWithName:@"CameraBarCodeRead"
