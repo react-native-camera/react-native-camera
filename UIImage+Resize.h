@@ -9,10 +9,10 @@
 
 @interface UIImage (Resize)
 - (UIImage *)croppedImage:(CGRect)bounds;
-- (UIImage *)thumbnailImage:(NSInteger)thumbnailSize
+/* TODO: - (UIImage *)thumbnailImage:(NSInteger)thumbnailSize
           transparentBorder:(NSUInteger)borderSize
                cornerRadius:(NSUInteger)cornerRadius
-       interpolationQuality:(CGInterpolationQuality)quality;
+       interpolationQuality:(CGInterpolationQuality)quality; */
 - (UIImage *)resizedImage:(CGSize)newSize
      interpolationQuality:(CGInterpolationQuality)quality;
 - (UIImage *)resizedImageWithContentMode:(UIViewContentMode)contentMode
