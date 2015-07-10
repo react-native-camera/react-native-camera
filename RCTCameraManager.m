@@ -5,6 +5,7 @@
 #import "RCTUtils.h"
 #import "RCTLog.h"
 #import "UIView+React.h"
+#import "NSMutableDictionary+ImageMetadata.m"
 #import <AssetsLibrary/ALAssetsLibrary.h>
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
@@ -277,36 +278,6 @@ RCT_EXPORT_METHOD(stopCapture) {
   });
 }
 
-//- (void)captureStill:(NSInteger)target options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback {
-//  if ([[[UIDevice currentDevice].model lowercaseString] rangeOfString:@"simulator"].location != NSNotFound){
-//
-//    CGSize size = CGSizeMake(720, 1280);
-//    UIGraphicsBeginImageContextWithOptions(size, YES, 0);
-//    [[UIColor whiteColor] setFill];
-//    UIRectFill(CGRectMake(0, 0, size.width, size.height));
-//    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-//    UIGraphicsEndImageContext();
-//
-//    [self saveImage:image options:options callback:callback];
-//
-//  } else {
-//
-//    [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
-//
-//    [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
-//      NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-//      UIImage *image = [UIImage imageWithData:imageData];
-//      if (image)
-//      {
-//        [self saveImage:image options:options callback:callback];
-//      }
-//      else {
-//        callback(@[RCTMakeError(error.description, nil, nil)]);
-//      }
-//    }];
-//  }
-//}
-
 - (void)captureStill:(NSInteger)target options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback {
   if ([[[UIDevice currentDevice].model lowercaseString] rangeOfString:@"simulator"].location != NSNotFound){
 
@@ -358,15 +329,8 @@ RCT_EXPORT_METHOD(stopCapture) {
       // Erase stupid TIFF stuff
       [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
 
-      NSDictionary *inputMetadata = [options objectForKey:@"metadata"];
-      // Add metadata etc
-      if (inputMetadata) {
-        NSDictionary *inputMetadataLocation = [inputMetadata objectForKey:@"location"];
-        if (inputMetadataLocation) {
-          // Add GPS stuff
-          [imageMetadata setObject:[self getGPSDictionaryForLocation:inputMetadataLocation] forKey:(NSString *)kCGImagePropertyGPSDictionary];
-        }
-      }
+      // Add input metadata
+      [imageMetadata mergeMetadata:[options objectForKey:@"metadata"]];
 
       // Create destination thing
       NSMutableData *rotatedImageData = [NSMutableData data];
@@ -418,71 +382,6 @@ RCT_EXPORT_METHOD(stopCapture) {
     return;
   }
   callback(@[[NSNull null], responseString]);
-}
-
-- (NSMutableDictionary *)getGPSDictionaryForLocation:(NSDictionary *)location {
-  NSMutableDictionary *gps = [NSMutableDictionary dictionary];
-  NSDictionary *coords = [location objectForKey:@"coords"];
-  // GPS tag version
-  [gps setObject:@"2.2.0.0" forKey:(NSString *)kCGImagePropertyGPSVersion];
-
-  // Timestamp
-  double timestamp = floor([[location objectForKey:@"timestamp"] doubleValue]);
-  NSDate *date = [NSDate dateWithTimeIntervalSince1970:timestamp];
-  NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-  [formatter setDateFormat:@"HH:mm:ss.SSSSSS"];
-  [formatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
-  [gps setObject:[formatter stringFromDate:date] forKey:(NSString *)kCGImagePropertyGPSTimeStamp];
-  [formatter setDateFormat:@"yyyy:MM:dd"];
-  [gps setObject:[formatter stringFromDate:date] forKey:(NSString *)kCGImagePropertyGPSDateStamp];
-
-  // Latitude
-  double latitude = [[coords objectForKey:@"latitude"] doubleValue];
-  if (latitude < 0) {
-    latitude = -latitude;
-    [gps setObject:@"S" forKey:(NSString *)kCGImagePropertyGPSLatitudeRef];
-  } else {
-    [gps setObject:@"N" forKey:(NSString *)kCGImagePropertyGPSLatitudeRef];
-  }
-  [gps setObject:[NSNumber numberWithFloat:latitude] forKey:(NSString *)kCGImagePropertyGPSLatitude];
-
-  // Longitude
-  double longitude = [[coords objectForKey:@"longitude"] doubleValue];
-  if (longitude < 0) {
-    longitude = -longitude;
-    [gps setObject:@"W" forKey:(NSString *)kCGImagePropertyGPSLongitudeRef];
-  } else {
-    [gps setObject:@"E" forKey:(NSString *)kCGImagePropertyGPSLongitudeRef];
-  }
-  [gps setObject:[NSNumber numberWithFloat:longitude] forKey:(NSString *)kCGImagePropertyGPSLongitude];
-
-  // Altitude
-  double altitude = [[coords objectForKey:@"altitude"] doubleValue];
-  if (!isnan(altitude)){
-    if (altitude < 0) {
-      altitude = -altitude;
-      [gps setObject:@"1" forKey:(NSString *)kCGImagePropertyGPSAltitudeRef];
-    } else {
-      [gps setObject:@"0" forKey:(NSString *)kCGImagePropertyGPSAltitudeRef];
-    }
-    [gps setObject:[NSNumber numberWithFloat:altitude] forKey:(NSString *)kCGImagePropertyGPSAltitude];
-  }
-
-  // Speed, must be converted from m/s to km/h
-  double speed = [[coords objectForKey:@"speed"] doubleValue];
-  if (speed >= 0){
-    [gps setObject:@"K" forKey:(NSString *)kCGImagePropertyGPSSpeedRef];
-    [gps setObject:[NSNumber numberWithFloat:speed*3.6] forKey:(NSString *)kCGImagePropertyGPSSpeed];
-  }
-
-  // Heading
-  double heading = [[coords objectForKey:@"heading"] doubleValue];
-  if (heading >= 0){
-    [gps setObject:@"T" forKey:(NSString *)kCGImagePropertyGPSTrackRef];
-    [gps setObject:[NSNumber numberWithFloat:heading] forKey:(NSString *)kCGImagePropertyGPSTrack];
-  }
-
-  return gps;
 }
 
 - (CGImageRef)CGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
