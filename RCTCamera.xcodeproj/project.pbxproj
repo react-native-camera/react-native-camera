@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */; };
-		41644DE51AD5D5A400701D70 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 41644DE41AD5D5A400701D70 /* UIImage+Resize.m */; };
+		454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,8 +30,7 @@
 		410701481ACB732B00C6AA39 /* RCTCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCamera.m; sourceTree = "<group>"; };
 		410701491ACB732B00C6AA39 /* RCTCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTCameraManager.h; sourceTree = "<group>"; };
 		4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCameraManager.m; sourceTree = "<group>"; };
-		41644DE31AD5D5A400701D70 /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
-		41644DE41AD5D5A400701D70 /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Resize.m"; sourceTree = "<group>"; };
+		454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+ImageMetadata.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,8 +47,7 @@
 		410701241ACB719800C6AA39 = {
 			isa = PBXGroup;
 			children = (
-				41644DE31AD5D5A400701D70 /* UIImage+Resize.h */,
-				41644DE41AD5D5A400701D70 /* UIImage+Resize.m */,
+				454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */,
 				410701471ACB732B00C6AA39 /* RCTCamera.h */,
 				410701481ACB732B00C6AA39 /* RCTCamera.m */,
 				410701491ACB732B00C6AA39 /* RCTCameraManager.h */,
@@ -121,8 +119,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */,
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,
-				41644DE51AD5D5A400701D70 /* UIImage+Resize.m in Sources */,
 				4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
