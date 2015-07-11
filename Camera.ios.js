@@ -68,7 +68,7 @@ var Camera = React.createClass({
       orientation: constants.Orientation.auto,
       captureAudio: true,
       captureMode: constants.CaptureMode.still,
-      captureTarget: constants.CaptureTarget.memory,
+      captureTarget: constants.CaptureTarget.cameraRoll,
       flashMode: constants.FlashMode.off,
       torchMode: constants.TorchMode.off
     };
@@ -123,25 +123,6 @@ var Camera = React.createClass({
         Back: 'back'
       }
     };
-
-    var foundLegacyAspect = legacyProps.aspect[aspect];
-    var foundLegacyOrientation = legacyProps.orientation[orientation];
-    var foundLegacyType = legacyProps.type[type];
-
-    if (__DEV__) {
-      if (foundLegacyAspect) {
-        console.log(`RCTCamera: aspect="${aspect}" is deprecated, use aspect={Camera.constants.Aspect.${foundLegacyAspect}} instead.`);
-        aspect = constants.Aspect[foundLegacyAspect];
-      }
-      if (foundLegacyOrientation) {
-        console.log(`RCTCamera: orientation="${orientation}" is deprecated, use orientation={Camera.constants.Orientation.${foundLegacyOrientation}} instead.`);
-        orientation = constants.Orientation[foundLegacyOrientation];
-      }
-      if (foundLegacyType) {
-        console.log(`RCTCamera: type="${type}" is deprecated, use type={Camera.constants.Type.${foundLegacyType}} instead.`);
-        type = constants.Type[foundLegacyType];
-      }
-    }
 
     if (typeof aspect === 'string') {
       aspect = constants.Aspect[aspect];

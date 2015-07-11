@@ -121,13 +121,13 @@ Values: `true` (default), `false` (Boolean)
 
 #### `captureMode`
 
-Values: `Camera.constants.CaptureMode.still` (default)
+Values: `Camera.constants.CaptureMode.still` (default), `Camera.constants.CaptureMode.video`
 
-The type of capture that will be performed by the camera - either a still image or (hopefully soon, video).
+The type of capture that will be performed by the camera - either a still image or video.
 
 #### `captureTarget`
 
-Values: `Camera.constants.CaptureTarget.memory` (default), `Camera.constants.CaptureTarget.disk`
+Values: `Camera.constants.CaptureTarget.cameraRoll` (default), `Camera.constants.CaptureTarget.disk`, ~`Camera.constants.CaptureTarget.memory`~ (deprecated), 
 
 This property allows you to specify the target output of the captured image data. By default the image binary is sent back as a base 64 encoded string. The disk output has been shown to improve capture response time, so that is the recommended value.
 
@@ -153,8 +153,6 @@ Will call the specified method when a barcode is detected in the camera's view.
 
 Event contains `data` (the data in the barcode) and `bounds` (the rectangle which outlines the barcode.)
 
-*TODO: Only emit one event for each barcode scanned.*
-
 #### `flashMode`
 
 Values:
@@ -179,7 +177,7 @@ You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to 
 
 #### `capture([options,] callback)`
 
-Captures data from the camera. What is captured is based on the `captureMode` and `captureTarget` props. `captureMode` tells the camera whether you want a still image or video. `captureTarget` allows you to specify how you want the data to be captured and sent back to you. The available `target`s are `Camera.constants.CaptureTarget.memory` and `Camera.constants.CaptureTarget.disk` - the latter has been shown to dramatically improve camera performance.
+Captures data from the camera. What is captured is based on the `captureMode` and `captureTarget` props. `captureMode` tells the camera whether you want a still image or video. `captureTarget` allows you to specify how you want the data to be captured and sent back to you. See `captureTarget` under Properties to see the available values.
 
 Supported options:
 
