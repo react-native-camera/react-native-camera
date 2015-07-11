@@ -308,8 +308,8 @@ RCT_EXPORT_METHOD(stopCapture) {
       CGImageRef cgImage;
       cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
 
-      float rotation = [[options objectForKey:@"rotation"] floatValue];
-      if (rotation) {
+      if ([options objectForKey:@"rotation"]) {
+        float rotation = [[options objectForKey:@"rotation"] floatValue];
         cgImage = [self CGImageRotatedByAngle:cgImage angle:rotation];
       } else {
         // Get metadata orientation
