@@ -347,6 +347,10 @@ RCT_EXPORT_METHOD(stopCapture) {
       else {
         callback(@[RCTMakeError(error.description, nil, nil)]);
       }
+      CFRelease(imageDataSampleBuffer);
+      CGImageRelease(cgImage);
+      CFRelease(source);
+      CFRelease(destination);
     }];
   }
 }
