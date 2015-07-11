@@ -324,8 +324,8 @@ RCT_EXPORT_METHOD(stopCapture) {
       CGImageRef cgImage;
       cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
 
-      float rotation = [[options objectForKey:@"rotation"] floatValue];
-      if (rotation) {
+      if ([options objectForKey:@"rotation"]) {
+        float rotation = [[options objectForKey:@"rotation"] floatValue];
         cgImage = [self CGImageRotatedByAngle:cgImage angle:rotation];
       } else {
         // Get metadata orientation
@@ -363,6 +363,10 @@ RCT_EXPORT_METHOD(stopCapture) {
       else {
         callback(@[RCTMakeError(error.description, nil, nil)]);
       }
+      CFRelease(imageDataSampleBuffer);
+      CGImageRelease(cgImage);
+      CFRelease(source);
+      CFRelease(destination);
     }];
   }
 }
