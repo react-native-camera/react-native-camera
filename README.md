@@ -127,7 +127,7 @@ The type of capture that will be performed by the camera - either a still image 
 
 #### `captureTarget`
 
-Values: `Camera.constants.CaptureTarget.cameraRoll` (default), `Camera.constants.CaptureTarget.disk`, ~`Camera.constants.CaptureTarget.memory`~ (deprecated), 
+Values: `Camera.constants.CaptureTarget.cameraRoll` (default), `Camera.constants.CaptureTarget.disk`, ~~`Camera.constants.CaptureTarget.memory`~~ (deprecated), 
 
 This property allows you to specify the target output of the captured image data. By default the image binary is sent back as a base 64 encoded string. The disk output has been shown to improve capture response time, so that is the recommended value.
 
@@ -184,6 +184,10 @@ Supported options:
  - `audio` (See `captureAudio` under Properties)
  - `mode` (See  `captureMode` under Properties)
  - `target` (See `captureTarget` under Properties)
+ 
+#### `stopCapture()`
+
+Ends the current capture session for video captures. Only applies when the current `captureMode` is `video`.
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
