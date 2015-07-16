@@ -315,60 +315,64 @@ RCT_EXPORT_METHOD(stopCapture) {
 
       [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
 
-        NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+        if (imageDataSampleBuffer) {
+          NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
 
-        // Create image source
-        CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
-        //get all the metadata in the image
-        NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
+          // Create image source
+          CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
+          //get all the metadata in the image
+          NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
 
-        // create cgimage
-        CGImageRef cgImage;
-        cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
+          // create cgimage
+          CGImageRef CGImage;
+          CGImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
 
-        if ([options objectForKey:@"rotation"]) {
-          float rotation = [[options objectForKey:@"rotation"] floatValue];
-          cgImage = [self CGImageRotatedByAngle:cgImage angle:rotation];
-        } else {
-          // Get metadata orientation
-          int metadataOrientation = [[imageMetadata objectForKey:(NSString *)kCGImagePropertyOrientation] intValue];
+          // Rotate it
+          CGImageRef rotatedCGImage;
+          if ([options objectForKey:@"rotation"]) {
+            float rotation = [[options objectForKey:@"rotation"] floatValue];
+            rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:rotation];
+          } else {
+            // Get metadata orientation
+            int metadataOrientation = [[imageMetadata objectForKey:(NSString *)kCGImagePropertyOrientation] intValue];
 
-          if (metadataOrientation == 6) {
-            cgImage = [self CGImageRotatedByAngle:cgImage angle:270];
-          } else if (metadataOrientation == 1) {
-            cgImage = [self CGImageRotatedByAngle:cgImage angle:0];
-          } else if (metadataOrientation == 3) {
-            cgImage = [self CGImageRotatedByAngle:cgImage angle:180];
+            if (metadataOrientation == 6) {
+              rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:270];
+            } else if (metadataOrientation == 1) {
+              rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:0];
+            } else if (metadataOrientation == 3) {
+              rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:180];
+            } else {
+              rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:0];
+            }
           }
-        }
+          CGImageRelease(CGImage);
 
-        // Erase metadata orientation
-        [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyOrientation];
-        // Erase stupid TIFF stuff
-        [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
+          // Erase metadata orientation
+          [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyOrientation];
+          // Erase stupid TIFF stuff
+          [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
 
-        // Add input metadata
-        [imageMetadata mergeMetadata:[options objectForKey:@"metadata"]];
+          // Add input metadata
+          [imageMetadata mergeMetadata:[options objectForKey:@"metadata"]];
 
-        // Create destination thing
-        NSMutableData *rotatedImageData = [NSMutableData data];
-        CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)rotatedImageData, CGImageSourceGetType(source), 1, NULL);
-        // add the image to the destination, reattaching metadata
-        CGImageDestinationAddImage(destination, cgImage, (CFDictionaryRef) imageMetadata);
-        // And write
-        CGImageDestinationFinalize(destination);
+          // Create destination thing
+          NSMutableData *rotatedImageData = [NSMutableData data];
+          CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)rotatedImageData, CGImageSourceGetType(source), 1, NULL);
+          CFRelease(source);
+          // add the image to the destination, reattaching metadata
+          CGImageDestinationAddImage(destination, rotatedCGImage, (CFDictionaryRef) imageMetadata);
+          // And write
+          CGImageDestinationFinalize(destination);
+          CFRelease(destination);
 
-
-        if (rotatedImageData) {
           [self saveImage:rotatedImageData target:target metadata:imageMetadata callback:callback];
+
+          CGImageRelease(rotatedCGImage);
         }
         else {
           callback(@[RCTMakeError(error.description, nil, nil)]);
         }
-
-        CGImageRelease(cgImage);
-        CFRelease(source);
-        CFRelease(destination);
       }];
     }
   });
@@ -407,7 +411,7 @@ RCT_EXPORT_METHOD(stopCapture) {
   callback(@[[NSNull null], responseString]);
 }
 
-- (CGImageRef)CGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
+- (CGImageRef)newCGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
 {
   CGFloat angleInRadians = angle * (M_PI / 180);
   CGFloat width = CGImageGetWidth(imgRef);
