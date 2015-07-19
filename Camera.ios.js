@@ -82,10 +82,12 @@ var Camera = React.createClass({
   },
 
   componentWillMount() {
-    NativeModules.CameraManager.checkDeviceAuthorizationStatus((function(err, isAuthorized) {
-      this.state.isAuthorized = isAuthorized;
-      this.setState(this.state);
-    }).bind(this));
+    NativeModules.CameraManager.checkDeviceAuthorizationStatus((err, isAuthorized) => {
+      this.setState({
+        isAuthorized: isAuthorized
+      });
+    });
+
     this.cameraBarCodeReadListener = DeviceEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead);
   },
 
