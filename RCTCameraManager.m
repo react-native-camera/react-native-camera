@@ -271,8 +271,19 @@ RCT_EXPORT_METHOD(stopCapture) {
 
 - (void)initializeCaptureSessionInput:(NSString *)type {
   dispatch_async(self.sessionQueue, ^{
+    
+    [self.session beginConfiguration];
+    
     NSError *error = nil;
-    AVCaptureDevice *captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
+    AVCaptureDevice *captureDevice;
+    
+    if (type == AVMediaTypeAudio) {
+      captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    }
+    else if (type == AVMediaTypeVideo) {
+      captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
+    }
+    
     if (captureDevice == nil) {
       return;
     }
@@ -283,8 +294,6 @@ RCT_EXPORT_METHOD(stopCapture) {
       NSLog(@"%@", error);
       return;
     }
-
-    [self.session beginConfiguration];
 
     if (type == AVMediaTypeAudio) {
       [self.session removeInput:self.audioCaptureDeviceInput];
