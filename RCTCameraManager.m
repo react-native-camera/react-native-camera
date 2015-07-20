@@ -213,7 +213,13 @@ RCT_EXPORT_METHOD(stopCapture) {
   }
 }
 
+- (BOOL)isSimulator {
+  return [[[UIDevice currentDevice].model lowercaseString] rangeOfString:@"simulator"].location != NSNotFound;
+}
+
 - (void)startSession {
+  if ([self isSimulator]) return;
+  
   dispatch_async(self.sessionQueue, ^{
     if (self.presetCamera == AVCaptureDevicePositionUnspecified) {
       self.presetCamera = AVCaptureDevicePositionBack;
@@ -256,6 +262,8 @@ RCT_EXPORT_METHOD(stopCapture) {
 }
 
 - (void)stopSession {
+  if ([self isSimulator]) return;
+  
   dispatch_async(self.sessionQueue, ^{
     [self.previewLayer removeFromSuperlayer];
     [self.session stopRunning];
@@ -321,7 +329,7 @@ RCT_EXPORT_METHOD(stopCapture) {
 
 - (void)captureStill:(NSInteger)target options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback {
   dispatch_async(self.sessionQueue, ^{
-    if ([[[UIDevice currentDevice].model lowercaseString] rangeOfString:@"simulator"].location != NSNotFound){
+    if ([self isSimulator]){
 
       CGSize size = CGSizeMake(720, 1280);
       UIGraphicsBeginImageContextWithOptions(size, YES, 0);
