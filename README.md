@@ -153,6 +153,21 @@ Will call the specified method when a barcode is detected in the camera's view.
 
 Event contains `data` (the data in the barcode) and `bounds` (the rectangle which outlines the barcode.)
 
+The following barcode types can be recognised:
+
+- `aztec`
+- `code138`
+- `code39`
+- `code39mod43`
+- `code93`
+- `ean13`
+- `ean8`
+- `pdf417`
+- `qr`
+- `upce`
+
+The barcode type is provided in the `data` object.
+
 #### `flashMode`
 
 Values:
