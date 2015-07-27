@@ -105,6 +105,7 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
 
     self.sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
 
+
   }
   return self;
 }
@@ -660,6 +661,47 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     }
   });
 }
+
+- (void) focusAtThePoint:(CGPoint) atPoint;
+{
+    Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
+    if (captureDeviceClass != nil) {
+        dispatch_async([self sessionQueue], ^{
+            AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
+            if([device isFocusPointOfInterestSupported] &&
+               [device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
+                CGRect screenRect = [[UIScreen mainScreen] bounds];
+                double screenWidth = screenRect.size.width;
+                double screenHeight = screenRect.size.height;
+                double focus_x = atPoint.x/screenWidth;
+                double focus_y = atPoint.y/screenHeight;
+                if([device lockForConfiguration:nil]) {
+                    [device setFocusPointOfInterest:CGPointMake(focus_x,focus_y)];
+                    [device setFocusMode:AVCaptureFocusModeAutoFocus];
+                    if ([device isExposureModeSupported:AVCaptureExposureModeAutoExpose]){
+                        [device setExposureMode:AVCaptureExposureModeAutoExpose];
+                    }
+                    [device unlockForConfiguration];
+                }
+            }
+        });
+    }
+}
+
+- (void) zoom:(CGFloat)velocity {
+    const CGFloat pinchVelocityDividerFactor = 20.0f; // TODO: calibrate or make this component's property
+    NSError *error = nil;
+    AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
+    if ([device lockForConfiguration:&error]) {
+        CGFloat zoomFactor = device.videoZoomFactor + atan(velocity / pinchVelocityDividerFactor);
+        device.videoZoomFactor = zoomFactor >= 1.0f ? zoomFactor : 1.0f;
+        [device unlockForConfiguration];
+    } else {
+        NSLog(@"error: %@", error);
+    }
+}
+
+
 
 
 @end

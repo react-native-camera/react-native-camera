@@ -5,6 +5,7 @@
 #import "RCTUtils.h"
 
 #import <AVFoundation/AVFoundation.h>
+#import "CameraFocusSquare.h"
 
 @implementation RCTCamera
 
@@ -64,8 +65,11 @@
   
   if ((self = [super init])) {
     self.manager = manager;
+    UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchToZoomRecognizer:)];
+    [self addGestureRecognizer:pinchGesture];
     [self.manager initializeCaptureSessionInput:AVMediaTypeVideo];
     [self.manager startSession];
+    self.multipleTouches = NO;
   }
   return self;
 }
@@ -101,5 +105,56 @@
   UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
   [self.manager changeOrientation:orientation];
 }
+
+
+- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    // Update the touch state.
+    if ([[event touchesForView:self] count] > 1) {
+        self.multipleTouches = YES;
+    }
+
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    BOOL allTouchesEnded = ([touches count] == [[event touchesForView:self] count]);
+
+    // Do not conflict with zooming and etc.
+    if (allTouchesEnded && !self.multipleTouches) {
+        UITouch *touch = [[event allTouches] anyObject];
+        CGPoint touchPoint = [touch locationInView:touch.view];
+        // Focus camera on this point
+        [self.manager focusAtThePoint:touchPoint];
+
+        if (self.camFocus)
+        {
+            [self.camFocus removeFromSuperview];
+        }
+        // Show animated rectangle on the touched area
+        self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-40, touchPoint.y-40, 80, 80)];
+        [self.camFocus setBackgroundColor:[UIColor clearColor]];
+        [self addSubview:self.camFocus];
+        [self.camFocus setNeedsDisplay];
+
+        [UIView beginAnimations:nil context:NULL];
+        [UIView setAnimationDuration:1.0];
+        [self.camFocus setAlpha:0.0];
+        [UIView commitAnimations];
+    }
+
+    if (allTouchesEnded) {
+        self.multipleTouches = NO;
+    }
+
+}
+
+
+-(void) handlePinchToZoomRecognizer:(UIPinchGestureRecognizer*)pinchRecognizer {
+    if (pinchRecognizer.state == UIGestureRecognizerStateChanged) {
+        [self.manager zoom:pinchRecognizer.velocity];
+    }
+}
+
 
 @end
