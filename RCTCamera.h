@@ -7,9 +7,9 @@
 @interface RCTCamera : UIView
 
 @property (nonatomic) RCTCameraManager *manager;
+@property (nonatomic) RCTBridge *bridge;
 @property (nonatomic) RCTCameraFocusSquare *camFocus;
-@property (nonatomic) BOOL multipleTouches;
 
-- (id)initWithManager:(RCTCameraManager*)manager;
+- (id)initWithManager:(RCTCameraManager*)manager bridge:(RCTBridge *)bridge;
 
 @end

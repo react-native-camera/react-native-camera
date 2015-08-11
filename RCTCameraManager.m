@@ -16,7 +16,7 @@ RCT_EXPORT_MODULE();
 
 - (UIView *)view
 {
-  return [[RCTCamera alloc] initWithManager:self];
+    return [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
 }
 
 RCT_EXPORT_VIEW_PROPERTY(aspect, NSInteger);
@@ -91,6 +91,18 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
     AVMetadataObjectTypeQRCode,
     AVMetadataObjectTypeAztecCode
   ];
+}
+
+RCT_EXPORT_VIEW_PROPERTY(defaultTouchToFocus, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(onFocusChanged, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL)
+
+- (NSDictionary *)customDirectEventTypes
+{
+    return @{
+      @"focusChanged": @{ @"registrationName": @"onFocusChanged" },
+      @"zoomChanged":  @{ @"registrationName": @"onZoomChanged" },
+    };
 }
 
 - (id)init {
@@ -688,12 +700,19 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     }
 }
 
-- (void) zoom:(CGFloat)velocity {
+- (void) zoom:(CGFloat)velocity reactTag:(NSNumber *)reactTag{
     const CGFloat pinchVelocityDividerFactor = 20.0f; // TODO: calibrate or make this component's property
     NSError *error = nil;
     AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
     if ([device lockForConfiguration:&error]) {
         CGFloat zoomFactor = device.videoZoomFactor + atan(velocity / pinchVelocityDividerFactor);
+        NSDictionary *event = @{
+                                @"target": reactTag,
+                                @"zoomFactor": [NSNumber numberWithDouble:zoomFactor],
+                                @"velocity": [NSNumber numberWithDouble:velocity]
+                              };
+        [self.bridge.eventDispatcher sendInputEventWithName:@"zoomChanged" body:event];
+
         device.videoZoomFactor = zoomFactor >= 1.0f ? zoomFactor : 1.0f;
         [device unlockForConfiguration];
     } else {

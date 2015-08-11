@@ -3,11 +3,20 @@
 #import "RCTCameraManager.h"
 #import "RCTLog.h"
 #import "RCTUtils.h"
+#import "RCTEventDispatcher.h"
+
+#import "UIView+React.h"
 
 #import <AVFoundation/AVFoundation.h>
 #import "CameraFocusSquare.h"
 
 @implementation RCTCamera
+{
+  BOOL _multipleTouches;
+  BOOL _onFocusChanged;
+  BOOL _defaultTouchToFocus;
+  BOOL _onZoomChanged;
+}
 
 - (void)setAspect:(NSInteger)aspect
 {
@@ -60,16 +69,41 @@
   [self.manager changeTorchMode:torchMode];
 }
 
-- (id)initWithManager:(RCTCameraManager*)manager
+- (void)setOnFocusChanged:(BOOL)enabled
+{
+  if (_onFocusChanged != enabled) {
+    _onFocusChanged = enabled;
+  }
+}
+
+- (void)setDefaultTouchToFocus:(BOOL)enabled
+{
+    if (_defaultTouchToFocus != enabled) {
+        _defaultTouchToFocus = enabled;
+    }
+}
+
+- (void)setOnZoomChanged:(BOOL)enabled
+{
+    if (_onZoomChanged != enabled) {
+        _onZoomChanged = enabled;
+    }
+}
+
+- (id)initWithManager:(RCTCameraManager*)manager bridge:(RCTBridge *)bridge
 {
   
   if ((self = [super init])) {
     self.manager = manager;
+    self.bridge = bridge;
     UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchToZoomRecognizer:)];
     [self addGestureRecognizer:pinchGesture];
     [self.manager initializeCaptureSessionInput:AVMediaTypeVideo];
     [self.manager startSession];
-    self.multipleTouches = NO;
+    _multipleTouches = NO;
+    _onFocusChanged = NO;
+    _defaultTouchToFocus = YES;
+    _onZoomChanged = NO;
   }
   return self;
 }
@@ -111,17 +145,19 @@
 {
     // Update the touch state.
     if ([[event touchesForView:self] count] > 1) {
-        self.multipleTouches = YES;
+        _multipleTouches = YES;
     }
 
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    if (!_onFocusChanged) return;
+
     BOOL allTouchesEnded = ([touches count] == [[event touchesForView:self] count]);
 
     // Do not conflict with zooming and etc.
-    if (allTouchesEnded && !self.multipleTouches) {
+    if (allTouchesEnded && !_multipleTouches) {
         UITouch *touch = [[event allTouches] anyObject];
         CGPoint touchPoint = [touch locationInView:touch.view];
         // Focus camera on this point
@@ -131,28 +167,41 @@
         {
             [self.camFocus removeFromSuperview];
         }
-        // Show animated rectangle on the touched area
-        self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-40, touchPoint.y-40, 80, 80)];
-        [self.camFocus setBackgroundColor:[UIColor clearColor]];
-        [self addSubview:self.camFocus];
-        [self.camFocus setNeedsDisplay];
+        NSDictionary *event = @{
+          @"target": self.reactTag,
+          @"touchPoint": @{
+            @"x": [NSNumber numberWithDouble:touchPoint.x],
+            @"y": [NSNumber numberWithDouble:touchPoint.y]
+          }
+        };
+        [self.bridge.eventDispatcher sendInputEventWithName:@"focusChanged" body:event];
 
-        [UIView beginAnimations:nil context:NULL];
-        [UIView setAnimationDuration:1.0];
-        [self.camFocus setAlpha:0.0];
-        [UIView commitAnimations];
+        // Show animated rectangle on the touched area
+        if (_defaultTouchToFocus) {
+            self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-40, touchPoint.y-40, 80, 80)];
+            [self.camFocus setBackgroundColor:[UIColor clearColor]];
+            [self addSubview:self.camFocus];
+            [self.camFocus setNeedsDisplay];
+
+            [UIView beginAnimations:nil context:NULL];
+            [UIView setAnimationDuration:1.0];
+            [self.camFocus setAlpha:0.0];
+            [UIView commitAnimations];
+        }
     }
 
     if (allTouchesEnded) {
-        self.multipleTouches = NO;
+        _multipleTouches = NO;
     }
 
 }
 
 
 -(void) handlePinchToZoomRecognizer:(UIPinchGestureRecognizer*)pinchRecognizer {
+    if (!_onZoomChanged) return;
+
     if (pinchRecognizer.state == UIGestureRecognizerStateChanged) {
-        [self.manager zoom:pinchRecognizer.velocity];
+        [self.manager zoom:pinchRecognizer.velocity reactTag:self.reactTag];
     }
 }
 

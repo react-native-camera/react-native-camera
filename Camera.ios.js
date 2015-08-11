@@ -51,7 +51,10 @@ var Camera = React.createClass({
     torchMode: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
-    ])
+    ]),
+    defaultTouchToFocus: PropTypes.bool,
+    onFocusChanged: PropTypes.func,
+    onZoomChanged: PropTypes.func
   },
 
   mixins: [NativeMethodsMixin],
@@ -205,7 +208,10 @@ var RCTCamera = createReactNativeComponentClass({
     type: true,
     orientation: true,
     flashMode: true,
-    torchMode: true
+    torchMode: true,
+    onFocusChanged: true,
+    onZoomChanged: true,
+    defaultTouchToFocus: true
   }),
   uiViewClassName: 'RCTCamera',
 });
