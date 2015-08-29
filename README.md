@@ -186,6 +186,36 @@ Values:
 
 Use the `torchMode` property to specify the camera torch mode.
 
+#### `onFocusChanged`
+
+Args:
+```
+e: {
+  nativeEvent: {
+    touchPoint: { x, y }
+  }
+}
+```
+Will call when touch to focus has been made.
+
+#### `defaultOnFocusComponent`
+
+Values:
+`true` (default)
+`false`
+
+#### `onFocusChanged`
+
+Args:
+```
+  e: {
+    nativeEvent: {
+      velocity, zoomFactor
+    }
+  }
+```
+Will call when focus has changed.
+
 ## Component methods
 
 You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to your `<Camera>` element, then you can use `this.refs.camera.capture(cb)`, etc. inside your component.

@@ -93,16 +93,16 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
   ];
 }
 
-RCT_EXPORT_VIEW_PROPERTY(defaultTouchToFocus, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(defaultOnFocusComponent, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(onFocusChanged, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL)
 
-- (NSDictionary *)customDirectEventTypes
+- (NSArray *)customDirectEventTypes
 {
-    return @{
-      @"focusChanged": @{ @"registrationName": @"onFocusChanged" },
-      @"zoomChanged":  @{ @"registrationName": @"onZoomChanged" },
-    };
+    return @[
+      @"focusChanged",
+      @"zoomChanged",
+    ];
 }
 
 - (id)init {

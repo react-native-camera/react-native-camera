@@ -14,7 +14,7 @@
 {
   BOOL _multipleTouches;
   BOOL _onFocusChanged;
-  BOOL _defaultTouchToFocus;
+  BOOL _defaultOnFocusComponent;
   BOOL _onZoomChanged;
 }
 
@@ -76,18 +76,18 @@
   }
 }
 
-- (void)setDefaultTouchToFocus:(BOOL)enabled
+- (void)setDefaultOnFocusComponent:(BOOL)enabled
 {
-    if (_defaultTouchToFocus != enabled) {
-        _defaultTouchToFocus = enabled;
-    }
+  if (_defaultOnFocusComponent != enabled) {
+    _defaultOnFocusComponent = enabled;
+  }
 }
 
 - (void)setOnZoomChanged:(BOOL)enabled
 {
-    if (_onZoomChanged != enabled) {
-        _onZoomChanged = enabled;
-    }
+  if (_onZoomChanged != enabled) {
+    _onZoomChanged = enabled;
+  }
 }
 
 - (id)initWithManager:(RCTCameraManager*)manager bridge:(RCTBridge *)bridge
@@ -102,7 +102,7 @@
     [self.manager startSession];
     _multipleTouches = NO;
     _onFocusChanged = NO;
-    _defaultTouchToFocus = YES;
+    _defaultOnFocusComponent = YES;
     _onZoomChanged = NO;
   }
   return self;
@@ -177,7 +177,7 @@
         [self.bridge.eventDispatcher sendInputEventWithName:@"focusChanged" body:event];
 
         // Show animated rectangle on the touched area
-        if (_defaultTouchToFocus) {
+        if (_defaultOnFocusComponent) {
             self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-40, touchPoint.y-40, 80, 80)];
             [self.camFocus setBackgroundColor:[UIColor clearColor]];
             [self addSubview:self.camFocus];
