@@ -213,13 +213,10 @@ RCT_EXPORT_METHOD(stopCapture) {
   }
 }
 
-- (BOOL)isSimulator {
-  return [[[UIDevice currentDevice].model lowercaseString] rangeOfString:@"simulator"].location != NSNotFound;
-}
-
 - (void)startSession {
-  if ([self isSimulator]) return;
-
+#if TARGET_IPHONE_SIMULATOR
+  return;
+#endif
   dispatch_async(self.sessionQueue, ^{
     if (self.presetCamera == AVCaptureDevicePositionUnspecified) {
       self.presetCamera = AVCaptureDevicePositionBack;
@@ -262,8 +259,9 @@ RCT_EXPORT_METHOD(stopCapture) {
 }
 
 - (void)stopSession {
-  if ([self isSimulator]) return;
-
+#if TARGET_IPHONE_SIMULATOR
+  return;
+#endif
   dispatch_async(self.sessionQueue, ^{
     [self.previewLayer removeFromSuperlayer];
     [self.session stopRunning];
@@ -329,8 +327,7 @@ RCT_EXPORT_METHOD(stopCapture) {
 
 - (void)captureStill:(NSInteger)target options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback {
   dispatch_async(self.sessionQueue, ^{
-    if ([self isSimulator]){
-
+#if TARGET_IPHONE_SIMULATOR
       CGSize size = CGSizeMake(720, 1280);
       UIGraphicsBeginImageContextWithOptions(size, YES, 0);
         [[UIColor whiteColor] setFill];
@@ -340,9 +337,7 @@ RCT_EXPORT_METHOD(stopCapture) {
 
       NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
       [self saveImage:imageData target:target metadata:nil callback:callback];
-
-    } else {
-
+#else
       [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
 
       [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
@@ -406,7 +401,7 @@ RCT_EXPORT_METHOD(stopCapture) {
           callback(@[RCTMakeError(error.description, nil, nil)]);
         }
       }];
-    }
+#endif
   });
 }
 
