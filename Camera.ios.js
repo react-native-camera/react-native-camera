@@ -1,14 +1,8 @@
-var React = require('React');
-var DeviceEventEmitter = require('RCTDeviceEventEmitter');
-var NativeModules = require('NativeModules');
-var ReactNativeViewAttributes = require('ReactNativeViewAttributes');
-var StyleSheet = require('StyleSheet');
-var createReactNativeComponentClass = require('createReactNativeComponentClass');
-var PropTypes = require('ReactPropTypes');
-var StyleSheetPropType = require('StyleSheetPropType');
-var NativeMethodsMixin = require('NativeMethodsMixin');
-var flattenStyle = require('flattenStyle');
+var React = require('react-native');
+var { StyleSheet, requireNativeComponent, PropTypes, NativeModules, DeviceEventEmitter } = React;
 var merge = require('merge');
+
+var CAMERA_REF = 'camera';
 
 var constants = {
   Aspect: NativeModules.CameraManager.Aspect,
@@ -54,11 +48,8 @@ var Camera = React.createClass({
     ])
   },
 
-  mixins: [NativeMethodsMixin],
-
-  viewConfig: {
-    uiViewClassName: 'UIView',
-    validAttributes: ReactNativeViewAttributes.UIView
+  setNativeProps(props) {
+    this.refs[CAMERA_REF].setNativeProps(props);
   },
 
   getDefaultProps() {
@@ -98,7 +89,7 @@ var Camera = React.createClass({
   },
 
   render() {
-    var style = flattenStyle([styles.base, this.props.style]);
+    var style = [styles.base, this.props.style];
 
     var aspect = this.props.aspect,
         type = this.props.type,
@@ -153,7 +144,7 @@ var Camera = React.createClass({
       torchMode: torchMode
     });
 
-    return <RCTCamera {... nativeProps} />
+    return <RCTCamera ref={CAMERA_REF} {... nativeProps} />;
   },
 
   _onBarCodeRead(e) {
@@ -199,16 +190,7 @@ var Camera = React.createClass({
 
 });
 
-var RCTCamera = createReactNativeComponentClass({
-  validAttributes: merge(ReactNativeViewAttributes.UIView, {
-    aspect: true,
-    type: true,
-    orientation: true,
-    flashMode: true,
-    torchMode: true
-  }),
-  uiViewClassName: 'RCTCamera',
-});
+var RCTCamera = requireNativeComponent('RCTCamera', Camera);
 
 var styles = StyleSheet.create({
   base: { },
