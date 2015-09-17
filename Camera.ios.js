@@ -84,7 +84,7 @@ var Camera = React.createClass({
     this.cameraBarCodeReadListener.remove();
     
     if (this.state.isRecording) {
-      this.stopRecording();
+      this.stopCapture();
     }
   },
 
