@@ -1,6 +1,5 @@
 var React = require('react-native');
 var { StyleSheet, requireNativeComponent, PropTypes, NativeModules, DeviceEventEmitter } = React;
-var merge = require('merge');
 
 var CAMERA_REF = 'camera';
 
