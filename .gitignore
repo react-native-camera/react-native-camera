@@ -1,5 +1,5 @@
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
-RCTCamera.xcodeproj/xcuserdata
-RCTCamera.xcodeproj/project.xcworkspace
+ios/RCTCamera.xcodeproj/xcuserdata
+ios/RCTCamera.xcodeproj/project.xcworkspace

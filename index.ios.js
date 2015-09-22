@@ -135,7 +135,7 @@ var Camera = React.createClass({
       type = constants.Type[type];
     }
 
-    var nativeProps = merge(this.props, {
+    var nativeProps = Object.assign({}, this.props, {
       style,
       aspect: aspect,
       type: type,
