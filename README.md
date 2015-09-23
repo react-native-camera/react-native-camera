@@ -1,4 +1,4 @@
-# react-native-camera
+# react-native-camera [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera)
 
 A camera module for React Native.
 
