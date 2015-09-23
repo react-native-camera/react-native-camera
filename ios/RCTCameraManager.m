@@ -16,7 +16,7 @@ RCT_EXPORT_MODULE();
 
 - (UIView *)view
 {
-  return [[RCTCamera alloc] initWithManager:self];
+    return [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
 }
 
 RCT_EXPORT_VIEW_PROPERTY(aspect, NSInteger);
@@ -93,6 +93,18 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
   ];
 }
 
+RCT_EXPORT_VIEW_PROPERTY(defaultOnFocusComponent, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(onFocusChanged, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL)
+
+- (NSArray *)customDirectEventTypes
+{
+    return @[
+      @"focusChanged",
+      @"zoomChanged",
+    ];
+}
+
 - (id)init {
 
   if ((self = [super init])) {
@@ -104,6 +116,7 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
     self.previewLayer.needsDisplayOnBoundsChange = YES;
 
     self.sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
+
 
   }
   return self;
@@ -657,6 +670,54 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     }
   });
 }
+
+- (void) focusAtThePoint:(CGPoint) atPoint;
+{
+    Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
+    if (captureDeviceClass != nil) {
+        dispatch_async([self sessionQueue], ^{
+            AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
+            if([device isFocusPointOfInterestSupported] &&
+               [device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
+                CGRect screenRect = [[UIScreen mainScreen] bounds];
+                double screenWidth = screenRect.size.width;
+                double screenHeight = screenRect.size.height;
+                double focus_x = atPoint.x/screenWidth;
+                double focus_y = atPoint.y/screenHeight;
+                if([device lockForConfiguration:nil]) {
+                    [device setFocusPointOfInterest:CGPointMake(focus_x,focus_y)];
+                    [device setFocusMode:AVCaptureFocusModeAutoFocus];
+                    if ([device isExposureModeSupported:AVCaptureExposureModeAutoExpose]){
+                        [device setExposureMode:AVCaptureExposureModeAutoExpose];
+                    }
+                    [device unlockForConfiguration];
+                }
+            }
+        });
+    }
+}
+
+- (void) zoom:(CGFloat)velocity reactTag:(NSNumber *)reactTag{
+    const CGFloat pinchVelocityDividerFactor = 20.0f; // TODO: calibrate or make this component's property
+    NSError *error = nil;
+    AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
+    if ([device lockForConfiguration:&error]) {
+        CGFloat zoomFactor = device.videoZoomFactor + atan(velocity / pinchVelocityDividerFactor);
+        NSDictionary *event = @{
+                                @"target": reactTag,
+                                @"zoomFactor": [NSNumber numberWithDouble:zoomFactor],
+                                @"velocity": [NSNumber numberWithDouble:velocity]
+                              };
+        [self.bridge.eventDispatcher sendInputEventWithName:@"zoomChanged" body:event];
+
+        device.videoZoomFactor = zoomFactor >= 1.0f ? zoomFactor : 1.0f;
+        [device unlockForConfiguration];
+    } else {
+        NSLog(@"error: %@", error);
+    }
+}
+
+
 
 
 @end

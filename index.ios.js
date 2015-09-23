@@ -44,7 +44,10 @@ var Camera = React.createClass({
     torchMode: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
-    ])
+    ]),
+    defaultOnFocusComponent: PropTypes.bool,
+    onFocusChanged: PropTypes.func,
+    onZoomChanged: PropTypes.func
   },
 
   setNativeProps(props) {
