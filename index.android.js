@@ -1,4 +1,4 @@
-var { requireNativeComponent } = require('react-native');
+var { requireNativeComponent, PropTypes } = require('react-native');
 
 var iface = {
   name: 'ImageView',
