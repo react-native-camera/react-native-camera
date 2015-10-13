@@ -284,6 +284,7 @@ RCT_EXPORT_METHOD(stopCapture) {
 #endif
 	
   dispatch_async(self.sessionQueue, ^{
+    self.camera = nil;
     [self.previewLayer removeFromSuperlayer];
     [self.session stopRunning];
     for(AVCaptureInput *input in self.session.inputs) {
