@@ -38,18 +38,20 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
                @"fill": @(RCTCameraAspectFill)
                },
            @"BarCodeType": @{
-               @"upce": AVMetadataObjectTypeUPCECode,
-               @"code39": AVMetadataObjectTypeCode39Code,
-               @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
-               @"ean13": AVMetadataObjectTypeEAN13Code,
-               @"ean8":  AVMetadataObjectTypeEAN8Code,
-               @"code93": AVMetadataObjectTypeCode93Code,
-               @"code138": AVMetadataObjectTypeCode128Code,
-               @"pdf417": AVMetadataObjectTypePDF417Code,
-               @"qr": AVMetadataObjectTypeQRCode,
-               @"aztec": AVMetadataObjectTypeAztecCode,
-               @"datamatrix": AVMetadataObjectTypeDataMatrixCode
-               },
+                   @"upce": AVMetadataObjectTypeUPCECode,
+                   @"code39": AVMetadataObjectTypeCode39Code,
+                   @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
+                   @"ean13": AVMetadataObjectTypeEAN13Code,
+                   @"ean8":  AVMetadataObjectTypeEAN8Code,
+                   @"code93": AVMetadataObjectTypeCode93Code,
+                   @"code138": AVMetadataObjectTypeCode128Code,
+                   @"pdf417": AVMetadataObjectTypePDF417Code,
+                   @"qr": AVMetadataObjectTypeQRCode,
+                   @"aztec": AVMetadataObjectTypeAztecCode
+                   #ifdef AVMetadataObjectTypeDataMatrixCode
+                   ,@"datamatrix": AVMetadataObjectTypeDataMatrixCode
+                   # endif
+                   },
            @"Type": @{
                @"front": @(RCTCameraTypeFront),
                @"back": @(RCTCameraTypeBack)
@@ -94,8 +96,10 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
     AVMetadataObjectTypeCode128Code,
     AVMetadataObjectTypePDF417Code,
     AVMetadataObjectTypeQRCode,
-    AVMetadataObjectTypeAztecCode,
-    AVMetadataObjectTypeDataMatrixCode
+    AVMetadataObjectTypeAztecCode
+    #ifdef AVMetadataObjectTypeDataMatrixCode
+    ,AVMetadataObjectTypeDataMatrixCode
+    # endif
   ];
 }
 
