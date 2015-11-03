@@ -236,6 +236,12 @@ RCT_EXPORT_METHOD(stopCapture) {
   }
 }
 
+RCT_EXPORT_METHOD(hasFlash:(RCTResponseSenderBlock) callback) {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    BOOL available = device.hasFlash;
+    callback(@[@(available)]);
+}
+
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
