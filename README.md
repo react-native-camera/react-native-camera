@@ -165,6 +165,7 @@ The following barcode types can be recognised:
 - `pdf417`
 - `qr`
 - `upce`
+- `datamatrix` (when available)
 
 The barcode type is provided in the `data` object.
 
