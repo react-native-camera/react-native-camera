@@ -16,11 +16,7 @@ RCT_EXPORT_MODULE();
 
 - (UIView *)view
 {
-    if(!self.camera){
-        self.camera = [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
-        return self.camera;
-    }
-    return self.camera;
+    return [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
 }
 
 RCT_EXPORT_VIEW_PROPERTY(aspect, NSInteger);
@@ -288,7 +284,6 @@ RCT_EXPORT_METHOD(stopCapture) {
 #endif
 	
   dispatch_async(self.sessionQueue, ^{
-    self.camera = nil;
     [self.previewLayer removeFromSuperlayer];
     [self.session stopRunning];
     for(AVCaptureInput *input in self.session.inputs) {
