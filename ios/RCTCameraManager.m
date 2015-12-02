@@ -14,6 +14,12 @@
 
 RCT_EXPORT_MODULE();
 
+- (UIView *)viewWithProps:(__unused NSDictionary *)props
+{
+    self.presetCamera = ((NSNumber *)props[@"type"]).integerValue;
+    return [self view];
+}
+
 - (UIView *)view
 {
     return [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
