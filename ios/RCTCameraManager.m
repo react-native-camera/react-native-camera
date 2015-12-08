@@ -130,10 +130,18 @@ RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL)
 
 RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTResponseSenderBlock) callback)
 {
-  NSString *mediaType = AVMediaTypeVideo;
+  __block NSString *mediaType = AVMediaTypeVideo;
 
   [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
-    callback(@[[NSNull null], @(granted)]);
+    if (!granted) {
+      callback(@[[NSNull null], @(granted)]);
+    }
+    else {
+      mediaType = AVMediaTypeAudio;
+      [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+        callback(@[[NSNull null], @(granted)]);
+      }];
+    }
   }];
 }
 
