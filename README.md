@@ -1,6 +1,6 @@
 # react-native-camera [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera)
 
-A camera module for React Native.
+A camera module for React Native. **iOS only for now. Looking for help with Android!**
 
 ![](https://i.imgur.com/5j2JdUk.gif)
 
