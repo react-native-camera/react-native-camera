@@ -242,7 +242,7 @@ Supported options:
 
 Ends the current capture session for video captures. Only applies when the current `captureMode` is `video`.
 
-### `checkDeviceAuthorizationStatus(callback(err, isAuthorized))`
+#### `checkDeviceAuthorizationStatus(callback(err, isAuthorized))`
 
 Exposes the native API for checking if the device has authorized access to the camera. Can be used to call before loading the Camera component to ensure proper UX.
 
