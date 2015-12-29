@@ -373,7 +373,7 @@ RCT_EXPORT_METHOD(stopCapture) {
       NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
       [self saveImage:imageData target:target metadata:nil callback:callback];
 #else
-      [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
+      [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.saveImageOrientation];
 
       [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
 
@@ -737,6 +737,11 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     } else {
         NSLog(@"error: %@", error);
     }
+}
+
+- (void) changeSaveImageOrientation:(NSInteger)orientation
+{
+  self.saveImageOrientation = orientation;
 }
 
 

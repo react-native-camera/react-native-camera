@@ -52,11 +52,35 @@
   if (orientation == RCTCameraOrientationAuto) {
     [self.manager changeOrientation:[UIApplication sharedApplication].statusBarOrientation];
     [[NSNotificationCenter defaultCenter] addObserver:self  selector:@selector(orientationChanged:)    name:UIDeviceOrientationDidChangeNotification  object:nil];
+    self.motionManager = [[CMMotionManager alloc] init];
+    self.motionManager.accelerometerUpdateInterval = .2;
+    self.motionManager.gyroUpdateInterval = .2;
+    [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
+                                        withHandler:^(CMAccelerometerData * _Nullable accelerometerData, NSError * _Nullable error) {
+                                          [self.manager changeSaveImageOrientation:[self getOrientationBy:accelerometerData.acceleration]];
+                                        }];
   }
   else {
     [[NSNotificationCenter defaultCenter]removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
     [self.manager changeOrientation:orientation];
   }
+}
+
+- (NSInteger) getOrientationBy: (CMAcceleration) acceleration
+{
+  if(acceleration.x >= 0.75) {
+    return UIInterfaceOrientationLandscapeLeft;
+  }
+  if(acceleration.x <= -0.75) {
+    return UIInterfaceOrientationLandscapeRight;
+  }
+  if(acceleration.y >= -0.75) {
+    return UIInterfaceOrientationPortrait;
+  }
+  if(acceleration.y >= 0.75) {
+    return UIInterfaceOrientationPortraitUpsideDown;
+  }
+  return [[UIApplication sharedApplication] statusBarOrientation];
 }
 
 - (void)setFlashMode:(NSInteger)flashMode
@@ -133,6 +157,7 @@
   [self.manager stopSession];
   [super removeFromSuperview];
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+  if (self.motionManager.accessibilityActivate) [self.motionManager stopAccelerometerUpdates];
 }
 
 - (void)orientationChanged:(NSNotification *)notification{
