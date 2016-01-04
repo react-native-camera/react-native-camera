@@ -237,10 +237,14 @@ Supported options:
  - `metadata` This is metadata to be added to the captured image.
    - `location` This is the object returned from `navigator.geolocation.getCurrentPosition()` (React Native's geolocation polyfill). It will add GPS metadata to the image.
  - `rotation` This will rotate the image by the number of degrees specified.
- 
+
 #### `stopCapture()`
 
 Ends the current capture session for video captures. Only applies when the current `captureMode` is `video`.
+
+#### `checkDeviceAuthorizationStatus(callback(err, isAuthorized))`
+
+Exposes the native API for checking if the device has authorized access to the camera. Can be used to call before loading the Camera component to ensure proper UX.
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
