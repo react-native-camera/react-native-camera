@@ -1,5 +1,7 @@
 # react-native-camera [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera)
 
+[![Join the chat at https://gitter.im/lwansbrough/react-native-camera](https://badges.gitter.im/lwansbrough/react-native-camera.svg)](https://gitter.im/lwansbrough/react-native-camera?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A camera module for React Native. **iOS only for now. Looking for help with Android!**
 
 ![](https://i.imgur.com/5j2JdUk.gif)
