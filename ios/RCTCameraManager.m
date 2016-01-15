@@ -65,6 +65,7 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
            @"CaptureTarget": @{
                @"memory": @(RCTCameraCaptureTargetMemory),
                @"disk": @(RCTCameraCaptureTargetDisk),
+               @"temp": @(RCTCameraCaptureTargetTemp),
                @"cameraRoll": @(RCTCameraCaptureTargetCameraRoll)
                },
            @"Orientation": @{
@@ -250,12 +251,12 @@ RCT_EXPORT_METHOD(stopCapture) {
 #if TARGET_IPHONE_SIMULATOR
   return;
 #endif
-	
+
   dispatch_async(self.sessionQueue, ^{
     if (self.presetCamera == AVCaptureDevicePositionUnspecified) {
       self.presetCamera = AVCaptureDevicePositionBack;
     }
-    
+
     AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
     if ([self.session canAddOutput:stillImageOutput])
     {
@@ -263,14 +264,14 @@ RCT_EXPORT_METHOD(stopCapture) {
       [self.session addOutput:stillImageOutput];
       self.stillImageOutput = stillImageOutput;
     }
-    
+
     AVCaptureMovieFileOutput *movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
     if ([self.session canAddOutput:movieFileOutput])
     {
       [self.session addOutput:movieFileOutput];
       self.movieFileOutput = movieFileOutput;
     }
-    
+
     AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
     if ([self.session canAddOutput:metadataOutput]) {
       [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
@@ -278,7 +279,7 @@ RCT_EXPORT_METHOD(stopCapture) {
       [metadataOutput setMetadataObjectTypes:metadataOutput.availableMetadataObjectTypes];
       self.metadataOutput = metadataOutput;
     }
-    
+
     __weak RCTCameraManager *weakSelf = self;
     [self setRuntimeErrorHandlingObserver:[NSNotificationCenter.defaultCenter addObserverForName:AVCaptureSessionRuntimeErrorNotification object:self.session queue:nil usingBlock:^(NSNotification *note) {
       RCTCameraManager *strongSelf = weakSelf;
@@ -287,7 +288,7 @@ RCT_EXPORT_METHOD(stopCapture) {
         [strongSelf.session startRunning];
       });
     }]];
-    
+
     [self.session startRunning];
   });
 }
@@ -296,14 +297,14 @@ RCT_EXPORT_METHOD(stopCapture) {
 #if TARGET_IPHONE_SIMULATOR
   return;
 #endif
-	
+
   dispatch_async(self.sessionQueue, ^{
     [self.previewLayer removeFromSuperlayer];
     [self.session stopRunning];
     for(AVCaptureInput *input in self.session.inputs) {
       [self.session removeInput:input];
     }
-    
+
     for(AVCaptureOutput *output in self.session.outputs) {
       [self.session removeOutput:output];
     }
@@ -312,19 +313,19 @@ RCT_EXPORT_METHOD(stopCapture) {
 
 - (void)initializeCaptureSessionInput:(NSString *)type {
   dispatch_async(self.sessionQueue, ^{
-    
+
     [self.session beginConfiguration];
-    
+
     NSError *error = nil;
     AVCaptureDevice *captureDevice;
-    
+
     if (type == AVMediaTypeAudio) {
       captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
     }
     else if (type == AVMediaTypeVideo) {
       captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
     }
-    
+
     if (captureDevice == nil) {
       return;
     }
@@ -451,11 +452,19 @@ RCT_EXPORT_METHOD(stopCapture) {
   else if (target == RCTCameraCaptureTargetDisk) {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths firstObject];
-
+      
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"jpg"];
-
+    
     [fileManager createFileAtPath:fullPath contents:imageData attributes:nil];
+    responseString = fullPath;
+  }
+    
+  else if (target == RCTCameraCaptureTargetTemp) {
+    NSString *fileName = [[NSProcessInfo processInfo] globallyUniqueString];
+    NSString *fullPath = [NSString stringWithFormat:@"%@%@.jpg", NSTemporaryDirectory(), fileName];
+      
+    [imageData writeToFile:fullPath atomically:YES];
     responseString = fullPath;
   }
 
@@ -588,6 +597,20 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     if (!([fileManager copyItemAtPath:[outputFileURL path] toPath:fullPath error:&error])) {
       self.videoCallback(@[RCTMakeError(error.description, nil, nil)]);
       return;
+    }
+    self.videoCallback(@[[NSNull null], fullPath]);
+  }
+  else if (self.videoTarget == RCTCameraCaptureTargetTemp) {
+    NSString *fileName = [[NSProcessInfo processInfo] globallyUniqueString];
+    NSString *fullPath = [NSString stringWithFormat:@"%@%@.mov", NSTemporaryDirectory(), fileName];
+    
+    NSFileManager * fileManager = [NSFileManager defaultManager];
+    NSError * error = nil;
+      
+    //copying destination
+    if (!([fileManager copyItemAtPath:[outputFileURL path] toPath:fullPath error:&error])) {
+        self.videoCallback(@[RCTMakeError(error.description, nil, nil)]);
+        return;
     }
     self.videoCallback(@[[NSNull null], fullPath]);
   }
