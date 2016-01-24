@@ -366,9 +366,24 @@ RCT_EXPORT_METHOD(stopCapture) {
 #if TARGET_IPHONE_SIMULATOR
       CGSize size = CGSizeMake(720, 1280);
       UIGraphicsBeginImageContextWithOptions(size, YES, 0);
-        [[UIColor whiteColor] setFill];
-        UIRectFill(CGRectMake(0, 0, size.width, size.height));
-        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+          // Thanks https://gist.github.com/kylefox/1689973
+          CGFloat hue = ( arc4random() % 256 / 256.0 );  //  0.0 to 1.0
+          CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from white
+          CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from black
+          UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
+          [color setFill];
+          UIRectFill(CGRectMake(0, 0, size.width, size.height));
+          NSDate *currentDate = [NSDate date];
+          NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+          [dateFormatter setDateFormat:@"dd.MM.YY HH:mm:ss"];
+          NSString *text = [dateFormatter stringFromDate:currentDate];
+          UIFont *font = [UIFont systemFontOfSize:40.0];
+          NSDictionary *attributes = [NSDictionary dictionaryWithObjects:
+                                      @[font, [UIColor blackColor]]
+                                                                 forKeys:
+                                      @[NSFontAttributeName, NSForegroundColorAttributeName]];
+          [text drawAtPoint:CGPointMake(size.width/3, size.height/2) withAttributes:attributes];
+          UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
       UIGraphicsEndImageContext();
 
       NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
