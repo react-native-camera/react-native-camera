@@ -1,7 +1,6 @@
 # react-native-camera [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![Gitter](https://badges.gitter.im/lwansbrough/react-native-camera.svg)](https://gitter.im/lwansbrough/react-native-camera)
 
-A camera module for React Native. **iOS only for now. Looking for help with Android!**
-
+A camera module for React Native. 
 ![](https://i.imgur.com/5j2JdUk.gif)
 
 ## Known Issues
@@ -10,13 +9,41 @@ Below is a list of known issues. Pull requests are welcome for any of these issu
 - Stills captured to disk will not be cleaned up and thus must be managed manually for now
 
 ## Getting started
+### Mostly automatic install
+1. `npm install rnpm --global`
+2. `npm install react-native-camera@latest --save`
+3. `rnpm link react-native-camera`
 
+### Manual install
+#### iOS
 1. `npm install react-native-camera@latest --save`
 2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
 3. Go to `node_modules` ➜ `react-native-camera` and add `RCTCamera.xcodeproj`
 4. In XCode, in the project navigator, select your project. Add `libRCTCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
 5. Click `RCTCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
 5. Run your project (`Cmd+R`)
+
+
+#### Android
+1. `npm install react-native-camera@latest --save`
+2.  Modify the ReactInstanceManager.builder() calls chain in `android/app/main/java/.../MainActivity.java` to include:
+
+	```
+ 	.addPackage(new RCTCameraPackage())
+ 	```
+3. Append the following lines to `android/settings.gradle`:
+
+	```
+	include ':react-native-camera'
+	project(':react-native-camera').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-camera/android')
+	```
+
+4. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
+
+	```
+    compile project(':react-native-camera')
+	```
+
 
 ## Usage
 
