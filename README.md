@@ -27,6 +27,8 @@ Below is a list of known issues. Pull requests are welcome for any of these issu
 #### Android
 1. `npm install react-native-camera@latest --save`
 2.  Modify the ReactInstanceManager.builder() calls chain in `android/app/main/java/.../MainActivity.java` to include:
+	```
+	import com.lwansbrough.RCTCamera.RCTCameraPackage;
 
 	```
  	.addPackage(new RCTCameraPackage())
