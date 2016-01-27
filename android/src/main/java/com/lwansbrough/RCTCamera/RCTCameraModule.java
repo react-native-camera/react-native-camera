@@ -256,9 +256,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             File outputFile;
 
             if (type == MEDIA_TYPE_IMAGE) {
-                outputFile = File.createTempFile("IMG_" + timeStamp, "jpg", outputDir);
+                outputFile = File.createTempFile("IMG_" + timeStamp, ".jpg", outputDir);
             } else if (type == MEDIA_TYPE_VIDEO) {
-                outputFile = File.createTempFile("VID_" + timeStamp, "mp4", outputDir);
+                outputFile = File.createTempFile("VID_" + timeStamp, ".mp4", outputDir);
             } else {
                 Log.e(TAG, "Unsupported media type:" + type);
                 return null;
