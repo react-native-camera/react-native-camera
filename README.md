@@ -103,10 +103,10 @@ var cameraApp = React.createClass({
     this.setState(state);
   },
   _takePicture() {
-    this.refs.cam.capture(function(err, data) {
-      console.log(err, data);
-    });
-  }
+  this.refs.cam.capture().then(
+    data => console.log(data),
+    error => console.log(error)
+  );
 });
 
 
@@ -252,9 +252,9 @@ By default, `onZoomChanged` is not defined and pinch-to-zoom is disabled.
 
 You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to your `<Camera>` element, then you can use `this.refs.camera.capture(cb)`, etc. inside your component.
 
-#### `capture([options,] callback)`
+#### `capture([options]): Promise`
 
-Captures data from the camera. What is captured is based on the `captureMode` and `captureTarget` props. `captureMode` tells the camera whether you want a still image or video. `captureTarget` allows you to specify how you want the data to be captured and sent back to you. See `captureTarget` under Properties to see the available values.
+Captures data from the camera. What is captured is based on the `captureMode` and `captureTarget` props. `captureMode` tells the camera whether you want a still image or video. `captureTarget` allows you to specify how you want the data to be captured and sent back to you. See `captureTarget` under Properties to see the available values. The promise will be fulfilled with the image data or file handle of the image on disk, depending on `target`.
 
 Supported options:
 
@@ -269,9 +269,9 @@ Supported options:
 
 Ends the current capture session for video captures. Only applies when the current `captureMode` is `video`.
 
-#### `checkDeviceAuthorizationStatus(callback(err, isAuthorized))`
+#### `checkDeviceAuthorizationStatus(): Promise`
 
-Exposes the native API for checking if the device has authorized access to the camera. Can be used to call before loading the Camera component to ensure proper UX.
+Exposes the native API for checking if the device has authorized access to the camera. Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.

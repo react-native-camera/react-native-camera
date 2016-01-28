@@ -153,13 +153,7 @@ var Camera = React.createClass({
     this.props.onBarCodeRead && this.props.onBarCodeRead(e);
   },
 
-  capture(options, cb) {
-
-    if (arguments.length == 1) {
-      cb = options;
-      options = {};
-    }
-
+  capture(options) {
     options = Object.assign({}, {
       audio: this.props.captureAudio,
       mode: this.props.captureMode,
@@ -185,7 +179,7 @@ var Camera = React.createClass({
       options.type = constants.Type[options.type];
     }
 
-    NativeModules.CameraModule.capture(options, cb);
+    return NativeModules.CameraModule.capture(options);
   },
 
   stopCapture() {

@@ -75,10 +75,10 @@ var Camera = React.createClass({
   },
 
   componentWillMount() {
-    NativeModules.CameraManager.checkDeviceAuthorizationStatus((function(err, isAuthorized) {
-      this.state.isAuthorized = isAuthorized;
-      this.setState(this.state);
-    }).bind(this));
+    NativeModules.CameraManager.checkDeviceAuthorizationStatus().then(
+      isAuthorized => this.setState({ isAuthorized })
+    );
+
     this.cameraBarCodeReadListener = DeviceEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead);
   },
 
@@ -153,13 +153,7 @@ var Camera = React.createClass({
     this.props.onBarCodeRead && this.props.onBarCodeRead(e);
   },
 
-  capture(options, cb) {
-
-    if (arguments.length == 1) {
-      cb = options;
-      options = {};
-    }
-
+  capture(options) {
     options = Object.assign({}, {
       audio: this.props.captureAudio,
       mode: this.props.captureMode,
@@ -180,7 +174,7 @@ var Camera = React.createClass({
       options.target = constants.CaptureTarget[options.target];
     }
 
-    NativeModules.CameraManager.capture(options, cb);
+    return NativeModules.CameraManager.capture(options);
   },
 
   stopCapture() {

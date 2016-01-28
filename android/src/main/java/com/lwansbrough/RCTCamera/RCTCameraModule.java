@@ -148,10 +148,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void capture(final ReadableMap options, final Callback callback) {
+    public void capture(final ReadableMap options, final Promise promise) {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
         if (null == camera) {
-            callback.invoke("No camera found.", null);
+            promise.reject("No camera found.");
             return;
         }
         camera.takePicture(null, null, new Camera.PictureCallback() {
@@ -160,7 +160,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                 switch (options.getInt("target")) {
                     case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                         String encoded = Base64.encodeToString(data, Base64.DEFAULT);
-                        callback.invoke(null, encoded);
+                        promise.resolve(encoded);
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
                         BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
@@ -169,12 +169,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                                 _reactContext.getContentResolver(),
                                 bitmap, options.getString("title"),
                                 options.getString("description"));
-                        callback.invoke(null, url);
+                        promise.resolve(url);
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_DISK:
                         File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
                         if (pictureFile == null) {
-                            callback.invoke("Error creating media file.", null);
+                            promise.reject("Error creating media file.");
                             return;
                         }
 
@@ -183,11 +183,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                             fos.write(data);
                             fos.close();
                         } catch (FileNotFoundException e) {
-                            callback.invoke("File not found: " + e.getMessage(), null);
+                            promise.reject("File not found: " + e.getMessage());
                         } catch (IOException e) {
-                            callback.invoke("Error accessing file: " + e.getMessage(), null);
+                            promise.reject("Error accessing file: " + e.getMessage());
                         }
-                        callback.invoke(null, Uri.fromFile(pictureFile).toString());
+                        promise.resolve(Uri.fromFile(pictureFile).toString());
                         break;
                 }
             }
@@ -195,7 +195,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void stopCapture(final ReadableMap options, final Callback callback) {
+    public void stopCapture(final ReadableMap options, final Promise promise) {
         // TODO: implement video capture
     }
 
