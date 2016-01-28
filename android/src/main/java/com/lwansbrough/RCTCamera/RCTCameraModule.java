@@ -33,6 +33,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     public static final int RCT_CAMERA_CAPTURE_TARGET_MEMORY = 0;
     public static final int RCT_CAMERA_CAPTURE_TARGET_DISK = 1;
     public static final int RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL = 2;
+    public static final int RCT_CAMERA_CAPTURE_TARGET_TEMP = 3;
     public static final int RCT_CAMERA_ORIENTATION_AUTO = 0;
     public static final int RCT_CAMERA_ORIENTATION_LANDSCAPE_LEFT = 1;
     public static final int RCT_CAMERA_ORIENTATION_LANDSCAPE_RIGHT = 2;
@@ -109,6 +110,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         put("memory", RCT_CAMERA_CAPTURE_TARGET_MEMORY);
                         put("disk", RCT_CAMERA_CAPTURE_TARGET_DISK);
                         put("cameraRoll", RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL);
+                        put("temp", RCT_CAMERA_CAPTURE_TARGET_TEMP);
                     }
                 });
             }
@@ -189,6 +191,25 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         }
                         callback.invoke(null, Uri.fromFile(pictureFile).toString());
                         break;
+                    case RCT_CAMERA_CAPTURE_TARGET_TEMP:
+                        File tempFile = getTempMediaFile(MEDIA_TYPE_IMAGE);
+
+                        if (tempFile == null) {
+                            callback.invoke("Error creating media file.", null);
+                            return;
+                        }
+
+                        try {
+                            FileOutputStream fos = new FileOutputStream(tempFile);
+                            fos.write(data);
+                            fos.close();
+                        } catch (FileNotFoundException e) {
+                            callback.invoke("File not found: " + e.getMessage(), null);
+                        } catch (IOException e) {
+                           callback.invoke("Error accessing file: " + e.getMessage(), null);
+                        }
+                        callback.invoke(null, Uri.fromFile(tempFile).toString());
+                        break;
                 }
             }
         });
@@ -225,5 +246,27 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             return null;
         }
         return mediaFile;
+    }
+
+
+    private File getTempMediaFile(int type) {
+        try {
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            File outputDir = _reactContext.getCacheDir();
+            File outputFile;
+
+            if (type == MEDIA_TYPE_IMAGE) {
+                outputFile = File.createTempFile("IMG_" + timeStamp, ".jpg", outputDir);
+            } else if (type == MEDIA_TYPE_VIDEO) {
+                outputFile = File.createTempFile("VID_" + timeStamp, ".mp4", outputDir);
+            } else {
+                Log.e(TAG, "Unsupported media type:" + type);
+                return null;
+            }
+            return outputFile;
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            return null;
+        }
     }
 }
