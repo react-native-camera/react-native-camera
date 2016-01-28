@@ -89,6 +89,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             _isStarting = true;
             try {
                 _camera = RCTCamera.getInstance().acquireCameraInstance(_cameraType);
+                Camera.Parameters parameters = _camera.getParameters();
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                _camera.setParameters(parameters);
                 _camera.setPreviewTexture(_surfaceTexture);
                 _camera.startPreview();
             } catch (NullPointerException e) {
@@ -120,6 +123,3 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         }
     }
 }
-
-
-
