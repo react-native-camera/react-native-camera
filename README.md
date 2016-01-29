@@ -45,6 +45,14 @@ Below is a list of known issues. Pull requests are welcome for any of these issu
 	```
     compile project(':react-native-camera')
 	```
+5. Add following lines in AndroidManifest.xml after android.premission.INTENT
+    ```
+    <uses-permission android:name="android.permission.CAMERA" />
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+        <uses-feature android:name="android.hardware.camera"
+                      android:required="true"/>
+        <uses-feature android:name="android.hardware.camera.autofocus" />
+    ```
 
 
 ## Usage
