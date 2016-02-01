@@ -144,6 +144,3 @@ public class RCTCameraView extends ViewGroup {
         this.postInvalidate(this.getLeft(), this.getTop(), this.getRight(), this.getBottom());
     }
 }
-
-
-
