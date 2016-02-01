@@ -139,14 +139,14 @@ Values: `Camera.constants.Aspect.fit` or `"fit"`, `Camera.constants.Aspect.fill`
 
 The `aspect` property allows you to define how your viewfinder renders the camera's view. For instance, if you have a square viewfinder and you want to fill the it entirely, you have two options: `"fill"`, where the aspect ratio of the camera's view is preserved by cropping the view or `"stretch"`, where the aspect ratio is skewed in order to fit the entire image inside the viewfinder. The other option is `"fit"`, which ensures the camera's entire view fits inside your viewfinder without altering the aspect ratio.
 
-#### `captureAudio`
+#### `iOS` `captureAudio`
 
 Values: `true` (default), `false` (Boolean)
 
 *Applies to video capture mode only.* Specifies whether or not audio should be captured with the video.
 
 
-#### `captureMode`
+#### `iOS` `captureMode`
 
 Values: `Camera.constants.CaptureMode.still` (default), `Camera.constants.CaptureMode.video`
 
@@ -174,7 +174,7 @@ Values:
 
 The `orientation` property allows you to specify the current orientation of the phone to ensure the viewfinder is "the right way up."
 
-#### `onBarCodeRead`
+#### `iOS` `onBarCodeRead`
 
 Will call the specified method when a barcode is detected in the camera's view.
 
