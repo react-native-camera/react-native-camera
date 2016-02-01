@@ -197,7 +197,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         File tempFile = getTempMediaFile(MEDIA_TYPE_IMAGE);
 
                         if (tempFile == null) {
-                            callback.invoke("Error creating media file.", null);
+                            promise.reject("Error creating media file.");
                             return;
                         }
 
@@ -206,11 +206,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                             fos.write(data);
                             fos.close();
                         } catch (FileNotFoundException e) {
-                            callback.invoke("File not found: " + e.getMessage(), null);
+                            promise.reject("File not found: " + e.getMessage());
                         } catch (IOException e) {
-                           callback.invoke("Error accessing file: " + e.getMessage(), null);
+                            promise.reject("Error accessing file: " + e.getMessage());
                         }
-                        callback.invoke(null, Uri.fromFile(tempFile).toString());
+                        promise.resolve(Uri.fromFile(tempFile).toString());
                         break;
                 }
             }
