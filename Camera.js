@@ -7,7 +7,7 @@ import React, {
   requireNativeComponent
 } from 'react-native';
 
-const CameraManager = NativeModules.CameraManager;
+const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
 const CAMERA_REF = 'camera';
 
 function convertStringProps(props) {
