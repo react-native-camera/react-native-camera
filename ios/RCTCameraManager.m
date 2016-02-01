@@ -247,6 +247,38 @@ RCT_EXPORT_METHOD(stopCapture) {
   }
 }
 
+RCT_EXPORT_METHOD(getFOV: (RCTResponseSenderBlock)callback) {
+  NSArray *devices = [AVCaptureDevice devices];
+  AVCaptureDevice *frontCamera;
+  AVCaptureDevice *backCamera;
+  double frontFov;
+  double backFov;
+
+  for (AVCaptureDevice *device in devices) {
+
+      NSLog(@"Device name: %@", [device localizedName]);
+
+      if ([device hasMediaType:AVMediaTypeVideo]) {
+
+          if ([device position] == AVCaptureDevicePositionBack) {
+              NSLog(@"Device position : back");
+              backCamera = device;
+              backFov = backCamera.activeFormat.videoFieldOfView;
+          }
+          else {
+              NSLog(@"Device position : front");
+              frontCamera = device;
+              frontFov = frontCamera.activeFormat.videoFieldOfView;
+          }
+      }
+  }
+
+  callback(@[[NSNull null], @{
+    @"backCamera": [NSNumber numberWithDouble: backFov],
+    @"frontCamera": [NSNumber numberWithDouble: frontFov]
+  }]);
+}
+
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
