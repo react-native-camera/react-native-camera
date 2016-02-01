@@ -59,7 +59,8 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic) NSInteger presetCamera;
 @property (nonatomic) AVCaptureVideoPreviewLayer *previewLayer;
 @property (nonatomic) NSInteger videoTarget;
-@property (nonatomic, strong) RCTResponseSenderBlock videoCallback;
+@property (nonatomic, strong) RCTPromiseResolveBlock videoResolve;
+@property (nonatomic, strong) RCTPromiseRejectBlock videoReject;
 @property (nonatomic, strong) RCTCamera *camera;
 
 
@@ -69,7 +70,7 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 - (void)changeFlashMode:(NSInteger)flashMode;
 - (void)changeTorchMode:(NSInteger)torchMode;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;
-- (void)capture:(NSDictionary*)options callback:(RCTResponseSenderBlock)callback;
+- (void)capture:(NSDictionary*)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)initializeCaptureSessionInput:(NSString*)type;
 - (void)stopCapture;
 - (void)startSession;

@@ -135,18 +135,18 @@ RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL)
   return self;
 }
 
-RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTResponseSenderBlock) callback)
-{
+RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
   __block NSString *mediaType = AVMediaTypeVideo;
 
   [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
     if (!granted) {
-      callback(@[[NSNull null], @(granted)]);
+      resolve(@[@(granted)]);
     }
     else {
       mediaType = AVMediaTypeAudio;
       [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
-        callback(@[[NSNull null], @(granted)]);
+        resolve(@[@(granted)]);
       }];
     }
   }];
@@ -229,15 +229,17 @@ RCT_EXPORT_METHOD(changeTorchMode:(NSInteger)torchMode) {
   [device unlockForConfiguration];
 }
 
-RCT_EXPORT_METHOD(capture:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback) {
+RCT_EXPORT_METHOD(capture:(NSDictionary *)options
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
   NSInteger captureMode = [[options valueForKey:@"mode"] intValue];
   NSInteger captureTarget = [[options valueForKey:@"target"] intValue];
 
   if (captureMode == RCTCameraCaptureModeStill) {
-    [self captureStill:captureTarget options:options callback:callback];
+    [self captureStill:captureTarget options:options resolve:resolve reject:reject];
   }
   else if (captureMode == RCTCameraCaptureModeVideo) {
-    [self captureVideo:captureTarget options:options callback:callback];
+    [self captureVideo:captureTarget options:options resolve:resolve reject:reject];
   }
 }
 
@@ -396,7 +398,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTResponseSenderBlock) callback) {
 }
 
 
-- (void)captureStill:(NSInteger)target options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback {
+- (void)captureStill:(NSInteger)target options:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
   dispatch_async(self.sessionQueue, ^{
 #if TARGET_IPHONE_SIMULATOR
       CGSize size = CGSizeMake(720, 1280);
@@ -422,7 +424,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTResponseSenderBlock) callback) {
       UIGraphicsEndImageContext();
 
       NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
-      [self saveImage:imageData target:target metadata:nil callback:callback];
+      [self saveImage:imageData target:target metadata:nil resolve:resolve reject:reject];
 #else
       [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
 
@@ -479,12 +481,12 @@ RCT_EXPORT_METHOD(hasFlash:(RCTResponseSenderBlock) callback) {
           CGImageDestinationFinalize(destination);
           CFRelease(destination);
 
-          [self saveImage:rotatedImageData target:target metadata:imageMetadata callback:callback];
+          [self saveImage:rotatedImageData target:target metadata:imageMetadata resolve:resolve reject:reject];
 
           CGImageRelease(rotatedCGImage);
         }
         else {
-          callback(@[RCTMakeError(error.description, nil, nil)]);
+          reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
         }
       }];
 #endif
@@ -492,7 +494,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTResponseSenderBlock) callback) {
 }
 
 
-- (void)saveImage:(NSData*)imageData target:(NSInteger)target metadata:(NSDictionary *)metadata callback:(RCTResponseSenderBlock)callback {
+- (void)saveImage:(NSData*)imageData target:(NSInteger)target metadata:(NSDictionary *)metadata resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
   NSString *responseString;
 
   if (target == RCTCameraCaptureTargetMemory) {
@@ -521,15 +523,15 @@ RCT_EXPORT_METHOD(hasFlash:(RCTResponseSenderBlock) callback) {
   else if (target == RCTCameraCaptureTargetCameraRoll) {
     [[[ALAssetsLibrary alloc] init] writeImageDataToSavedPhotosAlbum:imageData metadata:metadata completionBlock:^(NSURL* url, NSError* error) {
       if (error == nil) {
-        callback(@[[NSNull null], [url absoluteString]]);
+        resolve(@[[url absoluteString]]);
       }
       else {
-        callback(@[RCTMakeError(error.description, nil, nil)]);
+        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
       }
     }];
     return;
   }
-  callback(@[[NSNull null], responseString]);
+  resolve(@[responseString]);
 }
 
 - (CGImageRef)newCGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
@@ -561,10 +563,10 @@ RCT_EXPORT_METHOD(hasFlash:(RCTResponseSenderBlock) callback) {
   return rotatedImage;
 }
 
--(void)captureVideo:(NSInteger)target options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback {
+-(void)captureVideo:(NSInteger)target options:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
 
   if (self.movieFileOutput.recording) {
-    callback(@[RCTMakeError(@"Already Recording", nil, nil)]);
+    reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Already recording"));
     return;
   }
 
@@ -589,7 +591,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTResponseSenderBlock) callback) {
     if ([fileManager fileExistsAtPath:outputPath]) {
       NSError *error;
       if ([fileManager removeItemAtPath:outputPath error:&error] == NO) {
-        callback(@[RCTMakeError(error.description, nil, nil)]);
+        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
         return;
       }
     }
@@ -597,7 +599,8 @@ RCT_EXPORT_METHOD(hasFlash:(RCTResponseSenderBlock) callback) {
     //Start recording
     [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
 
-    self.videoCallback = callback;
+    self.videoResolve = resolve;
+    self.videoReject = reject;
     self.videoTarget = target;
   });
 }
@@ -617,7 +620,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     }
   }
   if (!recordSuccess) {
-    self.videoCallback(@[RCTMakeError(@"Error while recording", nil, nil)]);
+    self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Error while recording"));
     return;
   }
 
@@ -627,11 +630,10 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
       [library writeVideoAtPathToSavedPhotosAlbum:outputFileURL
                                   completionBlock:^(NSURL *assetURL, NSError *error) {
                                     if (error) {
-                                      self.videoCallback(@[RCTMakeError(error.description, nil, nil)]);
+                                      self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
                                       return;
                                     }
-
-                                    self.videoCallback(@[[NSNull null], [assetURL absoluteString]]);
+                                    self.videoResolve([assetURL absoluteString]);
                                   }];
     }
   }
@@ -645,10 +647,10 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 
     //copying destination
     if (!([fileManager copyItemAtPath:[outputFileURL path] toPath:fullPath error:&error])) {
-      self.videoCallback(@[RCTMakeError(error.description, nil, nil)]);
+      self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
       return;
     }
-    self.videoCallback(@[[NSNull null], fullPath]);
+    self.videoResolve(@[fullPath]);
   }
   else if (self.videoTarget == RCTCameraCaptureTargetTemp) {
     NSString *fileName = [[NSProcessInfo processInfo] globallyUniqueString];
@@ -659,13 +661,13 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
       
     //copying destination
     if (!([fileManager copyItemAtPath:[outputFileURL path] toPath:fullPath error:&error])) {
-        self.videoCallback(@[RCTMakeError(error.description, nil, nil)]);
+        self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
         return;
     }
-    self.videoCallback(@[[NSNull null], fullPath]);
+    self.videoResolve(@[fullPath]);
   }
   else {
-    self.videoCallback(@[RCTMakeError(@"Target not supported", nil, nil)]);
+    self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Target not supported"));
   }
 }
 
