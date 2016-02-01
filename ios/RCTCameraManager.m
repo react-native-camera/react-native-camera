@@ -249,7 +249,7 @@ RCT_EXPORT_METHOD(stopCapture) {
   }
 }
 
-RCT_EXPORT_METHOD(getFOV: (RCTResponseSenderBlock)callback) {
+RCT_EXPORT_METHOD(getFOV:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
   NSArray *devices = [AVCaptureDevice devices];
   AVCaptureDevice *frontCamera;
   AVCaptureDevice *backCamera;
@@ -275,15 +275,15 @@ RCT_EXPORT_METHOD(getFOV: (RCTResponseSenderBlock)callback) {
       }
   }
 
-  callback(@[[NSNull null], @{
+  resolve(@{
     [NSNumber numberWithInt:RCTCameraTypeBack]: [NSNumber numberWithDouble: backFov],
     [NSNumber numberWithInt:RCTCameraTypeFront]: [NSNumber numberWithDouble: frontFov]
-  }]);
+  });
 }
 
-RCT_EXPORT_METHOD(hasFlash:(RCTResponseSenderBlock) callback) {
+RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    callback(@[@(device.hasFlash)]);
+    resolve(@(device.hasFlash));
 }
 
 - (void)startSession {
