@@ -141,7 +141,7 @@ export default class Camera extends Component {
       ...options
     };
 
-    if (options.mode === constants.CaptureMode.video) {
+    if (options.mode === Camera.constants.CaptureMode.video) {
       options.totalSeconds = (options.totalSeconds > -1 ? options.totalSeconds : -1);
       options.preferredTimeScale = options.preferredTimeScale || 30;
       this.setState({ isRecording: true });
@@ -166,8 +166,8 @@ export default class Camera extends Component {
   }
 }
 
-var RCTCamera = requireNativeComponent('RCTCamera', Camera);
+const RCTCamera = requireNativeComponent('RCTCamera', Camera);
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
   base: {},
 });

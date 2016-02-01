@@ -26,11 +26,10 @@ Below is a list of known issues. Pull requests are welcome for any of these issu
 
 #### Android
 1. `npm install react-native-camera@latest --save`
-2.  Modify the ReactInstanceManager.builder() calls chain in `android/app/main/java/.../MainActivity.java` to include:
+2. Open up `android/app/main/java/[...]/MainActivity.java
+  - Add `import com.lwansbrough.RCTCameraPackage;` to the imports at the top of the file
+  - Add `new RCTCameraPackage()` to the list returned by the `getPackages()` method
 
-	```
- 	.addPackage(new RCTCameraPackage())
- 	```
 3. Append the following lines to `android/settings.gradle`:
 
 	```
@@ -51,84 +50,63 @@ All you need is to `require` the `react-native-camera` module and then use the
 `<Camera/>` tag.
 
 ```javascript
-var React = require('react-native');
-var {
+'use strict';
+import React, {
   AppRegistry,
+  Component,
+  Dimensions,
   StyleSheet,
   Text,
-  View,
-  TouchableHighlight
-} = React;
-var Camera = require('react-native-camera');
+  TouchableHighlight,
+  View
+} from 'react-native';
+import Camera from 'react-native-camera';
 
-var cameraApp = React.createClass({
-  getInitialState() {
-    return {
-      cameraType: Camera.constants.Type.back
-    }
-  },
-
+class BadInstagramCloneApp extends Component {
   render() {
-
     return (
-      <Camera
-        ref="cam"
-        style={styles.container}
-        onBarCodeRead={this._onBarCodeRead}
-        type={this.state.cameraType}
-      >
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js{'\n'}
-          Press Cmd+R to reload
-        </Text>
-        <TouchableHighlight onPress={this._switchCamera}>
-          <Text>The old switcheroo</Text>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this._takePicture}>
-          <Text>Take Picture</Text>
-        </TouchableHighlight>
-      </Camera>
+      <View style={styles.container}>
+        <Camera
+          ref={(cam) => {
+            this.camera = cam;
+          }}
+          style={styles.preview}
+          aspect={Camera.constants.Aspect.Fill}>
+          <Text style={styles.capture} onPress={this.takePicture.bind(this)}>[CAPTURE]</Text>
+        </Camera>
+      </View>
     );
-  },
-  _onBarCodeRead(e) {
-    console.log(e);
-  },
-  _switchCamera() {
-    var state = this.state;
-    state.cameraType = state.cameraType === Camera.constants.Type.back
-      ? Camera.constants.Type.front : Camera.constants.Type.back;
-    this.setState(state);
-  },
-  _takePicture() {
-  this.refs.cam.capture().then(
-    data => console.log(data),
-    error => console.log(error)
-  );
-});
+  }
+  
+  takePicture() {
+    this.camera.capture()
+      .then((data) => console.log(data))
+      .catch(err => console.error(err));
+  }
+}
 
-
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
+    flex: 1
+  },
+  preview: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'center',
-    backgroundColor: 'transparent',
+    height: Dimensions.get('window').height,
+    width: Dimensions.get('window').width
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-  },
+  capture: {
+    flex: 0,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    color: '#000',
+    padding: 10,
+    margin: 40
+  }
 });
 
-AppRegistry.registerComponent('cameraApp', () => cameraApp);
+AppRegistry.registerComponent('BadInstagramCloneApp', () => BadInstagramCloneApp);
 ```
 
 ## Properties
