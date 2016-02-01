@@ -62,15 +62,15 @@ export default class Camera extends Component {
       PropTypes.string,
       PropTypes.number
     ]),
-    type: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number
-    ]),
-    orientation: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number
-    ]),
+    defaultOnFocusComponent: PropTypes.bool,
     flashMode: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+    onBarCodeRead: PropTypes.func,
+    onFocusChanged: PropTypes.func,
+    onZoomChanged: PropTypes.func
+    orientation: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
     ]),
@@ -78,20 +78,22 @@ export default class Camera extends Component {
       PropTypes.string,
       PropTypes.number
     ]),
-    onBarCodeRead: PropTypes.func,
-    onFocusChanged: PropTypes.func,
-    onZoomChanged: PropTypes.func
+    type: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ])
   };
   
   static defaultProps = {
-    aspect: constants.Aspect.fill,
-    type: constants.Type.back,
-    orientation: constants.Orientation.auto,
+    aspect: Camera.constants.Aspect.fill,
+    type: Camera.constants.Type.back,
+    orientation: Camera.constants.Orientation.auto,
     captureAudio: true,
-    captureMode: constants.CaptureMode.still,
-    captureTarget: constants.CaptureTarget.cameraRoll,
-    flashMode: constants.FlashMode.off,
-    torchMode: constants.TorchMode.off,
+    captureMode: Camera.constants.CaptureMode.still,
+    captureTarget: Camera.constants.CaptureTarget.cameraRoll,
+    defaultOnFocusComponent: true,
+    flashMode: Camera.constants.FlashMode.off,
+    torchMode: Camera.constants.TorchMode.off,
     onBarCodeRead: () => {},
     onFocusChanged: () => {},
     onZoomChanged: () => {}
@@ -108,7 +110,7 @@ export default class Camera extends Component {
     this.state = {
       isAuthorized: false,
       isRecording: false
-    }
+    };
   }
 
   async componentWillMount() {
@@ -167,8 +169,8 @@ export default class Camera extends Component {
   }
 });
 
-const RCTCamera = requireNativeComponent('RCTCamera', Camera);
+var RCTCamera = requireNativeComponent('RCTCamera', Camera);
 
-const styles = StyleSheet.create({
+var styles = StyleSheet.create({
   base: {},
 });

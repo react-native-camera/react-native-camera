@@ -214,17 +214,9 @@ Values:
 
 Use the `torchMode` property to specify the camera torch mode.
 
-#### `onFocusChanged`
+#### `onFocusChanged: Event { nativeEvent: { touchPoint: { x, y } }`
 
-Args:
-```
-e: {
-  nativeEvent: {
-    touchPoint: { x, y }
-  }
-}
-```
-Will call when touch to focus has been made.
+Called when a touch focus gesture has been made.
 By default, `onFocusChanged` is not defined and tap-to-focus is disabled.
 
 #### `defaultOnFocusComponent`
@@ -235,20 +227,12 @@ Values:
 
 If `defaultOnFocusComponent` set to false, default internal implementation of visual feedback for tap-to-focus gesture will be disabled.
 
-#### `onZoomChanged`
+#### `onZoomChanged: Event { nativeEvent: { velocity, zoomFactor } }`
 
-Args:
-```
-  e: {
-    nativeEvent: {
-      velocity, zoomFactor
-    }
-  }
-```
-Will call when focus has changed.
+Called when focus has changed.
 By default, `onZoomChanged` is not defined and pinch-to-zoom is disabled.
 
-## Component methods
+## Component instance methods
 
 You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to your `<Camera>` element, then you can use `this.refs.camera.capture(cb)`, etc. inside your component.
 
@@ -265,11 +249,21 @@ Supported options:
    - `location` This is the object returned from `navigator.geolocation.getCurrentPosition()` (React Native's geolocation polyfill). It will add GPS metadata to the image.
  - `rotation` This will rotate the image by the number of degrees specified.
 
+#### `iOS` `getFOV(): Promise`
+
+Returns the camera's current field of view.
+
+#### `iOS` `hasFlash(): Promise`
+
+Returns whether or not the camera has flash capabilities.
+
 #### `stopCapture()`
 
 Ends the current capture session for video captures. Only applies when the current `captureMode` is `video`.
 
-#### `checkDeviceAuthorizationStatus(): Promise`
+## Component static methods
+
+#### `Camera.checkDeviceAuthorizationStatus(): Promise`
 
 Exposes the native API for checking if the device has authorized access to the camera. Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.
 
