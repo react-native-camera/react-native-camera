@@ -188,6 +188,10 @@ var Camera = React.createClass({
       NativeModules.CameraManager.stopCapture();
       this.setState({ isRecording: false });
     }
+  },
+
+  hasFlash(callback) {
+      NativeModules.CameraManager.hasFlash(callback);
   }
 
 });

@@ -251,8 +251,8 @@ RCT_EXPORT_METHOD(getFOV: (RCTResponseSenderBlock)callback) {
   NSArray *devices = [AVCaptureDevice devices];
   AVCaptureDevice *frontCamera;
   AVCaptureDevice *backCamera;
-  double frontFov;
-  double backFov;
+  double frontFov = 0.0;
+  double backFov = 0.0;
 
   for (AVCaptureDevice *device in devices) {
 
@@ -274,16 +274,20 @@ RCT_EXPORT_METHOD(getFOV: (RCTResponseSenderBlock)callback) {
   }
 
   callback(@[[NSNull null], @{
-    @"backCamera": [NSNumber numberWithDouble: backFov],
-    @"frontCamera": [NSNumber numberWithDouble: frontFov]
+    [NSNumber numberWithInt:RCTCameraTypeBack]: [NSNumber numberWithDouble: backFov],
+    [NSNumber numberWithInt:RCTCameraTypeFront]: [NSNumber numberWithDouble: frontFov]
   }]);
+}
+
+RCT_EXPORT_METHOD(hasFlash:(RCTResponseSenderBlock) callback) {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    callback(@[@(device.hasFlash)]);
 }
 
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
 #endif
-
   dispatch_async(self.sessionQueue, ^{
     if (self.presetCamera == AVCaptureDevicePositionUnspecified) {
       self.presetCamera = AVCaptureDevicePositionBack;
@@ -329,7 +333,6 @@ RCT_EXPORT_METHOD(getFOV: (RCTResponseSenderBlock)callback) {
 #if TARGET_IPHONE_SIMULATOR
   return;
 #endif
-
   dispatch_async(self.sessionQueue, ^{
     [self.previewLayer removeFromSuperlayer];
     [self.session stopRunning];
