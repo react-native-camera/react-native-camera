@@ -141,12 +141,12 @@ RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve
 
   [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
     if (!granted) {
-      resolve(@[@(granted)]);
+      resolve(@(granted));
     }
     else {
       mediaType = AVMediaTypeAudio;
       [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
-        resolve(@[@(granted)]);
+        resolve(@(granted));
       }];
     }
   }];
@@ -523,7 +523,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   else if (target == RCTCameraCaptureTargetCameraRoll) {
     [[[ALAssetsLibrary alloc] init] writeImageDataToSavedPhotosAlbum:imageData metadata:metadata completionBlock:^(NSURL* url, NSError* error) {
       if (error == nil) {
-        resolve(@[[url absoluteString]]);
+        resolve([url absoluteString]);
       }
       else {
         reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
@@ -531,7 +531,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     }];
     return;
   }
-  resolve(@[responseString]);
+  resolve(responseString);
 }
 
 - (CGImageRef)newCGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
@@ -650,7 +650,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
       self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
       return;
     }
-    self.videoResolve(@[fullPath]);
+    self.videoResolve(fullPath);
   }
   else if (self.videoTarget == RCTCameraCaptureTargetTemp) {
     NSString *fileName = [[NSProcessInfo processInfo] globallyUniqueString];
@@ -664,7 +664,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
         return;
     }
-    self.videoResolve(@[fullPath]);
+    self.videoResolve(fullPath);
   }
   else {
     self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Target not supported"));
@@ -676,22 +676,23 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
   for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
     for (id barcodeType in [self getBarCodeTypes]) {
       if (metadata.type == barcodeType) {
+        
+        NSDictionary *event = @{
+          @"type": metadata.type,
+          @"data": metadata.stringValue,
+          @"bounds": @{
+            @"origin": @{
+              @"x": [NSString stringWithFormat:@"%f", metadata.bounds.origin.x],
+              @"y": [NSString stringWithFormat:@"%f", metadata.bounds.origin.y]
+            },
+            @"size": @{
+              @"height": [NSString stringWithFormat:@"%f", metadata.bounds.size.height],
+              @"width": [NSString stringWithFormat:@"%f", metadata.bounds.size.width],
+            }
+          }
+        };
 
-        [self.bridge.eventDispatcher sendDeviceEventWithName:@"CameraBarCodeRead"
-                                                        body:@{
-                                                               @"type": metadata.type,
-                                                               @"data": metadata.stringValue,
-                                                               @"bounds": @{
-                                                                   @"origin": @{
-                                                                       @"x": [NSString stringWithFormat:@"%f", metadata.bounds.origin.x],
-                                                                       @"y": [NSString stringWithFormat:@"%f", metadata.bounds.origin.y]
-                                                                       },
-                                                                   @"size": @{
-                                                                       @"height": [NSString stringWithFormat:@"%f", metadata.bounds.size.height],
-                                                                       @"width": [NSString stringWithFormat:@"%f", metadata.bounds.size.width],
-                                                                       }
-                                                                   }
-                                                               }];
+        [self.bridge.eventDispatcher sendAppEventWithName:@"CameraBarCodeRead" body:event];
       }
     }
   }
@@ -766,7 +767,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
   });
 }
 
-- (void) focusAtThePoint:(CGPoint) atPoint;
+- (void)focusAtThePoint:(CGPoint) atPoint;
 {
     Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
     if (captureDeviceClass != nil) {
@@ -792,7 +793,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     }
 }
 
-- (void) zoom:(CGFloat)velocity reactTag:(NSNumber *)reactTag{
+- (void)zoom:(CGFloat)velocity reactTag:(NSNumber *)reactTag{
     const CGFloat pinchVelocityDividerFactor = 20.0f; // TODO: calibrate or make this component's property
     NSError *error = nil;
     AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
@@ -801,10 +802,11 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         zoomFactor = zoomFactor >= 1 && zoomFactor <= device.activeFormat.videoMaxZoomFactor ? zoomFactor : 1.0f;
 
         NSDictionary *event = @{
-                                @"target": reactTag,
-                                @"zoomFactor": [NSNumber numberWithDouble:zoomFactor],
-                                @"velocity": [NSNumber numberWithDouble:velocity]
-                              };
+          @"target": reactTag,
+          @"zoomFactor": [NSNumber numberWithDouble:zoomFactor],
+          @"velocity": [NSNumber numberWithDouble:velocity]
+        };
+      
         [self.bridge.eventDispatcher sendInputEventWithName:@"zoomChanged" body:event];
 
         device.videoZoomFactor = zoomFactor;
@@ -813,8 +815,5 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         NSLog(@"error: %@", error);
     }
 }
-
-
-
 
 @end

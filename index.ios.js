@@ -1,21 +1,54 @@
-var React = require('react-native');
-var { StyleSheet, requireNativeComponent, PropTypes, NativeModules, DeviceEventEmitter } = React;
+import React, {
+  Component,
+  NativeAppEventEmitter,
+  NativeModules,
+  PropTypes,
+  StyleSheet,
+  requireNativeComponent
+}
 
-var CAMERA_REF = 'camera';
+const CameraManager = NativeModules.CameraManager;
+const CAMERA_REF = 'camera';
 
-var constants = {
-  Aspect: NativeModules.CameraManager.Aspect,
-  BarCodeType: NativeModules.CameraManager.BarCodeType,
-  Type: NativeModules.CameraManager.Type,
-  CaptureMode: NativeModules.CameraManager.CaptureMode,
-  CaptureTarget: NativeModules.CameraManager.CaptureTarget,
-  Orientation: NativeModules.CameraManager.Orientation,
-  FlashMode: NativeModules.CameraManager.FlashMode,
-  TorchMode: NativeModules.CameraManager.TorchMode
-};
+function convertStringProps(props) {
+  const newProps = { ...props };
+  if (typeof props.aspect === 'string') {
+    newProps.aspect = constants.Aspect[aspect];
+  }
 
-var Camera = React.createClass({
-  propTypes: {
+  if (typeof props.flashMode === 'string') {
+    newProps.flashMode = constants.FlashMode[flashMode];
+  }
+
+  if (typeof props.orientation === 'string') {
+    newProps.orientation = constants.Orientation[orientation];
+  }
+
+  if (typeof props.torchMode === 'string') {
+    newProps.torchMode = constants.TorchMode[torchMode];
+  }
+
+  if (typeof props.type === 'string') {
+    newProps.type = constants.Type[type];
+  }
+  
+  return newProps;
+}
+
+export default class Camera extends Component {
+  
+  static constants = {
+    Aspect: CameraManager.Aspect,
+    BarCodeType: CameraManager.BarCodeType,
+    Type: CameraManager.Type,
+    CaptureMode: CameraManager.CaptureMode,
+    CaptureTarget: CameraManager.CaptureTarget,
+    Orientation: CameraManager.Orientation,
+    FlashMode: CameraManager.FlashMode,
+    TorchMode: CameraManager.TorchMode
+  };
+  
+  static propTypes = {
     aspect: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
@@ -45,42 +78,45 @@ var Camera = React.createClass({
       PropTypes.string,
       PropTypes.number
     ]),
-    defaultOnFocusComponent: PropTypes.bool,
+    onBarCodeRead: PropTypes.func,
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func
-  },
+  };
+  
+  static defaultProps = {
+    aspect: constants.Aspect.fill,
+    type: constants.Type.back,
+    orientation: constants.Orientation.auto,
+    captureAudio: true,
+    captureMode: constants.CaptureMode.still,
+    captureTarget: constants.CaptureTarget.cameraRoll,
+    flashMode: constants.FlashMode.off,
+    torchMode: constants.TorchMode.off,
+    onBarCodeRead: () => {},
+    onFocusChanged: () => {},
+    onZoomChanged: () => {}
+  };
+  
+  static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
 
   setNativeProps(props) {
     this.refs[CAMERA_REF].setNativeProps(props);
-  },
-
-  getDefaultProps() {
-    return {
-      aspect: constants.Aspect.fill,
-      type: constants.Type.back,
-      orientation: constants.Orientation.auto,
-      captureAudio: true,
-      captureMode: constants.CaptureMode.still,
-      captureTarget: constants.CaptureTarget.cameraRoll,
-      flashMode: constants.FlashMode.off,
-      torchMode: constants.TorchMode.off
-    };
-  },
-
-  getInitialState() {
-    return {
+  }
+  
+  constructor() {
+    super();
+    this.state = {
       isAuthorized: false,
       isRecording: false
-    };
-  },
+    }
+  }
 
-  componentWillMount() {
-    NativeModules.CameraManager.checkDeviceAuthorizationStatus().then(
-      isAuthorized => this.setState({ isAuthorized })
-    );
+  async componentWillMount() {
+    const isAuthorized = await CameraManager.checkDeviceAuthorizationStatus();
+    this.setState({ isAuthorized });
 
-    this.cameraBarCodeReadListener = DeviceEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead);
-  },
+    this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this.props.onBarCodeRead);
+  }
 
   componentWillUnmount() {
     this.cameraBarCodeReadListener.remove();
@@ -88,81 +124,23 @@ var Camera = React.createClass({
     if (this.state.isRecording) {
       this.stopCapture();
     }
-  },
+  }
 
   render() {
-    var style = [styles.base, this.props.style];
+    const style = [styles.base, this.props.style];
+    const nativeProps = convertStringProps(this.props);
 
-    var aspect = this.props.aspect,
-        type = this.props.type,
-        orientation = this.props.orientation,
-        flashMode = this.props.flashMode,
-        torchMode = this.props.torchMode;
-
-    var legacyProps = {
-      aspect: {
-        Fill: 'fill',
-        Fit: 'fit',
-        Stretch: 'stretch'
-      },
-      orientation: {
-        LandscapeLeft: 'landscapeLeft',
-        LandscapeRight: 'landscapeRight',
-        Portrait: 'portrait',
-        PortraitUpsideDown: 'portraitUpsideDown'
-      },
-      type: {
-        Front: 'front',
-        Back: 'back'
-      }
-    };
-
-    if (typeof aspect === 'string') {
-      aspect = constants.Aspect[aspect];
-    }
-
-    if (typeof flashMode === 'string') {
-      flashMode = constants.FlashMode[flashMode];
-    }
-
-    if (typeof orientation === 'string') {
-      orientation = constants.Orientation[orientation];
-    }
-
-    if (typeof torchMode === 'string') {
-      torchMode = constants.TorchMode[torchMode];
-    }
-
-    if (typeof type === 'string') {
-      type = constants.Type[type];
-    }
-
-    var nativeProps = Object.assign({}, this.props, {
-      style,
-      aspect: aspect,
-      type: type,
-      orientation: orientation,
-      flashMode: flashMode,
-      torchMode: torchMode
-    });
-
-    return <RCTCamera ref={CAMERA_REF} {... nativeProps} />;
-  },
-
-  _onBarCodeRead(e) {
-    this.props.onBarCodeRead && this.props.onBarCodeRead(e);
-  },
+    return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
+  }
 
   capture(options) {
-    options = Object.assign({}, {
-      audio: this.props.captureAudio,
-      mode: this.props.captureMode,
-      target: this.props.captureTarget
-    }, options);
-
-    if (typeof options.mode === 'string') {
-      options.mode = constants.CaptureMode[options.mode];
-    }
+    const props = convertStringProps(this.props);
+    options = {
+      audio: props.captureAudio,
+      mode: props.captureMode,
+      target: props.captureTarget,
+      ...options
+    };
 
     if (options.mode === constants.CaptureMode.video) {
       options.totalSeconds = (options.totalSeconds > -1 ? options.totalSeconds : -1);
@@ -170,33 +148,27 @@ var Camera = React.createClass({
       this.setState({ isRecording: true });
     }
 
-    if (typeof options.target === 'string') {
-      options.target = constants.CaptureTarget[options.target];
-    }
-
-    return NativeModules.CameraManager.capture(options);
-  },
+    return CameraManager.capture(options);
+  }
 
   stopCapture() {
     if (this.state.isRecording) {
-      NativeModules.CameraManager.stopCapture();
+      CameraManager.stopCapture();
       this.setState({ isRecording: false });
     }
-  },
-
-  hasFlash(callback) {
-      NativeModules.CameraManager.hasFlash(callback);
+  }
+  
+  getFOV() {
+    return CameraManager.getFOV();
   }
 
+  hasFlash() {
+    return CameraManager.hasFlash();
+  }
 });
 
-var RCTCamera = requireNativeComponent('RCTCamera', Camera);
+const RCTCamera = requireNativeComponent('RCTCamera', Camera);
 
-var styles = StyleSheet.create({
-  base: { },
+const styles = StyleSheet.create({
+  base: {},
 });
-
-Camera.constants = constants;
-Camera.checkDeviceAuthorizationStatus = NativeModules.CameraManager.checkDeviceAuthorizationStatus
-
-module.exports = Camera;
