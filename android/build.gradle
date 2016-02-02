@@ -22,6 +22,7 @@ android {
   }
   lintOptions {
     abortOnError false
+    warning 'InvalidPackage'
   }
 }
 
@@ -30,5 +31,5 @@ repositories {
 }
 
 dependencies {
-  compile "com.facebook.react:react-native:0.17.+"
+  compile "com.facebook.react:react-native:0.19.+"
 }

@@ -2,9 +2,10 @@ package com.lwansbrough.RCTCamera;
 
 import android.support.annotation.Nullable;
 import com.facebook.react.uimanager.*;
+import com.facebook.react.uimanager.annotations.ReactProp;
 
-public class RCTCameraViewManager extends SimpleViewManager<RCTCameraView> {
-    private static final String REACT_CLASS = "RCTCameraView";
+public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
+    private static final String REACT_CLASS = "RCTCamera";
 
     @Override
     public String getName() {
