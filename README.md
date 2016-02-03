@@ -1,17 +1,18 @@
 # react-native-camera [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![Gitter](https://badges.gitter.im/lwansbrough/react-native-camera.svg)](https://gitter.im/lwansbrough/react-native-camera)
 
 A camera module for React Native.
+
 ![](https://i.imgur.com/5j2JdUk.gif)
 
 ## Known Issues
 Below is a list of known issues. Pull requests are welcome for any of these issues!
-
+- Android support is only available through GitHub at the moment. The npm package does not have a working Android implementation.
 - Stills captured to disk will not be cleaned up and thus must be managed manually for now
 
 ## Getting started
 ### Mostly automatic install
 1. `npm install rnpm --global`
-2. `npm install react-native-camera@latest --save`
+2. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
 3. `rnpm link react-native-camera`
 
 ### Manual install
