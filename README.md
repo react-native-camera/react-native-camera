@@ -17,7 +17,7 @@ Below is a list of known issues. Pull requests are welcome for any of these issu
 
 ### Manual install
 #### iOS
-1. `npm install react-native-camera@latest --save`
+1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
 2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
 3. Go to `node_modules` ➜ `react-native-camera` and add `RCTCamera.xcodeproj`
 4. In XCode, in the project navigator, select your project. Add `libRCTCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
@@ -26,7 +26,7 @@ Below is a list of known issues. Pull requests are welcome for any of these issu
 
 
 #### Android
-1. `npm install react-native-camera@latest --save`
+1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
 2. Open up `android/app/src/main/java/[...]/MainActivity.java
   - Add `import com.lwansbrough.RCTCamera.*;` to the imports at the top of the file
   - Add `new RCTCameraPackage()` to the list returned by the `getPackages()` method
