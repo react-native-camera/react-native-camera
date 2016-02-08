@@ -30,6 +30,7 @@ RCT_EXPORT_VIEW_PROPERTY(type, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(flashMode, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
+RCT_EXPORT_VIEW_PROPERTY(keepAwake, BOOL);
 
 - (NSDictionary *)constantsToExport
 {
