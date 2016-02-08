@@ -141,12 +141,12 @@ RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve
 
   [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
     if (!granted) {
-      resolve(@(granted));
+      resolve(@[@(granted)]);
     }
     else {
       mediaType = AVMediaTypeAudio;
       [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
-        resolve(@(granted));
+        resolve(@[@(granted)]);
       }];
     }
   }];
@@ -275,15 +275,15 @@ RCT_EXPORT_METHOD(getFOV:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejec
       }
   }
 
-  resolve(@{
-    [NSNumber numberWithInt:RCTCameraTypeBack]: [NSNumber numberWithDouble: backFov],
-    [NSNumber numberWithInt:RCTCameraTypeFront]: [NSNumber numberWithDouble: frontFov]
-  });
+  resolve(@[@{
+    [[NSNumber numberWithInt:RCTCameraTypeBack] stringValue]: [NSNumber numberWithDouble: backFov],
+    [[NSNumber numberWithInt:RCTCameraTypeFront] stringValue]: [NSNumber numberWithDouble: frontFov]
+  }]);
 }
 
 RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    resolve(@(device.hasFlash));
+    resolve(@[@(device.hasFlash)]);
 }
 
 - (void)startSession {
@@ -523,7 +523,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   else if (target == RCTCameraCaptureTargetCameraRoll) {
     [[[ALAssetsLibrary alloc] init] writeImageDataToSavedPhotosAlbum:imageData metadata:metadata completionBlock:^(NSURL* url, NSError* error) {
       if (error == nil) {
-        resolve([url absoluteString]);
+        resolve(@[[url absoluteString]]);
       }
       else {
         reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
@@ -531,7 +531,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     }];
     return;
   }
-  resolve(responseString);
+  resolve(@[responseString]);
 }
 
 - (CGImageRef)newCGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
@@ -633,7 +633,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
                                       self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
                                       return;
                                     }
-                                    self.videoResolve([assetURL absoluteString]);
+                                    self.videoResolve(@[[assetURL absoluteString]]);
                                   }];
     }
   }
@@ -650,7 +650,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
       self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
       return;
     }
-    self.videoResolve(fullPath);
+    self.videoResolve(@[fullPath]);
   }
   else if (self.videoTarget == RCTCameraCaptureTargetTemp) {
     NSString *fileName = [[NSProcessInfo processInfo] globallyUniqueString];
@@ -664,7 +664,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
         return;
     }
-    self.videoResolve(fullPath);
+    self.videoResolve(@[fullPath]);
   }
   else {
     self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Target not supported"));
