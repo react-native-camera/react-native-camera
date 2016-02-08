@@ -16,6 +16,7 @@
   BOOL _onFocusChanged;
   BOOL _defaultOnFocusComponent;
   BOOL _onZoomChanged;
+  BOOL _previousIdleTimerDisabled;
 }
 
 - (void)setAspect:(NSInteger)aspect
@@ -90,6 +91,13 @@
   }
 }
 
+- (void)setKeepAwake:(BOOL)enabled
+{
+  if (enabled) {
+    [UIApplication sharedApplication].idleTimerDisabled = true;
+  }
+}
+
 - (id)initWithManager:(RCTCameraManager*)manager bridge:(RCTBridge *)bridge
 {
   
@@ -104,6 +112,7 @@
     _onFocusChanged = NO;
     _defaultOnFocusComponent = YES;
     _onZoomChanged = NO;
+    _previousIdleTimerDisabled = [UIApplication sharedApplication].idleTimerDisabled;
   }
   return self;
 }
@@ -133,6 +142,7 @@
   [self.manager stopSession];
   [super removeFromSuperview];
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+  [UIApplication sharedApplication].idleTimerDisabled = _previousIdleTimerDisabled;
 }
 
 - (void)orientationChanged:(NSNotification *)notification{

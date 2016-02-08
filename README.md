@@ -210,6 +210,10 @@ If `defaultOnFocusComponent` set to false, default internal implementation of vi
 Called when focus has changed.
 By default, `onZoomChanged` is not defined and pinch-to-zoom is disabled.
 
+#### `iOS` `keepAwake`
+
+If set to `true`, the device will not sleep while the camera preview is visible. This mimics the behavior of the default camera app, which keeps the device awake while open.
+
 ## Component instance methods
 
 You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to your `<Camera>` element, then you can use `this.refs.camera.capture(cb)`, etc. inside your component.
