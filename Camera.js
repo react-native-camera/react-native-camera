@@ -142,6 +142,7 @@ export default class Camera extends Component {
       audio: props.captureAudio,
       mode: props.captureMode,
       target: props.captureTarget,
+      type: props.type,
       ...options
     };
 
