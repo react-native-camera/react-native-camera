@@ -143,6 +143,8 @@ export default class Camera extends Component {
       mode: props.captureMode,
       target: props.captureTarget,
       type: props.type,
+      title: '',
+      description: '',
       ...options
     };
 
