@@ -67,6 +67,7 @@ export default class Camera extends Component {
       PropTypes.string,
       PropTypes.number
     ]),
+    keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
