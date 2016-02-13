@@ -213,7 +213,16 @@ RCT_EXPORT_METHOD(changeFlashMode:(NSInteger)flashMode) {
 }
 
 RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
-  self.previewLayer.connection.videoOrientation = orientation;
+  if (self.previewLayer.connection.isVideoOrientationSupported) {
+    self.previewLayer.connection.videoOrientation = orientation;
+  }
+  else {
+    // Setting videoOrientation isn't yet supported, so we have to wait until
+    // startSession has finished to set it. Put this in the queue behind.
+    dispatch_async(self.sessionQueue, ^{
+      self.previewLayer.connection.videoOrientation = orientation;
+    });
+  }
 }
 
 RCT_EXPORT_METHOD(changeTorchMode:(NSInteger)torchMode) {
