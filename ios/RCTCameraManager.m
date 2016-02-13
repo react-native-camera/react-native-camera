@@ -51,6 +51,12 @@ RCT_EXPORT_VIEW_PROPERTY(keepAwake, BOOL);
                    @"pdf417": AVMetadataObjectTypePDF417Code,
                    @"qr": AVMetadataObjectTypeQRCode,
                    @"aztec": AVMetadataObjectTypeAztecCode
+                   #ifdef AVMetadataObjectTypeInterleaved2of5Code
+                   ,@"interleaved2of5": AVMetadataObjectTypeInterleaved2of5Code
+                   # endif
+                   #ifdef AVMetadataObjectTypeITF14Code
+                   ,@"itf14": AVMetadataObjectTypeITF14Code
+                   # endif
                    #ifdef AVMetadataObjectTypeDataMatrixCode
                    ,@"datamatrix": AVMetadataObjectTypeDataMatrixCode
                    # endif
@@ -101,6 +107,12 @@ RCT_EXPORT_VIEW_PROPERTY(keepAwake, BOOL);
     AVMetadataObjectTypePDF417Code,
     AVMetadataObjectTypeQRCode,
     AVMetadataObjectTypeAztecCode
+    #ifdef AVMetadataObjectTypeInterleaved2of5Code
+    ,AVMetadataObjectTypeInterleaved2of5Code
+    # endif
+    #ifdef AVMetadataObjectTypeITF14Code
+    ,AVMetadataObjectTypeITF14Code
+    # endif
     #ifdef AVMetadataObjectTypeDataMatrixCode
     ,AVMetadataObjectTypeDataMatrixCode
     # endif

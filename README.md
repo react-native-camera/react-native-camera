@@ -171,6 +171,8 @@ The following barcode types can be recognised:
 - `pdf417`
 - `qr`
 - `upce`
+- `interleaved2of5` (when available)
+- `itf14` (when available)
 - `datamatrix` (when available)
 
 The barcode type is provided in the `data` object.
