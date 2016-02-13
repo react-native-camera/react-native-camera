@@ -4,7 +4,8 @@ import React, {
   NativeModules,
   PropTypes,
   StyleSheet,
-  requireNativeComponent
+  requireNativeComponent,
+  View,
 } from 'react-native';
 
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
@@ -49,6 +50,7 @@ export default class Camera extends Component {
   };
   
   static propTypes = {
+    ...View.propTypes,
     aspect: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
@@ -141,6 +143,9 @@ export default class Camera extends Component {
       audio: props.captureAudio,
       mode: props.captureMode,
       target: props.captureTarget,
+      type: props.type,
+      title: '',
+      description: '',
       ...options
     };
 
