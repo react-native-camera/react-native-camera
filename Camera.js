@@ -32,12 +32,12 @@ function convertStringProps(props) {
   if (typeof props.type === 'string') {
     newProps.type = Camera.constants.Type[props.type];
   }
-  
+
   return newProps;
 }
 
 export default class Camera extends Component {
-  
+
   static constants = {
     Aspect: CameraManager.Aspect,
     BarCodeType: CameraManager.BarCodeType,
@@ -48,7 +48,7 @@ export default class Camera extends Component {
     FlashMode: CameraManager.FlashMode,
     TorchMode: CameraManager.TorchMode
   };
-  
+
   static propTypes = {
     ...View.propTypes,
     aspect: PropTypes.oneOfType([
@@ -86,25 +86,25 @@ export default class Camera extends Component {
       PropTypes.number
     ])
   };
-  
+
   static defaultProps = {
-    aspect: Camera.constants.Aspect.fill,
-    type: Camera.constants.Type.back,
-    orientation: Camera.constants.Orientation.auto,
+    aspect: CameraManager.Aspect.fill,
+    type: CameraManager.Type.back,
+    orientation: CameraManager.Orientation.auto,
     captureAudio: true,
-    captureMode: Camera.constants.CaptureMode.still,
-    captureTarget: Camera.constants.CaptureTarget.cameraRoll,
+    captureMode: CameraManager.CaptureMode.still,
+    captureTarget: CameraManager.CaptureTarget.cameraRoll,
     defaultOnFocusComponent: true,
-    flashMode: Camera.constants.FlashMode.off,
-    torchMode: Camera.constants.TorchMode.off
+    flashMode: CameraManager.FlashMode.off,
+    torchMode: CameraManager.TorchMode.off
   };
-  
+
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
 
   setNativeProps(props) {
     this.refs[CAMERA_REF].setNativeProps(props);
   }
-  
+
   constructor() {
     super();
     this.state = {
@@ -164,7 +164,7 @@ export default class Camera extends Component {
       this.setState({ isRecording: false });
     }
   }
-  
+
   getFOV() {
     return CameraManager.getFOV();
   }
