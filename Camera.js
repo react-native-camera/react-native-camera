@@ -114,12 +114,12 @@ export default class Camera extends Component {
   }
 
   async componentWillMount() {
+    this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this.props.onBarCodeRead);
+
     if (Camera.checkDeviceAuthorizationStatus) {
       const isAuthorized = await Camera.checkDeviceAuthorizationStatus();
       this.setState({ isAuthorized });
     }
-
-    this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this.props.onBarCodeRead);
   }
 
   componentWillUnmount() {
