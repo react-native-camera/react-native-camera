@@ -77,6 +77,7 @@ export default class Camera extends Component {
       PropTypes.string,
       PropTypes.number
     ]),
+    jpegQuality: PropTypes.number,
     torchMode: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
