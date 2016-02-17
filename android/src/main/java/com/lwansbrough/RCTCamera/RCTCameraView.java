@@ -66,6 +66,10 @@ public class RCTCameraView extends ViewGroup {
         }
     }
 
+    public void setJpegQuality(int quality) {
+        this._viewFinder.setJpegQuality(quality);
+    }
+
     public void setTorchMode(int torchMode) {
         this._torchMode = torchMode;
         if (this._viewFinder != null) {
