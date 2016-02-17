@@ -64,8 +64,12 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         }).start();
     }
 
+    public void setJpegQuality(int quality) {
+        RCTCamera.getInstance().setJpegQuality(_cameraType, quality);
+    }
+
     public void setTorchMode(int torchMode) {
-        RCTCamera.getInstance().setTorchMode(_cameraType, torchMode);
+            RCTCamera.getInstance().setTorchMode(_cameraType, torchMode);
     }
 
     public void setFlashMode(int flashMode) {
