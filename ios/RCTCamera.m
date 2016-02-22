@@ -104,6 +104,7 @@
   if ((self = [super init])) {
     self.manager = manager;
     self.bridge = bridge;
+    self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.manager.session];
     UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchToZoomRecognizer:)];
     [self addGestureRecognizer:pinchGesture];
     [self.manager initializeCaptureSessionInput:AVMediaTypeVideo];
@@ -120,9 +121,9 @@
 - (void)layoutSubviews
 {
   [super layoutSubviews];
-  self.manager.previewLayer.frame = self.bounds;
+  self.previewLayer.frame = self.bounds;
   [self setBackgroundColor:[UIColor blackColor]];
-  [self.layer insertSublayer:self.manager.previewLayer atIndex:0];
+  [self.layer insertSublayer:self.previewLayer atIndex:0];
 }
 
 - (void)insertReactSubview:(UIView *)view atIndex:(NSInteger)atIndex
