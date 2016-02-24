@@ -31,6 +31,7 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(flashMode, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(keepAwake, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(mirrorImage, BOOL);
 
 - (NSDictionary *)constantsToExport
 {
@@ -143,6 +144,7 @@ RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL)
 - (id)init {
 
   if ((self = [super init])) {
+    self.mirrorImage = false;
 
     self.session = [AVCaptureSession new];
 
@@ -244,6 +246,10 @@ RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
       self.previewLayer.connection.videoOrientation = orientation;
     });
   }
+}
+
+RCT_EXPORT_METHOD(changeMirrorImage:(BOOL)mirrorImage) {
+  self.mirrorImage = mirrorImage;
 }
 
 RCT_EXPORT_METHOD(changeTorchMode:(NSInteger)torchMode) {
@@ -578,6 +584,12 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
   CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
   CGContextRef bmContext = CGBitmapContextCreate(NULL, rotatedRect.size.width, rotatedRect.size.height, 8, 0, colorSpace, (CGBitmapInfo) kCGImageAlphaPremultipliedFirst);
+
+  if (self.mirrorImage) {
+    CGAffineTransform transform = CGAffineTransformMakeTranslation(rotatedRect.size.width, 0.0);
+    transform = CGAffineTransformScale(transform, -1.0, 1.0);
+    CGContextConcatCTM(bmContext, transform);
+  }
 
   CGContextSetAllowsAntialiasing(bmContext, TRUE);
   CGContextSetInterpolationQuality(bmContext, kCGInterpolationNone);
