@@ -6,6 +6,7 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
-    "react-native": "^0.21.0"
+    "react-native": "^0.21.0",
+    "react-native-camera": "file:../"
   }
 }
