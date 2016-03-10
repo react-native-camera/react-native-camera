@@ -6,6 +6,7 @@ import React, {
   StyleSheet,
   requireNativeComponent,
   View,
+  DeviceEventEmitter,
 } from 'react-native';
 
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
@@ -114,7 +115,7 @@ export default class Camera extends Component {
   }
 
   async componentWillMount() {
-    this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this.props.onBarCodeRead);
+    this.cameraBarCodeReadListener = DeviceEventEmitter.addListener('CameraBarCodeRead', this.props.onBarCodeRead);
 
     if (Camera.checkDeviceAuthorizationStatus) {
       const isAuthorized = await Camera.checkDeviceAuthorizationStatus();
