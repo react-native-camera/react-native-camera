@@ -69,6 +69,14 @@ RCT_EXPORT_VIEW_PROPERTY(keepAwake, BOOL);
                @"still": @(RCTCameraCaptureModeStill),
                @"video": @(RCTCameraCaptureModeVideo)
                },
+           @"CaptureQuality": @{
+               @"low": AVCaptureSessionPresetLow,
+               @"AVCaptureSessionPresetLow": AVCaptureSessionPresetLow,
+               @"medium": AVCaptureSessionPresetMedium,
+               @"AVCaptureSessionPresetMedium": AVCaptureSessionPresetMedium,
+               @"high": AVCaptureSessionPresetHigh,
+               @"AVCaptureSessionPresetHigh": AVCaptureSessionPresetHigh
+               },
            @"CaptureTarget": @{
                @"memory": @(RCTCameraCaptureTargetMemory),
                @"disk": @(RCTCameraCaptureTargetDisk),
@@ -136,7 +144,6 @@ RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL)
   if ((self = [super init])) {
 
     self.session = [AVCaptureSession new];
-    self.session.sessionPreset = AVCaptureSessionPresetHigh;
 
     self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
     self.previewLayer.needsDisplayOnBoundsChange = YES;
@@ -256,6 +263,10 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options
                   reject:(RCTPromiseRejectBlock)reject) {
   NSInteger captureMode = [[options valueForKey:@"mode"] intValue];
   NSInteger captureTarget = [[options valueForKey:@"target"] intValue];
+
+  if ([options valueForKey:@"quality"]) {
+    self.session.sessionPreset = [options valueForKey:@"quality"];
+  }
 
   if (captureMode == RCTCameraCaptureModeStill) {
     [self captureStill:captureTarget options:options resolve:resolve reject:reject];
