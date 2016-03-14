@@ -33,6 +33,10 @@ function convertStringProps(props) {
     newProps.type = Camera.constants.Type[props.type];
   }
 
+  if (Platform.OS === 'android' && typeof props.captureQuality === 'number') {
+   newProps.captureQuality = props.captureQuality;
+ }
+
   return newProps;
 }
 
@@ -77,7 +81,7 @@ export default class Camera extends Component {
       PropTypes.string,
       PropTypes.number
     ]),
-    jpegQuality: PropTypes.number,
+    captureQuality: PropTypes.number,
     torchMode: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number

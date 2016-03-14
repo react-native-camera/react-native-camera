@@ -197,11 +197,11 @@ Values:
 
 Use the `torchMode` property to specify the camera torch mode.
 
-#### `Android` `jpegQuality`
+#### `Android` `captureQuality`
 
 Values: the JPEG quality of captured picture. The range is 1 to 100, with 100 being the best.
 
-Use the `jpegQuality` property to set Jpeg quality of captured picture..
+Use the `captureQuality` property to set Jpeg quality of captured picture..
 
 #### `onFocusChanged: Event { nativeEvent: { touchPoint: { x, y } }`
 
