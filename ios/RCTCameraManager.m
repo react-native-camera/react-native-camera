@@ -821,7 +821,11 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
     if ([device lockForConfiguration:&error]) {
         CGFloat zoomFactor = device.videoZoomFactor + atan(velocity / pinchVelocityDividerFactor);
-        zoomFactor = zoomFactor >= 1 && zoomFactor <= device.activeFormat.videoMaxZoomFactor ? zoomFactor : 1.0f;
+        if (zoomFactor > device.activeFormat.videoMaxZoomFactor) {
+            zoomFactor = device.activeFormat.videoMaxZoomFactor;
+        } else if (zoomFactor < 1) {
+            zoomFactor = 1.0f;
+        }
 
         NSDictionary *event = @{
           @"target": reactTag,

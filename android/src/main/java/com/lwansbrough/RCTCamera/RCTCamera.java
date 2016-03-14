@@ -141,16 +141,20 @@ public class RCTCamera {
         }
 
         CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
-        int rotation = cameraInfo.info.orientation;
+        int displayRotation;
+        int rotation;
+        int orientation = cameraInfo.info.orientation;
         if (cameraInfo.info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            rotation = (720 - rotation - _actualDeviceOrientation * 90) % 360;
+            rotation = (orientation + _actualDeviceOrientation * 90) % 360;
+            displayRotation = (720 - orientation - _actualDeviceOrientation * 90) % 360;
         } else {
-            rotation = (rotation - _actualDeviceOrientation * 90 + 360) % 360;
+            rotation = (orientation - _actualDeviceOrientation * 90 + 360) % 360;
+            displayRotation = rotation;
         }
         cameraInfo.rotation = rotation;
         // TODO: take in account the _orientation prop
 
-        camera.setDisplayOrientation(cameraInfo.rotation);
+        camera.setDisplayOrientation(displayRotation);
 
         Camera.Parameters parameters = camera.getParameters();
         parameters.setRotation(cameraInfo.rotation);
