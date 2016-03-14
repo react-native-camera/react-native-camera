@@ -74,6 +74,16 @@ public class RCTCamera {
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_BACK);
     }
 
+    public void setJpegQuality(int cameraType, int quality) {
+        Camera camera = _cameras.get(cameraType);
+        if (null == camera) {
+            return;
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setJpegQuality(quality);
+    }
+
     public void setTorchMode(int cameraType, int torchMode) {
         Camera camera = _cameras.get(cameraType);
         if (null == camera) {
