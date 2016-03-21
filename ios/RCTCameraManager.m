@@ -69,6 +69,15 @@ RCT_EXPORT_VIEW_PROPERTY(keepAwake, BOOL);
                @"still": @(RCTCameraCaptureModeStill),
                @"video": @(RCTCameraCaptureModeVideo)
                },
+           @"CaptureQuality": @{
+               @"low": AVCaptureSessionPresetLow,
+               @"AVCaptureSessionPresetLow": AVCaptureSessionPresetLow,
+               @"medium": AVCaptureSessionPresetMedium,
+               @"AVCaptureSessionPresetMedium": AVCaptureSessionPresetMedium,
+               @"high": AVCaptureSessionPresetHigh,
+               @"AVCaptureSessionPresetHigh": AVCaptureSessionPresetHigh,
+               @"AVCaptureSessionPresetPhoto": AVCaptureSessionPresetPhoto
+               },
            @"CaptureTarget": @{
                @"memory": @(RCTCameraCaptureTargetMemory),
                @"disk": @(RCTCameraCaptureTargetDisk),
@@ -136,7 +145,6 @@ RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL)
   if ((self = [super init])) {
 
     self.session = [AVCaptureSession new];
-    self.session.sessionPreset = AVCaptureSessionPresetHigh;
 
     self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
     self.previewLayer.needsDisplayOnBoundsChange = YES;
@@ -256,6 +264,8 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options
                   reject:(RCTPromiseRejectBlock)reject) {
   NSInteger captureMode = [[options valueForKey:@"mode"] intValue];
   NSInteger captureTarget = [[options valueForKey:@"target"] intValue];
+
+  [self setCaptureQuality:[options valueForKey:@"quality"]];
 
   if (captureMode == RCTCameraCaptureModeStill) {
     [self captureStill:captureTarget options:options resolve:resolve reject:reject];
@@ -839,6 +849,17 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         [device unlockForConfiguration];
     } else {
         NSLog(@"error: %@", error);
+    }
+}
+
+- (void)setCaptureQuality:(NSString *)quality
+{
+    if (quality) {
+        [self.session beginConfiguration];
+        if ([self.session canSetSessionPreset:quality]) {
+            self.session.sessionPreset = quality;
+        }
+        [self.session commitConfiguration];
     }
 }
 
