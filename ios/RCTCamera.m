@@ -10,6 +10,14 @@
 #import <AVFoundation/AVFoundation.h>
 #import "CameraFocusSquare.h"
 
+@interface RCTCamera ()
+
+@property (nonatomic, weak) RCTCameraManager *manager;
+@property (nonatomic, weak) RCTBridge *bridge;
+@property (nonatomic, strong) RCTCameraFocusSquare *camFocus;
+
+@end
+
 @implementation RCTCamera
 {
   BOOL _multipleTouches;

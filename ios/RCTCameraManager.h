@@ -48,17 +48,17 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 
 @interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate>
 
-@property (nonatomic) dispatch_queue_t sessionQueue;
-@property (nonatomic) AVCaptureSession *session;
-@property (nonatomic) AVCaptureDeviceInput *audioCaptureDeviceInput;
-@property (nonatomic) AVCaptureDeviceInput *videoCaptureDeviceInput;
-@property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
-@property (nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
-@property (nonatomic) AVCaptureMetadataOutput *metadataOutput;
-@property (nonatomic) id runtimeErrorHandlingObserver;
-@property (nonatomic) NSInteger presetCamera;
-@property (nonatomic) AVCaptureVideoPreviewLayer *previewLayer;
-@property (nonatomic) NSInteger videoTarget;
+@property (nonatomic, strong) dispatch_queue_t sessionQueue;
+@property (nonatomic, strong) AVCaptureSession *session;
+@property (nonatomic, strong) AVCaptureDeviceInput *audioCaptureDeviceInput;
+@property (nonatomic, strong) AVCaptureDeviceInput *videoCaptureDeviceInput;
+@property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
+@property (nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
+@property (nonatomic, strong) AVCaptureMetadataOutput *metadataOutput;
+@property (nonatomic, strong) id runtimeErrorHandlingObserver;
+@property (nonatomic, assign) NSInteger presetCamera;
+@property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
+@property (nonatomic, assign) NSInteger videoTarget;
 @property (nonatomic, strong) RCTPromiseResolveBlock videoResolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock videoReject;
 @property (nonatomic, strong) RCTCamera *camera;
