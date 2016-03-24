@@ -9,38 +9,60 @@
 #import "RCTSensorOrientationChecker.h"
 #import <CoreMotion/CoreMotion.h>
 
+
 @interface RCTSensorOrientationChecker ()
 
 @property (strong, nonatomic) CMMotionManager * motionManager;
+@property (assign, nonatomic) UIInterfaceOrientation orientation;
+@property (strong, nonatomic) RCTSensorCallback orientationCallback;
 
 @end
 
 @implementation RCTSensorOrientationChecker
 
-- (void)getDeviceOrientation:(void(^)(UIInterfaceOrientation orientation))callback
+- (instancetype)init
 {
-    self.motionManager = [[CMMotionManager alloc] init];
-    self.motionManager.accelerometerUpdateInterval = DBL_MAX; // infinite delay, never update
-    self.motionManager.gyroUpdateInterval = DBL_MAX;
-    
-    __weak CMMotionManager * weakMotionManager = self.motionManager;
+    self = [super init];
+    if (self) {
+        // Initialization code
+        self.motionManager = [[CMMotionManager alloc] init];
+        self.motionManager.accelerometerUpdateInterval = 0.2;
+        self.motionManager.gyroUpdateInterval = 0.2;
+        self.orientationCallback = nil;
+    }
+    return self;
+}
+
+- (void)resume
+{
     __weak __typeof(self) weakSelf = self;
-    
     [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue new]
                                              withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) {
-                                                 // stop after the first sample
-                                                 [weakMotionManager stopAccelerometerUpdates];
-                                                 
-                                                 UIInterfaceOrientation deviceOrientation = UIInterfaceOrientationUnknown;
                                                  if (!error) {
-                                                     deviceOrientation = [weakSelf getOrientationBy:accelerometerData.acceleration];
+                                                     self.orientation = [weakSelf getOrientationBy:accelerometerData.acceleration];
                                                  }
-                                                 
-                                                 if (callback) {
-                                                     callback(deviceOrientation);
+                                                 if (self.orientationCallback) {
+                                                     self.orientationCallback(self.orientation);
                                                  }
                                              }];
-    
+}
+
+- (void)pause
+{
+    [self.motionManager stopAccelerometerUpdates];
+}
+
+- (void)getDeviceOrientationWithBlock:(RCTSensorCallback)callback
+{
+    __weak __typeof(self) weakSelf = self;
+    self.orientationCallback = ^(UIInterfaceOrientation orientation) {
+        if (callback) {
+            callback(orientation);
+        }
+        weakSelf.orientationCallback = nil;
+        [weakSelf pause];
+    };
+    [self resume];
 }
 
 - (UIInterfaceOrientation)getOrientationBy:(CMAcceleration)acceleration

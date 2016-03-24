@@ -9,9 +9,11 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 
+typedef void (^RCTSensorCallback) (UIInterfaceOrientation orientation);
+
 @interface RCTSensorOrientationChecker : NSObject
 
-- (void)getDeviceOrientation:(void(^)(UIInterfaceOrientation orientation))callback;
+- (void)getDeviceOrientationWithBlock:(RCTSensorCallback)callback;
 - (AVCaptureVideoOrientation)convertToAVCaptureVideoOrientation:(UIInterfaceOrientation)orientation;
 
 @end
