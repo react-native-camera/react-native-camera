@@ -13,7 +13,6 @@
 @interface RCTSensorOrientationChecker ()
 
 @property (strong, nonatomic) CMMotionManager * motionManager;
-@property (assign, nonatomic) UIInterfaceOrientation orientation;
 @property (strong, nonatomic) RCTSensorCallback orientationCallback;
 
 @end
@@ -31,6 +30,11 @@
         self.orientationCallback = nil;
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [self pause];
 }
 
 - (void)resume

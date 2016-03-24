@@ -13,6 +13,8 @@ typedef void (^RCTSensorCallback) (UIInterfaceOrientation orientation);
 
 @interface RCTSensorOrientationChecker : NSObject
 
+@property (assign, nonatomic) UIInterfaceOrientation orientation;
+
 - (void)getDeviceOrientationWithBlock:(RCTSensorCallback)callback;
 - (AVCaptureVideoOrientation)convertToAVCaptureVideoOrientation:(UIInterfaceOrientation)orientation;
 
