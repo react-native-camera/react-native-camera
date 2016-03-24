@@ -9,11 +9,11 @@
 #import <AssetsLibrary/ALAssetsLibrary.h>
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
-#import <CoreMotion/CoreMotion.h>
+#import "RCTSensorOrientationChecker.h"
 
 @interface RCTCameraManager ()
 
-@property (strong, nonatomic) CMMotionManager * motionManager;
+@property (strong, nonatomic) RCTSensorOrientationChecker * sensorOrientationChecker;
 
 @end
 
@@ -465,8 +465,8 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
       [self saveImage:imageData target:target metadata:nil resolve:resolve reject:reject];
 #else
-      [self getDeviceOrientation:^(UIInterfaceOrientation orientation) {
-          [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[self convertToAVCaptureVideoOrientation: orientation]];
+      [self.sensorOrientationChecker getDeviceOrientation:^(UIInterfaceOrientation orientation) {
+          [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
 
       [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
 
@@ -869,65 +869,6 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
             self.session.sessionPreset = quality;
         }
         [self.session commitConfiguration];
-    }
-}
-
-- (void)getDeviceOrientation:(void(^)(UIInterfaceOrientation orientation))callback
-{
-    self.motionManager = [[CMMotionManager alloc] init];
-    self.motionManager.accelerometerUpdateInterval = DBL_MAX; // infinite delay, never update
-    self.motionManager.gyroUpdateInterval = DBL_MAX;
-    
-    __weak CMMotionManager * weakMotionManager = self.motionManager;
-    __weak __typeof(self) weakSelf = self;
-    
-    [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue new]
-                                             withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) {
-                                                 // stop after the first sample
-                                                 [weakMotionManager stopAccelerometerUpdates];
-                                                 
-                                                 UIInterfaceOrientation deviceOrientation = UIInterfaceOrientationUnknown;
-                                                 if (!error) {
-                                                     deviceOrientation = [weakSelf getOrientationBy:accelerometerData.acceleration];
-                                                 }
-                                                 
-                                                 if (callback) {
-                                                     callback(deviceOrientation);
-                                                 }
-                                             }];
-    
-}
-
-- (UIInterfaceOrientation)getOrientationBy:(CMAcceleration)acceleration
-{
-    if(acceleration.x >= 0.75) {
-        return UIInterfaceOrientationLandscapeLeft;
-    }
-    if(acceleration.x <= -0.75) {
-        return UIInterfaceOrientationLandscapeRight;
-    }
-    if(acceleration.y >= -0.75) {
-        return UIInterfaceOrientationPortrait;
-    }
-    if(acceleration.y >= 0.75) {
-        return UIInterfaceOrientationPortraitUpsideDown;
-    }
-    return [[UIApplication sharedApplication] statusBarOrientation];
-}
-
-- (AVCaptureVideoOrientation)convertToAVCaptureVideoOrientation:(UIInterfaceOrientation)orientation
-{
-    switch (orientation) {
-        case UIInterfaceOrientationPortrait:
-            return AVCaptureVideoOrientationPortrait;
-        case UIInterfaceOrientationPortraitUpsideDown:
-            return AVCaptureVideoOrientationPortraitUpsideDown;
-        case UIInterfaceOrientationLandscapeLeft:
-            return AVCaptureVideoOrientationLandscapeLeft;
-        case UIInterfaceOrientationLandscapeRight:
-            return AVCaptureVideoOrientationLandscapeRight;
-        default:
-            return 0; // unknown
     }
 }
 
