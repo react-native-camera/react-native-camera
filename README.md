@@ -245,7 +245,7 @@ Supported options:
 
 Returns the camera's current field of view.
 
-#### `iOS` `hasFlash(): Promise`
+#### `hasFlash(): Promise`
 
 Returns whether or not the camera has flash capabilities.
 

@@ -2,6 +2,7 @@ import React, {
   Component,
   NativeAppEventEmitter,
   NativeModules,
+  Platform,
   PropTypes,
   StyleSheet,
   requireNativeComponent,
@@ -181,6 +182,12 @@ export default class Camera extends Component {
   }
 
   hasFlash() {
+    if (Platform.OS === 'android') {
+      const props = convertStringProps(this.props);
+      return CameraManager.hasFlash({
+        type: props.type
+      });
+    }
     return CameraManager.hasFlash();
   }
 }

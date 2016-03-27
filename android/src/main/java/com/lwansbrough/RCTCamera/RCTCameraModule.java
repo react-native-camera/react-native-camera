@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 public class RCTCameraModule extends ReactContextBaseJavaModule {
     private static final String TAG = "RCTCameraModule";
@@ -232,6 +233,16 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void stopCapture(final ReadableMap options, final Promise promise) {
         // TODO: implement video capture
+    }
+
+    @ReactMethod
+    public void hasFlash(ReadableMap options, final Promise promise) {
+        Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        if (null == camera) {
+            promise.reject("No camera found.");
+        }
+        List<String> flashModes = camera.getParameters().getSupportedFlashModes();
+        promise.resolve(null != flashModes && !flashModes.isEmpty());
     }
 
     private File getOutputMediaFile(int type) {
