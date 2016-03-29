@@ -224,6 +224,10 @@ By default, `onZoomChanged` is not defined and pinch-to-zoom is disabled.
 
 If set to `true`, the device will not sleep while the camera preview is visible. This mimics the behavior of the default camera app, which keeps the device awake while open.
 
+#### `iOS` `mirrorImage`
+
+If set to `true`, the image returned will be mirrored..
+
 ## Component instance methods
 
 You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to your `<Camera>` element, then you can use `this.refs.camera.capture(cb)`, etc. inside your component.

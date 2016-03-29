@@ -68,6 +68,11 @@
   }
 }
 
+- (void)setMirrorImage:(BOOL)mirrorImage
+{
+  [self.manager changeMirrorImage:mirrorImage];
+}
+
 - (void)setFlashMode:(NSInteger)flashMode
 {
   [self.manager changeFlashMode:flashMode];
