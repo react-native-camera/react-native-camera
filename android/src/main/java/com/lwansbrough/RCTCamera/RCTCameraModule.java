@@ -240,6 +240,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
         if (null == camera) {
             promise.reject("No camera found.");
+            return;
         }
         List<String> flashModes = camera.getParameters().getSupportedFlashModes();
         promise.resolve(null != flashModes && !flashModes.isEmpty());
