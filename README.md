@@ -240,7 +240,7 @@ You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to 
 
 #### `capture([options]): Promise`
 
-Captures data from the camera. What is captured is based on the `captureMode` and `captureTarget` props. `captureMode` tells the camera whether you want a still image or video. `captureTarget` allows you to specify how you want the data to be captured and sent back to you. See `captureTarget` under Properties to see the available values. The promise will be fulfilled with the image data or file handle of the image on disk, depending on `target`.
+Captures data from the camera. What is captured is based on the `captureMode` and `captureTarget` props. `captureMode` tells the camera whether you want a still image or video. `captureTarget` allows you to specify how you want the data to be captured and sent back to you. See `captureTarget` under Properties to see the available values.
 
 Supported options:
 
@@ -250,6 +250,15 @@ Supported options:
  - `metadata` This is metadata to be added to the captured image.
    - `location` This is the object returned from `navigator.geolocation.getCurrentPosition()` (React Native's geolocation polyfill). It will add GPS metadata to the image.
  - `rotation` This will rotate the image by the number of degrees specified.
+
+The promise will be fulfilled with an object with some of the following properties:
+
+ - `data`: Returns a base64-encoded string with the capture data (only returned with the deprecated `Camera.constants.CaptureTarget.memory`)
+ - `path`: Returns the path of the captured image or video file on disk
+ - `width`: (currently iOS video only) returns the video file's frame width
+ - `height`: (currently iOS video only) returns the video file's frame height
+ - `duration`: (currently iOS video only) video file duration
+ - `size`: (currently iOS video only) video file size (in bytes)
 
 #### `iOS` `getFOV(): Promise`
 
