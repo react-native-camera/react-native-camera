@@ -22,7 +22,12 @@ RCT_EXPORT_MODULE();
 
 - (UIView *)view
 {
-    return [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
+  self.session = [AVCaptureSession new];
+  
+  self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
+  self.previewLayer.needsDisplayOnBoundsChange = YES;
+
+  return [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
 }
 
 RCT_EXPORT_VIEW_PROPERTY(aspect, NSInteger);
@@ -142,18 +147,10 @@ RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL)
 }
 
 - (id)init {
-
   if ((self = [super init])) {
     self.mirrorImage = false;
 
-    self.session = [AVCaptureSession new];
-
-    self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
-    self.previewLayer.needsDisplayOnBoundsChange = YES;
-
     self.sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
-
-
   }
   return self;
 }
