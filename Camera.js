@@ -113,6 +113,8 @@ export default class Camera extends Component {
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
+  static checkVideoAuthorizationStatus = CameraManager.checkCameraAuthorizationStatus;
+  static checkAudioAuthorizationStatus = CameraManager.checkAudioAuthorizationStatus;
 
   setNativeProps(props) {
     this.refs[CAMERA_REF].setNativeProps(props);
@@ -129,8 +131,10 @@ export default class Camera extends Component {
   async componentWillMount() {
     this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this.props.onBarCodeRead);
 
-    if (Camera.checkDeviceAuthorizationStatus) {
-      const isAuthorized = await Camera.checkDeviceAuthorizationStatus();
+    let check = this.props.captureAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
+
+    if (check) {
+      const isAuthorized = await check();
       this.setState({ isAuthorized });
     }
   }
