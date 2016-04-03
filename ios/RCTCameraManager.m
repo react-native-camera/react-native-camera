@@ -689,8 +689,8 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     NSFileManager * fileManager = [NSFileManager defaultManager];
     NSError * error = nil;
 
-    //copying destination
-    if (!([fileManager copyItemAtPath:[outputFileURL path] toPath:fullPath error:&error])) {
+    //moving to destination
+    if (!([fileManager moveItemAtPath:[outputFileURL path] toPath:fullPath error:&error])) {
       self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
       return;
     }
@@ -703,8 +703,8 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     NSFileManager * fileManager = [NSFileManager defaultManager];
     NSError * error = nil;
       
-    //copying destination
-    if (!([fileManager copyItemAtPath:[outputFileURL path] toPath:fullPath error:&error])) {
+    //moving to destination
+    if (!([fileManager moveItemAtPath:[outputFileURL path] toPath:fullPath error:&error])) {
         self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
         return;
     }
