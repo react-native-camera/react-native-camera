@@ -236,18 +236,12 @@ RCT_EXPORT_METHOD(changeFlashMode:(NSInteger)flashMode) {
 }
 
 RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
+  [self setOrientation:orientation];
   if (self.previewLayer.connection.isVideoOrientationSupported) {
     self.previewLayer.connection.videoOrientation = orientation;
   }
-  else {
-    // Setting videoOrientation isn't yet supported, so we have to wait until
-    // startSession has finished to set it. Put this in the queue behind.
-    dispatch_async(self.sessionQueue, ^{
-      self.previewLayer.connection.videoOrientation = orientation;
-    });
-  }
 }
-
+  
 RCT_EXPORT_METHOD(changeMirrorImage:(BOOL)mirrorImage) {
   self.mirrorImage = mirrorImage;
 }
@@ -365,6 +359,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       });
     }]];
 
+    [self.previewLayer.connection setVideoOrientation:self.orientation];
     [self.session startRunning];
   });
 }
