@@ -70,6 +70,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             {
                 put("Aspect", getAspectConstants());
                 put("Type", getTypeConstants());
+                put("SupportedCameraTypes", getSupportedCameraTypesConstants());
                 put("CaptureQuality", getCaptureQualityConstants());
                 put("CaptureMode", getCaptureModeConstants());
                 put("CaptureTarget", getCaptureTargetConstants());
@@ -95,6 +96,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         put("back", RCT_CAMERA_TYPE_BACK);
                     }
                 });
+            }
+
+            private List<Integer> getSupportedCameraTypesConstants() {
+                RCTCamera camera = RCTCamera.getInstance();
+                return Collections.unmodifiableList(camera.getSupportedCameras());
             }
 
             private Map<String, Object> getCaptureQualityConstants() {

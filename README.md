@@ -35,16 +35,16 @@ Below is a list of known issues. Pull requests are welcome for any of these issu
 
 3. Append the following lines to `android/settings.gradle`:
 
-	```
-	include ':react-native-camera'
-	project(':react-native-camera').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-camera/android')
-	```
+    ```
+    include ':react-native-camera'
+    project(':react-native-camera').projectDir = new File(rootProject.projectDir,     '../node_modules/react-native-camera/android')
+    ```
 
 4. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
 
-	```
+    ```
     compile project(':react-native-camera')
-	```
+    ```
 
 
 ## Usage
@@ -262,6 +262,14 @@ Ends the current capture session for video captures. Only applies when the curre
 #### `Camera.checkDeviceAuthorizationStatus(): Promise`
 
 Exposes the native API for checking if the device has authorized access to the camera. Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.
+
+## Component Constants
+
+#### `Android` `Camera.constants.SupportedCameraTypes`
+
+Returns an array of supported camera types for the device. e.g. `[ Camera.constants.Type.front, Camera.constants.Type.back ]`
+
+Returns `[]` when no camera is supported.
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
