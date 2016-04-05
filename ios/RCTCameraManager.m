@@ -650,26 +650,28 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   }
 
   dispatch_async(self.sessionQueue, ^{
-    [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
+    [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
+      [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
 
-    //Create temporary URL to record to
-    NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
-    NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:outputPath]) {
-      NSError *error;
-      if ([fileManager removeItemAtPath:outputPath error:&error] == NO) {
-        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
-        return;
+      //Create temporary URL to record to
+      NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
+      NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
+      NSFileManager *fileManager = [NSFileManager defaultManager];
+      if ([fileManager fileExistsAtPath:outputPath]) {
+        NSError *error;
+        if ([fileManager removeItemAtPath:outputPath error:&error] == NO) {
+          reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
+          return;
+        }
       }
-    }
 
-    //Start recording
-    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+      //Start recording
+      [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
 
-    self.videoResolve = resolve;
-    self.videoReject = reject;
-    self.videoTarget = target;
+      self.videoResolve = resolve;
+      self.videoReject = reject;
+      self.videoTarget = target;
+    }];
   });
 }
 
