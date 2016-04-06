@@ -7,6 +7,7 @@ package com.lwansbrough.RCTCamera;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.media.MediaActionSound;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -168,6 +169,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             promise.reject("No camera found.");
             return;
         }
+
+        MediaActionSound sound = new MediaActionSound();
+        sound.play(MediaActionSound.SHUTTER_CLICK);
+        
         RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
         camera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
