@@ -37,6 +37,7 @@ RCT_EXPORT_VIEW_PROPERTY(flashMode, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(keepAwake, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(mirrorImage, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(barCodeTypes, NSArray);
 
 - (NSDictionary *)constantsToExport
 {
@@ -111,27 +112,7 @@ RCT_EXPORT_VIEW_PROPERTY(mirrorImage, BOOL);
 }
 
 - (NSArray *)getBarCodeTypes {
-  return @[
-    AVMetadataObjectTypeUPCECode,
-    AVMetadataObjectTypeCode39Code,
-    AVMetadataObjectTypeCode39Mod43Code,
-    AVMetadataObjectTypeEAN13Code,
-    AVMetadataObjectTypeEAN8Code,
-    AVMetadataObjectTypeCode93Code,
-    AVMetadataObjectTypeCode128Code,
-    AVMetadataObjectTypePDF417Code,
-    AVMetadataObjectTypeQRCode,
-    AVMetadataObjectTypeAztecCode
-    #ifdef AVMetadataObjectTypeInterleaved2of5Code
-    ,AVMetadataObjectTypeInterleaved2of5Code
-    # endif
-    #ifdef AVMetadataObjectTypeITF14Code
-    ,AVMetadataObjectTypeITF14Code
-    # endif
-    #ifdef AVMetadataObjectTypeDataMatrixCode
-    ,AVMetadataObjectTypeDataMatrixCode
-    # endif
-  ];
+  return self.barCodeTypes;
 }
 
 RCT_EXPORT_VIEW_PROPERTY(defaultOnFocusComponent, BOOL);
