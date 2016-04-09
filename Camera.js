@@ -84,6 +84,7 @@ export default class Camera extends Component {
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
+    barCodeTypes: PropTypes.array,
     orientation: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
@@ -110,6 +111,7 @@ export default class Camera extends Component {
     flashMode: CameraManager.FlashMode.off,
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
+    barCodeTypes: [],
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
