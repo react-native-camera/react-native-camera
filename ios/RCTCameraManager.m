@@ -37,7 +37,7 @@ RCT_EXPORT_VIEW_PROPERTY(flashMode, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(keepAwake, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(mirrorImage, BOOL);
-RCT_EXPORT_VIEW_PROPERTY(barCodeTypes, NSArray);
+RCT_EXPORT_VIEW_PROPERTY(barCodeTypes, NSStringArray);
 
 - (NSDictionary *)constantsToExport
 {
@@ -244,6 +244,10 @@ RCT_EXPORT_METHOD(changeMirrorImage:(BOOL)mirrorImage) {
   self.mirrorImage = mirrorImage;
 }
 
+RCT_EXPORT_METHOD(changeBarCodeTypes:(NSArray *)barCodeTypes) {
+    self.barCodeTypes = barCodeTypes;
+}
+
 RCT_EXPORT_METHOD(changeTorchMode:(NSInteger)torchMode) {
   AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
   NSError *error = nil;
@@ -344,7 +348,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     if ([self.session canAddOutput:metadataOutput]) {
       [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
       [self.session addOutput:metadataOutput];
-      [metadataOutput setMetadataObjectTypes:metadataOutput.availableMetadataObjectTypes];
+      [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
       self.metadataOutput = metadataOutput;
     }
 
