@@ -716,7 +716,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 
   for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
     for (id barcodeType in [self getBarCodeTypes]) {
-      if (metadata.type == barcodeType) {
+      if ([metadata.type isEqualToString:barcodeType]) {
         // Transform the meta-data coordinates to screen coords
         AVMetadataMachineReadableCodeObject *transformed = (AVMetadataMachineReadableCodeObject *)[_previewLayer transformedMetadataObjectForMetadataObject:metadata];
 
