@@ -48,26 +48,26 @@ RCT_EXPORT_VIEW_PROPERTY(barCodeTypes, NSStringArray);
                @"fill": @(RCTCameraAspectFill)
                },
            @"BarCodeType": @{
-                   @"upce": AVMetadataObjectTypeUPCECode,
-                   @"code39": AVMetadataObjectTypeCode39Code,
-                   @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
-                   @"ean13": AVMetadataObjectTypeEAN13Code,
-                   @"ean8":  AVMetadataObjectTypeEAN8Code,
-                   @"code93": AVMetadataObjectTypeCode93Code,
-                   @"code138": AVMetadataObjectTypeCode128Code,
-                   @"pdf417": AVMetadataObjectTypePDF417Code,
-                   @"qr": AVMetadataObjectTypeQRCode,
-                   @"aztec": AVMetadataObjectTypeAztecCode
-                   #ifdef AVMetadataObjectTypeInterleaved2of5Code
-                   ,@"interleaved2of5": AVMetadataObjectTypeInterleaved2of5Code
-                   # endif
-                   #ifdef AVMetadataObjectTypeITF14Code
-                   ,@"itf14": AVMetadataObjectTypeITF14Code
-                   # endif
-                   #ifdef AVMetadataObjectTypeDataMatrixCode
-                   ,@"datamatrix": AVMetadataObjectTypeDataMatrixCode
-                   # endif
-                   },
+               @"upce": AVMetadataObjectTypeUPCECode,
+               @"code39": AVMetadataObjectTypeCode39Code,
+               @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
+               @"ean13": AVMetadataObjectTypeEAN13Code,
+               @"ean8":  AVMetadataObjectTypeEAN8Code,
+               @"code93": AVMetadataObjectTypeCode93Code,
+               @"code138": AVMetadataObjectTypeCode128Code,
+               @"pdf417": AVMetadataObjectTypePDF417Code,
+               @"qr": AVMetadataObjectTypeQRCode,
+               @"aztec": AVMetadataObjectTypeAztecCode
+               #ifdef AVMetadataObjectTypeInterleaved2of5Code
+               ,@"interleaved2of5": AVMetadataObjectTypeInterleaved2of5Code
+               # endif
+               #ifdef AVMetadataObjectTypeITF14Code
+               ,@"itf14": AVMetadataObjectTypeITF14Code
+               # endif
+               #ifdef AVMetadataObjectTypeDataMatrixCode
+               ,@"datamatrix": AVMetadataObjectTypeDataMatrixCode
+               # endif
+               },
            @"Type": @{
                @"front": @(RCTCameraTypeFront),
                @"back": @(RCTCameraTypeBack)
@@ -157,7 +157,7 @@ RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(checkVideoAuthorizationStatus:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
     __block NSString *mediaType = AVMediaTypeVideo;
-    
+
     [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
         resolve(@(granted));
     }];
@@ -669,7 +669,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
   AVAssetTrack* videoTrack = [[videoAsAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
   float videoWidth;
   float videoHeight;
-  
+
   CGSize videoSize = [videoTrack naturalSize];
   CGAffineTransform txf = [videoTrack preferredTransform];
 
@@ -682,14 +682,14 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     videoWidth = videoSize.height;
     videoHeight = videoSize.width;
   }
-  
+
   NSMutableDictionary *videoInfo = [NSMutableDictionary dictionaryWithDictionary:@{
      @"duration":[NSNumber numberWithFloat:CMTimeGetSeconds(videoAsAsset.duration)],
      @"width":[NSNumber numberWithFloat:videoWidth],
      @"height":[NSNumber numberWithFloat:videoHeight],
      @"size":[NSNumber numberWithLongLong:captureOutput.recordedFileSize],
   }];
-    
+
   if (self.videoTarget == RCTCameraCaptureTargetCameraRoll) {
     ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
     if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputFileURL]) {
