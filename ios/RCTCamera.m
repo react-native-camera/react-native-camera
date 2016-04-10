@@ -73,6 +73,11 @@
   [self.manager changeMirrorImage:mirrorImage];
 }
 
+- (void)setBarCodeTypes:(NSArray *)barCodeTypes
+{
+    [self.manager changeBarCodeTypes:barCodeTypes];
+}
+
 - (void)setFlashMode:(NSInteger)flashMode
 {
   [self.manager changeFlashMode:flashMode];
