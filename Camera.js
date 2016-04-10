@@ -168,6 +168,7 @@ export default class Camera extends Component {
     options = {
       audio: props.captureAudio,
       barCodeTypes: props.barCodeTypes,
+      playSoundOnCapture: props.playSoundOnCapture,
       mode: props.captureMode,
       target: props.captureTarget,
       quality: props.captureQuality,
