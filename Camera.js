@@ -38,6 +38,10 @@ function convertStringProps(props) {
     newProps.captureQuality = Camera.constants.CaptureQuality[props.captureQuality];
   }
 
+  if (typeof props.captureMode === 'string') {
+    newProps.captureMode = Camera.constants.CaptureMode[props.captureMode];
+  }
+
   return newProps;
 }
 
@@ -133,7 +137,9 @@ export default class Camera extends Component {
   async componentWillMount() {
     this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this.props.onBarCodeRead);
 
-    let check = this.props.captureAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
+    let { captureMode } = convertStringProps({captureMode: this.props.captureMode})
+    let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
+    let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
 
     if (check) {
       const isAuthorized = await check();
