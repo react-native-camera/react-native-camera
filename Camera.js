@@ -88,6 +88,7 @@ export default class Camera extends Component {
       PropTypes.string,
       PropTypes.number
     ]),
+    playSoundOnCapture: PropTypes.bool,
     torchMode: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
@@ -108,6 +109,7 @@ export default class Camera extends Component {
     captureQuality: CameraManager.CaptureQuality.high,
     defaultOnFocusComponent: true,
     flashMode: CameraManager.FlashMode.off,
+    playSoundOnCapture: true,
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
   };
