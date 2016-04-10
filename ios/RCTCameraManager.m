@@ -37,6 +37,7 @@ RCT_EXPORT_VIEW_PROPERTY(flashMode, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(keepAwake, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(mirrorImage, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(barCodeTypes, NSStringArray);
 
 - (NSDictionary *)constantsToExport
 {
@@ -111,27 +112,7 @@ RCT_EXPORT_VIEW_PROPERTY(mirrorImage, BOOL);
 }
 
 - (NSArray *)getBarCodeTypes {
-  return @[
-    AVMetadataObjectTypeUPCECode,
-    AVMetadataObjectTypeCode39Code,
-    AVMetadataObjectTypeCode39Mod43Code,
-    AVMetadataObjectTypeEAN13Code,
-    AVMetadataObjectTypeEAN8Code,
-    AVMetadataObjectTypeCode93Code,
-    AVMetadataObjectTypeCode128Code,
-    AVMetadataObjectTypePDF417Code,
-    AVMetadataObjectTypeQRCode,
-    AVMetadataObjectTypeAztecCode
-    #ifdef AVMetadataObjectTypeInterleaved2of5Code
-    ,AVMetadataObjectTypeInterleaved2of5Code
-    # endif
-    #ifdef AVMetadataObjectTypeITF14Code
-    ,AVMetadataObjectTypeITF14Code
-    # endif
-    #ifdef AVMetadataObjectTypeDataMatrixCode
-    ,AVMetadataObjectTypeDataMatrixCode
-    # endif
-  ];
+  return self.barCodeTypes;
 }
 
 RCT_EXPORT_VIEW_PROPERTY(defaultOnFocusComponent, BOOL);
@@ -263,6 +244,10 @@ RCT_EXPORT_METHOD(changeMirrorImage:(BOOL)mirrorImage) {
   self.mirrorImage = mirrorImage;
 }
 
+RCT_EXPORT_METHOD(changeBarCodeTypes:(NSArray *)barCodeTypes) {
+    self.barCodeTypes = barCodeTypes;
+}
+
 RCT_EXPORT_METHOD(changeTorchMode:(NSInteger)torchMode) {
   AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
   NSError *error = nil;
@@ -363,7 +348,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     if ([self.session canAddOutput:metadataOutput]) {
       [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
       [self.session addOutput:metadataOutput];
-      [metadataOutput setMetadataObjectTypes:metadataOutput.availableMetadataObjectTypes];
+      [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
       self.metadataOutput = metadataOutput;
     }
 
@@ -731,7 +716,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 
   for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
     for (id barcodeType in [self getBarCodeTypes]) {
-      if (metadata.type == barcodeType) {
+      if ([metadata.type isEqualToString:barcodeType]) {
         // Transform the meta-data coordinates to screen coords
         AVMetadataMachineReadableCodeObject *transformed = (AVMetadataMachineReadableCodeObject *)[_previewLayer transformedMetadataObjectForMetadataObject:metadata];
 
