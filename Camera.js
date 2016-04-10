@@ -12,7 +12,7 @@ import {
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
 const CAMERA_REF = 'camera';
 
-function convertStringProps(props) {
+function convertNativeProps(props) {
   const newProps = { ...props };
   if (typeof props.aspect === 'string') {
     newProps.aspect = Camera.constants.Aspect[props.aspect];
@@ -40,6 +40,11 @@ function convertStringProps(props) {
 
   if (typeof props.captureMode === 'string') {
     newProps.captureMode = Camera.constants.CaptureMode[props.captureMode];
+  }
+
+  // do not register barCodeTypes if no barcode listener
+  if (typeof props.onBarCodeRead !== 'function') {
+    newProps.barCodeTypes = [];
   }
 
   return newProps;
@@ -117,7 +122,7 @@ export default class Camera extends Component {
     playSoundOnCapture: true,
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
-    barCodeTypes: [],
+    barCodeTypes: Object.keys(CameraManager.BarCodeType),
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -159,15 +164,16 @@ export default class Camera extends Component {
 
   render() {
     const style = [styles.base, this.props.style];
-    const nativeProps = convertStringProps(this.props);
+    const nativeProps = convertNativeProps(this.props);
 
     return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
   }
 
   capture(options) {
-    const props = convertStringProps(this.props);
+    const props = convertNativeProps(this.props);
     options = {
       audio: props.captureAudio,
+      barCodeTypes: props.barCodeTypes,
       mode: props.captureMode,
       playSoundOnCapture: props.playSoundOnCapture,
       target: props.captureTarget,
