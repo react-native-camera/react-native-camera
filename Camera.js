@@ -38,6 +38,10 @@ function convertNativeProps(props) {
     newProps.captureQuality = Camera.constants.CaptureQuality[props.captureQuality];
   }
 
+  if (typeof props.captureMode === 'string') {
+    newProps.captureMode = Camera.constants.CaptureMode[props.captureMode];
+  }
+
   // do not register barCodeTypes if no barcode listener
   if (typeof props.onBarCodeRead !== 'function') {
     newProps.barCodeTypes = [];
@@ -140,7 +144,9 @@ export default class Camera extends Component {
   async componentWillMount() {
     this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this.props.onBarCodeRead);
 
-    let check = this.props.captureAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
+    let { captureMode } = convertStringProps({captureMode: this.props.captureMode})
+    let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
+    let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
 
     if (check) {
       const isAuthorized = await check();
