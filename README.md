@@ -6,11 +6,6 @@ A camera module for React Native.
 
 ![](https://i.imgur.com/5j2JdUk.gif)
 
-## Known Issues
-Below is a list of known issues. Pull requests are welcome for any of these issues!
-- Android support is only available through GitHub at the moment. The npm package does not have a working Android implementation.
-- Stills captured to disk will not be cleaned up and thus must be managed manually for now
-
 ## Getting started
 ### Mostly automatic install
 1. `npm install rnpm --global`
@@ -164,7 +159,7 @@ The `orientation` property allows you to specify the current orientation of the 
 
 Values: `true` (default) or `false`
 
-This property allows you to specify whether a sound is played on capture
+This property allows you to specify whether a sound is played on capture. It is currently android only, pending [a reasonable mute implementation](http://stackoverflow.com/questions/4401232/avfoundation-how-to-turn-off-the-shutter-sound-when-capturestillimageasynchrono) in iOS.
 
 #### `iOS` `onBarCodeRead`
 
@@ -189,6 +184,10 @@ The following barcode types can be recognised:
 - `datamatrix` (when available)
 
 The barcode type is provided in the `data` object.
+
+#### `iOS` `barCodeTypes`
+
+An array of barcode types to search for. Defaults to all types listed above. No effect if `onBarCodeRead` is undefined.
 
 #### `flashMode`
 
