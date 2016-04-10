@@ -160,6 +160,12 @@ Values:
 
 The `orientation` property allows you to specify the current orientation of the phone to ensure the viewfinder is "the right way up."
 
+#### `Android` `playSoundOnCapture`
+
+Values: `true` (default) or `false`
+
+This property allows you to specify whether a sound is played on capture
+
 #### `iOS` `onBarCodeRead`
 
 Will call the specified method when a barcode is detected in the camera's view.
