@@ -131,7 +131,6 @@ public class RCTCamera {
         }
         return result;
     }
-
     public void setOrientation(int orientation) {
         if (_orientation == orientation) {
             return;
@@ -141,6 +140,9 @@ public class RCTCamera {
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_BACK);
     }
 
+    public int getActualDeviceOrientation() {
+        return _actualDeviceOrientation;
+    }
     public void setActualDeviceOrientation(int actualDeviceOrientation) {
         _actualDeviceOrientation = actualDeviceOrientation;
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_FRONT);

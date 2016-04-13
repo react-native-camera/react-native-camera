@@ -7,7 +7,9 @@ package com.lwansbrough.RCTCamera;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.media.CamcorderProfile;
 import android.media.MediaActionSound;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -53,6 +55,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     public static final int MEDIA_TYPE_VIDEO = 2;
 
     private final ReactApplicationContext _reactContext;
+
+    private MediaRecorder mediaRecorder;
+    private boolean recording = false;
+    private File videoFile;
 
     public RCTCameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -162,6 +168,105 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         });
     }
 
+    private boolean prepareMediaRecorder(Camera mCamera, String captureQuality, int target) {
+
+        mediaRecorder = new MediaRecorder();
+        mediaRecorder.setCamera(mCamera);
+
+        mCamera.unlock();
+
+        int actualDeviceOrientation = (90 + ((720 - RCTCamera.getInstance().getActualDeviceOrientation() * 90))) % 360;
+
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        mediaRecorder.setOrientationHint(actualDeviceOrientation);
+
+        int quality = CamcorderProfile.QUALITY_HIGH; 
+        switch (captureQuality) {
+            case "low":
+                quality = CamcorderProfile.QUALITY_LOW; // select the lowest res
+                break;
+            case "medium":
+                quality = CamcorderProfile.QUALITY_720P; // select medium
+                break;
+            case "high":
+                quality = CamcorderProfile.QUALITY_HIGH; // select the highest res (default)
+                break;
+        }
+        mediaRecorder.setProfile(CamcorderProfile.get(quality));
+
+        videoFile = null;
+        switch (target) {
+            case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
+                break;
+            case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
+                break;
+            case RCT_CAMERA_CAPTURE_TARGET_DISK:
+                videoFile = getOutputMediaFile(MEDIA_TYPE_VIDEO);
+                break;
+            case RCT_CAMERA_CAPTURE_TARGET_TEMP:
+                videoFile = getTempMediaFile(MEDIA_TYPE_VIDEO);
+                break;
+        }
+        if (videoFile == null) {
+            return false;
+        }
+        mediaRecorder.setOutputFile(videoFile.getPath());
+
+        mediaRecorder.setMaxDuration(600000); // Set max duration 60 sec.
+        mediaRecorder.setMaxFileSize(50000000); // Set max file size 50M
+
+        try {
+            mediaRecorder.prepare();
+        } catch (IllegalStateException e) {
+            releaseMediaRecorder();
+            return false;
+        } catch (IOException e) {
+            releaseMediaRecorder();
+            return false;
+        }
+        return true;
+
+    }
+
+    @ReactMethod
+    private void record(final ReadableMap options, final Promise promise) {
+        if (recording) {
+            // stop recording and release camera
+            mediaRecorder.stop(); // stop the recording
+            releaseMediaRecorder(); // release the MediaRecorder object
+            promise.resolve(Uri.fromFile(videoFile).toString());
+            recording = false;
+        } else {
+            Camera mCamera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+            if (null == mCamera) {
+                promise.reject("No camera found.");
+                return;
+            }
+            if (!prepareMediaRecorder(mCamera, options.getString("quality"), options.getInt("target"))) {
+                promise.reject("Fail in prepareMediaRecorder()!");
+                return;
+            }
+            try {
+                mediaRecorder.start();
+                promise.resolve("Started video recording");
+            } catch (final Exception ex) {
+                promise.reject("Exception in thread");
+                return;
+            }
+            recording = true;
+        }
+    }
+
+    private void releaseMediaRecorder() {
+        if (mediaRecorder != null) {
+            mediaRecorder.reset(); // clear recorder configuration
+            mediaRecorder.release(); // release the recorder object
+            mediaRecorder = null;
+            //mCamera.lock(); // lock camera for later use
+        }
+    }
+
     @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
@@ -174,8 +279,15 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             MediaActionSound sound = new MediaActionSound();
             sound.play(MediaActionSound.SHUTTER_CLICK);
         }
-        
+
         RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
+
+        if (options.getInt("mode") == RCT_CAMERA_CAPTURE_MODE_VIDEO) {
+
+            record(options, promise);
+            return;
+        }
+
         camera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
