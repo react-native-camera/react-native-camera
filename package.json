@@ -1,20 +1,71 @@
 {
-  "name": "react-native-camera",
-  "repository": {
-    "type" : "git",
-    "url" : "https://github.com/lwansbrough/react-native-camera.git"
+  "_args": [
+    [
+      "react-native-camera@https://github.com/lwansbrough/react-native-camera.git",
+      "/Users/Marc/AwesomeProject"
+    ]
+  ],
+  "_from": "git+https://github.com/lwansbrough/react-native-camera.git",
+  "_id": "react-native-camera@0.3.9",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/react-native-camera",
+  "_phantomChildren": {},
+  "_requested": {
+    "hosted": {
+      "directUrl": "https://raw.githubusercontent.com/lwansbrough/react-native-camera/master/package.json",
+      "gitUrl": "git://github.com/lwansbrough/react-native-camera.git",
+      "httpsUrl": "git+https://github.com/lwansbrough/react-native-camera.git",
+      "shortcut": "github:lwansbrough/react-native-camera",
+      "ssh": "git@github.com:lwansbrough/react-native-camera.git",
+      "sshUrl": "git+ssh://git@github.com/lwansbrough/react-native-camera.git",
+      "type": "github"
+    },
+    "name": "react-native-camera",
+    "raw": "react-native-camera@https://github.com/lwansbrough/react-native-camera.git",
+    "rawSpec": "https://github.com/lwansbrough/react-native-camera.git",
+    "scope": null,
+    "spec": "git+https://github.com/lwansbrough/react-native-camera.git",
+    "type": "hosted"
   },
-  "version": "0.3.8",
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "git+https://github.com/lwansbrough/react-native-camera.git#a6785cfa46e9564f2552603fdc7f441a3c668729",
+  "_shasum": "f7ed7e922b8d6cda93c757ad12fcd283d531f877",
+  "_shrinkwrap": null,
+  "_spec": "react-native-camera@https://github.com/lwansbrough/react-native-camera.git",
+  "_where": "/Users/Marc/AwesomeProject",
+  "author": {
+    "email": "lochie@live.com",
+    "name": "Lochlan Wansbrough",
+    "url": "http://lwansbrough.com"
+  },
+  "bugs": {
+    "url": "https://github.com/lwansbrough/react-native-camera/issues"
+  },
+  "dependencies": {},
   "description": "A Camera component for React Native. Also reads barcodes.",
-  "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
-  "nativePackage": true,
+  "devDependencies": {},
+  "gitHead": "a6785cfa46e9564f2552603fdc7f441a3c668729",
+  "homepage": "https://github.com/lwansbrough/react-native-camera#readme",
   "keywords": [
-    "react-native",
-    "react",
-    "native",
+    "barcode",
     "camera",
-    "qr",
     "code",
-    "barcode"
-  ]
+    "native",
+    "qr",
+    "react",
+    "react-native"
+  ],
+  "name": "react-native-camera",
+  "nativePackage": true,
+  "optionalDependencies": {},
+  "readme": "# react-native-camera [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![Gitter](https://badges.gitter.im/lwansbrough/react-native-camera.svg)](https://gitter.im/lwansbrough/react-native-camera)\n\nA camera module for React Native.  \n\n**NOTE** These docs are for the work in progress v1 release. If you want to use the latest and greatest and can deal with *significant* instability you can install with `npm install --save lwansbrough/react-native-camera`. If you are using older version of this module please refer to the [old readme](https://github.com/lwansbrough/react-native-camera/tree/8cc61edef2c018b81e1c52f13c7d261fe6a35a63).\n\n![](https://i.imgur.com/5j2JdUk.gif)\n\n## Known Issues\nBelow is a list of known issues. Pull requests are welcome for any of these issues!\n- Android support is only available through GitHub at the moment. The npm package does not have a working Android implementation.\n- Stills captured to disk will not be cleaned up and thus must be managed manually for now\n\n## Getting started\n### Mostly automatic install\n1. `npm install rnpm --global`\n2. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`\n3. `rnpm link react-native-camera`\n\n### Manual install\n#### iOS\n1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`\n2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`\n3. Go to `node_modules` ➜ `react-native-camera` and add `RCTCamera.xcodeproj`\n4. In XCode, in the project navigator, select your project. Add `libRCTCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`\n5. Click `RCTCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.\n5. Run your project (`Cmd+R`)\n\n\n#### Android\n1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`\n2. Open up `android/app/src/main/java/[...]/MainActivity.java\n  - Add `import com.lwansbrough.RCTCamera.*;` to the imports at the top of the file\n  - Add `new RCTCameraPackage()` to the list returned by the `getPackages()` method\n\n3. Append the following lines to `android/settings.gradle`:\n\n\t```\n\tinclude ':react-native-camera'\n\tproject(':react-native-camera').projectDir = new File(rootProject.projectDir, \t'../node_modules/react-native-camera/android')\n\t```\n\n4. Insert the following lines inside the dependencies block in `android/app/build.gradle`:\n\n\t```\n    compile project(':react-native-camera')\n\t```\n\n\n## Usage\n\nAll you need is to `require` the `react-native-camera` module and then use the\n`<Camera/>` tag.\n\n```javascript\n'use strict';\nimport React, {\n  AppRegistry,\n  Component,\n  Dimensions,\n  StyleSheet,\n  Text,\n  TouchableHighlight,\n  View\n} from 'react-native';\nimport Camera from 'react-native-camera';\n\nclass BadInstagramCloneApp extends Component {\n  render() {\n    return (\n      <View style={styles.container}>\n        <Camera\n          ref={(cam) => {\n            this.camera = cam;\n          }}\n          style={styles.preview}\n          aspect={Camera.constants.Aspect.fill}>\n          <Text style={styles.capture} onPress={this.takePicture.bind(this)}>[CAPTURE]</Text>\n        </Camera>\n      </View>\n    );\n  }\n\n  takePicture() {\n    this.camera.capture()\n      .then((data) => console.log(data))\n      .catch(err => console.error(err));\n  }\n}\n\nconst styles = StyleSheet.create({\n  container: {\n    flex: 1\n  },\n  preview: {\n    flex: 1,\n    justifyContent: 'flex-end',\n    alignItems: 'center',\n    height: Dimensions.get('window').height,\n    width: Dimensions.get('window').width\n  },\n  capture: {\n    flex: 0,\n    backgroundColor: '#fff',\n    borderRadius: 5,\n    color: '#000',\n    padding: 10,\n    margin: 40\n  }\n});\n\nAppRegistry.registerComponent('BadInstagramCloneApp', () => BadInstagramCloneApp);\n```\n\n## Properties\n\n#### `aspect`\n\nValues: `Camera.constants.Aspect.fit` or `\"fit\"`, `Camera.constants.Aspect.fill` or `\"fill\"` (default), `Camera.constants.Aspect.stretch` or `\"stretch\"`\n\nThe `aspect` property allows you to define how your viewfinder renders the camera's view. For instance, if you have a square viewfinder and you want to fill the it entirely, you have two options: `\"fill\"`, where the aspect ratio of the camera's view is preserved by cropping the view or `\"stretch\"`, where the aspect ratio is skewed in order to fit the entire image inside the viewfinder. The other option is `\"fit\"`, which ensures the camera's entire view fits inside your viewfinder without altering the aspect ratio.\n\n#### `iOS` `captureAudio`\n\nValues: `true` (default), `false` (Boolean)\n\n*Applies to video capture mode only.* Specifies whether or not audio should be captured with the video.\n\n\n#### `iOS` `captureMode`\n\nValues: `Camera.constants.CaptureMode.still` (default), `Camera.constants.CaptureMode.video`\n\nThe type of capture that will be performed by the camera - either a still image or video.\n\n#### `captureTarget`\n\nValues: `Camera.constants.CaptureTarget.cameraRoll` (default), `Camera.constants.CaptureTarget.disk`, `Camera.constants.CaptureTarget.temp`, ~~`Camera.constants.CaptureTarget.memory`~~ (deprecated),\n\nThis property allows you to specify the target output of the captured image data. By default the image binary is sent back as a base 64 encoded string. The disk output has been shown to improve capture response time, so that is the recommended value.\n\n#### `iOS` `captureQuality`\n\nValues: `Camera.constants.CaptureQuality.high` or `\"high\"` (default), `Camera.constants.CaptureQuality.medium` or `\"medium\"`, `Camera.constants.CaptureQuality.low` or `\"low\"`\n\nThis property allows you to specify the quality output of the captured image or video. By default the quality is set to high.\n\n#### `type`\n\nValues: `Camera.constants.Type.front` or `\"front\"`, `Camera.constants.Type.back` or `\"back\"` (default)\n\nUse the `type` property to specify which camera to use.\n\n\n#### `orientation`\n\nValues:\n`Camera.constants.Orientation.auto` or `\"auto\"` (default),\n`Camera.constants.Orientation.landscapeLeft` or `\"landscapeLeft\"`, `Camera.constants.Orientation.landscapeRight` or `\"landscapeRight\"`, `Camera.constants.Orientation.portrait` or `\"portrait\"`, `Camera.constants.Orientation.portraitUpsideDown` or `\"portraitUpsideDown\"`\n\nThe `orientation` property allows you to specify the current orientation of the phone to ensure the viewfinder is \"the right way up.\"\n\n#### `Android` `playSoundOnCapture`\n\nValues: `true` (default) or `false`\n\nThis property allows you to specify whether a sound is played on capture\n\n#### `iOS` `onBarCodeRead`\n\nWill call the specified method when a barcode is detected in the camera's view.\n\nEvent contains `data` (the data in the barcode) and `bounds` (the rectangle which outlines the barcode.)\n\nThe following barcode types can be recognised:\n\n- `aztec`\n- `code138`\n- `code39`\n- `code39mod43`\n- `code93`\n- `ean13`\n- `ean8`\n- `pdf417`\n- `qr`\n- `upce`\n- `interleaved2of5` (when available)\n- `itf14` (when available)\n- `datamatrix` (when available)\n\nThe barcode type is provided in the `data` object.\n\n#### `flashMode`\n\nValues:\n`Camera.constants.FlashMode.on`,\n`Camera.constants.FlashMode.off`,\n`Camera.constants.FlashMode.auto`\n\nUse the `flashMode` property to specify the camera flash mode.\n\n#### `torchMode`\n\nValues:\n`Camera.constants.TorchMode.on`,\n`Camera.constants.TorchMode.off`,\n`Camera.constants.TorchMode.auto`\n\nUse the `torchMode` property to specify the camera torch mode.\n\n#### `onFocusChanged: Event { nativeEvent: { touchPoint: { x, y } }`\n\nCalled when a touch focus gesture has been made.\nBy default, `onFocusChanged` is not defined and tap-to-focus is disabled.\n\n#### `defaultOnFocusComponent`\n\nValues:\n`true` (default)\n`false`\n\nIf `defaultOnFocusComponent` set to false, default internal implementation of visual feedback for tap-to-focus gesture will be disabled.\n\n#### `onZoomChanged: Event { nativeEvent: { velocity, zoomFactor } }`\n\nCalled when focus has changed.\nBy default, `onZoomChanged` is not defined and pinch-to-zoom is disabled.\n\n#### `iOS` `keepAwake`\n\nIf set to `true`, the device will not sleep while the camera preview is visible. This mimics the behavior of the default camera app, which keeps the device awake while open.\n\n#### `iOS` `mirrorImage`\n\nIf set to `true`, the image returned will be mirrored..\n\n## Component instance methods\n\nYou can access component methods by adding a `ref` (ie. `ref=\"camera\"`) prop to your `<Camera>` element, then you can use `this.refs.camera.capture(cb)`, etc. inside your component.\n\n#### `capture([options]): Promise`\n\nCaptures data from the camera. What is captured is based on the `captureMode` and `captureTarget` props. `captureMode` tells the camera whether you want a still image or video. `captureTarget` allows you to specify how you want the data to be captured and sent back to you. See `captureTarget` under Properties to see the available values. The promise will be fulfilled with the image data or file handle of the image on disk, depending on `target`.\n\nSupported options:\n\n - `audio` (See `captureAudio` under Properties)\n - `mode` (See  `captureMode` under Properties)\n - `target` (See `captureTarget` under Properties)\n - `metadata` This is metadata to be added to the captured image.\n   - `location` This is the object returned from `navigator.geolocation.getCurrentPosition()` (React Native's geolocation polyfill). It will add GPS metadata to the image.\n - `rotation` This will rotate the image by the number of degrees specified.\n\n#### `iOS` `getFOV(): Promise`\n\nReturns the camera's current field of view.\n\n#### `hasFlash(): Promise`\n\nReturns whether or not the camera has flash capabilities.\n\n#### `stopCapture()`\n\nEnds the current capture session for video captures. Only applies when the current `captureMode` is `video`.\n\n## Component static methods\n\n#### `Camera.checkDeviceAuthorizationStatus(): Promise`\n\nExposes the native API for checking if the device has authorized access to the camera. Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.\n\n## Subviews\nThis component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.\n\n------------\n\nThanks to Brent Vatne (@brentvatne) for the `react-native-video` module which provided me with a great example of how to set up this module.\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lwansbrough/react-native-camera.git"
+  },
+  "version": "0.3.8"
 }

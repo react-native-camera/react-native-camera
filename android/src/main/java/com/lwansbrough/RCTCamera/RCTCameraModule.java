@@ -231,13 +231,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     private void record(final ReadableMap options, final Promise promise) {
-        if (recording) {
-            // stop recording and release camera
-            mediaRecorder.stop(); // stop the recording
-            releaseMediaRecorder(); // release the MediaRecorder object
-            promise.resolve(Uri.fromFile(videoFile).toString());
-            recording = false;
-        } else {
+        if (!recording) {
             Camera mCamera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
             if (null == mCamera) {
                 promise.reject("No camera found.");
@@ -249,7 +243,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             }
             try {
                 mediaRecorder.start();
-                promise.resolve("Started video recording");
+                promise.resolve(Uri.fromFile(videoFile).toString());
             } catch (final Exception ex) {
                 promise.reject("Exception in thread");
                 return;
@@ -350,8 +344,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void stopCapture(final ReadableMap options, final Promise promise) {
-        // TODO: implement video capture
+    public void stopCapture(ReadableMap options, final Promise promise) {
+        if (recording) {
+            // stop recording and release camera
+            mediaRecorder.stop(); // stop the recording
+            releaseMediaRecorder(); // release the MediaRecorder object
+            recording = false;
+        }
+        promise.resolve("Recording Completed");
     }
 
     @ReactMethod

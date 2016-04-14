@@ -127,7 +127,7 @@ Values: `true` (default), `false` (Boolean)
 *Applies to video capture mode only.* Specifies whether or not audio should be captured with the video.
 
 
-#### `iOS` `captureMode`
+#### `captureMode`
 
 Values: `Camera.constants.CaptureMode.still` (default), `Camera.constants.CaptureMode.video`
 
@@ -139,7 +139,7 @@ Values: `Camera.constants.CaptureTarget.cameraRoll` (default), `Camera.constants
 
 This property allows you to specify the target output of the captured image data. By default the image binary is sent back as a base 64 encoded string. The disk output has been shown to improve capture response time, so that is the recommended value.
 
-#### `iOS` `captureQuality`
+#### `captureQuality`
 
 Values: `Camera.constants.CaptureQuality.high` or `"high"` (default), `Camera.constants.CaptureQuality.medium` or `"medium"`, `Camera.constants.CaptureQuality.low` or `"low"`
 
