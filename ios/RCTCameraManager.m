@@ -202,17 +202,19 @@ RCT_CUSTOM_VIEW_PROPERTY(flashMode, NSInteger, RCTCamera) {
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(torchMode, NSInteger, RCTCamera) {
-  NSInteger *torchMode = [RCTConvert NSInteger:json];
-  AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-  NSError *error = nil;
-  
-  if (![device hasTorch]) return;
-  if (![device lockForConfiguration:&error]) {
-    NSLog(@"%@", error);
-    return;
-  }
-  [device setTorchMode: torchMode];
-  [device unlockForConfiguration];
+  dispatch_async(self.sessionQueue, ^{
+    NSInteger *torchMode = [RCTConvert NSInteger:json];
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    NSError *error = nil;
+    
+    if (![device hasTorch]) return;
+    if (![device lockForConfiguration:&error]) {
+      NSLog(@"%@", error);
+      return;
+    }
+    [device setTorchMode: torchMode];
+    [device unlockForConfiguration];
+  });
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(keepAwake, BOOL, RCTCamera) {
@@ -226,6 +228,14 @@ RCT_CUSTOM_VIEW_PROPERTY(mirrorImage, BOOL, RCTCamera) {
 
 RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTCamera) {
   self.barCodeTypes = [RCTConvert NSArray:json];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
+  RCTLog(@"capturing audio");
+  BOOL captureAudio = [RCTConvert BOOL:json];
+  if (captureAudio) {
+    [self initializeCaptureSessionInput:AVMediaTypeAudio];
+  }
 }
 
 - (NSArray *)customDirectEventTypes
@@ -412,7 +422,15 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
 - (void)initializeCaptureSessionInput:(NSString *)type {
   dispatch_async(self.sessionQueue, ^{
-
+    if (type == AVMediaTypeAudio) {
+      for (AVCaptureDeviceInput* input in [self.session inputs]) {
+        if ([input.device hasMediaType:AVMediaTypeAudio]) {
+          // If an audio input has been configured we don't need to set it up again
+          return;
+        }
+      }
+    }
+    
     [self.session beginConfiguration];
 
     NSError *error = nil;
@@ -436,10 +454,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       return;
     }
 
-    if (type == AVMediaTypeAudio) {
-      [self.session removeInput:self.audioCaptureDeviceInput];
-    }
-    else if (type == AVMediaTypeVideo) {
+    if (type == AVMediaTypeVideo) {
       [self.session removeInput:self.videoCaptureDeviceInput];
     }
 
@@ -639,7 +654,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     return;
   }
 
-  if ([options valueForKey:@"audio"]) {
+  if ([[options valueForKey:@"audio"] boolValue]) {
     [self initializeCaptureSessionInput:AVMediaTypeAudio];
   }
 
