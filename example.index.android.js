@@ -76,7 +76,6 @@ class AwesomeProject extends Component {
 
   stoprecord() {
     this.refs.camera.stopCapture({
-        mode: Camera.constants.CaptureMode.video
       })
       .then(data => {
         console.log(data);

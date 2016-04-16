@@ -56,9 +56,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
 
     private final ReactApplicationContext _reactContext;
 
-    private MediaRecorder mediaRecorder;
-    private boolean recording = false;
+    private MediaRecorder mediaRecorder = null;
     private File videoFile;
+    private Camera mCamera = null;
+    private Promise recordingPromise = null;
 
     public RCTCameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -168,12 +169,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         });
     }
 
-    private boolean prepareMediaRecorder(Camera mCamera, String captureQuality, int target) {
+    private boolean prepareMediaRecorder(String captureQuality, int target) {
 
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setCamera(mCamera);
 
-        mCamera.unlock();
+        mCamera.unlock();  // make available for mediarecorder
 
         int actualDeviceOrientation = (90 + ((720 - RCTCamera.getInstance().getActualDeviceOrientation() * 90))) % 360;
 
@@ -181,7 +182,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
         mediaRecorder.setOrientationHint(actualDeviceOrientation);
 
-        int quality = CamcorderProfile.QUALITY_HIGH; 
+        int quality = CamcorderProfile.QUALITY_480P; 
         switch (captureQuality) {
             case "low":
                 quality = CamcorderProfile.QUALITY_LOW; // select the lowest res
@@ -201,11 +202,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
                 break;
-            case RCT_CAMERA_CAPTURE_TARGET_DISK:
-                videoFile = getOutputMediaFile(MEDIA_TYPE_VIDEO);
-                break;
             case RCT_CAMERA_CAPTURE_TARGET_TEMP:
                 videoFile = getTempMediaFile(MEDIA_TYPE_VIDEO);
+                break;
+            default:
+            case RCT_CAMERA_CAPTURE_TARGET_DISK:
+                videoFile = getOutputMediaFile(MEDIA_TYPE_VIDEO);
                 break;
         }
         if (videoFile == null) {
@@ -231,33 +233,40 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     private void record(final ReadableMap options, final Promise promise) {
-        if (!recording) {
-            Camera mCamera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        if (recordingPromise == null) {
+            mCamera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
             if (null == mCamera) {
                 promise.reject("No camera found.");
                 return;
             }
-            if (!prepareMediaRecorder(mCamera, options.getString("quality"), options.getInt("target"))) {
+            if (!prepareMediaRecorder(options.getString("quality"), options.getInt("target"))) {
                 promise.reject("Fail in prepareMediaRecorder()!");
                 return;
             }
             try {
+                recordingPromise = promise;     
                 mediaRecorder.start();
-                promise.resolve(Uri.fromFile(videoFile).toString());
             } catch (final Exception ex) {
                 promise.reject("Exception in thread");
                 return;
             }
-            recording = true;
         }
     }
 
     private void releaseMediaRecorder() {
         if (mediaRecorder != null) {
+            mediaRecorder.stop(); // stop the recording
             mediaRecorder.reset(); // clear recorder configuration
             mediaRecorder.release(); // release the recorder object
             mediaRecorder = null;
-            //mCamera.lock(); // lock camera for later use
+        }
+        if (mCamera != null) {
+            mCamera.lock(); // relock camera for later use since we unlocked it
+            mCamera = null;
+        }
+        if (recordingPromise != null) {
+            recordingPromise.resolve(Uri.fromFile(videoFile).toString());
+            recordingPromise = null;
         }
     }
 
@@ -345,13 +354,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void stopCapture(ReadableMap options, final Promise promise) {
-        if (recording) {
-            // stop recording and release camera
-            mediaRecorder.stop(); // stop the recording
+        if (recordingPromise != null) {
             releaseMediaRecorder(); // release the MediaRecorder object
-            recording = false;
+            promise.resolve("Finished recording.");
+        } else {
+            promise.resolve("Not recording.");
         }
-        promise.resolve("Recording Completed");
     }
 
     @ReactMethod

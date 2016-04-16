@@ -184,6 +184,7 @@ export default class Camera extends Component {
       this.setState({ isRecording: false });
       return CameraManager.stopCapture(options);
     }
+    return Promise.resolve("Not Recording.");
   }
 
   getFOV() {
