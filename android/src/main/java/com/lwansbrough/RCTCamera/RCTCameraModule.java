@@ -353,7 +353,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void stopCapture(ReadableMap options, final Promise promise) {
+    public void stopCapture(final Promise promise) {
         if (recordingPromise != null) {
             releaseMediaRecorder(); // release the MediaRecorder object
             promise.resolve("Finished recording.");

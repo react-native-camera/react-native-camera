@@ -179,10 +179,10 @@ export default class Camera extends Component {
     return CameraManager.capture(options);
   }
 
-  stopCapture(options) {
+  stopCapture() {
     if (this.state.isRecording) {
       this.setState({ isRecording: false });
-      return CameraManager.stopCapture(options);
+      return CameraManager.stopCapture();
     }
     return Promise.resolve("Not Recording.");
   }
