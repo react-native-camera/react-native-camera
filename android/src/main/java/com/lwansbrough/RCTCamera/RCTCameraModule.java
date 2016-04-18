@@ -172,9 +172,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     private boolean prepareMediaRecorder(String captureQuality, int target) {
 
         mediaRecorder = new MediaRecorder();
-        mediaRecorder.setCamera(mCamera);
-
         mCamera.unlock();  // make available for mediarecorder
+        mediaRecorder.setCamera(mCamera);
 
         int actualDeviceOrientation = (90 + ((720 - RCTCamera.getInstance().getActualDeviceOrientation() * 90))) % 360;
 
@@ -243,9 +242,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                 promise.reject("Fail in prepareMediaRecorder()!");
                 return;
             }
-            try {
-                recordingPromise = promise;     
+            try {    
                 mediaRecorder.start();
+                recordingPromise = promise;  // only got here if mediaRecorder started
             } catch (final Exception ex) {
                 promise.reject("Exception in thread");
                 return;
@@ -255,7 +254,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
 
     private void releaseMediaRecorder() {
         if (mediaRecorder != null) {
-            mediaRecorder.stop(); // stop the recording
+            if (recordingPromise != null) mediaRecorder.stop(); // stop the recording
             mediaRecorder.reset(); // clear recorder configuration
             mediaRecorder.release(); // release the recorder object
             mediaRecorder = null;
