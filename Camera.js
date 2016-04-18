@@ -186,6 +186,22 @@ export default class Camera extends Component {
     }
   }
 
+  releaseCamera(options) {
+    const props = convertStringProps(this.props);
+    options = {
+      audio: props.captureAudio,
+      mode: props.captureMode,
+      playSoundOnCapture: props.playSoundOnCapture,
+      target: props.captureTarget,
+      quality: props.captureQuality,
+      type: props.type,
+      title: '',
+      description: '',
+      ...options
+    };
+    CameraManager.releaseCamera(options);
+  }
+
   getFOV() {
     return CameraManager.getFOV();
   }
