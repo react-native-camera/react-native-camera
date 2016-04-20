@@ -15,6 +15,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
+import android.hardware.Camera.Size;
 import com.facebook.react.bridge.*;
 
 import javax.annotation.Nullable;
@@ -169,14 +170,53 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         });
     }
 
+    // This accepts Camera.Parameters.getSupportedVideoSizes() and returns closest to reference
+    // from http://stackoverflow.com/questions/13962632/why-do-the-usable-sizes-differ
+    // In Android preview and recording sizes are different, which can cause an error
+    private Size getOptimalVideoSize(List<Size> sizes, int w, int h) {
+        final double ASPECT_TOLERANCE = 0.2;
+        double targetRatio = (double) w / h;
+        if (sizes == null)
+            return null;
+
+        Size optimalSize = null;
+        double minDiff = Double.MAX_VALUE;
+
+        int targetHeight = h;
+
+        // Try to find an size match aspect ratio and size
+        for (Size size : sizes) {
+            double ratio = (double) size.width / size.height;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE)
+                continue;
+            if (Math.abs(size.height - targetHeight) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - targetHeight);
+            }
+        }
+
+        // Cannot find the one match the aspect ratio, ignore the
+        // requirement
+        if (optimalSize == null) {
+            minDiff = Double.MAX_VALUE;
+            for (Size size : sizes) {
+                if (Math.abs(size.height - targetHeight) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
+                }
+            }
+        }
+        return optimalSize;
+    }
+
     private boolean prepareMediaRecorder(String captureQuality, int target) {
 
-        mediaRecorder = new MediaRecorder();
+        List<Size> videosizes = mCamera.getParameters().getSupportedVideoSizes();
+        mediaRecorder = new MediaRecorder();  
         mCamera.unlock();  // make available for mediarecorder
         mediaRecorder.setCamera(mCamera);
 
         int actualDeviceOrientation = (90 + ((720 - RCTCamera.getInstance().getActualDeviceOrientation() * 90))) % 360;
-
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
         mediaRecorder.setOrientationHint(actualDeviceOrientation);
@@ -193,7 +233,13 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                 quality = CamcorderProfile.QUALITY_HIGH; // select the highest res (default)
                 break;
         }
-        mediaRecorder.setProfile(CamcorderProfile.get(quality));
+
+        CamcorderProfile cm = CamcorderProfile.get(quality);
+        mediaRecorder.setProfile(cm);
+        
+        Size optimalVideoSize = getOptimalVideoSize(videosizes, cm.videoFrameWidth, cm.videoFrameHeight);      
+
+        mediaRecorder.setVideoSize(optimalVideoSize.width, optimalVideoSize.height);
 
         videoFile = null;
         switch (target) {
@@ -254,7 +300,13 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
 
     private void releaseMediaRecorder() {
         if (mediaRecorder != null) {
-            if (recordingPromise != null) mediaRecorder.stop(); // stop the recording
+            if (recordingPromise != null) {
+                try {
+                    mediaRecorder.stop(); // stop the recording
+                } catch (RuntimeException e) {
+                    e.printStackTrace();
+                }
+            }      
             mediaRecorder.reset(); // clear recorder configuration
             mediaRecorder.release(); // release the recorder object
             mediaRecorder = null;
