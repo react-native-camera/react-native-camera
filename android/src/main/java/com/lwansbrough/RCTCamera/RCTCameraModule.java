@@ -1,5 +1,6 @@
 /**
  * Created by Fabrice Armisen (farmisen@gmail.com) on 1/4/16.
+ * Android video recording support by Marc Johnson (me@marc.mn) 4/2016
  */
 
 package com.lwansbrough.RCTCamera;
@@ -212,8 +213,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     private boolean prepareMediaRecorder(String captureQuality, int target) {
 
         List<Size> videosizes = mCamera.getParameters().getSupportedVideoSizes();
-        mediaRecorder = new MediaRecorder();  
         mCamera.unlock();  // make available for mediarecorder
+        mediaRecorder = new MediaRecorder();  
         mediaRecorder.setCamera(mCamera);
 
         int actualDeviceOrientation = (90 + ((720 - RCTCamera.getInstance().getActualDeviceOrientation() * 90))) % 360;
@@ -227,19 +228,24 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                 quality = CamcorderProfile.QUALITY_LOW; // select the lowest res
                 break;
             case "medium":
-                quality = CamcorderProfile.QUALITY_720P; // select medium
+                quality = CamcorderProfile.QUALITY_480P; // select medium
                 break;
             case "high":
-                quality = CamcorderProfile.QUALITY_HIGH; // select the highest res (default)
+                quality = CamcorderProfile.QUALITY_720P; // select the highest res (default)
                 break;
         }
 
         CamcorderProfile cm = CamcorderProfile.get(quality);
-        mediaRecorder.setProfile(cm);
-        
         Size optimalVideoSize = getOptimalVideoSize(videosizes, cm.videoFrameWidth, cm.videoFrameHeight);      
 
-        mediaRecorder.setVideoSize(optimalVideoSize.width, optimalVideoSize.height);
+        cm.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
+        cm.videoCodec = MediaRecorder.VideoEncoder.MPEG_4_SP;
+//        cm.audioCodec = MediaRecorder.AudioEncoder.AMR_NB;
+        cm.videoFrameHeight = optimalVideoSize.height;
+        cm.videoFrameWidth = optimalVideoSize.width;
+//        cm.videoFrameRate = 15;
+ //       cm.videoBitRate = 15;
+        mediaRecorder.setProfile(cm);        
 
         videoFile = null;
         switch (target) {
@@ -456,12 +462,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     private File getTempMediaFile(int type) {
         try {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            File outputDir = _reactContext.getCacheDir();
+            File outputDir;
             File outputFile;
 
             if (type == MEDIA_TYPE_IMAGE) {
+                outputDir = _reactContext.getCacheDir(); // for backwards compatibility
                 outputFile = File.createTempFile("IMG_" + timeStamp, ".jpg", outputDir);
             } else if (type == MEDIA_TYPE_VIDEO) {
+                outputDir = _reactContext.getFilesDir(); // for compatibility with react-native-fs
                 outputFile = File.createTempFile("VID_" + timeStamp, ".mp4", outputDir);
             } else {
                 Log.e(TAG, "Unsupported media type:" + type);
