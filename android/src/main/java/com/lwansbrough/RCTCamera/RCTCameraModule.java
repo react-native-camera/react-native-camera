@@ -104,6 +104,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         put("low", "low");
                         put("medium", "medium");
                         put("high", "high");
+                        put("photo","high");
                     }
                 });
             }
