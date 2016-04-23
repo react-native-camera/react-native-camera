@@ -9,6 +9,13 @@
 #import <AssetsLibrary/ALAssetsLibrary.h>
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
+#import "RCTSensorOrientationChecker.h"
+
+@interface RCTCameraManager ()
+
+@property (strong, nonatomic) RCTSensorOrientationChecker * sensorOrientationChecker;
+
+@end
 
 @implementation RCTCameraManager
 
@@ -251,6 +258,8 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
     self.mirrorImage = false;
 
     self.sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
+
+    self.sensorOrientationChecker = [RCTSensorOrientationChecker new];
   }
   return self;
 }
@@ -503,7 +512,8 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
       [self saveImage:imageData target:target metadata:nil resolve:resolve reject:reject];
 #else
-      [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
+      [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
+          [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
 
       [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
 
@@ -565,6 +575,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
         else {
           reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
         }
+      }];
       }];
 #endif
   });
