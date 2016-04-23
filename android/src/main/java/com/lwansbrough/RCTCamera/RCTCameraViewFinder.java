@@ -8,15 +8,21 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.view.TextureView;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.google.zxing.Result;
 
 import java.util.List;
 
-class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener {
+class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback, BarcodeReader.CallBack {
     private int _cameraType;
     private SurfaceTexture _surfaceTexture;
     private boolean _isStarting;
     private boolean _isStopping;
     private Camera _camera;
+    private BarcodeReader _barcodeReader;
 
     public RCTCameraViewFinder(Context context, int type) {
         super(context);
@@ -45,7 +51,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
     }
 
-      public double getRatio() {
+    public double getRatio() {
         int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
         int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
         return ((float) width) / ((float) height);
@@ -108,6 +114,8 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 _camera.setParameters(parameters);
                 _camera.setPreviewTexture(_surfaceTexture);
                 _camera.startPreview();
+                _camera.setOneShotPreviewCallback(this);
+                _barcodeReader = new BarcodeReader();
             } catch (NullPointerException e) {
                 e.printStackTrace();
             } catch (Exception e) {
@@ -125,15 +133,37 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             try {
                 if (_camera != null) {
                     _camera.stopPreview();
+                    _camera.setOneShotPreviewCallback(null);
                     RCTCamera.getInstance().releaseCameraInstance(_cameraType);
                     _camera = null;
                 }
-
+                if (_barcodeReader != null) {
+                    _barcodeReader.stop();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
                 _isStopping = false;
             }
+        }
+    }
+
+    @Override
+    public void onPreviewFrame(byte[] bytes, Camera camera) {
+        _barcodeReader.read(bytes, camera, this);
+    }
+
+    @Override
+    public void onResult(Camera camera, Result result) {
+        if (result != null) {
+            ReactContext reactContext = (ReactContext) getContext();
+            WritableMap event = Arguments.createMap();
+            event.putString("data", result.getText());
+            event.putString("type", result.getBarcodeFormat().toString());
+            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit("CameraBarCodeRead", event);
+        } else {
+            camera.setOneShotPreviewCallback(this);
         }
     }
 }

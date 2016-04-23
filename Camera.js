@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import {
   NativeAppEventEmitter,
+  DeviceEventEmitter,
+  Platform,
   NativeModules,
   Platform,
   PropTypes,
@@ -131,7 +133,9 @@ export default class Camera extends Component {
   }
 
   async componentWillMount() {
-    this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this.props.onBarCodeRead);
+    this.cameraBarCodeReadListener = Platform.OS === 'ios' 
+        ? NativeAppEventEmitter.addListener('CameraBarCodeRead', this.props.onBarCodeRead)
+        : DeviceEventEmitter.addListener('CameraBarCodeRead', this.props.onBarCodeRead);
 
     let check = this.props.captureAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
 
