@@ -16,7 +16,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
-import android.hardware.Camera.Size;
 import com.facebook.react.bridge.*;
 
 import javax.annotation.Nullable;
@@ -171,49 +170,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         });
     }
 
-    // This accepts Camera.Parameters.getSupportedVideoSizes() and returns closest to reference
-    // from http://stackoverflow.com/questions/13962632/why-do-the-usable-sizes-differ
-    // In Android preview and recording sizes are different, which can cause an error
-    private Size getOptimalVideoSize(List<Size> sizes, int w, int h) {
-        final double ASPECT_TOLERANCE = 0.2;
-        double targetRatio = (double) w / h;
-        if (sizes == null)
-            return null;
+    private boolean prepareMediaRecorder(ReadableMap options) {
 
-        Size optimalSize = null;
-        double minDiff = Double.MAX_VALUE;
+        CamcorderProfile cm = RCTCamera.getInstance().setCaptureVideoQuality(options.getInt("type"), options.getString("quality"));
 
-        int targetHeight = h;
-
-        // Try to find an size match aspect ratio and size
-        for (Size size : sizes) {
-            double ratio = (double) size.width / size.height;
-            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE)
-                continue;
-            if (Math.abs(size.height - targetHeight) < minDiff) {
-                optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight);
-            }
-        }
-
-        // Cannot find the one match the aspect ratio, ignore the
-        // requirement
-        if (optimalSize == null) {
-            minDiff = Double.MAX_VALUE;
-            for (Size size : sizes) {
-                if (Math.abs(size.height - targetHeight) < minDiff) {
-                    optimalSize = size;
-                    minDiff = Math.abs(size.height - targetHeight);
-                }
-            }
-        }
-        return optimalSize;
-    }
-
-    private boolean prepareMediaRecorder(String captureQuality, int target) {
-
-        List<Size> videosizes = mCamera.getParameters().getSupportedVideoSizes();
         mCamera.unlock();  // make available for mediarecorder
+
         mediaRecorder = new MediaRecorder();  
         mediaRecorder.setCamera(mCamera);
 
@@ -222,33 +184,19 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
         mediaRecorder.setOrientationHint(actualDeviceOrientation);
 
-        int quality = CamcorderProfile.QUALITY_480P; 
-        switch (captureQuality) {
-            case "low":
-                quality = CamcorderProfile.QUALITY_LOW; // select the lowest res
-                break;
-            case "medium":
-                quality = CamcorderProfile.QUALITY_480P; // select medium
-                break;
-            case "high":
-                quality = CamcorderProfile.QUALITY_720P; // select the highest res (default)
-                break;
+        if (null == cm) {
+            return false; 
         }
-
-        CamcorderProfile cm = CamcorderProfile.get(quality);
-        Size optimalVideoSize = getOptimalVideoSize(videosizes, cm.videoFrameWidth, cm.videoFrameHeight);      
 
         cm.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
         cm.videoCodec = MediaRecorder.VideoEncoder.MPEG_4_SP;
-//        cm.audioCodec = MediaRecorder.AudioEncoder.AMR_NB;
-        cm.videoFrameHeight = optimalVideoSize.height;
-        cm.videoFrameWidth = optimalVideoSize.width;
-//        cm.videoFrameRate = 15;
- //       cm.videoBitRate = 15;
+//      cm.audioCodec = MediaRecorder.AudioEncoder.AAC;
+//      cm.videoFrameRate = 15;
+//      cm.videoBitRate = 15;
         mediaRecorder.setProfile(cm);        
 
         videoFile = null;
-        switch (target) {
+        switch (options.getInt("target")) {
             case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
@@ -290,7 +238,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                 promise.reject("No camera found.");
                 return;
             }
-            if (!prepareMediaRecorder(options.getString("quality"), options.getInt("target"))) {
+            if (!prepareMediaRecorder(options)) {
                 promise.reject("Fail in prepareMediaRecorder()!");
                 return;
             }
