@@ -212,6 +212,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         if (videoFile == null) {
             return false;
         }
+
         mediaRecorder.setOutputFile(videoFile.getPath());
 
         mediaRecorder.setMaxDuration(600000); // Set max duration 60 sec.
@@ -257,6 +258,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             if (recordingPromise != null) {
                 try {
                     mediaRecorder.stop(); // stop the recording
+                    File f = new File(videoFile.getPath());
+                    f.setReadable(true, false); // so mediaplayer can play it 
                 } catch (RuntimeException e) {
                     e.printStackTrace();
                 }
