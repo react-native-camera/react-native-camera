@@ -5,6 +5,8 @@
 package com.lwansbrough.RCTCamera;
 
 import android.hardware.Camera;
+import android.media.CamcorderProfile;
+import android.hardware.Camera.Size;
 
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +111,41 @@ public class RCTCamera {
         return result;
     }
 
+    public Camera.Size getBestVideoSize(int type, int width, int height)
+    {
+        Camera camera = _cameras.get(type);
+        Camera.Size result = null;
+        if(camera == null) {
+            return null;
+        }
+        Camera.Parameters params = camera.getParameters();
+        List<Size> sizes = params.getSupportedVideoSizes();
+
+        // defer to preview if null
+        // http://stackoverflow.com/questions/14263521/android-getsupportedvideosizes-allways-returns-null
+        if (null == sizes) {
+            sizes = params.getSupportedPreviewSizes(); 
+        }
+
+        if (null != sizes) {
+            for (Camera.Size size : sizes) {
+                if (size.width <= width && size.height <= height) {
+                    if (result == null) {
+                        result = size;
+                    } else {
+                        int resultArea = result.width * result.height;
+                        int newArea = size.width * size.height;
+
+                        if (newArea > resultArea) {
+                            result = size;
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     public Camera.Size getSmallestPictureSize(int type)
     {
         Camera camera = _cameras.get(type);
@@ -129,6 +166,38 @@ public class RCTCamera {
                 }
             }
         }
+        return result;
+    }
+    public Camera.Size getSmallestVideoSize(int type)
+    {
+        Camera camera = _cameras.get(type);
+        Camera.Size result = null;
+        if(camera == null) {
+            return null;
+        }
+        Camera.Parameters params = camera.getParameters();
+        List<Size> sizes = params.getSupportedVideoSizes();
+
+        // defer to preview if null
+        // http://stackoverflow.com/questions/14263521/android-getsupportedvideosizes-allways-returns-null
+        if (null == sizes) {
+            sizes = params.getSupportedPreviewSizes(); 
+        }
+
+        if (null != sizes) {
+            for (Camera.Size size : sizes) {
+                if (result == null) {
+                    result = size;
+                } else {
+                    int resultArea = result.width * result.height;
+                    int newArea = size.width * size.height;
+
+                    if (newArea < resultArea) {
+                        result = size;
+                    }
+                }
+            }
+        }   
         return result;
     }
     public void setOrientation(int orientation) {
@@ -174,6 +243,36 @@ public class RCTCamera {
             parameters.setPictureSize(pictureSize.width, pictureSize.height);
             camera.setParameters(parameters);
         }
+    }
+
+    public CamcorderProfile setCaptureVideoQuality(int cameraType, String captureQuality) {
+        Camera camera = _cameras.get(cameraType);
+        CamcorderProfile cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_HIGH); // default high
+
+        if ((null == camera) || (null == cm)){
+            return null;
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+        Camera.Size videoSize = null;
+        switch (captureQuality) {
+            case "low":
+                videoSize = getSmallestVideoSize(cameraType); // select the lowest res
+                break;
+            case "medium":
+                List<Camera.Size> sizes = parameters.getSupportedVideoSizes();
+                videoSize = sizes.get(sizes.size() / 2);
+                break;
+            case "high":
+                videoSize = getBestVideoSize(cameraType, Integer.MAX_VALUE, Integer.MAX_VALUE); // select the highest res
+                break;
+        }
+
+        if (videoSize != null) {
+            cm.videoFrameHeight = videoSize.height;
+            cm.videoFrameWidth = videoSize.width;    
+        }
+        return(cm);
     }
 
     public void setTorchMode(int cameraType, int torchMode) {
