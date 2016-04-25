@@ -2,6 +2,7 @@
 #import "RCTCamera.h"
 #import "RCTBridge.h"
 #import "RCTEventDispatcher.h"
+#import "RCTImageStoreManager.h"
 #import "RCTUtils.h"
 #import "RCTLog.h"
 #import "UIView+React.h"
@@ -549,7 +550,15 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   NSString *responseString;
 
   if (target == RCTCameraCaptureTargetMemory) {
-    responseString = [imageData base64EncodedStringWithOptions:0];
+      return [self.bridge.imageStoreManager storeImage:[UIImage imageWithData:imageData] withBlock:^(NSString *imageTag) {
+          if (!imageTag) {
+              NSString *errorMessage = @"Error storing image in RCTImageStoreManager";
+              RCTLogWarn(@"%@", errorMessage);
+              callback(@[RCTMakeError(errorMessage, nil, nil)]);
+              return;
+          }
+          callback(@[[NSNull null], imageTag]);
+      }];
   }
 
   else if (target == RCTCameraCaptureTargetDisk) {
