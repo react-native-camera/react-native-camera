@@ -141,7 +141,7 @@ This property allows you to specify the target output of the captured image data
 
 #### `iOS` `captureQuality`
 
-Values: `Camera.constants.CaptureQuality.high` or `"high"` (default), `Camera.constants.CaptureQuality.medium` or `"medium"`, `Camera.constants.CaptureQuality.low` or `"low"`
+Values: `Camera.constants.CaptureQuality.high` or `"high"` (default), `Camera.constants.CaptureQuality.medium` or `"medium"`, `Camera.constants.CaptureQuality.low` or `"low"`, `Camera.constants.CaptureQuality.photo` or `"photo"`.
 
 This property allows you to specify the quality output of the captured image or video. By default the quality is set to high.
 
@@ -159,6 +159,12 @@ Values:
 `Camera.constants.Orientation.landscapeLeft` or `"landscapeLeft"`, `Camera.constants.Orientation.landscapeRight` or `"landscapeRight"`, `Camera.constants.Orientation.portrait` or `"portrait"`, `Camera.constants.Orientation.portraitUpsideDown` or `"portraitUpsideDown"`
 
 The `orientation` property allows you to specify the current orientation of the phone to ensure the viewfinder is "the right way up."
+
+#### `Android` `playSoundOnCapture`
+
+Values: `true` (default) or `false`
+
+This property allows you to specify whether a sound is played on capture
 
 #### `iOS` `onBarCodeRead`
 

@@ -89,6 +89,7 @@ RCT_EXPORT_VIEW_PROPERTY(mirrorImage, BOOL);
                @"AVCaptureSessionPresetMedium": AVCaptureSessionPresetMedium,
                @"high": AVCaptureSessionPresetHigh,
                @"AVCaptureSessionPresetHigh": AVCaptureSessionPresetHigh,
+               @"photo": AVCaptureSessionPresetPhoto,
                @"AVCaptureSessionPresetPhoto": AVCaptureSessionPresetPhoto
                },
            @"CaptureTarget": @{
