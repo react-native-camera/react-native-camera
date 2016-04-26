@@ -57,7 +57,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
 
     private final ReactApplicationContext _reactContext;
 
-    private MediaRecorder mediaRecorder = null;
+    private MediaRecorder mediaRecorder = new MediaRecorder(); 
+    private long MRStartTime;
     private File videoFile;
     private Camera mCamera = null;
     private Promise recordingPromise = null;
@@ -173,16 +174,24 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     private boolean prepareMediaRecorder(ReadableMap options) {
 
         CamcorderProfile cm = RCTCamera.getInstance().setCaptureVideoQuality(options.getInt("type"), options.getString("quality"));
-
+        
         mCamera.unlock();  // make available for mediarecorder
 
-        mediaRecorder = new MediaRecorder();  
         mediaRecorder.setCamera(mCamera);
 
-        int actualDeviceOrientation = (90 + ((720 - RCTCamera.getInstance().getActualDeviceOrientation() * 90))) % 360;
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-        mediaRecorder.setOrientationHint(actualDeviceOrientation);
+    
+        //int mediaRecorderHintOrientation  = RCTCamera.getInstance().getActualDeviceOrientation();
+        int mediaRecorderHintOrientation = (90 + ((720 - RCTCamera.getInstance().getActualDeviceOrientation() * 90))) % 360;
+
+        // adjust for differences in how devices display front facing http://www.theverge.com/2015/11/9/9696774/google-nexus-5x-upside-down-camera
+        if (RCT_CAMERA_TYPE_FRONT == options.getInt("type")) {
+            if ((RCT_CAMERA_ORIENTATION_PORTRAIT == RCTCamera.getInstance().getOrientation()) && (RCTCamera.getInstance().getAdjustedDeviceOrientation() == 90)) {
+                mediaRecorderHintOrientation += 180;
+            } 
+        }
+        mediaRecorder.setOrientationHint(mediaRecorderHintOrientation);
 
         if (null == cm) {
             return false; 
@@ -245,6 +254,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             }
             try {    
                 mediaRecorder.start();
+                MRStartTime =  System.currentTimeMillis();
                 recordingPromise = promise;  // only got here if mediaRecorder started
             } catch (final Exception ex) {
                 promise.reject("Exception in thread");
@@ -254,28 +264,46 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     }
 
     private void releaseMediaRecorder() {
-        if (mediaRecorder != null) {
-            if (recordingPromise != null) {
+
+        if (recordingPromise != null) {
+
+            // Must record at least a second or MediaRecorder throws exceptions on some platforms
+            long duration = System.currentTimeMillis() - MRStartTime;
+            if (duration < 1500) {
                 try {
-                    mediaRecorder.stop(); // stop the recording
-                    File f = new File(videoFile.getPath());
-                    f.setReadable(true, false); // so mediaplayer can play it 
-                } catch (RuntimeException e) {
+                    Thread.sleep(1500-duration);
+                } catch(InterruptedException e) {
                     e.printStackTrace();
-                }
-            }      
-            mediaRecorder.reset(); // clear recorder configuration
-            mediaRecorder.release(); // release the recorder object
-            mediaRecorder = null;
-        }
+                }              
+            }
+            try {
+                mediaRecorder.stop(); // stop the recording
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
+        }      
+        mediaRecorder.reset(); // clear recorder configuration
+        
         if (mCamera != null) {
             mCamera.lock(); // relock camera for later use since we unlocked it
-            mCamera = null;
         }
+
+        // Make sure readable 
+        File f = new File(videoFile.getPath());
+        if (f.exists()) {
+            f.setReadable(true, false); // so mediaplayer can play it 
+            f.setWritable(true, false); // so can clean it up
+        }
+
         if (recordingPromise != null) {
-            recordingPromise.resolve(Uri.fromFile(videoFile).toString());
+            if (f.exists()) {
+                recordingPromise.resolve(Uri.fromFile(videoFile).toString());
+            } else {
+                recordingPromise.reject("No file recorded");
+            }
             recordingPromise = null;
         }
+
     }
 
     @ReactMethod

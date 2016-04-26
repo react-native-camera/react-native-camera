@@ -7,6 +7,8 @@ package com.lwansbrough.RCTCamera;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.hardware.Camera.Size;
+import android.view.Surface;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +22,7 @@ public class RCTCamera {
     private final Map<Number, Camera> _cameras;
     private int _orientation = -1;
     private int _actualDeviceOrientation = 0;
+    private int _adjustedDeviceOrientation = 0;
 
     public static RCTCamera getInstance() {
         return ourInstance;
@@ -119,13 +122,8 @@ public class RCTCamera {
             return null;
         }
         Camera.Parameters params = camera.getParameters();
-        List<Size> sizes = params.getSupportedVideoSizes();
-
-        // defer to preview if null
-        // http://stackoverflow.com/questions/14263521/android-getsupportedvideosizes-allways-returns-null
-        if (null == sizes) {
-            sizes = params.getSupportedPreviewSizes(); 
-        }
+        // defer to preview instead of params.getSupportedVideoSizes() http://bit.ly/1rxOsq0
+        List<Size> sizes = params.getSupportedPreviewSizes();
 
         if (null != sizes) {
             for (Camera.Size size : sizes) {
@@ -176,13 +174,9 @@ public class RCTCamera {
             return null;
         }
         Camera.Parameters params = camera.getParameters();
-        List<Size> sizes = params.getSupportedVideoSizes();
 
-        // defer to preview if null
-        // http://stackoverflow.com/questions/14263521/android-getsupportedvideosizes-allways-returns-null
-        if (null == sizes) {
-            sizes = params.getSupportedPreviewSizes(); 
-        }
+        // defer to preview instead of params.getSupportedVideoSizes() http://bit.ly/1rxOsq0
+        List<Size> sizes = params.getSupportedPreviewSizes();
 
         if (null != sizes) {
             for (Camera.Size size : sizes) {
@@ -200,6 +194,11 @@ public class RCTCamera {
         }   
         return result;
     }
+
+    public int getOrientation() {
+        return _orientation;
+    }
+
     public void setOrientation(int orientation) {
         if (_orientation == orientation) {
             return;
@@ -212,6 +211,15 @@ public class RCTCamera {
     public int getActualDeviceOrientation() {
         return _actualDeviceOrientation;
     }
+
+    public void setAdjustedDeviceOrientation(int orientation) {
+        _adjustedDeviceOrientation = orientation;
+    }
+
+    public int getAdjustedDeviceOrientation() {
+        return _adjustedDeviceOrientation;
+    }
+
     public void setActualDeviceOrientation(int actualDeviceOrientation) {
         _actualDeviceOrientation = actualDeviceOrientation;
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_FRONT);
@@ -260,7 +268,9 @@ public class RCTCamera {
                 videoSize = getSmallestVideoSize(cameraType); // select the lowest res
                 break;
             case "medium":
-                List<Camera.Size> sizes = parameters.getSupportedVideoSizes();
+                // defer to preview instead of params.getSupportedVideoSizes() http://bit.ly/1rxOsq0
+                List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
+
                 videoSize = sizes.get(sizes.size() / 2);
                 break;
             case "high":
@@ -324,8 +334,7 @@ public class RCTCamera {
             camera.setParameters(parameters);
         }
     }
-
-    private void adjustPreviewLayout(int type) {
+    public void adjustPreviewLayout(int type) {
         Camera camera = _cameras.get(type);
         if (null == camera) {
             return;
@@ -345,6 +354,7 @@ public class RCTCamera {
         cameraInfo.rotation = rotation;
         // TODO: take in account the _orientation prop
 
+        setAdjustedDeviceOrientation(displayRotation);
         camera.setDisplayOrientation(displayRotation);
 
         Camera.Parameters parameters = camera.getParameters();
