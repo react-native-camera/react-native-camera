@@ -192,13 +192,16 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             return;
         }
 
-        if (options.getBoolean("playSoundOnCapture")) {
+        if (options.hasKey("playSoundOnCapture") && options.getBoolean("playSoundOnCapture")) {
             MediaActionSound sound = new MediaActionSound();
             sound.play(MediaActionSound.SHUTTER_CLICK);
         }
 
+        if (options.hasKey("quality")) {
+            RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
+        }
+
         RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(options.getInt("type"), deviceOrientation);
-        RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
         camera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
