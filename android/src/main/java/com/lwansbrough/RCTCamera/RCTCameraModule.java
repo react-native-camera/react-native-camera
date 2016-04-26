@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Surface;
 import com.facebook.react.bridge.*;
 
 import javax.annotation.Nullable;
@@ -36,11 +37,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     public static final int RCT_CAMERA_CAPTURE_TARGET_DISK = 1;
     public static final int RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL = 2;
     public static final int RCT_CAMERA_CAPTURE_TARGET_TEMP = 3;
-    public static final int RCT_CAMERA_ORIENTATION_AUTO = 0;
-    public static final int RCT_CAMERA_ORIENTATION_LANDSCAPE_LEFT = 1;
-    public static final int RCT_CAMERA_ORIENTATION_LANDSCAPE_RIGHT = 2;
-    public static final int RCT_CAMERA_ORIENTATION_PORTRAIT = 3;
-    public static final int RCT_CAMERA_ORIENTATION_PORTRAIT_UPSIDE_DOWN = 4;
+    public static final int RCT_CAMERA_ORIENTATION_AUTO = Integer.MAX_VALUE;
+    public static final int RCT_CAMERA_ORIENTATION_PORTRAIT = Surface.ROTATION_0;
+    public static final int RCT_CAMERA_ORIENTATION_PORTRAIT_UPSIDE_DOWN = Surface.ROTATION_180;
+    public static final int RCT_CAMERA_ORIENTATION_LANDSCAPE_LEFT = Surface.ROTATION_90;
+    public static final int RCT_CAMERA_ORIENTATION_LANDSCAPE_RIGHT = Surface.ROTATION_270;
     public static final int RCT_CAMERA_TYPE_FRONT = 1;
     public static final int RCT_CAMERA_TYPE_BACK = 2;
     public static final int RCT_CAMERA_FLASH_MODE_OFF = 0;
@@ -167,16 +168,21 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) {
-        _sensorOrientationChecker.onResume();
-        _sensorOrientationChecker.registerOrientationListener(new RCTSensorOrientationListener() {
-            @Override
-            public void orientationEvent() {
-                int deviceOrientation = _sensorOrientationChecker.getOrientation();
-                _sensorOrientationChecker.unregisterOrientationListener();
-                _sensorOrientationChecker.onPause();
-                captureWithOrientation(options, promise, deviceOrientation);
-            }
-        });
+        int orientation = options.hasKey("orientation") ? options.getInt("orientation") : RCTCamera.getInstance().getOrientation();
+        if (orientation == RCT_CAMERA_ORIENTATION_AUTO) {
+            _sensorOrientationChecker.onResume();
+            _sensorOrientationChecker.registerOrientationListener(new RCTSensorOrientationListener() {
+                @Override
+                public void orientationEvent() {
+                    int deviceOrientation = _sensorOrientationChecker.getOrientation();
+                    _sensorOrientationChecker.unregisterOrientationListener();
+                    _sensorOrientationChecker.onPause();
+                    captureWithOrientation(options, promise, deviceOrientation);
+                }
+            });
+        } else {
+            captureWithOrientation(options, promise, orientation);
+        }
     }
 
     public void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
