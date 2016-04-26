@@ -58,13 +58,15 @@
 
 - (void)setOrientation:(NSInteger)orientation
 {
+  [self.manager changeOrientation:orientation];
+
   if (orientation == RCTCameraOrientationAuto) {
-    [self.manager changeOrientation:[UIApplication sharedApplication].statusBarOrientation];
+    [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
     [[NSNotificationCenter defaultCenter] addObserver:self  selector:@selector(orientationChanged:)    name:UIDeviceOrientationDidChangeNotification  object:nil];
   }
   else {
     [[NSNotificationCenter defaultCenter]removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
-    [self.manager changeOrientation:orientation];
+    [self changePreviewOrientation:orientation];
   }
 }
 
@@ -160,7 +162,7 @@
 
 - (void)orientationChanged:(NSNotification *)notification{
   UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-  [self.manager changeOrientation:orientation];
+  [self changePreviewOrientation:orientation];
 }
 
 
@@ -228,5 +230,11 @@
     }
 }
 
+- (void)changePreviewOrientation:(NSInteger)orientation
+{
+    if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
+        self.manager.previewLayer.connection.videoOrientation = orientation;
+    }
+}
 
 @end
