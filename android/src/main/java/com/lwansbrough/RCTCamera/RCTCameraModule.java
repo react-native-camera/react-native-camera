@@ -18,6 +18,7 @@ import android.util.Base64;
 import android.util.Log;
 import com.facebook.react.bridge.*;
 import android.content.ContentValues;
+import android.content.Intent;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -215,10 +216,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         videoFile = null;
         switch (options.getInt("target")) {
             case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
-                videoFile = getTempMediaFile(MEDIA_TYPE_VIDEO); // save to temp file temporarily 
+                videoFile = getTempMediaFile(MEDIA_TYPE_VIDEO); // temporarily
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
-                videoFile = getTempMediaFile(MEDIA_TYPE_VIDEO); // save to temp file temporarily 
+                videoFile = getOutputMediaFile(MEDIA_TYPE_VIDEO);
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_TEMP:
                 videoFile = getTempMediaFile(MEDIA_TYPE_VIDEO);
@@ -316,7 +317,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
             f.setWritable(true, false); // so can clean it up
 
             if (recordingPromise != null) {
-                switch (recordingOptions.getInt("target")) {
+                switch (recordingOptions.getInt("target")) { 
                     case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                         byte[] encoded = convertFileToByteArray(videoFile);
                         recordingPromise.resolve(new String(encoded, Base64.DEFAULT));
@@ -324,15 +325,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
                         ContentValues values = new ContentValues();
-                        values.put(MediaStore.Video.Media.DATA, videoFile.getAbsolutePath());
+                        values.put(MediaStore.Video.Media.DATA, videoFile.getPath());
                         values.put(MediaStore.Video.Media.TITLE, recordingOptions.hasKey("title") ? recordingOptions.getString("title") : "video");
                         if (recordingOptions.hasKey("description")) values.put(MediaStore.Video.Media.DESCRIPTION, recordingOptions.hasKey("description"));
                         if (recordingOptions.hasKey("latitude")) values.put(MediaStore.Video.Media.LATITUDE, recordingOptions.getString("latitude"));
                         if (recordingOptions.hasKey("longitude")) values.put(MediaStore.Video.Media.LONGITUDE, recordingOptions.getString("longitude"));
                         values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
-                        values.put(MediaStore.Video.Media.CONTENT_TYPE, "video/mp4");
-                        recordingPromise.resolve(_reactContext.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values));
-                        f.delete(); // delete since transferred to camera roll
+                        recordingPromise.resolve(_reactContext.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values).toString());
+                        _reactContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+ videoFile.getPath())));
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_TEMP:
                     case RCT_CAMERA_CAPTURE_TARGET_DISK:
