@@ -6,6 +6,8 @@ package com.lwansbrough.RCTCamera;
 
 import android.hardware.Camera;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,6 +132,17 @@ public class RCTCamera {
             }
         }
         return result;
+    }
+
+    public List<Integer> getSupportedCameras() {
+        if (null == _cameraTypeToIndex || _cameraTypeToIndex.size() == 0) {
+            return Collections.emptyList();
+        }
+        List<Integer> supportedCameras = new ArrayList<>();
+        for (Number id : _cameraTypeToIndex.keySet()) {
+            supportedCameras.add(id.intValue());
+        }
+        return supportedCameras;
     }
 
     public void setOrientation(int orientation) {

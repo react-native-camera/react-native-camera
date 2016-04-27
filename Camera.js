@@ -47,6 +47,7 @@ export default class Camera extends Component {
     Aspect: CameraManager.Aspect,
     BarCodeType: CameraManager.BarCodeType,
     Type: CameraManager.Type,
+    SupportedCameraTypes: CameraManager.SupportedCameraTypes,
     CaptureMode: CameraManager.CaptureMode,
     CaptureTarget: CameraManager.CaptureTarget,
     CaptureQuality: CameraManager.CaptureQuality,
