@@ -27,35 +27,6 @@
   BOOL _previousIdleTimerDisabled;
 }
 
-- (void)setAspect:(NSInteger)aspect
-{
-  NSString *aspectString;
-  switch (aspect) {
-    default:
-    case RCTCameraAspectFill:
-      aspectString = AVLayerVideoGravityResizeAspectFill;
-      break;
-    case RCTCameraAspectFit:
-      aspectString = AVLayerVideoGravityResizeAspect;
-      break;
-    case RCTCameraAspectStretch:
-      aspectString = AVLayerVideoGravityResize;
-      break;
-  }
-  [self.manager changeAspect:aspectString];
-}
-
-- (void)setType:(NSInteger)type
-{
-  if (self.manager.session.isRunning) {
-    [self.manager changeCamera:type];
-  }
-  else {
-    self.manager.presetCamera = type;
-  }
-  [self.manager initializeCaptureSessionInput:AVMediaTypeVideo];
-}
-
 - (void)setOrientation:(NSInteger)orientation
 {
   if (orientation == RCTCameraOrientationAuto) {
@@ -66,21 +37,6 @@
     [[NSNotificationCenter defaultCenter]removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
     [self.manager changeOrientation:orientation];
   }
-}
-
-- (void)setMirrorImage:(BOOL)mirrorImage
-{
-  [self.manager changeMirrorImage:mirrorImage];
-}
-
-- (void)setFlashMode:(NSInteger)flashMode
-{
-  [self.manager changeFlashMode:flashMode];
-}
-
-- (void)setTorchMode:(NSInteger)torchMode
-{
-  [self.manager changeTorchMode:torchMode];
 }
 
 - (void)setOnFocusChanged:(BOOL)enabled
@@ -101,13 +57,6 @@
 {
   if (_onZoomChanged != enabled) {
     _onZoomChanged = enabled;
-  }
-}
-
-- (void)setKeepAwake:(BOOL)enabled
-{
-  if (enabled) {
-    [UIApplication sharedApplication].idleTimerDisabled = true;
   }
 }
 
