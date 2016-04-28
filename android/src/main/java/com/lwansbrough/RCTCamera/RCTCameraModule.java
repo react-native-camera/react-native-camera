@@ -59,12 +59,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
     private final ReactApplicationContext _reactContext;
 
-    private MediaRecorder mediaRecorder = new MediaRecorder(); 
+    private MediaRecorder mMediaRecorder = new MediaRecorder();
     private long MRStartTime;
-    private File videoFile;
+    private File mVideoFile;
     private Camera mCamera = null;
-    private Promise recordingPromise = null;
-    private ReadableMap recordingOptions;
+    private Promise mRecordingPromise = null;
+    private ReadableMap mRecordingOptions;
 
     public RCTCameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -74,7 +74,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     public void onInfo(MediaRecorder mr, int what, int extra) {
         if ( what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED ||
             what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
-            if (recordingPromise != null) {
+            if (mRecordingPromise != null) {
                 releaseMediaRecorder(); // release the MediaRecorder object and resolve promise
             }
         }
@@ -184,72 +184,68 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     }
 
     private boolean prepareMediaRecorder(ReadableMap options) {
-
         CamcorderProfile cm = RCTCamera.getInstance().setCaptureVideoQuality(options.getInt("type"), options.getString("quality"));
-        
+
+        // Attach callback to handle maxDuration (@see onInfo method in this file)
+        mMediaRecorder.setOnInfoListener(this);
+        mMediaRecorder.setCamera(mCamera);
         mCamera.unlock();  // make available for mediarecorder
 
-        mediaRecorder.setCamera(mCamera);
+        // Set AV sources
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
-        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-    
         int mediaRecorderHintOrientation = (90 + ((720 - RCTCamera.getInstance().getActualDeviceOrientation() * 90))) % 360;
 
         // adjust for differences in how devices display front facing http://www.theverge.com/2015/11/9/9696774/google-nexus-5x-upside-down-camera
         if (RCT_CAMERA_TYPE_FRONT == options.getInt("type")) {
             if ((RCT_CAMERA_ORIENTATION_PORTRAIT == RCTCamera.getInstance().getOrientation()) && (RCTCamera.getInstance().getAdjustedDeviceOrientation() == 90)) {
                 mediaRecorderHintOrientation += 180;
-            } 
+            }
         }
-        mediaRecorder.setOrientationHint(mediaRecorderHintOrientation);
+        mMediaRecorder.setOrientationHint(mediaRecorderHintOrientation);
 
         if (null == cm) {
-            return false; 
+            return false;
         }
 
         cm.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
         cm.videoCodec = MediaRecorder.VideoEncoder.MPEG_4_SP;
+        mMediaRecorder.setProfile(cm);
 
-        mediaRecorder.setProfile(cm);        
-
-        videoFile = null;
+        mVideoFile = null;
         switch (options.getInt("target")) {
             case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
-                videoFile = getTempMediaFile(MEDIA_TYPE_VIDEO); // temporarily
+                mVideoFile = getTempMediaFile(MEDIA_TYPE_VIDEO); // temporarily
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
-                videoFile = getOutputMediaFile(MEDIA_TYPE_VIDEO);
+                mVideoFile = getOutputMediaFile(MEDIA_TYPE_VIDEO);
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_TEMP:
-                videoFile = getTempMediaFile(MEDIA_TYPE_VIDEO);
+                mVideoFile = getTempMediaFile(MEDIA_TYPE_VIDEO);
                 break;
             default:
             case RCT_CAMERA_CAPTURE_TARGET_DISK:
-                videoFile = getOutputMediaFile(MEDIA_TYPE_VIDEO);
+                mVideoFile = getOutputMediaFile(MEDIA_TYPE_VIDEO);
                 break;
         }
-        if (videoFile == null) {
+        if (mVideoFile == null) {
             return false;
         }
+        mMediaRecorder.setOutputFile(mVideoFile.getPath());
 
-        mediaRecorder.setOutputFile(videoFile.getPath());
-
-        // Attach callback for maxDuration and maxFileSize
-        mediaRecorder.setOnInfoListener(this);
- 
-        if (options.hasKey("maxDuration")) {
-            int maxDuration = options.getInt("maxDuration");
-            mediaRecorder.setMaxDuration(maxDuration * 1000);
+        if (options.hasKey("totalSeconds")) {
+            int totalSeconds = options.getInt("totalSeconds");
+            mMediaRecorder.setMaxDuration(totalSeconds * 1000);
         }
 
         if (options.hasKey("maxFileSize")) {
             int maxFileSize = options.getInt("maxFileSize");
-            mediaRecorder.setMaxFileSize(maxFileSize);
+            mMediaRecorder.setMaxFileSize(maxFileSize);
         }
 
         try {
-            mediaRecorder.prepare();
+            mMediaRecorder.prepare();
         } catch (IllegalStateException e) {
             releaseMediaRecorder();
             return false;
@@ -263,7 +259,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
     @ReactMethod
     private void record(final ReadableMap options, final Promise promise) {
-        if (recordingPromise == null) {
+        if (mRecordingPromise == null) {
             mCamera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
             if (null == mCamera) {
                 promise.reject("No camera found.");
@@ -273,11 +269,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
                 promise.reject("Fail in prepareMediaRecorder()!");
                 return;
             }
-            try {    
-                mediaRecorder.start();
+            try {
+                mMediaRecorder.start();
                 MRStartTime =  System.currentTimeMillis();
-                recordingOptions = options;
-                recordingPromise = promise;  // only got here if mediaRecorder started
+                mRecordingOptions = options;
+                mRecordingPromise = promise;  // only got here if mediaRecorder started
             } catch (final Exception ex) {
                 promise.reject("Exception in thread");
                 return;
@@ -286,9 +282,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     }
 
     private void releaseMediaRecorder() {
-
-        if (recordingPromise != null) {
-
+        if (mRecordingPromise != null) {
             // Must record at least a second or MediaRecorder throws exceptions on some platforms
             long duration = System.currentTimeMillis() - MRStartTime;
             if (duration < 1500) {
@@ -296,55 +290,55 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
                     Thread.sleep(1500-duration);
                 } catch(InterruptedException e) {
                     e.printStackTrace();
-                }              
+                }
             }
             try {
-                mediaRecorder.stop(); // stop the recording
+                mMediaRecorder.stop(); // stop the recording
             } catch (RuntimeException e) {
                 e.printStackTrace();
             }
-        }      
-        mediaRecorder.reset(); // clear recorder configuration
-        
+        }
+        mMediaRecorder.reset(); // clear recorder configuration
+
         if (mCamera != null) {
             mCamera.lock(); // relock camera for later use since we unlocked it
         }
 
-        // Make sure readable 
-        File f = new File(videoFile.getPath());
+        // Make sure readable
+        File f = new File(mVideoFile.getPath());
         if (f.exists()) {
-            f.setReadable(true, false); // so mediaplayer can play it 
+            f.setReadable(true, false); // so mediaplayer can play it
             f.setWritable(true, false); // so can clean it up
 
-            if (recordingPromise != null) {
-                switch (recordingOptions.getInt("target")) { 
+            if (mRecordingPromise != null) {
+                switch (mRecordingOptions.getInt("target")) {
                     case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
-                        byte[] encoded = convertFileToByteArray(videoFile);
-                        recordingPromise.resolve(new String(encoded, Base64.DEFAULT));
+                        byte[] encoded = convertFileToByteArray(mVideoFile);
+                        mRecordingPromise.resolve(new String(encoded, Base64.DEFAULT));
                         f.delete(); // delete since transferred to memory
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
                         ContentValues values = new ContentValues();
-                        values.put(MediaStore.Video.Media.DATA, videoFile.getPath());
-                        values.put(MediaStore.Video.Media.TITLE, recordingOptions.hasKey("title") ? recordingOptions.getString("title") : "video");
-                        if (recordingOptions.hasKey("description")) values.put(MediaStore.Video.Media.DESCRIPTION, recordingOptions.hasKey("description"));
-                        if (recordingOptions.hasKey("latitude")) values.put(MediaStore.Video.Media.LATITUDE, recordingOptions.getString("latitude"));
-                        if (recordingOptions.hasKey("longitude")) values.put(MediaStore.Video.Media.LONGITUDE, recordingOptions.getString("longitude"));
+                        values.put(MediaStore.Video.Media.DATA, mVideoFile.getPath());
+                        values.put(MediaStore.Video.Media.TITLE, mRecordingOptions.hasKey("title") ? mRecordingOptions.getString("title") : "video");
+                        if (mRecordingOptions.hasKey("description")) values.put(MediaStore.Video.Media.DESCRIPTION, mRecordingOptions.hasKey("description"));
+                        if (mRecordingOptions.hasKey("latitude")) values.put(MediaStore.Video.Media.LATITUDE, mRecordingOptions.getString("latitude"));
+                        if (mRecordingOptions.hasKey("longitude")) values.put(MediaStore.Video.Media.LONGITUDE, mRecordingOptions.getString("longitude"));
                         values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
-                        recordingPromise.resolve(_reactContext.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values).toString());
-                        _reactContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+ videoFile.getPath())));
+                        mRecordingPromise.resolve(_reactContext.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values).toString());
+                        _reactContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+ mVideoFile.getPath())));
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_TEMP:
                     case RCT_CAMERA_CAPTURE_TARGET_DISK:
                     default:
-                        recordingPromise.resolve(Uri.fromFile(videoFile).toString());
+                        mRecordingPromise.resolve(Uri.fromFile(mVideoFile).toString());
                         break;
                 }
             }
         } else {
-            recordingPromise.reject("Nothing recorded");
+            mRecordingPromise.reject("Nothing recorded");
         }
-        recordingPromise = null;
+        mRecordingPromise = null;
     }
 
     public static byte[] convertFileToByteArray(File f)
@@ -358,7 +352,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
             int bytesRead =0;
 
             while ((bytesRead = inputStream.read(b)) != -1) bos.write(b, 0, bytesRead);
-    
+
             byteArray = bos.toByteArray();
         }
         catch (IOException e)
@@ -450,7 +444,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
     @ReactMethod
     public void stopCapture(final Promise promise) {
-        if (recordingPromise != null) {
+        if (mRecordingPromise != null) {
             releaseMediaRecorder(); // release the MediaRecorder object
             promise.resolve("Finished recording.");
         } else {
