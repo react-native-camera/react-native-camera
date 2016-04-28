@@ -96,8 +96,8 @@ public class RCTCamera {
         if(camera == null) {
             return null;
         }
-        Camera.Parameters params = camera.getParameters();
-        for (Camera.Size size : params.getSupportedPictureSizes()) {
+        List<Camera.Size> sizes = getSupportedSizesWithFallback(camera);
+        for (Camera.Size size : sizes) {
             if (size.width <= width && size.height <= height) {
                 if (result == null) {
                     result = size;
@@ -121,10 +121,7 @@ public class RCTCamera {
         if(camera == null) {
             return null;
         }
-        Camera.Parameters params = camera.getParameters();
-        // defer to preview instead of params.getSupportedVideoSizes() http://bit.ly/1rxOsq0
-        List<Size> sizes = params.getSupportedPreviewSizes();
-
+        List<Camera.Size> sizes = getSupportedSizesWithFallback(camera);
         if (null != sizes) {
             for (Camera.Size size : sizes) {
                 if (size.width <= width && size.height <= height) {
@@ -151,8 +148,8 @@ public class RCTCamera {
         if(camera == null) {
             return null;
         }
-        Camera.Parameters params = camera.getParameters();
-        for (Camera.Size size : params.getSupportedPictureSizes()) {
+        List<Camera.Size> sizes = getSupportedSizesWithFallback(camera);
+        for (Camera.Size size : sizes) {
             if (result == null) {
                 result = size;
             } else {
@@ -173,11 +170,7 @@ public class RCTCamera {
         if(camera == null) {
             return null;
         }
-        Camera.Parameters params = camera.getParameters();
-
-        // defer to preview instead of params.getSupportedVideoSizes() http://bit.ly/1rxOsq0
-        List<Size> sizes = params.getSupportedPreviewSizes();
-
+        List<Camera.Size> sizes = getSupportedSizesWithFallback(camera);
         if (null != sizes) {
             for (Camera.Size size : sizes) {
                 if (result == null) {
@@ -191,8 +184,24 @@ public class RCTCamera {
                     }
                 }
             }
-        }   
+        }
         return result;
+    }
+
+    public List<Camera.Size> getSupportedSizesWithFallback(Camera camera)
+    {
+        Camera.Parameters params = camera.getParameters();
+        // defer to preview instead of params.getSupportedVideoSizes() http://bit.ly/1rxOsq0
+        // but prefer SupportedVideoSizes!
+        List<Camera.Size> sizes;
+        if (params.getSupportedVideoSizes() != null) {
+            sizes = params.getSupportedVideoSizes();
+        } else {
+            // Video sizes may be null, which indicates that all the supported
+            // preview sizes are supported for video recording.
+            sizes = params.getSupportedPreviewSizes();
+        }
+        return sizes;
     }
 
     public int getOrientation() {
@@ -270,7 +279,6 @@ public class RCTCamera {
             case "medium":
                 // defer to preview instead of params.getSupportedVideoSizes() http://bit.ly/1rxOsq0
                 List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
-
                 videoSize = sizes.get(sizes.size() / 2);
                 break;
             case "high":
@@ -280,7 +288,7 @@ public class RCTCamera {
 
         if (videoSize != null) {
             cm.videoFrameHeight = videoSize.height;
-            cm.videoFrameWidth = videoSize.width;    
+            cm.videoFrameWidth = videoSize.width;
         }
         return(cm);
     }
