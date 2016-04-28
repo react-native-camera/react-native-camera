@@ -2,6 +2,9 @@
 
 A camera module for React Native.  
 
+**BREAKING CHANGES:**
+[*April 27*] capture now returns an object instead of a string
+
 **NOTE** These docs are for the work in progress v1 release. If you want to use the latest and greatest and can deal with *significant* instability you can install with `npm install --save lwansbrough/react-native-camera`. If you are using older version of this module please refer to the [old readme](https://github.com/lwansbrough/react-native-camera/tree/8cc61edef2c018b81e1c52f13c7d261fe6a35a63).
 
 ![](https://i.imgur.com/5j2JdUk.gif)
