@@ -73,6 +73,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         return Collections.unmodifiableMap(new HashMap<String, Object>() {
             {
                 put("Aspect", getAspectConstants());
+                put("BarCodeType", getBarCodeConstants());
                 put("Type", getTypeConstants());
                 put("CaptureQuality", getCaptureQualityConstants());
                 put("CaptureMode", getCaptureModeConstants());
@@ -88,6 +89,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         put("stretch", RCT_CAMERA_ASPECT_STRETCH);
                         put("fit", RCT_CAMERA_ASPECT_FIT);
                         put("fill", RCT_CAMERA_ASPECT_FILL);
+                    }
+                });
+            }
+
+            private Map<String, Object> getBarCodeConstants() {
+                return Collections.unmodifiableMap(new HashMap<String, Object>() {
+                    {
+                        // @TODO add barcode types
                     }
                 });
             }
@@ -207,10 +216,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             public void onPictureTaken(byte[] data, Camera camera) {
                 camera.stopPreview();
                 camera.startPreview();
+                WritableMap response = new WritableNativeMap();
                 switch (options.getInt("target")) {
                     case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                         String encoded = Base64.encodeToString(data, Base64.DEFAULT);
-                        promise.resolve(encoded);
+                        response.putString("data", encoded);
+                        promise.resolve(response);
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
                         BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
@@ -219,7 +230,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                                 _reactContext.getContentResolver(),
                                 bitmap, options.getString("title"),
                                 options.getString("description"));
-                        promise.resolve(url);
+                        response.putString("path", url);
+                        promise.resolve(response);
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_DISK:
                         File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
@@ -237,7 +249,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         } catch (IOException e) {
                             promise.reject("Error accessing file: " + e.getMessage());
                         }
-                        promise.resolve(Uri.fromFile(pictureFile).toString());
+                        response.putString("path", Uri.fromFile(pictureFile).toString());
+                        promise.resolve(response);
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_TEMP:
                         File tempFile = getTempMediaFile(MEDIA_TYPE_IMAGE);
@@ -256,7 +269,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         } catch (IOException e) {
                             promise.reject("Error accessing file: " + e.getMessage());
                         }
-                        promise.resolve(Uri.fromFile(tempFile).toString());
+                        response.putString("path", Uri.fromFile(tempFile).toString());
+                        promise.resolve(response);
                         break;
                 }
             }
