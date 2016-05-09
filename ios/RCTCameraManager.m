@@ -238,6 +238,10 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTCamera) {
   self.barCodeTypes = [RCTConvert NSArray:json];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(faceDetection, BOOL, RCTCamera) {
+    self.faceDetection = [RCTConvert BOOL:json];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
   RCTLog(@"capturing audio");
   BOOL captureAudio = [RCTConvert BOOL:json];
@@ -252,6 +256,16 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
       @"focusChanged",
       @"zoomChanged",
     ];
+}
+
+- (NSArray *)metaDataObjectTypes {
+    NSMutableArray *types = [self.barCodeTypes mutableCopy];
+    
+    if(self.faceDetection) {
+        [types addObject:AVMetadataObjectTypeFace];
+    }
+    
+    return types;
 }
 
 - (id)init {
@@ -395,7 +409,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     if ([self.session canAddOutput:metadataOutput]) {
       [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
       [self.session addOutput:metadataOutput];
-      [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
+      [metadataOutput setMetadataObjectTypes:[self metaDataObjectTypes]];
       self.metadataOutput = metadataOutput;
     }
 
@@ -796,7 +810,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
 
-  for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
+  for (AVMetadataFaceObject *metadata in metadataObjects) {
     for (id barcodeType in self.barCodeTypes) {
       if ([metadata.type isEqualToString:barcodeType]) {
         // Transform the meta-data coordinates to screen coords
@@ -804,7 +818,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 
         NSDictionary *event = @{
           @"type": metadata.type,
-          @"data": metadata.stringValue,
+          @"data": transformed.stringValue,
           @"bounds": @{
             @"origin": @{
               @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
@@ -819,6 +833,27 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 
         [self.bridge.eventDispatcher sendAppEventWithName:@"CameraBarCodeRead" body:event];
       }
+    }
+      
+    if([metadata.type isEqualToString:AVMetadataObjectTypeFace]) {
+      AVMetadataFaceObject *transformed = (AVMetadataFaceObject *)[self.previewLayer transformedMetadataObjectForMetadataObject:metadata];
+      
+      NSDictionary *event = @{
+        @"type": metadata.type,
+        @"faceID": [NSNumber numberWithInteger:transformed.faceID],
+        @"bounds": @{
+          @"origin": @{
+            @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
+            @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y]
+          },
+          @"size": @{
+            @"height": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
+            @"width": [NSString stringWithFormat:@"%f", transformed.bounds.size.width],
+          }
+        }
+      };
+      
+      [self.bridge.eventDispatcher sendAppEventWithName:@"FaceDetected" body:event];
     }
   }
 }
