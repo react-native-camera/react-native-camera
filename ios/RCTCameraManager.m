@@ -239,9 +239,9 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTCamera) {
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
-  RCTLog(@"capturing audio");
   BOOL captureAudio = [RCTConvert BOOL:json];
   if (captureAudio) {
+    RCTLog(@"capturing audio");
     [self initializeCaptureSessionInput:AVMediaTypeAudio];
   }
 }
