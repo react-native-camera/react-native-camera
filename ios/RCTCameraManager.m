@@ -450,6 +450,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     }
 
     if (captureDevice == nil) {
+      [self.session commitConfiguration];
       return;
     }
 
@@ -457,6 +458,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
     if (error || captureDeviceInput == nil) {
       NSLog(@"%@", error);
+      [self.session commitConfiguration];
       return;
     }
 
