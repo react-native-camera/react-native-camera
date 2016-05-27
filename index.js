@@ -124,6 +124,9 @@ export default class Camera extends Component {
     barCodeTypes: Object.values(CameraManager.BarCodeType),
   };
 
+  static getVideoAuthorizationStatus = CameraManager.checkVideoAuthorizationStatus;
+  static getAudioAuthorizationStatus = CameraManager.checkAudioAuthorizationStatus;
+
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
   static checkVideoAuthorizationStatus = CameraManager.checkVideoAuthorizationStatus;
   static checkAudioAuthorizationStatus = CameraManager.checkAudioAuthorizationStatus;
