@@ -60,7 +60,13 @@ export default class Camera extends Component {
     CaptureQuality: CameraManager.CaptureQuality,
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
-    TorchMode: CameraManager.TorchMode
+    TorchMode: CameraManager.TorchMode,
+    AuthStatus: {
+      NotDetermined: 0,
+      Restricted: 1,
+      Denied: 2,
+      Authorized: 3
+    }
   };
 
   static propTypes = {
