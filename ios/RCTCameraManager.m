@@ -923,6 +923,9 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 }
 
 - (void)zoom:(CGFloat)velocity reactTag:(NSNumber *)reactTag{
+    if (isnan(velocity)) {
+        return;
+    }
     const CGFloat pinchVelocityDividerFactor = 20.0f; // TODO: calibrate or make this component's property
     NSError *error = nil;
     AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
