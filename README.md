@@ -283,6 +283,10 @@ Exposes the native API for checking if the device has authorized access to the c
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
 
+## Example
+
+To see more of the `react-native-camera` in action, you can check out the `Example` folder.
+
 ------------
 
 Thanks to Brent Vatne (@brentvatne) for the `react-native-video` module which provided me with a great example of how to set up this module.
