@@ -218,6 +218,8 @@ export default class Camera extends Component {
   }
 }
 
+export const constants = Camera.constants;
+
 const RCTCamera = requireNativeComponent('RCTCamera', Camera);
 
 const styles = StyleSheet.create({
