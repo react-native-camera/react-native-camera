@@ -6,6 +6,7 @@ package com.lwansbrough.RCTCamera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.media.MediaActionSound;
 import android.net.Uri;
@@ -195,7 +196,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     }
 
     public void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
-        Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        final int cameraType = options.getInt("type");
+        final RCTCamera rctCamera = RCTCamera.getInstance();
+        Camera camera = rctCamera.acquireCameraInstance(cameraType);
         if (null == camera) {
             promise.reject("No camera found.");
             return;
@@ -207,10 +210,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         }
 
         if (options.hasKey("quality")) {
-            RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
+            rctCamera.setCaptureQuality(cameraType, options.getString("quality"));
         }
 
-        RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(options.getInt("type"), deviceOrientation);
+        rctCamera.adjustCameraRotationToDeviceOrientation(cameraType, deviceOrientation);
         camera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
@@ -226,9 +229,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                     case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
                         BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
                         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, bitmapOptions);
+                        Bitmap realImage = rotate(bitmap, rctCamera.getCameraInfo(cameraType).info.orientation);
+
                         String url = MediaStore.Images.Media.insertImage(
                                 _reactContext.getContentResolver(),
-                                bitmap, options.getString("title"),
+                                realImage, options.getString("title"),
                                 options.getString("description"));
                         response.putString("path", url);
                         promise.resolve(response);
@@ -275,6 +280,16 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                 }
             }
         });
+    }
+
+    private static Bitmap rotate(Bitmap bitmap, int degree) {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+
+        Matrix mtx = new Matrix();
+        mtx.postRotate(degree);
+
+        return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, true);
     }
 
     @ReactMethod

@@ -44,7 +44,7 @@ public class RCTCamera {
     }
 
     public int getPreviewWidth(int type) {
-        CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
+        CameraInfoWrapper cameraInfo = getCameraInfo(type);
         if (null == cameraInfo) {
             return 0;
         }
@@ -52,11 +52,15 @@ public class RCTCamera {
     }
 
     public int getPreviewHeight(int type) {
-        CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
+        CameraInfoWrapper cameraInfo = getCameraInfo(type);
         if (null == cameraInfo) {
             return 0;
         }
         return cameraInfo.previewHeight;
+    }
+
+    public CameraInfoWrapper getCameraInfo(int type) {
+        return _cameraInfos.get(type);
     }
 
     public Camera.Size getBestPreviewSize(int type, int width, int height)
@@ -235,7 +239,7 @@ public class RCTCamera {
             return;
         }
 
-        CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
+        CameraInfoWrapper cameraInfo = getCameraInfo(type);
         int rotation;
         int orientation = cameraInfo.info.orientation;
         if (cameraInfo.info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
@@ -260,7 +264,7 @@ public class RCTCamera {
             return;
         }
 
-        CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
+        CameraInfoWrapper cameraInfo = getCameraInfo(type);
         int displayRotation;
         int rotation;
         int orientation = cameraInfo.info.orientation;
@@ -310,12 +314,12 @@ public class RCTCamera {
         for (int i = 0; i < Camera.getNumberOfCameras(); i++) {
             Camera.CameraInfo info = new Camera.CameraInfo();
             Camera.getCameraInfo(i, info);
-            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT && _cameraInfos.get(RCTCameraModule.RCT_CAMERA_TYPE_FRONT) == null) {
+            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT && getCameraInfo(RCTCameraModule.RCT_CAMERA_TYPE_FRONT) == null) {
                 _cameraInfos.put(RCTCameraModule.RCT_CAMERA_TYPE_FRONT, new CameraInfoWrapper(info));
                 _cameraTypeToIndex.put(RCTCameraModule.RCT_CAMERA_TYPE_FRONT, i);
                 acquireCameraInstance(RCTCameraModule.RCT_CAMERA_TYPE_FRONT);
                 releaseCameraInstance(RCTCameraModule.RCT_CAMERA_TYPE_FRONT);
-            } else if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK && _cameraInfos.get(RCTCameraModule.RCT_CAMERA_TYPE_BACK) == null) {
+            } else if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK && getCameraInfo(RCTCameraModule.RCT_CAMERA_TYPE_BACK) == null) {
                 _cameraInfos.put(RCTCameraModule.RCT_CAMERA_TYPE_BACK, new CameraInfoWrapper(info));
                 _cameraTypeToIndex.put(RCTCameraModule.RCT_CAMERA_TYPE_BACK, i);
                 acquireCameraInstance(RCTCameraModule.RCT_CAMERA_TYPE_BACK);
@@ -324,7 +328,7 @@ public class RCTCamera {
         }
     }
 
-    private class CameraInfoWrapper {
+    public class CameraInfoWrapper {
         public final Camera.CameraInfo info;
         public int rotation = 0;
         public int previewWidth = -1;
