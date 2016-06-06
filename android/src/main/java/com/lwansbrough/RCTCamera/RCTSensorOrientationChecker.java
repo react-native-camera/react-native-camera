@@ -9,6 +9,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.view.Surface;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 
@@ -51,13 +52,13 @@ public class RCTSensorOrientationChecker {
             float y = event.values[1];
 
             if (x<5 && x>-5 && y > 5)
-                mOrientation = 0;
+                mOrientation = Surface.ROTATION_0; // portrait
             else if (x<-5 && y<5 && y>-5)
-                mOrientation = 3;
+                mOrientation = Surface.ROTATION_270; // right
             else if (x<5 && x>-5 && y<-5)
-                mOrientation = 2;
+                mOrientation = Surface.ROTATION_180; // upside down
             else if (x>5 && y<5 && y>-5)
-                mOrientation = 1;
+                mOrientation = Surface.ROTATION_90; // left
 
             if (mListener != null) {
                 mListener.orientationEvent();

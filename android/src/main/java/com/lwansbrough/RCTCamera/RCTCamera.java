@@ -132,6 +132,10 @@ public class RCTCamera {
         return result;
     }
 
+    public int getOrientation() {
+        return _orientation;
+    }
+
     public void setOrientation(int orientation) {
         if (_orientation == orientation) {
             return;
