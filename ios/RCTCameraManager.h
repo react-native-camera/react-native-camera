@@ -1,5 +1,6 @@
 #import "RCTViewManager.h"
 #import <AVFoundation/AVFoundation.h>
+#import <ZXingObjC/ZXingObjC.h>
 
 @class RCTCamera;
 
@@ -46,8 +47,7 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
   RCTCameraTorchModeAuto = AVCaptureTorchModeAuto
 };
 
-@interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate>
-
+@interface RCTCameraManager : RCTViewManager<ZXCaptureDelegate>
 @property (nonatomic, strong) dispatch_queue_t sessionQueue;
 @property (nonatomic, strong) AVCaptureSession *session;
 @property (nonatomic, strong) AVCaptureDeviceInput *audioCaptureDeviceInput;
@@ -73,6 +73,7 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 - (void)getFOV:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)initializeCaptureSessionInput:(NSString*)type;
+- (void)initializeCapture;
 - (void)stopCapture;
 - (void)startSession;
 - (void)stopSession;

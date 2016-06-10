@@ -64,14 +64,13 @@
 
 - (id)initWithManager:(RCTCameraManager*)manager bridge:(RCTBridge *)bridge
 {
-  
+
   if ((self = [super init])) {
     self.manager = manager;
     self.bridge = bridge;
     UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchToZoomRecognizer:)];
     [self addGestureRecognizer:pinchGesture];
     [self.manager initializeCaptureSessionInput:AVMediaTypeVideo];
-    [self.manager startSession];
     _multipleTouches = NO;
     _onFocusChanged = NO;
     _defaultOnFocusComponent = YES;

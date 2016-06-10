@@ -3,3 +3,6 @@
 node_modules
 ios/RCTCamera.xcodeproj/xcuserdata
 ios/RCTCamera.xcodeproj/project.xcworkspace
+
+# OS X
+.DS_Store
