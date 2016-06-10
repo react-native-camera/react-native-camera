@@ -1,49 +1,14 @@
-# react-native-camera [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![Gitter](https://badges.gitter.im/lwansbrough/react-native-camera.svg)](https://gitter.im/lwansbrough/react-native-camera)
+# react-native-camera
 
-A camera module for React Native.  
-
-**BREAKING CHANGES:**  
-[*April 27*] capture now returns an object instead of a string
-
-**NOTE** These docs are for the work in progress v1 release. If you want to use the latest and greatest and can deal with *significant* instability you can install with `npm install --save lwansbrough/react-native-camera`. If you are using older version of this module please refer to the [old readme](https://github.com/lwansbrough/react-native-camera/tree/8cc61edef2c018b81e1c52f13c7d261fe6a35a63).
-
-![](https://i.imgur.com/5j2JdUk.gif)
-
-## Getting started
-### Mostly automatic install
-1. `npm install rnpm --global`
-2. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
-3. `rnpm link react-native-camera`
+A barcode reading module for React Native (iOS).
 
 ### Manual install
-#### iOS
 1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
 2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
 3. Go to `node_modules` ➜ `react-native-camera` and add `RCTCamera.xcodeproj`
 4. In XCode, in the project navigator, select your project. Add `libRCTCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
 5. Click `RCTCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
 5. Run your project (`Cmd+R`)
-
-
-#### Android
-1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
-2. Open up `android/app/src/main/java/[...]/MainActivity.java
-  - Add `import com.lwansbrough.RCTCamera.*;` to the imports at the top of the file
-  - Add `new RCTCameraPackage()` to the list returned by the `getPackages()` method
-
-3. Append the following lines to `android/settings.gradle`:
-
-	```
-	include ':react-native-camera'
-	project(':react-native-camera').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-camera/android')
-	```
-
-4. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
-
-	```
-    compile project(':react-native-camera')
-	```
-
 
 ## Usage
 
