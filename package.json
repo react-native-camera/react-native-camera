@@ -1,12 +1,14 @@
 {
   "name": "react-native-camera",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/lwansbrough/react-native-camera.git"
+    "type": "git",
+    "url": "https://github.com/Clever/react-native-camera.git"
   },
-  "version": "0.3.8",
-  "description": "A Camera component for React Native. Also reads barcodes.",
-  "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
+  "version": "1.0.0",
+  "author": {
+    "name": "Nitsan Shai",
+    "email": "nitsan.shai@clever.com"
+  },
   "nativePackage": true,
   "keywords": [
     "react-native",

@@ -153,6 +153,10 @@ export default class Camera extends Component {
     }
   }
 
+  componentDidMount() {
+    CameraManager.initializeCapture();
+  }
+
   componentWillUnmount() {
     this.cameraBarCodeReadListener.remove();
 

@@ -14,10 +14,14 @@
 @interface RCTCameraManager ()
 
 @property (strong, nonatomic) RCTSensorOrientationChecker * sensorOrientationChecker;
+@property (strong, nonatomic) ZXCapture *capture;
+@property (strong, nonatomic) UIView *rctCameraView;
 
 @end
 
-@implementation RCTCameraManager
+@implementation RCTCameraManager {
+  CGAffineTransform _captureSizeTransform;
+}
 
 RCT_EXPORT_MODULE();
 
@@ -29,12 +33,87 @@ RCT_EXPORT_MODULE();
 
 - (UIView *)view
 {
-  self.session = [AVCaptureSession new];
+  self.capture = [[ZXCapture alloc] init];
+  self.capture.focusMode = AVCaptureFocusModeContinuousAutoFocus;
 
-  self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
+  self.rctCameraView = [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
+  return self.rctCameraView;
+}
+
+RCT_EXPORT_METHOD(initializeCapture) {
+  self.capture.delegate = self;
+  self.previewLayer = (AVCaptureVideoPreviewLayer *)self.capture.layer;
   self.previewLayer.needsDisplayOnBoundsChange = YES;
+  [self.rctCameraView.layer addSublayer:self.capture.layer];
+  [self applyOrientation];
+}
 
-  return [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
+- (void)applyOrientation {
+	UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+	float scanRectRotation;
+	float captureRotation;
+
+	switch (orientation) {
+		case UIInterfaceOrientationPortrait:
+			captureRotation = 0;
+			scanRectRotation = 90;
+			break;
+		case UIInterfaceOrientationLandscapeLeft:
+			captureRotation = 90;
+			scanRectRotation = 180;
+			break;
+		case UIInterfaceOrientationLandscapeRight:
+			captureRotation = 270;
+			scanRectRotation = 0;
+			break;
+		case UIInterfaceOrientationPortraitUpsideDown:
+			captureRotation = 180;
+			scanRectRotation = 270;
+			break;
+		default:
+			captureRotation = 0;
+			scanRectRotation = 90;
+			break;
+	}
+	[self applyRectOfInterest:orientation];
+	CGAffineTransform transform = CGAffineTransformMakeRotation((CGFloat) (captureRotation / 180 * M_PI));
+	[self.capture setTransform:transform];
+	[self.capture setRotation:scanRectRotation];
+	self.previewLayer.frame = self.rctCameraView.frame;
+}
+
+- (void)applyRectOfInterest:(UIInterfaceOrientation)orientation {
+	CGFloat scaleVideo, scaleVideoX, scaleVideoY;
+	CGFloat videoSizeX, videoSizeY;
+	CGRect transformedVideoRect = self.capture.layer.frame;
+	if([self.capture.sessionPreset isEqualToString:AVCaptureSessionPreset1920x1080]) {
+		videoSizeX = 1080;
+		videoSizeY = 1920;
+	} else {
+		videoSizeX = 720;
+		videoSizeY = 1280;
+	}
+	if(UIInterfaceOrientationIsPortrait(orientation)) {
+		scaleVideoX = self.rctCameraView.frame.size.width / videoSizeX;
+		scaleVideoY = self.rctCameraView.frame.size.height / videoSizeY;
+		scaleVideo = MAX(scaleVideoX, scaleVideoY);
+		if(scaleVideoX > scaleVideoY) {
+			transformedVideoRect.origin.y += (scaleVideo * videoSizeY - self.rctCameraView.frame.size.height) / 2;
+		} else {
+			transformedVideoRect.origin.x += (scaleVideo * videoSizeX - self.rctCameraView.frame.size.width) / 2;
+		}
+	} else {
+		scaleVideoX = self.rctCameraView.frame.size.width / videoSizeY;
+		scaleVideoY = self.rctCameraView.frame.size.height / videoSizeX;
+		scaleVideo = MAX(scaleVideoX, scaleVideoY);
+		if(scaleVideoX > scaleVideoY) {
+			transformedVideoRect.origin.y += (scaleVideo * videoSizeX - self.rctCameraView.frame.size.height) / 2;
+		} else {
+			transformedVideoRect.origin.x += (scaleVideo * videoSizeY - self.rctCameraView.frame.size.width) / 2;
+		}
+	}
+	_captureSizeTransform = CGAffineTransformMakeScale(1/scaleVideo, 1/scaleVideo);
+	self.capture.scanRect = CGRectApplyAffineTransform(transformedVideoRect, _captureSizeTransform);
 }
 
 - (NSDictionary *)constantsToExport
@@ -136,47 +215,36 @@ RCT_CUSTOM_VIEW_PROPERTY(aspect, NSInteger, RCTCamera) {
 
 RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera) {
   NSInteger type = [RCTConvert NSInteger:json];
-  
+
   self.presetCamera = type;
   if (self.session.isRunning) {
     dispatch_async(self.sessionQueue, ^{
-      AVCaptureDevice *currentCaptureDevice = [self.videoCaptureDeviceInput device];
       AVCaptureDevicePosition position = (AVCaptureDevicePosition)type;
       AVCaptureDevice *captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:(AVCaptureDevicePosition)position];
-      
+
       if (captureDevice == nil) {
         return;
       }
-      
+
       self.presetCamera = type;
-      
+
       NSError *error = nil;
       AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
-      
+
       if (error || captureDeviceInput == nil)
       {
         NSLog(@"%@", error);
         return;
       }
-      
+
       [self.session beginConfiguration];
-      
+
       [self.session removeInput:self.videoCaptureDeviceInput];
-      
-      if ([self.session canAddInput:captureDeviceInput])
-      {
-        [self.session addInput:captureDeviceInput];
-        
-        [NSNotificationCenter.defaultCenter removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:currentCaptureDevice];
-        
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:captureDevice];
-        self.videoCaptureDeviceInput = captureDeviceInput;
+
+      for (AVCaptureDeviceInput *d in self.session.inputs) {
+        [self.session removeInput:d];
       }
-      else
-      {
-        [self.session addInput:self.videoCaptureDeviceInput];
-      }
-      
+
       [self.session commitConfiguration];
     });
   }
@@ -187,7 +255,7 @@ RCT_CUSTOM_VIEW_PROPERTY(flashMode, NSInteger, RCTCamera) {
   AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
   NSError *error = nil;
   NSInteger *flashMode = [RCTConvert NSInteger:json];
-  
+
   if (![device hasFlash]) return;
   if (![device lockForConfiguration:&error]) {
     NSLog(@"%@", error);
@@ -214,7 +282,7 @@ RCT_CUSTOM_VIEW_PROPERTY(torchMode, NSInteger, RCTCamera) {
     NSInteger *torchMode = [RCTConvert NSInteger:json];
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if (![device hasTorch]) return;
     if (![device lockForConfiguration:&error]) {
       NSLog(@"%@", error);
@@ -388,24 +456,16 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       self.movieFileOutput = movieFileOutput;
     }
 
-    AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
-    if ([self.session canAddOutput:metadataOutput]) {
-      [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
-      [self.session addOutput:metadataOutput];
-      [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
-      self.metadataOutput = metadataOutput;
-    }
-
     __weak RCTCameraManager *weakSelf = self;
     [self setRuntimeErrorHandlingObserver:[NSNotificationCenter.defaultCenter addObserverForName:AVCaptureSessionRuntimeErrorNotification object:self.session queue:nil usingBlock:^(NSNotification *note) {
       RCTCameraManager *strongSelf = weakSelf;
       dispatch_async(strongSelf.sessionQueue, ^{
         // Manually restarting the session since it must have been stopped due to an error.
-        [strongSelf.session startRunning];
+        [strongSelf.capture start];
       });
     }]];
 
-    [self.session startRunning];
+    [self.capture start];
   });
 }
 
@@ -415,7 +475,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 #endif
   dispatch_async(self.sessionQueue, ^{
     [self.previewLayer removeFromSuperlayer];
-    [self.session stopRunning];
+    [self.capture stop];
     for(AVCaptureInput *input in self.session.inputs) {
       [self.session removeInput:input];
     }
@@ -436,7 +496,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
         }
       }
     }
-    
+
     [self.session beginConfiguration];
 
     NSError *error = nil;
@@ -816,35 +876,18 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
   }
 }
 
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
+- (void)captureResult:(ZXCapture *)capture result:(ZXResult *)result {
+  RCTLog(@"got a badge!");
+  NSString *type = [self barcodeFormatToString:result.barcodeFormat];
+  NSString *data = result.text;
 
-  for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
-    for (id barcodeType in self.barCodeTypes) {
-      if ([metadata.type isEqualToString:barcodeType]) {
-        // Transform the meta-data coordinates to screen coords
-        AVMetadataMachineReadableCodeObject *transformed = (AVMetadataMachineReadableCodeObject *)[_previewLayer transformedMetadataObjectForMetadataObject:metadata];
+  NSDictionary *event = @{
+    @"type": type,
+    @"data": data
+  };
 
-        NSDictionary *event = @{
-          @"type": metadata.type,
-          @"data": metadata.stringValue,
-          @"bounds": @{
-            @"origin": @{
-              @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
-              @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y]
-            },
-            @"size": @{
-              @"height": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
-              @"width": [NSString stringWithFormat:@"%f", transformed.bounds.size.width],
-            }
-          }
-        };
-
-        [self.bridge.eventDispatcher sendAppEventWithName:@"CameraBarCodeRead" body:event];
-      }
-    }
-  }
+  [self.bridge.eventDispatcher sendAppEventWithName:@"CameraBarCodeRead" body:event];
 }
-
 
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
 {
@@ -961,6 +1004,33 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         }
         [self.session commitConfiguration];
     }
+}
+
+- (NSString *)barcodeFormatToString:(ZXBarcodeFormat)format {
+  switch (format) {
+    case kBarcodeFormatAztec:
+      return AVMetadataObjectTypeAztecCode;
+    case kBarcodeFormatCode39:
+      return AVMetadataObjectTypeCode39Code;
+    case kBarcodeFormatCode93:
+      return AVMetadataObjectTypeCode93Code;
+    case kBarcodeFormatCode128:
+      return AVMetadataObjectTypeCode128Code;
+    case kBarcodeFormatDataMatrix:
+      return AVMetadataObjectTypeDataMatrixCode;
+    case kBarcodeFormatEan8:
+      return AVMetadataObjectTypeEAN8Code;
+    case kBarcodeFormatEan13:
+      return AVMetadataObjectTypeEAN13Code;
+    case kBarcodeFormatITF:
+      return AVMetadataObjectTypeITF14Code;
+    case kBarcodeFormatPDF417:
+      return AVMetadataObjectTypePDF417Code;
+    case kBarcodeFormatQRCode:
+      return AVMetadataObjectTypeQRCode;
+    default:
+      return @"";
+  }
 }
 
 @end
