@@ -9,6 +9,13 @@ typedef NS_ENUM(NSInteger, RCTCameraAspect) {
   RCTCameraAspectStretch = 2
 };
 
+typedef NS_ENUM(NSInteger, RCTCameraCaptureSessionPreset) {
+  RCTCameraCaptureSessionPresetLow = 0,
+  RCTCameraCaptureSessionPresetMedium = 1,
+  RCTCameraCaptureSessionPresetHigh = 2,
+  RCTCameraCaptureSessionPresetPhoto = 3
+};
+
 typedef NS_ENUM(NSInteger, RCTCameraCaptureMode) {
   RCTCameraCaptureModeStill = 0,
   RCTCameraCaptureModeVideo = 1
