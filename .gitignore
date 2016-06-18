@@ -1,5 +1,6 @@
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
+.DS_Store
 node_modules
 ios/RCTCamera.xcodeproj/xcuserdata
 ios/RCTCamera.xcodeproj/project.xcworkspace
