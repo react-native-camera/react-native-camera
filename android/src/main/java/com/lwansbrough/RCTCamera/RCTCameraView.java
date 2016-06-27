@@ -10,6 +10,7 @@ import android.hardware.SensorManager;
 import android.view.OrientationEventListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.View;
 
 public class RCTCameraView extends ViewGroup {
     private final OrientationEventListener _orientationListener;
@@ -47,6 +48,13 @@ public class RCTCameraView extends ViewGroup {
         layoutViewFinder(left, top, right, bottom);
     }
 
+    @Override
+    public void onViewAdded(View child) {
+        if (this._viewFinder == child) return;
+        this.removeView(this._viewFinder);
+        this.addView(this._viewFinder, 0);
+    }
+    
     public void setAspect(int aspect) {
         this._aspect = aspect;
         layoutViewFinder();
