@@ -141,7 +141,7 @@ export default class Camera extends Component {
   }
 
   async componentWillMount() {
-    this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead);
+    this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead.bind(this));
 
     let { captureMode } = convertNativeProps({captureMode: this.props.captureMode})
     let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
@@ -168,7 +168,7 @@ export default class Camera extends Component {
     return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
   }
 
-  _onBarCodeRead = (data) => {
+  _onBarCodeRead(data) {
     if (this.props.onBarCodeRead) this.props.onBarCodeRead(data)
   };
 
