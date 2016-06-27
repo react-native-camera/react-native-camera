@@ -882,7 +882,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
   }
   
   if (!didSendFace) {
-    [self.bridge.eventDispatcher sendAppEventWithName:@"FaceDetected" body:@{ @"bounds": nil }];
+    [self.bridge.eventDispatcher sendAppEventWithName:@"FaceDetected" body:@{ @"bounds": [NSNull null] }];
   }
 }
 
