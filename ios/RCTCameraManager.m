@@ -831,7 +831,8 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 }
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
-
+  BOOL didSendFace = NO;
+  
   for (AVMetadataFaceObject *metadata in metadataObjects) {
     for (id barcodeType in self.barCodeTypes) {
       if ([metadata.type isEqualToString:barcodeType]) {
@@ -876,7 +877,12 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
       };
       
       [self.bridge.eventDispatcher sendAppEventWithName:@"FaceDetected" body:event];
+      didSendFace = YES;
     }
+  }
+  
+  if (!didSendFace) {
+    [self.bridge.eventDispatcher sendAppEventWithName:@"FaceDetected" body:@{ @"bounds": nil }];
   }
 }
 
