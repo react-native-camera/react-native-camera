@@ -7,6 +7,7 @@ package com.lwansbrough.RCTCamera;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.TextureView;
 
 import java.util.List;
@@ -45,7 +46,36 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
     }
 
-      public double getRatio() {
+    private Camera.FaceDetectionListener faceDetectionListener = new Camera.FaceDetectionListener() {
+        @Override
+        public void onFaceDetection(Camera.Face[] faces, Camera camera) {
+            if (faces.length > 0) {
+                WritableArray event = Arguments.createArray();
+
+                WritableMap faceEvent;
+                for (Camera.Face face : faces) {
+                    faceEvent = Arguments.createMap();
+                    faceEvent.putInt("id", face.id);
+                    faceEvent.putInt("leftEye.x", face.leftEye.x);
+                    faceEvent.putInt("leftEye.y", face.leftEye.y);
+                    faceEvent.putInt("rightEye.x", face.rightEye.x);
+                    faceEvent.putInt("rightEye.y", face.rightEye.y);
+                    faceEvent.putInt("mouth.y", face.mouth.x);
+                    faceEvent.putInt("mouth.x", face.mouth.y);
+                    faceEvent.putInt("score", face.score);
+                    faceEvent.putString("rect", face.rect.flattenToString());
+
+                    event.pushMap(faceEvent);
+                }
+
+                ((ReactContext) getContext()).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                        .emit("CameraFacesDetected", event);
+            }
+
+        }
+    };
+
+    public double getRatio() {
         int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
         int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
         return ((float) width) / ((float) height);
@@ -94,6 +124,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             _isStarting = true;
             try {
                 _camera = RCTCamera.getInstance().acquireCameraInstance(_cameraType);
+                _camera.setFaceDetectionListener(faceDetectionListener);
+                _camera.startFaceDetection();
+
                 Camera.Parameters parameters = _camera.getParameters();
                 // set autofocus
                 List<String> focusModes = parameters.getSupportedFocusModes();

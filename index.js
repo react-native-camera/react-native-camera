@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import {
   NativeAppEventEmitter,
   NativeModules,
+  DeviceEventEmitter,
   Platform,
   StyleSheet,
   requireNativeComponent,
@@ -89,6 +90,7 @@ export default class Camera extends Component {
     ]),
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
+    onFacesDetected: PropTypes.func,
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
@@ -142,11 +144,12 @@ export default class Camera extends Component {
 
   async componentWillMount() {
     this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead);
+    this.cameraFaceDetectionListener = DeviceEventEmitter.addListener('CameraFacesDetected', this._onFacesDetected);
 
     let { captureMode } = convertNativeProps({captureMode: this.props.captureMode})
     let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
     let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
-
+``
     if (check) {
       const isAuthorized = await check();
       this.setState({ isAuthorized });
@@ -155,6 +158,7 @@ export default class Camera extends Component {
 
   componentWillUnmount() {
     this.cameraBarCodeReadListener.remove();
+    this.cameraFaceDetectionListener.remove();
 
     if (this.state.isRecording) {
       this.stopCapture();
@@ -170,6 +174,10 @@ export default class Camera extends Component {
 
   _onBarCodeRead = (data) => {
     if (this.props.onBarCodeRead) this.props.onBarCodeRead(data)
+  };
+
+  _onFacesDetected = (data) => {
+    if (this.props.onFacesDetected) this.props.onFacesDetected(data)
   };
 
   capture(options) {
