@@ -10,6 +10,12 @@ import android.hardware.Camera;
 import android.util.Log;
 import android.view.TextureView;
 
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+
 import java.util.List;
 
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener {
