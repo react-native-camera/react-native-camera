@@ -832,7 +832,8 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
   BOOL didSendFace = NO;
-  
+  BOOL isFrontCamera = self.presetCamera == RCTCameraTypeFront;
+    
   for (AVMetadataFaceObject *metadata in metadataObjects) {
     for (id barcodeType in self.barCodeTypes) {
       if ([metadata.type isEqualToString:barcodeType]) {
@@ -863,6 +864,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
       
       NSDictionary *event = @{
         @"type": metadata.type,
+        @"isFrontCamera": @(isFrontCamera),
         @"faceID": [NSNumber numberWithInteger:transformed.faceID],
         @"bounds": @{
           @"origin": @{
@@ -882,7 +884,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
   }
   
   if (!didSendFace) {
-    [self.bridge.eventDispatcher sendAppEventWithName:@"FaceDetected" body:@{ @"bounds": [NSNull null] }];
+    [self.bridge.eventDispatcher sendAppEventWithName:@"FaceDetected" body:@{ @"isFrontCamera": @(isFrontCamera), @"bounds": [NSNull null] }];
   }
 }
 
