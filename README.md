@@ -1,8 +1,8 @@
 # react-native-camera [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![Gitter](https://badges.gitter.im/lwansbrough/react-native-camera.svg)](https://gitter.im/lwansbrough/react-native-camera)
 
-A camera module for React Native.  
+A camera module for React Native.
 
-**BREAKING CHANGES:**  
+**BREAKING CHANGES:**
 [*April 27*] capture now returns an object instead of a string
 
 **NOTE** These docs are for the work in progress v1 release. If you want to use the latest and greatest and can deal with *significant* instability you can install with `npm install --save lwansbrough/react-native-camera`. If you are using older version of this module please refer to the [old readme](https://github.com/lwansbrough/react-native-camera/tree/8cc61edef2c018b81e1c52f13c7d261fe6a35a63).
@@ -10,10 +10,18 @@ A camera module for React Native.
 ![](https://i.imgur.com/5j2JdUk.gif)
 
 ## Getting started
-### Mostly automatic install
+### Mostly automatic install with RNPM
 1. `npm install rnpm --global`
 2. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
 3. `rnpm link react-native-camera`
+
+### Mostly automatic install with CocoaPods
+1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
+2. Add the plugin dependency to your Podfile, pointing at the path where NPM installed it:
+```
+pod 'react-native-camera', path: '../node_modules/react-native-camera'
+```
+3. Run `pod install`
 
 ### Manual install
 #### iOS
