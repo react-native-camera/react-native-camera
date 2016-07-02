@@ -64,7 +64,7 @@
 
 - (id)initWithManager:(RCTCameraManager*)manager bridge:(RCTBridge *)bridge
 {
-  
+
   if ((self = [super init])) {
     self.manager = manager;
     self.bridge = bridge;
@@ -183,6 +183,13 @@
 {
     if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
         self.manager.previewLayer.connection.videoOrientation = orientation;
+    }
+    else {
+        // Setting videoOrientation isn't yet supported, so we have to wait until
+        // startSession has finished to set it. Put this in the queue behind.
+        dispatch_async(self.manager.sessionQueue, ^{
+            self.manager.previewLayer.connection.videoOrientation = orientation;
+        });
     }
 }
 
