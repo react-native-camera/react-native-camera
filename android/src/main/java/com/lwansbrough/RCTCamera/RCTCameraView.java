@@ -51,10 +51,12 @@ public class RCTCameraView extends ViewGroup {
     @Override
     public void onViewAdded(View child) {
         if (this._viewFinder == child) return;
+        // remove and readd view to make sure it is in the back.
+        // @TODO figure out why there was a z order issue in the first place and fix accordingly.
         this.removeView(this._viewFinder);
         this.addView(this._viewFinder, 0);
     }
-    
+
     public void setAspect(int aspect) {
         this._aspect = aspect;
         layoutViewFinder();
