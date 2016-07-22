@@ -164,7 +164,7 @@ Values:
 `Camera.constants.Orientation.auto` or `"auto"` (default),
 `Camera.constants.Orientation.landscapeLeft` or `"landscapeLeft"`, `Camera.constants.Orientation.landscapeRight` or `"landscapeRight"`, `Camera.constants.Orientation.portrait` or `"portrait"`, `Camera.constants.Orientation.portraitUpsideDown` or `"portraitUpsideDown"`
 
-The `orientation` property allows you to specify the current orientation of the phone to ensure the viewfinder is "the right way up."
+The `orientation` property allows you to specify the current orientation of the phone to ensure the picture or recorded video is correctly rotated.
 
 #### `Android` `playSoundOnCapture`
 

@@ -110,10 +110,14 @@ RCT_EXPORT_MODULE();
            };
 }
 
-RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(defaultOnFocusComponent, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(onFocusChanged, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL);
+
+RCT_CUSTOM_VIEW_PROPERTY(orientation, NSInteger, RCTCamera) {
+  NSInteger orientation = [RCTConvert NSInteger:json];
+  [self setOrientation:orientation];
+}
 
 RCT_CUSTOM_VIEW_PROPERTY(aspect, NSInteger, RCTCamera) {
   NSInteger aspect = [RCTConvert NSInteger:json];
@@ -301,10 +305,6 @@ RCT_EXPORT_METHOD(checkAudioAuthorizationStatus:(RCTPromiseResolveBlock)resolve
     }];
 }
 
-RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
-  [self setOrientation:orientation];
-}
-
 RCT_EXPORT_METHOD(capture:(NSDictionary *)options
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
@@ -405,6 +405,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       });
     }]];
 
+    self.previewLayer.connection.videoOrientation = [[UIApplication sharedApplication] statusBarOrientation];
     [self.session startRunning];
   });
 }
