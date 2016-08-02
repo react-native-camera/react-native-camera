@@ -258,11 +258,13 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
     ];
 }
 
-- (NSArray *)metaDataObjectTypes {
+- (NSArray *)metaDataObjectTypes:(AVCaptureMetadataOutput*)metadataOutput {
     NSMutableArray *types = [self.barCodeTypes mutableCopy];
     
     if(self.faceDetection) {
-        [types addObject:AVMetadataObjectTypeFace];
+        if([metadataOutput.availableMetadataObjectTypes containsObject:AVMetadataObjectTypeFace]) {
+            [types addObject:AVMetadataObjectTypeFace];
+        }
     }
     
     return types;
@@ -409,7 +411,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     if ([self.session canAddOutput:metadataOutput]) {
       [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
       [self.session addOutput:metadataOutput];
-      [metadataOutput setMetadataObjectTypes:[self metaDataObjectTypes]];
+      [metadataOutput setMetadataObjectTypes:[self metaDataObjectTypes:metadataOutput]];
       self.metadataOutput = metadataOutput;
     }
 
