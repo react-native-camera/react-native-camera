@@ -181,9 +181,11 @@
 
 - (void)changePreviewOrientation:(NSInteger)orientation
 {
-    if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
-        self.manager.previewLayer.connection.videoOrientation = orientation;
-    }
+    dispatch_async(self.manager.sessionQueue, ^{
+        if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
+            self.manager.previewLayer.connection.videoOrientation = orientation;
+        }
+    });
 }
 
 @end
