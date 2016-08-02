@@ -10,10 +10,9 @@ A camera module for React Native.
 ![](https://i.imgur.com/5j2JdUk.gif)
 
 ## Getting started
-### Mostly automatic install with RNPM
-1. `npm install rnpm --global`
-2. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
-3. `rnpm link react-native-camera`
+### Mostly automatic install with react-native
+1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
+3. `react-native link react-native-camera`
 
 ### Mostly automatic install with CocoaPods
 1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
