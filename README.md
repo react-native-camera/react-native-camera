@@ -52,9 +52,9 @@ All you need is to `require` the `react-native-camera` module and then use the
 
 ```javascript
 'use strict';
-import React, {
+import React, { Component } from 'react';
+import {
   AppRegistry,
-  Component,
   Dimensions,
   StyleSheet,
   Text,

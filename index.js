@@ -1,9 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
   NativeAppEventEmitter,
   NativeModules,
   Platform,
-  PropTypes,
   StyleSheet,
   requireNativeComponent,
   View,
@@ -165,7 +164,8 @@ export default class Camera extends Component {
 
   componentWillUnmount() {
     this.cameraBarCodeReadListener.remove();
-
+    this.faceDetectedListener.remove();
+    
     if (this.state.isRecording) {
       this.stopCapture();
     }
@@ -191,7 +191,6 @@ export default class Camera extends Component {
     options = {
       audio: props.captureAudio,
       barCodeTypes: props.barCodeTypes,
-      playSoundOnCapture: props.playSoundOnCapture,
       mode: props.captureMode,
       playSoundOnCapture: props.playSoundOnCapture,
       target: props.captureTarget,
@@ -232,6 +231,8 @@ export default class Camera extends Component {
     return CameraManager.hasFlash();
   }
 }
+
+export const constants = Camera.constants;
 
 const RCTCamera = requireNativeComponent('RCTCamera', Camera);
 
