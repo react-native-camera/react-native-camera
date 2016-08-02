@@ -75,14 +75,14 @@ RCT_EXPORT_MODULE();
                @"video": @(RCTCameraCaptureModeVideo)
                },
            @"CaptureQuality": @{
-               @"low": AVCaptureSessionPresetLow,
-               @"AVCaptureSessionPresetLow": AVCaptureSessionPresetLow,
-               @"medium": AVCaptureSessionPresetMedium,
-               @"AVCaptureSessionPresetMedium": AVCaptureSessionPresetMedium,
-               @"high": AVCaptureSessionPresetHigh,
-               @"AVCaptureSessionPresetHigh": AVCaptureSessionPresetHigh,
-               @"photo": AVCaptureSessionPresetPhoto,
-               @"AVCaptureSessionPresetPhoto": AVCaptureSessionPresetPhoto
+               @"low": @(RCTCameraCaptureSessionPresetLow),
+               @"AVCaptureSessionPresetLow": @(RCTCameraCaptureSessionPresetLow),
+               @"medium": @(RCTCameraCaptureSessionPresetMedium),
+               @"AVCaptureSessionPresetMedium": @(RCTCameraCaptureSessionPresetMedium),
+               @"high": @(RCTCameraCaptureSessionPresetHigh),
+               @"AVCaptureSessionPresetHigh": @(RCTCameraCaptureSessionPresetHigh),
+               @"photo": @(RCTCameraCaptureSessionPresetPhoto),
+               @"AVCaptureSessionPresetPhoto": @(RCTCameraCaptureSessionPresetPhoto)
                },
            @"CaptureTarget": @{
                @"memory": @(RCTCameraCaptureTargetMemory),
@@ -114,6 +114,28 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(defaultOnFocusComponent, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(onFocusChanged, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL);
+
+RCT_CUSTOM_VIEW_PROPERTY(captureQuality, NSInteger, RCTCamera) {
+  NSInteger quality = [RCTConvert NSInteger:json];
+  NSString *qualityString;
+  switch (quality) {
+    default:
+    case RCTCameraCaptureSessionPresetHigh:
+      qualityString = AVCaptureSessionPresetHigh;
+      break;
+    case RCTCameraCaptureSessionPresetMedium:
+      qualityString = AVCaptureSessionPresetMedium;
+      break;
+    case RCTCameraCaptureSessionPresetLow:
+      qualityString = AVCaptureSessionPresetLow;
+      break;
+    case RCTCameraCaptureSessionPresetPhoto:
+      qualityString = AVCaptureSessionPresetPhoto;
+      break;
+  }
+
+  [self setCaptureQuality:qualityString];
+}
 
 RCT_CUSTOM_VIEW_PROPERTY(aspect, NSInteger, RCTCamera) {
   NSInteger aspect = [RCTConvert NSInteger:json];
@@ -310,8 +332,6 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options
                   reject:(RCTPromiseRejectBlock)reject) {
   NSInteger captureMode = [[options valueForKey:@"mode"] intValue];
   NSInteger captureTarget = [[options valueForKey:@"target"] intValue];
-
-  [self setCaptureQuality:[options valueForKey:@"quality"]];
 
   if (captureMode == RCTCameraCaptureModeStill) {
     [self captureStill:captureTarget options:options resolve:resolve reject:reject];
