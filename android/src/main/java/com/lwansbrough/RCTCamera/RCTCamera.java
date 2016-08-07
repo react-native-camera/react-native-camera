@@ -208,10 +208,6 @@ public class RCTCamera {
         return _orientation;
     }
 
-    public int getOrientation() {
-        return _orientation;
-    }
-
     public void setOrientation(int orientation) {
         if (_orientation == orientation) {
             return;
@@ -373,7 +369,7 @@ public class RCTCamera {
         }
     }
 
-    private void adjustPreviewLayout(int type) {
+    public void adjustPreviewLayout(int type) {
         Camera camera = _cameras.get(type);
         if (null == camera) {
             return;

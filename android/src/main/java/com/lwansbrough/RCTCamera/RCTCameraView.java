@@ -5,7 +5,6 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
-import android.graphics.*;
 import android.hardware.SensorManager;
 import android.view.OrientationEventListener;
 import android.view.ViewGroup;
