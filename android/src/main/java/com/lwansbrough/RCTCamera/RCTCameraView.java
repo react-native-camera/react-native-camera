@@ -5,11 +5,11 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
-import android.graphics.*;
 import android.hardware.SensorManager;
 import android.view.OrientationEventListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.View;
 
 public class RCTCameraView extends ViewGroup {
     private final OrientationEventListener _orientationListener;
@@ -45,6 +45,15 @@ public class RCTCameraView extends ViewGroup {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         layoutViewFinder(left, top, right, bottom);
+    }
+
+    @Override
+    public void onViewAdded(View child) {
+        if (this._viewFinder == child) return;
+        // remove and readd view to make sure it is in the back.
+        // @TODO figure out why there was a z order issue in the first place and fix accordingly.
+        this.removeView(this._viewFinder);
+        this.addView(this._viewFinder, 0);
     }
 
     public void setAspect(int aspect) {
