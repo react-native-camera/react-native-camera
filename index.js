@@ -151,7 +151,10 @@ export default class Camera extends Component {
 
   async componentWillMount() {
     this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead);
-    this.cameraFaceDetectionListener = NativeAppEventEmitter.addListener('CameraFaceDetected', this._onFaceDetected);
+    this.cameraFaceDetectionListener = (Platform.OS === 'ios'
+      ? NativeAppEventEmitter
+      : DeviceEventEmitter
+    ).addListener('CameraFaceDetected', this._onFaceDetected);
 
     let { captureMode } = convertNativeProps({captureMode: this.props.captureMode})
     let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video

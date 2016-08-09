@@ -6,9 +6,12 @@ package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.hardware.Camera;
 import android.util.Log;
 import android.view.TextureView;
+import android.util.DisplayMetrics;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
@@ -56,28 +59,41 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         @Override
         public void onFaceDetection(Camera.Face[] faces, Camera camera) {
             if (faces.length > 0) {
-                WritableArray event = Arguments.createArray();
+                Matrix matrix = new Matrix();
+                boolean frontCamera = (getCameraType() == RCTCameraModule.RCT_CAMERA_TYPE_FRONT);
 
-                WritableMap faceEvent;
+                int height = RCTCamera.getInstance().getPreviewHeight(getCameraType());
+                int width = RCTCamera.getInstance().getPreviewWidth(getCameraType());
+
+                matrix.setScale(frontCamera ? -1 : 1, 1);
+                matrix.postRotate(RCTCamera.getInstance().getOrientation());
+                matrix.postScale(width / 2000f, height / 2000f);
+                matrix.postTranslate(width / 2f, height / 2f);
+
+                double pixelDensity = getPixelDensity();
+
                 for (Camera.Face face : faces) {
+                    RectF faceRect = new RectF(face.rect);
+                    matrix.mapRect(faceRect);
+
+                    WritableMap faceEvent;
                     faceEvent = Arguments.createMap();
-                    faceEvent.putInt("id", face.id);
-                    faceEvent.putInt("leftEye.x", face.leftEye.x);
-                    faceEvent.putInt("leftEye.y", face.leftEye.y);
-                    faceEvent.putInt("rightEye.x", face.rightEye.x);
-                    faceEvent.putInt("rightEye.y", face.rightEye.y);
-                    faceEvent.putInt("mouth.y", face.mouth.x);
-                    faceEvent.putInt("mouth.x", face.mouth.y);
-                    faceEvent.putInt("score", face.score);
-                    faceEvent.putString("rect", face.rect.flattenToString());
+                    faceEvent.putInt("faceID", face.id);
+                    faceEvent.putBoolean("isFrontCamera", frontCamera);
 
-                    event.pushMap(faceEvent);
+                    faceEvent.putDouble("x", faceRect.left / pixelDensity);
+                    faceEvent.putDouble("y", faceRect.top / pixelDensity);
+                    faceEvent.putDouble("h", faceRect.height() / pixelDensity);
+                    faceEvent.putDouble("w", faceRect.width() / pixelDensity);
+
+                    ((ReactContext) getContext()).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                            .emit("CameraFaceDetected", faceEvent);
                 }
-
-                ((ReactContext) getContext()).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                        .emit("CameraFacesDetected", event);
             }
+        }
 
+        private int getCameraType() {
+            return _cameraType;
         }
     };
 
@@ -85,6 +101,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
         int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
         return ((float) width) / ((float) height);
+    }
+
+    public double getPixelDensity() {
+        DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
+        return dm.density;
     }
 
     public void setCameraType(final int type) {
