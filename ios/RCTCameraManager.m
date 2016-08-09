@@ -869,16 +869,10 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         @"type": metadata.type,
         @"isFrontCamera": @(isFrontCamera),
         @"faceID": [NSNumber numberWithInteger:transformed.faceID],
-        @"bounds": @{
-          @"origin": @{
-            @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
-            @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y]
-          },
-          @"size": @{
-            @"height": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
-            @"width": [NSString stringWithFormat:@"%f", transformed.bounds.size.width],
-          }
-        }
+        @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
+        @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y],
+        @"h": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
+        @"w": [NSString stringWithFormat:@"%f", transformed.bounds.size.width]
       };
       
       [self.bridge.eventDispatcher sendAppEventWithName:@"CameraFaceDetected" body:event];
