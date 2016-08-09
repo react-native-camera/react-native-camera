@@ -181,6 +181,16 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public static void checkVideoAuthorizationStatus(final Promise promise) {
+        promise.resolve(true);
+    }
+
+    @ReactMethod
+    public static void checkAudioAuthorizationStatus(final Promise promise) {
+        promise.resolve(true);
+    }
+
+    @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) {
         int orientation = options.hasKey("orientation") ? options.getInt("orientation") : RCTCamera.getInstance().getOrientation();
         if (orientation == RCT_CAMERA_ORIENTATION_AUTO) {
