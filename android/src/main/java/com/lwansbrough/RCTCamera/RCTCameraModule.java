@@ -593,14 +593,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     private File getTempMediaFile(int type) {
         try {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            File outputDir;
+            File outputDir = _reactContext.getCacheDir();
             File outputFile;
 
             if (type == MEDIA_TYPE_IMAGE) {
-                outputDir = _reactContext.getCacheDir(); // for backwards compatibility
                 outputFile = File.createTempFile("IMG_" + timeStamp, ".jpg", outputDir);
             } else if (type == MEDIA_TYPE_VIDEO) {
-                outputDir = _reactContext.getFilesDir(); // for compatibility with react-native-fs
                 outputFile = File.createTempFile("VID_" + timeStamp, ".mp4", outputDir);
             } else {
                 Log.e(TAG, "Unsupported media type:" + type);
