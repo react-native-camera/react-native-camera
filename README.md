@@ -292,7 +292,7 @@ This component supports subviews, so if you wish to use the camera view as a bac
 
 ## Example
 
-To see more of the `react-native-camera` in action, you can check out the `Example` folder.
+To see more of the `react-native-camera` in action, you can check out the source in [Example](https://github.com/lwansbrough/react-native-camera/tree/master/Example) folder.
 
 ------------
 
