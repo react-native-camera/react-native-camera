@@ -169,7 +169,7 @@ The `orientation` property allows you to specify the current orientation of the 
 
 Values: `true` (default) or `false`
 
-This property allows you to specify whether a sound is played on capture. It is currently android only, pending [a reasonable mute implementation](http://stackoverflow.com/questions/4401232/avfoundation-how-to-turn-off-the-shutter-sound-when-capturestillimageasynchrono) in iOS.
+This property allows you to specify whether a shutter sound is played on capture. It is currently android only, pending [a reasonable mute implementation](http://stackoverflow.com/questions/4401232/avfoundation-how-to-turn-off-the-shutter-sound-when-capturestillimageasynchrono) in iOS.
 
 #### `iOS` `onBarCodeRead`
 
@@ -283,7 +283,7 @@ Ends the current capture session for video captures. Only applies when the curre
 
 ## Component static methods
 
-#### `Camera.checkDeviceAuthorizationStatus(): Promise`
+#### `iOS` `Camera.checkDeviceAuthorizationStatus(): Promise`
 
 Exposes the native API for checking if the device has authorized access to the camera. Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.
 
@@ -292,7 +292,7 @@ This component supports subviews, so if you wish to use the camera view as a bac
 
 ## Example
 
-To see more of the `react-native-camera` in action, you can check out the `Example` folder.
+To see more of the `react-native-camera` in action, you can check out the source in [Example](https://github.com/lwansbrough/react-native-camera/tree/master/Example) folder.
 
 ------------
 
