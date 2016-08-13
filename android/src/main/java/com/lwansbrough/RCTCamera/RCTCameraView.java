@@ -25,7 +25,7 @@ public class RCTCameraView extends ViewGroup {
     public RCTCameraView(Context context) {
         super(context);
         this._context = context;
-        setActualDeviceOrientation(context);
+        RCTCamera.createInstance(getDeviceOrientation(context));
 
         _orientationListener = new OrientationEventListener(context, SensorManager.SENSOR_DELAY_NORMAL) {
             @Override
@@ -106,7 +106,7 @@ public class RCTCameraView extends ViewGroup {
     }
 
     private boolean setActualDeviceOrientation(Context context) {
-        int actualDeviceOrientation = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getOrientation();
+        int actualDeviceOrientation = getDeviceOrientation(context);
         if (_actualDeviceOrientation != actualDeviceOrientation) {
             _actualDeviceOrientation = actualDeviceOrientation;
             RCTCamera.getInstance().setActualDeviceOrientation(_actualDeviceOrientation);
@@ -114,6 +114,10 @@ public class RCTCameraView extends ViewGroup {
         } else {
             return false;
         }
+    }
+
+    private int getDeviceOrientation(Context context) {
+        return ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getOrientation();
     }
 
     private void layoutViewFinder() {
