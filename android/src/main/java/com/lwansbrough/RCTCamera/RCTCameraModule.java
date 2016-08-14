@@ -6,11 +6,11 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaActionSound;
 import android.media.MediaRecorder;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -364,10 +364,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
                 values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
                 _reactContext.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
-                Uri fileUri = Uri.fromFile(mVideoFile);
-                response.putString("path", fileUri.toString());
+                addToMediaStore(mVideoFile.getAbsolutePath());
+                response.putString("path", Uri.fromFile(mVideoFile).toString());
                 mRecordingPromise.resolve(response);
-                addToMediaStore(fileUri);
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_TEMP:
             case RCT_CAMERA_CAPTURE_TARGET_DISK:
@@ -469,10 +468,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
                             return;
                         }
 
-                        Uri fileUri = Uri.fromFile(cameraRollFile);
-                        addToMediaStore(fileUri);
-
-                        response.putString("path", fileUri.toString());
+                        addToMediaStore(cameraRollFile.getAbsolutePath());
+                        response.putString("path", Uri.fromFile(cameraRollFile).toString());
                         promise.resolve(response);
                         break;
                     }
@@ -489,10 +486,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
                             return;
                         }
 
-                        Uri fileUri = Uri.fromFile(pictureFile);
-                        addToMediaStore(fileUri);
-
-                        response.putString("path", fileUri.toString());
+                        addToMediaStore(pictureFile.getAbsolutePath());
+                        response.putString("path", Uri.fromFile(pictureFile).toString());
                         promise.resolve(response);
                         break;
                     }
@@ -611,14 +606,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         }
     }
 
-    private void addToMediaStore(Uri uri) {
-        if (uri == null) {
-            Log.e(TAG, "Tried to store null url to media store.");
-            return;
-        }
-
-        Intent mediaScannerIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        mediaScannerIntent.setData(uri);
-        _reactContext.sendBroadcast(mediaScannerIntent);
+    private void addToMediaStore(String path) {
+        MediaScannerConnection.scanFile(_reactContext, new String[] { path }, null, null);
     }
 }
