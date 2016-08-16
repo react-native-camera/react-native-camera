@@ -4,6 +4,7 @@
 
 package com.lwansbrough.RCTCamera;
 
+import android.content.res.Configuration;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -11,17 +12,32 @@ import android.view.TextureView;
 
 import java.util.List;
 
-class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener {
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.PlanarYUVLuminanceSource;
+import com.google.zxing.ReaderException;
+import com.google.zxing.Result;
+import com.google.zxing.common.HybridBinarizer;
+
+
+class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
     private int _cameraType;
     private SurfaceTexture _surfaceTexture;
     private boolean _isStarting;
     private boolean _isStopping;
     private Camera _camera;
+    private MultiFormatReader _multiFormatReader;
 
     public RCTCameraViewFinder(Context context, int type) {
         super(context);
         this.setSurfaceTextureListener(this);
         this._cameraType = type;
+        _multiFormatReader = new MultiFormatReader();
     }
 
     @Override
@@ -89,6 +105,58 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         }
     }
 
+    // Grab preview and try to read barcodes
+    @Override
+    public void onPreviewFrame(byte[] data, Camera camera) {
+      if(_camera != null && _surfaceTexture != null && camera != null){
+
+        Camera.Parameters parameters = camera.getParameters();
+        Camera.Size size = parameters.getPreviewSize();
+        int width = size.width;
+        int height = size.height;
+
+        if (RCTCamera.getInstance().getOrientation() ==  Configuration.ORIENTATION_PORTRAIT) {
+            byte[] rotatedData = new byte[data.length];
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++)
+                    rotatedData[x * height + height - y - 1] = data[x + y * width];
+            }
+
+            int tmp = width;
+            width = height;
+            height = tmp;
+            data = rotatedData;
+        }
+
+        Result rawResult = null;
+        PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(data, width, height, 0, 0, width, height, false);
+        if (source != null) {
+            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+            try {
+                rawResult = _multiFormatReader.decodeWithState(bitmap);
+            } catch (ReaderException re) {
+                // continue
+                rawResult = null;
+            } catch (NullPointerException npe) {
+                // This is terrible
+                rawResult = null;
+            } catch (ArrayIndexOutOfBoundsException aoe) {
+                rawResult = null;
+            } finally {
+                _multiFormatReader.reset();
+            }
+        }
+
+        if (rawResult != null) {
+            WritableMap event = Arguments.createMap();
+            event.putString("data", rawResult.getText());
+            event.putString("type", rawResult.getBarcodeFormat().toString());
+            ReactContext reactContext = (ReactContext)getContext();
+            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onBarCodeRead",event);
+        }
+      }
+    }
+
     synchronized private void startCamera() {
         if (!_isStarting) {
             _isStarting = true;
@@ -107,6 +175,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
                 _camera.setParameters(parameters);
                 _camera.setPreviewTexture(_surfaceTexture);
+                _camera.setPreviewCallback(this);
                 _camera.startPreview();
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -124,6 +193,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             _isStopping = true;
             try {
                 if (_camera != null) {
+                    _camera.setPreviewCallback(null);
                     _camera.stopPreview();
                     RCTCamera.getInstance().releaseCameraInstance(_cameraType);
                     _camera = null;
