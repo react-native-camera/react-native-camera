@@ -301,6 +301,10 @@ public class RCTCamera {
         }
     }
 
+    public void setBarCodeType(String barCodeTypes) {
+
+    }
+
     private RCTCamera() {
         _cameras = new HashMap<>();
         _cameraInfos = new HashMap<>();

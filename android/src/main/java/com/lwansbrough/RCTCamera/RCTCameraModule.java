@@ -53,6 +53,25 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
 
+    public static final String CODE_TYPE_AZTEC = "AZTEC";
+    public static final String CODE_TYPE_CODABAR = "CODABAR";
+    public static final String CODE_TYPE_CODE_128 = "CODE_128";
+    public static final String CODE_TYPE_CODE_93= "CODE_93";
+    public static final String CODE_TYPE_CODE_39 = "CODE_39";
+    public static final String CODE_TYPE_DATA_MATRIX = "DATA_MATRIX";
+    public static final String CODE_TYPE_EAN_13 = "EAN_13";
+    public static final String CODE_TYPE_EAN_8 = "EAN_8";
+    public static final String CODE_TYPE_ITF = "ITF";
+    public static final String CODE_TYPE_MAXICODE = "MAXICODE";
+    public static final String CODE_TYPE_PDF_417 = "PDF_417";
+    public static final String CODE_TYPE_QR_CODE = "QR_CODE";
+    public static final String CODE_TYPE_RSS_14 = "RSS_14";
+    public static final String CODE_TYPE_RSS_EXPANDED = "RSS_EXPANDED";
+    public static final String CODE_TYPE_UPC_A = "UPC_A";
+    public static final String CODE_TYPE_UPC_E = "UPC_E";
+    public static final String UPC_EAN_EXTENSION = "UPC_EAN_EXTENSION";
+
+
     private final ReactApplicationContext _reactContext;
     private RCTSensorOrientationChecker _sensorOrientationChecker;
 
@@ -96,7 +115,23 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             private Map<String, Object> getBarCodeConstants() {
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
                     {
-                        // @TODO add barcode types
+                        put("aztec", CODE_TYPE_AZTEC);
+                        put("codabar", CODE_TYPE_CODABAR);
+                        put("code128", CODE_TYPE_CODE_128);
+                        put("code93", CODE_TYPE_CODE_93);
+                        put("code39", CODE_TYPE_CODE_39);
+                        put("datamatrix", CODE_TYPE_DATA_MATRIX);
+                        put("ean13", CODE_TYPE_EAN_13);
+                        put("ean8", CODE_TYPE_EAN_8);
+                        put("itf", CODE_TYPE_ITF);
+                        put("maxicode", CODE_TYPE_MAXICODE);
+                        put("pdf417", CODE_TYPE_PDF_417);
+                        put("qr", CODE_TYPE_QR_CODE);
+                        put("rss14", CODE_TYPE_RSS_14);
+                        put("rss", CODE_TYPE_RSS_EXPANDED);
+                        put("upca", CODE_TYPE_UPC_A);
+                        put("upce", CODE_TYPE_UPC_E);
+                        put("upc", UPC_EAN_EXTENSION);
                     }
                 });
             }
