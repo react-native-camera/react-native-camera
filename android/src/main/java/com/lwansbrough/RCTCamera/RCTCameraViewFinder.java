@@ -151,10 +151,8 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             _isStarting = true;
             try {
                 _camera = RCTCamera.getInstance().acquireCameraInstance(_cameraType);
-                _camera.setFaceDetectionListener(faceDetectionListener);
-                _camera.startFaceDetection();
-
                 Camera.Parameters parameters = _camera.getParameters();
+
                 // set autofocus
                 List<String> focusModes = parameters.getSupportedFocusModes();
                 if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
@@ -168,6 +166,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 _camera.setParameters(parameters);
                 _camera.setPreviewTexture(_surfaceTexture);
                 _camera.startPreview();
+
+                if(parameters.getMaxNumDetectedFaces() > 0) {
+                  _camera.setFaceDetectionListener(faceDetectionListener);
+                  _camera.startFaceDetection();
+                }
             } catch (NullPointerException e) {
                 e.printStackTrace();
             } catch (Exception e) {
