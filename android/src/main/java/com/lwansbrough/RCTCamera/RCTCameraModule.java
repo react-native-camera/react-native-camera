@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.media.MediaActionSound;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -196,6 +197,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
 
     public void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+
         if (null == camera) {
             promise.reject("No camera found.");
             return;
@@ -234,7 +236,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         promise.resolve(response);
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_DISK:
-                        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                        String albumName = options.getString("albumName");
+                        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, albumName);
                         if (pictureFile == null) {
                             promise.reject("Error creating media file.");
                             return;
@@ -249,6 +252,16 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         } catch (IOException e) {
                             promise.reject("Error accessing file: " + e.getMessage());
                         }
+
+                        if (!albumName.equals("RCTCameraModule")) {
+                            MediaScannerConnection.scanFile(
+                               _reactContext,
+                                new String[]{pictureFile.getAbsolutePath()},
+                                null,
+                                null
+                            );
+                        }
+
                         response.putString("path", Uri.fromFile(pictureFile).toString());
                         promise.resolve(response);
                         break;
@@ -293,9 +306,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         promise.resolve(null != flashModes && !flashModes.isEmpty());
     }
 
-    private File getOutputMediaFile(int type) {
+    private File getOutputMediaFile(int type, String albumName) {
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "RCTCameraModule");
+                Environment.DIRECTORY_PICTURES), albumName);
 
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {

@@ -259,6 +259,7 @@ Supported options:
  - `metadata` This is metadata to be added to the captured image.
    - `location` This is the object returned from `navigator.geolocation.getCurrentPosition()` (React Native's geolocation polyfill). It will add GPS metadata to the image.
  - `rotation` This will rotate the image by the number of degrees specified.
+ - `albumName` (Android only) When using `captureMode` set to `Camera.constants.CaptureTarget.disk` you can add this option to specify the name of your album. Once you specify an album name, files will appear in the camera roll.
 
 The promise will be fulfilled with an object with some of the following properties:
 
