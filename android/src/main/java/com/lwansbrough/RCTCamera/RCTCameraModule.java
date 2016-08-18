@@ -218,7 +218,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             public void onPictureTaken(byte[] data, Camera camera) {
                 camera.stopPreview();
                 camera.startPreview();
-                WritableMap response = new WritableNativeMap();
+                final WritableMap response = new WritableNativeMap();
                 switch (options.getInt("target")) {
                     case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                         String encoded = Base64.encodeToString(data, Base64.DEFAULT);
@@ -229,9 +229,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
                         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, bitmapOptions);
                         String url = MediaStore.Images.Media.insertImage(
-                                _reactContext.getContentResolver(),
-                                bitmap, options.getString("title"),
-                                options.getString("description"));
+                            _reactContext.getContentResolver(),
+                            bitmap, options.getString("title"),
+                            options.getString("description")
+                        );
                         response.putString("path", url);
                         promise.resolve(response);
                         break;
@@ -258,12 +259,23 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                                _reactContext,
                                 new String[]{pictureFile.getAbsolutePath()},
                                 null,
-                                null
+                                new MediaScannerConnection.OnScanCompletedListener() {
+                                        @Override
+                                        public void onScanCompleted(String path, Uri uri) {
+                                            if (uri != null) {
+                                                response.putString("path", uri.toString());
+                                                promise.resolve(response);
+                                            } else {
+                                                promise.reject("Could not add image to gallery");
+                                            }
+                                        }
+                                }
                             );
+                        } else {
+                            String path = Uri.fromFile(pictureFile).toString();
+                            response.putString("path", path);
+                            promise.resolve(response);
                         }
-
-                        response.putString("path", Uri.fromFile(pictureFile).toString());
-                        promise.resolve(response);
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_TEMP:
                         File tempFile = getTempMediaFile(MEDIA_TYPE_IMAGE);
@@ -333,7 +345,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         }
         return mediaFile;
     }
-
 
     private File getTempMediaFile(int type) {
         try {
