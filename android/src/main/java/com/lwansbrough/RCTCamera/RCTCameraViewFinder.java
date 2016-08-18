@@ -70,6 +70,8 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 matrix.postScale(width / 2000f, height / 2000f);
                 matrix.postTranslate(width / 2f, height / 2f);
 
+                double pixelDensity = getPixelDensity();
+
                 for (Camera.Face face : faces) {
                     RectF faceRect = new RectF(face.rect);
                     matrix.mapRect(faceRect);
@@ -79,10 +81,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                     faceEvent.putInt("faceID", face.id);
                     faceEvent.putBoolean("isFrontCamera", frontCamera);
 
-                    faceEvent.putDouble("x", faceRect.left);
-                    faceEvent.putDouble("y", faceRect.top);
-                    faceEvent.putDouble("h", faceRect.height());
-                    faceEvent.putDouble("w", faceRect.width());
+                    faceEvent.putDouble("x", faceRect.left / pixelDensity);
+                    faceEvent.putDouble("y", faceRect.top / pixelDensity);
+                    faceEvent.putDouble("h", faceRect.height() / pixelDensity);
+                    faceEvent.putDouble("w", faceRect.width() / pixelDensity);
 
                     ((ReactContext) getContext()).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                             .emit("CameraFaceDetected", faceEvent);
@@ -94,6 +96,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             return _cameraType;
         }
     };
+
+    public double getPixelDensity() {
+        DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
+        return dm.density;
+    }
 
     public double getRatio() {
         int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
@@ -161,8 +168,8 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 _camera.startPreview();
 
                 if(parameters.getMaxNumDetectedFaces() > 0) {
-                  _camera.setFaceDetectionListener(faceDetectionListener);
-                  _camera.startFaceDetection();
+                    _camera.setFaceDetectionListener(faceDetectionListener);
+                    _camera.startFaceDetection();
                 }
             } catch (NullPointerException e) {
                 e.printStackTrace();
