@@ -62,15 +62,13 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 Matrix matrix = new Matrix();
                 boolean frontCamera = (getCameraType() == RCTCameraModule.RCT_CAMERA_TYPE_FRONT);
 
-                int height = RCTCamera.getInstance().getPreviewHeight(getCameraType());
-                int width = RCTCamera.getInstance().getPreviewWidth(getCameraType());
+                int height = getHeight();
+                int width = getWidth();
 
                 matrix.setScale(frontCamera ? -1 : 1, 1);
                 matrix.postRotate(RCTCamera.getInstance().getOrientation());
                 matrix.postScale(width / 2000f, height / 2000f);
                 matrix.postTranslate(width / 2f, height / 2f);
-
-                double pixelDensity = getPixelDensity();
 
                 for (Camera.Face face : faces) {
                     RectF faceRect = new RectF(face.rect);
@@ -81,10 +79,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                     faceEvent.putInt("faceID", face.id);
                     faceEvent.putBoolean("isFrontCamera", frontCamera);
 
-                    faceEvent.putDouble("x", faceRect.left / pixelDensity);
-                    faceEvent.putDouble("y", faceRect.top / pixelDensity);
-                    faceEvent.putDouble("h", faceRect.height() / pixelDensity);
-                    faceEvent.putDouble("w", faceRect.width() / pixelDensity);
+                    faceEvent.putDouble("x", faceRect.left);
+                    faceEvent.putDouble("y", faceRect.top);
+                    faceEvent.putDouble("h", faceRect.height());
+                    faceEvent.putDouble("w", faceRect.width());
 
                     ((ReactContext) getContext()).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                             .emit("CameraFaceDetected", faceEvent);
@@ -101,11 +99,6 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
         int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
         return ((float) width) / ((float) height);
-    }
-
-    public double getPixelDensity() {
-        DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
-        return dm.density;
     }
 
     public void setCameraType(final int type) {
