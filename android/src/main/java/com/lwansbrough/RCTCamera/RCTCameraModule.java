@@ -69,7 +69,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     public static final String CODE_TYPE_RSS_EXPANDED = "RSS_EXPANDED";
     public static final String CODE_TYPE_UPC_A = "UPC_A";
     public static final String CODE_TYPE_UPC_E = "UPC_E";
-    public static final String UPC_EAN_EXTENSION = "UPC_EAN_EXTENSION";
+    public static final String CODE_UPC_EAN_EXTENSION = "UPC_EAN_EXTENSION";
 
 
     private final ReactApplicationContext _reactContext;
@@ -131,7 +131,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         put("rss", CODE_TYPE_RSS_EXPANDED);
                         put("upca", CODE_TYPE_UPC_A);
                         put("upce", CODE_TYPE_UPC_E);
-                        put("upc", UPC_EAN_EXTENSION);
+                        put("upc", CODE_UPC_EAN_EXTENSION);
                     }
                 });
             }

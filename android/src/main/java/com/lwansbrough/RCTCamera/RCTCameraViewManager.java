@@ -1,8 +1,12 @@
 package com.lwansbrough.RCTCamera;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import android.support.annotation.Nullable;
 import com.facebook.react.uimanager.*;
 import com.facebook.react.uimanager.annotations.ReactProp;
+import com.facebook.react.bridge.ReadableArray;
 
 public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
     private static final String REACT_CLASS = "RCTCamera";
@@ -36,6 +40,38 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
     public void setType(RCTCameraView view, int type) {
         view.setCameraType(type);
     }
+
+    @ReactProp(name = "showViewFinder")
+    public void setUseViewFinder(RCTCameraView view, boolean useViewFinder) {
+        view.setUseViewFinder(useViewFinder);
+    }
+
+    @ReactProp(name = "viewFinderSize")
+    public void setViewFinderSize(RCTCameraView view, ReadableArray viewFinderSize) {
+      android.util.Log.v("TEST3", "react setsize: "+ viewFinderSize);
+      if(viewFinderSize==null || viewFinderSize.size()!=2){
+        view.setUseViewFinder(false);
+      }else{
+        view.setViewFinderSize(viewFinderSize.getInt(0),viewFinderSize.getInt(1));
+      }
+    }
+
+    @ReactProp(name = "barCodeTypes")
+    public void setBarCodeTypes(RCTCameraView view, ReadableArray barCodeTypes) {
+      if(barCodeTypes==null || barCodeTypes.size()==0){
+        view.setBarCodeTypes(null);
+      }
+      else {
+        List types = new ArrayList();
+        for (int i = 0; i < barCodeTypes.size(); i++) {
+          String type = barCodeTypes.getString(i);
+          //@TODO check if this type is valid from getConstants
+          types.add(type);
+        }
+        view.setBarCodeTypes(types);
+      }
+    }
+
 
     @ReactProp(name = "captureQuality")
     public void setCaptureQuality(RCTCameraView view, String captureQuality) {

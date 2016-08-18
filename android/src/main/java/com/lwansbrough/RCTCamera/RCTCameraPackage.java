@@ -24,8 +24,13 @@ public class RCTCameraPackage implements ReactPackage {
 
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactApplicationContext) {
-        //noinspection ArraysAsListWithZeroOrOneArgument
-        return Collections.<ViewManager>singletonList(new RCTCameraViewManager());
+      /*
+      return Arrays.<ViewManager>asList(
+        new RCTCameraViewManager(),
+        new RCTCameraViewManagerFinderTest() // Test area to make sure barcode crop area works
+      );
+      */
+      return Collections.<ViewManager>singletonList(new RCTCameraViewManager());
     }
 
 }

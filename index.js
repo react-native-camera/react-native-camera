@@ -8,6 +8,7 @@ import {
   requireNativeComponent,
   View,
 } from 'react-native';
+import Viewfinder from './Viewfinder';
 
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
 const CAMERA_REF = 'camera';
@@ -106,7 +107,14 @@ export default class Camera extends Component {
     type: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
-    ])
+    ]),
+    showViewFinder: PropTypes.bool,
+    viewFinderSize: PropTypes.array,
+    viewFinderBackgroundColor: PropTypes.string,
+    viewFinderBorderColor: PropTypes.string,
+    viewFinderBorderWidth: PropTypes.number,
+    viewFinderBorderLength: PropTypes.number,
+    viewFinderShowLoadingIndicator: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -123,6 +131,7 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
+    showViewFinder: false,
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -174,10 +183,24 @@ export default class Camera extends Component {
   }
 
   render() {
+    // Add viewfinder for e.g. barcode scanning
+    let viewFinder = this.props.showViewFinder ? (
+        <Viewfinder
+          ref="ViewFinder"
+          backgroundColor={this.props.viewFinderBackgroundColor}
+          color={this.props.viewFinderBorderColor}
+          borderWidth={this.props.viewFinderBorderWidth}
+          borderLength={this.props.viewFinderBorderLength}
+          isLoading={this.props.viewFinderShowLoadingIndicator}
+          height={this.props.viewFinderHeight}
+          width={this.props.viewFinderWidth}
+        />
+      ) : null;
+    let viewSize = (viewFinder) ? [viewFinder.props.width,viewFinder.props.height] : null;
     const style = [styles.base, this.props.style];
-    const nativeProps = convertNativeProps(this.props);
+    const nativeProps = convertNativeProps(Object.assign({},this.props,{viewFinderSize:viewSize}));
 
-    return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
+    return <RCTCamera ref={CAMERA_REF} {...nativeProps} >{viewFinder}</RCTCamera>;
   }
 
   _onBarCodeRead = (data) => {

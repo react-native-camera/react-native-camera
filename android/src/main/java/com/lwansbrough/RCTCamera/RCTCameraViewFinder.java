@@ -10,7 +10,10 @@ import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.view.TextureView;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
@@ -23,7 +26,7 @@ import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
-
+import com.google.zxing.DecodeHintType;
 
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
     private int _cameraType;
@@ -32,11 +35,16 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private boolean _isStopping;
     private Camera _camera;
     private MultiFormatReader _multiFormatReader;
+    private boolean _scanForBarcodes;
+    private boolean _useViewFinder;
+    private int _viewFinderWidth;
+    private int _viewFinderHeight;
 
     public RCTCameraViewFinder(Context context, int type) {
         super(context);
         this.setSurfaceTextureListener(this);
         this._cameraType = type;
+        _scanForBarcodes = false;
         _multiFormatReader = new MultiFormatReader();
     }
 
@@ -61,10 +69,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
     }
 
-      public double getRatio() {
-        int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
-        int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
-        return ((float) width) / ((float) height);
+    public double getRatio() {
+      int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
+      int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
+      return ((float) width) / ((float) height);
     }
 
     public void setCameraType(final int type) {
@@ -79,6 +87,29 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 startPreview();
             }
         }).start();
+    }
+
+
+    public void setBarCodeTypes(List<String> barCodeTypes) {
+      if(barCodeTypes == null){
+        _scanForBarcodes = false;
+        _multiFormatReader.setHints(null);
+      }
+      else {
+        _scanForBarcodes = true;
+        HashMap<DecodeHintType, Object> myMap = new HashMap<DecodeHintType, Object>();
+        myMap.put(DecodeHintType.POSSIBLE_FORMATS, barCodeTypes);
+        _multiFormatReader.setHints(myMap);
+      }
+    }
+
+    public void setUseViewFinder(boolean useViewFinder){
+      _useViewFinder = useViewFinder;
+    }
+
+    public void setViewFinderSize(int w, int h){
+      _viewFinderWidth = w;
+      _viewFinderHeight = h;
     }
 
     public void setCaptureQuality(String captureQuality) {
@@ -114,12 +145,25 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         Camera.Size size = parameters.getPreviewSize();
         int width = size.width;
         int height = size.height;
+        int orgWidth = width;
+        int orgHeight = height;
+        int x = 0;
+        int y = 0;
 
+        // If using viewfinder, crop search area to this for performance
+        if(_useViewFinder && _viewFinderWidth > 0 && _viewFinderHeight > 0){
+          x = (width/2) - (_viewFinderWidth/2);
+          y = (height/2) - (_viewFinderHeight/2);
+          width = _viewFinderWidth;
+          height = _viewFinderHeight;
+        }
+
+        // rotate image for zxing parser
         if (RCTCamera.getInstance().getOrientation() ==  Configuration.ORIENTATION_PORTRAIT) {
             byte[] rotatedData = new byte[data.length];
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++)
-                    rotatedData[x * height + height - y - 1] = data[x + y * width];
+            for (int ypos = y; y < height; y++) {
+                for (int xpos = x; x < width; x++)
+                    rotatedData[xpos * height + height - ypos - 1] = data[xpos + ypos * width];
             }
 
             int tmp = width;
@@ -129,7 +173,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         }
 
         Result rawResult = null;
-        PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(data, width, height, 0, 0, width, height, false);
+        PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(data, orgWidth, orgHeight, x, y, width, height, false);
         if (source != null) {
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             try {
@@ -147,6 +191,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             }
         }
 
+        // We found a barcode
         if (rawResult != null) {
             WritableMap event = Arguments.createMap();
             event.putString("data", rawResult.getText());
@@ -173,9 +218,18 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 Camera.Size optimalPictureSize = RCTCamera.getInstance().getBestPictureSize(_cameraType, Integer.MAX_VALUE, Integer.MAX_VALUE);
                 parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
 
-                _camera.setParameters(parameters);
+
+                // only scan if we want to
+                if(_scanForBarcodes){
+                  // if support for barcode scanning scene, use this mode
+                  List<String> sceneModes = parameters.getSupportedSceneModes();
+                  if (sceneModes.contains(Camera.Parameters.SCENE_MODE_BARCODE)) {
+                      parameters.setSceneMode(Camera.Parameters.SCENE_MODE_BARCODE);
+                  }
+                  _camera.setPreviewCallback(this);
+                }
                 _camera.setPreviewTexture(_surfaceTexture);
-                _camera.setPreviewCallback(this);
+                _camera.setParameters(parameters);
                 _camera.startPreview();
             } catch (NullPointerException e) {
                 e.printStackTrace();
