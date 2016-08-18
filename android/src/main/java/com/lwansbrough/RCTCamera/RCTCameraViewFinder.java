@@ -6,8 +6,18 @@ package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.TextureView;
+import android.util.DisplayMetrics;
+
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.List;
 
@@ -45,7 +55,54 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
     }
 
-      public double getRatio() {
+    private Camera.FaceDetectionListener faceDetectionListener = new Camera.FaceDetectionListener() {
+        @Override
+        public void onFaceDetection(Camera.Face[] faces, Camera camera) {
+            if (faces.length > 0) {
+                Matrix matrix = new Matrix();
+                boolean frontCamera = (getCameraType() == RCTCameraModule.RCT_CAMERA_TYPE_FRONT);
+
+                int height = getHeight();
+                int width = getWidth();
+
+                matrix.setScale(frontCamera ? -1 : 1, 1);
+                matrix.postRotate(RCTCamera.getInstance().getOrientation());
+                matrix.postScale(width / 2000f, height / 2000f);
+                matrix.postTranslate(width / 2f, height / 2f);
+
+                double pixelDensity = getPixelDensity();
+
+                for (Camera.Face face : faces) {
+                    RectF faceRect = new RectF(face.rect);
+                    matrix.mapRect(faceRect);
+
+                    WritableMap faceEvent;
+                    faceEvent = Arguments.createMap();
+                    faceEvent.putInt("faceID", face.id);
+                    faceEvent.putBoolean("isFrontCamera", frontCamera);
+
+                    faceEvent.putDouble("x", faceRect.left / pixelDensity);
+                    faceEvent.putDouble("y", faceRect.top / pixelDensity);
+                    faceEvent.putDouble("h", faceRect.height() / pixelDensity);
+                    faceEvent.putDouble("w", faceRect.width() / pixelDensity);
+
+                    ((ReactContext) getContext()).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                            .emit("CameraFaceDetected", faceEvent);
+                }
+            }
+        }
+
+        private int getCameraType() {
+            return _cameraType;
+        }
+    };
+
+    public double getPixelDensity() {
+        DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
+        return dm.density;
+    }
+
+    public double getRatio() {
         int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
         int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
         return ((float) width) / ((float) height);
@@ -95,6 +152,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             try {
                 _camera = RCTCamera.getInstance().acquireCameraInstance(_cameraType);
                 Camera.Parameters parameters = _camera.getParameters();
+
                 // set autofocus
                 List<String> focusModes = parameters.getSupportedFocusModes();
                 if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
@@ -108,6 +166,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 _camera.setParameters(parameters);
                 _camera.setPreviewTexture(_surfaceTexture);
                 _camera.startPreview();
+
+                if(parameters.getMaxNumDetectedFaces() > 0) {
+                    _camera.setFaceDetectionListener(faceDetectionListener);
+                    _camera.startFaceDetection();
+                }
             } catch (NullPointerException e) {
                 e.printStackTrace();
             } catch (Exception e) {
