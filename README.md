@@ -171,7 +171,7 @@ Values: `true` (default) or `false`
 
 This property allows you to specify whether a sound is played on capture. It is currently android only, pending [a reasonable mute implementation](http://stackoverflow.com/questions/4401232/avfoundation-how-to-turn-off-the-shutter-sound-when-capturestillimageasynchrono) in iOS.
 
-#### `iOS` `onBarCodeRead`
+#### `onBarCodeRead`
 
 Will call the specified method when a barcode is detected in the camera's view.
 
@@ -179,25 +179,35 @@ Event contains `data` (the data in the barcode) and `bounds` (the rectangle whic
 
 The following barcode types can be recognised:
 
-- `aztec`
-- `code138`
-- `code39`
-- `code39mod43`
-- `code93`
-- `ean13`
-- `ean8`
-- `pdf417`
-- `qr`
-- `upce`
-- `interleaved2of5` (when available)
-- `itf14` (when available)
-- `datamatrix` (when available)
+- `aztec` (iOS, Android)
+- `codabar` (Android)
+- `code138` (iOS)
+- `code128` (Android)
+- `code93` (iOS, Android)
+- `code39` (iOS, Android)
+- `code39mod43` (iOS)
+- `datamatrix` (iOS > 8, Android)
+- `ean13` (iOS, Android)
+- `ean8` (iOS, Android)
+- `itf` (iAndroid)
+- `itf14` (iOS > 8)
+- `interleaved2of5` (iOS > 8)
+- `maxicode` (Android)
+- `pdf417` (iOS, Android)
+- `qr` (iOS, Android)
+- `rss14` (Android)
+- `rss` (Android)
+- `upca` (Android)
+- `upce` (iOS, Android)
+- `upc` (Android)
+
 
 The barcode type is provided in the `data` object.
 
-#### `iOS` `barCodeTypes`
+#### `barCodeTypes`
 
 An array of barcode types to search for. Defaults to all types listed above. No effect if `onBarCodeRead` is undefined.
+Get available types `Camera.constants.BarCodeType`. See `onBarCodeRead` for a complete list.
 
 #### `flashMode`
 

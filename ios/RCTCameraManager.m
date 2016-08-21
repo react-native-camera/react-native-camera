@@ -257,6 +257,12 @@ RCT_CUSTOM_VIEW_PROPERTY(mirrorImage, BOOL, RCTCamera) {
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTCamera) {
+/*
+@TODO change so that set types are strings in documentation,
+example datamatrix should be datamatrix and not org.iso.DataMatrix
+View android for example: RCTCameraViewManager.setBarCodeTypes
+*/
+
   self.barCodeTypes = [RCTConvert NSArray:json];
 }
 
@@ -844,6 +850,12 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
       if ([metadata.type isEqualToString:barcodeType]) {
         // Transform the meta-data coordinates to screen coords
         AVMetadataMachineReadableCodeObject *transformed = (AVMetadataMachineReadableCodeObject *)[_previewLayer transformedMetadataObjectForMetadataObject:metadata];
+
+        /*
+        @TODO change metadata.type to key in barCodeTypes, so e.g. output is same in documentation
+        datamatix should be datamatrix and not org.iso.DataMatrix (value of AVMetadataObjectTypeDataMatrixCode)
+        for example see end of RCTCameraViewFinder.onPreviewFrame
+        */
 
         NSDictionary *event = @{
           @"type": metadata.type,

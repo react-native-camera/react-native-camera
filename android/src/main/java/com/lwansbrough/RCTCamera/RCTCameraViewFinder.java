@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Iterator;
+import java.util.Set;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
@@ -193,11 +195,23 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
         // We found a barcode
         if (rawResult != null) {
-            WritableMap event = Arguments.createMap();
-            event.putString("data", rawResult.getText());
-            event.putString("type", rawResult.getBarcodeFormat().toString());
-            ReactContext reactContext = (ReactContext)getContext();
-            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onBarCodeRead",event);
+          String foundType = rawResult.getBarcodeFormat().toString();
+          String eventType = "unknown";
+          Map<String,Object> types = (Map<String,Object>)RCTCameraModule.getInstance().getConstants().get("BarCodeType");
+          Set keys = types.keySet();
+          for (Iterator i = keys.iterator(); i.hasNext(); ) {
+            String key = (String) i.next();
+            String value = (String) types.get(key);
+            if(value==foundType){
+              eventType = key;
+              break;
+            }
+           }
+           WritableMap event = Arguments.createMap();
+           event.putString("data", rawResult.getText());
+           event.putString("type", eventType);
+           ReactContext reactContext = (ReactContext)getContext();
+           reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onBarCodeRead",event);
         }
       }
     }
@@ -223,7 +237,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 if(_scanForBarcodes){
                   // if support for barcode scanning scene, use this mode
                   List<String> sceneModes = parameters.getSupportedSceneModes();
-                  if (sceneModes.contains(Camera.Parameters.SCENE_MODE_BARCODE)) {
+                  if (sceneModes != null && sceneModes.contains(Camera.Parameters.SCENE_MODE_BARCODE)) {
                       parameters.setSceneMode(Camera.Parameters.SCENE_MODE_BARCODE);
                   }
                   _camera.setPreviewCallback(this);

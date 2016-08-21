@@ -27,6 +27,7 @@ import java.util.List;
 
 public class RCTCameraModule extends ReactContextBaseJavaModule {
     private static final String TAG = "RCTCameraModule";
+    private static RCTCameraModule ourInstance;
 
     public static final int RCT_CAMERA_ASPECT_FILL = 0;
     public static final int RCT_CAMERA_ASPECT_FIT = 1;
@@ -75,10 +76,16 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     private final ReactApplicationContext _reactContext;
     private RCTSensorOrientationChecker _sensorOrientationChecker;
 
+
     public RCTCameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
+        ourInstance = this;
         _reactContext = reactContext;
         _sensorOrientationChecker = new RCTSensorOrientationChecker(_reactContext);
+    }
+
+    public static RCTCameraModule getInstance() {
+        return ourInstance;
     }
 
     @Override
