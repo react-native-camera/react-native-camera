@@ -120,6 +120,7 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
               break;
           }
         }
+        android.util.Log.v("react-native-camera", "Barcode scanner for types: "+ types.toString());
         view.setBarCodeTypes(types);
       }
     }
