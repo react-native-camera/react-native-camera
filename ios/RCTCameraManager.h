@@ -72,6 +72,7 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, strong) RCTPromiseResolveBlock videoResolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock videoReject;
 @property (nonatomic, strong) RCTCamera *camera;
+@property (nonatomic, assign) BOOL renameOutput;
 
 
 - (void)changeOrientation:(NSInteger)orientation;
