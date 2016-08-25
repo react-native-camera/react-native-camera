@@ -30,7 +30,9 @@ public class RCTCamera {
                 _cameras.put(type, camera);
                 adjustPreviewLayout(type);
             } catch (Exception e) {
-                System.console().printf("acquireCameraInstance: %s", e.getLocalizedMessage());
+                if (System.console() != null) {
+                    System.console().printf("acquireCameraInstance: %s", e.getLocalizedMessage());
+                }
             }
         }
         return _cameras.get(type);
