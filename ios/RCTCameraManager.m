@@ -724,7 +724,14 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:orientation];
 
     //Create temporary URL to record to
-    NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
+    NSString *outputPath;
+    if ([options valueForKey:@"captureURL"] != nil) {
+      outputPath = [options valueForKey:@"captureURL"];
+      self.renameOutput = false;
+    } else {
+      outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
+      self.renameOutput = true;
+    }
     NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:outputPath]) {
@@ -787,7 +794,13 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
      @"size":[NSNumber numberWithLongLong:captureOutput.recordedFileSize],
   }];
 
-  if (self.videoTarget == RCTCameraCaptureTargetCameraRoll) {
+  // Move the recorded file to the target location.
+  if (!self.renameOutput) {
+    // The video is already in the right place.
+    [videoInfo setObject:outputFileURL forKey:@"path"];
+    self.videoResolve(videoInfo);
+  }
+  else if (self.videoTarget == RCTCameraCaptureTargetCameraRoll) {
     ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
     if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputFileURL]) {
       [library writeVideoAtPathToSavedPhotosAlbum:outputFileURL
