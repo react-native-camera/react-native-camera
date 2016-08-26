@@ -144,6 +144,8 @@ Values: `Camera.constants.CaptureTarget.cameraRoll` (default), `Camera.constants
 
 This property allows you to specify the target output of the captured image data. By default the image binary is sent back as a base 64 encoded string. The disk output has been shown to improve capture response time, so that is the recommended value.
 
+On iOS, RCTCameraRoll has been made optional and has to be added manually to the project and Build Phases, in order for the default option(`Camera.constants.CaptureTarget.cameraRoll`) to work. 
+
 #### `iOS` `captureQuality`
 
 Values: `Camera.constants.CaptureQuality.high` or `"high"` (default), `Camera.constants.CaptureQuality.medium` or `"medium"`, `Camera.constants.CaptureQuality.low` or `"low"`, `Camera.constants.CaptureQuality.photo` or `"photo"`.
