@@ -34,9 +34,9 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 
 #### Android
 1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
-2. Open up `android/app/src/main/java/[...]/MainActivity.java
+2. Open up `android/app/src/main/java/[...]/MainApplication.java
   - Add `import com.lwansbrough.RCTCamera.*;` to the imports at the top of the file
-  - Add `new RCTCameraPackage()` to the list returned by the `getPackages()` method
+  - Add `new RCTCameraPackage()` to the list returned by the `getPackages()` method. Add a comma to the previous item if there's already something there.
 
 3. Append the following lines to `android/settings.gradle`:
 
