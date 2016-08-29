@@ -132,7 +132,7 @@ Values: `true` (default), `false` (Boolean)
 *Applies to video capture mode only.* Specifies whether or not audio should be captured with the video.
 
 
-#### `iOS` `captureMode`
+#### `captureMode`
 
 Values: `Camera.constants.CaptureMode.still` (default), `Camera.constants.CaptureMode.video`
 
@@ -140,11 +140,11 @@ The type of capture that will be performed by the camera - either a still image 
 
 #### `captureTarget`
 
-Values: `Camera.constants.CaptureTarget.cameraRoll` (default), `Camera.constants.CaptureTarget.disk`, `Camera.constants.CaptureTarget.temp`, ~~`Camera.constants.CaptureTarget.memory`~~ (deprecated),
+Values: `Camera.constants.CaptureTarget.cameraRoll` (ios only default), `Camera.constants.CaptureTarget.disk` (android default), `Camera.constants.CaptureTarget.temp`, ~~`Camera.constants.CaptureTarget.memory`~~ (deprecated),
 
 This property allows you to specify the target output of the captured image data. By default the image binary is sent back as a base 64 encoded string. The disk output has been shown to improve capture response time, so that is the recommended value.
 
-#### `iOS` `captureQuality`
+#### `captureQuality`
 
 Values: `Camera.constants.CaptureQuality.high` or `"high"` (default), `Camera.constants.CaptureQuality.medium` or `"medium"`, `Camera.constants.CaptureQuality.low` or `"low"`, `Camera.constants.CaptureQuality.photo` or `"photo"`.
 
@@ -169,7 +169,7 @@ The `orientation` property allows you to specify the current orientation of the 
 
 Values: `true` (default) or `false`
 
-This property allows you to specify whether a sound is played on capture. It is currently android only, pending [a reasonable mute implementation](http://stackoverflow.com/questions/4401232/avfoundation-how-to-turn-off-the-shutter-sound-when-capturestillimageasynchrono) in iOS.
+This property allows you to specify whether a shutter sound is played on capture. It is currently android only, pending [a reasonable mute implementation](http://stackoverflow.com/questions/4401232/avfoundation-how-to-turn-off-the-shutter-sound-when-capturestillimageasynchrono) in iOS.
 
 #### `onBarCodeRead`
 
@@ -292,7 +292,7 @@ Ends the current capture session for video captures. Only applies when the curre
 
 ## Component static methods
 
-#### `Camera.checkDeviceAuthorizationStatus(): Promise`
+#### `iOS` `Camera.checkDeviceAuthorizationStatus(): Promise`
 
 Exposes the native API for checking if the device has authorized access to the camera. Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.
 
@@ -301,7 +301,7 @@ This component supports subviews, so if you wish to use the camera view as a bac
 
 ## Example
 
-To see more of the `react-native-camera` in action, you can check out the `Example` folder.
+To see more of the `react-native-camera` in action, you can check out the source in [Example](https://github.com/lwansbrough/react-native-camera/tree/master/Example) folder.
 
 ------------
 

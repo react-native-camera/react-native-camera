@@ -34,9 +34,11 @@ const styles = StyleSheet.create({
   bottomOverlay: {
     bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.4)',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   captureButton: {
-    flex: 1,
     padding: 15,
     backgroundColor: 'white',
     borderRadius: 40,
@@ -46,6 +48,9 @@ const styles = StyleSheet.create({
   },
   flashButton: {
     padding: 5,
+  },
+  buttonsSpace: {
+    width: 10,
   },
 });
 
@@ -63,9 +68,12 @@ export default class Example extends React.Component {
         orientation: Camera.constants.Orientation.auto,
         flashMode: Camera.constants.FlashMode.auto,
       },
+      isRecording: false
     };
 
     this.takePicture = this.takePicture.bind(this);
+    this.startRecording = this.startRecording.bind(this);
+    this.stopRecording = this.stopRecording.bind(this);
     this.switchType = this.switchType.bind(this);
     this.switchFlash = this.switchFlash.bind(this);
   }
@@ -75,6 +83,26 @@ export default class Example extends React.Component {
       this.camera.capture()
         .then((data) => console.log(data))
         .catch(err => console.error(err));
+    }
+  }
+
+  startRecording() {
+    if (this.camera) {
+      this.camera.capture({mode: Camera.constants.CaptureMode.video})
+          .then((data) => console.log(data))
+          .catch(err => console.error(err));
+      this.setState({
+        isRecording: true
+      });
+    }
+  }
+
+  stopRecording() {
+    if (this.camera) {
+      this.camera.stopCapture();
+      this.setState({
+        isRecording: false
+      });
     }
   }
 
@@ -181,14 +209,42 @@ export default class Example extends React.Component {
           </TouchableOpacity>
         </View>
         <View style={[styles.overlay, styles.bottomOverlay]}>
-          <TouchableOpacity
-            style={styles.captureButton}
-            onPress={this.takePicture}
-          >
-            <Image
-              source={require('./assets/ic_photo_camera_36pt.png')}
-            />
-          </TouchableOpacity>
+          {
+            !this.state.isRecording
+            &&
+            <TouchableOpacity
+                style={styles.captureButton}
+                onPress={this.takePicture}
+            >
+              <Image
+                  source={require('./assets/ic_photo_camera_36pt.png')}
+              />
+            </TouchableOpacity>
+            ||
+            null
+          }
+          <View style={styles.buttonsSpace} />
+          {
+              !this.state.isRecording
+              &&
+              <TouchableOpacity
+                  style={styles.captureButton}
+                  onPress={this.startRecording}
+              >
+                <Image
+                    source={require('./assets/ic_videocam_36pt.png')}
+                />
+              </TouchableOpacity>
+              ||
+              <TouchableOpacity
+                  style={styles.captureButton}
+                  onPress={this.stopRecording}
+              >
+                <Image
+                    source={require('./assets/ic_stop_36pt.png')}
+                />
+              </TouchableOpacity>
+          }
         </View>
       </View>
     );

@@ -72,9 +72,15 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     }
 
     public double getRatio() {
+<<<<<<< HEAD
       int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
       int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
       return ((float) width) / ((float) height);
+=======
+        int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
+        int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
+        return ((float) width) / ((float) height);
+>>>>>>> lwansbrough/master
     }
 
     public void setCameraType(final int type) {
@@ -229,7 +235,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 }
                 // set picture size
                 // defaults to max available size
-                Camera.Size optimalPictureSize = RCTCamera.getInstance().getBestPictureSize(_cameraType, Integer.MAX_VALUE, Integer.MAX_VALUE);
+                Camera.Size optimalPictureSize = RCTCamera.getInstance().getBestSize(
+                        parameters.getSupportedPictureSizes(),
+                        Integer.MAX_VALUE,
+                        Integer.MAX_VALUE
+                );
                 parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
 
 
