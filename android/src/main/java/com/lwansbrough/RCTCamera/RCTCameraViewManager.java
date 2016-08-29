@@ -49,7 +49,6 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
 
     @ReactProp(name = "viewFinderSize")
     public void setViewFinderSize(RCTCameraView view, ReadableArray viewFinderSize) {
-      android.util.Log.v("TEST3", "react setsize: "+ viewFinderSize);
       if(viewFinderSize==null || viewFinderSize.size()!=2){
         view.setUseViewFinder(false);
       }else{

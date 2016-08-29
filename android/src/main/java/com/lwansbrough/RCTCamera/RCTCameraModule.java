@@ -82,15 +82,13 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     private final ReactApplicationContext _reactContext;
     private RCTSensorOrientationChecker _sensorOrientationChecker;
 
-<<<<<<< HEAD
-=======
     private MediaRecorder mMediaRecorder = new MediaRecorder();
     private long MRStartTime;
     private File mVideoFile;
     private Camera mCamera = null;
     private Promise mRecordingPromise = null;
     private ReadableMap mRecordingOptions;
->>>>>>> lwansbrough/master
+
 
     public RCTCameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -99,10 +97,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         _sensorOrientationChecker = new RCTSensorOrientationChecker(_reactContext);
     }
 
-<<<<<<< HEAD
+
     public static RCTCameraModule getInstance() {
-        return ourInstance;
-=======
+      return ourInstance;
+    }
+
     public void onInfo(MediaRecorder mr, int what, int extra) {
         if ( what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED ||
                 what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
@@ -110,7 +109,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
                 releaseMediaRecorder(); // release the MediaRecorder object and resolve promise
             }
         }
->>>>>>> lwansbrough/master
     }
 
     @Override
@@ -180,10 +178,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
             private Map<String, Object> getCaptureQualityConstants() {
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
                     {
-                        put("low", RCT_CAMERA_CAPTURE_QUALITY_LOW);
-                        put("medium", RCT_CAMERA_CAPTURE_QUALITY_MEDIUM);
-                        put("high", RCT_CAMERA_CAPTURE_QUALITY_HIGH);
-                        put("photo", RCT_CAMERA_CAPTURE_QUALITY_HIGH);
+                      put("low", RCT_CAMERA_CAPTURE_QUALITY_LOW);
+                      put("medium", RCT_CAMERA_CAPTURE_QUALITY_MEDIUM);
+                      put("high", RCT_CAMERA_CAPTURE_QUALITY_HIGH);
+                      put("photo", RCT_CAMERA_CAPTURE_QUALITY_HIGH);
                     }
                 });
             }

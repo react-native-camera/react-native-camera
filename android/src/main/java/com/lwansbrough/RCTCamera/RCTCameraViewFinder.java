@@ -72,15 +72,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     }
 
     public double getRatio() {
-<<<<<<< HEAD
       int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
       int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
       return ((float) width) / ((float) height);
-=======
-        int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
-        int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
-        return ((float) width) / ((float) height);
->>>>>>> lwansbrough/master
     }
 
     public void setCameraType(final int type) {
