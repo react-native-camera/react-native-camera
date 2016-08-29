@@ -5,7 +5,6 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
-import android.graphics.*;
 import android.hardware.SensorManager;
 import android.view.OrientationEventListener;
 import android.view.ViewGroup;
@@ -65,6 +64,7 @@ public class RCTCameraView extends ViewGroup {
     public void setCameraType(final int type) {
         if (null != this._viewFinder) {
             this._viewFinder.setCameraType(type);
+            RCTCamera.getInstance().adjustPreviewLayout(type);
         } else {
             _viewFinder = new RCTCameraViewFinder(_context, type);
             if (-1 != this._flashMode) {
