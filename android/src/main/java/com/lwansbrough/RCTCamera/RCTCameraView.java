@@ -5,11 +5,11 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
-import android.graphics.*;
 import android.hardware.SensorManager;
 import android.view.OrientationEventListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.View;
 
 public class RCTCameraView extends ViewGroup {
     private final OrientationEventListener _orientationListener;
@@ -47,6 +47,15 @@ public class RCTCameraView extends ViewGroup {
         layoutViewFinder(left, top, right, bottom);
     }
 
+    @Override
+    public void onViewAdded(View child) {
+        if (this._viewFinder == child) return;
+        // remove and readd view to make sure it is in the back.
+        // @TODO figure out why there was a z order issue in the first place and fix accordingly.
+        this.removeView(this._viewFinder);
+        this.addView(this._viewFinder, 0);
+    }
+
     public void setAspect(int aspect) {
         this._aspect = aspect;
         layoutViewFinder();
@@ -55,6 +64,7 @@ public class RCTCameraView extends ViewGroup {
     public void setCameraType(final int type) {
         if (null != this._viewFinder) {
             this._viewFinder.setCameraType(type);
+            RCTCamera.getInstance().adjustPreviewLayout(type);
         } else {
             _viewFinder = new RCTCameraViewFinder(_context, type);
             if (-1 != this._flashMode) {

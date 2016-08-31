@@ -1,9 +1,8 @@
-import React, {
-  Component,
+import React, { Component, PropTypes } from 'react';
+import {
   NativeAppEventEmitter,
   NativeModules,
   Platform,
-  PropTypes,
   StyleSheet,
   requireNativeComponent,
   View,
@@ -12,7 +11,7 @@ import React, {
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
 const CAMERA_REF = 'camera';
 
-function convertStringProps(props) {
+function convertNativeProps(props) {
   const newProps = { ...props };
   if (typeof props.aspect === 'string') {
     newProps.aspect = Camera.constants.Aspect[props.aspect];
@@ -36,6 +35,15 @@ function convertStringProps(props) {
 
   if (typeof props.captureQuality === 'string') {
     newProps.captureQuality = Camera.constants.CaptureQuality[props.captureQuality];
+  }
+
+  if (typeof props.captureMode === 'string') {
+    newProps.captureMode = Camera.constants.CaptureMode[props.captureMode];
+  }
+
+  // do not register barCodeTypes if no barcode listener
+  if (typeof props.onBarCodeRead !== 'function') {
+    newProps.barCodeTypes = [];
   }
 
   return newProps;
@@ -84,6 +92,7 @@ export default class Camera extends Component {
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
+    barCodeTypes: PropTypes.array,
     orientation: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
@@ -112,6 +121,7 @@ export default class Camera extends Component {
     playSoundOnCapture: true,
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
+    barCodeTypes: Object.values(CameraManager.BarCodeType),
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -131,9 +141,11 @@ export default class Camera extends Component {
   }
 
   async componentWillMount() {
-    this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this.props.onBarCodeRead);
+    this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead);
 
-    let check = this.props.captureAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
+    let { captureMode } = convertNativeProps({captureMode: this.props.captureMode})
+    let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
+    let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
 
     if (check) {
       const isAuthorized = await check();
@@ -151,15 +163,20 @@ export default class Camera extends Component {
 
   render() {
     const style = [styles.base, this.props.style];
-    const nativeProps = convertStringProps(this.props);
+    const nativeProps = convertNativeProps(this.props);
 
     return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
   }
 
+  _onBarCodeRead = (data) => {
+    if (this.props.onBarCodeRead) this.props.onBarCodeRead(data)
+  };
+
   capture(options) {
-    const props = convertStringProps(this.props);
+    const props = convertNativeProps(this.props);
     options = {
       audio: props.captureAudio,
+      barCodeTypes: props.barCodeTypes,
       mode: props.captureMode,
       playSoundOnCapture: props.playSoundOnCapture,
       target: props.captureTarget,
@@ -181,9 +198,10 @@ export default class Camera extends Component {
 
   stopCapture() {
     if (this.state.isRecording) {
-      CameraManager.stopCapture();
       this.setState({ isRecording: false });
+      return CameraManager.stopCapture();
     }
+    return Promise.resolve("Not Recording.");
   }
 
   releaseCamera(options) {
@@ -201,7 +219,7 @@ export default class Camera extends Component {
 
   hasFlash() {
     if (Platform.OS === 'android') {
-      const props = convertStringProps(this.props);
+      const props = convertNativeProps(this.props);
       return CameraManager.hasFlash({
         type: props.type
       });
@@ -209,6 +227,8 @@ export default class Camera extends Component {
     return CameraManager.hasFlash();
   }
 }
+
+export const constants = Camera.constants;
 
 const RCTCamera = requireNativeComponent('RCTCamera', Camera);
 
