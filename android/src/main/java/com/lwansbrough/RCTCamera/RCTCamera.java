@@ -6,6 +6,7 @@ package com.lwansbrough.RCTCamera;
 
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,9 +33,7 @@ public class RCTCamera {
                 _cameras.put(type, camera);
                 adjustPreviewLayout(type);
             } catch (Exception e) {
-                if (System.console() != null) {
-                    System.console().printf("acquireCameraInstance: %s", e.getLocalizedMessage());
-                }
+                Log.e("RCTCamera", "acquireCameraInstance failed", e);
             }
         }
         return _cameras.get(type);
