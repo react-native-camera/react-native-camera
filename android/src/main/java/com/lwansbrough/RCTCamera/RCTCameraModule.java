@@ -263,7 +263,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         return null;
     }
 
-    @ReactMethod
     private void record(final ReadableMap options, final Promise promise) {
         if (mRecordingPromise != null) {
             return;
