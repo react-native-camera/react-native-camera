@@ -4,6 +4,7 @@ import {
   DeviceEventEmitter,
   NativeModules,
   Platform,
+  Dimensions,
   StyleSheet,
   requireNativeComponent,
   View,
@@ -184,19 +185,22 @@ export default class Camera extends Component {
 
   render() {
     // Add viewfinder for e.g. barcode scanning
-    let viewFinder = this.props.showViewFinder ? (
-        <Viewfinder
-          ref="ViewFinder"
-          backgroundColor={this.props.viewFinderBackgroundColor}
-          color={this.props.viewFinderBorderColor}
-          borderWidth={this.props.viewFinderBorderWidth}
-          borderLength={this.props.viewFinderBorderLength}
-          isLoading={this.props.viewFinderShowLoadingIndicator}
-          height={this.props.viewFinderHeight}
-          width={this.props.viewFinderWidth}
-        />
-      ) : null;
-    let viewSize = (viewFinder) ? [viewFinder.props.width,viewFinder.props.height] : null;
+    let viewFinder = null;
+    let viewSize = [0,0]
+    if(this.props.showViewFinder){
+      viewFinder = <Viewfinder
+        ref="ViewFinder"
+        backgroundColor={this.props.viewFinderBackgroundColor}
+        color={this.props.viewFinderBorderColor}
+        borderWidth={this.props.viewFinderBorderWidth}
+        borderLength={this.props.viewFinderBorderLength}
+        isLoading={this.props.viewFinderShowLoadingIndicator}
+        height={this.props.viewFinderHeight}
+        width={this.props.viewFinderWidth}
+      />;
+      var {height, width} = Dimensions.get('window');
+      viewSize = [(viewFinder.props.width/width),(viewFinder.props.height/height)]
+    }
     const style = [styles.base, this.props.style];
     const nativeProps = convertNativeProps(Object.assign({},this.props,{viewFinderSize:viewSize}));
 

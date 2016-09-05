@@ -52,7 +52,7 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
       if(viewFinderSize==null || viewFinderSize.size()!=2){
         view.setUseViewFinder(false);
       }else{
-        view.setViewFinderSize(viewFinderSize.getInt(0),viewFinderSize.getInt(1));
+        view.setViewFinderSize(viewFinderSize.getDouble(0),viewFinderSize.getDouble(1));
       }
     }
 

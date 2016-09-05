@@ -39,8 +39,8 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private MultiFormatReader _multiFormatReader;
     private boolean _scanForBarcodes;
     private boolean _useViewFinder;
-    private int _viewFinderWidth;
-    private int _viewFinderHeight;
+    private double _viewFinderWidth;
+    private double _viewFinderHeight;
 
     public RCTCameraViewFinder(Context context, int type) {
         super(context);
@@ -109,7 +109,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
       _useViewFinder = useViewFinder;
     }
 
-    public void setViewFinderSize(int w, int h){
+    public void setViewFinderSize(double w, double h){
       _viewFinderWidth = w;
       _viewFinderHeight = h;
     }
@@ -154,10 +154,16 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
         // If using viewfinder, crop search area to this for performance
         if(_useViewFinder && _viewFinderWidth > 0 && _viewFinderHeight > 0){
-          x = (width/2) - (_viewFinderWidth/2);
-          y = (height/2) - (_viewFinderHeight/2);
-          width = _viewFinderWidth;
-          height = _viewFinderHeight;
+          // First time re-calculate actual size from input % to pixels
+          if( _viewFinderWidth <= 1 || _viewFinderHeight <= 1 ){
+            _viewFinderWidth = width * _viewFinderWidth;
+            _viewFinderHeight = height * _viewFinderHeight;
+          }
+
+          x = (width/2) - ((int)_viewFinderWidth/2);
+          y = (height/2) - ((int)_viewFinderHeight/2);
+          width = (int)_viewFinderWidth;
+          height = (int)_viewFinderHeight;
         }
 
         // rotate image for zxing parser

@@ -88,7 +88,7 @@ public class RCTCameraView extends ViewGroup {
       }
     }
 
-    public void setViewFinderSize(int w, int h) {
+    public void setViewFinderSize(double w, double h) {
       if (this._viewFinder != null) {
         this._viewFinder.setViewFinderSize(w,h);
       }
