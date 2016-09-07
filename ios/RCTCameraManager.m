@@ -848,12 +848,12 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
           @"data": transformed.stringValue,
           @"bounds": @{
             @"origin": @{
-              @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
-              @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y]
+              @"x": [NSNumber numberWithDouble:transformed.bounds.origin.x],
+              @"y": [NSNumber numberWithDouble:transformed.bounds.origin.y]
             },
             @"size": @{
-              @"height": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
-              @"width": [NSString stringWithFormat:@"%f", transformed.bounds.size.width],
+              @"height": [NSNumber numberWithDouble:transformed.bounds.size.height],
+              @"width": [NSNumber numberWithDouble:transformed.bounds.size.width],
             }
           }
         };
@@ -869,10 +869,10 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         @"type": metadata.type,
         @"isFrontCamera": @(isFrontCamera),
         @"faceID": [NSNumber numberWithInteger:transformed.faceID],
-        @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
-        @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y],
-        @"h": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
-        @"w": [NSString stringWithFormat:@"%f", transformed.bounds.size.width]
+        @"x": [NSNumber numberWithDouble:transformed.bounds.origin.x],
+        @"y": [NSNumber numberWithDouble:transformed.bounds.origin.y],
+        @"h": [NSNumber numberWithDouble:transformed.bounds.size.height],
+        @"w": [NSNumber numberWithDouble:transformed.bounds.size.width]
       };
       
       [self.bridge.eventDispatcher sendAppEventWithName:@"CameraFaceDetected" body:event];
