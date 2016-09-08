@@ -413,25 +413,46 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
     private byte[] mirrorImage(byte[] data) {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
         Bitmap photo = BitmapFactory.decodeStream(inputStream);
 
         Matrix m = new Matrix();
         m.preScale(-1, 1);
         Bitmap mirroredImage = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), m, false);
 
-        mirroredImage.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-        byte[] result = outputStream.toByteArray();
+        byte[] result = null;
+
+        try {
+            result = compress(mirroredImage, 85);
+        } catch (OutOfMemoryError e) {
+            try {
+                result = compress(mirroredImage, 70);
+            } catch (OutOfMemoryError e2) {
+                e.printStackTrace();
+            }
+        }
 
         try {
             inputStream.close();
-            outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return result;
+    }
+
+    private byte[] compress(Bitmap bitmap, int quality) throws OutOfMemoryError {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+
+        try {
+            return outputStream.toByteArray();
+        } finally {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @ReactMethod
@@ -486,6 +507,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
                 if (shouldMirror) {
                     data = mirrorImage(data);
+                    if (data == null) {
+                        promise.reject("Error mirroring image");
+                    }
                 }
 
                 camera.stopPreview();
