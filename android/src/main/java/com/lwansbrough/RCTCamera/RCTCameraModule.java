@@ -481,7 +481,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
         RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(options.getInt("type"), deviceOrientation);
         camera.takePicture(null, null, new Camera.PictureCallback() {
-            @TargetApi(Build.VERSION_CODES.KITKAT)
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
 
