@@ -411,17 +411,27 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         return byteArray;
     }
 
-    private byte[] mirrorImage(byte[] data, Camera.Size size) {
-        ByteArrayInputStream imageStream = new ByteArrayInputStream(data);
-        Bitmap photo = BitmapFactory.decodeStream(imageStream);
+    private byte[] mirrorImage(byte[] data) {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        Bitmap photo = BitmapFactory.decodeStream(inputStream);
 
         Matrix m = new Matrix();
         m.preScale(-1, 1);
-        Bitmap mirroredImage = Bitmap.createBitmap(photo, 0, 0, size.width, size.height, m, false);
+        Bitmap mirroredImage = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), m, false);
 
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        mirroredImage.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        return stream.toByteArray();
+        mirroredImage.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+        byte[] result = outputStream.toByteArray();
+
+        try {
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
     @ReactMethod
@@ -473,7 +483,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
             public void onPictureTaken(byte[] data, Camera camera) {
 
                 if (options.hasKey("mirrorImage") && options.getBoolean("mirrorImage")) {
-                    data = mirrorImage(data, camera.getParameters().getPreviewSize());
+                    data = mirrorImage(data);
                 }
 
                 camera.stopPreview();
