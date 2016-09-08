@@ -239,9 +239,10 @@ By default, `onZoomChanged` is not defined and pinch-to-zoom is disabled.
 
 If set to `true`, the device will not sleep while the camera preview is visible. This mimics the behavior of the default camera app, which keeps the device awake while open.
 
-#### `iOS` `mirrorImage`
+#### `mirrorImage`
 
-If set to `true`, the image returned will be mirrored..
+If set to `true`, the image returned will be mirrored.
+> _For Android the image will be mirrored only for **front camera**_
 
 ## Component instance methods
 
