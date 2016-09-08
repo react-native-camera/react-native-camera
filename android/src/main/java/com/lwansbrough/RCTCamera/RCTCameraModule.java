@@ -476,13 +476,16 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
             RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
         }
 
+        final Boolean shouldMirror = options.getInt("type") == RCT_CAMERA_TYPE_FRONT &&
+            options.hasKey("mirrorImage") && options.getBoolean("mirrorImage");
+
         RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(options.getInt("type"), deviceOrientation);
         camera.takePicture(null, null, new Camera.PictureCallback() {
             @TargetApi(Build.VERSION_CODES.KITKAT)
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
 
-                if (options.hasKey("mirrorImage") && options.getBoolean("mirrorImage")) {
+                if (shouldMirror) {
                     data = mirrorImage(data);
                 }
 
