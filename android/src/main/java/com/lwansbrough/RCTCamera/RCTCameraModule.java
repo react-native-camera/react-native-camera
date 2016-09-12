@@ -5,6 +5,9 @@
 
 package com.lwansbrough.RCTCamera;
 
+import android.content.pm.PackageManager;
+import android.content.pm.PackageInfo;
+
 import android.content.ContentValues;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
@@ -263,6 +266,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         return null;
     }
 
+    @ReactMethod
     private void record(final ReadableMap options, final Promise promise) {
         if (mRecordingPromise != null) {
             return;
@@ -477,7 +481,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
                             return;
                         }
 
-                        addToMediaStore(pictureFile.getAbsolutePath());
+                        //addToMediaStore(pictureFile.getAbsolutePath());
                         response.putString("path", Uri.fromFile(pictureFile).toString());
                         promise.resolve(response);
                         break;
@@ -539,9 +543,19 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     }
 
     private File getOutputMediaFile(int type) {
+        PackageManager m = _reactContext.getPackageManager();
+        String s = _reactContext.getPackageName();
+        File dataDir = null;
+        try {
+            PackageInfo p = m.getPackageInfo(s, 0);
+            dataDir = new File(p.applicationInfo.dataDir);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.w("yourtag", "Error Package name not found ", e);
+        }
         return getOutputFile(
                 type,
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                dataDir
+                //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
         );
     }
 
