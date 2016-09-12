@@ -1,5 +1,4 @@
-# react-native-camera [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![Gitter](https://badges.gitter.im/lwansbrough/react-native-camera.svg)](https://gitter.im/lwansbrough/react-native-camera)
-
+# react-native-camera
 A camera module for React Native.
 
 **BREAKING CHANGES:**
@@ -11,11 +10,11 @@ A camera module for React Native.
 
 ## Getting started
 ### Mostly automatic install with react-native
-1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
+1. `npm install react-native-camera@https://github.com/Vizido/react-native-camera.git --save`
 3. `react-native link react-native-camera`
 
 ### Mostly automatic install with CocoaPods
-1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
+1. `npm install react-native-camera@https://github.com/Vizido/react-native-camera.git --save`
 2. Add the plugin dependency to your Podfile, pointing at the path where NPM installed it:
 ```
 pod 'react-native-camera', path: '../node_modules/react-native-camera'
@@ -24,7 +23,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 
 ### Manual install
 #### iOS
-1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
+1. `npm install react-native-camera@https://github.com/Vizido/react-native-camera.git --save`
 2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
 3. Go to `node_modules` ➜ `react-native-camera` and add `RCTCamera.xcodeproj`
 4. In XCode, in the project navigator, select your project. Add `libRCTCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
@@ -33,7 +32,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 
 
 #### Android
-1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
+1. `npm install react-native-camera@https://github.com/Vizido/react-native-camera.git --save`
 2. Open up `android/app/src/main/java/[...]/MainActivity.java
   - Add `import com.lwansbrough.RCTCamera.*;` to the imports at the top of the file
   - Add `new RCTCameraPackage()` to the list returned by the `getPackages()` method
