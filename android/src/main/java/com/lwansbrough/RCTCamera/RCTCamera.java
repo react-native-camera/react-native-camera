@@ -6,14 +6,14 @@ package com.lwansbrough.RCTCamera;
 
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class RCTCamera {
-
-    private static final RCTCamera ourInstance = new RCTCamera();
+    private static RCTCamera ourInstance;
     private final HashMap<Integer, CameraInfoWrapper> _cameraInfos;
     private final HashMap<Integer, Integer> _cameraTypeToIndex;
     private final Map<Number, Camera> _cameras;
@@ -24,6 +24,10 @@ public class RCTCamera {
     public static RCTCamera getInstance() {
         return ourInstance;
     }
+    public static void createInstance(int deviceOrientation) {
+        ourInstance = new RCTCamera(deviceOrientation);
+    }
+
 
     public Camera acquireCameraInstance(int type) {
         if (null == _cameras.get(type) && null != _cameraTypeToIndex.get(type)) {
@@ -32,9 +36,7 @@ public class RCTCamera {
                 _cameras.put(type, camera);
                 adjustPreviewLayout(type);
             } catch (Exception e) {
-                if (System.console() != null) {
-                    System.console().printf("acquireCameraInstance: %s", e.getLocalizedMessage());
-                }
+                Log.e("RCTCamera", "acquireCameraInstance failed", e);
             }
         }
         return _cameras.get(type);
@@ -306,7 +308,7 @@ public class RCTCamera {
         cameraInfo.rotation = rotation;
         // TODO: take in account the _orientation prop
 
-        setAdjustedDeviceOrientation(displayRotation);
+        setAdjustedDeviceOrientation(rotation);
         camera.setDisplayOrientation(displayRotation);
 
         Camera.Parameters parameters = camera.getParameters();
@@ -334,11 +336,12 @@ public class RCTCamera {
         }
     }
 
-
-    private RCTCamera() {
+    private RCTCamera(int deviceOrientation) {
         _cameras = new HashMap<>();
         _cameraInfos = new HashMap<>();
         _cameraTypeToIndex = new HashMap<>();
+
+        _actualDeviceOrientation = deviceOrientation;
 
         // map camera types to camera indexes and collect cameras properties
         for (int i = 0; i < Camera.getNumberOfCameras(); i++) {

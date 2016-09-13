@@ -34,7 +34,10 @@ RCT_EXPORT_MODULE();
   self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
   self.previewLayer.needsDisplayOnBoundsChange = YES;
 
-  return [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
+  if(!self.camera){
+    self.camera = [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
+  }
+  return self.camera;
 }
 
 - (NSDictionary *)constantsToExport
@@ -479,6 +482,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   return;
 #endif
   dispatch_async(self.sessionQueue, ^{
+    self.camera = nil;
     [self.previewLayer removeFromSuperlayer];
     [self.session commitConfiguration];
     [self.session stopRunning];

@@ -28,7 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 
-public class RCTCameraModule extends ReactContextBaseJavaModule implements MediaRecorder.OnInfoListener {
+public class RCTCameraModule extends ReactContextBaseJavaModule
+    implements MediaRecorder.OnInfoListener, LifecycleEventListener {
     private static final String TAG = "RCTCameraModule";
     private static RCTCameraModule ourInstance;
 
@@ -97,6 +98,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         ourInstance = this;
         _reactContext = reactContext;
         _sensorOrientationChecker = new RCTSensorOrientationChecker(_reactContext);
+        _reactContext.addLifecycleEventListener(this);
     }
 
 
@@ -308,7 +310,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         return null;
     }
 
-    @ReactMethod
     private void record(final ReadableMap options, final Promise promise) {
         if (mRecordingPromise != null) {
             return;
@@ -645,5 +646,27 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
     private void addToMediaStore(String path) {
         MediaScannerConnection.scanFile(_reactContext, new String[] { path }, null, null);
+    }
+
+
+    /**
+     * LifecycleEventListener overrides
+     */
+    @Override
+    public void onHostResume() {
+        // ... do nothing
+    }
+
+    @Override
+    public void onHostPause() {
+        // On pause, we stop any pending recording session
+        if (mRecordingPromise != null) {
+            releaseMediaRecorder();
+        }
+    }
+
+    @Override
+    public void onHostDestroy() {
+        // ... do nothing
     }
 }
