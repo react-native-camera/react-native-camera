@@ -242,7 +242,6 @@ If set to `true`, the device will not sleep while the camera preview is visible.
 #### `mirrorImage`
 
 If set to `true`, the image returned will be mirrored.
-> _For Android the image will be mirrored only for **front camera**_
 
 ## Component instance methods
 
