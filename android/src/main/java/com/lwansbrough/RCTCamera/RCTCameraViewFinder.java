@@ -129,6 +129,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             try {
                 if (_camera != null) {
                     _camera.stopPreview();
+                    _camera.setPreviewCallback(null);
                     RCTCamera.getInstance().releaseCameraInstance(_cameraType);
                     _camera = null;
                 }
