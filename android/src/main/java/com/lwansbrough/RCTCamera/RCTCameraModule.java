@@ -59,6 +59,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     public static final String RCT_CAMERA_CAPTURE_QUALITY_LOW = "low";
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
+    public static final String FOCUS_MODE_FIXED = "fixed";
+    public static final String FOCUS_MODE_MACRO = "macro";
 
     public static final String CODE_TYPE_AZTEC = "AZTEC";
     public static final String CODE_TYPE_CODABAR = "CODABAR";

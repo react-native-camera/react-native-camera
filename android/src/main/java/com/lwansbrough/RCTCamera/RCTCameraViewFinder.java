@@ -38,6 +38,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private Camera _camera;
     private MultiFormatReader _multiFormatReader;
     private boolean _scanForBarcodes;
+    private boolean _useDefaultOnFocusComponent;
     private boolean _useViewFinder;
     private double _viewFinderWidth;
     private double _viewFinderHeight;
@@ -103,6 +104,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         myMap.put(DecodeHintType.POSSIBLE_FORMATS, barCodeTypes);
         _multiFormatReader.setHints(myMap);
       }
+    }
+
+    public void setDefaultOnFocusComponent(boolean useDefault){
+      _useDefaultOnFocusComponent = useDefault;
     }
 
     public void setUseViewFinder(boolean useViewFinder){
@@ -242,6 +247,14 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 );
                 parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
 
+                if(_useDefaultOnFocusComponent == false){
+                  if (focusModes.contains(Camera.Parameters.FOCUS_MODE_FIXED)) {
+                      parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
+                  }
+                  if (focusModes.contains(Camera.Parameters.FOCUS_MODE_MACRO)) {
+                      parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+                  }
+                }
 
                 // only scan if we want to
                 if(_scanForBarcodes){

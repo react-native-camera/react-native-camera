@@ -82,6 +82,12 @@ public class RCTCameraView extends ViewGroup {
         }
     }
 
+    public void setDefaultOnFocusComponent(boolean useDefault){
+      if (this._viewFinder != null) {
+        this._viewFinder.setDefaultOnFocusComponent(useDefault);
+      }
+    }
+
     public void setUseViewFinder(boolean useViewFinder) {
       if (this._viewFinder != null) {
         this._viewFinder.setUseViewFinder(useViewFinder);

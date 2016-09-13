@@ -42,6 +42,11 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         view.setCameraType(type);
     }
 
+    @ReactProp(name = "defaultOnFocusComponent")
+    public void setDefaultOnFocusComponent(RCTCameraView view, boolean useDefault) {
+        view.setDefaultOnFocusComponent(useDefault);
+    }
+
     @ReactProp(name = "showViewFinder")
     public void setUseViewFinder(RCTCameraView view, boolean useViewFinder) {
         view.setUseViewFinder(useViewFinder);
