@@ -10,6 +10,10 @@ A camera module for React Native.
 ![](https://i.imgur.com/5j2JdUk.gif)
 
 ## Getting started
+
+### Requirements
+1. JDK >= 1.7 (if you run on 1.6 you will get an error on "_cameras = new HashMap<>();")
+
 ### Mostly automatic install with react-native
 1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
 3. `react-native link react-native-camera`
