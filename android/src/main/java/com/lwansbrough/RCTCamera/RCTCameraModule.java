@@ -5,7 +5,6 @@
 
 package com.lwansbrough.RCTCamera;
 
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,13 +15,13 @@ import android.media.MediaActionSound;
 import android.media.MediaRecorder;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Surface;
 
+import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -48,7 +47,8 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-public class RCTCameraModule extends ReactContextBaseJavaModule implements MediaRecorder.OnInfoListener {
+public class RCTCameraModule extends ReactContextBaseJavaModule
+    implements MediaRecorder.OnInfoListener, LifecycleEventListener {
     private static final String TAG = "RCTCameraModule";
 
     public static final int RCT_CAMERA_ASPECT_FILL = 0;
@@ -93,6 +93,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         super(reactContext);
         _reactContext = reactContext;
         _sensorOrientationChecker = new RCTSensorOrientationChecker(_reactContext);
+        _reactContext.addLifecycleEventListener(this);
     }
 
     public void onInfo(MediaRecorder mr, int what, int extra) {
@@ -673,5 +674,27 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
     private void addToMediaStore(String path) {
         MediaScannerConnection.scanFile(_reactContext, new String[] { path }, null, null);
+    }
+
+
+    /**
+     * LifecycleEventListener overrides
+     */
+    @Override
+    public void onHostResume() {
+        // ... do nothing
+    }
+
+    @Override
+    public void onHostPause() {
+        // On pause, we stop any pending recording session
+        if (mRecordingPromise != null) {
+            releaseMediaRecorder();
+        }
+    }
+
+    @Override
+    public void onHostDestroy() {
+        // ... do nothing
     }
 }
