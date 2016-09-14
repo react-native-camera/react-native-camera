@@ -17,6 +17,7 @@ public class RCTCamera {
     private final HashMap<Integer, CameraInfoWrapper> _cameraInfos;
     private final HashMap<Integer, Integer> _cameraTypeToIndex;
     private final Map<Number, Camera> _cameras;
+    private boolean _barcodeScannerEnabled = false;
     private int _orientation = -1;
     private int _actualDeviceOrientation = 0;
     private int _adjustedDeviceOrientation = 0;
@@ -132,6 +133,14 @@ public class RCTCamera {
         _orientation = orientation;
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_FRONT);
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_BACK);
+    }
+
+    public boolean isBarcodeScannerEnabled() {
+      return _barcodeScannerEnabled;
+    }
+
+    public void setBarcodeScannerEnabled(boolean barcodeScannerEnabled) {
+        _barcodeScannerEnabled = barcodeScannerEnabled;
     }
 
     public int getActualDeviceOrientation() {

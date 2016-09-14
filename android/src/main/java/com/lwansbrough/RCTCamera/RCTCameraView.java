@@ -105,6 +105,10 @@ public class RCTCameraView extends ViewGroup {
         }
     }
 
+    public void setBarcodeScannerEnabled(boolean barcodeScannerEnabled) {
+        RCTCamera.getInstance().setBarcodeScannerEnabled(barcodeScannerEnabled);
+    }
+
     private boolean setActualDeviceOrientation(Context context) {
         int actualDeviceOrientation = getDeviceOrientation(context);
         if (_actualDeviceOrientation != actualDeviceOrientation) {

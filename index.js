@@ -46,6 +46,8 @@ function convertNativeProps(props) {
     newProps.barCodeTypes = [];
   }
 
+  newProps.barcodeScannerEnabled = typeof props.onBarCodeRead === 'function'
+
   return newProps;
 }
 
@@ -89,6 +91,7 @@ export default class Camera extends Component {
     ]),
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
+    barcodeScannerEnabled: PropTypes.bool,
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
