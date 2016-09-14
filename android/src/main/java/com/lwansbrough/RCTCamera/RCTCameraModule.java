@@ -79,7 +79,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
 
-    private final ReactApplicationContext _reactContext;
+    private static ReactApplicationContext _reactContext;
     private RCTSensorOrientationChecker _sensorOrientationChecker;
 
     private MediaRecorder mMediaRecorder = new MediaRecorder();
@@ -94,6 +94,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         _reactContext = reactContext;
         _sensorOrientationChecker = new RCTSensorOrientationChecker(_reactContext);
         _reactContext.addLifecycleEventListener(this);
+    }
+
+    public static ReactApplicationContext getReactContextSingleton() {
+      return _reactContext;
     }
 
     public void onInfo(MediaRecorder mr, int what, int extra) {
