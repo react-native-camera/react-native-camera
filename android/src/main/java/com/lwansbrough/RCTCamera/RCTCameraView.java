@@ -10,6 +10,7 @@ import android.view.OrientationEventListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View;
+import java.util.List;
 
 public class RCTCameraView extends ViewGroup {
     private final OrientationEventListener _orientationListener;
@@ -20,6 +21,7 @@ public class RCTCameraView extends ViewGroup {
     private String _captureQuality = "high";
     private int _torchMode = -1;
     private int _flashMode = -1;
+    private List<String> _barCodeTypes = null;
 
     public RCTCameraView(Context context) {
         super(context);
@@ -73,8 +75,36 @@ public class RCTCameraView extends ViewGroup {
             if (-1 != this._torchMode) {
                 _viewFinder.setFlashMode(this._torchMode);
             }
+            if(null != this._barCodeTypes) {
+              _viewFinder.setBarCodeTypes(this._barCodeTypes);
+            }
             addView(_viewFinder);
         }
+    }
+
+    public void setDefaultOnFocusComponent(boolean useDefault){
+      if (this._viewFinder != null) {
+        this._viewFinder.setDefaultOnFocusComponent(useDefault);
+      }
+    }
+
+    public void setUseViewFinder(boolean useViewFinder) {
+      if (this._viewFinder != null) {
+        this._viewFinder.setUseViewFinder(useViewFinder);
+      }
+    }
+
+    public void setViewFinderSize(double w, double h) {
+      if (this._viewFinder != null) {
+        this._viewFinder.setViewFinderSize(w,h);
+      }
+    }
+
+    public void setBarCodeTypes(List<String> barCodeTypes) {
+      this._barCodeTypes = barCodeTypes;
+      if (this._viewFinder != null) {
+          this._viewFinder.setBarCodeTypes(barCodeTypes);
+      }
     }
 
     public void setCaptureQuality(String captureQuality) {

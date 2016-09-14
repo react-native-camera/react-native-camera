@@ -59,13 +59,9 @@ RCT_EXPORT_MODULE();
                @"pdf417": AVMetadataObjectTypePDF417Code,
                @"qr": AVMetadataObjectTypeQRCode,
                @"aztec": AVMetadataObjectTypeAztecCode
-               #ifdef AVMetadataObjectTypeInterleaved2of5Code
+               #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
                ,@"interleaved2of5": AVMetadataObjectTypeInterleaved2of5Code
-               # endif
-               #ifdef AVMetadataObjectTypeITF14Code
                ,@"itf14": AVMetadataObjectTypeITF14Code
-               # endif
-               #ifdef AVMetadataObjectTypeDataMatrixCode
                ,@"datamatrix": AVMetadataObjectTypeDataMatrixCode
                # endif
                },
@@ -260,7 +256,56 @@ RCT_CUSTOM_VIEW_PROPERTY(mirrorImage, BOOL, RCTCamera) {
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTCamera) {
-  self.barCodeTypes = [RCTConvert NSArray:json];
+
+  NSMutableArray<NSString *> *arr = [RCTConvert NSArray:json];
+  NSMutableArray *types = [[NSMutableArray alloc] init];
+
+  for (NSString* item in arr) {
+      if([item isEqualToString:@"upce"]) {
+          [types insertObject:AVMetadataObjectTypeUPCECode atIndex:0];
+      }
+      else if([item isEqualToString:@"ean8"]) {
+          [types insertObject:AVMetadataObjectTypeEAN8Code atIndex:0];
+      }
+      else if([item isEqualToString:@"ean13"]) {
+          [types insertObject:AVMetadataObjectTypeEAN13Code atIndex:0];
+      }
+      else if([item isEqualToString:@"code39"]) {
+          [types insertObject:AVMetadataObjectTypeCode39Code atIndex:0];
+      }
+      else if([item isEqualToString:@"code39mod43"]) {
+          [types insertObject:AVMetadataObjectTypeCode39Mod43Code atIndex:0];
+      }
+      else if([item isEqualToString:@"code93"]) {
+          [types insertObject:AVMetadataObjectTypeCode93Code atIndex:0];
+      }
+      else if([item isEqualToString:@"code128"]) {
+          [types insertObject:AVMetadataObjectTypeCode128Code atIndex:0];
+      }
+      else if([item isEqualToString:@"pdf417"]) {
+          [types insertObject:AVMetadataObjectTypePDF417Code atIndex:0];
+      }
+      else if([item isEqualToString:@"qr"]) {
+          [types insertObject:AVMetadataObjectTypeQRCode atIndex:0];
+      }
+      else if([item isEqualToString:@"aztec"]) {
+          [types insertObject:AVMetadataObjectTypeAztecCode atIndex:0];
+      }
+
+      #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+      else if([item isEqualToString:@"interleaved2of5"]) {
+          [types insertObject:AVMetadataObjectTypeInterleaved2of5Code atIndex:0];
+      }
+      else if([item isEqualToString:@"itf14"]) {
+          [types insertObject:AVMetadataObjectTypeITF14Code atIndex:0];
+      }
+      else if([item isEqualToString:@"datamatrix"]) {
+          [types insertObject:AVMetadataObjectTypeDataMatrixCode atIndex:0];
+      }
+      #endif
+  }
+  NSLog(@"Barcode scanner listen for %@",types);
+  self.barCodeTypes = types;
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
@@ -849,8 +894,53 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         // Transform the meta-data coordinates to screen coords
         AVMetadataMachineReadableCodeObject *transformed = (AVMetadataMachineReadableCodeObject *)[_previewLayer transformedMetadataObjectForMetadataObject:metadata];
 
+        NSString* barcodeTypeOutput;
+
+        if([barcodeType isEqualToString:AVMetadataObjectTypeUPCECode]) {
+            barcodeTypeOutput = @"upce";
+        }
+        else if([barcodeType isEqualToString:AVMetadataObjectTypeEAN8Code]) {
+            barcodeTypeOutput = @"ean8";
+        }
+        else if([barcodeType isEqualToString:AVMetadataObjectTypeEAN13Code]) {
+            barcodeTypeOutput = @"ean13";
+        }
+        else if([barcodeType isEqualToString:AVMetadataObjectTypeCode39Code]) {
+            barcodeTypeOutput = @"code39";
+        }
+        else if([barcodeType isEqualToString:AVMetadataObjectTypeCode39Mod43Code]) {
+            barcodeTypeOutput = @"code39mod43";
+        }
+        else if([barcodeType isEqualToString:AVMetadataObjectTypeCode93Code]) {
+            barcodeTypeOutput = @"code93";
+        }
+        else if([barcodeType isEqualToString:AVMetadataObjectTypeCode128Code]) {
+            barcodeTypeOutput = @"code128";
+        }
+        else if([barcodeType isEqualToString:AVMetadataObjectTypePDF417Code]) {
+            barcodeTypeOutput = @"pdf417";
+        }
+        else if([barcodeType isEqualToString:AVMetadataObjectTypeQRCode]) {
+            barcodeTypeOutput = @"qr";
+        }
+        else if([barcodeType isEqualToString:AVMetadataObjectTypeAztecCode]) {
+            barcodeTypeOutput = @"aztec";
+        }
+
+      #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+        else if([barcodeType isEqualToString:AVMetadataObjectTypeInterleaved2of5Code]) {
+            barcodeTypeOutput = @"interleaved2of5";
+        }
+        else if([barcodeType isEqualToString:AVMetadataObjectTypeITF14Code]) {
+            barcodeTypeOutput = @"itf14";
+        }
+        else if([barcodeType isEqualToString:AVMetadataObjectTypeDataMatrixCode]) {
+            barcodeTypeOutput = @"datamatrix";
+        }
+      #endif
+
         NSDictionary *event = @{
-          @"type": metadata.type,
+          @"type": barcodeTypeOutput,
           @"data": metadata.stringValue,
           @"bounds": @{
             @"origin": @{
