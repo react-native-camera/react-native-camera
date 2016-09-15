@@ -238,7 +238,7 @@ public class RCTCamera {
     }
 
     public void setFlashMode(int cameraType, int flashMode) {
-        Camera camera = _cameras.get(cameraType);
+       Camera camera = _cameras.get(cameraType);
         if (null == camera) {
             return;
         }
@@ -259,6 +259,37 @@ public class RCTCamera {
         List<String> flashModes = parameters.getSupportedFlashModes();
         if (flashModes != null && flashModes.contains(value)) {
             parameters.setFlashMode(value);
+            camera.setParameters(parameters);
+        }
+    }
+
+    public void setZoomLevel(int cameraType, String zoomLevel) {
+        Camera camera = _cameras.get(cameraType);
+        if (null == camera) {
+            //Not certain why this is necessary, Camera is always null...
+            camera = acquireCameraInstance(cameraType);
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+        if (parameters.isZoomSupported()) {
+            int maxZoom = parameters.getMaxZoom();
+            double zoomValue = 0;
+            switch (zoomLevel) {
+                case RCTCameraModule.RCT_CAMERA_ZOOM_LEVEL_NONE:
+                    zoomValue = 0;
+                    break;
+                case RCTCameraModule.RCT_CAMERA_ZOOM_LEVEL_LOW:
+                    zoomValue = maxZoom * 0.25;
+                    break;
+                case RCTCameraModule.RCT_CAMERA_ZOOM_LEVEL_MEDIUM:
+                    zoomValue = maxZoom * 0.50;
+                    break;
+                case RCTCameraModule.RCT_CAMERA_ZOOM_LEVEL_HIGH:
+                    zoomValue = maxZoom;
+                    break;
+            }
+            
+            parameters.setZoom((int)zoomValue);
             camera.setParameters(parameters);
         }
     }

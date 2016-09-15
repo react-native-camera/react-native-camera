@@ -70,6 +70,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     public static final int RCT_CAMERA_FLASH_MODE_OFF = 0;
     public static final int RCT_CAMERA_FLASH_MODE_ON = 1;
     public static final int RCT_CAMERA_FLASH_MODE_AUTO = 2;
+    public static final String RCT_CAMERA_ZOOM_LEVEL_NONE = "none";
+    public static final String RCT_CAMERA_ZOOM_LEVEL_LOW = "low";
+    public static final String RCT_CAMERA_ZOOM_LEVEL_MEDIUM = "medium";
+    public static final String RCT_CAMERA_ZOOM_LEVEL_HIGH = "high";
     public static final int RCT_CAMERA_TORCH_MODE_OFF = 0;
     public static final int RCT_CAMERA_TORCH_MODE_ON = 1;
     public static final int RCT_CAMERA_TORCH_MODE_AUTO = 2;
@@ -123,6 +127,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 put("CaptureTarget", getCaptureTargetConstants());
                 put("Orientation", getOrientationConstants());
                 put("FlashMode", getFlashModeConstants());
+                put("ZoomLevel", getZoomLevelConstants());
                 put("TorchMode", getTorchModeConstants());
             }
 
@@ -202,6 +207,17 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                         put("off", RCT_CAMERA_FLASH_MODE_OFF);
                         put("on", RCT_CAMERA_FLASH_MODE_ON);
                         put("auto", RCT_CAMERA_FLASH_MODE_AUTO);
+                    }
+                });
+            }
+
+            private Map<String, Object> getZoomLevelConstants() {
+                return Collections.unmodifiableMap(new HashMap<String, Object>() {
+                    {
+                        put("none", RCT_CAMERA_ZOOM_LEVEL_NONE);
+                        put("low", RCT_CAMERA_ZOOM_LEVEL_LOW);
+                        put("medium", RCT_CAMERA_ZOOM_LEVEL_MEDIUM);
+                        put("high", RCT_CAMERA_ZOOM_LEVEL_HIGH);
                     }
                 });
             }
