@@ -18,6 +18,7 @@ public class RCTCamera {
     private final HashMap<Integer, Integer> _cameraTypeToIndex;
     private final Map<Number, Camera> _cameras;
     private boolean _barcodeScannerEnabled = false;
+    private List<String> _barCodeTypes = null;
     private int _orientation = -1;
     private int _actualDeviceOrientation = 0;
     private int _adjustedDeviceOrientation = 0;
@@ -141,6 +142,14 @@ public class RCTCamera {
 
     public void setBarcodeScannerEnabled(boolean barcodeScannerEnabled) {
         _barcodeScannerEnabled = barcodeScannerEnabled;
+    }
+
+    public List<String> getBarCodeTypes() {
+        return _barCodeTypes;
+    }
+
+    public void setBarCodeTypes(List<String> barCodeTypes) {
+        _barCodeTypes = barCodeTypes;
     }
 
     public int getActualDeviceOrientation() {

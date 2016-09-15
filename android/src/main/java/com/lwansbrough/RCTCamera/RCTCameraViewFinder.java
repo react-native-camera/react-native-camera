@@ -44,7 +44,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         super(context);
         this.setSurfaceTextureListener(this);
         this._cameraType = type;
-        this.initBarcodeReader();
+        this.initBarcodeReader(RCTCamera.getInstance().getBarCodeTypes());
     }
 
     @Override
@@ -169,14 +169,73 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     }
 
     /**
-     * Initialize the barcode decoder.
+     * Parse barcodes as BarcodeFormat constants.
      *
-     * TODO add hints for the `barCodeTypes` prop instead of the hardcoded `EAN_13`
+     * Supports all iOS codes except [code138, code39mod43, itf14]
+     *
+     * Additionally supports [codabar, code128, maxicode, rss14, rssexpanded, upca, upceanextension]
      */
-    private void initBarcodeReader() {
+    private BarcodeFormat parseBarCodeString(String c) {
+        if ("aztec".equals(c)) {
+            return BarcodeFormat.AZTEC;
+        } else if ("ean13".equals(c)) {
+            return BarcodeFormat.EAN_13;
+        } else if ("ean8".equals(c)) {
+            return BarcodeFormat.EAN_8;
+        } else if ("ean8".equals(c)) {
+            return BarcodeFormat.EAN_8;
+        } else if ("qr".equals(c)) {
+            return BarcodeFormat.QR_CODE;
+        } else if ("ean8".equals(c)) {
+            return BarcodeFormat.EAN_8;
+        } else if ("pdf417".equals(c)) {
+            return BarcodeFormat.PDF_417;
+        } else if ("upce".equals(c)) {
+            return BarcodeFormat.UPC_E;
+        } else if ("datamatrix".equals(c)) {
+            return BarcodeFormat.DATA_MATRIX;
+        } else if ("code39".equals(c)) {
+            return BarcodeFormat.CODE_39;
+        } else if ("code93".equals(c)) {
+            return BarcodeFormat.CODE_93;
+        } else if ("interleaved2of5".equals(c)) {
+            return BarcodeFormat.ITF;
+        } else if ("codabar".equals(c)) {
+            return BarcodeFormat.CODABAR;
+        } else if ("code128".equals(c)) {
+            return BarcodeFormat.CODE_128;
+        } else if ("maxicode".equals(c)) {
+            return BarcodeFormat.MAXICODE;
+        } else if ("rss14".equals(c)) {
+            return BarcodeFormat.RSS_14;
+        } else if ("rssexpanded".equals(c)) {
+            return BarcodeFormat.RSS_EXPANDED;
+        } else if ("upca".equals(c)) {
+            return BarcodeFormat.UPC_A;
+        } else if ("upceanextension".equals(c)) {
+            return BarcodeFormat.UPC_EAN_EXTENSION;
+        } else {
+            android.util.Log.v("RCTCamera", "Unsupported code.. [" + c + "]");
+            return null;
+        }
+    }
+
+    /**
+     * Initialize the barcode decoder.
+     */
+    private void initBarcodeReader(List<String> barCodeTypes) {
         EnumMap<DecodeHintType, Object> hints = new EnumMap<>(DecodeHintType.class);
         EnumSet<BarcodeFormat> decodeFormats = EnumSet.noneOf(BarcodeFormat.class);
-        decodeFormats.add(BarcodeFormat.EAN_13);
+
+        if (barCodeTypes != null) {
+            for (String code : barCodeTypes) {
+                BarcodeFormat format = parseBarCodeString(code);
+                if (format != null) {
+                    decodeFormats.add(format);
+                }
+            }
+        }
+
         hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
         _multiFormatReader.setHints(hints);
     }
