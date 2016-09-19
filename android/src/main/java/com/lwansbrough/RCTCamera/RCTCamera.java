@@ -263,7 +263,7 @@ public class RCTCamera {
         }
     }
 
-    public void setZoomLevel(int cameraType, String zoomLevel) {
+    public void setZoomLevel(int cameraType, int zoomLevel) {
         Camera camera = _cameras.get(cameraType);
         if (null == camera) {
             //Not certain why this is necessary, Camera is always null...
@@ -274,20 +274,8 @@ public class RCTCamera {
         if (parameters.isZoomSupported()) {
             int maxZoom = parameters.getMaxZoom();
             double zoomValue = 0;
-            switch (zoomLevel) {
-                case RCTCameraModule.RCT_CAMERA_ZOOM_LEVEL_NONE:
-                    zoomValue = 0;
-                    break;
-                case RCTCameraModule.RCT_CAMERA_ZOOM_LEVEL_LOW:
-                    zoomValue = maxZoom * 0.25;
-                    break;
-                case RCTCameraModule.RCT_CAMERA_ZOOM_LEVEL_MEDIUM:
-                    zoomValue = maxZoom * 0.50;
-                    break;
-                case RCTCameraModule.RCT_CAMERA_ZOOM_LEVEL_HIGH:
-                    zoomValue = maxZoom;
-                    break;
-            }
+            String zoomPct = (String)'0.' + zoomLevel;
+            zoomValue = maxZoom * (int)zoomPct;
             
             parameters.setZoom((int)zoomValue);
             camera.setParameters(parameters);

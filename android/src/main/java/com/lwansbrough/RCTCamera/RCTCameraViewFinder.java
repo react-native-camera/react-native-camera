@@ -77,7 +77,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         RCTCamera.getInstance().setFlashMode(_cameraType, flashMode);
     }
 
-    public void setZoomLevel(String zoomLevel) {
+    public void setZoomLevel(int zoomLevel) {
         RCTCamera.getInstance().setZoomLevel(_cameraType, zoomLevel);
     }
 

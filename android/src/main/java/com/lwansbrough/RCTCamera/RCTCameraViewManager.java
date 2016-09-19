@@ -53,7 +53,7 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
     }
 
     @ReactProp(name = "zoomLevel")
-    public void setZoomLevel(RCTCameraView view, String zoomLevel) {
+    public void setZoomLevel(RCTCameraView view, int zoomLevel) {
         view.setZoomLevel(zoomLevel);
     }
 
