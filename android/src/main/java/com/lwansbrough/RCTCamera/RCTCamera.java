@@ -273,9 +273,8 @@ public class RCTCamera {
         Camera.Parameters parameters = camera.getParameters();
         if (parameters.isZoomSupported()) {
             int maxZoom = parameters.getMaxZoom();
-            double zoomValue = 0;
-            String zoomPct = (String)'0.' + zoomLevel;
-            zoomValue = maxZoom * (int)zoomPct;
+            double zoomPct = Double.parseDouble("0." + zoomLevel);
+            double zoomValue = maxZoom * zoomPct;
             
             parameters.setZoom((int)zoomValue);
             camera.setParameters(parameters);

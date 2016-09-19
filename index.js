@@ -22,8 +22,8 @@ function convertNativeProps(props) {
   }
 
   if (typeof props.zoomLevel === 'string' || typeof props.zoomLevel === 'number') {
-    if (props.zoomLevel => 0) && props.zoomLevel <= 100) {
-      newProps.zoomLevel = props.zoomLevel;
+    if (props.zoomLevel >= 0 && props.zoomLevel <= 100) {
+      newProps.zoomLevel = parseInt(props.zoomLevel);
     }
   }
 
@@ -94,7 +94,10 @@ export default class Camera extends Component {
       PropTypes.string,
       PropTypes.number
     ]),
-    zoomLevel: PropTypes.number,
+    zoomLevel: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
     onFocusChanged: PropTypes.func,
