@@ -116,7 +116,7 @@ export default class Camera extends Component {
     aspect: CameraManager.Aspect.fill,
     type: CameraManager.Type.back,
     orientation: CameraManager.Orientation.auto,
-    captureAudio: true,
+    captureAudio: false,
     captureMode: CameraManager.CaptureMode.still,
     captureTarget: CameraManager.CaptureTarget.cameraRoll,
     captureQuality: CameraManager.CaptureQuality.high,
