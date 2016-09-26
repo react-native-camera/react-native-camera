@@ -289,7 +289,15 @@ Ends the current capture session for video captures. Only applies when the curre
 
 #### `iOS` `Camera.checkDeviceAuthorizationStatus(): Promise`
 
-Exposes the native API for checking if the device has authorized access to the camera. Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.
+Exposes the native API for checking if the device has authorized access to the camera (camera and microphone permissions). Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.
+
+#### `iOS` `Camera.checkVideoAuthorizationStatus(): Promise`
+
+The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the camera permission.
+
+#### `iOS` `Camera.checkAudioAuthorizationStatus(): Promise`
+
+The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the microphone permission.
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
