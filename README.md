@@ -131,7 +131,7 @@ The `aspect` property allows you to define how your viewfinder renders the camer
 
 #### `iOS` `captureAudio`
 
-Values: `true` (default), `false` (Boolean)
+Values: `true` (Boolean), `false` (default)
 
 *Applies to video capture mode only.* Specifies whether or not audio should be captured with the video.
 
