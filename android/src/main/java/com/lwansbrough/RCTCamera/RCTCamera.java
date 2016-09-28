@@ -90,45 +90,38 @@ public class RCTCamera {
         return bestSize;
     }
 
-    public Camera.Size getBestPreviewSize(int type, int width, int height)
-    {
-        Camera camera = _cameras.get(type);
-        Camera.Size result = null;
-        if(camera == null) {
-            return null;
-        }
+    public Camera.Size getBestSizeWithSameAspect(List<Camera.Size> supportedSizes, Camera.Size targetSize, int maxWidth, int maxHeight) {
+        float pictureAspect = (float) targetSize.width / (float) targetSize.height;
 
-        Camera.Size pictureSize = getBestPictureSize(type, width, height);
-        float pictureAspect = (float) pictureSize.width / (float) pictureSize.height;
-
-        Camera.Parameters params = camera.getParameters();
         // We want to find a preview size that is both as big as possible while still having the same (or very similar) aspect ratio
-        for (Camera.Size size : params.getSupportedPreviewSizes()) {
-            if (size.width <= width && size.height <= height) {
-                if (result == null) {
-                    result = size;
-                } else {
-                    float resultAspect = (float) result.width / (float) result.height;
-                    float newAspect = (float) size.width / (float) size.height;
+        Camera.Size bestSize = null;
+        for (Camera.Size size : supportedSizes) {
+            if (size.width > maxWidth || size.height > maxHeight) {
+                continue;
+            }
 
-                    float aspectErrorDifference = Math.abs(resultAspect - pictureAspect) - Math.abs(newAspect - pictureAspect);
+            if (bestSize == null) {
+                bestSize = size;
+                continue;
+            }
 
-                    if (Math.abs(aspectErrorDifference) < 0.01) {
-                        // If there's not much difference then choose the best based on area
-                        int resultArea = result.width * result.height;
-                        int newArea = size.width * size.height;
+            float resultAspect = (float) bestSize.width / (float) bestSize.height;
+            float newAspect = (float) size.width / (float) size.height;
+            float aspectErrorDifference = Math.abs(resultAspect - pictureAspect) - Math.abs(newAspect - pictureAspect);
 
-                        if (newArea > resultArea) {
-                            result = size;
-                        }
-                    } else if (aspectErrorDifference > 0) {
-                        result = size;
-                    }
+            if (Math.abs(aspectErrorDifference) < 0.01) {
+                // If there's not much difference then choose the best based on area
+                int resultArea = bestSize.width * bestSize.height;
+                int newArea = size.width * size.height;
+
+                if (newArea > resultArea) {
+                    bestSize = size;
                 }
+            } else if (aspectErrorDifference > 0) {
+                bestSize = size;
             }
         }
-
-        return result;
+        return bestSize;
     }
 
     private Camera.Size getSmallestSize(List<Camera.Size> supportedSizes) {
@@ -374,8 +367,10 @@ public class RCTCamera {
         parameters.setRotation(cameraInfo.rotation);
 
         // set preview size
-        // defaults to highest resolution available
-        Camera.Size optimalPreviewSize = getBestSize(parameters.getSupportedPreviewSizes(), Integer.MAX_VALUE, Integer.MAX_VALUE);
+        // pick a preview size with same aspect ratio as the best picture size
+        Camera.Size bestCameraSize = getBestSize(parameters.getSupportedPictureSizes(), Integer.MAX_VALUE, Integer.MAX_VALUE);
+        Camera.Size optimalPreviewSize = getBestSizeWithSameAspect(parameters.getSupportedPreviewSizes(), bestCameraSize, Integer.MAX_VALUE, Integer.MAX_VALUE);
+
         int width = optimalPreviewSize.width;
         int height = optimalPreviewSize.height;
 
