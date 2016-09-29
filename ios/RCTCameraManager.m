@@ -14,6 +14,7 @@
 @interface RCTCameraManager ()
 
 @property (strong, nonatomic) RCTSensorOrientationChecker * sensorOrientationChecker;
+@property (assign, nonatomic) NSInteger* flashMode;
 
 @end
 
@@ -197,6 +198,7 @@ RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera) {
 
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:captureDevice];
         self.videoCaptureDeviceInput = captureDeviceInput;
+        [self setFlashMode];
       }
       else
       {
@@ -210,29 +212,33 @@ RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera) {
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(flashMode, NSInteger, RCTCamera) {
-  AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-  NSError *error = nil;
-  NSInteger *flashMode = [RCTConvert NSInteger:json];
+    self.flashMode = [RCTConvert NSInteger:json];
+    [self setFlashMode];
+}
 
-  if (![device hasFlash]) return;
-  if (![device lockForConfiguration:&error]) {
-    NSLog(@"%@", error);
-    return;
-  }
-  if (device.hasFlash && [device isFlashModeSupported:flashMode])
-  {
+- (void)setFlashMode {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    if ([device lockForConfiguration:&error])
-    {
-      [device setFlashMode:flashMode];
-      [device unlockForConfiguration];
+    
+    if (![device hasFlash]) return;
+    if (![device lockForConfiguration:&error]) {
+        NSLog(@"%@", error);
+        return;
     }
-    else
+    if (device.hasFlash && [device isFlashModeSupported:self.flashMode])
     {
-      NSLog(@"%@", error);
+        NSError *error = nil;
+        if ([device lockForConfiguration:&error])
+        {
+            [device setFlashMode:self.flashMode];
+            [device unlockForConfiguration];
+        }
+        else
+        {
+            NSLog(@"%@", error);
+        }
     }
-  }
-  [device unlockForConfiguration];
+    [device unlockForConfiguration];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(torchMode, NSInteger, RCTCamera) {
@@ -498,6 +504,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       }
       else if (type == AVMediaTypeVideo) {
         self.videoCaptureDeviceInput = captureDeviceInput;
+        [self setFlashMode];
       }
       [self.metadataOutput setMetadataObjectTypes:self.metadataOutput.availableMetadataObjectTypes];
     }
