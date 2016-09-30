@@ -519,6 +519,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 camera.stopPreview();
                 camera.startPreview();
                 WritableMap response = new WritableNativeMap();
+                Camera.Size pictureSize = camera.getParameters().getPictureSize();
+                response.putInt("width", pictureSize.width);
+                response.putInt("height", pictureSize.height);
+
                 switch (options.getInt("target")) {
                     case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                         String encoded = Base64.encodeToString(data, Base64.DEFAULT);
