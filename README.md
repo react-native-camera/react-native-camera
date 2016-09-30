@@ -10,6 +10,10 @@ A camera module for React Native.
 ![](https://i.imgur.com/5j2JdUk.gif)
 
 ## Getting started
+
+### Requirements
+1. JDK >= 1.7 (if you run on 1.6 you will get an error on "_cameras = new HashMap<>();")
+
 ### Mostly automatic install with react-native
 1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
 3. `react-native link react-native-camera`
@@ -34,9 +38,9 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 
 #### Android
 1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
-2. Open up `android/app/src/main/java/[...]/MainActivity.java
-  - Add `import com.lwansbrough.RCTCamera.*;` to the imports at the top of the file
-  - Add `new RCTCameraPackage()` to the list returned by the `getPackages()` method
+2. Open up `android/app/src/main/java/[...]/MainApplication.java
+  - Add `import com.lwansbrough.RCTCamera.RCTCameraPackage;` to the imports at the top of the file
+  - Add `new RCTCameraPackage()` to the list returned by the `getPackages()` method. Add a comma to the previous item if there's already something there.
 
 3. Append the following lines to `android/settings.gradle`:
 
@@ -132,7 +136,7 @@ Values: `true` (default), `false` (Boolean)
 *Applies to video capture mode only.* Specifies whether or not audio should be captured with the video.
 
 
-#### `iOS` `captureMode`
+#### `captureMode`
 
 Values: `Camera.constants.CaptureMode.still` (default), `Camera.constants.CaptureMode.video`
 
@@ -140,11 +144,11 @@ The type of capture that will be performed by the camera - either a still image 
 
 #### `captureTarget`
 
-Values: `Camera.constants.CaptureTarget.cameraRoll` (default), `Camera.constants.CaptureTarget.disk`, `Camera.constants.CaptureTarget.temp`, ~~`Camera.constants.CaptureTarget.memory`~~ (deprecated),
+Values: `Camera.constants.CaptureTarget.cameraRoll` (ios only default), `Camera.constants.CaptureTarget.disk` (android default), `Camera.constants.CaptureTarget.temp`, ~~`Camera.constants.CaptureTarget.memory`~~ (deprecated),
 
 This property allows you to specify the target output of the captured image data. By default the image binary is sent back as a base 64 encoded string. The disk output has been shown to improve capture response time, so that is the recommended value.
 
-#### `iOS` `captureQuality`
+#### `captureQuality`
 
 Values: `Camera.constants.CaptureQuality.high` or `"high"` (default), `Camera.constants.CaptureQuality.medium` or `"medium"`, `Camera.constants.CaptureQuality.low` or `"low"`, `Camera.constants.CaptureQuality.photo` or `"photo"`.
 
@@ -169,7 +173,7 @@ The `orientation` property allows you to specify the current orientation of the 
 
 Values: `true` (default) or `false`
 
-This property allows you to specify whether a sound is played on capture. It is currently android only, pending [a reasonable mute implementation](http://stackoverflow.com/questions/4401232/avfoundation-how-to-turn-off-the-shutter-sound-when-capturestillimageasynchrono) in iOS.
+This property allows you to specify whether a shutter sound is played on capture. It is currently android only, pending [a reasonable mute implementation](http://stackoverflow.com/questions/4401232/avfoundation-how-to-turn-off-the-shutter-sound-when-capturestillimageasynchrono) in iOS.
 
 #### `iOS` `onBarCodeRead`
 
@@ -239,9 +243,9 @@ By default, `onZoomChanged` is not defined and pinch-to-zoom is disabled.
 
 If set to `true`, the device will not sleep while the camera preview is visible. This mimics the behavior of the default camera app, which keeps the device awake while open.
 
-#### `iOS` `mirrorImage`
+#### `mirrorImage`
 
-If set to `true`, the image returned will be mirrored..
+If set to `true`, the image returned will be mirrored.
 
 ## Component instance methods
 
@@ -284,7 +288,7 @@ Ends the current capture session for video captures. Only applies when the curre
 
 ## Component static methods
 
-#### `Camera.checkDeviceAuthorizationStatus(): Promise`
+#### `iOS` `Camera.checkDeviceAuthorizationStatus(): Promise`
 
 Exposes the native API for checking if the device has authorized access to the camera. Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.
 
@@ -293,7 +297,7 @@ This component supports subviews, so if you wish to use the camera view as a bac
 
 ## Example
 
-To see more of the `react-native-camera` in action, you can check out the `Example` folder.
+To see more of the `react-native-camera` in action, you can check out the source in [Example](https://github.com/lwansbrough/react-native-camera/tree/master/Example) folder.
 
 ------------
 

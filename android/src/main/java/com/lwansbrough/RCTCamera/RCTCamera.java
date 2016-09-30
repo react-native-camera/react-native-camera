@@ -5,23 +5,31 @@
 package com.lwansbrough.RCTCamera;
 
 import android.hardware.Camera;
+import android.media.CamcorderProfile;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class RCTCamera {
-
-    private static final RCTCamera ourInstance = new RCTCamera();
+    private static RCTCamera ourInstance;
     private final HashMap<Integer, CameraInfoWrapper> _cameraInfos;
     private final HashMap<Integer, Integer> _cameraTypeToIndex;
     private final Map<Number, Camera> _cameras;
+    private boolean _barcodeScannerEnabled = false;
+    private List<String> _barCodeTypes = null;
     private int _orientation = -1;
     private int _actualDeviceOrientation = 0;
+    private int _adjustedDeviceOrientation = 0;
 
     public static RCTCamera getInstance() {
         return ourInstance;
     }
+    public static void createInstance(int deviceOrientation) {
+        ourInstance = new RCTCamera(deviceOrientation);
+    }
+
 
     public Camera acquireCameraInstance(int type) {
         if (null == _cameras.get(type) && null != _cameraTypeToIndex.get(type)) {
@@ -30,7 +38,7 @@ public class RCTCamera {
                 _cameras.put(type, camera);
                 adjustPreviewLayout(type);
             } catch (Exception e) {
-                System.console().printf("acquireCameraInstance: %s", e.getLocalizedMessage());
+                Log.e("RCTCamera", "acquireCameraInstance failed", e);
             }
         }
         return _cameras.get(type);
@@ -59,77 +67,60 @@ public class RCTCamera {
         return cameraInfo.previewHeight;
     }
 
-    public Camera.Size getBestPreviewSize(int type, int width, int height)
-    {
-        Camera camera = _cameras.get(type);
-        Camera.Size result = null;
-        if(camera == null) {
-            return null;
-        }
-        Camera.Parameters params = camera.getParameters();
-        for (Camera.Size size : params.getSupportedPreviewSizes()) {
-            if (size.width <= width && size.height <= height) {
-                if (result == null) {
-                    result = size;
-                } else {
-                    int resultArea = result.width * result.height;
-                    int newArea = size.width * size.height;
+    public Camera.Size getBestSize(List<Camera.Size> supportedSizes, int maxWidth, int maxHeight) {
+        Camera.Size bestSize = null;
+        for (Camera.Size size : supportedSizes) {
+            if (size.width > maxWidth || size.height > maxHeight) {
+                continue;
+            }
 
-                    if (newArea > resultArea) {
-                        result = size;
-                    }
-                }
+            if (bestSize == null) {
+                bestSize = size;
+                continue;
+            }
+
+            int resultArea = bestSize.width * bestSize.height;
+            int newArea = size.width * size.height;
+
+            if (newArea > resultArea) {
+                bestSize = size;
             }
         }
-        return result;
+
+        return bestSize;
     }
 
-    public Camera.Size getBestPictureSize(int type, int width, int height)
-    {
-        Camera camera = _cameras.get(type);
-        Camera.Size result = null;
-        if(camera == null) {
-            return null;
-        }
-        Camera.Parameters params = camera.getParameters();
-        for (Camera.Size size : params.getSupportedPictureSizes()) {
-            if (size.width <= width && size.height <= height) {
-                if (result == null) {
-                    result = size;
-                } else {
-                    int resultArea = result.width * result.height;
-                    int newArea = size.width * size.height;
+    private Camera.Size getSmallestSize(List<Camera.Size> supportedSizes) {
+        Camera.Size smallestSize = null;
+        for (Camera.Size size : supportedSizes) {
+            if (smallestSize == null) {
+                smallestSize = size;
+                continue;
+            }
 
-                    if (newArea > resultArea) {
-                        result = size;
-                    }
-                }
+            int resultArea = smallestSize.width * smallestSize.height;
+            int newArea = size.width * size.height;
+
+            if (newArea < resultArea) {
+                smallestSize = size;
             }
         }
-        return result;
+
+        return smallestSize;
     }
 
-    public Camera.Size getSmallestPictureSize(int type)
-    {
-        Camera camera = _cameras.get(type);
-        Camera.Size result = null;
-        if(camera == null) {
-            return null;
-        }
+    private List<Camera.Size> getSupportedVideoSizes(Camera camera) {
         Camera.Parameters params = camera.getParameters();
-        for (Camera.Size size : params.getSupportedPictureSizes()) {
-            if (result == null) {
-                result = size;
-            } else {
-                int resultArea = result.width * result.height;
-                int newArea = size.width * size.height;
-
-                if (newArea < resultArea) {
-                    result = size;
-                }
-            }
+        // defer to preview instead of params.getSupportedVideoSizes() http://bit.ly/1rxOsq0
+        // but prefer SupportedVideoSizes!
+        List<Camera.Size> sizes = params.getSupportedVideoSizes();
+        if (sizes != null) {
+            return sizes;
         }
-        return result;
+
+        // Video sizes may be null, which indicates that all the supported
+        // preview sizes are supported for video recording.
+        return params.getSupportedPreviewSizes();
     }
 
     public int getOrientation() {
@@ -145,6 +136,34 @@ public class RCTCamera {
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_BACK);
     }
 
+    public boolean isBarcodeScannerEnabled() {
+      return _barcodeScannerEnabled;
+    }
+
+    public void setBarcodeScannerEnabled(boolean barcodeScannerEnabled) {
+        _barcodeScannerEnabled = barcodeScannerEnabled;
+    }
+
+    public List<String> getBarCodeTypes() {
+        return _barCodeTypes;
+    }
+
+    public void setBarCodeTypes(List<String> barCodeTypes) {
+        _barCodeTypes = barCodeTypes;
+    }
+
+    public int getActualDeviceOrientation() {
+        return _actualDeviceOrientation;
+    }
+
+    public void setAdjustedDeviceOrientation(int orientation) {
+        _adjustedDeviceOrientation = orientation;
+    }
+
+    public int getAdjustedDeviceOrientation() {
+        return _adjustedDeviceOrientation;
+    }
+
     public void setActualDeviceOrientation(int actualDeviceOrientation) {
         _actualDeviceOrientation = actualDeviceOrientation;
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_FRONT);
@@ -153,29 +172,63 @@ public class RCTCamera {
 
     public void setCaptureQuality(int cameraType, String captureQuality) {
         Camera camera = _cameras.get(cameraType);
-        if (null == camera) {
+        if (camera == null) {
             return;
         }
 
         Camera.Parameters parameters = camera.getParameters();
         Camera.Size pictureSize = null;
         switch (captureQuality) {
-            case "low":
-                pictureSize = getSmallestPictureSize(cameraType); // select the lowest res
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_LOW:
+                pictureSize = getSmallestSize(parameters.getSupportedPictureSizes());
                 break;
-            case "medium":
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_MEDIUM:
                 List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
                 pictureSize = sizes.get(sizes.size() / 2);
                 break;
-            case "high":
-                pictureSize = getBestPictureSize(cameraType, Integer.MAX_VALUE, Integer.MAX_VALUE); // select the highest res
-                break;
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_HIGH:
+                pictureSize = getBestSize(parameters.getSupportedPictureSizes(), Integer.MAX_VALUE, Integer.MAX_VALUE);
         }
 
         if (pictureSize != null) {
             parameters.setPictureSize(pictureSize.width, pictureSize.height);
             camera.setParameters(parameters);
         }
+    }
+
+    public CamcorderProfile setCaptureVideoQuality(int cameraType, String captureQuality) {
+        Camera camera = _cameras.get(cameraType);
+        if (camera == null) {
+            return null;
+        }
+
+        Camera.Size videoSize = null;
+        CamcorderProfile cm = null;
+        switch (captureQuality) {
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_LOW:
+                videoSize = getSmallestSize(getSupportedVideoSizes(camera));
+                cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_480P);
+                break;
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_MEDIUM:
+                List<Camera.Size> sizes = getSupportedVideoSizes(camera);
+                videoSize = sizes.get(sizes.size() / 2);
+                cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_720P);
+                break;
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_HIGH:
+                videoSize = getBestSize(getSupportedVideoSizes(camera), Integer.MAX_VALUE, Integer.MAX_VALUE);
+                cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_HIGH);
+        }
+
+        if (cm == null){
+            return null;
+        }
+
+        if (videoSize != null) {
+            cm.videoFrameHeight = videoSize.height;
+            cm.videoFrameWidth = videoSize.width;
+        }
+
+        return cm;
     }
 
     public void setTorchMode(int cameraType, int torchMode) {
@@ -228,8 +281,7 @@ public class RCTCamera {
         }
     }
 
-    public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation)
-    {
+    public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {
         Camera camera = _cameras.get(type);
         if (null == camera) {
             return;
@@ -254,7 +306,7 @@ public class RCTCamera {
         }
     }
 
-    private void adjustPreviewLayout(int type) {
+    public void adjustPreviewLayout(int type) {
         Camera camera = _cameras.get(type);
         if (null == camera) {
             return;
@@ -274,6 +326,7 @@ public class RCTCamera {
         cameraInfo.rotation = rotation;
         // TODO: take in account the _orientation prop
 
+        setAdjustedDeviceOrientation(rotation);
         camera.setDisplayOrientation(displayRotation);
 
         Camera.Parameters parameters = camera.getParameters();
@@ -281,7 +334,7 @@ public class RCTCamera {
 
         // set preview size
         // defaults to highest resolution available
-        Camera.Size optimalPreviewSize = getBestPreviewSize(type, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        Camera.Size optimalPreviewSize = getBestSize(parameters.getSupportedPreviewSizes(), Integer.MAX_VALUE, Integer.MAX_VALUE);
         int width = optimalPreviewSize.width;
         int height = optimalPreviewSize.height;
 
@@ -301,10 +354,12 @@ public class RCTCamera {
         }
     }
 
-    private RCTCamera() {
+    private RCTCamera(int deviceOrientation) {
         _cameras = new HashMap<>();
         _cameraInfos = new HashMap<>();
         _cameraTypeToIndex = new HashMap<>();
+
+        _actualDeviceOrientation = deviceOrientation;
 
         // map camera types to camera indexes and collect cameras properties
         for (int i = 0; i < Camera.getNumberOfCameras(); i++) {
