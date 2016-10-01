@@ -34,7 +34,7 @@ RCT_EXPORT_MODULE();
     self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
     self.previewLayer.needsDisplayOnBoundsChange = YES;
   #endif
-  
+
   if(!self.camera){
     self.camera = [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
   }
@@ -980,13 +980,15 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 
 - (void)setCaptureQuality:(NSString *)quality
 {
-    if (quality) {
-        [self.session beginConfiguration];
-        if ([self.session canSetSessionPreset:quality]) {
-            self.session.sessionPreset = quality;
+    #if !(TARGET_IPHONE_SIMULATOR)
+        if (quality) {
+            [self.session beginConfiguration];
+            if ([self.session canSetSessionPreset:quality]) {
+                self.session.sessionPreset = quality;
+            }
+            [self.session commitConfiguration];
         }
-        [self.session commitConfiguration];
-    }
+    #endif
 }
 
 @end
