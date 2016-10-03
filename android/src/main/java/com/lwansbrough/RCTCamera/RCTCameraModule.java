@@ -380,9 +380,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
                 values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
                 _reactContext.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
-                addToMediaStore(mVideoFile.getAbsolutePath());
-                response.putString("path", Uri.fromFile(mVideoFile).toString());
-                mRecordingPromise.resolve(response);
+                addToMediaStore(mVideoFile.getAbsolutePath(), response, mRecordingPromise);
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_TEMP:
             case RCT_CAMERA_CAPTURE_TARGET_DISK:
@@ -538,9 +536,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                             return;
                         }
 
-                        addToMediaStore(cameraRollFile.getAbsolutePath());
-                        response.putString("path", Uri.fromFile(cameraRollFile).toString());
-                        promise.resolve(response);
+                        addToMediaStore(cameraRollFile.getAbsolutePath(), response, promise);
                         break;
                     }
                     case RCT_CAMERA_CAPTURE_TARGET_DISK: {
@@ -564,9 +560,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                             return;
                         }
 
-                        addToMediaStore(pictureFile.getAbsolutePath());
-                        response.putString("path", Uri.fromFile(pictureFile).toString());
-                        promise.resolve(response);
+                        addToMediaStore(pictureFile.getAbsolutePath(), response, promise);
                         break;
                     }
                     case RCT_CAMERA_CAPTURE_TARGET_TEMP: {
@@ -704,8 +698,23 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
     }
 
-    private void addToMediaStore(String path) {
-        MediaScannerConnection.scanFile(_reactContext, new String[] { path }, null, null);
+    private void addToMediaStore(String path, final WritableMap response, final Promise promise) {
+        MediaScannerConnection.scanFile(
+            _reactContext,
+            new String[] { path },
+            null,
+            new MediaScannerConnection.OnScanCompletedListener() {
+                @Override
+                public void onScanCompleted(String path, Uri uri) {
+                    if (uri != null) {
+                        response.putString("path", uri.toString());
+                        promise.resolve(response);
+                    } else {
+                        promise.reject("Could not add image to gallery");
+                    }
+                }
+            }
+        );
     }
 
 
