@@ -150,9 +150,11 @@ This property allows you to specify the target output of the captured image data
 
 #### `captureQuality`
 
-Values: `Camera.constants.CaptureQuality.high` or `"high"` (default), `Camera.constants.CaptureQuality.medium` or `"medium"`, `Camera.constants.CaptureQuality.low` or `"low"`, `Camera.constants.CaptureQuality.photo` or `"photo"`.
+Values: `Camera.constants.CaptureQuality.high` or `"high"` (default), `Camera.constants.CaptureQuality.medium` or `"medium"`, `Camera.constants.CaptureQuality.low` or `"low"`, `Camera.constants.CaptureQuality.photo` or `"photo"`
 
 This property allows you to specify the quality output of the captured image or video. By default the quality is set to high.
+
+Android also supports `Camera.constants.CaptureQuality.preview` or `"preview"` which matches the output image to the same one used in the preview
 
 #### `type`
 
