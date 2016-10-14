@@ -215,6 +215,7 @@ export default class Camera extends Component {
       title: '',
       description: '',
       mirrorImage: props.mirrorImage,
+      albumName: '',
       ...options
     };
 

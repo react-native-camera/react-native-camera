@@ -380,9 +380,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
                 values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
                 _reactContext.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
-                addToMediaStore(mVideoFile.getAbsolutePath());
-                response.putString("path", Uri.fromFile(mVideoFile).toString());
-                mRecordingPromise.resolve(response);
+                addToMediaStore(mVideoFile.getAbsolutePath(), response, mRecordingPromise);
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_TEMP:
             case RCT_CAMERA_CAPTURE_TARGET_DISK:
@@ -538,13 +536,19 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                             return;
                         }
 
-                        addToMediaStore(cameraRollFile.getAbsolutePath());
-                        response.putString("path", Uri.fromFile(cameraRollFile).toString());
-                        promise.resolve(response);
+                        addToMediaStore(cameraRollFile.getAbsolutePath(), response, promise);
                         break;
                     }
                     case RCT_CAMERA_CAPTURE_TARGET_DISK: {
-                        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                        String albumName = options.getString("albumName");
+
+                        File pictureFile = null;
+                        if (albumName.equals("")) {
+                            pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                        } else {
+                            pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, albumName);
+                        }
+
                         if (pictureFile == null) {
                             promise.reject("Error creating media file.");
                             return;
@@ -556,9 +560,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                             return;
                         }
 
-                        addToMediaStore(pictureFile.getAbsolutePath());
-                        response.putString("path", Uri.fromFile(pictureFile).toString());
-                        promise.resolve(response);
+                        addToMediaStore(pictureFile.getAbsolutePath(), response, promise);
                         break;
                     }
                     case RCT_CAMERA_CAPTURE_TARGET_TEMP: {
@@ -624,6 +626,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         );
     }
 
+    private File getOutputMediaFile(int type, String albumName) {
+        return getOutputFile(
+                type,
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                albumName
+        );
+    }
+
     private File getOutputCameraRollFile(int type) {
         return getOutputFile(
                 type,
@@ -631,7 +641,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         );
     }
 
-    private File getOutputFile(int type, File storageDir) {
+    private String getPhotoName(int type, File storageDir) {
         // Create the storage directory if it does not exist
         if (!storageDir.exists()) {
             if (!storageDir.mkdirs()) {
@@ -652,8 +662,20 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             return null;
         }
 
+        return photoName;
+    }
+
+    private File getOutputFile(int type, File storageDir) {
+        String photoName = getPhotoName(type, storageDir);
         return new File(String.format("%s%s%s", storageDir.getPath(), File.separator, photoName));
     }
+
+    private File getOutputFile(int type, File storageDir, String albumName) {
+        File newStorageDir = new File(storageDir, albumName);
+        String photoName = getPhotoName(type, newStorageDir);
+        return new File(String.format("%s%s%s", newStorageDir.getPath(), File.separator, photoName));
+    }
+
 
     private File getTempMediaFile(int type) {
         try {
@@ -676,8 +698,23 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
     }
 
-    private void addToMediaStore(String path) {
-        MediaScannerConnection.scanFile(_reactContext, new String[] { path }, null, null);
+    private void addToMediaStore(String path, final WritableMap response, final Promise promise) {
+        MediaScannerConnection.scanFile(
+            _reactContext,
+            new String[] { path },
+            null,
+            new MediaScannerConnection.OnScanCompletedListener() {
+                @Override
+                public void onScanCompleted(String path, Uri uri) {
+                    if (uri != null) {
+                        response.putString("path", uri.toString());
+                        promise.resolve(response);
+                    } else {
+                        promise.reject("Could not add image to gallery");
+                    }
+                }
+            }
+        );
     }
 
 
