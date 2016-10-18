@@ -548,7 +548,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         File dataDir = null;
         try {
             PackageInfo p = m.getPackageInfo(s, 0);
-            dataDir = new File(p.applicationInfo.dataDir);
+            dataDir = new File(p.applicationInfo.dataDir + "/files");
+            Log.i(TAG, "dataDir: " + dataDir);
         } catch (PackageManager.NameNotFoundException e) {
             Log.w("yourtag", "Error Package name not found ", e);
         }
