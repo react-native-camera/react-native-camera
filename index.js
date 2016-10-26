@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import {
-  NativeAppEventEmitter,
+  DeviceEventEmitter, // android
+  NativeAppEventEmitter, // ios
   NativeModules,
   Platform,
   StyleSheet,
@@ -52,6 +53,8 @@ function convertNativeProps(props) {
     newProps.barCodeTypes = [];
   }
 
+  newProps.barcodeScannerEnabled = typeof props.onBarCodeRead === 'function'
+
   return newProps;
 }
 
@@ -100,6 +103,7 @@ export default class Camera extends Component {
     ]),
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
+    barcodeScannerEnabled: PropTypes.bool,
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
@@ -153,9 +157,9 @@ export default class Camera extends Component {
   }
 
   async componentWillMount() {
-    this.cameraBarCodeReadListener = NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead);
+    this._addOnBarCodeReadListener()
 
-    let { captureMode } = convertNativeProps({captureMode: this.props.captureMode})
+    let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode })
     let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
     let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
 
@@ -166,10 +170,34 @@ export default class Camera extends Component {
   }
 
   componentWillUnmount() {
-    this.cameraBarCodeReadListener.remove();
+    this._removeOnBarCodeReadListener()
 
     if (this.state.isRecording) {
       this.stopCapture();
+    }
+  }
+
+  componentWillReceiveProps(newProps) {
+    const { onBarCodeRead } = this.props
+    if (onBarCodeRead && !newProps.onBarCodeRead) {
+      this._addOnBarCodeReadListener(newProps)
+    }
+  }
+
+  _addOnBarCodeReadListener(props) {
+    const { onBarCodeRead } = props || this.props
+    this._removeOnBarCodeReadListener()
+    if (onBarCodeRead) {
+      this.cameraBarCodeReadListener = Platform.select({
+        ios: NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead),
+        android: DeviceEventEmitter.addListener('CameraBarCodeReadAndroid',  this._onBarCodeRead)
+      })
+    }
+  }
+  _removeOnBarCodeReadListener() {
+    const listener = this.cameraBarCodeReadListener
+    if (listener) {
+      listener.remove()
     }
   }
 
@@ -181,7 +209,9 @@ export default class Camera extends Component {
   }
 
   _onBarCodeRead = (data) => {
-    if (this.props.onBarCodeRead) this.props.onBarCodeRead(data)
+    if (this.props.onBarCodeRead) {
+      this.props.onBarCodeRead(data)
+    }
   };
 
   capture(options) {

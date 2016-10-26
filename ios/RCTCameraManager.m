@@ -30,10 +30,11 @@ RCT_EXPORT_MODULE();
 - (UIView *)view
 {
   self.session = [AVCaptureSession new];
-
-  self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
-  self.previewLayer.needsDisplayOnBoundsChange = YES;
-
+  #if !(TARGET_IPHONE_SIMULATOR)
+    self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
+    self.previewLayer.needsDisplayOnBoundsChange = YES;
+  #endif
+  
   if(!self.camera){
     self.camera = [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
   }
