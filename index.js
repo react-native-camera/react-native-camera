@@ -177,15 +177,16 @@ export default class Camera extends Component {
     this._removeOnBarCodeReadListener()
     if (onBarCodeRead) {
       this.cameraBarCodeReadListener = Platform.select({
-        ios: NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead),
-        android: DeviceEventEmitter.addListener('CameraBarCodeReadAndroid',  this._onBarCodeRead)
-      })
+        ios: () => NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead),
+        android: () => DeviceEventEmitter.addListener('CameraBarCodeReadAndroid',  this._onBarCodeRead)
+      })()
     }
   }
   _removeOnBarCodeReadListener() {
     const listener = this.cameraBarCodeReadListener
     if (listener) {
       listener.remove()
+      this.cameraBarCodeReadListener = undefined;
     }
   }
 
