@@ -76,6 +76,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     public static final String RCT_CAMERA_CAPTURE_QUALITY_HIGH = "high";
     public static final String RCT_CAMERA_CAPTURE_QUALITY_MEDIUM = "medium";
     public static final String RCT_CAMERA_CAPTURE_QUALITY_LOW = "low";
+    public static final String RCT_CAMERA_CAPTURE_QUALITY_1080P = "1080p";
+    public static final String RCT_CAMERA_CAPTURE_QUALITY_720P = "720p";
+    public static final String RCT_CAMERA_CAPTURE_QUALITY_480P = "480p";
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
 
@@ -164,6 +167,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                         put("medium", RCT_CAMERA_CAPTURE_QUALITY_MEDIUM);
                         put("high", RCT_CAMERA_CAPTURE_QUALITY_HIGH);
                         put("photo", RCT_CAMERA_CAPTURE_QUALITY_HIGH);
+                        put("480p", RCT_CAMERA_CAPTURE_QUALITY_480P);
+                        put("720p", RCT_CAMERA_CAPTURE_QUALITY_720P);
+                        put("1080p", RCT_CAMERA_CAPTURE_QUALITY_1080P);
                     }
                 });
             }

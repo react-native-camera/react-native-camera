@@ -34,7 +34,7 @@ RCT_EXPORT_MODULE();
     self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
     self.previewLayer.needsDisplayOnBoundsChange = YES;
   #endif
-  
+
   if(!self.camera){
     self.camera = [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
   }
@@ -86,7 +86,13 @@ RCT_EXPORT_MODULE();
                @"high": @(RCTCameraCaptureSessionPresetHigh),
                @"AVCaptureSessionPresetHigh": @(RCTCameraCaptureSessionPresetHigh),
                @"photo": @(RCTCameraCaptureSessionPresetPhoto),
-               @"AVCaptureSessionPresetPhoto": @(RCTCameraCaptureSessionPresetPhoto)
+               @"AVCaptureSessionPresetPhoto": @(RCTCameraCaptureSessionPresetPhoto),
+               @"480p": @(RCTCameraCaptureSessionPreset480p),
+               @"AVCaptureSessionPreset640x480": @(RCTCameraCaptureSessionPreset480p),
+               @"720p": @(RCTCameraCaptureSessionPreset720p),
+               @"AVCaptureSessionPreset1280x720": @(RCTCameraCaptureSessionPreset720p),
+               @"1080p": @(RCTCameraCaptureSessionPreset1080p),
+               @"AVCaptureSessionPreset1920x1080": @(RCTCameraCaptureSessionPreset1080p)
                },
            @"CaptureTarget": @{
                @"memory": @(RCTCameraCaptureTargetMemory),
@@ -135,6 +141,15 @@ RCT_CUSTOM_VIEW_PROPERTY(captureQuality, NSInteger, RCTCamera) {
       break;
     case RCTCameraCaptureSessionPresetPhoto:
       qualityString = AVCaptureSessionPresetPhoto;
+      break;
+    case RCTCameraCaptureSessionPreset1080p:
+      qualityString = AVCaptureSessionPreset1920x1080;
+      break;
+    case RCTCameraCaptureSessionPreset720p:
+      qualityString = AVCaptureSessionPreset1280x720;
+      break;
+    case RCTCameraCaptureSessionPreset480p:
+      qualityString = AVCaptureSessionPreset640x480;
       break;
   }
 
