@@ -985,7 +985,9 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         if ([self.session canSetSessionPreset:quality]) {
             self.session.sessionPreset = quality;
         }
+#if !(TARGET_IPHONE_SIMULATOR) //cong.nt fix crash simulator
         [self.session commitConfiguration];
+#endif
     }
 }
 
