@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RCTCamera {
-    private static RCTCamera ourInstance;
+    private static RCTCamera ourInstance = null;
     private final HashMap<Integer, CameraInfoWrapper> _cameraInfos;
     private final HashMap<Integer, Integer> _cameraTypeToIndex;
     private final Map<Number, Camera> _cameras;
@@ -23,9 +23,10 @@ public class RCTCamera {
     private int _actualDeviceOrientation = 0;
     private int _adjustedDeviceOrientation = 0;
 
-    public static RCTCamera getInstance() {
+    public synchronized static RCTCamera getInstance() {
         return ourInstance;
     }
+
     public static void createInstance(int deviceOrientation) {
         ourInstance = new RCTCamera(deviceOrientation);
     }
