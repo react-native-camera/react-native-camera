@@ -178,22 +178,25 @@ public class RCTCamera {
 
         Camera.Parameters parameters = camera.getParameters();
         Camera.Size pictureSize = null;
+        List<Camera.Size> supportedSizes = parameters.getSupportedPictureSizes();
         switch (captureQuality) {
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_LOW:
-                pictureSize = getSmallestSize(parameters.getSupportedPictureSizes());
+                pictureSize = getSmallestSize(supportedSizes);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_MEDIUM:
-                List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
-                pictureSize = sizes.get(sizes.size() / 2);
+                pictureSize = supportedSizes.get(supportedSizes.size() / 2);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_HIGH:
-                pictureSize = getBestSize(parameters.getSupportedPictureSizes(), Integer.MAX_VALUE, Integer.MAX_VALUE);
+                pictureSize = getBestSize(supportedSizes, Integer.MAX_VALUE, Integer.MAX_VALUE);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_480P:
+                pictureSize = getBestSize(supportedSizes, 640, 480);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_720P:
+                pictureSize = getBestSize(supportedSizes, 1280, 720);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_1080P:
+                pictureSize = getBestSize(supportedSizes, 1920, 1080);
                 break;
         }
 
@@ -210,31 +213,31 @@ public class RCTCamera {
         }
 
         Camera.Size videoSize = null;
+        List<Camera.Size> supportedSizes = getSupportedVideoSizes(camera);
         CamcorderProfile cm = null;
         switch (captureQuality) {
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_LOW:
-                videoSize = getSmallestSize(getSupportedVideoSizes(camera));
+                videoSize = getSmallestSize(supportedSizes);
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_480P);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_MEDIUM:
-                List<Camera.Size> sizes = getSupportedVideoSizes(camera);
-                videoSize = sizes.get(sizes.size() / 2);
+                videoSize = supportedSizes.get(supportedSizes.size() / 2);
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_720P);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_HIGH:
-                videoSize = getBestSize(getSupportedVideoSizes(camera), Integer.MAX_VALUE, Integer.MAX_VALUE);
+                videoSize = getBestSize(supportedSizes, Integer.MAX_VALUE, Integer.MAX_VALUE);
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_HIGH);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_480P:
-                videoSize = getBestSize(getSupportedVideoSizes(camera), 640, 480);
+                videoSize = getBestSize(supportedSizes, 640, 480);
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_480P);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_720P:
-                videoSize = getBestSize(getSupportedVideoSizes(camera), 1280, 720);
+                videoSize = getBestSize(supportedSizes, 1280, 720);
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_720P);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_1080P:
-                videoSize = getBestSize(getSupportedVideoSizes(camera), 1920, 1080);
+                videoSize = getBestSize(supportedSizes, 1920, 1080);
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_1080P);
                 break;
         }
