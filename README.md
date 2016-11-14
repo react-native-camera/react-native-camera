@@ -151,7 +151,7 @@ This property allows you to specify the target output of the captured image data
 
 #### `captureQuality`
 
-Values: `Camera.constants.CaptureQuality.high` or `"high"` (default), `Camera.constants.CaptureQuality.medium` or `"medium"`, `Camera.constants.CaptureQuality.low` or `"low"`, `Camera.constants.CaptureQuality.photo` or `"photo"`, `Camera.constants.CaptureQuality['1080p']` or `"1080p"`, `Camera.constants.CaptureQuality['720p']` or `"720p"`, `Camera.constants.CaptureQuality['480p']` or `"480p"`.
+Values: `Camera.constants.CaptureQuality.high` or `"high"` (default), `Camera.constants.CaptureQuality.medium` or `"medium"`, `Camera.constants.CaptureQuality.low` or `"low"`, `Camera.constants.CaptureQuality.photo` or `"photo"`, `Camera.constants.CaptureQuality["1080p"]` or `"1080p"`, `Camera.constants.CaptureQuality["720p"]` or `"720p"`, `Camera.constants.CaptureQuality["480p"]` or `"480p"`.
 
 This property allows you to specify the quality output of the captured image or video. By default the quality is set to high.
 
