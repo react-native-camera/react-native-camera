@@ -87,6 +87,8 @@ RCT_EXPORT_MODULE();
                @"AVCaptureSessionPresetHigh": @(RCTCameraCaptureSessionPresetHigh),
                @"photo": @(RCTCameraCaptureSessionPresetPhoto),
                @"AVCaptureSessionPresetPhoto": @(RCTCameraCaptureSessionPresetPhoto),
+               @"480p": @(RCTCameraCaptureSessionPreset480p),
+               @"AVCaptureSessionPreset640x480": @(RCTCameraCaptureSessionPreset480p),
                @"720p": @(RCTCameraCaptureSessionPreset720p),
                @"AVCaptureSessionPreset1280x720": @(RCTCameraCaptureSessionPreset720p),
                @"1080p": @(RCTCameraCaptureSessionPreset1080p),
@@ -145,6 +147,9 @@ RCT_CUSTOM_VIEW_PROPERTY(captureQuality, NSInteger, RCTCamera) {
       break;
     case RCTCameraCaptureSessionPreset720p:
       qualityString = AVCaptureSessionPreset1280x720;
+      break;
+    case RCTCameraCaptureSessionPreset480p:
+      qualityString = AVCaptureSessionPreset640x480;
       break;
   }
 
