@@ -223,7 +223,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     }
 
     private Throwable prepareMediaRecorder(ReadableMap options) {
-        CamcorderProfile cm = RCTCamera.getInstance().setCaptureVideoQuality(options.getInt("type"), options.getString("quality"));
+        final String qualityString = options.getString("quality");
+        CamcorderProfile cm = RCTCamera.getInstance().setCaptureVideoQuality(options.getInt("type"), qualityString);
 
         // Attach callback to handle maxDuration (@see onInfo method in this file)
         mMediaRecorder.setOnInfoListener(this);
@@ -241,8 +242,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             return new RuntimeException("CamcorderProfile not found in prepareMediaRecorder.");
         }
 
-        cm.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
-        mMediaRecorder.setProfile(cm);
+        if (qualityString.equalsIgnoreCase(RCT_CAMERA_CAPTURE_QUALITY_LOW)) {
+          mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+          mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+          mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        } else {
+          cm.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
+          mMediaRecorder.setProfile(cm);
+        }
 
         mVideoFile = null;
         switch (options.getInt("target")) {
