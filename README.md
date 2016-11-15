@@ -155,6 +155,8 @@ Values: `Camera.constants.CaptureQuality.high` or `"high"` (default), `Camera.co
 
 This property allows you to specify the quality output of the captured image or video. By default the quality is set to high.
 
+When specifying more-specific quality settings (1080p, 720p, 480p), note that each device supports different valid picture/video sizes, and actual resolution within each of these quality settings might differ by device (i.e., some phones may support 480p at the "ideal" HD-aspect-ratio 853x480 resolution, while others may fall back to 800x480 or 720x480). If your application needs, it should manually determine the actual resolution of the output file after capture has completed, instead of making any assumptions. Most phones *should* be able to capture at the standard 1920x1080 for 1080p and 1280x720 for 720p, though this is still not guaranteed; YMMV for 480p.
+
 #### `type`
 
 Values: `Camera.constants.Type.front` or `"front"`, `Camera.constants.Type.back` or `"back"` (default)
