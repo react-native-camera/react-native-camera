@@ -18,7 +18,7 @@ public class RCTCamera {
     private final HashMap<Integer, CameraInfoWrapper> _cameraInfos;
     private final HashMap<Integer, Integer> _cameraTypeToIndex;
     private final Map<Number, Camera> _cameras;
-    private static final Size SIZE_480P = new Size(640, 480);
+    private static final Size SIZE_480P = new Size(853, 480);
     private static final Size SIZE_720P = new Size(1280, 720);
     private static final Size SIZE_1080P = new Size(1920, 1080);
     private boolean _barcodeScannerEnabled = false;
