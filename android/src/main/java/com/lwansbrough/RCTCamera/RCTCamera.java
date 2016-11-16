@@ -7,7 +7,6 @@ package com.lwansbrough.RCTCamera;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.util.Log;
-import android.util.Size;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,9 +17,9 @@ public class RCTCamera {
     private final HashMap<Integer, CameraInfoWrapper> _cameraInfos;
     private final HashMap<Integer, Integer> _cameraTypeToIndex;
     private final Map<Number, Camera> _cameras;
-    private static final Size SIZE_480P = new Size(853, 480); // 480p shoots for a 16:9 HD aspect ratio, but can otherwise fall back/down to any other supported camera sizes, such as 800x480 or 720x480, if (any) present. See getSupportedPictureSizes/getSupportedVideoSizes below.
-    private static final Size SIZE_720P = new Size(1280, 720);
-    private static final Size SIZE_1080P = new Size(1920, 1080);
+    private static final Resolution RESOLUTION_480P = new Resolution(853, 480); // 480p shoots for a 16:9 HD aspect ratio, but can otherwise fall back/down to any other supported camera sizes, such as 800x480 or 720x480, if (any) present. See getSupportedPictureSizes/getSupportedVideoSizes below.
+    private static final Resolution RESOLUTION_720P = new Resolution(1280, 720);
+    private static final Resolution RESOLUTION_1080P = new Resolution(1920, 1080);
     private boolean _barcodeScannerEnabled = false;
     private List<String> _barCodeTypes = null;
     private int _orientation = -1;
@@ -194,13 +193,13 @@ public class RCTCamera {
                 pictureSize = getBestSize(supportedSizes, Integer.MAX_VALUE, Integer.MAX_VALUE);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_480P:
-                pictureSize = getBestSize(supportedSizes, SIZE_480P.getWidth(), SIZE_480P.getHeight());
+                pictureSize = getBestSize(supportedSizes, RESOLUTION_480P.width, RESOLUTION_480P.height);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_720P:
-                pictureSize = getBestSize(supportedSizes, SIZE_720P.getWidth(), SIZE_720P.getHeight());
+                pictureSize = getBestSize(supportedSizes, RESOLUTION_720P.width, RESOLUTION_720P.height);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_1080P:
-                pictureSize = getBestSize(supportedSizes, SIZE_1080P.getWidth(), SIZE_1080P.getHeight());
+                pictureSize = getBestSize(supportedSizes, RESOLUTION_1080P.width, RESOLUTION_1080P.height);
                 break;
         }
 
@@ -233,15 +232,15 @@ public class RCTCamera {
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_HIGH);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_480P:
-                videoSize = getBestSize(supportedSizes, SIZE_480P.getWidth(), SIZE_480P.getHeight());
+                videoSize = getBestSize(supportedSizes, RESOLUTION_480P.width, RESOLUTION_480P.height);
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_480P);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_720P:
-                videoSize = getBestSize(supportedSizes, SIZE_720P.getWidth(), SIZE_720P.getHeight());
+                videoSize = getBestSize(supportedSizes, RESOLUTION_720P.width, RESOLUTION_720P.height);
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_720P);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_1080P:
-                videoSize = getBestSize(supportedSizes, SIZE_1080P.getWidth(), SIZE_1080P.getHeight());
+                videoSize = getBestSize(supportedSizes, RESOLUTION_1080P.width, RESOLUTION_1080P.height);
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_1080P);
                 break;
         }
@@ -414,6 +413,16 @@ public class RCTCamera {
 
         public CameraInfoWrapper(Camera.CameraInfo info) {
             this.info = info;
+        }
+    }
+
+    private static class Resolution {
+        public int width;
+        public int height;
+
+        public Resolution(final int width, final int height) {
+            this.width = width;
+            this.height = height;
         }
     }
 }
