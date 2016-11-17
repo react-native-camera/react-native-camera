@@ -145,9 +145,9 @@ The type of capture that will be performed by the camera - either a still image 
 
 #### `captureTarget`
 
-Values: `Camera.constants.CaptureTarget.cameraRoll` (ios only default), `Camera.constants.CaptureTarget.disk` (android default), `Camera.constants.CaptureTarget.temp`, ~~`Camera.constants.CaptureTarget.memory`~~ (deprecated),
+Values: `Camera.constants.CaptureTarget.cameraRoll` (default), `Camera.constants.CaptureTarget.disk`, `Camera.constants.CaptureTarget.temp`, ~~`Camera.constants.CaptureTarget.memory`~~ (deprecated),
 
-This property allows you to specify the target output of the captured image data. By default the image binary is sent back as a base 64 encoded string. The disk output has been shown to improve capture response time, so that is the recommended value.
+This property allows you to specify the target output of the captured image data. The disk output has been shown to improve capture response time, so that is the recommended value. When using the deprecated memory output, the image binary is sent back as a base64-encoded string.
 
 #### `captureQuality`
 
