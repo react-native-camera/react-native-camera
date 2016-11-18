@@ -17,6 +17,9 @@ public class RCTCamera {
     private final HashMap<Integer, CameraInfoWrapper> _cameraInfos;
     private final HashMap<Integer, Integer> _cameraTypeToIndex;
     private final Map<Number, Camera> _cameras;
+    private static final Resolution RESOLUTION_480P = new Resolution(853, 480); // 480p shoots for a 16:9 HD aspect ratio, but can otherwise fall back/down to any other supported camera sizes, such as 800x480 or 720x480, if (any) present. See getSupportedPictureSizes/getSupportedVideoSizes below.
+    private static final Resolution RESOLUTION_720P = new Resolution(1280, 720);
+    private static final Resolution RESOLUTION_1080P = new Resolution(1920, 1080);
     private boolean _barcodeScannerEnabled = false;
     private List<String> _barCodeTypes = null;
     private int _orientation = -1;
@@ -191,16 +194,26 @@ public class RCTCamera {
 
         Camera.Parameters parameters = camera.getParameters();
         Camera.Size pictureSize = null;
+        List<Camera.Size> supportedSizes = parameters.getSupportedPictureSizes();
         switch (captureQuality) {
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_LOW:
-                pictureSize = getSmallestSize(parameters.getSupportedPictureSizes());
+                pictureSize = getSmallestSize(supportedSizes);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_MEDIUM:
-                List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
-                pictureSize = sizes.get(sizes.size() / 2);
+                pictureSize = supportedSizes.get(supportedSizes.size() / 2);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_HIGH:
-                pictureSize = getBestSize(parameters.getSupportedPictureSizes(), Integer.MAX_VALUE, Integer.MAX_VALUE);
+                pictureSize = getBestSize(supportedSizes, Integer.MAX_VALUE, Integer.MAX_VALUE);
+                break;
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_480P:
+                pictureSize = getBestSize(supportedSizes, RESOLUTION_480P.width, RESOLUTION_480P.height);
+                break;
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_720P:
+                pictureSize = getBestSize(supportedSizes, RESOLUTION_720P.width, RESOLUTION_720P.height);
+                break;
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_1080P:
+                pictureSize = getBestSize(supportedSizes, RESOLUTION_1080P.width, RESOLUTION_1080P.height);
+                break;
         }
 
         if (pictureSize != null) {
@@ -216,20 +229,33 @@ public class RCTCamera {
         }
 
         Camera.Size videoSize = null;
+        List<Camera.Size> supportedSizes = getSupportedVideoSizes(camera);
         CamcorderProfile cm = null;
         switch (captureQuality) {
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_LOW:
-                videoSize = getSmallestSize(getSupportedVideoSizes(camera));
+                videoSize = getSmallestSize(supportedSizes);
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_480P);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_MEDIUM:
-                List<Camera.Size> sizes = getSupportedVideoSizes(camera);
-                videoSize = sizes.get(sizes.size() / 2);
+                videoSize = supportedSizes.get(supportedSizes.size() / 2);
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_720P);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_HIGH:
-                videoSize = getBestSize(getSupportedVideoSizes(camera), Integer.MAX_VALUE, Integer.MAX_VALUE);
+                videoSize = getBestSize(supportedSizes, Integer.MAX_VALUE, Integer.MAX_VALUE);
                 cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_HIGH);
+                break;
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_480P:
+                videoSize = getBestSize(supportedSizes, RESOLUTION_480P.width, RESOLUTION_480P.height);
+                cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_480P);
+                break;
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_720P:
+                videoSize = getBestSize(supportedSizes, RESOLUTION_720P.width, RESOLUTION_720P.height);
+                cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_720P);
+                break;
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_1080P:
+                videoSize = getBestSize(supportedSizes, RESOLUTION_1080P.width, RESOLUTION_1080P.height);
+                cm = CamcorderProfile.get(_cameraTypeToIndex.get(cameraType), CamcorderProfile.QUALITY_1080P);
+                break;
         }
 
         if (cm == null){
@@ -400,6 +426,16 @@ public class RCTCamera {
 
         public CameraInfoWrapper(Camera.CameraInfo info) {
             this.info = info;
+        }
+    }
+
+    private static class Resolution {
+        public int width;
+        public int height;
+
+        public Resolution(final int width, final int height) {
+            this.width = width;
+            this.height = height;
         }
     }
 }
