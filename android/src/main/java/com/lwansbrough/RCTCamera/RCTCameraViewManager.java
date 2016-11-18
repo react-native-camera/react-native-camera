@@ -28,8 +28,11 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
     }
 
     @ReactProp(name = "captureMode")
-    public void setCaptureMode(RCTCameraView view, int captureMode) {
-        // TODO - implement video mode
+    public void setCaptureMode(RCTCameraView view, final int captureMode) {
+        // Note that this in practice only performs any additional setup necessary for each mode;
+        // the actual indication to capture a still or record a video when capture() is called is
+        // still ultimately decided upon by what it in the options sent to capture().
+        view.setCaptureMode(captureMode);
     }
 
     @ReactProp(name = "captureTarget")
