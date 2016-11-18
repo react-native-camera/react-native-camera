@@ -109,7 +109,7 @@ public class RCTCamera {
         return smallestSize;
     }
 
-    private List<Camera.Size> getSupportedVideoSizes(Camera camera) {
+    protected List<Camera.Size> getSupportedVideoSizes(Camera camera) {
         Camera.Parameters params = camera.getParameters();
         // defer to preview instead of params.getSupportedVideoSizes() http://bit.ly/1rxOsq0
         // but prefer SupportedVideoSizes!
@@ -168,6 +168,19 @@ public class RCTCamera {
         _actualDeviceOrientation = actualDeviceOrientation;
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_FRONT);
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_BACK);
+    }
+
+    public void setCaptureMode(final int cameraType, final int captureMode) {
+        Camera camera = _cameras.get(cameraType);
+        if (camera == null) {
+            return;
+        }
+
+        // Set (video) recording hint based on camera type. For video recording, setting
+        // this hint can help reduce the time it takes to start recording.
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setRecordingHint(captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_VIDEO);
+        camera.setParameters(parameters);
     }
 
     public void setCaptureQuality(int cameraType, String captureQuality) {
