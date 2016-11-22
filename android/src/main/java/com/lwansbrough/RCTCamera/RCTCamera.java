@@ -11,6 +11,7 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.lang.Math;
 
 public class RCTCamera {
     private static RCTCamera ourInstance;
@@ -112,6 +113,24 @@ public class RCTCamera {
         return smallestSize;
     }
 
+    private Camera.Size getClosestSize(List<Camera.Size> supportedSizes, int matchWidth, int matchHeight) {
+      Camera.Size closestSize = null;
+      for (Camera.Size size : supportedSizes) {
+          if (closestSize == null) {
+              closestSize = size;
+              continue;
+          }
+
+          int currentDelta = Math.abs(closestSize.width - matchWidth) * Math.abs(closestSize.height - matchHeight);
+          int newDelta = Math.abs(size.width - matchWidth) * Math.abs(size.height - matchHeight);
+
+          if (newDelta < currentDelta) {
+              closestSize = size;
+          }
+      }
+      return closestSize;
+    }
+
     protected List<Camera.Size> getSupportedVideoSizes(Camera camera) {
         Camera.Parameters params = camera.getParameters();
         // defer to preview instead of params.getSupportedVideoSizes() http://bit.ly/1rxOsq0
@@ -203,7 +222,11 @@ public class RCTCamera {
                 pictureSize = supportedSizes.get(supportedSizes.size() / 2);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_HIGH:
-                pictureSize = getBestSize(supportedSizes, Integer.MAX_VALUE, Integer.MAX_VALUE);
+                pictureSize = getBestSize(parameters.getSupportedPictureSizes(), Integer.MAX_VALUE, Integer.MAX_VALUE);
+                break;
+            case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_PREVIEW:
+                Camera.Size optimalPreviewSize = getBestSize(parameters.getSupportedPreviewSizes(), Integer.MAX_VALUE, Integer.MAX_VALUE);
+                pictureSize = getClosestSize(parameters.getSupportedPictureSizes(), optimalPreviewSize.width, optimalPreviewSize.height);
                 break;
             case RCTCameraModule.RCT_CAMERA_CAPTURE_QUALITY_480P:
                 pictureSize = getBestSize(supportedSizes, RESOLUTION_480P.width, RESOLUTION_480P.height);
