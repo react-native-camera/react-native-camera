@@ -109,6 +109,40 @@ public class RCTCamera {
         return smallestSize;
     }
 
+    public Camera.Size getBestSizeWithSameAspect(List<Camera.Size> supportedSizes, Camera.Size targetSize, int maxWidth, int maxHeight) {
+        float pictureAspect = (float) targetSize.width / (float) targetSize.height;
+
+        // We want to find a preview size that is both as big as possible while still having the same (or very similar) aspect ratio
+        Camera.Size bestSize = null;
+        for (Camera.Size size : supportedSizes) {
+            if (size.width > maxWidth || size.height > maxHeight) {
+                continue;
+            }
+
+            if (bestSize == null) {
+                bestSize = size;
+                continue;
+            }
+
+            float resultAspect = (float) bestSize.width / (float) bestSize.height;
+            float newAspect = (float) size.width / (float) size.height;
+            float aspectErrorDifference = Math.abs(resultAspect - pictureAspect) - Math.abs(newAspect - pictureAspect);
+
+            if (Math.abs(aspectErrorDifference) < 0.01) {
+                // If there's not much difference then choose the best based on area
+                int resultArea = bestSize.width * bestSize.height;
+                int newArea = size.width * size.height;
+
+                if (newArea > resultArea) {
+                    bestSize = size;
+                }
+            } else if (aspectErrorDifference > 0) {
+                bestSize = size;
+            }
+        }
+        return bestSize;
+    }
+
     private List<Camera.Size> getSupportedVideoSizes(Camera camera) {
         Camera.Parameters params = camera.getParameters();
         // defer to preview instead of params.getSupportedVideoSizes() http://bit.ly/1rxOsq0
@@ -333,8 +367,10 @@ public class RCTCamera {
         parameters.setRotation(cameraInfo.rotation);
 
         // set preview size
-        // defaults to highest resolution available
-        Camera.Size optimalPreviewSize = getBestSize(parameters.getSupportedPreviewSizes(), Integer.MAX_VALUE, Integer.MAX_VALUE);
+        // pick a preview size with same aspect ratio as the best picture size
+        Camera.Size bestCameraSize = getBestSize(parameters.getSupportedPictureSizes(), Integer.MAX_VALUE, Integer.MAX_VALUE);
+        Camera.Size optimalPreviewSize = getBestSizeWithSameAspect(parameters.getSupportedPreviewSizes(), bestCameraSize, Integer.MAX_VALUE, Integer.MAX_VALUE);
+
         int width = optimalPreviewSize.width;
         int height = optimalPreviewSize.height;
 
