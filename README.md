@@ -1,9 +1,9 @@
+# Looking for contributors
+Hey there, I'm looking for active contributors to help move the development of this branch forward in a stable and timely fashion. I haven't had a need for this module in quite some time and so my person time is not being allocated to it. If you are interested in contributing more actively, please contact me (same username on Twitter, Facebook, etc.) Thanks!
+
 # react-native-camera [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![Gitter](https://badges.gitter.im/lwansbrough/react-native-camera.svg)](https://gitter.im/lwansbrough/react-native-camera)
 
 A camera module for React Native.
-
-**BREAKING CHANGES:**
-[*April 27*] capture now returns an object instead of a string
 
 ![](https://i.imgur.com/5j2JdUk.gif)
 
