@@ -479,6 +479,18 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
     }
 
+    @ReactMethod
+    public void startPreview(final ReadableMap options) {
+        Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        camera.startPreview();
+    }
+
+    @ReactMethod
+    public void stopPreview(final ReadableMap options) {
+        Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        camera.stopPreview();
+    }
+
     private void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
         if (null == camera) {
@@ -517,7 +529,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 }
 
                 camera.stopPreview();
-                camera.startPreview();
                 WritableMap response = new WritableNativeMap();
                 switch (options.getInt("target")) {
                     case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
