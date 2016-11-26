@@ -16,11 +16,11 @@ A camera module for React Native.
 <key>NSCameraUsageDescription</key>
 <string>Your message to user when the camera is accesseded for the first time</string>
 
-<!-- Include this only if you are planning to use the camera roll !-->
+<!-- Include this only if you are planning to use the camera roll -->
 <key>NSPhotoLibraryUsageDescription</key>
 <string>Your message to user when the photo library is accessed for the first time</string>
 
-<!-- Include this only if you are planning to use the microphone for video recording !-->
+<!-- Include this only if you are planning to use the microphone for video recording -->
 <key>NSMicrophoneUsageDescription</key>
 <string>Your message to user when the microsphone is accessed for the first time</string>
 ```
