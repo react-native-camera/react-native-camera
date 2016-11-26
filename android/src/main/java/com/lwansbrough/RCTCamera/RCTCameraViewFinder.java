@@ -196,12 +196,8 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             return BarcodeFormat.EAN_13;
         } else if ("ean8".equals(c)) {
             return BarcodeFormat.EAN_8;
-        } else if ("ean8".equals(c)) {
-            return BarcodeFormat.EAN_8;
         } else if ("qr".equals(c)) {
             return BarcodeFormat.QR_CODE;
-        } else if ("ean8".equals(c)) {
-            return BarcodeFormat.EAN_8;
         } else if ("pdf417".equals(c)) {
             return BarcodeFormat.PDF_417;
         } else if ("upce".equals(c)) {
