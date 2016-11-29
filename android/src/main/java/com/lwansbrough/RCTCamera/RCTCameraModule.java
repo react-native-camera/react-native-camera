@@ -270,12 +270,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
      */
     private Throwable prepareMediaRecorder(ReadableMap options) {
         final String qualityString = options.getString("quality");
-        // Prepare CamcorderProfile instance, setting essential options.
-        CamcorderProfile cm = RCTCamera.getInstance().setCaptureVideoQuality(options.getInt("type"), qualityString);
-
-        if (cm == null) {
-            return new RuntimeException("CamcorderProfile not found in prepareMediaRecorder.");
-        }
 
         // Unlock camera to make available for MediaRecorder. Note that this statement must be
         // executed before calling setCamera when configuring the MediaRecorder instance.
@@ -299,15 +293,17 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         // Adjust for orientation.
         mMediaRecorder.setOrientationHint(RCTCamera.getInstance().getAdjustedDeviceOrientation());
 
-        if (cm == null) {
-            return new RuntimeException("CamcorderProfile not found in prepareMediaRecorder.");
-        }
-
         if (qualityString.equalsIgnoreCase(RCT_CAMERA_CAPTURE_QUALITY_LOW)) {
           mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
           mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
           mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         } else {
+          // Prepare CamcorderProfile instance, setting essential options.
+          CamcorderProfile cm = RCTCamera.getInstance().setCaptureVideoQuality(options.getInt("type"), qualityString);
+
+          if (cm == null) {
+              return new RuntimeException("CamcorderProfile not found in prepareMediaRecorder.");
+          }
           // Set video output format and encoding using CamcorderProfile.
           cm.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
           mMediaRecorder.setProfile(cm);
