@@ -298,13 +298,13 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
           mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
           mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         } else {
+          // Set video output format and encoding using CamcorderProfile.
           // Prepare CamcorderProfile instance, setting essential options.
           CamcorderProfile cm = RCTCamera.getInstance().setCaptureVideoQuality(options.getInt("type"), qualityString);
 
           if (cm == null) {
               return new RuntimeException("CamcorderProfile not found in prepareMediaRecorder.");
           }
-          // Set video output format and encoding using CamcorderProfile.
           cm.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
           mMediaRecorder.setProfile(cm);
         }
@@ -501,13 +501,43 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         return byteArray;
     }
 
+    private byte[] rotateImage(byte[] data, float degree) {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+        Bitmap photo = BitmapFactory.decodeStream(inputStream);
+
+        Matrix m = new Matrix();
+        m.postRotate(degree);
+        Bitmap rotatedImage = photo.getWidth() > photo.getHeight() ? Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), m, true) : photo;
+
+        byte[] result = null;
+
+        try {
+            result = compress(rotatedImage, 85);
+        } catch (OutOfMemoryError e) {
+            try {
+                result = compress(rotatedImage, 70);
+            } catch (OutOfMemoryError e2) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     private byte[] mirrorImage(byte[] data) {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
         Bitmap photo = BitmapFactory.decodeStream(inputStream);
 
         Matrix m = new Matrix();
         m.preScale(-1, 1);
-        Bitmap mirroredImage = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), m, false);
+
+        Bitmap mirroredImage = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), m, true);
 
         byte[] result = null;
 
@@ -599,6 +629,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                     if (data == null) {
                         promise.reject("Error mirroring image");
                     }
+                }
+
+                if (data != null) {
+                    data = rotateImage(data, 270);
                 }
 
                 camera.stopPreview();
