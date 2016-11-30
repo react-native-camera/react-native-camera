@@ -37,6 +37,9 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 ```
 3. Run `pod install`
 
+## update search path in the build settings
+1. $(SRCROOT)/../react-native/React as a recursive.
+
 ### Manual install
 #### iOS
 1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
