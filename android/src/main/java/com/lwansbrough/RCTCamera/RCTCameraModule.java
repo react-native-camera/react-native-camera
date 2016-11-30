@@ -537,7 +537,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         Matrix m = new Matrix();
         m.preScale(-1, 1);
 
-        Bitmap mirroredImage = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), m, true);
+        Bitmap mirroredImage = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), m, false);
 
         byte[] result = null;
 
