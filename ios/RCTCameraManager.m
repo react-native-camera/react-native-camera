@@ -266,6 +266,29 @@ RCT_CUSTOM_VIEW_PROPERTY(torchMode, NSInteger, RCTCamera) {
   });
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(zoomLevel, NSInteger, RCTCamera) {
+  AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+  NSError *error = nil;
+  NSInteger *zoomLevel = [RCTConvert NSInteger:json];
+  NSInteger *zoomFactor = 0;
+
+  if ([device lockForConfiguration:&error]) {
+    if (zoomLevel <= 100) {
+      int divisor = [[NSString stringWithFormat:@"0.%d", zoomLevel] intValue];
+      NSLog(@"Divisor is: %@", divisor);
+      zoomFactor = device.activeFormat.videoMaxZoomFactor * divisor
+    } else {
+      NSLog(@"Zoom Level: %@ is higher than 100 percent.", zoomLevel);
+      return;
+    }
+
+    NSLog(@"Setting Zoom Level to %@ percent.", zoomLevel);
+    NSLog(@"Zoom Factor is: %@", zoomFactor);
+    device.videoZoomFactor = zoomFactor;
+    [device unlockForConfiguration];
+  }
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(keepAwake, BOOL, RCTCamera) {
   BOOL enabled = [RCTConvert BOOL:json];
   [UIApplication sharedApplication].idleTimerDisabled = enabled;

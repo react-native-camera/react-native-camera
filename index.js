@@ -22,6 +22,12 @@ function convertNativeProps(props) {
     newProps.flashMode = Camera.constants.FlashMode[props.flashMode];
   }
 
+  if (typeof props.zoomLevel === 'string' || typeof props.zoomLevel === 'number') {
+    if (props.zoomLevel >= 0 && props.zoomLevel <= 100) {
+      newProps.zoomLevel = parseInt(props.zoomLevel);
+    }
+  }
+
   if (typeof props.orientation === 'string') {
     newProps.orientation = Camera.constants.Orientation[props.orientation];
   }
@@ -63,6 +69,7 @@ export default class Camera extends Component {
     CaptureQuality: CameraManager.CaptureQuality,
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
+    ZoomLevel: CameraManager.ZoomLevel,
     TorchMode: CameraManager.TorchMode
   };
 
@@ -87,6 +94,10 @@ export default class Camera extends Component {
     ]),
     defaultOnFocusComponent: PropTypes.bool,
     flashMode: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+    zoomLevel: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
     ]),
@@ -122,6 +133,7 @@ export default class Camera extends Component {
     captureQuality: CameraManager.CaptureQuality.high,
     defaultOnFocusComponent: true,
     flashMode: CameraManager.FlashMode.off,
+    zoomLevel: 0,
     playSoundOnCapture: true,
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,

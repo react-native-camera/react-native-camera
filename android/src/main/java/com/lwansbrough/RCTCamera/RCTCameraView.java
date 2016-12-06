@@ -23,6 +23,7 @@ public class RCTCameraView extends ViewGroup {
     private String _captureQuality = "high";
     private int _torchMode = -1;
     private int _flashMode = -1;
+    private int _zoomLevel = 0;
 
     public RCTCameraView(Context context) {
         super(context);
@@ -76,6 +77,9 @@ public class RCTCameraView extends ViewGroup {
             if (-1 != this._torchMode) {
                 _viewFinder.setFlashMode(this._torchMode);
             }
+            if (0 != this._zoomLevel) {
+                _viewFinder.setZoomLevel(this._zoomLevel);
+            }
             addView(_viewFinder);
         }
     }
@@ -105,6 +109,13 @@ public class RCTCameraView extends ViewGroup {
         this._flashMode = flashMode;
         if (this._viewFinder != null) {
             this._viewFinder.setFlashMode(flashMode);
+        }
+    }
+
+    public void setZoomLevel(int zoomLevel) {
+        this._zoomLevel = zoomLevel;
+        if (this._viewFinder != null) {
+            this._viewFinder.setZoomLevel(zoomLevel);
         }
     }
 
