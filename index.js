@@ -63,7 +63,13 @@ export default class Camera extends Component {
     CaptureQuality: CameraManager.CaptureQuality,
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
-    TorchMode: CameraManager.TorchMode
+    TorchMode: CameraManager.TorchMode,
+    AuthStatus: {
+      NotDetermined: 0,
+      Restricted: 1,
+      Denied: 2,
+      Authorized: 3
+    }
   };
 
   static propTypes = {
@@ -127,6 +133,9 @@ export default class Camera extends Component {
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
   };
+
+  static getVideoAuthorizationStatus = CameraManager.checkVideoAuthorizationStatus;
+  static getAudioAuthorizationStatus = CameraManager.checkAudioAuthorizationStatus;
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
   static checkVideoAuthorizationStatus = CameraManager.checkVideoAuthorizationStatus;

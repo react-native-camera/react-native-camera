@@ -323,6 +323,21 @@ RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve
   }];
 }
 
+RCT_EXPORT_METHOD(getVideoAuthorizationStatus:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    __block NSString *mediaType = AVMediaTypeVideo;
+
+    AVAuthorizationStatus authStatusCode = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
+    resolve(@(authStatusCode));
+}
+
+RCT_EXPORT_METHOD(getAudioAuthorizationStatus:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    __block NSString *mediaType = AVMediaTypeAudio;
+
+    AVAuthorizationStatus authStatusCode = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
+    resolve(@(authStatusCode));
+}
 
 RCT_EXPORT_METHOD(checkVideoAuthorizationStatus:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
