@@ -190,7 +190,7 @@ Values: `true` (default) or `false`
 
 This property allows you to specify whether a shutter sound is played on capture. It is currently android only, pending [a reasonable mute implementation](http://stackoverflow.com/questions/4401232/avfoundation-how-to-turn-off-the-shutter-sound-when-capturestillimageasynchrono) in iOS.
 
-#### `iOS` `onBarCodeRead`
+#### `onBarCodeRead`
 
 Will call the specified method when a barcode is detected in the camera's view.
 
@@ -214,7 +214,7 @@ The following barcode types can be recognised:
 
 The barcode type is provided in the `data` object.
 
-#### `iOS` `barCodeTypes`
+#### `barCodeTypes`
 
 An array of barcode types to search for. Defaults to all types listed above. No effect if `onBarCodeRead` is undefined.
 
