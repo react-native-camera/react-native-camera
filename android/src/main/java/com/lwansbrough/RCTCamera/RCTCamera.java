@@ -49,9 +49,11 @@ public class RCTCamera {
     }
 
     public void releaseCameraInstance(int type) {
-        if (null != _cameras.get(type)) {
-            _cameras.get(type).release();
+        // Release seems async and creates race conditions. Remove from map first before releasing.
+        Camera releasingCamera = _cameras.get(type);
+        if (null != releasingCamera) {
             _cameras.remove(type);
+            releasingCamera.release();
         }
     }
 
