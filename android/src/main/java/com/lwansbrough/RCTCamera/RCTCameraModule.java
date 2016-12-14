@@ -608,6 +608,15 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             }
         }
     }
+    
+    @ReactMethod
+    public void checkDeviceAuthorizationStatus(final Promise promise) {
+        if (!checkForPermission(Manifest.permission.CAMERA)) {
+            promise.resolve(false);
+        } else {
+            promise.resolve(checkForPermission(Manifest.permission.RECORD_AUDIO));
+        }
+    }
 
     @ReactMethod
     public void checkVideoAuthorizationStatus(final Promise promise) {
