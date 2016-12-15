@@ -345,6 +345,24 @@ public class RCTCamera {
         }
     }
 
+    public int calculateOrientationHintForVideo(int type, int deviceOrientation) {
+        Camera camera = _cameras.get(type);
+        if (null == camera) {
+            return -1;
+        }
+
+        CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
+        int orientationhint;
+        int orientation = cameraInfo.info.orientation;
+        if (cameraInfo.info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            orientationhint = (orientation + deviceOrientation * 90) % 360;
+        } else {
+            orientationhint = (orientation - deviceOrientation * 90 + 360) % 360;
+        }
+
+        return orientationhint;
+    }
+
     public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {
         Camera camera = _cameras.get(type);
         if (null == camera) {
