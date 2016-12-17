@@ -118,6 +118,7 @@ export default class Camera extends Component {
     viewFinderShowLoadingIndicator: PropTypes.bool,
     viewFinderHeight: PropTypes.number,
     viewFinderWidth: PropTypes.number,
+    millisecondDelayBetweenScans: PropTypes.number,
   };
 
   static defaultProps = {
@@ -222,11 +223,15 @@ export default class Camera extends Component {
 
   _onBarCodeRead = (data) => {
     if (this.props.onBarCodeRead) {
-      this.componentWillUnmount()
-      this.props.onBarCodeRead(data)
-      setTimeout(() => {
-        this.componentWillMount()
-      }, 3000)
+      if (this.props.millisecondDelayBetweenScans) {
+        this.componentWillUnmount()
+        this.props.onBarCodeRead(data)
+        setTimeout(() => {
+          this.componentWillMount()
+        }, this.props.millisecondDelayBetweenScans)
+      } else {
+        this.props.onBarCodeRead(data)
+      }
     }
   };
 
