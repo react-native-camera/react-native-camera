@@ -32,4 +32,6 @@ repositories {
 
 dependencies {
   compile "com.facebook.react:react-native:0.19.+"
+  compile "com.google.zxing:core:3.2.1"
+  compile "com.drewnoakes:metadata-extractor:2.9.1"
 }

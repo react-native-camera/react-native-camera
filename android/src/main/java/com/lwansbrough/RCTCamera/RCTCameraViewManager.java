@@ -1,8 +1,13 @@
 package com.lwansbrough.RCTCamera;
 
 import android.support.annotation.Nullable;
+
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.uimanager.*;
 import com.facebook.react.uimanager.annotations.ReactProp;
+
+import java.util.List;
+import java.util.ArrayList;
 
 public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
     private static final String REACT_CLASS = "RCTCamera";
@@ -23,8 +28,11 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
     }
 
     @ReactProp(name = "captureMode")
-    public void setCaptureMode(RCTCameraView view, int captureMode) {
-        // TODO - implement video mode
+    public void setCaptureMode(RCTCameraView view, final int captureMode) {
+        // Note that this in practice only performs any additional setup necessary for each mode;
+        // the actual indication to capture a still or record a video when capture() is called is
+        // still ultimately decided upon by what it in the options sent to capture().
+        view.setCaptureMode(captureMode);
     }
 
     @ReactProp(name = "captureTarget")
@@ -60,5 +68,22 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
     @ReactProp(name = "captureAudio")
     public void setCaptureAudio(RCTCameraView view, boolean captureAudio) {
         // TODO - implement video mode
+    }
+
+    @ReactProp(name = "barcodeScannerEnabled")
+    public void setBarcodeScannerEnabled(RCTCameraView view, boolean barcodeScannerEnabled) {
+        view.setBarcodeScannerEnabled(barcodeScannerEnabled);
+    }
+
+    @ReactProp(name = "barCodeTypes")
+    public void setBarCodeTypes(RCTCameraView view, ReadableArray barCodeTypes) {
+        if (barCodeTypes == null) {
+            return;
+        }
+        List<String> result = new ArrayList<String>(barCodeTypes.size());
+        for (int i = 0; i < barCodeTypes.size(); i++) {
+            result.add(barCodeTypes.getString(i));
+        }
+        view.setBarCodeTypes(result);
     }
 }

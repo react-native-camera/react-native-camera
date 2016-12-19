@@ -11,12 +11,15 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View;
 
+import java.util.List;
+
 public class RCTCameraView extends ViewGroup {
     private final OrientationEventListener _orientationListener;
     private final Context _context;
     private RCTCameraViewFinder _viewFinder = null;
     private int _actualDeviceOrientation = -1;
     private int _aspect = RCTCameraModule.RCT_CAMERA_ASPECT_FIT;
+    private int _captureMode = RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_STILL;
     private String _captureQuality = "high";
     private int _torchMode = -1;
     private int _flashMode = -1;
@@ -24,7 +27,7 @@ public class RCTCameraView extends ViewGroup {
     public RCTCameraView(Context context) {
         super(context);
         this._context = context;
-        setActualDeviceOrientation(context);
+        RCTCamera.createInstance(getDeviceOrientation(context));
 
         _orientationListener = new OrientationEventListener(context, SensorManager.SENSOR_DELAY_NORMAL) {
             @Override
@@ -77,6 +80,13 @@ public class RCTCameraView extends ViewGroup {
         }
     }
 
+    public void setCaptureMode(final int captureMode) {
+        this._captureMode = captureMode;
+        if (this._viewFinder != null) {
+            this._viewFinder.setCaptureMode(captureMode);
+        }
+    }
+
     public void setCaptureQuality(String captureQuality) {
         this._captureQuality = captureQuality;
         if (this._viewFinder != null) {
@@ -105,8 +115,16 @@ public class RCTCameraView extends ViewGroup {
         }
     }
 
+    public void setBarcodeScannerEnabled(boolean barcodeScannerEnabled) {
+        RCTCamera.getInstance().setBarcodeScannerEnabled(barcodeScannerEnabled);
+    }
+
+    public void setBarCodeTypes(List<String> types) {
+        RCTCamera.getInstance().setBarCodeTypes(types);
+    }
+
     private boolean setActualDeviceOrientation(Context context) {
-        int actualDeviceOrientation = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getOrientation();
+        int actualDeviceOrientation = getDeviceOrientation(context);
         if (_actualDeviceOrientation != actualDeviceOrientation) {
             _actualDeviceOrientation = actualDeviceOrientation;
             RCTCamera.getInstance().setActualDeviceOrientation(_actualDeviceOrientation);
@@ -114,6 +132,10 @@ public class RCTCameraView extends ViewGroup {
         } else {
             return false;
         }
+    }
+
+    private int getDeviceOrientation(Context context) {
+        return ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getOrientation();
     }
 
     private void layoutViewFinder() {
