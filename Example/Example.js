@@ -70,15 +70,9 @@ export default class Example extends React.Component {
       },
       isRecording: false
     };
-
-    this.takePicture = this.takePicture.bind(this);
-    this.startRecording = this.startRecording.bind(this);
-    this.stopRecording = this.stopRecording.bind(this);
-    this.switchType = this.switchType.bind(this);
-    this.switchFlash = this.switchFlash.bind(this);
   }
 
-  takePicture() {
+  takePicture = () => {
     if (this.camera) {
       this.camera.capture()
         .then((data) => console.log(data))
@@ -86,7 +80,7 @@ export default class Example extends React.Component {
     }
   }
 
-  startRecording() {
+  startRecording = () => {
     if (this.camera) {
       this.camera.capture({mode: Camera.constants.CaptureMode.video})
           .then((data) => console.log(data))
@@ -97,7 +91,7 @@ export default class Example extends React.Component {
     }
   }
 
-  stopRecording() {
+  stopRecording = () => {
     if (this.camera) {
       this.camera.stopCapture();
       this.setState({
@@ -106,7 +100,7 @@ export default class Example extends React.Component {
     }
   }
 
-  switchType() {
+  switchType = () => {
     let newType;
     const { back, front } = Camera.constants.Type;
 
@@ -137,7 +131,7 @@ export default class Example extends React.Component {
     return icon;
   }
 
-  switchFlash() {
+  switchFlash = () => {
     let newFlashMode;
     const { auto, on, off } = Camera.constants.FlashMode;
 
