@@ -14,11 +14,13 @@ import android.os.AsyncTask;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.List;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.lang.Math;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -26,6 +28,7 @@ import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.Result;
+import com.google.zxing.ResultPoint;
 import com.google.zxing.common.HybridBinarizer;
 
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
@@ -308,6 +311,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 WritableMap event = Arguments.createMap();
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());
+                event.putMap("bounds", this.getBounds(result.getResultPoints()));
                 reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("CameraBarCodeReadAndroid", event);
 
             } catch (Throwable t) {
@@ -317,6 +321,38 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 RCTCameraViewFinder.barcodeScannerTaskLock = false;
                 return null;
             }
+        }
+
+        private WritableMap getBounds(ResultPoint[] points) {
+            double originX = Double.MAX_VALUE;
+            double originY = Double.MAX_VALUE;
+            double maxX = Double.MIN_VALUE;
+            double maxY = Double.MIN_VALUE;
+
+            double x;
+            double y;
+            for (ResultPoint p : points) {
+                x = (double)p.getX();
+                y = (double)p.getY();
+                originX = Math.min(originX, x);
+                originY = Math.min(originY, y);
+                maxX = Math.max(maxX, x);
+                maxY = Math.max(maxY, y);
+            }
+
+            WritableMap boundsOrigin = new WritableNativeMap();
+            boundsOrigin.putDouble("x", originX);
+            boundsOrigin.putDouble("y", originY);
+
+            WritableMap boundsSize = new WritableNativeMap();
+            boundsSize.putDouble("width", maxX - originX);
+            boundsSize.putDouble("height", maxY - originY);
+
+            WritableMap bounds = new WritableNativeMap();
+            bounds.putMap("origin", boundsOrigin);
+            bounds.putMap("size", boundsSize);
+
+            return bounds;
         }
     }
 
