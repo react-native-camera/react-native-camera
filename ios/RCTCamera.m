@@ -1,9 +1,9 @@
-#import <React/RCTBridge.h>
+#import "RCTBridge.h"
 #import "RCTCamera.h"
 #import "RCTCameraManager.h"
-#import <React/RCTLog.h>
-#import <React/RCTUtils.h>
-#import <React/RCTEventDispatcher.h>
+#import "RCTLog.h"
+#import "RCTUtils.h"
+#import "RCTEventDispatcher.h"
 
 #import "UIView+React.h"
 

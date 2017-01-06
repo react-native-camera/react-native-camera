@@ -1,4 +1,4 @@
-#import <React/RCTViewManager.h>
+#import "RCTViewManager.h"
 #import <AVFoundation/AVFoundation.h>
 
 @class RCTCamera;
