@@ -87,6 +87,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     private Camera mCamera = null;
     private Promise mRecordingPromise = null;
     private ReadableMap mRecordingOptions;
+    private boolean mSafeToCapture = true;
 
     public RCTCameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -657,6 +658,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
         RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(options.getInt("type"), deviceOrientation);
         camera.setPreviewCallback(null);
+        if (!mSafeToCapture) {
+            Log.w(TAG, "Not capturing picture. Probably another capture is still going on.");
+            return;
+        }
+        mSafeToCapture = false;
         camera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
@@ -734,6 +740,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                         break;
                     }
                 }
+
+                mSafeToCapture = true;
             }
         });
     }
