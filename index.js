@@ -154,7 +154,7 @@ export default class Camera extends Component {
 
   async componentWillMount() {
     this._addOnBarCodeReadListener()
-
+    this._addOnFocusChanged()
     let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode })
     let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
     let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
@@ -167,17 +167,25 @@ export default class Camera extends Component {
 
   componentWillUnmount() {
     this._removeOnBarCodeReadListener()
-
+    this._removeOnFocusChanged()
     if (this.state.isRecording) {
       this.stopCapture();
     }
   }
 
   componentWillReceiveProps(newProps) {
-    const { onBarCodeRead } = this.props
+    const { onBarCodeRead, onFocusChanged } = this.props
     if (onBarCodeRead !== newProps.onBarCodeRead) {
       this._addOnBarCodeReadListener(newProps)
     }
+    if (onFocusChanged !== !newProps.onFocusChanged) {
+      this._addOnFocusChanged(newProps)
+    }
+  }
+
+  _addOnFocusChanged(props) {
+    const { onFocusChanged } = props || this.props;
+    this.focusListener = NativeAppEventEmitter.addListener('focusChanged', onFocusChanged)
   }
 
   _addOnBarCodeReadListener(props) {
