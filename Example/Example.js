@@ -183,6 +183,7 @@ export default class Example extends React.Component {
           type={this.state.camera.type}
           flashMode={this.state.camera.flashMode}
           defaultTouchToFocus
+          onFocusChanged = {(e) => console.log(e)}
           mirrorImage={false}
         />
         <View style={[styles.overlay, styles.topOverlay]}>
