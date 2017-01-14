@@ -234,7 +234,7 @@ RCT_CUSTOM_VIEW_PROPERTY(flashMode, NSInteger, RCTCamera) {
 - (void)setFlashMode {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if (![device hasFlash]) return;
     if (![device lockForConfiguration:&error]) {
         NSLog(@"%@", error);
@@ -679,7 +679,18 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     }];
     return;
   }
-  resolve(@{@"path":responseString});
+
+  CGImageRef imageRef = CGImageRetain([[UIImage alloc]initWithContentsOfFile:responseString].CGImage);
+  float imageWidth = (float)CGImageGetWidth(imageRef);
+  float imageHeight = (float)CGImageGetHeight(imageRef);
+  CGImageRelease(imageRef);
+
+  NSMutableDictionary *imageFormattedData = [NSMutableDictionary dictionaryWithDictionary:@{
+    @"uri":responseString,
+    @"width":[NSNumber numberWithFloat:imageWidth],
+    @"height":[NSNumber numberWithFloat:imageHeight],
+  }];
+  resolve(imageFormattedData);
 }
 
 - (CGImageRef)newCGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
