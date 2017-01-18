@@ -425,7 +425,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         f.setReadable(true, false); // so mediaplayer can play it
         f.setWritable(true, false); // so can clean it up
 
-        WritableMap response = new WritableNativeMap();
+        final WritableMap response = new WritableNativeMap();
         switch (mRecordingOptions.getInt("target")) {
             case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                 byte[] encoded = convertFileToByteArray(mVideoFile);
@@ -452,9 +452,13 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
                 values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
                 _reactContext.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
-                addToMediaStore(mVideoFile.getAbsolutePath());
-                response.putString("path", Uri.fromFile(mVideoFile).toString());
-                mRecordingPromise.resolve(response);
+                addToMediaStore(mVideoFile.getAbsolutePath(), new MediaScannerConnection.OnScanCompletedListener() {
+                    @Override
+                    public void onScanCompleted(String s, Uri uri) {
+                        response.putString("path", uri.toString());
+                        mRecordingPromise.resolve(response);
+                    }
+                });
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_TEMP:
             case RCT_CAMERA_CAPTURE_TARGET_DISK:
@@ -672,7 +676,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
                 camera.stopPreview();
                 camera.startPreview();
-                WritableMap response = new WritableNativeMap();
+                final WritableMap response = new WritableNativeMap();
                 switch (options.getInt("target")) {
                     case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                         String encoded = Base64.encodeToString(data, Base64.DEFAULT);
@@ -680,7 +684,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                         promise.resolve(response);
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL: {
-                        File cameraRollFile = getOutputCameraRollFile(MEDIA_TYPE_IMAGE);
+                        final File cameraRollFile = getOutputCameraRollFile(MEDIA_TYPE_IMAGE);
                         if (cameraRollFile == null) {
                             promise.reject("Error creating media file.");
                             return;
@@ -693,9 +697,13 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                         }
 
                         rewriteOrientation(cameraRollFile.getAbsolutePath());
-                        addToMediaStore(cameraRollFile.getAbsolutePath());
-                        response.putString("path", Uri.fromFile(cameraRollFile).toString());
-                        promise.resolve(response);
+                        addToMediaStore(cameraRollFile.getAbsolutePath(), new MediaScannerConnection.OnScanCompletedListener() {
+                            @Override
+                            public void onScanCompleted(String s, Uri uri) {
+                                response.putString("path", uri.toString());
+                                promise.resolve(response);
+                            }
+                        });
                         break;
                     }
                     case RCT_CAMERA_CAPTURE_TARGET_DISK: {
@@ -843,8 +851,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
     }
 
-    private void addToMediaStore(String path) {
-        MediaScannerConnection.scanFile(_reactContext, new String[] { path }, null, null);
+    private void addToMediaStore(String path, MediaScannerConnection.OnScanCompletedListener callback) {
+        MediaScannerConnection.scanFile(_reactContext, new String[] { path }, null, callback);
     }
 
 
