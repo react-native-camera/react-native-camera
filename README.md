@@ -8,7 +8,7 @@ A camera module for React Native.
 #### Breaking Changes
 react-native header imports have changed in v0.40, and that means breaking changes for all! [Reference PR & Discussion](https://github.com/lwansbrough/react-native-camera/pull/544).
 - if on react-native < 0.40: `npm i react-native-camera@0.4`
-- if on react-native >= 0.40 `npm i react-native-camera@next`
+- if on react-native >= 0.40 `npm i react-native-camera@0.5`
 
 ![](https://i.imgur.com/5j2JdUk.gif)
 
