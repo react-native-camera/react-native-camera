@@ -456,6 +456,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
 - (void)stopSession {
 #if TARGET_IPHONE_SIMULATOR
+  self.camera = nil;
   return;
 #endif
   dispatch_async(self.sessionQueue, ^{
