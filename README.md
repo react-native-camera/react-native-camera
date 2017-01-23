@@ -204,7 +204,7 @@ Event contains `data` (the data in the barcode) and `bounds` (the rectangle whic
 The following barcode types can be recognised:
 
 - `aztec`
-- `code138`
+- `code128`
 - `code39`
 - `code39mod43`
 - `code93`
