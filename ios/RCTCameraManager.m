@@ -44,33 +44,39 @@ RCT_EXPORT_MODULE();
 
 - (NSDictionary *)constantsToExport
 {
+  NSMutableDictionary * barCodeTypes = [NSMutableDictionary dictionary];
+  [barCodeTypes setDictionary:@{
+    @"upce": AVMetadataObjectTypeUPCECode,
+    @"code39": AVMetadataObjectTypeCode39Code,
+    @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
+    @"ean13": AVMetadataObjectTypeEAN13Code,
+    @"ean8":  AVMetadataObjectTypeEAN8Code,
+    @"code93": AVMetadataObjectTypeCode93Code,
+    @"code138": AVMetadataObjectTypeCode128Code,
+    @"pdf417": AVMetadataObjectTypePDF417Code,
+    @"qr": AVMetadataObjectTypeQRCode,
+    @"aztec": AVMetadataObjectTypeAztecCode
+  }];
+    //Check at runtime if these other constants exist
+  if(&AVMetadataObjectTypeInterleaved2of5Code != nil){
+    [barCodeTypes setObject:AVMetadataObjectTypeInterleaved2of5Code forKey:@"interleaved2of5"];
+  }
+
+  if(&AVMetadataObjectTypeITF14Code != nil){
+    [barCodeTypes setObject:AVMetadataObjectTypeITF14Code forKey:@"itf14"];
+  }
+
+  if(&AVMetadataObjectTypeDataMatrixCode != nil){
+    [barCodeTypes setObject:AVMetadataObjectTypeDataMatrixCode forKey:@"datamatrix"];
+  }
+  
   return @{
            @"Aspect": @{
                @"stretch": @(RCTCameraAspectStretch),
                @"fit": @(RCTCameraAspectFit),
                @"fill": @(RCTCameraAspectFill)
                },
-           @"BarCodeType": @{
-               @"upce": AVMetadataObjectTypeUPCECode,
-               @"code39": AVMetadataObjectTypeCode39Code,
-               @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
-               @"ean13": AVMetadataObjectTypeEAN13Code,
-               @"ean8":  AVMetadataObjectTypeEAN8Code,
-               @"code93": AVMetadataObjectTypeCode93Code,
-               @"code138": AVMetadataObjectTypeCode128Code,
-               @"pdf417": AVMetadataObjectTypePDF417Code,
-               @"qr": AVMetadataObjectTypeQRCode,
-               @"aztec": AVMetadataObjectTypeAztecCode
-               #ifdef AVMetadataObjectTypeInterleaved2of5Code
-               ,@"interleaved2of5": AVMetadataObjectTypeInterleaved2of5Code
-               # endif
-               #ifdef AVMetadataObjectTypeITF14Code
-               ,@"itf14": AVMetadataObjectTypeITF14Code
-               # endif
-               #ifdef AVMetadataObjectTypeDataMatrixCode
-               ,@"datamatrix": AVMetadataObjectTypeDataMatrixCode
-               # endif
-               },
+           @"BarCodeType": barCodeTypes,
            @"Type": @{
                @"front": @(RCTCameraTypeFront),
                @"back": @(RCTCameraTypeBack)
