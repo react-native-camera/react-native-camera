@@ -187,9 +187,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     /**
      * Parse barcodes as BarcodeFormat constants.
      *
-     * Supports all iOS codes except [code138, code39mod43, itf14]
+     * Supports all iOS codes except [code39mod43, itf14]
      *
-     * Additionally supports [codabar, code128, maxicode, rss14, rssexpanded, upca, upceanextension]
+     * Additionally supports [codabar, maxicode, rss14, rssexpanded, upca, upceanextension]
      */
     private BarcodeFormat parseBarCodeString(String c) {
         if ("aztec".equals(c)) {
