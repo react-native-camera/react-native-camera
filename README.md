@@ -70,7 +70,12 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 	```
     compile project(':react-native-camera')
 	```
+5. Declare the permissions in your Android Manifest
 
+  ```
+  <uses-permission android:name="android.permission.CAMERA" />
+  <uses-feature android:name="android.hardware.camera" />
+  ```
 
 ## Usage
 
