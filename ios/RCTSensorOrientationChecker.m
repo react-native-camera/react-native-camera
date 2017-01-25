@@ -71,18 +71,20 @@
 
 - (UIInterfaceOrientation)getOrientationBy:(CMAcceleration)acceleration
 {
-    if(acceleration.x >= 0.75) {
-        return UIInterfaceOrientationLandscapeLeft;
-    }
-    if(acceleration.x <= -0.75) {
+    float x = -acceleration.x;
+    float y = acceleration.y;
+    float angle = atan2(y, x);
+
+    if (angle >= -2.25 && angle <= -0.75) {
+         return UIInterfaceOrientationPortrait;
+    } else if (angle >= -0.75 && angle <= 0.75){
         return UIInterfaceOrientationLandscapeRight;
+    } else if (angle >= 0.75 && angle <= 2.25) {
+         return UIInterfaceOrientationPortraitUpsideDown;
+    } else if (angle <= -2.25 || angle >= 2.25) {
+         return UIInterfaceOrientationLandscapeLeft;
     }
-    if(acceleration.y >= -0.75) {
-        return UIInterfaceOrientationPortrait;
-    }
-    if(acceleration.y >= 0.75) {
-        return UIInterfaceOrientationPortraitUpsideDown;
-    }
+
     return [[UIApplication sharedApplication] statusBarOrientation];
 }
 
@@ -93,10 +95,11 @@
             return AVCaptureVideoOrientationPortrait;
         case UIInterfaceOrientationPortraitUpsideDown:
             return AVCaptureVideoOrientationPortraitUpsideDown;
+        // Landscape UI and device orientation are opposite
         case UIInterfaceOrientationLandscapeLeft:
-            return AVCaptureVideoOrientationLandscapeLeft;
-        case UIInterfaceOrientationLandscapeRight:
             return AVCaptureVideoOrientationLandscapeRight;
+        case UIInterfaceOrientationLandscapeRight:
+            return AVCaptureVideoOrientationLandscapeLeft;
         default:
             return 0; // unknown
     }
