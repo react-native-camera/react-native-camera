@@ -332,6 +332,10 @@ export default class Camera extends Component {
     }
     return CameraManager.hasFlash();
   }
+
+	setZoom(zoomFactor) {
+		return CameraManager.setZoom(zoomFactor);
+	}
 }
 
 export const constants = Camera.constants;
