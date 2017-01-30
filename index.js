@@ -41,6 +41,10 @@ function convertNativeProps(props) {
   if (typeof props.captureMode === 'string') {
     newProps.captureMode = Camera.constants.CaptureMode[props.captureMode];
   }
+  
+  if (typeof props.captureTarget === 'string') {
+    newProps.captureTarget = Camera.constants.CaptureTarget[props.captureTarget];
+  }
 
   // do not register barCodeTypes if no barcode listener
   if (typeof props.onBarCodeRead !== 'function') {

@@ -1,10 +1,10 @@
 #import "RCTCameraManager.h"
 #import "RCTCamera.h"
-#import "RCTBridge.h"
-#import "RCTEventDispatcher.h"
-#import "RCTUtils.h"
-#import "RCTLog.h"
-#import "UIView+React.h"
+#import <React/RCTBridge.h>
+#import <React/RCTEventDispatcher.h>
+#import <React/RCTUtils.h>
+#import <React/RCTLog.h>
+#import <React/UIView+React.h>
 #import "NSMutableDictionary+ImageMetadata.m"
 #import <AssetsLibrary/ALAssetsLibrary.h>
 #import <AVFoundation/AVFoundation.h>
@@ -57,7 +57,7 @@ RCT_EXPORT_MODULE();
                @"ean13": AVMetadataObjectTypeEAN13Code,
                @"ean8":  AVMetadataObjectTypeEAN8Code,
                @"code93": AVMetadataObjectTypeCode93Code,
-               @"code138": AVMetadataObjectTypeCode128Code,
+               @"code128": AVMetadataObjectTypeCode128Code,
                @"pdf417": AVMetadataObjectTypePDF417Code,
                @"qr": AVMetadataObjectTypeQRCode,
                @"aztec": AVMetadataObjectTypeAztecCode
@@ -456,6 +456,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
 - (void)stopSession {
 #if TARGET_IPHONE_SIMULATOR
+  self.camera = nil;
   return;
 #endif
   dispatch_async(self.sessionQueue, ^{

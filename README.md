@@ -5,7 +5,12 @@ Hey there, I'm looking for active contributors to help move the development of t
 
 A camera module for React Native.
 
-![](https://i.imgur.com/5j2JdUk.gif)
+#### Breaking Changes
+react-native header imports have changed in v0.40, and that means breaking changes for all! [Reference PR & Discussion](https://github.com/lwansbrough/react-native-camera/pull/544).
+- if on react-native < 0.40: `npm i react-native-camera@0.4`
+- if on react-native >= 0.40 `npm i react-native-camera@0.5`
+
+![5j2jduk](https://cloud.githubusercontent.com/assets/2302315/22190752/6bc6ccd0-e0da-11e6-8e2f-6f22a3567a57.gif)
 
 ## Getting started
 
@@ -14,7 +19,7 @@ A camera module for React Native.
 2. With iOS 10 and higher you need to add the "Privacy - Camera Usage Description" key to the info.plist of your project. This should be found in 'your_project/ios/your_project/Info.plist'.  Add the following code:
 ```
 <key>NSCameraUsageDescription</key>
-<string>Your message to user when the camera is accesseded for the first time</string>
+<string>Your message to user when the camera is accessed for the first time</string>
 
 <!-- Include this only if you are planning to use the camera roll -->
 <key>NSPhotoLibraryUsageDescription</key>
@@ -65,7 +70,12 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 	```
     compile project(':react-native-camera')
 	```
+5. Declare the permissions in your Android Manifest
 
+  ```
+  <uses-permission android:name="android.permission.CAMERA" />
+  <uses-feature android:name="android.hardware.camera" />
+  ```
 
 ## Usage
 
@@ -199,7 +209,7 @@ Event contains `data` (the data in the barcode) and `bounds` (the rectangle whic
 The following barcode types can be recognised:
 
 - `aztec`
-- `code138`
+- `code128`
 - `code39`
 - `code39mod43`
 - `code93`

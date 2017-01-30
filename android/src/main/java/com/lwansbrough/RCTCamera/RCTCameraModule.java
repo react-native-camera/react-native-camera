@@ -87,6 +87,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     private Camera mCamera = null;
     private Promise mRecordingPromise = null;
     private ReadableMap mRecordingOptions;
+    private Boolean mSafeToCapture = true;
 
     public RCTCameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -573,7 +574,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             );
 
             final ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-            if (exifIFD0Directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+            if (exifIFD0Directory == null) {
+                return data;
+            } else if (exifIFD0Directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
                 final int exifOrientation = exifIFD0Directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
                 return rotate(data, exifOrientation);
             }
@@ -654,7 +657,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         final Boolean shouldMirror = options.hasKey("mirrorImage") && options.getBoolean("mirrorImage");
 
         RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(options.getInt("type"), deviceOrientation);
-        camera.takePicture(null, null, new Camera.PictureCallback() {
+        camera.setPreviewCallback(null);
+
+        Camera.PictureCallback captureCallback = new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
 
@@ -731,8 +736,19 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                         break;
                     }
                 }
+
+                mSafeToCapture = true;
             }
-        });
+        };
+
+        if(mSafeToCapture) {
+          try {
+            camera.takePicture(null, null, captureCallback);
+            mSafeToCapture = false;
+          } catch(RuntimeException ex) {
+              Log.e(TAG, "Couldn't capture photo.", ex);
+          }
+        }
     }
 
     @ReactMethod
