@@ -953,16 +953,18 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
             AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
             if([device isFocusPointOfInterestSupported] &&
                [device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
-                CGRect screenRect = [[UIScreen mainScreen] bounds];
-                double screenWidth = screenRect.size.width;
-                double screenHeight = screenRect.size.height;
-                double focus_x = atPoint.x/screenWidth;
-                double focus_y = atPoint.y/screenHeight;
+                CGRect cameraViewRect = [[self camera] bounds];
+                double cameraViewWidth = cameraViewRect.size.width;
+                double cameraViewHeight = cameraViewRect.size.height;
+                double focus_x = atPoint.x/cameraViewWidth;
+                double focus_y = atPoint.y/cameraViewHeight;
+                CGPoint cameraViewPoint = CGPointMake(focus_x, focus_y);
                 if([device lockForConfiguration:nil]) {
-                    [device setFocusPointOfInterest:CGPointMake(focus_x,focus_y)];
+                    [device setFocusPointOfInterest:cameraViewPoint];
                     [device setFocusMode:AVCaptureFocusModeAutoFocus];
-                    if ([device isExposureModeSupported:AVCaptureExposureModeAutoExpose]){
+                    if ([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:AVCaptureExposureModeAutoExpose]) {
                         [device setExposureMode:AVCaptureExposureModeAutoExpose];
+                        [device setExposurePointOfInterest:cameraViewPoint];
                     }
                     [device unlockForConfiguration];
                 }
