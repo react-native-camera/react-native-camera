@@ -84,6 +84,12 @@ public class RCTCameraUtils {
         }
     }
 
+    /**
+     * Simple helper class to store a stream id and the volume it should be restored to.
+     *
+     * Useful for tracking volumes to restore to when muting audio streams around capture record
+     * start/stops.
+     */
     public static class StreamIdRestoreVolume {
         int streamId;
         int restoreVolume;
