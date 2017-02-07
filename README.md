@@ -314,15 +314,15 @@ Ends the current capture session for video captures. Only applies when the curre
 
 #### `iOS` `Camera.checkDeviceAuthorizationStatus(): Promise`
 
-Exposes the native API for checking if the device has authorized access to the camera (camera and microphone permissions). Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.
+Exposes the native API for checking if the device has authorized access to the camera (camera and microphone permissions). Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized. Note, [as of iOS 10](https://developer.apple.com/library/content/documentation/AudioVideo/Conceptual/PhotoCaptureGuide/#//apple_ref/doc/uid/TP40017511-CH1-DontLinkElementID_3), you will need to add `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 #### `iOS` `Camera.checkVideoAuthorizationStatus(): Promise`
 
-The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the camera permission.
+The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the camera permission. Note, as of iOS 10, you will need to add `NSCameraUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 #### `iOS` `Camera.checkAudioAuthorizationStatus(): Promise`
 
-The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the microphone permission.
+The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the microphone permission. Note, as of iOS 10, you will need to add `NSMicrophoneUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
