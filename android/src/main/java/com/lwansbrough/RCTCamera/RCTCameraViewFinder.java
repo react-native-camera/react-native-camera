@@ -29,6 +29,10 @@ import com.google.zxing.MultiFormatReader;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
     private int _cameraType;
@@ -171,6 +175,14 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 );
                 parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
 
+                int maxFps[] = new int[2];
+                for (int[] fpsRange : parameters.getSupportedPreviewFpsRange()) {
+                  if (fpsRange[0] > maxFps[0]) {
+                    maxFps[0] = fpsRange[0];
+                    maxFps[1] = fpsRange[1];
+                  }
+                }
+                parameters.setPreviewFpsRange(maxFps[0], maxFps[1]);
                 _camera.setParameters(parameters);
                 _camera.setPreviewTexture(_surfaceTexture);
                 _camera.startPreview();
@@ -285,7 +297,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (RCTCamera.getInstance().isBarcodeScannerEnabled() && !RCTCameraViewFinder.barcodeScannerTaskLock) {
             RCTCameraViewFinder.barcodeScannerTaskLock = true;
-            new ReaderAsyncTask(camera, data).execute();
+          LinkedBlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue<Runnable>();
+          ExecutorService exec = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, blockingQueue);
+          new ReaderAsyncTask(camera, data).executeOnExecutor(exec);
         }
     }
 
@@ -304,26 +318,28 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 return null;
             }
 
-            Camera.Size size = camera.getParameters().getPreviewSize();
-
-            int width = size.width;
-            int height = size.height;
-
-            // rotate for zxing if orientation is portrait
-            if (RCTCamera.getInstance().getActualDeviceOrientation() == 0) {
-                byte[] rotated = new byte[imageData.length];
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        rotated[x * height + height - y - 1] = imageData[x + y * width];
-                    }
-                }
-                width = size.height;
-                height = size.width;
-                imageData = rotated;
-            }
-
             try {
-                PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
+                Camera.Size size = camera.getParameters().getPreviewSize();
+
+                int width = size.width;
+                int height = size.height;
+
+                // rotate for zxing if orientation is portrait
+                /*if (RCTCamera.getInstance().getActualDeviceOrientation() == 0) {
+                  byte[] rotated = new byte[imageData.length];
+                  for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                      rotated[x * height + height - y - 1] = imageData[x + y * width];
+                    }
+                  }
+                  width = size.height;
+                  height = size.width;
+                  imageData = rotated;
+                }*/
+
+                Boolean reverseHorizontal = RCTCamera.getInstance().getActualDeviceOrientation() == 0;
+
+                PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, reverseHorizontal);
                 BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
                 Result result = _multiFormatReader.decodeWithState(bitmap);
 
