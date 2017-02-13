@@ -11,6 +11,7 @@ import android.hardware.Camera;
 import android.view.MotionEvent;
 import android.view.TextureView;
 import android.os.AsyncTask;
+import android.graphics.Matrix;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
@@ -33,6 +34,24 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
+import android.util.SparseArray;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.vision.barcode.BarcodeDetector;
+
+import android.renderscript.Allocation;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicYuvToRGB;
+import android.renderscript.Element;
+import android.renderscript.Type;
 
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
     private int _cameraType;
@@ -299,17 +318,46 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             RCTCameraViewFinder.barcodeScannerTaskLock = true;
           LinkedBlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue<Runnable>();
           ExecutorService exec = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, blockingQueue);
-          new ReaderAsyncTask(camera, data).executeOnExecutor(exec);
+          new ReaderAsyncTask(this.getContext(), camera, data).executeOnExecutor(exec);
         }
     }
 
+    public Allocation renderScriptNV21ToRGBA888(Context context, int width, int height, byte[] nv21) {
+      RenderScript rs = RenderScript.create(context);
+      ScriptIntrinsicYuvToRGB yuvToRgbIntrinsic = ScriptIntrinsicYuvToRGB.create(rs, Element.U8_4(rs));
+
+      Type.Builder yuvType = new Type.Builder(rs, Element.U8(rs)).setX(nv21.length);
+      Allocation in = Allocation.createTyped(rs, yuvType.create(), Allocation.USAGE_SCRIPT);
+
+      Type.Builder rgbaType = new Type.Builder(rs, Element.RGBA_8888(rs)).setX(width).setY(height);
+      Allocation out = Allocation.createTyped(rs, rgbaType.create(), Allocation.USAGE_SCRIPT);
+
+      in.copyFrom(nv21);
+
+      yuvToRgbIntrinsic.setInput(in);
+      yuvToRgbIntrinsic.forEach(out);
+      return out;
+    }
+
     private class ReaderAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        private Context mContext;
+        private BarcodeDetector detector;
+        private boolean playServicesAvailable;
+
         private byte[] imageData;
         private final Camera camera;
 
-        ReaderAsyncTask(Camera camera, byte[] imageData) {
+        ReaderAsyncTask(Context context, Camera camera, byte[] imageData) {
+            this.mContext = context;
             this.camera = camera;
             this.imageData = imageData;
+            this.detector = new BarcodeDetector.Builder(this.mContext)
+                                                    .setBarcodeFormats(Barcode.CODE_39)
+                                                    .build();
+            GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+            int status = googleApiAvailability.isGooglePlayServicesAvailable(context);
+            this.playServicesAvailable = (status == ConnectionResult.SUCCESS);
         }
 
         @Override
@@ -324,29 +372,42 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 int width = size.width;
                 int height = size.height;
 
-                // rotate for zxing if orientation is portrait
-                /*if (RCTCamera.getInstance().getActualDeviceOrientation() == 0) {
-                  byte[] rotated = new byte[imageData.length];
-                  for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                      rotated[x * height + height - y - 1] = imageData[x + y * width];
-                    }
-                  }
-                  width = size.height;
-                  height = size.width;
-                  imageData = rotated;
-                }*/
-
                 Boolean reverseHorizontal = RCTCamera.getInstance().getActualDeviceOrientation() == 0;
-
-                PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, reverseHorizontal);
-                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-                Result result = _multiFormatReader.decodeWithState(bitmap);
 
                 ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
                 WritableMap event = Arguments.createMap();
-                event.putString("data", result.getText());
-                event.putString("type", result.getBarcodeFormat().toString());
+
+                if (this.playServicesAvailable) {
+                  Bitmap bitmap2 = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                                  Allocation bmData = renderScriptNV21ToRGBA888(
+                                          this.mContext,
+                                          width,
+                                          height,
+                                          imageData);
+                                      bmData.copyTo(bitmap2);
+
+                  if (reverseHorizontal) {
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(90);
+                    bitmap2 = Bitmap.createBitmap(bitmap2 , 0, 0, bitmap2.getWidth(), bitmap2.getHeight(), matrix, true);
+                  }
+
+                  Frame frame = new Frame.Builder().setBitmap(bitmap2).build();
+                  SparseArray<Barcode> barcodes = detector.detect(frame);
+
+                  Barcode thisCode = barcodes.valueAt(0);
+
+                  event.putString("data", thisCode.rawValue);
+                  event.putString("type", "CODE_39");
+
+                } else {
+                  PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, reverseHorizontal);
+                  BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+                  Result result = _multiFormatReader.decodeWithState(bitmap);
+                  event.putString("data", result.getText());
+                  event.putString("type", result.getBarcodeFormat().toString());
+                }
+
                 reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("CameraBarCodeReadAndroid", event);
 
             } catch (Throwable t) {
