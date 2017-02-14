@@ -194,14 +194,16 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 );
                 parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
 
-                int maxFps[] = new int[2];
+                int minFps[] = new int[2];
+                minFps[0] = 100000;
+                minFps[1] = 100000;
                 for (int[] fpsRange : parameters.getSupportedPreviewFpsRange()) {
-                  if (fpsRange[0] > maxFps[0]) {
-                    maxFps[0] = fpsRange[0];
-                    maxFps[1] = fpsRange[1];
+                  if (fpsRange[0] < minFps[0]) {
+                      minFps[0] = fpsRange[0];
+                      minFps[1] = fpsRange[1];
                   }
                 }
-                parameters.setPreviewFpsRange(maxFps[0], maxFps[1]);
+                parameters.setPreviewFpsRange(minFps[0], minFps[1]);
                 _camera.setParameters(parameters);
                 _camera.setPreviewTexture(_surfaceTexture);
                 _camera.startPreview();
@@ -352,12 +354,17 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             this.mContext = context;
             this.camera = camera;
             this.imageData = imageData;
-            this.detector = new BarcodeDetector.Builder(this.mContext)
-                                                    .setBarcodeFormats(Barcode.CODE_39)
-                                                    .build();
+
             GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
             int status = googleApiAvailability.isGooglePlayServicesAvailable(context);
             this.playServicesAvailable = (status == ConnectionResult.SUCCESS);
+            if (this.playServicesAvailable) {
+              this.detector = new BarcodeDetector.Builder(this.mContext)
+                                                                  .setBarcodeFormats(Barcode.CODE_39)
+                                                                  .build();
+            } else {
+              this.detector = null;
+            }
         }
 
         @Override
@@ -379,12 +386,12 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
                 if (this.playServicesAvailable) {
                   Bitmap bitmap2 = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-                                  Allocation bmData = renderScriptNV21ToRGBA888(
-                                          this.mContext,
-                                          width,
-                                          height,
-                                          imageData);
-                                      bmData.copyTo(bitmap2);
+                  Allocation bmData = renderScriptNV21ToRGBA888(
+                          this.mContext,
+                          width,
+                          height,
+                          imageData);
+                  bmData.copyTo(bitmap2);
 
                   if (reverseHorizontal) {
                     Matrix matrix = new Matrix();
