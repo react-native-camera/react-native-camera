@@ -8,9 +8,9 @@ A camera module for React Native.
 #### Breaking Changes
 react-native header imports have changed in v0.40, and that means breaking changes for all! [Reference PR & Discussion](https://github.com/lwansbrough/react-native-camera/pull/544).
 - if on react-native < 0.40: `npm i react-native-camera@0.4`
-- if on react-native >= 0.40 `npm i react-native-camera@next`
+- if on react-native >= 0.40 `npm i react-native-camera@0.5`
 
-![](https://i.imgur.com/5j2JdUk.gif)
+![5j2jduk](https://cloud.githubusercontent.com/assets/2302315/22190752/6bc6ccd0-e0da-11e6-8e2f-6f22a3567a57.gif)
 
 ## Getting started
 
@@ -70,7 +70,12 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 	```
     compile project(':react-native-camera')
 	```
+5. Declare the permissions in your Android Manifest
 
+  ```
+  <uses-permission android:name="android.permission.CAMERA" />
+  <uses-feature android:name="android.hardware.camera" />
+  ```
 
 ## Usage
 
@@ -204,7 +209,7 @@ Event contains `data` (the data in the barcode) and `bounds` (the rectangle whic
 The following barcode types can be recognised:
 
 - `aztec`
-- `code138`
+- `code128`
 - `code39`
 - `code39mod43`
 - `code93`
@@ -309,15 +314,15 @@ Ends the current capture session for video captures. Only applies when the curre
 
 #### `iOS` `Camera.checkDeviceAuthorizationStatus(): Promise`
 
-Exposes the native API for checking if the device has authorized access to the camera (camera and microphone permissions). Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.
+Exposes the native API for checking if the device has authorized access to the camera (camera and microphone permissions). Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized. Note, [as of iOS 10](https://developer.apple.com/library/content/documentation/AudioVideo/Conceptual/PhotoCaptureGuide/#//apple_ref/doc/uid/TP40017511-CH1-DontLinkElementID_3), you will need to add `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 #### `iOS` `Camera.checkVideoAuthorizationStatus(): Promise`
 
-The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the camera permission.
+The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the camera permission. Note, as of iOS 10, you will need to add `NSCameraUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 #### `iOS` `Camera.checkAudioAuthorizationStatus(): Promise`
 
-The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the microphone permission.
+The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the microphone permission. Note, as of iOS 10, you will need to add `NSMicrophoneUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
