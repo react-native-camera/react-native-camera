@@ -831,7 +831,14 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
                                     if (error) {
                                       self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
                                       return;
+                                    } else if (assetURL == nil) {
+                                      //It's possible for writing to camera roll to fail,
+                                      //without receiving an error message, but assetURL will be nil
+                                      //Happens when disk is (almost) full
+                                      self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Not enough storage"));
+                                      return;
                                     }
+
                                     [videoInfo setObject:[assetURL absoluteString] forKey:@"path"];
                                     self.videoResolve(videoInfo);
                                   }];
