@@ -36,6 +36,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private boolean _isStopping;
     private Camera _camera;
     private float mFingerSpacing;
+    private boolean _defaultOnFocusComponent;
 
     // concurrency lock for barcode scanner to avoid flooding the runtime
     public static volatile boolean barcodeScannerTaskLock = false;
@@ -108,6 +109,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         RCTCamera.getInstance().setFlashMode(_cameraType, flashMode);
     }
 
+    public void setDefaultOnFocusComponent(boolean defaultOnFocusComponent) {
+        this._defaultOnFocusComponent = defaultOnFocusComponent;
+    }
+
     private void startPreview() {
         if (_surfaceTexture != null) {
             startCamera();
@@ -128,7 +133,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 Camera.Parameters parameters = _camera.getParameters();
                 // set autofocus
                 List<String> focusModes = parameters.getSupportedFocusModes();
-                if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+                if (!this._defaultOnFocusComponent && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
                     parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
                 }
                 // set picture size

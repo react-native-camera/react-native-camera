@@ -86,4 +86,8 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         }
         view.setBarCodeTypes(result);
     }
+    @ReactProp(name="defaultOnFocusComponent")
+    public void setDefaultOnFocusComponent(RCTCameraView view, boolean defaultOnFocusComponent) {
+        view.setDefaultOnFocusComponent(defaultOnFocusComponent);
+    }
 }
