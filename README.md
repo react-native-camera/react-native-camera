@@ -6,9 +6,18 @@ Hey there, I'm looking for active contributors to help move the development of t
 A camera module for React Native.
 
 #### Breaking Changes
-react-native header imports have changed in v0.40, and that means breaking changes for all! [Reference PR & Discussion](https://github.com/lwansbrough/react-native-camera/pull/544).
+##### react-native header imports have changed in v0.40, and that means breaking changes for all! [Reference PR & Discussion](https://github.com/lwansbrough/react-native-camera/pull/544).
 - if on react-native < 0.40: `npm i react-native-camera@0.4`
 - if on react-native >= 0.40 `npm i react-native-camera@0.6`
+
+##### Permissions
+To enable `video recording` feature you have to add the following code to the `AndroidManifest.xml`:
+```
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.RECORD_VIDEO"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+```
 
 ![5j2jduk](https://cloud.githubusercontent.com/assets/2302315/22190752/6bc6ccd0-e0da-11e6-8e2f-6f22a3567a57.gif)
 
@@ -70,15 +79,13 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 	```
     compile project(':react-native-camera')
 	```
-5. Declare the permissions in your Android Manifest
+5. Declare the permissions in your Android Manifest (required for `video recording` feature)
 
   ```
-  <uses-permission android:name="android.permission.CAMERA" />
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
   <uses-permission android:name="android.permission.RECORD_VIDEO"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-  <uses-feature android:name="android.hardware.camera" />
   ```
 
 ## Usage
