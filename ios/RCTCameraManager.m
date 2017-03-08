@@ -380,6 +380,14 @@ RCT_EXPORT_METHOD(stopCapture) {
   }
 }
 
+RCT_EXPORT_METHOD(startPreview) {
+    [self.session startRunning];
+}
+
+RCT_EXPORT_METHOD(stopPreview) {
+    [self.session stopRunning];
+}
+
 RCT_EXPORT_METHOD(getFOV:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
   NSArray *devices = [AVCaptureDevice devices];
   AVCaptureDevice *frontCamera;
@@ -585,7 +593,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:orientation];
 
       [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
-
+        [self.session stopRunning];
         if (imageDataSampleBuffer) {
           NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
 
