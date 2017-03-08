@@ -231,6 +231,20 @@ export default class Camera extends Component {
     return CameraManager.capture(options);
   }
 
+  startPreview() {
+       const props = convertNativeProps(this.props);
+       CameraManager.startPreview({
+           type: props.type
+       });
+     }
+
+  stopPreview() {
+       const props = convertNativeProps(this.props);
+       CameraManager.stopPreview({
+           type: props.type
+       });
+     };
+  
   stopCapture() {
     if (this.state.isRecording) {
       this.setState({ isRecording: false });
