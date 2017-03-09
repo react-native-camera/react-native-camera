@@ -96,6 +96,12 @@ import {
 import Camera from 'react-native-camera';
 
 class BadInstagramCloneApp extends Component {
+   constructor () {
+    super()
+    this.camera = null
+
+    this._takePicture = this._takePicture.bind(this)
+  }
   render() {
     return (
       <View style={styles.container}>
@@ -105,14 +111,14 @@ class BadInstagramCloneApp extends Component {
           }}
           style={styles.preview}
           aspect={Camera.constants.Aspect.fill}>
-          <Text style={styles.capture} onPress={this.takePicture.bind(this)}>[CAPTURE]</Text>
+          <Text style={styles.capture} onPress={this._takePicture}>[CAPTURE]</Text>
         </Camera>
       </View>
     );
   }
 
-  takePicture() {
-    this.camera.capture()
+  async _takePicture() {
+    await this.camera.capture()
       .then((data) => console.log(data))
       .catch(err => console.error(err));
   }
