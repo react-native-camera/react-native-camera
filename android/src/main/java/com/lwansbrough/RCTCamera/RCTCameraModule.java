@@ -489,7 +489,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         return byteArray;
     }
 
-    private byte[] saveImage(InputStream is, Bitmap image) {
+    private byte[] saveImage(Bitmap image) {
         byte[] result = null;
 
         try {
@@ -502,26 +502,29 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             }
         }
 
-        try {
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         return result;
     }
 
     private byte[] mirrorImage(byte[] data) {
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
-        Bitmap photo = BitmapFactory.decodeStream(inputStream);
+        Bitmap photo = toBitmap(data);
 
         Matrix m = new Matrix();
         m.preScale(-1, 1);
         Bitmap mirroredImage = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), m, false);
 
-        return saveImage(inputStream, mirroredImage);
+        return saveImage(mirroredImage);
     }
 
+    private static Bitmap toBitmap(byte[] data) {
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+            Bitmap photo = BitmapFactory.decodeStream(inputStream);
+            inputStream.close();
+            return photo;
+        } catch (IOException e) {
+            throw new IllegalStateException("Will not happen", e);
+        }
+    }
 
     private byte[] rotate(byte[] data, int exifOrientation) {
         final Matrix bitmapMatrix = new Matrix();
@@ -557,19 +560,17 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 break;
         }
 
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
-        Bitmap decodedBitmap = BitmapFactory.decodeStream(inputStream);
-        final Bitmap transformedBitmap = Bitmap.createBitmap(
+        Bitmap decodedBitmap = toBitmap(data);
+        Bitmap transformedBitmap = Bitmap.createBitmap(
                 decodedBitmap, 0, 0, decodedBitmap.getWidth(), decodedBitmap.getHeight(), bitmapMatrix, false
         );
 
-        return saveImage(inputStream, transformedBitmap);
+        return saveImage(transformedBitmap);
     }
 
     private byte[] fixOrientation(byte[] data) {
-        final Metadata metadata;
         try {
-            metadata = ImageMetadataReader.readMetadata(
+            final Metadata metadata = ImageMetadataReader.readMetadata(
                     new BufferedInputStream(new ByteArrayInputStream(data)), data.length
             );
 
@@ -582,7 +583,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             }
             return data;
         } catch (IOException | ImageProcessingException | MetadataException e) {
-            e.printStackTrace();
+            Log.e(TAG, "fail to fix orientation", e);
             return data;
         }
     }
@@ -593,7 +594,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             exif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(ExifInterface.ORIENTATION_NORMAL));
             exif.saveAttributes();
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, "failed to save exif data", e);
         }
     }
 
@@ -607,7 +608,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             try {
                 outputStream.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "problem compressing jpeg", e);
             }
         }
     }
