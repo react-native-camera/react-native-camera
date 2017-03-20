@@ -489,7 +489,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         return byteArray;
     }
 
-    private byte[] saveImage(InputStream is, Bitmap image) {
+    private byte[] saveImage(Bitmap image) {
         byte[] result = null;
 
         try {
@@ -502,26 +502,31 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             }
         }
 
-        try {
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         return result;
     }
 
     private byte[] mirrorImage(byte[] data) {
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
-        Bitmap photo = BitmapFactory.decodeStream(inputStream);
+        Bitmap photo = toBitmap(data);
 
         Matrix m = new Matrix();
         m.preScale(-1, 1);
         Bitmap mirroredImage = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), m, false);
 
-        return saveImage(inputStream, mirroredImage);
+        return saveImage(mirroredImage);
     }
 
+    private static Bitmap toBitmap(byte[] data) {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+        try {
+            return BitmapFactory.decodeStream(inputStream);
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                Log.w("problem closing stream", e);//will not happen
+            }
+        }
+    }
 
     private byte[] rotate(byte[] data, int exifOrientation) {
         final Matrix bitmapMatrix = new Matrix();
@@ -557,19 +562,17 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 break;
         }
 
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
-        Bitmap decodedBitmap = BitmapFactory.decodeStream(inputStream);
-        final Bitmap transformedBitmap = Bitmap.createBitmap(
+        Bitmap decodedBitmap = toBitmap(data);
+        Bitmap transformedBitmap = Bitmap.createBitmap(
                 decodedBitmap, 0, 0, decodedBitmap.getWidth(), decodedBitmap.getHeight(), bitmapMatrix, false
         );
 
-        return saveImage(inputStream, transformedBitmap);
+        return saveImage(transformedBitmap);
     }
 
     private byte[] fixOrientation(byte[] data) {
-        final Metadata metadata;
         try {
-            metadata = ImageMetadataReader.readMetadata(
+            final Metadata metadata = ImageMetadataReader.readMetadata(
                     new BufferedInputStream(new ByteArrayInputStream(data)), data.length
             );
 
@@ -582,7 +585,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             }
             return data;
         } catch (IOException | ImageProcessingException | MetadataException e) {
-            e.printStackTrace();
+            Log.e(TAG, "fail to fix orientation", e);
             return data;
         }
     }
@@ -593,7 +596,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             exif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(ExifInterface.ORIENTATION_NORMAL));
             exif.saveAttributes();
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, "failed to save exif data", e);
         }
     }
 
@@ -607,7 +610,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             try {
                 outputStream.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "problem compressing jpeg", e);
             }
         }
     }
@@ -674,10 +677,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
                 camera.stopPreview();
                 camera.startPreview();
-                WritableMap response = new WritableNativeMap();
+
                 switch (options.getInt("target")) {
                     case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                         String encoded = Base64.encodeToString(data, Base64.DEFAULT);
+                        WritableMap response = new WritableNativeMap();
                         response.putString("data", encoded);
                         promise.resolve(response);
                         break;
@@ -693,11 +697,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                             promise.reject(error);
                             return;
                         }
-
+                        writeLocationExifData(cameraRollFile, options);
                         rewriteOrientation(cameraRollFile.getAbsolutePath());
                         addToMediaStore(cameraRollFile.getAbsolutePath());
-                        response.putString("path", Uri.fromFile(cameraRollFile).toString());
-                        promise.resolve(response);
+
+                        resolve(cameraRollFile, promise);
+
                         break;
                     }
                     case RCT_CAMERA_CAPTURE_TARGET_DISK: {
@@ -713,9 +718,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                             return;
                         }
 
+                        writeLocationExifData(pictureFile, options);
                         rewriteOrientation(pictureFile.getAbsolutePath());
-                        response.putString("path", Uri.fromFile(pictureFile).toString());
-                        promise.resolve(response);
+
+                        resolve(pictureFile, promise);
+
                         break;
                     }
                     case RCT_CAMERA_CAPTURE_TARGET_TEMP: {
@@ -730,9 +737,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                             promise.reject(error);
                         }
 
+                        writeLocationExifData(tempFile, options);
                         rewriteOrientation(tempFile.getAbsolutePath());
-                        response.putString("path", Uri.fromFile(tempFile).toString());
-                        promise.resolve(response);
+
+                        resolve(tempFile, promise);
+
                         break;
                     }
                 }
@@ -748,6 +757,29 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
           } catch(RuntimeException ex) {
               Log.e(TAG, "Couldn't capture photo.", ex);
           }
+        }
+    }
+
+    private void writeLocationExifData(File cameraRollFile, ReadableMap options) {
+        if(!options.hasKey("metadata"))
+            return;
+
+        ReadableMap metadata = options.getMap("metadata");
+        if (!metadata.hasKey("location"))
+            return;
+
+        ReadableMap location = options.getMap("location");
+        if(!location.hasKey("coords"))
+            return;
+
+        try {
+            ReadableMap coords = location.getMap("coords");
+            double latitude = coords.getDouble("latitude");
+            double longitude = coords.getDouble("longitude");
+
+            GPS.writeExifData(cameraRollFile, latitude, longitude);
+        } catch (IOException e) {
+            Log.e(TAG, "Couldn't write location data", e);
         }
     }
 
@@ -880,5 +912,67 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     @Override
     public void onHostDestroy() {
         // ... do nothing
+    }
+
+    private void resolve(final File imageFile, final Promise promise) {
+        final WritableMap response = new WritableNativeMap();
+        response.putString("path", Uri.fromFile(imageFile).toString());
+
+        // borrowed from react-native CameraRollManager, it finds and returns the 'internal'
+        // representation of the image uri that was just saved.
+        // e.g. content://media/external/images/media/123
+        MediaScannerConnection.scanFile(
+                _reactContext,
+                new String[]{imageFile.getAbsolutePath()},
+                null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    @Override
+                    public void onScanCompleted(String path, Uri uri) {
+                        if (uri != null) {
+                            response.putString("mediaUri", uri.toString());
+                        }
+
+                        promise.resolve(response);
+                    }
+                });
+    }
+
+    private static class GPS {
+        public static void writeExifData(File targetFile, double latitude, double longitude) throws IOException {
+            ExifInterface exif = new ExifInterface(targetFile.getAbsolutePath());
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, toDegreeMinuteSecods(latitude));
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitudeRef(latitude));
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, toDegreeMinuteSecods(longitude));
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, longitudeRef(longitude));
+            exif.saveAttributes();
+        }
+
+        private static String latitudeRef(double latitude) {
+            return latitude < 0.0d ? "S" : "N";
+        }
+
+        private static String longitudeRef(double longitude) {
+            return longitude < 0.0d ? "W" : "E";
+        }
+
+        private static String toDegreeMinuteSecods(double latitude) {
+            latitude = Math.abs(latitude);
+            int degree = (int) latitude;
+            latitude *= 60;
+            latitude -= (degree * 60.0d);
+            int minute = (int) latitude;
+            latitude *= 60;
+            latitude -= (minute * 60.0d);
+            int second = (int) (latitude * 1000.0d);
+
+            StringBuffer sb = new StringBuffer();
+            sb.append(degree);
+            sb.append("/1,");
+            sb.append(minute);
+            sb.append("/1,");
+            sb.append(second);
+            sb.append("/1000,");
+            return sb.toString();
+        }
     }
 }
