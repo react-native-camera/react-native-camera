@@ -516,13 +516,15 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     }
 
     private static Bitmap toBitmap(byte[] data) {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
         try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
-            Bitmap photo = BitmapFactory.decodeStream(inputStream);
-            inputStream.close();
-            return photo;
-        } catch (IOException e) {
-            throw new IllegalStateException("Will not happen", e);
+            return BitmapFactory.decodeStream(inputStream);
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                Log.w("problem closing stream", e);//will not happen
+            }
         }
     }
 
