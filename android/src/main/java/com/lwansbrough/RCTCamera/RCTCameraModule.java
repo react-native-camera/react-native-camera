@@ -664,14 +664,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
 
+                data = fixOrientation(data);
+
                 if (shouldMirror) {
                     data = mirrorImage(data);
                     if (data == null) {
                         promise.reject("Error mirroring image");
                     }
                 }
-
-                data = fixOrientation(data);
 
                 camera.stopPreview();
                 camera.startPreview();
