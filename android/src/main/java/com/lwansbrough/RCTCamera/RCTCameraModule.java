@@ -5,15 +5,19 @@
 
 package com.lwansbrough.RCTCamera;
 
+import android.Manifest;
 import android.content.ContentValues;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.media.*;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Surface;
@@ -612,6 +616,34 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             }
         }
     }
+    
+    @ReactMethod
+    public void checkDeviceAuthorizationStatus(final Promise promise) {
+        if (!checkForPermission(Manifest.permission.CAMERA)) {
+            promise.resolve(false);
+        } else {
+            promise.resolve(checkForPermission(Manifest.permission.RECORD_AUDIO));
+        }
+    }
+
+    @ReactMethod
+    public void checkVideoAuthorizationStatus(final Promise promise) {
+        promise.resolve(checkForPermission(Manifest.permission.CAMERA));
+    }
+
+    @ReactMethod
+    public void checkAudioAuthorizationStatus(final Promise promise) {
+        promise.resolve(checkForPermission(Manifest.permission.RECORD_AUDIO));
+    }
+
+    private boolean checkForPermission(String permission) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return true;
+        }
+
+        int p = ContextCompat.checkSelfPermission(getReactApplicationContext(), permission);
+        return p == PackageManager.PERMISSION_GRANTED;
+    }    
 
     @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) {
