@@ -5,20 +5,27 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.view.MotionEvent;
 import android.view.TextureView;
 import android.os.AsyncTask;
+import android.graphics.Matrix;
+import android.text.TextUtils;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.nio.charset.StandardCharsets;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -27,11 +34,36 @@ import com.google.zxing.MultiFormatReader;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
+import android.util.SparseArray;
+
+import android.renderscript.Allocation;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicYuvToRGB;
+import android.renderscript.Element;
+import android.renderscript.Type;
+
+import net.sourceforge.zbar.Config;
+import net.sourceforge.zbar.Image;
+import net.sourceforge.zbar.ImageScanner;
+import net.sourceforge.zbar.Symbol;
+import net.sourceforge.zbar.SymbolSet;
 
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
     private int _cameraType;
     private int _captureMode;
     private SurfaceTexture _surfaceTexture;
+    private int _surfaceTextureWidth;
+    private int _surfaceTextureHeight;
     private boolean _isStarting;
     private boolean _isStopping;
     private Camera _camera;
@@ -53,16 +85,22 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         _surfaceTexture = surface;
+        _surfaceTextureWidth = width;
+        _surfaceTextureHeight = height;
         startCamera();
     }
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        _surfaceTextureWidth = width;
+        _surfaceTextureHeight = height;
     }
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
         _surfaceTexture = null;
+        _surfaceTextureWidth = 0;
+        _surfaceTextureHeight = 0;
         stopCamera();
         return true;
     }
@@ -126,17 +164,30 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             try {
                 _camera = RCTCamera.getInstance().acquireCameraInstance(_cameraType);
                 Camera.Parameters parameters = _camera.getParameters();
-                // set autofocus
-                List<String> focusModes = parameters.getSupportedFocusModes();
-                if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+
+                final boolean isCaptureModeStill = (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_STILL);
+                final boolean isCaptureModeVideo = (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_VIDEO);
+                if (!isCaptureModeStill && !isCaptureModeVideo) {
+                    throw new RuntimeException("Unsupported capture mode:" + _captureMode);
                 }
+
+                // Set auto-focus. Try to set to continuous picture/video, and fall back to general
+                // auto if available.
+                List<String> focusModes = parameters.getSupportedFocusModes();
+                if (isCaptureModeStill && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                } else if (isCaptureModeVideo && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+                } else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                }
+
                 // set picture size
                 // defaults to max available size
                 List<Camera.Size> supportedSizes;
-                if (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_STILL) {
+                if (isCaptureModeStill) {
                     supportedSizes = parameters.getSupportedPictureSizes();
-                } else if (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_VIDEO) {
+                } else if (isCaptureModeVideo) {
                     supportedSizes = RCTCamera.getInstance().getSupportedVideoSizes(_camera);
                 } else {
                     throw new RuntimeException("Unsupported capture mode:" + _captureMode);
@@ -148,6 +199,16 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 );
                 parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
 
+                int minFps[] = new int[2];
+                minFps[0] = 100000;
+                minFps[1] = 100000;
+                for (int[] fpsRange : parameters.getSupportedPreviewFpsRange()) {
+                  if (fpsRange[0] < minFps[0]) {
+                      minFps[0] = fpsRange[0];
+                      minFps[1] = fpsRange[1];
+                  }
+                }
+                parameters.setPreviewFpsRange(minFps[0], minFps[1]);
                 _camera.setParameters(parameters);
                 _camera.setPreviewTexture(_surfaceTexture);
                 _camera.startPreview();
@@ -262,17 +323,47 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (RCTCamera.getInstance().isBarcodeScannerEnabled() && !RCTCameraViewFinder.barcodeScannerTaskLock) {
             RCTCameraViewFinder.barcodeScannerTaskLock = true;
-            new ReaderAsyncTask(camera, data).execute();
+          LinkedBlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue<Runnable>();
+          ExecutorService exec = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, blockingQueue);
+          new ReaderAsyncTask(this.getContext(), camera, data).executeOnExecutor(exec);
         }
     }
 
+    public Allocation renderScriptNV21ToRGBA888(Context context, int width, int height, byte[] nv21) {
+      RenderScript rs = RenderScript.create(context);
+      ScriptIntrinsicYuvToRGB yuvToRgbIntrinsic = ScriptIntrinsicYuvToRGB.create(rs, Element.U8_4(rs));
+
+      Type.Builder yuvType = new Type.Builder(rs, Element.U8(rs)).setX(nv21.length);
+      Allocation in = Allocation.createTyped(rs, yuvType.create(), Allocation.USAGE_SCRIPT);
+
+      Type.Builder rgbaType = new Type.Builder(rs, Element.RGBA_8888(rs)).setX(width).setY(height);
+      Allocation out = Allocation.createTyped(rs, rgbaType.create(), Allocation.USAGE_SCRIPT);
+
+      in.copyFrom(nv21);
+
+      yuvToRgbIntrinsic.setInput(in);
+      yuvToRgbIntrinsic.forEach(out);
+      return out;
+    }
+
     private class ReaderAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        private Context mContext;
+
         private byte[] imageData;
         private final Camera camera;
+        private ImageScanner mScanner;
 
-        ReaderAsyncTask(Camera camera, byte[] imageData) {
+        ReaderAsyncTask(Context context, Camera camera, byte[] imageData) {
+            this.mContext = context;
             this.camera = camera;
             this.imageData = imageData;
+            this.mScanner = new ImageScanner();
+            this.mScanner.setConfig(0, Config.X_DENSITY, 4);
+            this.mScanner.setConfig(0, Config.Y_DENSITY, 0);
+            this.mScanner.setConfig(Symbol.NONE, Config.ENABLE, 0);
+            this.mScanner.setConfig(Symbol.CODE39, Config.ENABLE, 1);
+
         }
 
         @Override
@@ -281,34 +372,51 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 return null;
             }
 
-            Camera.Size size = camera.getParameters().getPreviewSize();
-
-            int width = size.width;
-            int height = size.height;
-
-            // rotate for zxing if orientation is portrait
-            if (RCTCamera.getInstance().getActualDeviceOrientation() == 0) {
-              byte[] rotated = new byte[imageData.length];
-              for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                  rotated[x * height + height - y - 1] = imageData[x + y * width];
-                }
-              }
-              width = size.height;
-              height = size.width;
-              imageData = rotated;
-            }
-
             try {
-                PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
-                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-                Result result = _multiFormatReader.decodeWithState(bitmap);
+                Camera.Size size = camera.getParameters().getPreviewSize();
+
+                int width = size.width;
+                int height = size.height;
+
+                Boolean reverseHorizontal = RCTCamera.getInstance().getActualDeviceOrientation() == 0;
 
                 ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
                 WritableMap event = Arguments.createMap();
-                event.putString("data", result.getText());
-                event.putString("type", result.getBarcodeFormat().toString());
-                reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("CameraBarCodeReadAndroid", event);
+
+                Image barcode = new Image(width, height, "Y800");
+                barcode.setData(imageData);
+
+                int result = this.mScanner.scanImage(barcode);
+                android.util.Log.v("barcode", "scanning");
+
+                if (result != 0) {
+                    SymbolSet syms = this.mScanner.getResults();
+                    for (Symbol sym : syms) {
+
+                        String symData;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                            symData = new String(sym.getDataBytes(), StandardCharsets.UTF_8);
+                        } else {
+                            symData = sym.getData();
+                        }
+                        if (!TextUtils.isEmpty(symData)) {
+                            event.putString("data", symData);
+                            event.putString("type", "CODE_39");
+                            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("CameraBarCodeReadAndroid", event);
+                            break;
+                        }
+                    }
+
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            stopCamera();
+                        }
+                    });
+                }
+
+
 
             } catch (Throwable t) {
                 // meh
@@ -362,19 +470,59 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         _camera.setParameters(params);
     }
 
+    /**
+     * Handles setting focus to the location of the event.
+     *
+     * Note that this will override the focus mode on the camera to FOCUS_MODE_AUTO if available,
+     * even if this was previously something else (such as FOCUS_MODE_CONTINUOUS_*; see also
+     * {@link #startCamera()}. However, this makes sense - after the user has initiated any
+     * specific focus intent, we shouldn't be refocusing and overriding their request!
+     */
     public void handleFocus(MotionEvent event, Camera.Parameters params) {
-        int pointerId = event.getPointerId(0);
-        int pointerIndex = event.findPointerIndex(pointerId);
-        // Get the pointer's current position
-        float x = event.getX(pointerIndex);
-        float y = event.getY(pointerIndex);
-
         List<String> supportedFocusModes = params.getSupportedFocusModes();
         if (supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+            // Ensure focus areas are enabled. If max num focus areas is 0, then focus area is not
+            // supported, so we cannot do anything here.
+            if (params.getMaxNumFocusAreas() == 0) {
+                return;
+            }
+
+            // Cancel any previous focus actions.
+            _camera.cancelAutoFocus();
+
+            // Compute focus area rect.
+            Camera.Area focusAreaFromMotionEvent;
+            try {
+                focusAreaFromMotionEvent = RCTCameraUtils.computeFocusAreaFromMotionEvent(event, _surfaceTextureWidth, _surfaceTextureHeight);
+            } catch (final RuntimeException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            // Set focus mode to auto.
+            params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            // Set focus area.
+            final ArrayList<Camera.Area> focusAreas = new ArrayList<Camera.Area>();
+            focusAreas.add(focusAreaFromMotionEvent);
+            params.setFocusAreas(focusAreas);
+
+            // Also set metering area if enabled. If max num metering areas is 0, then metering area
+            // is not supported. We can usually safely omit this anyway, though.
+            if (params.getMaxNumMeteringAreas() > 0) {
+                params.setMeteringAreas(focusAreas);
+            }
+
+            // Set parameters before starting auto-focus.
+            _camera.setParameters(params);
+
+            // Start auto-focus now that focus area has been set. If successful, then can cancel
+            // it afterwards.
             _camera.autoFocus(new Camera.AutoFocusCallback() {
                 @Override
-                public void onAutoFocus(boolean b, Camera camera) {
-                    // currently set to auto-focus on single touch
+                public void onAutoFocus(boolean success, Camera camera) {
+                    if (success) {
+                        camera.cancelAutoFocus();
+                    }
                 }
             });
         }
