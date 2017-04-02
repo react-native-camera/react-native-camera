@@ -407,8 +407,8 @@ RCT_EXPORT_METHOD(getFOV:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejec
   }
 
   resolve(@{
-    [NSNumber numberWithInt:RCTCameraTypeBack]: [NSNumber numberWithDouble: backFov],
-    [NSNumber numberWithInt:RCTCameraTypeFront]: [NSNumber numberWithDouble: frontFov]
+            @"Back": [NSNumber numberWithDouble: backFov],
+            @"Front"  : [NSNumber numberWithDouble: frontFov]
   });
 }
 
