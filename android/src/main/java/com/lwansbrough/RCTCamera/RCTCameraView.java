@@ -119,6 +119,10 @@ public class RCTCameraView extends ViewGroup {
         RCTCamera.getInstance().setBarcodeScannerEnabled(barcodeScannerEnabled);
     }
 
+    public void setCaptureBarCodeImage(boolean captureBarCodeImage) {
+        RCTCamera.getInstance().setCaptureBarCodeImage(captureBarCodeImage);
+    }
+
     public void setBarCodeTypes(List<String> types) {
         RCTCamera.getInstance().setBarCodeTypes(types);
     }
