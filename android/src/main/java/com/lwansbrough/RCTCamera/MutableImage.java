@@ -20,7 +20,6 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -135,13 +134,13 @@ public class MutableImage {
         }
     }
 
-    public String toBase64() {
-        return Base64.encodeToString(toBytes(currentRepresentation), Base64.DEFAULT);
+    public String toBase64(int jpegQualityPercent) {
+        return Base64.encodeToString(toJpeg(currentRepresentation, jpegQualityPercent), Base64.DEFAULT);
     }
 
-    public void writeDataToFile(File file, ReadableMap options) throws IOException {
+    public void writeDataToFile(File file, ReadableMap options, int jpegQualityPercent) throws IOException {
         FileOutputStream fos = new FileOutputStream(file);
-        fos.write(toBytes(currentRepresentation));
+        fos.write(toJpeg(currentRepresentation, jpegQualityPercent));
         fos.close();
 
         try {
@@ -203,22 +202,6 @@ public class MutableImage {
             );
         }
         return originalImageMetaData;
-    }
-
-    private static byte[] toBytes(Bitmap image) {
-        byte[] result = null;
-
-        try {
-            result = toJpeg(image, 85);
-        } catch (OutOfMemoryError e) {
-            try {
-                result = toJpeg(image, 70);
-            } catch (OutOfMemoryError e2) {
-                e.printStackTrace();
-            }
-        }
-
-        return result;
     }
 
     private static byte[] toJpeg(Bitmap bitmap, int quality) throws OutOfMemoryError {
