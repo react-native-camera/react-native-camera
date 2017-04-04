@@ -191,12 +191,6 @@ When choosing more-specific quality settings (1080p, 720p, 480p), note that each
 
 Android also supports `Camera.constants.CaptureQuality.preview` or `"preview"` which matches the output image to the same one used in the preview
 
-#### `Android` `jpegQuality`
-
-Values: integer between 1 and 100
-
-This property is used to compress the output jpeg file with 100% meaning no jpeg compression will be applied.
-
 #### `type`
 
 Values: `Camera.constants.Type.front` or `"front"`, `Camera.constants.Type.back` or `"back"` (default)
@@ -306,6 +300,7 @@ Supported options:
  - `metadata` This is metadata to be added to the captured image.
    - `location` This is the object returned from `navigator.geolocation.getCurrentPosition()` (React Native's geolocation polyfill). It will add GPS metadata to the image.
  - `rotation` This will rotate the image by the number of degrees specified.
+ - `jpegQuality` (integer between 1 and 100) This property is used to compress the output jpeg file with 100% meaning no jpeg compression will be applied.
 
 The promise will be fulfilled with an object with some of the following properties:
 
