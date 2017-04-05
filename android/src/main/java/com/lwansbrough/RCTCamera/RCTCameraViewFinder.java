@@ -371,12 +371,17 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
         List<String> supportedFocusModes = params.getSupportedFocusModes();
         if (supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-            _camera.autoFocus(new Camera.AutoFocusCallback() {
-                @Override
-                public void onAutoFocus(boolean b, Camera camera) {
-                    // currently set to auto-focus on single touch
-                }
-            });
+            try {
+                _camera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean b, Camera camera) {
+                        // currently set to auto-focus on single touch
+                    }
+                });
+            } catch (Exception e) {
+                // just print stack trace, we don't want to crash by autoFocus fails
+                e.printStackTrace();
+            }
         }
     }
 
