@@ -575,9 +575,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             promise.reject("Error mirroring image", e);
         }
 
+        int jpegQualityPercent = 80;
+        if(options.hasKey("jpegQuality")) {
+            jpegQualityPercent = options.getInt("jpegQuality");
+        }
+
         switch (options.getInt("target")) {
             case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
-                String encoded = mutableImage.toBase64();
+                String encoded = mutableImage.toBase64(jpegQualityPercent);
                 WritableMap response = new WritableNativeMap();
                 response.putString("data", encoded);
                 promise.resolve(response);
@@ -590,7 +595,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 }
 
                 try {
-                    mutableImage.writeDataToFile(cameraRollFile, options);
+                    mutableImage.writeDataToFile(cameraRollFile, options, jpegQualityPercent);
                 } catch (IOException e) {
                     promise.reject("failed to save image file", e);
                     return;
@@ -610,7 +615,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 }
 
                 try {
-                    mutableImage.writeDataToFile(pictureFile, options);
+                    mutableImage.writeDataToFile(pictureFile, options, 85);
                 } catch (IOException e) {
                     promise.reject("failed to save image file", e);
                     return;
@@ -628,7 +633,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 }
 
                 try {
-                    mutableImage.writeDataToFile(tempFile, options);
+                    mutableImage.writeDataToFile(tempFile, options, 85);
                 } catch (IOException e) {
                     promise.reject("failed to save image file", e);
                     return;
