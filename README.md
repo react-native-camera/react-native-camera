@@ -5,7 +5,21 @@ Hey there, I'm looking for active contributors to help move the development of t
 
 A camera module for React Native.
 
-![](https://i.imgur.com/5j2JdUk.gif)
+#### Breaking Changes
+##### react-native header imports have changed in v0.40, and that means breaking changes for all! [Reference PR & Discussion](https://github.com/lwansbrough/react-native-camera/pull/544).
+- if on react-native < 0.40: `npm i react-native-camera@0.4`
+- if on react-native >= 0.40 `npm i react-native-camera@0.6`
+
+##### Permissions
+To enable `video recording` feature you have to add the following code to the `AndroidManifest.xml`:
+```
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.RECORD_VIDEO"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+```
+
+![5j2jduk](https://cloud.githubusercontent.com/assets/2302315/22190752/6bc6ccd0-e0da-11e6-8e2f-6f22a3567a57.gif)
 
 ## Getting started
 
@@ -14,7 +28,7 @@ A camera module for React Native.
 2. With iOS 10 and higher you need to add the "Privacy - Camera Usage Description" key to the info.plist of your project. This should be found in 'your_project/ios/your_project/Info.plist'.  Add the following code:
 ```
 <key>NSCameraUsageDescription</key>
-<string>Your message to user when the camera is accesseded for the first time</string>
+<string>Your message to user when the camera is accessed for the first time</string>
 
 <!-- Include this only if you are planning to use the camera roll -->
 <key>NSPhotoLibraryUsageDescription</key>
@@ -65,7 +79,14 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 	```
     compile project(':react-native-camera')
 	```
+5. Declare the permissions in your Android Manifest (required for `video recording` feature)
 
+  ```
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.RECORD_VIDEO"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+  ```
 
 ## Usage
 
@@ -102,7 +123,9 @@ class BadInstagramCloneApp extends Component {
   }
 
   takePicture() {
-    this.camera.capture()
+    const options = {};
+    //options.location = ...
+    this.camera.capture({metadata: options})
       .then((data) => console.log(data))
       .catch(err => console.error(err));
   }
@@ -110,14 +133,13 @@ class BadInstagramCloneApp extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    flexDirection: 'row',
   },
   preview: {
     flex: 1,
     justifyContent: 'flex-end',
-    alignItems: 'center',
-    height: Dimensions.get('window').height,
-    width: Dimensions.get('window').width
+    alignItems: 'center'
   },
   capture: {
     flex: 0,
@@ -199,7 +221,7 @@ Event contains `data` (the data in the barcode) and `bounds` (the rectangle whic
 The following barcode types can be recognised:
 
 - `aztec`
-- `code138`
+- `code128`
 - `code39`
 - `code39mod43`
 - `code93`
@@ -278,6 +300,7 @@ Supported options:
  - `metadata` This is metadata to be added to the captured image.
    - `location` This is the object returned from `navigator.geolocation.getCurrentPosition()` (React Native's geolocation polyfill). It will add GPS metadata to the image.
  - `rotation` This will rotate the image by the number of degrees specified.
+ - `jpegQuality` (integer between 1 and 100) This property is used to compress the output jpeg file with 100% meaning no jpeg compression will be applied.
 
 The promise will be fulfilled with an object with some of the following properties:
 
@@ -304,15 +327,15 @@ Ends the current capture session for video captures. Only applies when the curre
 
 #### `iOS` `Camera.checkDeviceAuthorizationStatus(): Promise`
 
-Exposes the native API for checking if the device has authorized access to the camera (camera and microphone permissions). Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.
+Exposes the native API for checking if the device has authorized access to the camera (camera and microphone permissions). Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized. Note, [as of iOS 10](https://developer.apple.com/library/content/documentation/AudioVideo/Conceptual/PhotoCaptureGuide/#//apple_ref/doc/uid/TP40017511-CH1-DontLinkElementID_3), you will need to add `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 #### `iOS` `Camera.checkVideoAuthorizationStatus(): Promise`
 
-The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the camera permission.
+The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the camera permission. Note, as of iOS 10, you will need to add `NSCameraUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 #### `iOS` `Camera.checkAudioAuthorizationStatus(): Promise`
 
-The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the microphone permission.
+The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the microphone permission. Note, as of iOS 10, you will need to add `NSMicrophoneUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
