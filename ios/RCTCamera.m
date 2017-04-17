@@ -5,7 +5,7 @@
 #import <React/RCTUtils.h>
 #import <React/RCTEventDispatcher.h>
 
-#import "UIView+React.h"
+#import <React/UIView+React.h>
 
 #import <AVFoundation/AVFoundation.h>
 #import "CameraFocusSquare.h"

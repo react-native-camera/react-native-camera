@@ -171,7 +171,7 @@ export default class Camera extends Component {
 
   componentWillReceiveProps(newProps) {
     const { onBarCodeRead } = this.props
-    if (onBarCodeRead && !newProps.onBarCodeRead) {
+    if (onBarCodeRead !== newProps.onBarCodeRead) {
       this._addOnBarCodeReadListener(newProps)
     }
   }

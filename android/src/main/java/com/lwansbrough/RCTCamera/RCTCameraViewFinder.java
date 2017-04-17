@@ -187,9 +187,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     /**
      * Parse barcodes as BarcodeFormat constants.
      *
-     * Supports all iOS codes except [code138, code39mod43, itf14]
+     * Supports all iOS codes except [code39mod43, itf14]
      *
-     * Additionally supports [codabar, code128, maxicode, rss14, rssexpanded, upca, upceanextension]
+     * Additionally supports [codabar, maxicode, rss14, rssexpanded, upca, upceanextension]
      */
     private BarcodeFormat parseBarCodeString(String c) {
         if ("aztec".equals(c)) {
@@ -371,12 +371,17 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
         List<String> supportedFocusModes = params.getSupportedFocusModes();
         if (supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-            _camera.autoFocus(new Camera.AutoFocusCallback() {
-                @Override
-                public void onAutoFocus(boolean b, Camera camera) {
-                    // currently set to auto-focus on single touch
-                }
-            });
+            try {
+                _camera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean b, Camera camera) {
+                        // currently set to auto-focus on single touch
+                    }
+                });
+            } catch (Exception e) {
+                // just print stack trace, we don't want to crash by autoFocus fails
+                e.printStackTrace();
+            }
         }
     }
 

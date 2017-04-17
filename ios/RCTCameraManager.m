@@ -44,33 +44,41 @@ RCT_EXPORT_MODULE();
 
 - (NSDictionary *)constantsToExport
 {
+
+    NSMutableDictionary * runtimeBarcodeTypes = [NSMutableDictionary dictionary];
+    [runtimeBarcodeTypes setDictionary:@{
+                                         @"upce": AVMetadataObjectTypeUPCECode,
+                                         @"code39": AVMetadataObjectTypeCode39Code,
+                                         @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
+                                         @"ean13": AVMetadataObjectTypeEAN13Code,
+                                         @"ean8":  AVMetadataObjectTypeEAN8Code,
+                                         @"code93": AVMetadataObjectTypeCode93Code,
+                                         @"code128": AVMetadataObjectTypeCode128Code,
+                                         @"pdf417": AVMetadataObjectTypePDF417Code,
+                                         @"qr": AVMetadataObjectTypeQRCode,
+                                         @"aztec": AVMetadataObjectTypeAztecCode
+                                         }];
+
+    if (&AVMetadataObjectTypeInterleaved2of5Code != NULL) {
+        [runtimeBarcodeTypes setObject:AVMetadataObjectTypeInterleaved2of5Code forKey:@"interleaved2of5"];
+    }
+
+    if(&AVMetadataObjectTypeITF14Code != NULL){
+        [runtimeBarcodeTypes setObject:AVMetadataObjectTypeITF14Code forKey:@"itf14"];
+    }
+
+    if(&AVMetadataObjectTypeDataMatrixCode != NULL){
+        [runtimeBarcodeTypes setObject:AVMetadataObjectTypeDataMatrixCode forKey:@"datamatrix"];
+    }
+
+
   return @{
            @"Aspect": @{
                @"stretch": @(RCTCameraAspectStretch),
                @"fit": @(RCTCameraAspectFit),
                @"fill": @(RCTCameraAspectFill)
                },
-           @"BarCodeType": @{
-               @"upce": AVMetadataObjectTypeUPCECode,
-               @"code39": AVMetadataObjectTypeCode39Code,
-               @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
-               @"ean13": AVMetadataObjectTypeEAN13Code,
-               @"ean8":  AVMetadataObjectTypeEAN8Code,
-               @"code93": AVMetadataObjectTypeCode93Code,
-               @"code138": AVMetadataObjectTypeCode128Code,
-               @"pdf417": AVMetadataObjectTypePDF417Code,
-               @"qr": AVMetadataObjectTypeQRCode,
-               @"aztec": AVMetadataObjectTypeAztecCode
-               #ifdef AVMetadataObjectTypeInterleaved2of5Code
-               ,@"interleaved2of5": AVMetadataObjectTypeInterleaved2of5Code
-               # endif
-               #ifdef AVMetadataObjectTypeITF14Code
-               ,@"itf14": AVMetadataObjectTypeITF14Code
-               # endif
-               #ifdef AVMetadataObjectTypeDataMatrixCode
-               ,@"datamatrix": AVMetadataObjectTypeDataMatrixCode
-               # endif
-               },
+           @"BarCodeType": runtimeBarcodeTypes,
            @"Type": @{
                @"front": @(RCTCameraTypeFront),
                @"back": @(RCTCameraTypeBack)
@@ -456,6 +464,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
 - (void)stopSession {
 #if TARGET_IPHONE_SIMULATOR
+  self.camera = nil;
   return;
 #endif
   dispatch_async(self.sessionQueue, ^{
@@ -671,7 +680,8 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   else if (target == RCTCameraCaptureTargetCameraRoll) {
     [[[ALAssetsLibrary alloc] init] writeImageDataToSavedPhotosAlbum:imageData metadata:metadata completionBlock:^(NSURL* url, NSError* error) {
       if (error == nil) {
-        resolve(@{@"path":[url absoluteString]});
+        //path isn't really applicable here (this is an asset uri), but left it in for backward comparability
+        resolve(@{@"path":[url absoluteString], @"mediaUri":[url absoluteString]});
       }
       else {
         reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
