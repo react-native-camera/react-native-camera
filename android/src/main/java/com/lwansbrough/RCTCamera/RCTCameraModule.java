@@ -561,18 +561,18 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
      * concurrently which would blow the memory (esp on smaller devices), and slow things down.
      */
     private synchronized void processImage(MutableImage mutableImage, Boolean shouldMirror, ReadableMap options, Promise promise) {
+        try {
+            mutableImage.fixOrientation();
+        } catch (MutableImage.ImageMutationFailedException e) {
+            promise.reject("Error mirroring image", e);
+        }
+        
         if (shouldMirror) {
             try {
                 mutableImage.mirrorImage();
             } catch (MutableImage.ImageMutationFailedException e) {
                 promise.reject("Error mirroring image", e);
             }
-        }
-
-        try {
-            mutableImage.fixOrientation();
-        } catch (MutableImage.ImageMutationFailedException e) {
-            promise.reject("Error mirroring image", e);
         }
 
         int jpegQualityPercent = 80;
