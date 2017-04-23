@@ -38,6 +38,7 @@ To enable `video recording` feature you have to add the following code to the `A
 <key>NSMicrophoneUsageDescription</key>
 <string>Your message to user when the microsphone is accessed for the first time</string>
 ```
+3. On Android, you require `buildToolsVersion` of `25.0.2+`. _This should easily and automatically be downloaded by Android Studio's SDK Manager._
 
 ### Mostly automatic install with react-native
 1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
