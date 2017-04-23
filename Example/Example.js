@@ -182,6 +182,7 @@ export default class Example extends React.Component {
           captureTarget={this.state.camera.captureTarget}
           type={this.state.camera.type}
           flashMode={this.state.camera.flashMode}
+          onFocusChanged={() => {}}
           defaultTouchToFocus
           mirrorImage={false}
         />
