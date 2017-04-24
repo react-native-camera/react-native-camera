@@ -82,6 +82,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     private ReadableMap mRecordingOptions;
     private Boolean mSafeToCapture = true;
 
+    private boolean mPlaySoundOnCapture = true;
+
     public RCTCameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
         _reactContext = reactContext;
@@ -351,6 +353,19 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             return;
         }
 
+        // Save to instance if we should be playing sound on capture, so we can later mute again
+        // when stopping the recording too based on this boolean.
+        final String playSoundOnCaptureKey = "playSoundOnCapture";
+        if (options.hasKey(playSoundOnCaptureKey)) {
+            mPlaySoundOnCapture = options.getBoolean(playSoundOnCaptureKey);
+        }
+
+        // Before starting recording, if playSoundOnCapture is OFF, then disable all sounds
+        // temporarily now.
+        if (!mPlaySoundOnCapture) {
+            RCTCameraUtils.tempMuteSystemSoundsForRecordStartStop(_reactContext);
+        }
+
         try {
             mMediaRecorder.start();
             MRStartTime =  System.currentTimeMillis();
@@ -381,6 +396,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
         // Release actual MediaRecorder instance.
         if (mMediaRecorder != null) {
+            // Before ending recording, if playSoundOnCapture is OFF, then disable all sounds
+            // temporarily now.
+            if (!mPlaySoundOnCapture) {
+                RCTCameraUtils.tempMuteSystemSoundsForRecordStartStop(_reactContext);
+            }
+
             // Stop recording video.
             try {
                 mMediaRecorder.stop(); // stop the recording
