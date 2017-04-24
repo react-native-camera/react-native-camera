@@ -28,6 +28,7 @@ import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.Result;
+import com.google.zxing.PointResult;
 import com.google.zxing.common.HybridBinarizer;
 
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
@@ -331,7 +332,23 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 WritableMap event = Arguments.createMap();
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());
-                reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("CameraBarCodeReadAndroid", event);
+
+				StringBuilder concatenation = new StringBuilder();
+				ResultPoint[] resultPointArray = result.getResultPoints();
+
+				concatenation.append("[");
+
+				for (ResultPoint resultPoint : resultPointArray) {
+					concatenation.append(",").append("[");
+					concatenation.append(resultPoint.getX());
+					concatenation.append(',');
+					concatenation.append(resultPoint.getY());
+					concatenation.append("]");
+				}
+
+				concatenation.append("]").deleteCharAt(1);
+				event.putString("bounds", concatenation.toString());
+				reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("CameraBarCodeReadAndroid", event);
 
             } catch (Throwable t) {
                 // meh
