@@ -27,6 +27,7 @@ import com.facebook.react.bridge.WritableNativeMap;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -81,6 +82,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     private Promise mRecordingPromise = null;
     private ReadableMap mRecordingOptions;
     private Boolean mSafeToCapture = true;
+
+    private boolean mPlaySoundOnCapture = true;
+    private ArrayList<RCTCameraUtils.StreamIdRestoreVolume> mStreamIdRestoreVolumes;
 
     public RCTCameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -351,6 +355,19 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             return;
         }
 
+        // Save to instance if we should be playing sound on capture, so we can later mute again
+        // when stopping the recording too based on this boolean.
+        final String playSoundOnCaptureKey = "playSoundOnCapture";
+        if (options.hasKey(playSoundOnCaptureKey)) {
+            mPlaySoundOnCapture = options.getBoolean(playSoundOnCaptureKey);
+        }
+
+        // Before starting recording, if playSoundOnCapture is OFF, then disable all sounds
+        // temporarily now.
+        if (!mPlaySoundOnCapture) {
+            mStreamIdRestoreVolumes = RCTCameraUtils.saveAndMuteSystemSoundsForRecordStartStop(_reactContext);
+        }
+
         try {
             mMediaRecorder.start();
             MRStartTime =  System.currentTimeMillis();
@@ -359,6 +376,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         } catch (Exception ex) {
             Log.e(TAG, "Media recorder start error.", ex);
             promise.reject(ex);
+        }
+
+        // Re-enable sounds if applicable.
+        if (!mPlaySoundOnCapture && mStreamIdRestoreVolumes != null) {
+            RCTCameraUtils.restoreSystemSoundsAfterRecordStartStop(mStreamIdRestoreVolumes, _reactContext);
         }
     }
 
@@ -381,11 +403,22 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
         // Release actual MediaRecorder instance.
         if (mMediaRecorder != null) {
+            // Before ending recording, if playSoundOnCapture is OFF, then disable all sounds
+            // temporarily now.
+            if (!mPlaySoundOnCapture) {
+                mStreamIdRestoreVolumes = RCTCameraUtils.saveAndMuteSystemSoundsForRecordStartStop(_reactContext);
+            }
+
             // Stop recording video.
             try {
                 mMediaRecorder.stop(); // stop the recording
             } catch (RuntimeException ex) {
                 Log.e(TAG, "Media recorder stop error.", ex);
+            }
+
+            // Re-enable sounds if applicable.
+            if (!mPlaySoundOnCapture && mStreamIdRestoreVolumes != null) {
+                RCTCameraUtils.restoreSystemSoundsAfterRecordStartStop(mStreamIdRestoreVolumes, _reactContext);
             }
 
             // Optionally, remove the configuration settings from the recorder.
