@@ -595,32 +595,35 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
           NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
 
           // create cgimage
-          CGImageRef CGImage;
-          CGImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
+          CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
 
           // Rotate it
           CGImageRef rotatedCGImage;
           if ([options objectForKey:@"rotation"]) {
             float rotation = [[options objectForKey:@"rotation"] floatValue];
-            rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:rotation];
-          } else {
+            rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:rotation];
+          } else if ([options objectForKey:@"fixOrientation"]){
             // Get metadata orientation
             int metadataOrientation = [[imageMetadata objectForKey:(NSString *)kCGImagePropertyOrientation] intValue];
-
+            
+            bool rotated = false;
+            
             if (metadataOrientation == 6) {
-              rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:270];
-            } else if (metadataOrientation == 1) {
-              rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:0];
+              rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:270];
+              rotated = true;
             } else if (metadataOrientation == 3) {
-              rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:180];
-            } else {
-              rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:0];
+              rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:180];
+              rotated = true;
             }
+            
+            if(rotated) {
+              [imageMetadata setObject:[NSNumber numberWithInteger:1] forKey:(NSString *)kCGImagePropertyOrientation];
+              CGImageRelease(cgImage);
+            }
+          } else {
+            rotatedCGImage = cgImage;
           }
-          CGImageRelease(CGImage);
 
-          // Erase metadata orientation
-          [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyOrientation];
           // Erase stupid TIFF stuff
           [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
 
