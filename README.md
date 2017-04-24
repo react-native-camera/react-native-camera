@@ -260,12 +260,16 @@ Values:
 
 Use the `torchMode` property to specify the camera torch mode.
 
-#### `onFocusChanged: Event { nativeEvent: { touchPoint: { x, y } }`
+#### `iOS` `onFocusChanged: Event { nativeEvent: { touchPoint: { x, y } }`
 
-Called when a touch focus gesture has been made.
+iOS: Called when a touch focus gesture has been made.
 By default, `onFocusChanged` is not defined and tap-to-focus is disabled.
 
-#### `defaultOnFocusComponent`
+Android: This callback is not yet implemented. However, Android will
+automatically do tap-to-focus if the device supports auto-focus; there is
+currently no way to manage this from javascript.
+
+#### `iOS` `defaultOnFocusComponent`
 
 Values:
 `true` (default)
@@ -273,10 +277,14 @@ Values:
 
 If `defaultOnFocusComponent` set to false, default internal implementation of visual feedback for tap-to-focus gesture will be disabled.
 
-#### `onZoomChanged: Event { nativeEvent: { velocity, zoomFactor } }`
+#### `iOS` `onZoomChanged: Event { nativeEvent: { velocity, zoomFactor } }`
 
-Called when focus has changed.
+iOS: Called when focus has changed.
 By default, `onZoomChanged` is not defined and pinch-to-zoom is disabled.
+
+Android: This callback is not yet implemented. However, Android will
+automatically handle pinch-to-zoom; there is currently no way to manage this
+from javascript.
 
 #### `iOS` `keepAwake`
 
