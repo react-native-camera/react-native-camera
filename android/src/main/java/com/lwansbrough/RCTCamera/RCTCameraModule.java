@@ -6,6 +6,8 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.ContentValues;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.media.*;
 import android.net.Uri;
@@ -654,6 +656,42 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         } else {
             promise.resolve("Not recording.");
         }
+    }
+
+    @ReactMethod
+    public void getBarcodeImage(final Promise promise) {
+        byte[] data = RCTCamera.getInstance().getBarcodeImageData();
+        int width = RCTCamera.getInstance().getBarcodeImageWidth();
+        int height = RCTCamera.getInstance().getBarcodeImageHeight();
+        int format = RCTCamera.getInstance().getBarcodeImageFormat();
+
+        if (null == data) {
+            promise.resolve(null);
+            return;
+        }
+
+        File tempFile = getTempMediaFile(MEDIA_TYPE_IMAGE);
+        if (null == tempFile) {
+            promise.reject("Error creating media file.");
+            return;
+        }
+
+        try {
+            YuvImage yuvImage = new YuvImage(data, format, width, height, null);
+            FileOutputStream fos = new FileOutputStream(tempFile);
+            yuvImage.compressToJpeg(new Rect(0, 0, width, height), 100, fos);
+            fos.close();
+        } catch (FileNotFoundException error) {
+            promise.reject(error);
+            return;
+        } catch (IOException error) {
+            promise.reject(error);
+            return;
+        }
+
+        WritableMap response = new WritableNativeMap();
+        response.putString("path", Uri.fromFile(tempFile).toString());
+        promise.resolve(response);
     }
 
     @ReactMethod

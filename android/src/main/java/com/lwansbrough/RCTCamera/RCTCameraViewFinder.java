@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.List;
@@ -26,6 +27,7 @@ import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.Result;
+import com.google.zxing.ResultPoint;
 import com.google.zxing.common.HybridBinarizer;
 
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
@@ -281,22 +283,36 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 return null;
             }
 
-            Camera.Size size = camera.getParameters().getPreviewSize();
-
+            Camera.Parameters parameters = camera.getParameters();
+            Camera.Size size = parameters.getPreviewSize();
             int width = size.width;
             int height = size.height;
+            byte[] originalData = imageData;
+            int format = parameters.getPreviewFormat();
+            boolean captureBarCodeImage = RCTCamera.getInstance().isCaptureBarCodeImage();
 
             // rotate for zxing if orientation is portrait
             if (RCTCamera.getInstance().getActualDeviceOrientation() == 0) {
-              byte[] rotated = new byte[imageData.length];
-              for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                  rotated[x * height + height - y - 1] = imageData[x + y * width];
+                byte[] rotated = new byte[imageData.length];
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        rotated[x * height + height - y - 1] = imageData[x + y * width];
+                    }
                 }
-              }
-              width = size.height;
-              height = size.width;
-              imageData = rotated;
+                if (captureBarCodeImage) {
+                    int i = width * height * 3 / 2 - 1;
+                    for(int x = width - 1; x > 0; x = x - 2) {
+                        for(int y = 0; y < height / 2; y++) {
+                            rotated[i] = imageData[(width * height) + (y * width) + x];
+                            i--;
+                            rotated[i] = imageData[(width * height) + (y * width) + (x - 1)];
+                            i--;
+                        }
+                    }
+                }
+                width = size.height;
+                height = size.width;
+                imageData = rotated;
             }
 
             try {
@@ -306,8 +322,21 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
                 ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
                 WritableMap event = Arguments.createMap();
+
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());
+                WritableArray points = Arguments.createArray();
+                for (ResultPoint point: result.getResultPoints()) {
+                    WritableMap p = Arguments.createMap();
+                    p.putDouble("x", point.getX() / width);
+                    p.putDouble("y", point.getY() / height);
+                    points.pushMap(p);
+                }
+                event.putArray("points", points);
+
+                if (captureBarCodeImage) {
+                    RCTCamera.getInstance().setBarcodeImage(imageData == originalData ? imageData.clone() : imageData, width, height, format);
+                }
                 reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("CameraBarCodeReadAndroid", event);
 
             } catch (Throwable t) {

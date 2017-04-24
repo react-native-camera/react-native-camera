@@ -97,6 +97,7 @@ export default class Camera extends Component {
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
     barcodeScannerEnabled: PropTypes.bool,
+    captureBarCodeImage: PropTypes.bool,
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
@@ -202,7 +203,26 @@ export default class Camera extends Component {
 
   _onBarCodeRead = (data) => {
     if (this.props.onBarCodeRead) {
-      this.props.onBarCodeRead(data)
+      let image;
+      this.props.onBarCodeRead({...data, image: {
+        // using thenable instead of a Promise to create an image by demand, not immediately.
+        then: (onsuccess, onfailure) => {
+          if (!image) {
+            if (CameraManager.getBarcodeImage) 
+              image = CameraManager.getBarcodeImage && CameraManager.getBarcodeImage()
+              if (!image) { // fallback to an old version of API
+                image = this.capture({
+                  mode: Camera.constants.CaptureMode.still,
+                  target: Camera.constants.CaptureTarget.temp,
+                  quality: Camera.constants.CaptureQuality.low,
+                  playSoundOnCapture: false,
+                });
+              }
+          }
+          image.then(onsuccess, onfailure)
+        },
+      }})
+      image = Promise.resolve();
     }
   };
 
