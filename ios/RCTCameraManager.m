@@ -607,7 +607,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
             int metadataOrientation = [[imageMetadata objectForKey:(NSString *)kCGImagePropertyOrientation] intValue];
             
             bool rotated = false;
-            
+            //see http://www.impulseadventure.com/photo/exif-orientation.html
             if (metadataOrientation == 6) {
               rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:270];
               rotated = true;

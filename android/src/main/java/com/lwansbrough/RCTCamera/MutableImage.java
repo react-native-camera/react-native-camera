@@ -76,6 +76,7 @@ public class MutableImage {
         }
     }
 
+    //see http://www.impulseadventure.com/photo/exif-orientation.html
     private void rotate(int exifOrientation) throws ImageMutationFailedException {
         final Matrix bitmapMatrix = new Matrix();
         switch (exifOrientation) {
