@@ -1,10 +1,10 @@
 #import "RCTCameraManager.h"
 #import "RCTCamera.h"
-#import "RCTBridge.h"
-#import "RCTEventDispatcher.h"
-#import "RCTUtils.h"
-#import "RCTLog.h"
-#import "UIView+React.h"
+#import <React/RCTBridge.h>
+#import <React/RCTEventDispatcher.h>
+#import <React/RCTUtils.h>
+#import <React/RCTLog.h>
+#import <React/UIView+React.h>
 #import "NSMutableDictionary+ImageMetadata.m"
 #import <AssetsLibrary/ALAssetsLibrary.h>
 #import <AVFoundation/AVFoundation.h>
@@ -14,6 +14,7 @@
 @interface RCTCameraManager ()
 
 @property (strong, nonatomic) RCTSensorOrientationChecker * sensorOrientationChecker;
+@property (assign, nonatomic) NSInteger* flashMode;
 
 @end
 
@@ -30,9 +31,10 @@ RCT_EXPORT_MODULE();
 - (UIView *)view
 {
   self.session = [AVCaptureSession new];
-
-  self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
-  self.previewLayer.needsDisplayOnBoundsChange = YES;
+  #if !(TARGET_IPHONE_SIMULATOR)
+    self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
+    self.previewLayer.needsDisplayOnBoundsChange = YES;
+  #endif
 
   if(!self.camera){
     self.camera = [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
@@ -42,33 +44,41 @@ RCT_EXPORT_MODULE();
 
 - (NSDictionary *)constantsToExport
 {
+
+    NSMutableDictionary * runtimeBarcodeTypes = [NSMutableDictionary dictionary];
+    [runtimeBarcodeTypes setDictionary:@{
+                                         @"upce": AVMetadataObjectTypeUPCECode,
+                                         @"code39": AVMetadataObjectTypeCode39Code,
+                                         @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
+                                         @"ean13": AVMetadataObjectTypeEAN13Code,
+                                         @"ean8":  AVMetadataObjectTypeEAN8Code,
+                                         @"code93": AVMetadataObjectTypeCode93Code,
+                                         @"code128": AVMetadataObjectTypeCode128Code,
+                                         @"pdf417": AVMetadataObjectTypePDF417Code,
+                                         @"qr": AVMetadataObjectTypeQRCode,
+                                         @"aztec": AVMetadataObjectTypeAztecCode
+                                         }];
+
+    if (&AVMetadataObjectTypeInterleaved2of5Code != NULL) {
+        [runtimeBarcodeTypes setObject:AVMetadataObjectTypeInterleaved2of5Code forKey:@"interleaved2of5"];
+    }
+
+    if(&AVMetadataObjectTypeITF14Code != NULL){
+        [runtimeBarcodeTypes setObject:AVMetadataObjectTypeITF14Code forKey:@"itf14"];
+    }
+
+    if(&AVMetadataObjectTypeDataMatrixCode != NULL){
+        [runtimeBarcodeTypes setObject:AVMetadataObjectTypeDataMatrixCode forKey:@"datamatrix"];
+    }
+
+
   return @{
            @"Aspect": @{
                @"stretch": @(RCTCameraAspectStretch),
                @"fit": @(RCTCameraAspectFit),
                @"fill": @(RCTCameraAspectFill)
                },
-           @"BarCodeType": @{
-               @"upce": AVMetadataObjectTypeUPCECode,
-               @"code39": AVMetadataObjectTypeCode39Code,
-               @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
-               @"ean13": AVMetadataObjectTypeEAN13Code,
-               @"ean8":  AVMetadataObjectTypeEAN8Code,
-               @"code93": AVMetadataObjectTypeCode93Code,
-               @"code138": AVMetadataObjectTypeCode128Code,
-               @"pdf417": AVMetadataObjectTypePDF417Code,
-               @"qr": AVMetadataObjectTypeQRCode,
-               @"aztec": AVMetadataObjectTypeAztecCode
-               #ifdef AVMetadataObjectTypeInterleaved2of5Code
-               ,@"interleaved2of5": AVMetadataObjectTypeInterleaved2of5Code
-               # endif
-               #ifdef AVMetadataObjectTypeITF14Code
-               ,@"itf14": AVMetadataObjectTypeITF14Code
-               # endif
-               #ifdef AVMetadataObjectTypeDataMatrixCode
-               ,@"datamatrix": AVMetadataObjectTypeDataMatrixCode
-               # endif
-               },
+           @"BarCodeType": runtimeBarcodeTypes,
            @"Type": @{
                @"front": @(RCTCameraTypeFront),
                @"back": @(RCTCameraTypeBack)
@@ -85,7 +95,13 @@ RCT_EXPORT_MODULE();
                @"high": @(RCTCameraCaptureSessionPresetHigh),
                @"AVCaptureSessionPresetHigh": @(RCTCameraCaptureSessionPresetHigh),
                @"photo": @(RCTCameraCaptureSessionPresetPhoto),
-               @"AVCaptureSessionPresetPhoto": @(RCTCameraCaptureSessionPresetPhoto)
+               @"AVCaptureSessionPresetPhoto": @(RCTCameraCaptureSessionPresetPhoto),
+               @"480p": @(RCTCameraCaptureSessionPreset480p),
+               @"AVCaptureSessionPreset640x480": @(RCTCameraCaptureSessionPreset480p),
+               @"720p": @(RCTCameraCaptureSessionPreset720p),
+               @"AVCaptureSessionPreset1280x720": @(RCTCameraCaptureSessionPreset720p),
+               @"1080p": @(RCTCameraCaptureSessionPreset1080p),
+               @"AVCaptureSessionPreset1920x1080": @(RCTCameraCaptureSessionPreset1080p)
                },
            @"CaptureTarget": @{
                @"memory": @(RCTCameraCaptureTargetMemory),
@@ -134,6 +150,15 @@ RCT_CUSTOM_VIEW_PROPERTY(captureQuality, NSInteger, RCTCamera) {
       break;
     case RCTCameraCaptureSessionPresetPhoto:
       qualityString = AVCaptureSessionPresetPhoto;
+      break;
+    case RCTCameraCaptureSessionPreset1080p:
+      qualityString = AVCaptureSessionPreset1920x1080;
+      break;
+    case RCTCameraCaptureSessionPreset720p:
+      qualityString = AVCaptureSessionPreset1280x720;
+      break;
+    case RCTCameraCaptureSessionPreset480p:
+      qualityString = AVCaptureSessionPreset640x480;
       break;
   }
 
@@ -196,6 +221,7 @@ RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera) {
 
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:captureDevice];
         self.videoCaptureDeviceInput = captureDeviceInput;
+        [self setFlashMode];
       }
       else
       {
@@ -209,29 +235,33 @@ RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera) {
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(flashMode, NSInteger, RCTCamera) {
-  AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-  NSError *error = nil;
-  NSInteger *flashMode = [RCTConvert NSInteger:json];
+    self.flashMode = [RCTConvert NSInteger:json];
+    [self setFlashMode];
+}
 
-  if (![device hasFlash]) return;
-  if (![device lockForConfiguration:&error]) {
-    NSLog(@"%@", error);
-    return;
-  }
-  if (device.hasFlash && [device isFlashModeSupported:flashMode])
-  {
+- (void)setFlashMode {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    if ([device lockForConfiguration:&error])
-    {
-      [device setFlashMode:flashMode];
-      [device unlockForConfiguration];
+
+    if (![device hasFlash]) return;
+    if (![device lockForConfiguration:&error]) {
+        NSLog(@"%@", error);
+        return;
     }
-    else
+    if (device.hasFlash && [device isFlashModeSupported:self.flashMode])
     {
-      NSLog(@"%@", error);
+        NSError *error = nil;
+        if ([device lockForConfiguration:&error])
+        {
+            [device setFlashMode:self.flashMode];
+            [device unlockForConfiguration];
+        }
+        else
+        {
+            NSLog(@"%@", error);
+        }
     }
-  }
-  [device unlockForConfiguration];
+    [device unlockForConfiguration];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(torchMode, NSInteger, RCTCamera) {
@@ -434,6 +464,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
 - (void)stopSession {
 #if TARGET_IPHONE_SIMULATOR
+  self.camera = nil;
   return;
 #endif
   dispatch_async(self.sessionQueue, ^{
@@ -497,6 +528,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       }
       else if (type == AVMediaTypeVideo) {
         self.videoCaptureDeviceInput = captureDeviceInput;
+        [self setFlashMode];
       }
       [self.metadataOutput setMetadataObjectTypes:self.metadataOutput.availableMetadataObjectTypes];
     }
@@ -648,7 +680,8 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   else if (target == RCTCameraCaptureTargetCameraRoll) {
     [[[ALAssetsLibrary alloc] init] writeImageDataToSavedPhotosAlbum:imageData metadata:metadata completionBlock:^(NSURL* url, NSError* error) {
       if (error == nil) {
-        resolve(@{@"path":[url absoluteString]});
+        //path isn't really applicable here (this is an asset uri), but left it in for backward comparability
+        resolve(@{@"path":[url absoluteString], @"mediaUri":[url absoluteString]});
       }
       else {
         reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
@@ -979,13 +1012,15 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 
 - (void)setCaptureQuality:(NSString *)quality
 {
-    if (quality) {
-        [self.session beginConfiguration];
-        if ([self.session canSetSessionPreset:quality]) {
-            self.session.sessionPreset = quality;
+    #if !(TARGET_IPHONE_SIMULATOR)
+        if (quality) {
+            [self.session beginConfiguration];
+            if ([self.session canSetSessionPreset:quality]) {
+                self.session.sessionPreset = quality;
+            }
+            [self.session commitConfiguration];
         }
-        [self.session commitConfiguration];
-    }
+    #endif
 }
 
 @end
