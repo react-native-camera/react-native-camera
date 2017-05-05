@@ -7,9 +7,6 @@ A camera module for React Native.
 
 #### Breaking Changes
 ##### android build tools has been bumped to 25.0.2, please update (can be done via android cli or AndroidStudio)
-##### react-native header imports have changed in v0.40, and that means breaking changes for all! [Reference PR & Discussion](https://github.com/lwansbrough/react-native-camera/pull/544).
-- if on react-native < 0.40: `npm i react-native-camera@0.4`
-- if on react-native >= 0.40 `npm i react-native-camera@0.6`
 
 ##### Permissions
 To enable `video recording` feature you have to add the following code to the `AndroidManifest.xml`:
