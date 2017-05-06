@@ -6,6 +6,7 @@ Hey there, I'm looking for active contributors to help move the development of t
 A camera module for React Native.
 
 #### Breaking Changes
+##### android build tools has been bumped to 25.0.2, please update (can be done via android cli or AndroidStudio)
 ##### react-native header imports have changed in v0.40, and that means breaking changes for all! [Reference PR & Discussion](https://github.com/lwansbrough/react-native-camera/pull/544).
 - if on react-native < 0.40: `npm i react-native-camera@0.4`
 - if on react-native >= 0.40 `npm i react-native-camera@0.6`
@@ -38,6 +39,7 @@ To enable `video recording` feature you have to add the following code to the `A
 <key>NSMicrophoneUsageDescription</key>
 <string>Your message to user when the microsphone is accessed for the first time</string>
 ```
+3. On Android, you require `buildToolsVersion` of `25.0.2+`. _This should easily and automatically be downloaded by Android Studio's SDK Manager._
 
 ### Mostly automatic install with react-native
 1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
@@ -258,12 +260,16 @@ Values:
 
 Use the `torchMode` property to specify the camera torch mode.
 
-#### `onFocusChanged: Event { nativeEvent: { touchPoint: { x, y } }`
+#### `iOS` `onFocusChanged: Event { nativeEvent: { touchPoint: { x, y } }`
 
-Called when a touch focus gesture has been made.
+iOS: Called when a touch focus gesture has been made.
 By default, `onFocusChanged` is not defined and tap-to-focus is disabled.
 
-#### `defaultOnFocusComponent`
+Android: This callback is not yet implemented. However, Android will
+automatically do tap-to-focus if the device supports auto-focus; there is
+currently no way to manage this from javascript.
+
+#### `iOS` `defaultOnFocusComponent`
 
 Values:
 `true` (default)
@@ -271,10 +277,14 @@ Values:
 
 If `defaultOnFocusComponent` set to false, default internal implementation of visual feedback for tap-to-focus gesture will be disabled.
 
-#### `onZoomChanged: Event { nativeEvent: { velocity, zoomFactor } }`
+#### `iOS` `onZoomChanged: Event { nativeEvent: { velocity, zoomFactor } }`
 
-Called when focus has changed.
+iOS: Called when focus has changed.
 By default, `onZoomChanged` is not defined and pinch-to-zoom is disabled.
+
+Android: This callback is not yet implemented. However, Android will
+automatically handle pinch-to-zoom; there is currently no way to manage this
+from javascript.
 
 #### `iOS` `keepAwake`
 
