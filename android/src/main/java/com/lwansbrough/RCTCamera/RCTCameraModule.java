@@ -566,7 +566,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         } catch (MutableImage.ImageMutationFailedException e) {
             promise.reject("Error mirroring image", e);
         }
-        
+
         if (shouldMirror) {
             try {
                 mutableImage.mirrorImage();
@@ -639,7 +639,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                     return;
                 }
 
-                resolve(tempFile, promise);
+                resolve(tempFile, promise, mutableImage.width, mutableImage.height);
 
                 break;
             }
@@ -762,9 +762,15 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         // ... do nothing
     }
 
-    private void resolve(final File imageFile, final Promise promise) {
+    private void resolve(final File imageFile, final Promise promise, final int imageWidth, final int imageHeight) {
         final WritableMap response = new WritableNativeMap();
-        response.putString("path", Uri.fromFile(imageFile).toString());
+        if ( imageWidth > 0 && imageHeight > 0 ) {
+          response.putString("uri", Uri.fromFile(imageFile).toString());
+          response.putInt("width", imageWidth);
+          response.putInt("height", imageHeight);
+        } else {
+          response.putString("path", Uri.fromFile(imageFile).toString());
+        }
 
         // borrowed from react-native CameraRollManager, it finds and returns the 'internal'
         // representation of the image uri that was just saved.
@@ -785,4 +791,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 });
     }
 
+  private void resolve(final File imageFile, final Promise promise) {
+      resolve(imageFile, promise, 0, 0);
+  }
 }
