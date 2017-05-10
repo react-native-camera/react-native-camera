@@ -311,6 +311,7 @@ Supported options:
    - `location` This is the object returned from `navigator.geolocation.getCurrentPosition()` (React Native's geolocation polyfill). It will add GPS metadata to the image.
  - `rotation` This will rotate the image by the number of degrees specified.
  - `jpegQuality` (integer between 1 and 100) This property is used to compress the output jpeg file with 100% meaning no jpeg compression will be applied.
+ - `totalSeconds` This will limit video length by number of seconds specified. Only works in video capture mode.
 
 The promise will be fulfilled with an object with some of the following properties:
 
