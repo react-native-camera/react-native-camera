@@ -467,7 +467,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 path = Uri.fromFile(mVideoFile).toString();
                 response.putString("path", path);
                 videoInfo = getVideoInfo(path);
-
                 response.putString("duration", videoInfo.get("duration"));
                 response.putString("width",videoInfo.get("width"));
                 response.putString("height",videoInfo.get("height"));
