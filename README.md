@@ -214,11 +214,11 @@ Values: `true` (default) or `false`
 
 This property allows you to specify whether a shutter sound is played on capture. It is currently android only, pending [a reasonable mute implementation](http://stackoverflow.com/questions/4401232/avfoundation-how-to-turn-off-the-shutter-sound-when-capturestillimageasynchrono) in iOS.
 
-#### `onRecordVideoStarted` (Android only now)
+#### `onRecordVideoStarted` `(Android only now)`
 
 Will call the specified method when the camera start recording a video.
 
-#### `onRecordVideoStopped` (Android only now)
+#### `onRecordVideoStopped` `(Android only now)`
 
 Will call the specified method when the camera finish recording a video.
 
