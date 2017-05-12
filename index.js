@@ -41,7 +41,7 @@ function convertNativeProps(props) {
   if (typeof props.captureMode === 'string') {
     newProps.captureMode = Camera.constants.CaptureMode[props.captureMode];
   }
-  
+
   if (typeof props.captureTarget === 'string') {
     newProps.captureTarget = Camera.constants.CaptureTarget[props.captureTarget];
   }
@@ -97,6 +97,8 @@ export default class Camera extends Component {
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
     barcodeScannerEnabled: PropTypes.bool,
+    onRecordVideoStarted : PropTypes.func,
+    onRecordVideoStopped : PropTypes.func,
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
@@ -150,6 +152,8 @@ export default class Camera extends Component {
 
   async componentWillMount() {
     this._addOnBarCodeReadListener()
+    this._addOnRecordVideoStartedListener()
+    this._addOnRecordVideoStoppedListener()
 
     let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode })
     let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
@@ -163,6 +167,8 @@ export default class Camera extends Component {
 
   componentWillUnmount() {
     this._removeOnBarCodeReadListener()
+    this._removeOnRecordVideoStartedListener()
+    this._removeOnRecordVideoStoppedListener()
 
     if (this.state.isRecording) {
       this.stopCapture();
@@ -170,9 +176,15 @@ export default class Camera extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { onBarCodeRead } = this.props
+    const { onBarCodeRead,onRecordVideoStarted,onRecordVideoStopped } = this.props
     if (onBarCodeRead !== newProps.onBarCodeRead) {
       this._addOnBarCodeReadListener(newProps)
+    }
+    if(onRecordVideoStarted !== newProps.onRecordVideoStarted){
+      this._addOnRecordVideoStartedListener(newProps)
+    }
+    if(onRecordVideoStopped !== newProps.onRecordVideoStopped){
+      this._addOnRecordVideoStoppedListener(newProps)
     }
   }
 
@@ -192,6 +204,35 @@ export default class Camera extends Component {
       listener.remove()
     }
   }
+  _addOnRecordVideoStartedListener(props){
+    const { onRecordVideoStarted} = props || this.props
+    this._removeOnRecordVideoStartedListener()
+    if( onRecordVideoStarted){
+      this.RecordVideoStartListener = DeviceEventEmitter.addListener('RecordVideoStart', this._onRecordVideoStart)
+    }
+  }
+  _removeOnRecordVideoStartedListener(){
+    const listener = this.RecordVideoStartListener
+    if(listener){
+      listener.remove()
+    }
+  }
+
+  _addOnRecordVideoStoppedListener(props){
+    const { onRecordVideoStopped} = props || this.props
+    this._removeOnRecordVideoStoppedListener()
+    if( onRecordVideoStopped){
+      this.RecordVideoStopListener = DeviceEventEmitter.addListener('RecordVideoStop', this._onRecordVideoStop)
+    }
+  }
+  _removeOnRecordVideoStoppedListener(){
+    const listener = this.RecordVideoStopListener
+    if(listener){
+      listener.remove()
+    }
+  }
+
+
 
   render() {
     const style = [styles.base, this.props.style];
@@ -203,6 +244,18 @@ export default class Camera extends Component {
   _onBarCodeRead = (data) => {
     if (this.props.onBarCodeRead) {
       this.props.onBarCodeRead(data)
+    }
+  };
+
+  _onRecordVideoStart = (data) =>{
+    if(this.props.onRecordVideoStarted){
+      this.props.onRecordVideoStarted(data)
+    }
+  };
+
+  _onRecordVideoStop = (data) =>{
+    if(this.props.onRecordVideoStopped){
+      this.props.onRecordVideoStopped(data)
     }
   };
 
