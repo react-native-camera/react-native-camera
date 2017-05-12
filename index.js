@@ -204,6 +204,7 @@ export default class Camera extends Component {
       listener.remove()
     }
   }
+
   _addOnRecordVideoStartedListener(props){
     const { onRecordVideoStarted} = props || this.props
     this._removeOnRecordVideoStartedListener()
