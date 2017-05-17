@@ -524,8 +524,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
         }
 
-        final Boolean shouldMirror = options.hasKey("mirrorImage") && options.getBoolean("mirrorImage");
-
         RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(options.getInt("type"), deviceOrientation);
         camera.setPreviewCallback(null);
 
@@ -538,7 +536,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 AsyncTask.execute(new Runnable() {
                     @Override
                     public void run() {
-                        processImage(new MutableImage(data), shouldMirror, options, promise);
+                        processImage(new MutableImage(data), options, promise);
                     }
                 });
 
@@ -560,13 +558,17 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
      * synchronized in order to prevent the user crashing the app by taking many photos and them all being processed
      * concurrently which would blow the memory (esp on smaller devices), and slow things down.
      */
-    private synchronized void processImage(MutableImage mutableImage, Boolean shouldMirror, ReadableMap options, Promise promise) {
-        try {
-            mutableImage.fixOrientation();
-        } catch (MutableImage.ImageMutationFailedException e) {
-            promise.reject("Error mirroring image", e);
+    private synchronized void processImage(MutableImage mutableImage, ReadableMap options, Promise promise) {
+        boolean shouldFixOrientation = options.hasKey("fixOrientation") && options.getBoolean("fixOrientation");
+        if(shouldFixOrientation) {
+            try {
+                mutableImage.fixOrientation();
+            } catch (MutableImage.ImageMutationFailedException e) {
+                promise.reject("Error fixing orientation image", e);
+            }
         }
-        
+
+        boolean shouldMirror = options.hasKey("mirrorImage") && options.getBoolean("mirrorImage");
         if (shouldMirror) {
             try {
                 mutableImage.mirrorImage();
