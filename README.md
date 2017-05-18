@@ -214,14 +214,6 @@ Values: `true` (default) or `false`
 
 This property allows you to specify whether a shutter sound is played on capture. It is currently android only, pending [a reasonable mute implementation](http://stackoverflow.com/questions/4401232/avfoundation-how-to-turn-off-the-shutter-sound-when-capturestillimageasynchrono) in iOS.
 
-#### `onRecordVideoStarted` `(Android only now)`
-
-Will call the specified method when the camera start recording a video.
-
-#### `onRecordVideoStopped` `(Android only now)`
-
-Will call the specified method when the camera finish recording a video.
-
 #### `onBarCodeRead`
 
 Will call the specified method when a barcode is detected in the camera's view.
@@ -302,6 +294,14 @@ If set to `true`, the device will not sleep while the camera preview is visible.
 
 If set to `true`, the image returned will be mirrored.
 
+#### `fixOrientation` (_deprecated_)
+
+If set to `true`, the image returned will be rotated to the _right way up_.  WARNING: It uses a significant amount of memory and my cause your application to crash if the device cannot provide enough RAM to perform the rotation.
+
+(_If you find that you need to use this option because your images are incorrectly oriented by default,
+could please submit a PR and include the make model of the device.  We believe that it's not 
+required functionality any more and would like to remove it._) 
+
 ## Component instance methods
 
 You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to your `<Camera>` element, then you can use `this.refs.camera.capture(cb)`, etc. inside your component.
@@ -325,10 +325,10 @@ The promise will be fulfilled with an object with some of the following properti
 
  - `data`: Returns a base64-encoded string with the capture data (only returned with the deprecated `Camera.constants.CaptureTarget.memory`)
  - `path`: Returns the path of the captured image or video file on disk
- - `width`:  returns the video file's frame width
- - `height`:  returns the video file's frame height
- - `duration`:  video file duration
- - `size`:  video file size (in bytes)
+ - `width`: (currently iOS video only) returns the video file's frame width
+ - `height`: (currently iOS video only) returns the video file's frame height
+ - `duration`: (currently iOS video only) video file duration
+ - `size`: (currently iOS video only) video file size (in bytes)
 
 #### `iOS` `getFOV(): Promise`
 
