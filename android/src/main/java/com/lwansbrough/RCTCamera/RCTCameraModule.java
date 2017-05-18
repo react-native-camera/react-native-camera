@@ -678,8 +678,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
         }
 
-        final Boolean shouldMirror = options.hasKey("mirrorImage") && options.getBoolean("mirrorImage");
-
         RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(options.getInt("type"), deviceOrientation);
         camera.setPreviewCallback(null);
 
