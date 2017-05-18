@@ -685,81 +685,16 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
         Camera.PictureCallback captureCallback = new Camera.PictureCallback() {
             @Override
-            public void onPictureTaken(byte[] data, Camera camera) {
-
-                if (shouldMirror) {
-                    data = mirrorImage(data);
-                    if (data == null) {
-                        promise.reject("Error mirroring image");
-                    }
-                }
-
-                data = fixOrientation(data);
-
+            public void onPictureTaken(final byte[] data, Camera camera) {
                 camera.stopPreview();
                 camera.startPreview();
-                WritableMap response = new WritableNativeMap();
-                switch (options.getInt("target")) {
-                    case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
-                        String encoded = Base64.encodeToString(data, Base64.DEFAULT);
-                        response.putString("data", encoded);
-                        promise.resolve(response);
-                        break;
-                    case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL: {
-                        File cameraRollFile = getOutputCameraRollFile(MEDIA_TYPE_IMAGE);
-                        if (cameraRollFile == null) {
-                            promise.reject("Error creating media file.");
-                            return;
-                        }
 
-                        Throwable error = writeDataToFile(data, cameraRollFile);
-                        if (error != null) {
-                            promise.reject(error);
-                            return;
-                        }
-
-                        rewriteOrientation(cameraRollFile.getAbsolutePath());
-                        addToMediaStore(cameraRollFile.getAbsolutePath());
-                        response.putString("path", Uri.fromFile(cameraRollFile).toString());
-                        promise.resolve(response);
-                        break;
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        processImage(new MutableImage(data), options, promise);
                     }
-                    case RCT_CAMERA_CAPTURE_TARGET_DISK: {
-                        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-                        if (pictureFile == null) {
-                            promise.reject("Error creating media file.");
-                            return;
-                        }
-
-                        Throwable error = writeDataToFile(data, pictureFile);
-                        if (error != null) {
-                            promise.reject(error);
-                            return;
-                        }
-
-                        rewriteOrientation(pictureFile.getAbsolutePath());
-                        response.putString("path", Uri.fromFile(pictureFile).toString());
-                        promise.resolve(response);
-                        break;
-                    }
-                    case RCT_CAMERA_CAPTURE_TARGET_TEMP: {
-                        File tempFile = getTempMediaFile(MEDIA_TYPE_IMAGE);
-                        if (tempFile == null) {
-                            promise.reject("Error creating media file.");
-                            return;
-                        }
-
-                        Throwable error = writeDataToFile(data, tempFile);
-                        if (error != null) {
-                            promise.reject(error);
-                        }
-
-                        rewriteOrientation(tempFile.getAbsolutePath());
-                        response.putString("path", Uri.fromFile(tempFile).toString());
-                        promise.resolve(response);
-                        break;
-                    }
-                }
+                });
 
                 mSafeToCapture = true;
             }
@@ -772,6 +707,100 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
           } catch(RuntimeException ex) {
               Log.e(TAG, "Couldn't capture photo.", ex);
           }
+        }
+    }
+    
+    /**
+     * synchronized in order to prevent the user crashing the app by taking many photos and them all being processed
+     * concurrently which would blow the memory (esp on smaller devices), and slow things down.
+     */
+    private synchronized void processImage(MutableImage mutableImage, ReadableMap options, Promise promise) {
+        boolean shouldFixOrientation = options.hasKey("fixOrientation") && options.getBoolean("fixOrientation");
+        if(shouldFixOrientation) {
+            try {
+                mutableImage.fixOrientation();
+            } catch (MutableImage.ImageMutationFailedException e) {
+                promise.reject("Error fixing orientation image", e);
+            }
+        }
+
+        boolean shouldMirror = options.hasKey("mirrorImage") && options.getBoolean("mirrorImage");
+        if (shouldMirror) {
+            try {
+                mutableImage.mirrorImage();
+            } catch (MutableImage.ImageMutationFailedException e) {
+                promise.reject("Error mirroring image", e);
+            }
+        }
+
+        int jpegQualityPercent = 80;
+        if(options.hasKey("jpegQuality")) {
+            jpegQualityPercent = options.getInt("jpegQuality");
+        }
+
+        switch (options.getInt("target")) {
+            case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
+                String encoded = mutableImage.toBase64(jpegQualityPercent);
+                WritableMap response = new WritableNativeMap();
+                response.putString("data", encoded);
+                promise.resolve(response);
+                break;
+            case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL: {
+                File cameraRollFile = getOutputCameraRollFile(MEDIA_TYPE_IMAGE);
+                if (cameraRollFile == null) {
+                    promise.reject("Error creating media file.");
+                    return;
+                }
+
+                try {
+                    mutableImage.writeDataToFile(cameraRollFile, options, jpegQualityPercent);
+                } catch (IOException e) {
+                    promise.reject("failed to save image file", e);
+                    return;
+                }
+
+                addToMediaStore(cameraRollFile.getAbsolutePath());
+
+                resolve(cameraRollFile, promise);
+
+                break;
+            }
+            case RCT_CAMERA_CAPTURE_TARGET_DISK: {
+                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                if (pictureFile == null) {
+                    promise.reject("Error creating media file.");
+                    return;
+                }
+
+                try {
+                    mutableImage.writeDataToFile(pictureFile, options, 85);
+                } catch (IOException e) {
+                    promise.reject("failed to save image file", e);
+                    return;
+                }
+
+                resolve(pictureFile, promise);
+
+                break;
+            }
+            case RCT_CAMERA_CAPTURE_TARGET_TEMP: {
+                File tempFile = getTempMediaFile(MEDIA_TYPE_IMAGE);
+                if (tempFile == null) {
+                    promise.reject("Error creating media file.");
+                    return;
+                }
+
+                try {
+                    mutableImage.writeDataToFile(tempFile, options, 85);
+                } catch (IOException e) {
+                    promise.reject("failed to save image file", e);
+                    return;
+                }
+
+                resolve(tempFile, promise);
+
+                break;
+            }
         }
     }
 
