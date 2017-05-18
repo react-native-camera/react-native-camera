@@ -302,6 +302,14 @@ If set to `true`, the device will not sleep while the camera preview is visible.
 
 If set to `true`, the image returned will be mirrored.
 
+#### `fixOrientation` (_deprecated_)
+
+If set to `true`, the image returned will be rotated to the _right way up_.  WARNING: It uses a significant amount of memory and my cause your application to crash if the device cannot provide enough RAM to perform the rotation.
+
+(_If you find that you need to use this option because your images are incorrectly oriented by default,
+could please submit a PR and include the make model of the device.  We believe that it's not 
+required functionality any more and would like to remove it._) 
+
 ## Component instance methods
 
 You can access component methods by adding a `ref` (ie. `ref="camera"`) prop to your `<Camera>` element, then you can use `this.refs.camera.capture(cb)`, etc. inside your component.
