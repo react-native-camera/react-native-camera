@@ -73,6 +73,22 @@ public class RCTCamera {
         return cameraInfo.previewHeight;
     }
 
+    public double getHorizontalFOV(int type) {
+        CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
+        if (cameraInfo == null) {
+            return 0;
+        }
+        return cameraInfo.horizontalFOV;
+    }
+
+    public double getVerticalFOV(int type) {
+        CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
+        if (cameraInfo == null) {
+            return 0;
+        }
+        return cameraInfo.verticalFOV;
+    }
+
     public Camera.Size getBestSize(List<Camera.Size> supportedSizes, int maxWidth, int maxHeight) {
         Camera.Size bestSize = null;
         for (Camera.Size size : supportedSizes) {
@@ -395,6 +411,8 @@ public class RCTCamera {
 
         Camera.Parameters parameters = camera.getParameters();
         parameters.setRotation(cameraInfo.rotation);
+        cameraInfo.horizontalFOV = parameters.getHorizontalViewAngle();
+        cameraInfo.verticalFOV = parameters.getVerticalViewAngle();
 
         // set preview size
         // defaults to highest resolution available
@@ -448,6 +466,8 @@ public class RCTCamera {
         public int rotation = 0;
         public int previewWidth = -1;
         public int previewHeight = -1;
+        public double horizontalFOV = -1;
+        public double verticalFOV = -1;
 
         public CameraInfoWrapper(Camera.CameraInfo info) {
             this.info = info;
