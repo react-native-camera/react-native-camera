@@ -58,6 +58,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     public static final int RCT_CAMERA_CAPTURE_TARGET_DISK = 1;
     public static final int RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL = 2;
     public static final int RCT_CAMERA_CAPTURE_TARGET_TEMP = 3;
+    public static final int RCT_CAMERA_CAPTURE_TARGET_APP_DIR = 4;
     public static final int RCT_CAMERA_ORIENTATION_AUTO = Integer.MAX_VALUE;
     public static final int RCT_CAMERA_ORIENTATION_PORTRAIT = Surface.ROTATION_0;
     public static final int RCT_CAMERA_ORIENTATION_PORTRAIT_UPSIDE_DOWN = Surface.ROTATION_180;
@@ -219,6 +220,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                         put("disk", RCT_CAMERA_CAPTURE_TARGET_DISK);
                         put("cameraRoll", RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL);
                         put("temp", RCT_CAMERA_CAPTURE_TARGET_TEMP);
+                        put("appDir", RCT_CAMERA_CAPTURE_TARGET_APP_DIR);
                     }
                 });
             }
@@ -310,6 +312,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_TEMP:
                 mVideoFile = getTempMediaFile(MEDIA_TYPE_VIDEO);
+                break;
+            case RCT_CAMERA_CAPTURE_TARGET_APP_DIR:
+                mVideoFile = getOutputAppDirFile(MEDIA_TYPE_VIDEO);
                 break;
             default:
             case RCT_CAMERA_CAPTURE_TARGET_DISK:
@@ -460,6 +465,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 response.putString("path", Uri.fromFile(mVideoFile).toString());
                 mRecordingPromise.resolve(response);
                 break;
+            case RCT_CAMERA_CAPTURE_TARGET_APP_DIR:
             case RCT_CAMERA_CAPTURE_TARGET_TEMP:
             case RCT_CAMERA_CAPTURE_TARGET_DISK:
                 response.putString("path", Uri.fromFile(mVideoFile).toString());
@@ -717,6 +723,24 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                         promise.resolve(response);
                         break;
                     }
+                    case RCT_CAMERA_CAPTURE_TARGET_APP_DIR: {
+                        File pictureFile = getOutputAppDirFile(MEDIA_TYPE_IMAGE);
+                        if (pictureFile == null) {
+                            promise.reject("Error creating media file.");
+                            return;
+                        }
+
+                        Throwable error = writeDataToFile(data, pictureFile);
+                        if (error != null) {
+                            promise.reject(error);
+                            return;
+                        }
+
+                        rewriteOrientation(pictureFile.getAbsolutePath());
+                        response.putString("path", Uri.fromFile(pictureFile).toString());
+                        promise.resolve(response);
+                        break;
+                    }
                     case RCT_CAMERA_CAPTURE_TARGET_TEMP: {
                         File tempFile = getTempMediaFile(MEDIA_TYPE_IMAGE);
                         if (tempFile == null) {
@@ -772,6 +796,23 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
 
         return null;
+    }
+
+    private File getOutputAppDirFile(int type) {
+        PackageManager m = _reactContext.getPackageManager();
+        String s = _reactContext.getPackageName();
+        File dataDir = null;
+        try {
+            PackageInfo p = m.getPackageInfo(s, 0);
+            dataDir = new File(p.applicationInfo.dataDir + "/files");
+            Log.i(TAG, "dataDir: " + dataDir);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.w(TAG, "Error Package name not found ", e);
+        }
+        return getOutputFile(
+                type,
+                dataDir
+        );
     }
 
     private File getOutputMediaFile(int type) {
