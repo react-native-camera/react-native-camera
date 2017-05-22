@@ -5,6 +5,7 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.view.MotionEvent;
@@ -16,6 +17,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -32,6 +34,8 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private int _cameraType;
     private int _captureMode;
     private SurfaceTexture _surfaceTexture;
+    private int _surfaceTextureWidth;
+    private int _surfaceTextureHeight;
     private boolean _isStarting;
     private boolean _isStopping;
     private Camera _camera;
@@ -53,16 +57,22 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         _surfaceTexture = surface;
+        _surfaceTextureWidth = width;
+        _surfaceTextureHeight = height;
         startCamera();
     }
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        _surfaceTextureWidth = width;
+        _surfaceTextureHeight = height;
     }
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
         _surfaceTexture = null;
+        _surfaceTextureWidth = 0;
+        _surfaceTextureHeight = 0;
         stopCamera();
         return true;
     }
@@ -126,17 +136,30 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             try {
                 _camera = RCTCamera.getInstance().acquireCameraInstance(_cameraType);
                 Camera.Parameters parameters = _camera.getParameters();
-                // set autofocus
-                List<String> focusModes = parameters.getSupportedFocusModes();
-                if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+
+                final boolean isCaptureModeStill = (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_STILL);
+                final boolean isCaptureModeVideo = (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_VIDEO);
+                if (!isCaptureModeStill && !isCaptureModeVideo) {
+                    throw new RuntimeException("Unsupported capture mode:" + _captureMode);
                 }
+
+                // Set auto-focus. Try to set to continuous picture/video, and fall back to general
+                // auto if available.
+                List<String> focusModes = parameters.getSupportedFocusModes();
+                if (isCaptureModeStill && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                } else if (isCaptureModeVideo && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+                } else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                }
+
                 // set picture size
                 // defaults to max available size
                 List<Camera.Size> supportedSizes;
-                if (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_STILL) {
+                if (isCaptureModeStill) {
                     supportedSizes = parameters.getSupportedPictureSizes();
-                } else if (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_VIDEO) {
+                } else if (isCaptureModeVideo) {
                     supportedSizes = RCTCamera.getInstance().getSupportedVideoSizes(_camera);
                 } else {
                     throw new RuntimeException("Unsupported capture mode:" + _captureMode);
@@ -187,9 +210,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     /**
      * Parse barcodes as BarcodeFormat constants.
      *
-     * Supports all iOS codes except [code138, code39mod43, itf14]
+     * Supports all iOS codes except [code39mod43, itf14]
      *
-     * Additionally supports [codabar, code128, maxicode, rss14, rssexpanded, upca, upceanextension]
+     * Additionally supports [codabar, maxicode, rss14, rssexpanded, upca, upceanextension]
      */
     private BarcodeFormat parseBarCodeString(String c) {
         if ("aztec".equals(c)) {
@@ -288,15 +311,15 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
             // rotate for zxing if orientation is portrait
             if (RCTCamera.getInstance().getActualDeviceOrientation() == 0) {
-              byte[] rotated = new byte[imageData.length];
-              for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                  rotated[x * height + height - y - 1] = imageData[x + y * width];
+                byte[] rotated = new byte[imageData.length];
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        rotated[x * height + height - y - 1] = imageData[x + y * width];
+                    }
                 }
-              }
-              width = size.height;
-              height = size.width;
-              imageData = rotated;
+                width = size.height;
+                height = size.width;
+                imageData = rotated;
             }
 
             try {
@@ -362,21 +385,65 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         _camera.setParameters(params);
     }
 
+    /**
+     * Handles setting focus to the location of the event.
+     *
+     * Note that this will override the focus mode on the camera to FOCUS_MODE_AUTO if available,
+     * even if this was previously something else (such as FOCUS_MODE_CONTINUOUS_*; see also
+     * {@link #startCamera()}. However, this makes sense - after the user has initiated any
+     * specific focus intent, we shouldn't be refocusing and overriding their request!
+     */
     public void handleFocus(MotionEvent event, Camera.Parameters params) {
-        int pointerId = event.getPointerId(0);
-        int pointerIndex = event.findPointerIndex(pointerId);
-        // Get the pointer's current position
-        float x = event.getX(pointerIndex);
-        float y = event.getY(pointerIndex);
-
         List<String> supportedFocusModes = params.getSupportedFocusModes();
         if (supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-            _camera.autoFocus(new Camera.AutoFocusCallback() {
-                @Override
-                public void onAutoFocus(boolean b, Camera camera) {
-                    // currently set to auto-focus on single touch
-                }
-            });
+            // Ensure focus areas are enabled. If max num focus areas is 0, then focus area is not
+            // supported, so we cannot do anything here.
+            if (params.getMaxNumFocusAreas() == 0) {
+                return;
+            }
+
+            // Cancel any previous focus actions.
+            _camera.cancelAutoFocus();
+
+            // Compute focus area rect.
+            Camera.Area focusAreaFromMotionEvent;
+            try {
+                focusAreaFromMotionEvent = RCTCameraUtils.computeFocusAreaFromMotionEvent(event, _surfaceTextureWidth, _surfaceTextureHeight);
+            } catch (final RuntimeException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            // Set focus mode to auto.
+            params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            // Set focus area.
+            final ArrayList<Camera.Area> focusAreas = new ArrayList<Camera.Area>();
+            focusAreas.add(focusAreaFromMotionEvent);
+            params.setFocusAreas(focusAreas);
+
+            // Also set metering area if enabled. If max num metering areas is 0, then metering area
+            // is not supported. We can usually safely omit this anyway, though.
+            if (params.getMaxNumMeteringAreas() > 0) {
+                params.setMeteringAreas(focusAreas);
+            }
+
+            // Set parameters before starting auto-focus.
+            _camera.setParameters(params);
+
+            // Start auto-focus now that focus area has been set. If successful, then can cancel
+            // it afterwards. Wrap in try-catch to avoid crashing on merely autoFocus fails.
+            try {
+                _camera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean success, Camera camera) {
+                        if (success) {
+                            camera.cancelAutoFocus();
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -41,6 +41,10 @@ function convertNativeProps(props) {
   if (typeof props.captureMode === 'string') {
     newProps.captureMode = Camera.constants.CaptureMode[props.captureMode];
   }
+  
+  if (typeof props.captureTarget === 'string') {
+    newProps.captureTarget = Camera.constants.CaptureTarget[props.captureTarget];
+  }
 
   // do not register barCodeTypes if no barcode listener
   if (typeof props.onBarCodeRead !== 'function') {
@@ -96,6 +100,7 @@ export default class Camera extends Component {
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
+    fixOrientation: PropTypes.bool,
     barCodeTypes: PropTypes.array,
     orientation: PropTypes.oneOfType([
       PropTypes.string,
@@ -116,6 +121,7 @@ export default class Camera extends Component {
     aspect: CameraManager.Aspect.fill,
     type: CameraManager.Type.back,
     orientation: CameraManager.Orientation.auto,
+    fixOrientation: false,
     captureAudio: false,
     captureMode: CameraManager.CaptureMode.still,
     captureTarget: CameraManager.CaptureTarget.cameraRoll,
@@ -167,7 +173,7 @@ export default class Camera extends Component {
 
   componentWillReceiveProps(newProps) {
     const { onBarCodeRead } = this.props
-    if (onBarCodeRead && !newProps.onBarCodeRead) {
+    if (onBarCodeRead !== newProps.onBarCodeRead) {
       this._addOnBarCodeReadListener(newProps)
     }
   }
@@ -215,6 +221,7 @@ export default class Camera extends Component {
       title: '',
       description: '',
       mirrorImage: props.mirrorImage,
+      fixOrientation: props.fixOrientation,
       ...options
     };
 

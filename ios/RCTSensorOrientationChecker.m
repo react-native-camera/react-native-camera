@@ -77,7 +77,7 @@
     if(acceleration.x <= -0.75) {
         return UIInterfaceOrientationLandscapeRight;
     }
-    if(acceleration.y >= -0.75) {
+    if(acceleration.y <= -0.75) {
         return UIInterfaceOrientationPortrait;
     }
     if(acceleration.y >= 0.75) {
