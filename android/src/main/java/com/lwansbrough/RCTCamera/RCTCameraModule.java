@@ -716,7 +716,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     }
 
     private File getOutputAppDirFile(int type) {
-        LOG.i(TAG, "getOutputAppDirFile");
+        Log.i(TAG, "getOutputAppDirFile");
         PackageManager m = _reactContext.getPackageManager();
         String s = _reactContext.getPackageName();
         File dataDir = null;
