@@ -605,7 +605,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
                 addToMediaStore(cameraRollFile.getAbsolutePath());
 
-                resolve(cameraRollFile, promise);
+                resolveImage(cameraRollFile, promise, true);
 
                 break;
             }
@@ -623,7 +623,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                     return;
                 }
 
-                resolve(pictureFile, promise);
+                resolveImage(pictureFile, promise, false);
 
                 break;
             }
@@ -641,7 +641,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                     return;
                 }
 
-                resolve(tempFile, promise);
+                resolveImage(tempFile, promise, false);
 
                 break;
             }
@@ -764,27 +764,31 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         // ... do nothing
     }
 
-    private void resolve(final File imageFile, final Promise promise) {
+    private void resolveImage(final File imageFile, final Promise promise, boolean addToMediaStore) {
         final WritableMap response = new WritableNativeMap();
         response.putString("path", Uri.fromFile(imageFile).toString());
 
-        // borrowed from react-native CameraRollManager, it finds and returns the 'internal'
-        // representation of the image uri that was just saved.
-        // e.g. content://media/external/images/media/123
-        MediaScannerConnection.scanFile(
-                _reactContext,
-                new String[]{imageFile.getAbsolutePath()},
-                null,
-                new MediaScannerConnection.OnScanCompletedListener() {
-                    @Override
-                    public void onScanCompleted(String path, Uri uri) {
-                        if (uri != null) {
-                            response.putString("mediaUri", uri.toString());
-                        }
+        if(addToMediaStore) {
+            // borrowed from react-native CameraRollManager, it finds and returns the 'internal'
+            // representation of the image uri that was just saved.
+            // e.g. content://media/external/images/media/123
+            MediaScannerConnection.scanFile(
+                    _reactContext,
+                    new String[]{imageFile.getAbsolutePath()},
+                    null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        @Override
+                        public void onScanCompleted(String path, Uri uri) {
+                            if (uri != null) {
+                                response.putString("mediaUri", uri.toString());
+                            }
 
-                        promise.resolve(response);
-                    }
-                });
+                            promise.resolve(response);
+                        }
+                    });
+        } else {
+            promise.resolve(response);
+        }
     }
 
 }
