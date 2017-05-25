@@ -282,7 +282,15 @@ export default class Camera extends Component {
 
 export const constants = Camera.constants;
 
-const RCTCamera = requireNativeComponent('RCTCamera', Camera);
+const RCTCamera = requireNativeComponent('RCTCamera', Camera, {nativeOnly: {
+    testID: true,
+    renderToHardwareTextureAndroid: true,
+    accessibilityLabel: true,
+    importantForAccessibility: true,
+    accessibilityLiveRegion: true,
+    accessibilityComponentType: true,
+    onLayout: true
+}});
 
 const styles = StyleSheet.create({
   base: {},
