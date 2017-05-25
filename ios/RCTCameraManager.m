@@ -417,6 +417,42 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     resolve(@(device.hasFlash));
 }
 
+RCT_EXPORT_METHOD(freezeCapture){
+    
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    
+    if (self.session.isRunning) {
+        
+        self.previewLayer.connection.enabled = NO;
+        
+        dispatch_async(self.sessionQueue, ^{
+            [self.session stopRunning];
+        });
+    }
+}
+
+RCT_EXPORT_METHOD(unfreezeCapture){
+    
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    
+    if (!self.session) {
+        return;
+    }
+    
+    self.previewLayer.connection.enabled = YES;
+    
+    if (!self.session.isRunning) {
+        
+        dispatch_async(self.sessionQueue, ^{
+            [self.session startRunning];
+        });
+    }
+}
+
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
