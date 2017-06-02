@@ -23,7 +23,7 @@ public class RCTCamera {
     private static final Resolution RESOLUTION_1080P = new Resolution(1920, 1080);
     private boolean _barcodeScannerEnabled = false;
     private List<String> _barCodeTypes = null;
-    private int _orientation = -1;
+    private int _orientation = RCTCameraModule.RCT_CAMERA_ORIENTATION_AUTO;
     private int _actualDeviceOrientation = 0;
     private int _adjustedDeviceOrientation = 0;
 
@@ -388,7 +388,15 @@ public class RCTCamera {
             displayRotation = rotation;
         }
         cameraInfo.rotation = rotation;
-        // TODO: take in account the _orientation prop
+
+        // Taking into account orientation prop
+        if ( _orientation != RCTCameraModule.RCT_CAMERA_ORIENTATION_AUTO ) {
+            if ( cameraInfo.info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT ) {
+                rotation = (rotation + _orientation * 90) % 360;
+            } else if ( cameraInfo.info.facing == Camera.CameraInfo.CAMERA_FACING_BACK ) {
+                rotation = (rotation - _orientation * 90) % 360;
+            }
+        }
 
         setAdjustedDeviceOrientation(rotation);
         camera.setDisplayOrientation(displayRotation);
