@@ -6,25 +6,33 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.ContentValues;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.media.*;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Surface;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
-
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -353,9 +361,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
         try {
             mMediaRecorder.start();
+
             MRStartTime =  System.currentTimeMillis();
             mRecordingOptions = options;
             mRecordingPromise = promise;  // only got here if mediaRecorder started
+
+            //Notify start to record video;
+            sendEvent(_reactContext,"RecordVideoStart",null);
+
         } catch (Exception ex) {
             Log.e(TAG, "Media recorder start error.", ex);
             promise.reject(ex);
@@ -384,6 +397,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             // Stop recording video.
             try {
                 mMediaRecorder.stop(); // stop the recording
+                sendEvent(_reactContext,"RecordVideoStop",null);
             } catch (RuntimeException ex) {
                 Log.e(TAG, "Media recorder stop error.", ex);
             }
@@ -420,6 +434,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         f.setWritable(true, false); // so can clean it up
 
         WritableMap response = new WritableNativeMap();
+        String path = "";
+        HashMap<String,String> videoInfo = new HashMap<String,String>();
+
         switch (mRecordingOptions.getInt("target")) {
             case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                 byte[] encoded = convertFileToByteArray(mVideoFile);
@@ -447,12 +464,26 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
                 _reactContext.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
                 addToMediaStore(mVideoFile.getAbsolutePath());
-                response.putString("path", Uri.fromFile(mVideoFile).toString());
+                path = Uri.fromFile(mVideoFile).toString();
+                response.putString("path", path);
+                videoInfo = getVideoInfo(path);
+                response.putString("duration", videoInfo.get("duration"));
+                response.putString("width",videoInfo.get("width"));
+                response.putString("height",videoInfo.get("height"));
+                response.putString("size",String.valueOf(videoInfo.get("size")));
+
                 mRecordingPromise.resolve(response);
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_TEMP:
             case RCT_CAMERA_CAPTURE_TARGET_DISK:
-                response.putString("path", Uri.fromFile(mVideoFile).toString());
+                path = Uri.fromFile(mVideoFile).toString();
+                response.putString("path", path);
+                videoInfo = getVideoInfo(path);
+                response.putString("duration", videoInfo.get("duration"));
+                response.putString("width",videoInfo.get("width"));
+                response.putString("height",videoInfo.get("height"));
+                response.putString("size",String.valueOf(videoInfo.get("size")));
+
                 mRecordingPromise.resolve(response);
         }
 
@@ -480,6 +511,129 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             e.printStackTrace();
         }
         return byteArray;
+    }
+
+    private byte[] saveImage(InputStream is, Bitmap image) {
+        byte[] result = null;
+
+        try {
+            result = compress(image, 85);
+        } catch (OutOfMemoryError e) {
+            try {
+                result = compress(image, 70);
+            } catch (OutOfMemoryError e2) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    private byte[] mirrorImage(byte[] data) {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+        Bitmap photo = BitmapFactory.decodeStream(inputStream);
+
+        Matrix m = new Matrix();
+        m.preScale(-1, 1);
+        Bitmap mirroredImage = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), m, false);
+
+        return saveImage(inputStream, mirroredImage);
+    }
+
+
+    private byte[] rotate(byte[] data, int exifOrientation) {
+        final Matrix bitmapMatrix = new Matrix();
+        switch(exifOrientation)
+        {
+            case 1:
+                break;
+            case 2:
+                bitmapMatrix.postScale(-1, 1);
+                break;
+            case 3:
+                bitmapMatrix.postRotate(180);
+                break;
+            case 4:
+                bitmapMatrix.postRotate(180);
+                bitmapMatrix.postScale(-1, 1);
+                break;
+            case 5:
+                bitmapMatrix.postRotate(90);
+                bitmapMatrix.postScale(-1, 1);
+                break;
+            case 6:
+                bitmapMatrix.postRotate(90);
+                break;
+            case 7:
+                bitmapMatrix.postRotate(270);
+                bitmapMatrix.postScale(-1, 1);
+                break;
+            case 8:
+                bitmapMatrix.postRotate(270);
+                break;
+            default:
+                break;
+        }
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+        Bitmap decodedBitmap = BitmapFactory.decodeStream(inputStream);
+        final Bitmap transformedBitmap = Bitmap.createBitmap(
+                decodedBitmap, 0, 0, decodedBitmap.getWidth(), decodedBitmap.getHeight(), bitmapMatrix, false
+        );
+
+        return saveImage(inputStream, transformedBitmap);
+    }
+
+    private byte[] fixOrientation(byte[] data) {
+        final Metadata metadata;
+        try {
+            metadata = ImageMetadataReader.readMetadata(
+                    new BufferedInputStream(new ByteArrayInputStream(data)), data.length
+            );
+
+            final ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+            if (exifIFD0Directory == null) {
+                return data;
+            } else if (exifIFD0Directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+                final int exifOrientation = exifIFD0Directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+                return rotate(data, exifOrientation);
+            }
+            return data;
+        } catch (IOException | ImageProcessingException | MetadataException e) {
+            e.printStackTrace();
+            return data;
+        }
+    }
+
+    private void rewriteOrientation(String path) {
+        try {
+            ExifInterface exif = new ExifInterface(path);
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(ExifInterface.ORIENTATION_NORMAL));
+            exif.saveAttributes();
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    private byte[] compress(Bitmap bitmap, int quality) throws OutOfMemoryError {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+
+        try {
+            return outputStream.toByteArray();
+        } finally {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @ReactMethod
@@ -553,7 +707,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
           }
         }
     }
-
+    
     /**
      * synchronized in order to prevent the user crashing the app by taking many photos and them all being processed
      * concurrently which would blow the memory (esp on smaller devices), and slow things down.
@@ -669,6 +823,20 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         promise.resolve(null != flashModes && !flashModes.isEmpty());
     }
 
+    private Throwable writeDataToFile(byte[] data, File file) {
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(data);
+            fos.close();
+        } catch (FileNotFoundException e) {
+            return e;
+        } catch (IOException e) {
+            return e;
+        }
+
+        return null;
+    }
+
     private File getOutputMediaFile(int type) {
         // Get environment directory type id from requested media type.
         String environmentDirectoryType;
@@ -743,6 +911,36 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         MediaScannerConnection.scanFile(_reactContext, new String[] { path }, null, null);
     }
 
+
+    private HashMap<String,String> getVideoInfo(String path){
+        HashMap<String,String> videoInfo = new HashMap<String,String>();
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+
+        try{
+            // To format the path (remove file://) to avoid java.lang.RuntimeException: setDataSource failed: status = 0x80000000 ;
+            path = path.substring(7);
+            mmr.setDataSource(path);
+            videoInfo.put("duration", mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION));
+            videoInfo.put("width",mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+            videoInfo.put("height",mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+            videoInfo.put("size", Long.toString(new File(path).length()));
+
+        } finally {
+            mmr.release();
+        }
+        return videoInfo;
+    }
+
+
+    private void sendEvent(ReactContext reactContext,
+                           String eventName,
+                           @Nullable WritableMap params) {
+        reactContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit(eventName, params);
+    }
+
+
     /**
      * LifecycleEventListener overrides
      */
@@ -763,28 +961,4 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     public void onHostDestroy() {
         // ... do nothing
     }
-
-    private void resolve(final File imageFile, final Promise promise) {
-        final WritableMap response = new WritableNativeMap();
-        response.putString("path", Uri.fromFile(imageFile).toString());
-
-        // borrowed from react-native CameraRollManager, it finds and returns the 'internal'
-        // representation of the image uri that was just saved.
-        // e.g. content://media/external/images/media/123
-        MediaScannerConnection.scanFile(
-                _reactContext,
-                new String[]{imageFile.getAbsolutePath()},
-                null,
-                new MediaScannerConnection.OnScanCompletedListener() {
-                    @Override
-                    public void onScanCompleted(String path, Uri uri) {
-                        if (uri != null) {
-                            response.putString("mediaUri", uri.toString());
-                        }
-
-                        promise.resolve(response);
-                    }
-                });
-    }
-
 }
