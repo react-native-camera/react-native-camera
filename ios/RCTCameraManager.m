@@ -630,6 +630,8 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
           [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
 
           // Add input metadata
+          NSDictionary* locationMetaData = [self locationMetaData:[options objectForKey:@"location"]];
+          [imageMetadata setObject:locationMetaData forKey:(NSString *)kCGImagePropertyGPSDictionary];
           [imageMetadata mergeMetadata:[options objectForKey:@"metadata"]];
 
           // Create destination thing
@@ -1028,6 +1030,59 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
             [self.session commitConfiguration];
         }
     #endif
+}
+
+- (NSDictionary*) locationMetaData:(NSDictionary*) location {
+    NSMutableDictionary *gpsDictionary = [NSMutableDictionary dictionary];
+    
+    if (location) {
+        
+        NSDictionary* coords = [location objectForKey:@"coords"];
+        NSNumber* lat = [coords valueForKey:@"latitude"];
+        NSNumber* lon = [coords valueForKey:@"longitude"];
+        NSNumber* alt = [coords valueForKey:@"altitude"];
+        NSNumber* speed = [coords valueForKey:@"speed"];
+        //double kmph = [speed doubleValue] * (3600.0/1000.0);//convert from m/s to km/h
+        NSNumber* heading = [coords valueForKey:@"heading"];
+        
+        // the accuracy fields ('accuracy' and 'altitudeAccuracy') are not stored
+        // the timestamp is stored separately
+        NSString * latRef = (lat < 0) ? @"S" : @"N";
+        NSString * lonRef = (lon < 0) ? @"E" : @"W";;
+        
+        if (!isnan([lat doubleValue])) {
+            double latitude = [lat doubleValue];
+            gpsDictionary[(NSString *)kCGImagePropertyGPSLatitudeRef] = (latitude < 0) ? @"S" : @"N";
+            gpsDictionary[(NSString *)kCGImagePropertyGPSLatitude] = @(fabs(latitude));
+        }
+        
+        if (!isnan([lon doubleValue])) {
+            double longitude = [lon doubleValue];
+            gpsDictionary[(NSString *)kCGImagePropertyGPSLongitudeRef] = (longitude < 0) ? @"W" : @"E";
+            gpsDictionary[(NSString *)kCGImagePropertyGPSLongitude] = @(fabs(longitude));
+        }
+        
+        if (!isnan([alt doubleValue])) {
+            double altitude = [alt doubleValue];
+            gpsDictionary[(NSString *)kCGImagePropertyGPSAltitudeRef] = (altitude < 0) ? @(1) : @(0);
+            gpsDictionary[(NSString *)kCGImagePropertyGPSAltitude] = @(fabs(altitude));
+        }
+        
+        if (speed >= 0) {
+            gpsDictionary[(NSString *)kCGImagePropertyGPSSpeedRef] = @"K";
+            gpsDictionary[(NSString *)kCGImagePropertyGPSSpeed] = @([speed doubleValue] * (3600.0/1000.0));
+        }
+        
+        // not sure if the 'heading' value that the geo location API gives us
+        // is the direction the device is pointing (the kCGImagePropertyGPSImgDirection property),
+        // or the direction of movement (the kCGImagePropertyGPSTrack property).
+        // And if it is the direction property, also not the course whether or not is a "True" or "Magnetic" reading.
+        // I think because I'm sitting still right now, and the value seems always to be -1, I'm going to assume its the direction of travel
+        gpsDictionary[(NSString *)kCGImagePropertyGPSTrackRef] = @"T";
+        gpsDictionary[(NSString *)kCGImagePropertyGPSTrack] = heading;
+    }
+    
+    return gpsDictionary;
 }
 
 @end
