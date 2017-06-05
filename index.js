@@ -243,6 +243,15 @@ export default class Camera extends Component {
     return Promise.resolve("Not Recording.");
   }
 
+  releaseCamera(options) {
+    const props = convertStringProps(this.props);
+    options = {
+      type: props.type,
+      ...options
+    };
+    CameraManager.releaseCamera(options);
+  }
+
   getFOV() {
     return CameraManager.getFOV();
   }
