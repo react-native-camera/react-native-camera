@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.TextureView;
 import android.os.AsyncTask;
@@ -116,6 +117,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     public void setFlashMode(int flashMode) {
         RCTCamera.getInstance().setFlashMode(_cameraType, flashMode);
+    }
+
+    public void setISO(String iso) {
+        RCTCamera.getInstance().setISO(_cameraType, iso);
     }
 
     private void startPreview() {

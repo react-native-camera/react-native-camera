@@ -345,6 +345,17 @@ public class RCTCamera {
         }
     }
 
+    public void setISO(int cameraType, String iso) {
+        Camera camera = this.acquireCameraInstance(cameraType);
+        if (null == camera) {
+            return;
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+        String flatten = parameters.flatten();
+        Log.e("abcd", flatten);
+    }
+
     public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {
         Camera camera = _cameras.get(type);
         if (null == camera) {
