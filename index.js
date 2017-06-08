@@ -68,7 +68,8 @@ export default class Camera extends Component {
     CaptureQuality: CameraManager.CaptureQuality,
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
-    TorchMode: CameraManager.TorchMode
+    TorchMode: CameraManager.TorchMode,
+    Iso: CameraManager.Iso
   };
 
   static propTypes = {
@@ -115,7 +116,8 @@ export default class Camera extends Component {
     type: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
-    ])
+    ]),
+    iso: PropTypes.string
   };
 
   static defaultProps = {
@@ -133,6 +135,7 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
+    iso: "200"
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -223,6 +226,7 @@ export default class Camera extends Component {
       description: '',
       mirrorImage: props.mirrorImage,
       fixOrientation: props.fixOrientation,
+      iso: props.iso,
       ...options
     };
 
@@ -261,13 +265,13 @@ export default class Camera extends Component {
 export const constants = Camera.constants;
 
 const RCTCamera = requireNativeComponent('RCTCamera', Camera, {nativeOnly: {
-  testID: true,
   renderToHardwareTextureAndroid: true,
   accessibilityLabel: true,
   importantForAccessibility: true,
   accessibilityLiveRegion: true,
   accessibilityComponentType: true,
   onLayout: true,
+  testID: true,
   iso: true
 }});
 
