@@ -267,7 +267,8 @@ const RCTCamera = requireNativeComponent('RCTCamera', Camera, {nativeOnly: {
   importantForAccessibility: true,
   accessibilityLiveRegion: true,
   accessibilityComponentType: true,
-  onLayout: true
+  onLayout: true,
+  iso: true
 }});
 
 const styles = StyleSheet.create({
