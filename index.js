@@ -69,7 +69,7 @@ export default class Camera extends Component {
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
     TorchMode: CameraManager.TorchMode,
-    Iso: CameraManager.Iso
+    Iso: CameraManager.ISO
   };
 
   static propTypes = {
@@ -135,7 +135,7 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
-    iso: "200"
+    iso: CameraManager['200']
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
