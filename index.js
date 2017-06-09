@@ -135,7 +135,7 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
-    iso: CameraManager['200']
+    iso: CameraManager.Iso['200']
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
