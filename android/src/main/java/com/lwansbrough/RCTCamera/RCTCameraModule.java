@@ -155,7 +155,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 put("Orientation", getOrientationConstants());
                 put("FlashMode", getFlashModeConstants());
                 put("TorchMode", getTorchModeConstants());
-                put("ISO", getISOConstants());
+                put("Iso", getISOConstants());
             }
 
             private Map<String, Object> getAspectConstants() {

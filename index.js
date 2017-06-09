@@ -69,7 +69,7 @@ export default class Camera extends Component {
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
     TorchMode: CameraManager.TorchMode,
-    Iso: CameraManager.ISO
+    Iso: CameraManager.Iso
   };
 
   static propTypes = {
