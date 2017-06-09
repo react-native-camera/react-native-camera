@@ -350,10 +350,24 @@ public class RCTCamera {
         if (null == camera) {
             return;
         }
-
         Camera.Parameters parameters = camera.getParameters();
-        String flatten = parameters.flatten();
-        Log.e("abcd", flatten);
+        parameters.set("iso", iso); // TODO check setter result
+        camera.setParameters((Camera.Parameters) parameters);
+    }
+
+    public void zoom(int val) {
+        Camera camera = this.acquireCameraInstance(2);
+        if (null == camera) {
+            return;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        int curVal = parameters.getZoom();
+        if(val == curVal) {
+            parameters.setZoom(0);
+        } else {
+            parameters.setZoom(val);
+        }
+        camera.setParameters((Camera.Parameters) parameters);
     }
 
     public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {

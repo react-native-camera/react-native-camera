@@ -519,6 +519,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
     }
 
+    @ReactMethod
+    public void zoom(int val) {
+        RCTCamera.getInstance().zoom(val);
+    }
+
     private void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
         if (null == camera) {

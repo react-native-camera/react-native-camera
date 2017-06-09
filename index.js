@@ -260,6 +260,10 @@ export default class Camera extends Component {
     }
     return CameraManager.hasFlash();
   }
+
+  zoom(val) {
+    return CameraManager.zoom(val);
+  }
 }
 
 export const constants = Camera.constants;
