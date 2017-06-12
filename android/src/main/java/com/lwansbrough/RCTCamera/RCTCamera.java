@@ -399,7 +399,7 @@ public class RCTCamera {
         }
         Camera.Parameters parameters = camera.getParameters();
         List<String> val = parameters.getSupportedWhiteBalance();
-        callback.invoke(null, ((List<String>) val));
+        callback.invoke(null, val);
     }
 
     public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {
