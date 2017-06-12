@@ -264,6 +264,10 @@ export default class Camera extends Component {
   zoom(val) {
     return CameraManager.zoom(val);
   }
+
+  setWhiteBalance(val) {
+    return CameraManager.setWhiteBalance(val);
+  }
 }
 
 export const constants = Camera.constants;
