@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.lang.Math;
 
+import com.facebook.react.bridge.Callback;
+
 public class RCTCamera {
     private static RCTCamera ourInstance;
     private final HashMap<Integer, CameraInfoWrapper> _cameraInfos;
