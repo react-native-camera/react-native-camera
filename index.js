@@ -262,11 +262,15 @@ export default class Camera extends Component {
   }
 
   zoom(val) {
-    return CameraManager.zoom(val);
+    CameraManager.zoom(val);
   }
 
   setWhiteBalance(val) {
-    return CameraManager.setWhiteBalance(val);
+    CameraManager.setWhiteBalance(val);
+  }
+
+  getWhiteBalance(val) {
+    CameraManager.getWhiteBalance(val);
   }
 }
 

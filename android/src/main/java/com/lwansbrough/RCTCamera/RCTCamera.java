@@ -380,6 +380,16 @@ public class RCTCamera {
         camera.setParameters((Camera.Parameters) parameters);
     }
 
+    public void getWhiteBalance(Callback callback) {
+        Camera camera = this.acquireCameraInstance(2);
+        if (null == camera) {
+            return;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        String val = parameters.getWhiteBalance();
+        callback.invoke(null, ((String) val));
+    }
+
     public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {
         Camera camera = _cameras.get(type);
         if (null == camera) {
