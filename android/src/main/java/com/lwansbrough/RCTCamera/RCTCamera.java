@@ -392,6 +392,16 @@ public class RCTCamera {
         callback.invoke(null, ((String) val));
     }
 
+    public void getSupportedWhiteBalance(Callback callback) {
+        Camera camera = this.acquireCameraInstance(2);
+        if (null == camera) {
+            return;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        List<String> val = parameters.getSupportedWhiteBalance();
+        callback.invoke(null, ((List<String>) val));
+    }
+
     public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {
         Camera camera = _cameras.get(type);
         if (null == camera) {

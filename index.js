@@ -272,6 +272,10 @@ export default class Camera extends Component {
   getWhiteBalance(val) {
     CameraManager.getWhiteBalance(val);
   }
+
+  getSupportedWhiteBalance(val) {
+    CameraManager.getSupportedWhiteBalance(val);
+  }
 }
 
 export const constants = Camera.constants;
