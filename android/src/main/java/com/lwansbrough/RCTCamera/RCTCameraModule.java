@@ -540,6 +540,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         RCTCamera.getInstance().getSupportedWhiteBalance(callback);
     }
 
+    @ReactMethod
+    public void getExposureCompensationRange(Callback callback) {
+        RCTCamera.getInstance().getExposureCompensationRange(callback);
+    }
+
     private void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
         if (null == camera) {

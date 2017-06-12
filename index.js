@@ -276,6 +276,10 @@ export default class Camera extends Component {
   getSupportedWhiteBalance(val) {
     CameraManager.getSupportedWhiteBalance(val);
   }
+
+  getExposureCompensationRange(val) {
+    CameraManager.getExposureCompensationRange(val);
+  }
 }
 
 export const constants = Camera.constants;
