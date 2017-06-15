@@ -37,7 +37,8 @@
   }
   else {
     [[NSNotificationCenter defaultCenter]removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
-    [self changePreviewOrientation:orientation];
+    // NOTE: had to remove this for personal use case (Fixed app orientation, set camera orientation)
+    // [self changePreviewOrientation:orientation];
   }
 }
 
@@ -64,7 +65,7 @@
 
 - (id)initWithManager:(RCTCameraManager*)manager bridge:(RCTBridge *)bridge
 {
-  
+
   if ((self = [super init])) {
     self.manager = manager;
     self.bridge = bridge;
