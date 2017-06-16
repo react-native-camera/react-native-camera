@@ -4,13 +4,9 @@
     "type": "git",
     "url": "https://github.com/lwansbrough/react-native-camera.git"
   },
-  "version": "0.8.0",
+  "version": "0.9.4",
   "description": "A Camera component for React Native. Also reads barcodes.",
   "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
-  "peerDependencies": {
-    "react": ">=15.4.0",
-    "react-native": ">=0.40"
-  },
   "nativePackage": true,
   "license": "MIT",
   "homepage": "https://github.com/lwansbrough/react-native-camera",
@@ -22,5 +18,16 @@
     "qr",
     "code",
     "barcode"
-  ]
+  ],
+  "dependencies": {
+    "opencollective": "^1.0.3"
+  },
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/react-native-camera",
+    "logo": "https://opencollective.com/opencollective/logo.txt"
+  },
+  "scripts": {
+    "postinstall": "opencollective postinstall"
+  }
 }

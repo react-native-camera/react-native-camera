@@ -524,8 +524,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
         }
 
-        final Boolean shouldMirror = options.hasKey("mirrorImage") && options.getBoolean("mirrorImage");
-
         RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(options.getInt("type"), deviceOrientation);
         camera.setPreviewCallback(null);
 
@@ -538,7 +536,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 AsyncTask.execute(new Runnable() {
                     @Override
                     public void run() {
-                        processImage(new MutableImage(data), shouldMirror, options, promise);
+                        processImage(new MutableImage(data), options, promise);
                     }
                 });
 
@@ -560,13 +558,17 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
      * synchronized in order to prevent the user crashing the app by taking many photos and them all being processed
      * concurrently which would blow the memory (esp on smaller devices), and slow things down.
      */
-    private synchronized void processImage(MutableImage mutableImage, Boolean shouldMirror, ReadableMap options, Promise promise) {
-        try {
-            mutableImage.fixOrientation();
-        } catch (MutableImage.ImageMutationFailedException e) {
-            promise.reject("Error mirroring image", e);
+    private synchronized void processImage(MutableImage mutableImage, ReadableMap options, Promise promise) {
+        boolean shouldFixOrientation = options.hasKey("fixOrientation") && options.getBoolean("fixOrientation");
+        if(shouldFixOrientation) {
+            try {
+                mutableImage.fixOrientation();
+            } catch (MutableImage.ImageMutationFailedException e) {
+                promise.reject("Error fixing orientation image", e);
+            }
         }
 
+        boolean shouldMirror = options.hasKey("mirrorImage") && options.getBoolean("mirrorImage");
         if (shouldMirror) {
             try {
                 mutableImage.mirrorImage();
@@ -603,7 +605,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
                 addToMediaStore(cameraRollFile.getAbsolutePath());
 
-                resolve(cameraRollFile, promise);
+                resolveImage(cameraRollFile, promise, true);
 
                 break;
             }
@@ -621,7 +623,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                     return;
                 }
 
-                resolve(pictureFile, promise);
+                resolveImage(pictureFile, promise, false);
 
                 break;
             }
@@ -639,7 +641,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                     return;
                 }
 
-                resolve(tempFile, promise, mutableImage.width, mutableImage.height);
+                resolve(tempFile, promise, false, mutableImage.width, mutableImage.height);
 
                 break;
             }
@@ -762,7 +764,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         // ... do nothing
     }
 
-    private void resolve(final File imageFile, final Promise promise, final int imageWidth, final int imageHeight) {
+    private void resolve(final File imageFile, final Promise promise, boolean addToMediaStore, final int imageWidth, final int imageHeight) {
         final WritableMap response = new WritableNativeMap();
         if ( imageWidth > 0 && imageHeight > 0 ) {
           response.putString("uri", Uri.fromFile(imageFile).toString());
@@ -772,26 +774,30 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
           response.putString("path", Uri.fromFile(imageFile).toString());
         }
 
-        // borrowed from react-native CameraRollManager, it finds and returns the 'internal'
-        // representation of the image uri that was just saved.
-        // e.g. content://media/external/images/media/123
-        MediaScannerConnection.scanFile(
-                _reactContext,
-                new String[]{imageFile.getAbsolutePath()},
-                null,
-                new MediaScannerConnection.OnScanCompletedListener() {
-                    @Override
-                    public void onScanCompleted(String path, Uri uri) {
-                        if (uri != null) {
-                            response.putString("mediaUri", uri.toString());
-                        }
+        if(addToMediaStore) {
+            // borrowed from react-native CameraRollManager, it finds and returns the 'internal'
+            // representation of the image uri that was just saved.
+            // e.g. content://media/external/images/media/123
+            MediaScannerConnection.scanFile(
+                    _reactContext,
+                    new String[]{imageFile.getAbsolutePath()},
+                    null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        @Override
+                        public void onScanCompleted(String path, Uri uri) {
+                            if (uri != null) {
+                                response.putString("mediaUri", uri.toString());
+                            }
 
-                        promise.resolve(response);
-                    }
-                });
+                            promise.resolve(response);
+                        }
+                    });
+        } else {
+            promise.resolve(response);
+        }
     }
 
-  private void resolve(final File imageFile, final Promise promise) {
-      resolve(imageFile, promise, 0, 0);
+  private void resolve(final File imageFile, final Promise promise, boolean addToMediaStore) {
+      resolve(imageFile, promise, addToMediaStore, 0, 0);
   }
 }
