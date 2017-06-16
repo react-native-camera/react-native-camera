@@ -797,7 +797,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
     }
 
-  private void resolve(final File imageFile, final Promise promise, boolean addToMediaStore) {
+  private void resolveImage(final File imageFile, final Promise promise, boolean addToMediaStore) {
       resolve(imageFile, promise, addToMediaStore, 0, 0);
   }
 }
