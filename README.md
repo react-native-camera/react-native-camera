@@ -1,16 +1,30 @@
-# Looking for contributors
-Hey there, I'm looking for active contributors to help move the development of this branch forward in a stable and timely fashion. I haven't had a need for this module in quite some time and so my person time is not being allocated to it. If you are interested in contributing more actively, please contact me (same username on Twitter, Facebook, etc.) Thanks!
 
-# react-native-camera [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![Gitter](https://badges.gitter.im/lwansbrough/react-native-camera.svg)](https://gitter.im/lwansbrough/react-native-camera)
+# React Native Camera [![Backers on Open Collective](https://opencollective.com/react-native-camera/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-camera/sponsors/badge.svg)](#sponsors) [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![Gitter](https://badges.gitter.im/lwansbrough/react-native-camera.svg)](https://gitter.im/lwansbrough/react-native-camera)
 
-A camera module for React Native.
+The comprehensive camera module for React Native. Including photographs, videos, and barcode scanning!
+
+### Contributing
+- Pull Requests are welcome, if you open a pull request we will do our best to get to it in a timely manner
+- Pull Request Reviews and even more welcome! we need help testing, reviewing, and updating open PRs
+- If you are interested in contributing more actively, please contact me (same username on Twitter, Facebook, etc.) Thanks!
+- We are now on [Open Collective](https://opencollective.com/react-native-camera#sponsor)! Contributions are appreciated and will be used to fund core contributors. [more details](#open-collective) 
 
 #### Breaking Changes
-react-native header imports have changed in v0.40, and that means breaking changes for all! [Reference PR & Discussion](https://github.com/lwansbrough/react-native-camera/pull/544).
+##### android build tools has been bumped to 25.0.2, please update (can be done via android cli or AndroidStudio)
+##### react-native header imports have changed in v0.40, and that means breaking changes for all! [Reference PR & Discussion](https://github.com/lwansbrough/react-native-camera/pull/544).
 - if on react-native < 0.40: `npm i react-native-camera@0.4`
-- if on react-native >= 0.40 `npm i react-native-camera@next`
+- if on react-native >= 0.40 `npm i react-native-camera@0.6`
 
-![](https://i.imgur.com/5j2JdUk.gif)
+##### Permissions
+To enable `video recording` feature you have to add the following code to the `AndroidManifest.xml`:
+```
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.RECORD_VIDEO"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+```
+
+![5j2jduk](https://cloud.githubusercontent.com/assets/2302315/22190752/6bc6ccd0-e0da-11e6-8e2f-6f22a3567a57.gif)
 
 ## Getting started
 
@@ -29,6 +43,7 @@ react-native header imports have changed in v0.40, and that means breaking chang
 <key>NSMicrophoneUsageDescription</key>
 <string>Your message to user when the microsphone is accessed for the first time</string>
 ```
+3. On Android, you require `buildToolsVersion` of `25.0.2+`. _This should easily and automatically be downloaded by Android Studio's SDK Manager._
 
 ### Mostly automatic install with react-native
 1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
@@ -70,7 +85,14 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 	```
     compile project(':react-native-camera')
 	```
+5. Declare the permissions in your Android Manifest (required for `video recording` feature)
 
+  ```
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.RECORD_VIDEO"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+  ```
 
 ## Usage
 
@@ -107,7 +129,9 @@ class BadInstagramCloneApp extends Component {
   }
 
   takePicture() {
-    this.camera.capture()
+    const options = {};
+    //options.location = ...
+    this.camera.capture({metadata: options})
       .then((data) => console.log(data))
       .catch(err => console.error(err));
   }
@@ -115,14 +139,13 @@ class BadInstagramCloneApp extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    flexDirection: 'row',
   },
   preview: {
     flex: 1,
     justifyContent: 'flex-end',
-    alignItems: 'center',
-    height: Dimensions.get('window').height,
-    width: Dimensions.get('window').width
+    alignItems: 'center'
   },
   capture: {
     flex: 0,
@@ -204,7 +227,7 @@ Event contains `data` (the data in the barcode) and `bounds` (the rectangle whic
 The following barcode types can be recognised:
 
 - `aztec`
-- `code138`
+- `code128`
 - `code39`
 - `code39mod43`
 - `code93`
@@ -241,12 +264,16 @@ Values:
 
 Use the `torchMode` property to specify the camera torch mode.
 
-#### `onFocusChanged: Event { nativeEvent: { touchPoint: { x, y } }`
+#### `iOS` `onFocusChanged: Event { nativeEvent: { touchPoint: { x, y } }`
 
-Called when a touch focus gesture has been made.
+iOS: Called when a touch focus gesture has been made.
 By default, `onFocusChanged` is not defined and tap-to-focus is disabled.
 
-#### `defaultOnFocusComponent`
+Android: This callback is not yet implemented. However, Android will
+automatically do tap-to-focus if the device supports auto-focus; there is
+currently no way to manage this from javascript.
+
+#### `iOS` `defaultOnFocusComponent`
 
 Values:
 `true` (default)
@@ -254,10 +281,14 @@ Values:
 
 If `defaultOnFocusComponent` set to false, default internal implementation of visual feedback for tap-to-focus gesture will be disabled.
 
-#### `onZoomChanged: Event { nativeEvent: { velocity, zoomFactor } }`
+#### `iOS` `onZoomChanged: Event { nativeEvent: { velocity, zoomFactor } }`
 
-Called when focus has changed.
+iOS: Called when focus has changed.
 By default, `onZoomChanged` is not defined and pinch-to-zoom is disabled.
+
+Android: This callback is not yet implemented. However, Android will
+automatically handle pinch-to-zoom; there is currently no way to manage this
+from javascript.
 
 #### `iOS` `keepAwake`
 
@@ -266,6 +297,14 @@ If set to `true`, the device will not sleep while the camera preview is visible.
 #### `mirrorImage`
 
 If set to `true`, the image returned will be mirrored.
+
+#### `fixOrientation` (_deprecated_)
+
+If set to `true`, the image returned will be rotated to the _right way up_.  WARNING: It uses a significant amount of memory and my cause your application to crash if the device cannot provide enough RAM to perform the rotation.
+
+(_If you find that you need to use this option because your images are incorrectly oriented by default,
+could please submit a PR and include the make model of the device.  We believe that it's not 
+required functionality any more and would like to remove it._) 
 
 ## Component instance methods
 
@@ -283,6 +322,8 @@ Supported options:
  - `metadata` This is metadata to be added to the captured image.
    - `location` This is the object returned from `navigator.geolocation.getCurrentPosition()` (React Native's geolocation polyfill). It will add GPS metadata to the image.
  - `rotation` This will rotate the image by the number of degrees specified.
+ - `jpegQuality` (integer between 1 and 100) This property is used to compress the output jpeg file with 100% meaning no jpeg compression will be applied.
+ - `totalSeconds` This will limit video length by number of seconds specified. Only works in video capture mode.
 
 The promise will be fulfilled with an object with some of the following properties:
 
@@ -309,15 +350,15 @@ Ends the current capture session for video captures. Only applies when the curre
 
 #### `iOS` `Camera.checkDeviceAuthorizationStatus(): Promise`
 
-Exposes the native API for checking if the device has authorized access to the camera (camera and microphone permissions). Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized.
+Exposes the native API for checking if the device has authorized access to the camera (camera and microphone permissions). Can be used to call before loading the Camera component to ensure proper UX. The promise will be fulfilled with `true` or `false` depending on whether the device is authorized. Note, [as of iOS 10](https://developer.apple.com/library/content/documentation/AudioVideo/Conceptual/PhotoCaptureGuide/#//apple_ref/doc/uid/TP40017511-CH1-DontLinkElementID_3), you will need to add `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 #### `iOS` `Camera.checkVideoAuthorizationStatus(): Promise`
 
-The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the camera permission.
+The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the camera permission. Note, as of iOS 10, you will need to add `NSCameraUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 #### `iOS` `Camera.checkAudioAuthorizationStatus(): Promise`
 
-The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the microphone permission.
+The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the microphone permission. Note, as of iOS 10, you will need to add `NSMicrophoneUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
@@ -325,6 +366,62 @@ This component supports subviews, so if you wish to use the camera view as a bac
 ## Example
 
 To see more of the `react-native-camera` in action, you can check out the source in [Example](https://github.com/lwansbrough/react-native-camera/tree/master/Example) folder.
+
+
+## Open Collective
+We are just beginning a funding campaign for react-native-camera. Contributions are greatly appreciated. When we gain more than $250 we will begin distributing funds to core maintainers in a fully transparent manner. Feedback for this process is welcomed, we will continue to evolve the strategy as we grow and learn more.
+
+### Backers
+
+Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/react-native-camera#backer)]
+
+<a href="https://opencollective.com/react-native-camera/backer/0/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/0/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/1/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/1/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/2/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/2/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/3/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/3/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/4/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/4/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/5/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/5/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/6/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/6/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/7/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/7/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/8/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/8/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/9/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/9/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/10/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/10/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/11/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/11/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/12/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/12/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/13/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/13/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/14/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/14/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/15/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/15/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/16/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/16/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/17/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/17/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/18/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/18/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/19/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/19/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/20/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/20/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/21/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/21/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/22/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/22/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/23/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/23/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/24/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/24/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/25/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/25/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/26/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/26/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/27/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/27/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/28/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/28/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/29/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/29/avatar.svg"></a>
+
+
+### Sponsors
+
+Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/react-native-camera#sponsor)]
+
+<a href="https://opencollective.com/react-native-camera/sponsor/0/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/1/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/2/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/3/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/4/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/5/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/6/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/7/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/8/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/9/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/9/avatar.svg"></a>
+
 
 ------------
 
