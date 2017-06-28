@@ -38,6 +38,7 @@
   else {
     [[NSNotificationCenter defaultCenter]removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
     // NOTE: had to remove this for personal use case (Fixed app orientation, set camera orientation)
+    // There should really be a check for app orientation lock
     // [self changePreviewOrientation:orientation];
   }
 }

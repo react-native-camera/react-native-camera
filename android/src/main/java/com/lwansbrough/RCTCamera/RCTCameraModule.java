@@ -582,6 +582,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             jpegQualityPercent = options.getInt("jpegQuality");
         }
 
+
         switch (options.getInt("target")) {
             case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                 String encoded = mutableImage.toBase64(jpegQualityPercent);
@@ -768,6 +769,37 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         final WritableMap response = new WritableNativeMap();
         response.putString("path", Uri.fromFile(imageFile).toString());
 
+        try {
+            // NOTE: some devices rotate
+            ExifInterface ei = new ExifInterface(imageFile.getAbsolutePath());
+            int deviceOrientation = _sensorOrientationChecker.getOrientation();
+            Log.d("TEST", "Actual device orientation: " + String.valueOf(deviceOrientation));
+            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    Log.d("TEST", "ORIENTATION_ROTATE_90");
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    Log.d("TEST", "ORIENTATION_ROTATE_180");
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    Log.d("TEST", "ORIENTATION_ROTATE_270");
+                    if ( orientation == 0 ) {
+                        // NOTE: had an issue with some android devices not rotating portrait images the correct way
+                        ei.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(ExifInterface.ORIENTATION_ROTATE_90));
+                        ei.saveAttributes();
+                    }
+                    break;
+                case ExifInterface.ORIENTATION_NORMAL:
+                    Log.d("TEST", "ORIENTATION_NORMAL");
+                default:
+                    break;
+            }
+        } catch(Exception e){
+            Log.d("TEST", e.toString());
+        }
+
+
         // borrowed from react-native CameraRollManager, it finds and returns the 'internal'
         // representation of the image uri that was just saved.
         // e.g. content://media/external/images/media/123
@@ -786,5 +818,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                     }
                 });
     }
+
+
 
 }
