@@ -42,7 +42,7 @@ function convertNativeProps(props) {
   if (typeof props.captureMode === 'string') {
     newProps.captureMode = Camera.constants.CaptureMode[props.captureMode];
   }
-  
+
   if (typeof props.captureTarget === 'string') {
     newProps.captureTarget = Camera.constants.CaptureTarget[props.captureTarget];
   }
@@ -233,6 +233,26 @@ export default class Camera extends Component {
     }
 
     return CameraManager.capture(options);
+  }
+
+  lockFocus() {
+    const props = convertNativeProps(this.props);
+    return CameraManager.lockFocus({type: props.type});
+  }
+
+  unlockFocus() {
+    const props = convertNativeProps(this.props);
+    return CameraManager.unlockFocus({type: props.type});
+  }
+
+  lockAutoExposure() {
+    const props = convertNativeProps(this.props);
+    return CameraManager.lockAutoExposure({type: props.type});
+  }
+
+  unlockAutoExposure() {
+    const props = convertNativeProps(this.props);
+    return CameraManager.unlockAutoExposure({type: props.type});
   }
 
   stopCapture() {

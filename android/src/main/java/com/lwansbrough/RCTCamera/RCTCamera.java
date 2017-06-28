@@ -207,6 +207,61 @@ public class RCTCamera {
         camera.setParameters(parameters);
     }
 
+    public void setExposure(final int cameraType, final int exposure) {
+        Camera camera = _cameras.get(cameraType);
+        if (camera == null) {
+            return;
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setExposureCompensation(exposure);
+        camera.setParameters(parameters);
+    }
+
+    public void lockFocus(final int cameraType) {
+        Camera camera = _cameras.get(cameraType);
+        if (camera == null) {
+            return;
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
+        camera.setParameters(parameters);
+    }
+
+    public void unlockFocus(final int cameraType) {
+        Camera camera = _cameras.get(cameraType);
+        if (camera == null) {
+            return;
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+        camera.setParameters(parameters);
+    }
+
+    public void lockAutoExposure(final int cameraType) {
+        Camera camera = _cameras.get(cameraType);
+        if (camera == null) {
+            return;
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setAutoExposureLock(true);
+        camera.setParameters(parameters);
+    }
+
+    public void unlockAutoExposure(final int cameraType) {
+        Camera camera = _cameras.get(cameraType);
+        if (camera == null) {
+            return;
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setAutoExposureLock(false);
+        camera.setParameters(parameters);
+    }
+
     public void setCaptureQuality(int cameraType, String captureQuality) {
         Camera camera = this.acquireCameraInstance(cameraType);
         if (camera == null) {

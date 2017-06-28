@@ -483,6 +483,26 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     }
 
     @ReactMethod
+    public void lockFocus(final ReadableMap options) {
+        RCTCamera.getInstance().lockFocus(options.getInt("type"));
+    }
+
+    @ReactMethod
+    public void unlockFocus(final ReadableMap options) {
+        RCTCamera.getInstance().unlockFocus(options.getInt("type"));
+    }
+
+    @ReactMethod
+    public void lockAutoExposure(final ReadableMap options) {
+        RCTCamera.getInstance().lockAutoExposure(options.getInt("type"));
+    }
+
+    @ReactMethod
+    public void unlockAutoExposure(final ReadableMap options) {
+        RCTCamera.getInstance().unlockAutoExposure(options.getInt("type"));
+    }
+
+    @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) {
         int orientation = options.hasKey("orientation") ? options.getInt("orientation") : RCTCamera.getInstance().getOrientation();
         if (orientation == RCT_CAMERA_ORIENTATION_AUTO) {
@@ -500,6 +520,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             captureWithOrientation(options, promise, orientation);
         }
     }
+
 
     private void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
@@ -522,6 +543,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
         if (options.hasKey("quality")) {
             RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
+        }
+
+        if (options.hasKey("exposure")) {
+            RCTCamera.getInstance().setExposure(options.getInt("type"), options.getInt("exposure"));
         }
 
         RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(options.getInt("type"), deviceOrientation);
