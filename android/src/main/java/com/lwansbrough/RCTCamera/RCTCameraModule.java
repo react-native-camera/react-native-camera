@@ -545,6 +545,49 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         RCTCamera.getInstance().getExposureCompensationRange(callback);
     }
 
+    @ReactMethod
+    public void setExposureCompensation(int val) {
+        RCTCamera.getInstance().setExposureCompensation(val);
+    }
+
+    @ReactMethod
+    public void makeGif(ReadableArray images) {
+        ArrayList<Bitmap> bitmaps = new ArrayList<Bitmap>();
+
+        for (int i = 0; i < images.size(); i++) {
+            try {
+                URL url = new URL(images.getString(i));
+                File imgFile = new  File(url.getFile());
+                if (imgFile.exists()){
+                    Bitmap b = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                    Log.e("RCTCamera", b.getByteCount() + "");
+                    bitmaps.add(b);
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        AnimatedGifEncoder encoder = new AnimatedGifEncoder();
+        encoder.start(bos);
+        for (Bitmap bitmap : bitmaps) {
+            encoder.addFrame(bitmap);
+        }
+        encoder.finish();
+        byte[] bosba = bos.toByteArray();
+        Log.e("RCTCamera", bosba.length + "");
+
+        FileOutputStream outStream = null;
+        try{
+            outStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/test.gif");
+            outStream.write(bosba);
+            outStream.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
     private void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
         if (null == camera) {

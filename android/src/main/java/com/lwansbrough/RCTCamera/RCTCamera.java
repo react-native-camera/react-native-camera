@@ -423,6 +423,16 @@ public class RCTCamera {
         callback.invoke(null, ((String) rangeStr));
     }
 
+    public void setExposureCompensation(int val) {
+        Camera camera = this.acquireCameraInstance(2);
+        if (null == camera) {
+            return;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setExposureCompensation(val);
+        camera.setParameters(parameters);
+    }
+
     public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {
         Camera camera = _cameras.get(type);
         if (null == camera) {
