@@ -255,6 +255,11 @@ export default class Camera extends Component {
     return CameraManager.unlockAutoExposure({type: props.type});
   }
 
+  setExposure(exposure) {
+    const props = convertNativeProps(this.props);
+    return CameraManager.setExposure({type: props.type}, exposure);
+  }
+
   stopCapture() {
     if (this.state.isRecording) {
       this.setState({ isRecording: false });

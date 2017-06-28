@@ -503,6 +503,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     }
 
     @ReactMethod
+    public void setExposure(final ReadableMap options, int exposure) {
+        RCTCamera.getInstance().setExposure(options.getInt("type"), exposure);
+    }
+
+    @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) {
         int orientation = options.hasKey("orientation") ? options.getInt("orientation") : RCTCamera.getInstance().getOrientation();
         if (orientation == RCT_CAMERA_ORIENTATION_AUTO) {
@@ -546,7 +551,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
 
         if (options.hasKey("exposure")) {
-            RCTCamera.getInstance().setExposure(options.getInt("type"), options.getInt("exposure"));
+            setExposure(options, options.getInt("exposure"));
         }
 
         RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(options.getInt("type"), deviceOrientation);
