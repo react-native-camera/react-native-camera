@@ -546,6 +546,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
         if(mSafeToCapture) {
           try {
+            camera.startPreview();
             camera.takePicture(null, null, captureCallback);
             mSafeToCapture = false;
           } catch(RuntimeException ex) {
