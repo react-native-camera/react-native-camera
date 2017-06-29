@@ -214,7 +214,8 @@ public class RCTCamera {
         }
 
         Camera.Parameters parameters = camera.getParameters();
-        parameters.setExposureCompensation(exposure);
+        float step = parameters.getExposureCompensationStep();
+        parameters.setExposureCompensation(Math.round((float) exposure/step));
         camera.setParameters(parameters);
     }
 
