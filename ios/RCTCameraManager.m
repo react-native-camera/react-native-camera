@@ -367,10 +367,14 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options
   NSInteger captureTarget = [[options valueForKey:@"target"] intValue];
 
   if (captureMode == RCTCameraCaptureModeStill) {
-    [self captureStill:captureTarget options:options resolve:resolve reject:reject];
-  }
-  else if (captureMode == RCTCameraCaptureModeVideo) {
-    [self captureVideo:captureTarget options:options resolve:resolve reject:reject];
+      if (options[@"exposure"] != nil) {
+          float exposure = [[options valueForKey:@"exposure"] floatValue];
+          [self setExposure:options exposure:exposure resolve:^(id result) {
+              [self captureStill:captureTarget options:options resolve:resolve reject:reject];
+          } reject:reject];
+      }
+  } else if (captureMode == RCTCameraCaptureModeVideo) {
+      [self captureVideo:captureTarget options:options resolve:resolve reject:reject];
   }
 }
 
@@ -415,6 +419,72 @@ RCT_EXPORT_METHOD(getFOV:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejec
 RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     resolve(@(device.hasFlash));
+}
+
+RCT_EXPORT_METHOD(lockFocus:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    NSError *error;
+
+    if ([device lockForConfiguration:&error]) {
+        [device setFocusMode:AVCaptureFocusModeAutoFocus];
+        [device unlockForConfiguration];
+        resolve(@YES);
+    } else {
+        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Can't obtain lock for configuration"));
+    }
+}
+
+RCT_EXPORT_METHOD(unlockFocus:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    NSError *error;
+
+    if ([device lockForConfiguration:&error]) {
+        [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        [device unlockForConfiguration];
+        resolve(@YES);
+    } else {
+        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Can't obtain lock for configuration"));
+    }
+}
+
+RCT_EXPORT_METHOD(lockAutoExposure:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    NSError *error;
+
+    if ([device lockForConfiguration:&error]) {
+        [device setExposureMode:AVCaptureExposureModeAutoExpose];
+        [device unlockForConfiguration];
+        resolve(@YES);
+    } else {
+        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Can't obtain lock for configuration"));
+    }
+}
+
+RCT_EXPORT_METHOD(unlockAutoExposure:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    NSError *error;
+
+    if ([device lockForConfiguration:&error]) {
+        [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+        [device unlockForConfiguration];
+        resolve(@YES);
+    } else {
+        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Can't obtain lock for configuration"));
+    }
+}
+
+RCT_EXPORT_METHOD(setExposure:(NSDictionary *)options exposure:(float)exposure resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    NSError *error;
+
+    if ([device lockForConfiguration:&error]) {
+        [device setExposureTargetBias:exposure completionHandler:^(CMTime syncTime) {
+            resolve(@YES);
+        }];
+        [device unlockForConfiguration];
+    } else {
+        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Can't obtain lock for configuration"));
+    }
 }
 
 - (void)startSession {
