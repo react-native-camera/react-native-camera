@@ -56,7 +56,8 @@ RCT_EXPORT_MODULE();
                                          @"code128": AVMetadataObjectTypeCode128Code,
                                          @"pdf417": AVMetadataObjectTypePDF417Code,
                                          @"qr": AVMetadataObjectTypeQRCode,
-                                         @"aztec": AVMetadataObjectTypeAztecCode
+                                         @"aztec": AVMetadataObjectTypeAztecCode,
+                                         @"face": AVMetadataObjectTypeFace,
                                          }];
 
     if (&AVMetadataObjectTypeInterleaved2of5Code != NULL) {
@@ -887,9 +888,14 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         // Transform the meta-data coordinates to screen coords
         AVMetadataMachineReadableCodeObject *transformed = (AVMetadataMachineReadableCodeObject *)[_previewLayer transformedMetadataObjectForMetadataObject:metadata];
 
+        NSString *stringValue = @"";
+        if (metadata.type != AVMetadataObjectTypeFace) {
+          stringValue = metadata.stringValue;
+        }
+        
         NSDictionary *event = @{
           @"type": metadata.type,
-          @"data": metadata.stringValue,
+          @"data": stringValue,
           @"bounds": @{
             @"origin": @{
               @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],

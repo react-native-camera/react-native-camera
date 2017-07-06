@@ -239,6 +239,7 @@ The following barcode types can be recognised:
 - `interleaved2of5` (when available)
 - `itf14` (when available)
 - `datamatrix` (when available)
+- `face` (iOS only)
 
 The barcode type is provided in the `data` object.
 
