@@ -14,6 +14,7 @@ import java.util.Map;
 import java.lang.Math;
 
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.WritableNativeArray;
 
 public class RCTCamera {
     private static RCTCamera ourInstance;
@@ -416,11 +417,10 @@ public class RCTCamera {
         Camera.Parameters parameters = camera.getParameters();
         int min = parameters.getMinExposureCompensation();
         int max = parameters.getMaxExposureCompensation();
-        String minStr = min + "";
-        String maxStr = max + "";
-        String rangeStr = minStr + " " + maxStr;
-        Log.e("RCTCamera", rangeStr);
-        callback.invoke(null, ((String) rangeStr));
+        WritableNativeArray range = new WritableNativeArray();
+        range.pushInt(min);
+        range.pushInt(max);
+        callback.invoke(null, range);
     }
 
     public void setExposureCompensation(int val) {

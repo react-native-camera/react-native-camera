@@ -576,6 +576,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         AnimatedGifEncoder encoder = new AnimatedGifEncoder();
+        encoder.setDelay(500);
         encoder.start(bos);
         for (Bitmap bitmap : bitmaps) {
             encoder.addFrame(bitmap);
