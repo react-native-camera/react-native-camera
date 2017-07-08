@@ -70,6 +70,11 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         // TODO - implement video mode
     }
 
+    @ReactProp(name = "cameraPreviewOutputEnabled")
+    public void setCameraPreviewOutputEnabled(RCTCameraView view, boolean cameraPreviewOutputEnabled) {
+        view.setCameraPreviewOutputEnabled(cameraPreviewOutputEnabled);
+    }
+
     @ReactProp(name = "barcodeScannerEnabled")
     public void setBarcodeScannerEnabled(RCTCameraView view, boolean barcodeScannerEnabled) {
         view.setBarcodeScannerEnabled(barcodeScannerEnabled);

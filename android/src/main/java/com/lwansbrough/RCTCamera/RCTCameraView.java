@@ -115,6 +115,10 @@ public class RCTCameraView extends ViewGroup {
         }
     }
 
+    public void setCameraPreviewOutputEnabled(boolean cameraPreviewOutputEnabled) {
+        RCTCamera.getInstance().setCameraPreviewOutputEnabled(cameraPreviewOutputEnabled);
+    }
+
     public void setBarcodeScannerEnabled(boolean barcodeScannerEnabled) {
         RCTCamera.getInstance().setBarcodeScannerEnabled(barcodeScannerEnabled);
     }

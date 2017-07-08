@@ -11,6 +11,7 @@ import android.hardware.Camera;
 import android.view.MotionEvent;
 import android.view.TextureView;
 import android.os.AsyncTask;
+import android.util.Base64;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
@@ -43,6 +44,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     // concurrency lock for barcode scanner to avoid flooding the runtime
     public static volatile boolean barcodeScannerTaskLock = false;
+    public static volatile boolean cameraPreviewOuputTaskLock = false;
 
     // reader instance for the barcode scanner
     private final MultiFormatReader _multiFormatReader = new MultiFormatReader();
@@ -275,6 +277,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         _multiFormatReader.setHints(hints);
     }
 
+    private interface IOnPreviewAsyncTaskCallback {
+        void postprocessFrame();
+    }
+
     /**
      * Spawn a barcode reader task if
      *  - the barcode scanner is enabled (has a onBarCodeRead function)
@@ -283,19 +289,82 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
      * See {Camera.PreviewCallback}
      */
     public void onPreviewFrame(byte[] data, Camera camera) {
+        // Barcode Scanner
+        final byte[] _data = data;
+        final Camera _camera = camera;
         if (RCTCamera.getInstance().isBarcodeScannerEnabled() && !RCTCameraViewFinder.barcodeScannerTaskLock) {
             RCTCameraViewFinder.barcodeScannerTaskLock = true;
-            new ReaderAsyncTask(camera, data).execute();
+
+            new OnPreviewAsyncTask(new IOnPreviewAsyncTaskCallback() {
+
+                @Override
+                public void postprocessFrame() {
+                    Camera.Size size = _camera.getParameters().getPreviewSize();
+
+                    int width = size.width;
+                    int height = size.height;
+                    byte[] imageData = _data;
+
+                    // rotate for zxing if orientation is portrait
+                    if (RCTCamera.getInstance().getActualDeviceOrientation() == 0) {
+                        byte[] rotated = new byte[_data.length];
+                        for (int y = 0; y < height; y++) {
+                            for (int x = 0; x < width; x++) {
+                                rotated[x * height + height - y - 1] = _data[x + y * width];
+                            }
+                        }
+                        width = size.height;
+                        height = size.width;
+                        imageData = rotated;
+                    }
+                    try {
+                        PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0,
+                                width, height, false);
+                        BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+                        Result result = _multiFormatReader.decodeWithState(bitmap);
+
+                        ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
+                        WritableMap event = Arguments.createMap();
+                        event.putString("data", result.getText());
+                        event.putString("type", result.getBarcodeFormat().toString());
+                        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                .emit("CameraBarCodeReadAndroid", event);
+
+                    } catch (Throwable t) {
+                        // meh
+                    } finally {
+                        _multiFormatReader.reset();
+                        RCTCameraViewFinder.barcodeScannerTaskLock = false;
+                    }
+                }
+
+            }).execute();
+        // Camera Preview Output
+        } else if (RCTCamera.getInstance().isCameraPreviewOutputEnabled() && !RCTCameraViewFinder.cameraPreviewOuputTaskLock) {
+            RCTCameraViewFinder.cameraPreviewOuputTaskLock = true;
+
+            new OnPreviewAsyncTask(new IOnPreviewAsyncTaskCallback() {
+
+                @Override
+                public void postprocessFrame() {
+                    ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
+                    WritableMap event = Arguments.createMap();
+
+                    // encode image data as Base64 string
+                    event.putString("data", Base64.encodeToString(_data, 0, _data.length, Base64.DEFAULT));
+                    reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                            .emit("CameraPreviewOutput", event);
+                    RCTCameraViewFinder.cameraPreviewOuputTaskLock = false;
+                }
+            }).execute();
         }
     }
 
-    private class ReaderAsyncTask extends AsyncTask<Void, Void, Void> {
-        private byte[] imageData;
-        private final Camera camera;
+    private class OnPreviewAsyncTask extends AsyncTask<Void, Void, Void> {
+        private final IOnPreviewAsyncTaskCallback taskCallback;
 
-        ReaderAsyncTask(Camera camera, byte[] imageData) {
-            this.camera = camera;
-            this.imageData = imageData;
+        OnPreviewAsyncTask(IOnPreviewAsyncTaskCallback taskCallback) {
+            this.taskCallback = taskCallback;
         }
 
         @Override
@@ -304,42 +373,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 return null;
             }
 
-            Camera.Size size = camera.getParameters().getPreviewSize();
+            taskCallback.postprocessFrame();
+            return null;
 
-            int width = size.width;
-            int height = size.height;
-
-            // rotate for zxing if orientation is portrait
-            if (RCTCamera.getInstance().getActualDeviceOrientation() == 0) {
-                byte[] rotated = new byte[imageData.length];
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        rotated[x * height + height - y - 1] = imageData[x + y * width];
-                    }
-                }
-                width = size.height;
-                height = size.width;
-                imageData = rotated;
-            }
-
-            try {
-                PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
-                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-                Result result = _multiFormatReader.decodeWithState(bitmap);
-
-                ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
-                WritableMap event = Arguments.createMap();
-                event.putString("data", result.getText());
-                event.putString("type", result.getBarcodeFormat().toString());
-                reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("CameraBarCodeReadAndroid", event);
-
-            } catch (Throwable t) {
-                // meh
-            } finally {
-                _multiFormatReader.reset();
-                RCTCameraViewFinder.barcodeScannerTaskLock = false;
-                return null;
-            }
         }
     }
 
@@ -348,7 +384,6 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         // Get the pointer ID
         Camera.Parameters params = _camera.getParameters();
         int action = event.getAction();
-
 
         if (event.getPointerCount() > 1) {
             // handle multi-touch events
