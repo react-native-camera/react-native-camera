@@ -417,6 +417,49 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     resolve(@(device.hasFlash));
 }
 
+RCT_EXPORT_METHOD(makeGif:(NSArray *)images callback:(RCTResponseSenderBlock)callback) {
+    NSDictionary *fileProperties = @{
+                                     (__bridge id)kCGImagePropertyGIFDictionary: @{
+                                             (__bridge id)kCGImagePropertyGIFLoopCount: @0, // 0 means loop forever
+                                             }
+                                     };
+    
+    NSDictionary *frameProperties = @{
+                                      (__bridge id)kCGImagePropertyGIFDictionary: @{
+                                              (__bridge id)kCGImagePropertyGIFDelayTime: @0.5f, // a float (not double!) in seconds, rounded to centiseconds in the GIF data
+                                              }
+                                      };
+    
+    NSURL *documentsDirectoryURL = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
+    NSURL *fileURL = [documentsDirectoryURL URLByAppendingPathComponent:@"animated.gif"];
+    
+    CGImageDestinationRef destination = CGImageDestinationCreateWithURL((__bridge CFURLRef)fileURL, kUTTypeGIF, images.count, NULL);
+    CGImageDestinationSetProperties(destination, (__bridge CFDictionaryRef)fileProperties);
+    
+    for (NSString *path in images) {
+        @autoreleasepool {
+            UIImage *image = [UIImage imageWithContentsOfFile:path];
+            CGImageDestinationAddImage(destination, image.CGImage, (__bridge CFDictionaryRef)frameProperties);
+        }
+    }
+    
+    if (!CGImageDestinationFinalize(destination)) {
+        NSLog(@"failed to finalize image destination");
+    }
+    CFRelease(destination);
+    
+    
+    
+    NSLog(@"url=%@", fileURL);
+    NSString *fileURLString = fileURL.absoluteString;
+    NSLog(@"fileURLString=%@", fileURLString);
+    id objects[] = {fileURLString};
+    NSUInteger count = sizeof(objects) / sizeof(id);
+    NSArray *array = [NSArray arrayWithObjects:objects count:count];
+    
+    callback(@[[NSNull null], array]);
+}
+
 RCT_EXPORT_METHOD(getExposureCompensationRange:(RCTResponseSenderBlock)callback) {
     AVCaptureDevice *backCamera = [[self videoCaptureDeviceInput] device];
     
