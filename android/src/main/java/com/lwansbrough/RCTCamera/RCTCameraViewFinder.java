@@ -309,20 +309,20 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             int width = size.width;
             int height = size.height;
 
-            // rotate for zxing if orientation is portrait
-            if (RCTCamera.getInstance().getActualDeviceOrientation() == 0) {
-                byte[] rotated = new byte[imageData.length];
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        rotated[x * height + height - y - 1] = imageData[x + y * width];
-                    }
-                }
-                width = size.height;
-                height = size.width;
-                imageData = rotated;
-            }
-
             try {
+                // rotate for zxing if orientation is portrait
+                if (RCTCamera.getInstance().getActualDeviceOrientation() == 0) {
+                    byte[] rotated = new byte[imageData.length];
+                    for (int y = 0; y < height; y++) {
+                        for (int x = 0; x < width; x++) {
+                            rotated[x * height + height - y - 1] = imageData[x + y * width];
+                        }
+                    }
+                    width = size.height;
+                    height = size.width;
+                    imageData = rotated;
+                }
+
                 PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
                 BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
                 Result result = _multiFormatReader.decodeWithState(bitmap);
@@ -332,7 +332,6 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());
                 reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("CameraBarCodeReadAndroid", event);
-
             } catch (Throwable t) {
                 // meh
             } finally {
