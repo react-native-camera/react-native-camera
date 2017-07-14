@@ -26,6 +26,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.bridge.Callback;
 
@@ -557,7 +558,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     }
 
     @ReactMethod
-    public void makeGif(ReadableArray images) {
+    public void makeGif(ReadableArray images, Callback callback) {
         ArrayList<Bitmap> bitmaps = new ArrayList<Bitmap>();
 
         for (int i = 0; i < images.size(); i++) {
@@ -586,13 +587,17 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         Log.e("RCTCamera", bosba.length + "");
 
         FileOutputStream outStream = null;
+        String gifUrl = Environment.getExternalStorageDirectory().getPath() + "/animated.gif";
         try{
-            outStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/test.gif");
+            outStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/animated.gif");
             outStream.write(bosba);
             outStream.close();
         }catch(Exception e){
             e.printStackTrace();
         }
+        WritableNativeArray resultantArray = new WritableNativeArray();
+        resultantArray.pushString(gifUrl);
+        callback.invoke(null, resultantArray);
     }
 
     private void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
