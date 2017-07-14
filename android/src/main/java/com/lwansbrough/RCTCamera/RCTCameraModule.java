@@ -578,6 +578,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         AnimatedGifEncoder encoder = new AnimatedGifEncoder();
         encoder.setDelay(500);
+        encoder.setRepeat(0);
         encoder.start(bos);
         for (Bitmap bitmap : bitmaps) {
             encoder.addFrame(bitmap);
@@ -587,7 +588,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         Log.e("RCTCamera", bosba.length + "");
 
         FileOutputStream outStream = null;
-        String gifUrl = Environment.getExternalStorageDirectory().getPath() + "/animated.gif";
+        String gifUrl = "file://" + Environment.getExternalStorageDirectory().getPath() + "/animated.gif";
         try{
             outStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/animated.gif");
             outStream.write(bosba);
