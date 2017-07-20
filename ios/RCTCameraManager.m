@@ -10,6 +10,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
 #import "RCTSensorOrientationChecker.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @interface RCTCameraManager ()
 
