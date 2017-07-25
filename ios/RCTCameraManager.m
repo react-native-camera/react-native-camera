@@ -691,6 +691,9 @@ RCT_EXPORT_METHOD(setExposureCompensation:(float)value) {
           // create cgimage
           CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
 
+          [self viewDidLoad];
+          [self flashScreen];
+            
           // Rotate it
           CGImageRef rotatedCGImage;
           if ([options objectForKey:@"rotation"]) {
