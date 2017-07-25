@@ -16,10 +16,13 @@
 
 @property (strong, nonatomic) RCTSensorOrientationChecker * sensorOrientationChecker;
 @property (assign, nonatomic) NSInteger* flashMode;
+@property (nonatomic, strong) UIView *whiteScreen;
 
 @end
 
 @implementation RCTCameraManager
+
+@synthesize whiteScreen;
 
 RCT_EXPORT_MODULE();
 
@@ -233,6 +236,29 @@ RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera) {
     });
   }
   [self initializeCaptureSessionInput:AVMediaTypeVideo];
+}
+
+- (void)viewDidLoad {
+    self.whiteScreen = [[UIView alloc] initWithFrame:self.view.bounds];
+    self.whiteScreen.layer.opacity = 0.0f;
+    self.whiteScreen.layer.backgroundColor = [[UIColor whiteColor] CGColor];
+    [self.view addSubview:self.whiteScreen];
+}
+
+-(void)flashScreen {
+    CAKeyframeAnimation *opacityAnimation = [CAKeyframeAnimation animationWithKeyPath:@"opacity"];
+    NSArray *animationValues = @[ @0.8f, @0.0f ];
+    NSArray *animationTimes = @[ @0.3f, @1.0f ];
+    id timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    NSArray *animationTimingFunctions = @[ timingFunction, timingFunction ];
+    [opacityAnimation setValues:animationValues];
+    [opacityAnimation setKeyTimes:animationTimes];
+    [opacityAnimation setTimingFunctions:animationTimingFunctions];
+    opacityAnimation.fillMode = kCAFillModeForwards;
+    opacityAnimation.removedOnCompletion = YES;
+    opacityAnimation.duration = 0.4;
+    
+    [self.whiteScreen.layer addAnimation:opacityAnimation forKey:@"animation"];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(flashMode, NSInteger, RCTCamera) {
