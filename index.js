@@ -160,8 +160,16 @@ export default class Camera extends Component {
 
     if (check) {
       const isAuthorized = await check();
-      this.setState({ isAuthorized });
+      if (this._isMounted) {
+        this.setState({ isAuthorized });
+      } else {
+        this.state.isAuthorized = isAuthorized;
+      }
     }
+  }
+
+  componentDidMount() {
+    this._isMounted = true;
   }
 
   componentWillUnmount() {
