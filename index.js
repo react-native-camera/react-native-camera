@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import { PropTypes } from 'prop-types';
+import React, { Component } from 'react';
 import {
   DeviceEventEmitter, // android
   NativeAppEventEmitter, // ios
@@ -42,7 +43,7 @@ function convertNativeProps(props) {
   if (typeof props.captureMode === 'string') {
     newProps.captureMode = Camera.constants.CaptureMode[props.captureMode];
   }
-  
+
   if (typeof props.captureTarget === 'string') {
     newProps.captureTarget = Camera.constants.CaptureTarget[props.captureTarget];
   }
@@ -185,7 +186,7 @@ export default class Camera extends Component {
     if (onBarCodeRead) {
       this.cameraBarCodeReadListener = Platform.select({
         ios: NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead),
-        android: DeviceEventEmitter.addListener('CameraBarCodeReadAndroid',  this._onBarCodeRead)
+        android: DeviceEventEmitter.addListener('CameraBarCodeReadAndroid', this._onBarCodeRead)
       })
     }
   }
@@ -260,15 +261,17 @@ export default class Camera extends Component {
 
 export const constants = Camera.constants;
 
-const RCTCamera = requireNativeComponent('RCTCamera', Camera, {nativeOnly: {
-  testID: true,
-  renderToHardwareTextureAndroid: true,
-  accessibilityLabel: true,
-  importantForAccessibility: true,
-  accessibilityLiveRegion: true,
-  accessibilityComponentType: true,
-  onLayout: true
-}});
+const RCTCamera = requireNativeComponent('RCTCamera', Camera, {
+  nativeOnly: {
+    testID: true,
+    renderToHardwareTextureAndroid: true,
+    accessibilityLabel: true,
+    importantForAccessibility: true,
+    accessibilityLiveRegion: true,
+    accessibilityComponentType: true,
+    onLayout: true
+  }
+});
 
 const styles = StyleSheet.create({
   base: {},
