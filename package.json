@@ -29,5 +29,8 @@
   },
   "scripts": {
     "postinstall": "opencollective postinstall"
+  },
+  "devDependencies": {
+    "prop-types": "^15.5.10"
   }
 }
