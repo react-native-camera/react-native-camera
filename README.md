@@ -47,6 +47,7 @@ To enable `video recording` feature you have to add the following code to the `A
 
 ### Mostly automatic install with react-native
 1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
+2. `npm install -g react-native-cli` (if you don't already have this)
 3. `react-native link react-native-camera`
 
 ### Mostly automatic install with CocoaPods
