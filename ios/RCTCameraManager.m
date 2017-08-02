@@ -434,7 +434,10 @@ RCT_EXPORT_METHOD(makeGif:(NSArray *)images callback:(RCTResponseSenderBlock)cal
                                               }
                                       };
     
-    NSURL *documentsDirectoryURL = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
+    NSFileManager *defManager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    
+    NSURL *documentsDirectoryURL = [defManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
     NSURL *fileURL = [documentsDirectoryURL URLByAppendingPathComponent:@"animated.gif"];
     
     CGImageDestinationRef destination = CGImageDestinationCreateWithURL((__bridge CFURLRef)fileURL, kUTTypeGIF, images.count, NULL);
@@ -452,16 +455,30 @@ RCT_EXPORT_METHOD(makeGif:(NSArray *)images callback:(RCTResponseSenderBlock)cal
     }
     CFRelease(destination);
     
+    for (NSString *path in images) {
+        [defManager removeItemAtPath:path error:&error];
+    }
+    if (error) {
+        NSLog(@"Error removing temp files: %@", error);
+    }
     
+    ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
     
-    NSLog(@"url=%@", fileURL);
-    NSString *fileURLString = fileURL.absoluteString;
-    NSLog(@"fileURLString=%@", fileURLString);
-    id objects[] = {fileURLString};
-    NSUInteger count = sizeof(objects) / sizeof(id);
-    NSArray *array = [NSArray arrayWithObjects:objects count:count];
+    NSString *filePath = [fileURL path];
+    NSData *data = [NSData dataWithContentsOfFile:filePath];
     
-    callback(@[[NSNull null], array]);
+    [library writeImageDataToSavedPhotosAlbum:data metadata:nil completionBlock:^(NSURL *assetURL, NSError *error) {
+        if (error) {
+            NSLog(@"Error Saving GIF to Photo Album: %@", error);
+        } else {
+            NSString *assetURLString = [assetURL absoluteString];
+            id objects[] = { assetURLString };
+            NSUInteger count = sizeof(objects) / sizeof(id);
+            NSArray *array = [NSArray arrayWithObjects:objects count:count];
+            
+            callback(@[[NSNull null], array]);
+        }
+    }];
 }
 
 RCT_EXPORT_METHOD(getExposureCompensationRange:(RCTResponseSenderBlock)callback) {
