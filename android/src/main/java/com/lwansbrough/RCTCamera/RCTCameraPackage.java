@@ -17,7 +17,7 @@ public class RCTCameraPackage implements ReactPackage {
         return Collections.<NativeModule>singletonList(new RCTCameraModule(reactApplicationContext));
     }
 
-    // Deprecated RN 0.47
+    // Depreciated RN 0.47
     public List<Class<? extends JavaScriptModule>> createJSModules() {
         return Collections.emptyList();
     }
