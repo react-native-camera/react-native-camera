@@ -20,15 +20,11 @@
     "barcode"
   ],
   "dependencies": {
-    "opencollective": "^1.0.3",
     "prop-types": "^15.5.10"
   },
   "collective": {
     "type": "opencollective",
     "url": "https://opencollective.com/react-native-camera",
     "logo": "https://opencollective.com/opencollective/logo.txt"
-  },
-  "scripts": {
-    "postinstall": "opencollective postinstall"
   }
 }
