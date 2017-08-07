@@ -22,6 +22,7 @@ public class RCTCamera {
     private static final Resolution RESOLUTION_720P = new Resolution(1280, 720);
     private static final Resolution RESOLUTION_1080P = new Resolution(1920, 1080);
     private boolean _barcodeScannerEnabled = false;
+    private boolean _cameraPreviewOutputEnabled = false;
     private List<String> _barCodeTypes = null;
     private int _orientation = -1;
     private int _actualDeviceOrientation = 0;
@@ -30,10 +31,10 @@ public class RCTCamera {
     public static RCTCamera getInstance() {
         return ourInstance;
     }
+
     public static void createInstance(int deviceOrientation) {
         ourInstance = new RCTCamera(deviceOrientation);
     }
-
 
     public synchronized Camera acquireCameraInstance(int type) {
         if (null == _cameras.get(type) && null != _cameraTypeToIndex.get(type)) {
@@ -116,21 +117,21 @@ public class RCTCamera {
     }
 
     private Camera.Size getClosestSize(List<Camera.Size> supportedSizes, int matchWidth, int matchHeight) {
-      Camera.Size closestSize = null;
-      for (Camera.Size size : supportedSizes) {
-          if (closestSize == null) {
-              closestSize = size;
-              continue;
-          }
+        Camera.Size closestSize = null;
+        for (Camera.Size size : supportedSizes) {
+            if (closestSize == null) {
+                closestSize = size;
+                continue;
+            }
 
-          int currentDelta = Math.abs(closestSize.width - matchWidth) * Math.abs(closestSize.height - matchHeight);
-          int newDelta = Math.abs(size.width - matchWidth) * Math.abs(size.height - matchHeight);
+            int currentDelta = Math.abs(closestSize.width - matchWidth) * Math.abs(closestSize.height - matchHeight);
+            int newDelta = Math.abs(size.width - matchWidth) * Math.abs(size.height - matchHeight);
 
-          if (newDelta < currentDelta) {
-              closestSize = size;
-          }
-      }
-      return closestSize;
+            if (newDelta < currentDelta) {
+                closestSize = size;
+            }
+        }
+        return closestSize;
     }
 
     protected List<Camera.Size> getSupportedVideoSizes(Camera camera) {
@@ -160,8 +161,16 @@ public class RCTCamera {
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_BACK);
     }
 
+    public boolean isCameraPreviewOutputEnabled() {
+        return _cameraPreviewOutputEnabled;
+    }
+
+    public void setCameraPreviewOutputEnabled(boolean cameraPreviewOutputEnabled) {
+        _cameraPreviewOutputEnabled = cameraPreviewOutputEnabled;
+    }
+
     public boolean isBarcodeScannerEnabled() {
-      return _barcodeScannerEnabled;
+        return _barcodeScannerEnabled;
     }
 
     public void setBarcodeScannerEnabled(boolean barcodeScannerEnabled) {
@@ -283,7 +292,7 @@ public class RCTCamera {
                 break;
         }
 
-        if (cm == null){
+        if (cm == null) {
             return null;
         }
 
@@ -398,7 +407,8 @@ public class RCTCamera {
 
         // set preview size
         // defaults to highest resolution available
-        Camera.Size optimalPreviewSize = getBestSize(parameters.getSupportedPreviewSizes(), Integer.MAX_VALUE, Integer.MAX_VALUE);
+        Camera.Size optimalPreviewSize = getBestSize(parameters.getSupportedPreviewSizes(), Integer.MAX_VALUE,
+                Integer.MAX_VALUE);
         int width = optimalPreviewSize.width;
         int height = optimalPreviewSize.height;
 
