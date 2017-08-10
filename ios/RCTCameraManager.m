@@ -437,7 +437,7 @@ RCT_EXPORT_METHOD(makeGif:(NSArray *)images callback:(RCTResponseSenderBlock)cal
     NSFileManager *defManager = [NSFileManager defaultManager];
     NSError *error = nil;
     
-    NSURL *documentsDirectoryURL = [defManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
+    NSURL *documentsDirectoryURL = [defManager URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
     NSURL *fileURL = [documentsDirectoryURL URLByAppendingPathComponent:@"animated.gif"];
     
     CGImageDestinationRef destination = CGImageDestinationCreateWithURL((__bridge CFURLRef)fileURL, kUTTypeGIF, images.count, NULL);
@@ -471,14 +471,20 @@ RCT_EXPORT_METHOD(makeGif:(NSArray *)images callback:(RCTResponseSenderBlock)cal
         if (error) {
             NSLog(@"Error Saving GIF to Photo Album: %@", error);
         } else {
-            NSString *assetURLString = [assetURL absoluteString];
-            id objects[] = { assetURLString };
-            NSUInteger count = sizeof(objects) / sizeof(id);
-            NSArray *array = [NSArray arrayWithObjects:objects count:count];
-            
-            callback(@[[NSNull null], array]);
+            //            NSString *assetURLString = [assetURL absoluteString];
+            //            id objects[] = { assetURLString };
+            //            NSUInteger count = sizeof(objects) / sizeof(id);
+            //            NSArray *array = [NSArray arrayWithObjects:objects count:count];
+            //
+            //            callback(@[[NSNull null], array]);
         }
     }];
+    
+    // form result and return it
+    id objects[] = { filePath };
+    NSUInteger count = sizeof(objects) / sizeof(id);
+    NSArray *array = [NSArray arrayWithObjects:objects count:count];
+    callback(@[[NSNull null], array]);
 }
 
 RCT_EXPORT_METHOD(getExposureCompensationRange:(RCTResponseSenderBlock)callback) {
