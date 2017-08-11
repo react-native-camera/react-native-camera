@@ -738,7 +738,7 @@ RCT_EXPORT_METHOD(setExposure:(NSDictionary *)options exposure:(float)exposure r
     NSString *documentsDirectory = [paths firstObject];
 
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingString:@"temp/" stringByAppendingPathExtension:@"jpg"];
+    NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"jpg"];
 
     [fileManager createFileAtPath:fullPath contents:imageData attributes:nil];
     responseString = fullPath;
