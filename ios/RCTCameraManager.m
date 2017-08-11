@@ -446,7 +446,7 @@ RCT_EXPORT_METHOD(makeGif:(NSArray *)images callback:(RCTResponseSenderBlock)cal
     for (NSString *path in images) {
         @autoreleasepool {
             UIImage *image = [UIImage imageWithContentsOfFile:path];
-            CGImageDestinationAddImage(destination, image.CGImage, (__bridge CFDictionaryRef)frameProperties);
+            CGImageDestinationAddImage(destination, [self newCGImageRotatedByAngle:image.CGImage angle:270], (__bridge CFDictionaryRef)frameProperties);
         }
     }
     
@@ -463,7 +463,6 @@ RCT_EXPORT_METHOD(makeGif:(NSArray *)images callback:(RCTResponseSenderBlock)cal
     }
     
     ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-    
     NSString *filePath = [fileURL path];
     NSData *data = [NSData dataWithContentsOfFile:filePath];
     
