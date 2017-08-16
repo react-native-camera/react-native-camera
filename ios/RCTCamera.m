@@ -152,9 +152,11 @@
         
         // Show animated rectangle on the touched area
         if (_defaultOnFocusComponent) {
-            self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-20, touchPoint.y-20, 40, 40)];
+            self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-18, touchPoint.y-18, 36, 36)];
+            
             [self.camFocus setBackgroundColor:[UIColor clearColor]];
             [self addSubview:self.camFocus];
+            
             [self.camFocus setNeedsDisplay];
             
             [UIView beginAnimations:nil context:NULL];

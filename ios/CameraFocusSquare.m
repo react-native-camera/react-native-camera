@@ -1,7 +1,7 @@
 #import "CameraFocusSquare.h"
 #import <QuartzCore/QuartzCore.h>
 
-const float squareLength = 40.0f;
+const float squareLength = 36.0f;
 @implementation RCTCameraFocusSquare
 
 - (id)initWithFrame:(CGRect)frame
@@ -15,8 +15,10 @@ const float squareLength = 40.0f;
         [self.layer setCornerRadius:0.0];
         
         CABasicAnimation* selectionAnimation = [CABasicAnimation animationWithKeyPath:@"borderColor"];
-        selectionAnimation.toValue = (id)[UIColor colorWithRed:1.00 green:0.84 blue:0.00 alpha:0.8].CGColor;
+        selectionAnimation.toValue = (id)[UIColor colorWithRed:1.00 green:0.84 blue:0.00 alpha:0.5].CGColor;
         selectionAnimation.repeatCount = 4;
+        selectionAnimation.duration = 0.3;
+        
         [self.layer addAnimation:selectionAnimation forKey:@"selectionAnimation"];
     }
     return self;
