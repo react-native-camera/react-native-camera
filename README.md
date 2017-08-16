@@ -46,11 +46,11 @@ To enable `video recording` feature you have to add the following code to the `A
 3. On Android, you require `buildToolsVersion` of `25.0.2+`. _This should easily and automatically be downloaded by Android Studio's SDK Manager._
 
 ### Mostly automatic install with react-native
-1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
+1. `npm install react-native-camera --save`
 3. `react-native link react-native-camera`
 
 ### Mostly automatic install with CocoaPods
-1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
+1. `npm install react-native-camera --save`
 2. Add the plugin dependency to your Podfile, pointing at the path where NPM installed it:
 ```
 pod 'react-native-camera', path: '../node_modules/react-native-camera'
@@ -59,7 +59,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 
 ### Manual install
 #### iOS
-1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
+1. `npm install react-native-camera --save`
 2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
 3. Go to `node_modules` ➜ `react-native-camera` and add `RCTCamera.xcodeproj`
 4. In XCode, in the project navigator, select your project. Add `libRCTCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
@@ -68,7 +68,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 
 
 #### Android
-1. `npm install react-native-camera@https://github.com/lwansbrough/react-native-camera.git --save`
+1. `npm install react-native-camera --save`
 2. Open up `android/app/src/main/java/[...]/MainApplication.java
   - Add `import com.lwansbrough.RCTCamera.RCTCameraPackage;` to the imports at the top of the file
   - Add `new RCTCameraPackage()` to the list returned by the `getPackages()` method. Add a comma to the previous item if there's already something there.
@@ -168,7 +168,7 @@ Values: `Camera.constants.Aspect.fit` or `"fit"`, `Camera.constants.Aspect.fill`
 
 The `aspect` property allows you to define how your viewfinder renders the camera's view. For instance, if you have a square viewfinder and you want to fill the it entirely, you have two options: `"fill"`, where the aspect ratio of the camera's view is preserved by cropping the view or `"stretch"`, where the aspect ratio is skewed in order to fit the entire image inside the viewfinder. The other option is `"fit"`, which ensures the camera's entire view fits inside your viewfinder without altering the aspect ratio.
 
-#### `iOS` `captureAudio`
+#### `iOS` `audio`
 
 Values: `true` (Boolean), `false` (default)
 

@@ -598,7 +598,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
                 try {
                     mutableImage.writeDataToFile(cameraRollFile, options, jpegQualityPercent);
-                } catch (IOException e) {
+                } catch (IOException | NullPointerException e) {
                     promise.reject("failed to save image file", e);
                     return;
                 }
