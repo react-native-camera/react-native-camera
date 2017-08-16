@@ -127,32 +127,32 @@
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if (!_onFocusChanged) return;
-
+    
     BOOL allTouchesEnded = ([touches count] == [[event touchesForView:self] count]);
-
+    
     // Do not conflict with zooming and etc.
     if (allTouchesEnded && !_multipleTouches) {
         UITouch *touch = [[event allTouches] anyObject];
         CGPoint touchPoint = [touch locationInView:touch.view];
         // Focus camera on this point
         [self.manager focusAtThePoint:touchPoint];
-
+        
         if (self.camFocus)
         {
             [self.camFocus removeFromSuperview];
         }
         NSDictionary *event = @{
-          @"target": self.reactTag,
-          @"touchPoint": @{
-            @"x": [NSNumber numberWithDouble:touchPoint.x],
-            @"y": [NSNumber numberWithDouble:touchPoint.y]
-          }
-        };
+                                @"target": self.reactTag,
+                                @"touchPoint": @{
+                                        @"x": [NSNumber numberWithDouble:touchPoint.x],
+                                        @"y": [NSNumber numberWithDouble:touchPoint.y]
+                                        }
+                                };
         [self.bridge.eventDispatcher sendInputEventWithName:@"focusChanged" body:event];
-
+        
         // Show animated rectangle on the touched area
         if (_defaultOnFocusComponent) {
-            self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-25, touchPoint.y-25, 50, 50)];
+            self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-20, touchPoint.y-20, 40, 40)];
             [self.camFocus setBackgroundColor:[UIColor clearColor]];
             [self addSubview:self.camFocus];
             [self.camFocus setNeedsDisplay];
@@ -163,11 +163,11 @@
             [UIView commitAnimations];
         }
     }
-
+    
     if (allTouchesEnded) {
         _multipleTouches = NO;
     }
-
+    
 }
 
 
