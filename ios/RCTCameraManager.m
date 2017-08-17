@@ -641,6 +641,8 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
           // And write
           CGImageDestinationFinalize(destination);
           CFRelease(destination);
+            
+            
 
           [self saveImage:rotatedImageData target:target metadata:imageMetadata resolve:resolve reject:reject];
 
@@ -686,7 +688,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     [[[ALAssetsLibrary alloc] init] writeImageDataToSavedPhotosAlbum:imageData metadata:metadata completionBlock:^(NSURL* url, NSError* error) {
       if (error == nil) {
         //path isn't really applicable here (this is an asset uri), but left it in for backward comparability
-        resolve(@{@"path":[url absoluteString], @"mediaUri":[url absoluteString]});
+        resolve(@{@"path":[url absoluteString], @"mediaUri":[url absoluteString], @"metadata":metadata});
       }
       else {
         reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
@@ -694,7 +696,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     }];
     return;
   }
-  resolve(@{@"path":responseString});
+  resolve(@{@"path":responseString, @"metadata":metadata});
 }
 
 - (CGImageRef)newCGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
