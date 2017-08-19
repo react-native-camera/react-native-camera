@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
@@ -28,6 +29,7 @@ import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.Result;
+import com.google.zxing.ResultPoint;
 import com.google.zxing.common.HybridBinarizer;
 
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
@@ -329,6 +331,18 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
                 ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
                 WritableMap event = Arguments.createMap();
+                WritableArray resultPoints = Arguments.createArray();
+                ResultPoint[] points = result.getResultPoints();
+                if(points != null) {
+                    for (ResultPoint point : points) {
+                        WritableMap newPoint = Arguments.createMap();
+                        newPoint.putString("x", String.valueOf(point.getX()));
+                        newPoint.putString("y", String.valueOf(point.getY()));
+                        resultPoints.pushMap(newPoint);
+                    }
+                }
+
+                event.putArray("bounds", resultPoints);
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());
                 reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("CameraBarCodeReadAndroid", event);
