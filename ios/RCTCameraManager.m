@@ -374,6 +374,28 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options
   }
 }
 
+RCT_EXPORT_METHOD(stopPreview) {
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    dispatch_async(self.sessionQueue, ^{
+        if ([self.session isRunning]) {
+            [self.session stopRunning];
+        }
+    });
+}
+
+RCT_EXPORT_METHOD(startPreview) {
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    dispatch_async(self.sessionQueue, ^{
+        if (![self.session isRunning]) {
+            [self.session startRunning];
+        }
+    });
+}
+
 RCT_EXPORT_METHOD(stopCapture) {
   if (self.movieFileOutput.recording) {
     [self.movieFileOutput stopRecording];
