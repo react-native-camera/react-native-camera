@@ -582,12 +582,15 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
       [self saveImage:imageData target:target metadata:nil resolve:resolve reject:reject];
 #else
-      if ([self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] == nil) {
-        [self.session addOutput:self.stillImageOutput];
-        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Output not set"));
-        return;
-      }
-
+    
+    
+    AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+    if(!connection) {
+      self.stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
+      [self.session addOutput:self.stillImageOutput];
+      [self.session startRunning];
+    }
+      
       [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:orientation];
 
       [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
