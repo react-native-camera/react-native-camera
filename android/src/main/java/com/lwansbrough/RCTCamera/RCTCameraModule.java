@@ -660,13 +660,23 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void stopPreview(ReadableMap options) {
-        Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        RCTCamera instance = RCTCamera.getInstance();
+        if (instance == null) return;
+
+        Camera camera = instance.acquireCameraInstance(options.getInt("type"));
+        if (camera == null) return;
+
         camera.stopPreview();
     }
 
     @ReactMethod
     public void startPreview(ReadableMap options) {
-        Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        RCTCamera instance = RCTCamera.getInstance();
+        if (instance == null) return;
+
+        Camera camera = instance.acquireCameraInstance(options.getInt("type"));
+        if (camera == null) return;
+
         camera.startPreview();
     }
 
