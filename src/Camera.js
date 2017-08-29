@@ -226,6 +226,7 @@ export default class Camera extends Component {
       this.cameraBarCodeReadListener = Platform.select({
         ios: NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead),
         android: DeviceEventEmitter.addListener('CameraBarCodeReadAndroid', this._onBarCodeRead),
+        windows: DeviceEventEmitter.addListener('CameraBarCodeReadWindows', this._onBarCodeRead),
       });
     }
   }
@@ -310,6 +311,10 @@ export default class Camera extends Component {
       ...options,
     };
 
+    if (Platform.OS === 'windows') {
+      options['view'] = this._cameraHandle;
+    }
+
     if (options.mode === Camera.constants.CaptureMode.video) {
       options.totalSeconds = options.totalSeconds > -1 ? options.totalSeconds : -1;
       options.preferredTimeScale = options.preferredTimeScale || 30;
@@ -361,6 +366,10 @@ export default class Camera extends Component {
       const props = convertNativeProps(this.props);
       return CameraManager.hasFlash({
         type: props.type,
+      });
+    } else if (Platform.OS === 'windows') {
+      return CameraManager.hasFlash({
+        view: this._cameraHandle,
       });
     }
     return CameraManager.hasFlash();
