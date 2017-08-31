@@ -489,14 +489,15 @@ RCT_EXPORT_METHOD(setExposure:(NSDictionary *)options exposure:(float)exposure r
 
 RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    NSError *error;
-    NSDictionary boundaries;
-
-    [boundaries setValue:device.activeFormat.minExposureDuration forKey:@"min"]
-    [boundaries setValue:device.activeFormat.maxExposureDuration forKey:@"max"]
-
-    promise.resolve(boundaries);
+    
+    NSDictionary *boundaries = @{
+                                 @"min": @(CMTimeGetSeconds(device.activeFormat.minExposureDuration)),
+                                 @"max": @(CMTimeGetSeconds(device.activeFormat.maxExposureDuration))
+                                 };
+    
+    resolve(boundaries);
 }
+
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
