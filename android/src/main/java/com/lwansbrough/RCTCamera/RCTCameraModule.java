@@ -73,6 +73,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
     private static ReactApplicationContext _reactContext;
     private RCTSensorOrientationChecker _sensorOrientationChecker;
+    private MediaActionSound sound = new MediaActionSound();
 
     private MediaRecorder mMediaRecorder;
     private long MRStartTime;
@@ -87,6 +88,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         _reactContext = reactContext;
         _sensorOrientationChecker = new RCTSensorOrientationChecker(_reactContext);
         _reactContext.addLifecycleEventListener(this);
+        sound.load(MediaActionSound.SHUTTER_CLICK)
     }
 
     public static ReactApplicationContext getReactContextSingleton() {
@@ -516,7 +518,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
 
         if (options.hasKey("playSoundOnCapture") && options.getBoolean("playSoundOnCapture")) {
-            MediaActionSound sound = new MediaActionSound();
             sound.play(MediaActionSound.SHUTTER_CLICK);
         }
 
