@@ -25,7 +25,7 @@ class BarcodeFinder extends Component {
       <View style={[styles.container]}>
         <View style={[styles.finder, this.getSizeStyles()]}>
           <View style={[
-            color: this.props.color,
+            {borderColor: this.props.borderColor},
             styles.topLeftEdge,
             {
               borderLeftWidth: this.props.borderWidth,
@@ -33,7 +33,7 @@ class BarcodeFinder extends Component {
             }
           ]} />
           <View style={[
-            color: this.props.color,
+            {borderColor: this.props.borderColor},
             styles.topRightEdge,
             {
               borderRightWidth: this.props.borderWidth,
@@ -41,7 +41,7 @@ class BarcodeFinder extends Component {
             }
           ]} />
           <View style={[
-            color: this.props.color,
+            {borderColor: this.props.borderColor},
             styles.bottomLeftEdge,
             {
               borderLeftWidth: this.props.borderWidth,
@@ -49,7 +49,7 @@ class BarcodeFinder extends Component {
             }
           ]} />
           <View style={[
-            color: this.props.color,
+            {borderColor: this.props.borderColor},
             styles.bottomRightEdge,
             {
               borderRightWidth: this.props.borderWidth,
@@ -64,7 +64,7 @@ class BarcodeFinder extends Component {
 
 BarcodeFinder.propTypes = {
   borderWidth: PropTypes.number,
-  color: PropTypes.string,
+  borderColor: PropTypes.string,
   width: PropTypes.number,
   height: PropTypes.number
 };
@@ -87,21 +87,29 @@ var styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
+    width: 40,
+    height: 20,
   },
   topRightEdge: {
     position: 'absolute',
     top: 0,
     right: 0,
+    width: 40,
+    height: 20,
   },
   bottomLeftEdge: {
     position: 'absolute',
     bottom: 0,
     left: 0,
+    width: 40,
+    height: 20,
   },
   bottomRightEdge: {
     position: 'absolute',
     bottom: 0,
     right: 0,
+    width: 40,
+    height: 20,
   },
 });
 

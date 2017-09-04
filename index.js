@@ -121,8 +121,8 @@ export default class Camera extends Component {
     barcodeFinderVisible: PropTypes.bool,
     barcodeFinderWidth: PropTypes.number,
     barcodeFinderHeight: PropTypes.number,
-    barcodeBorderColor: PropTypes.string,
-    barcodeBorderBorder: PropTypes.number
+    barcodeFinderBorderColor: PropTypes.string,
+    barcodeFinderBorderWidth: PropTypes.number
   };
 
   static defaultProps = {
@@ -144,7 +144,7 @@ export default class Camera extends Component {
     barcodeFinderWidth: 200,
     barcodeFinderHeight: 200,
     barcodeFinderBorderColor: "rgba(255,255,255,0.6)",
-    barcodeFinderBorderWidth: 2,
+    barcodeFinderBorderWidth: 1,
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -213,12 +213,12 @@ export default class Camera extends Component {
     const nativeProps = convertNativeProps(this.props);
 
     return (<RCTCamera ref={CAMERA_REF} {...nativeProps} >
-      {this.props.barcodeFinderVisible && <ScannerFinder
-          color={this.props.barcodeFinderBorderColor}
-          borderWidth={this.props.barcodeFinderBorderColor}
+      {this.props.barcodeFinderVisible && <BarcodeFinder
+          borderColor={this.props.barcodeFinderBorderColor}
+          borderWidth={this.props.barcodeFinderBorderWidth}
           width={this.props.barcodeFinderWidth}
           height={this.props.barcodeFinderHeight}
-        />};
+        />}
     </RCTCamera>);
   }
 
