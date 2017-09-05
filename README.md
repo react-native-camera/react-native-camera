@@ -223,27 +223,60 @@ Will call the specified method when a barcode is detected in the camera's view.
 
 Event contains `data` (the data in the barcode) and `bounds` (the rectangle which outlines the barcode.)
 
-The following barcode types can be recognised:
+The following barcode types can be recognised for iOS:
 
 - `aztec`
-- `code128`
 - `code39`
 - `code39mod43`
 - `code93`
-- `ean13`
+- `code128`
+- `datamatrix` (when available)
 - `ean8`
+- `ean13`
+- `interleaved2of5` (when available)
+- `itf14` (when available)
 - `pdf417`
 - `qr`
 - `upce`
-- `interleaved2of5` (when available)
-- `itf14` (when available)
-- `datamatrix` (when available)
+
+The following barcode types can be recognised for Android:
+
+- `aztec`
+- `codabar`
+- `code39`
+- `code93`
+- `code128`
+- `datamatrix`
+- `ean8`
+- `ean13`
+- `itf14`
+- `maxicode`
+- `qr`
+- `pdf417`
+- `rss`
+- `rss14`
+- `upca`
+- `upce`
+- `upc`
 
 The barcode type is provided in the `data` object.
 
 #### `barCodeTypes`
 
 An array of barcode types to search for. Defaults to all types listed above. No effect if `onBarCodeRead` is undefined.
+
+Use static const `Camera.constants.BarCodeType` for selecting scan types in `barCodeTypes` and to very the results in `onBarCodeRead`.
+
+#### `barcodeFinderVisible`
+
+Displays an rectangle over the camera to show the area of barcode scanning. If this is used the actual area that is scanned in cropped to the rectangle. This can significantly increase the performance.
+
+Adjust size and style:
+`barcodeFinderWidth`,
+`barcodeFinderHeight`,
+`barcodeFinderBorderColor`, 
+`barcodeFinderBorderWidth`
+
 
 #### `flashMode`
 
