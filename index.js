@@ -198,6 +198,7 @@ export default class Camera extends Component {
   }
 
   render() {
+    if (!this.state.isAuthorized) return this.props.children;
     const style = [styles.base, this.props.style];
     const nativeProps = convertNativeProps(this.props);
 
