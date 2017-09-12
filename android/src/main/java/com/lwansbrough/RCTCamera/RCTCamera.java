@@ -348,51 +348,6 @@ public class RCTCamera {
         }
     }
 
-    public void setISO(int cameraType, String iso) {
-        Camera camera = this.acquireCameraInstance(cameraType);
-        if (null == camera) {
-            return;
-        }
-        Camera.Parameters parameters = camera.getParameters();
-        parameters.set("iso", iso); // TODO check setter result
-        camera.setParameters((Camera.Parameters) parameters);
-    }
-
-    public void zoom(int val) {
-        Camera camera = this.acquireCameraInstance(2);
-        if (null == camera) {
-            return;
-        }
-        Camera.Parameters parameters = camera.getParameters();
-        int curVal = parameters.getZoom();
-        if(val == curVal) {
-            parameters.setZoom(0);
-        } else {
-            parameters.setZoom(val);
-        }
-        camera.setParameters((Camera.Parameters) parameters);
-    }
-
-    public void setWhiteBalance(String val) {
-        Camera camera = this.acquireCameraInstance(2);
-        if (null == camera) {
-            return;
-        }
-        Camera.Parameters parameters = camera.getParameters();
-        parameters.setWhiteBalance(val);
-        camera.setParameters((Camera.Parameters) parameters);
-    }
-
-    public void getWhiteBalance(Callback callback) {
-        Camera camera = this.acquireCameraInstance(2);
-        if (null == camera) {
-            return;
-        }
-        Camera.Parameters parameters = camera.getParameters();
-        String val = parameters.getWhiteBalance();
-        callback.invoke(null, ((String) val));
-    }
-
     public void getSupportedWhiteBalance(Callback callback) {
         Camera camera = this.acquireCameraInstance(2);
         if (null == camera) {

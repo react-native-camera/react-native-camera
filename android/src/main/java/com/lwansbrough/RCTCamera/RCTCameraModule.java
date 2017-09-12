@@ -78,11 +78,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     public static final String RCT_CAMERA_CAPTURE_QUALITY_480P = "480p";
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
-    public static final String RCT_CAMERA_ISO_800 = "800";
-    public static final String RCT_CAMERA_ISO_400 = "400";
-    public static final String RCT_CAMERA_ISO_200 = "200";
-    public static final String RCT_CAMERA_ISO_100 = "100";
-    public static final String RCT_CAMERA_ISO_AUTO = "auto";
 
     private static ReactApplicationContext _reactContext;
     private RCTSensorOrientationChecker _sensorOrientationChecker;
@@ -163,7 +158,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 put("Orientation", getOrientationConstants());
                 put("FlashMode", getFlashModeConstants());
                 put("TorchMode", getTorchModeConstants());
-                put("Iso", getISOConstants());
             }
 
             private Map<String, Object> getAspectConstants() {
@@ -256,18 +250,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                         put("off", RCT_CAMERA_TORCH_MODE_OFF);
                         put("on", RCT_CAMERA_TORCH_MODE_ON);
                         put("auto", RCT_CAMERA_TORCH_MODE_AUTO);
-                    }
-                });
-            }
-
-            private Map<String, Object> getISOConstants() {
-                return Collections.unmodifiableMap(new HashMap<String, Object>() {
-                    {
-                        put("800", RCT_CAMERA_ISO_800);
-                        put("400", RCT_CAMERA_ISO_400);
-                        put("200", RCT_CAMERA_ISO_200);
-                        put("100", RCT_CAMERA_ISO_100);
-                        put("auto", RCT_CAMERA_ISO_AUTO);
                     }
                 });
             }
@@ -525,21 +507,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         } else {
             captureWithOrientation(options, promise, orientation);
         }
-    }
-
-    @ReactMethod
-    public void zoom(int val) {
-        RCTCamera.getInstance().zoom(val);
-    }
-
-    @ReactMethod
-    public void setWhiteBalance(String val) {
-        RCTCamera.getInstance().setWhiteBalance(val);
-    }
-
-    @ReactMethod
-    public void getWhiteBalance(Callback callback) {
-        RCTCamera.getInstance().getWhiteBalance(callback);
     }
 
     @ReactMethod
