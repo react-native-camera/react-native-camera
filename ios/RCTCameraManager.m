@@ -42,6 +42,15 @@ RCT_EXPORT_MODULE();
   return self.camera;
 }
 
+- (NSMutableArray *) sources
+{
+    if (!_sources) {
+        _sources = [NSMutableArray new];
+    }
+    return _sources;
+}
+
+
 - (NSDictionary *)constantsToExport
 {
 
@@ -367,12 +376,7 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options
   NSInteger captureTarget = [[options valueForKey:@"target"] intValue];
 
   if (captureMode == RCTCameraCaptureModeStill) {
-      if (options[@"exposure"] != nil) {
-          float exposure = [[options valueForKey:@"exposure"] floatValue];
-          [self setExposure:options exposure:exposure resolve:^(id result) {
-              [self captureStill:captureTarget options:options resolve:resolve reject:reject];
-          } reject:reject];
-      }
+      [self captureStill:captureTarget options:options resolve:resolve reject:reject];
   } else if (captureMode == RCTCameraCaptureModeVideo) {
       [self captureVideo:captureTarget options:options resolve:resolve reject:reject];
   }
@@ -473,12 +477,18 @@ RCT_EXPORT_METHOD(unlockAutoExposure:(NSDictionary *)options resolve:(RCTPromise
     }
 }
 
-RCT_EXPORT_METHOD(setExposure:(NSDictionary *)options exposure:(float)exposure resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(setExposure:(NSDictionary *)options exposure:(double)exposure resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error;
+    NSLog(@"Exposure: %f", exposure);
+    NSLog(@"Exposure min: %f", CMTimeGetSeconds(device.activeFormat.minExposureDuration));
+    NSLog(@"Exposure max: %f", CMTimeGetSeconds(device.activeFormat.maxExposureDuration));
+
+    CMTime expTime = CMTimeMaximum(CMTimeMakeWithSeconds(exposure, 1000000), device.activeFormat.minExposureDuration);
+    expTime = CMTimeMinimum(expTime, device.activeFormat.maxExposureDuration);
 
     if ([device lockForConfiguration:&error]) {
-        [device setExposureTargetBias:exposure completionHandler:^(CMTime syncTime) {
+        [device setExposureModeCustomWithDuration:expTime ISO:AVCaptureISOCurrent completionHandler:^(CMTime syncTime) {
             resolve(@YES);
         }];
         [device unlockForConfiguration];
@@ -489,15 +499,14 @@ RCT_EXPORT_METHOD(setExposure:(NSDictionary *)options exposure:(float)exposure r
 
 RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    
+
     NSDictionary *boundaries = @{
-                                 @"min": @(CMTimeGetSeconds(device.activeFormat.minExposureDuration)),
-                                 @"max": @(CMTimeGetSeconds(device.activeFormat.maxExposureDuration))
-                                 };
+        @"min": @(CMTimeGetSeconds(device.activeFormat.minExposureDuration)),
+        @"max": @(CMTimeGetSeconds(device.activeFormat.maxExposureDuration))
+    };
     
     resolve(boundaries);
 }
-
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
@@ -507,10 +516,10 @@ RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(
       self.presetCamera = AVCaptureDevicePositionBack;
     }
 
-    AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
+    AVCapturePhotoOutput *stillImageOutput = [[AVCapturePhotoOutput alloc] init];
     if ([self.session canAddOutput:stillImageOutput])
     {
-      stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
+      //stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
       [self.session addOutput:stillImageOutput];
       self.stillImageOutput = stillImageOutput;
     }
@@ -634,6 +643,59 @@ RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(
     }
 }
 
+- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(AVCaptureBracketedStillImageSettings *)bracketSettings error:(NSError *)error
+{
+            if (photoSampleBuffer) {
+              NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:photoSampleBuffer];
+    
+              // Create image source
+              CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
+              //get all the metadata in the image
+              NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
+    
+              // create cgimage
+              CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
+    
+              // Rotate it
+              CGImageRef rotatedCGImage;
+
+              rotatedCGImage = cgImage;
+    
+              // Erase stupid TIFF stuff
+              [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
+                
+              // Create destination thing
+              NSMutableData *rotatedImageData = [NSMutableData data];
+              CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)rotatedImageData, CGImageSourceGetType(source), 1, NULL);
+              CFRelease(source);
+              // add the image to the destination, reattaching metadata
+              CGImageDestinationAddImage(destination, rotatedCGImage, (CFDictionaryRef) imageMetadata);
+              // And write
+              CGImageDestinationFinalize(destination);
+              CFRelease(destination);
+    
+                
+              NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+              NSString *documentsDirectory = [paths firstObject];
+                
+              NSFileManager *fileManager = [NSFileManager defaultManager];
+              NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"jpg"];
+                
+              [fileManager createFileAtPath:fullPath contents:rotatedImageData attributes:nil];
+                
+              [self.sources addObject:fullPath];
+              NSLog(@"Path %@", fullPath);
+              NSLog(@"NB captures: %lu", (unsigned long)self.sources.count);
+              if (self.sources.count == self.exposures.count) {
+                  self.captureResolve(self.sources);
+              }
+              CGImageRelease(rotatedCGImage);
+            }
+            else {
+              self.captureReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
+            }
+}
+
 - (void)captureStill:(NSInteger)target options:(NSDictionary *)options orientation:(AVCaptureVideoOrientation)orientation resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
   dispatch_async(self.sessionQueue, ^{
@@ -664,73 +726,44 @@ RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(
       [self saveImage:imageData target:target metadata:nil resolve:resolve reject:reject];
 #else
       [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:orientation];
+      
+      self.captureResolve = resolve;
+      self.captureReject = reject;
+      self.captureTarget = target;
+      self.exposures = [options objectForKey:@"exposures"];
+      [self.sources removeAllObjects];
+      
+      AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+      
+      NSMutableArray *exposuresBrackets = [NSMutableArray array];
+      
+      int itemsRemaining = [self.exposures count];
+      int j = 0;
+      
+      while(itemsRemaining) {
+          NSRange range = NSMakeRange(j, MIN(self.stillImageOutput.maxBracketedCapturePhotoCount, itemsRemaining));
+          NSArray *subarray = [self.exposures subarrayWithRange:range];
+          [exposuresBrackets addObject:subarray];
+          itemsRemaining-=range.length;
+          j+=range.length;
+      }
+      
+      for (NSArray *bracket in exposuresBrackets) {
+          NSMutableArray *bracketedStillImageSettings = [[NSMutableArray alloc] init];
 
-      [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
-
-        if (imageDataSampleBuffer) {
-          NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-
-          // Create image source
-          CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
-          //get all the metadata in the image
-          NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
-
-          // create cgimage
-          CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
-
-          // Rotate it
-          CGImageRef rotatedCGImage;
-          if ([options objectForKey:@"rotation"]) {
-            float rotation = [[options objectForKey:@"rotation"] floatValue];
-            rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:rotation];
-          } else if ([[options objectForKey:@"fixOrientation"] boolValue] == YES) {
-            // Get metadata orientation
-            int metadataOrientation = [[imageMetadata objectForKey:(NSString *)kCGImagePropertyOrientation] intValue];
-
-            bool rotated = false;
-            //see http://www.impulseadventure.com/photo/exif-orientation.html
-            if (metadataOrientation == 6) {
-              rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:270];
-              rotated = true;
-            } else if (metadataOrientation == 3) {
-              rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:180];
-              rotated = true;
-            } else {
-              rotatedCGImage = cgImage;
-            }
-
-            if(rotated) {
-              [imageMetadata setObject:[NSNumber numberWithInteger:1] forKey:(NSString *)kCGImagePropertyOrientation];
-              CGImageRelease(cgImage);
-            }
-          } else {
-            rotatedCGImage = cgImage;
+          for (NSNumber *exposure in bracket) {
+              NSLog(@"%lu / %lu", bracketedStillImageSettings.count, self.stillImageOutput.maxBracketedCapturePhotoCount);
+              if (bracketedStillImageSettings.count < self.stillImageOutput.maxBracketedCapturePhotoCount) {
+                  CMTime expTime = CMTimeMaximum(CMTimeMakeWithSeconds([exposure doubleValue], 1000000), device.activeFormat.minExposureDuration);
+                  expTime = CMTimeMinimum(expTime, device.activeFormat.maxExposureDuration);
+                  
+                  [bracketedStillImageSettings addObject:[AVCaptureManualExposureBracketedStillImageSettings manualExposureSettingsWithExposureDuration:expTime ISO:AVCaptureISOCurrent]];
+              }
           }
-
-          // Erase stupid TIFF stuff
-          [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
-
-          // Add input metadata
-          [imageMetadata mergeMetadata:[options objectForKey:@"metadata"]];
-
-          // Create destination thing
-          NSMutableData *rotatedImageData = [NSMutableData data];
-          CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)rotatedImageData, CGImageSourceGetType(source), 1, NULL);
-          CFRelease(source);
-          // add the image to the destination, reattaching metadata
-          CGImageDestinationAddImage(destination, rotatedCGImage, (CFDictionaryRef) imageMetadata);
-          // And write
-          CGImageDestinationFinalize(destination);
-          CFRelease(destination);
-
-          [self saveImage:rotatedImageData target:target metadata:imageMetadata resolve:resolve reject:reject];
-
-          CGImageRelease(rotatedCGImage);
-        }
-        else {
-          reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
-        }
-      }];
+          
+          AVCapturePhotoBracketSettings *settings = [AVCapturePhotoBracketSettings photoBracketSettingsWithRawPixelFormatType:0 processedFormat:nil bracketedSettings:bracketedStillImageSettings];
+          [self.stillImageOutput capturePhotoWithSettings:settings delegate:self];
+      }
 #endif
   });
 }

@@ -56,13 +56,13 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
   RCTCameraTorchModeAuto = AVCaptureTorchModeAuto
 };
 
-@interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate>
+@interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, AVCapturePhotoCaptureDelegate>
 
 @property (nonatomic, strong) dispatch_queue_t sessionQueue;
 @property (nonatomic, strong) AVCaptureSession *session;
 @property (nonatomic, strong) AVCaptureDeviceInput *audioCaptureDeviceInput;
 @property (nonatomic, strong) AVCaptureDeviceInput *videoCaptureDeviceInput;
-@property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
+@property (nonatomic, strong) AVCapturePhotoOutput *stillImageOutput;
 @property (nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
 @property (nonatomic, strong) AVCaptureMetadataOutput *metadataOutput;
 @property (nonatomic, strong) id runtimeErrorHandlingObserver;
@@ -75,6 +75,11 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, strong) RCTPromiseResolveBlock videoResolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock videoReject;
 @property (nonatomic, strong) RCTCamera *camera;
+@property (nonatomic, strong) RCTPromiseResolveBlock captureResolve;
+@property (nonatomic, strong) RCTPromiseRejectBlock captureReject;
+@property (nonatomic, assign) NSInteger captureTarget;
+@property (nonatomic, strong) NSMutableArray *sources;
+@property (nonatomic, strong) NSMutableArray *exposures;
 
 
 - (void)changeOrientation:(NSInteger)orientation;
@@ -86,7 +91,7 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 - (void)unlockFocus:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)lockAutoExposure:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)unlockAutoExposure:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
-- (void)setExposure:(NSDictionary *)options exposure:(float)exposure resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)setExposure:(NSDictionary *)options exposure:(double)exposure resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)initializeCaptureSessionInput:(NSString*)type;
 - (void)stopCapture;
@@ -94,6 +99,6 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 - (void)stopSession;
 - (void)focusAtThePoint:(CGPoint) atPoint;
 - (void)zoom:(CGFloat)velocity reactTag:(NSNumber *)reactTag;
-
+- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(AVCaptureBracketedStillImageSettings *)bracketSettings error:(NSError *)error;
 
 @end
