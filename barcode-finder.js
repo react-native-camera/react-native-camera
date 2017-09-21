@@ -1,12 +1,28 @@
 import React, {
   Component,
-  PropTypes,
 } from 'react';
+import PropTypes from 'prop-types';
 import {
   Platform,
   StyleSheet,
   View,
 } from 'react-native';
+
+/**
+    HOW TO MAKE CUSTOM BARCODE FINDER
+
+    1. make a copy of barcode-finder.js and place it in your project
+    2. add it to your project
+    3. add it as a child to the Camera
+      <Camera>
+        <MyCustomBarcodeFinder />
+      </Camera>
+
+    NOTE: The scan area is cropped and as long the first to <View> components remain intact it should show the correct size.
+    <View style={[styles.container]}>
+      <View style={[styles.finder, this.getSizeStyles()]}>
+        { place your design here }
+**/
 
 class BarcodeFinder extends Component {
   constructor(props) {
@@ -25,35 +41,35 @@ class BarcodeFinder extends Component {
       <View style={[styles.container]}>
         <View style={[styles.finder, this.getSizeStyles()]}>
           <View style={[
-            {borderColor: this.props.borderColor},
+            {borderColor: this.props.style.borderColor},
             styles.topLeftEdge,
             {
-              borderLeftWidth: this.props.borderWidth,
-              borderTopWidth: this.props.borderWidth,
+              borderLeftWidth: this.props.style.borderWidth,
+              borderTopWidth: this.props.style.borderWidth,
             }
           ]} />
           <View style={[
-            {borderColor: this.props.borderColor},
+            {borderColor: this.props.style.borderColor},
             styles.topRightEdge,
             {
-              borderRightWidth: this.props.borderWidth,
-              borderTopWidth: this.props.borderWidth,
+              borderRightWidth: this.props.style.borderWidth,
+              borderTopWidth: this.props.style.borderWidth,
             }
           ]} />
           <View style={[
-            {borderColor: this.props.borderColor},
+            {borderColor: this.props.style.borderColor},
             styles.bottomLeftEdge,
             {
-              borderLeftWidth: this.props.borderWidth,
-              borderBottomWidth: this.props.borderWidth,
+              borderLeftWidth: this.props.style.borderWidth,
+              borderBottomWidth: this.props.style.borderWidth,
             }
           ]} />
           <View style={[
-            {borderColor: this.props.borderColor},
+            {borderColor: this.props.style.borderColor},
             styles.bottomRightEdge,
             {
-              borderRightWidth: this.props.borderWidth,
-              borderBottomWidth: this.props.borderWidth,
+              borderRightWidth: this.props.style.borderWidth,
+              borderBottomWidth: this.props.style.borderWidth,
             }
           ]} />
         </View>
@@ -63,8 +79,7 @@ class BarcodeFinder extends Component {
 };
 
 BarcodeFinder.propTypes = {
-  borderWidth: PropTypes.number,
-  borderColor: PropTypes.string,
+  style: PropTypes.object,
   width: PropTypes.number,
   height: PropTypes.number
 };
