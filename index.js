@@ -58,6 +58,25 @@ function convertNativeProps(props) {
   return newProps;
 }
 
+// The makeCancelable function is from https://facebook.github.io/react/blog/2015/12/16/ismounted-antipattern.html
+const makeCancelable = (promise) => {
+  let hasCanceled_ = false;
+
+  const wrappedPromise = new Promise((resolve, reject) => {
+    promise.then(
+      val => hasCanceled_ ? reject({isCanceled: true}) : resolve(val),
+      error => hasCanceled_ ? reject({isCanceled: true}) : reject(error)
+    );
+  });
+
+  return {
+    promise: wrappedPromise,
+    cancel() {
+      hasCanceled_ = true;
+    },
+  };
+};
+
 export default class Camera extends Component {
 
   static constants = {
@@ -152,7 +171,7 @@ export default class Camera extends Component {
     };
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     this._addOnBarCodeReadListener()
 
     let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode })
@@ -160,8 +179,13 @@ export default class Camera extends Component {
     let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
 
     if (check) {
-      const isAuthorized = await check();
-      this.setState({ isAuthorized });
+      this.checkPromise = makeCancelable(check());
+      this.checkPromise.promise
+      .then((result) => {
+        const isAuthorized = result;
+        this.setState({ isAuthorized });
+      })
+      .catch(() => {}); // Ignore the rejection for now.
     }
   }
 
@@ -171,6 +195,8 @@ export default class Camera extends Component {
     if (this.state.isRecording) {
       this.stopCapture();
     }
+
+    this.checkPromise && this.checkPromise.cancel();
   }
 
   componentWillReceiveProps(newProps) {
@@ -200,6 +226,10 @@ export default class Camera extends Component {
   render() {
     const style = [styles.base, this.props.style];
     const nativeProps = convertNativeProps(this.props);
+
+    if (!this.state.isAuthorized) {
+      return null;
+    }
 
     return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
   }
