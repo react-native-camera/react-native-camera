@@ -602,10 +602,10 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
           if ([options objectForKey:@"rotation"]) {
             float rotation = [[options objectForKey:@"rotation"] floatValue];
             rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:rotation];
-          } else if ([options objectForKey:@"fixOrientation"]){
+          } else if ([[options objectForKey:@"fixOrientation"] boolValue] == YES) {
             // Get metadata orientation
             int metadataOrientation = [[imageMetadata objectForKey:(NSString *)kCGImagePropertyOrientation] intValue];
-            
+
             bool rotated = false;
             //see http://www.impulseadventure.com/photo/exif-orientation.html
             if (metadataOrientation == 6) {
@@ -614,8 +614,10 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
             } else if (metadataOrientation == 3) {
               rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:180];
               rotated = true;
+            } else {
+              rotatedCGImage = cgImage;
             }
-            
+
             if(rotated) {
               [imageMetadata setObject:[NSNumber numberWithInteger:1] forKey:(NSString *)kCGImagePropertyOrientation];
               CGImageRelease(cgImage);
