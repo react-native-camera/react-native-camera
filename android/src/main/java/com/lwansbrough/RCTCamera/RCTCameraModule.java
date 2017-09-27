@@ -21,9 +21,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import com.lwansbrough.JavaCamera.MutableImage;
-import com.lwansbrough.JavaCamera.RCTCamera;
-import com.lwansbrough.JavaCamera.RCTCameraUtils;
+import com.lwansbrough.JavaCamera.*;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -567,6 +565,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         camera.setPreviewCallback(null);
 
         Camera.PictureCallback captureCallback = new Camera.PictureCallback() {
+
             @Override
             public void onPictureTaken(final byte[] data, Camera camera) {
                 camera.stopPreview();

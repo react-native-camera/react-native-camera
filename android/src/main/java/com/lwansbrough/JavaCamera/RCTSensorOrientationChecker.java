@@ -2,7 +2,7 @@
  * Created by rpopovici on 23/03/16.
  */
 
-package com.lwansbrough.RCTCamera;
+package com.lwansbrough.JavaCamera;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -10,12 +10,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.view.Surface;
-
-import com.facebook.react.bridge.ReactApplicationContext;
-
-interface RCTSensorOrientationListener {
-    void orientationEvent();
-}
 
 public class RCTSensorOrientationChecker {
 
