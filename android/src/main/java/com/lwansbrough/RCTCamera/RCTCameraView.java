@@ -10,6 +10,7 @@ import android.view.OrientationEventListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View;
+import com.lwansbrough.JavaCamera.RCTCamera;
 import com.lwansbrough.JavaCamera.RCTCameraUtils;
 
 import java.util.List;

@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import com.lwansbrough.JavaCamera.MutableImage;
+import com.lwansbrough.JavaCamera.RCTCamera;
 import com.lwansbrough.JavaCamera.RCTCameraUtils;
 
 import java.io.*;

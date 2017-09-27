@@ -2,12 +2,11 @@
  * Created by Fabrice Armisen (farmisen@gmail.com) on 1/4/16.
  */
 
-package com.lwansbrough.RCTCamera;
+package com.lwansbrough.JavaCamera;
 
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.util.Log;
-import com.lwansbrough.JavaCamera.RCTCameraUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -134,7 +133,8 @@ public class RCTCamera {
       return closestSize;
     }
 
-    protected List<Camera.Size> getSupportedVideoSizes(Camera camera) {
+    //TODO: Pedro = Change the Method from Protected to Public
+    public List<Camera.Size> getSupportedVideoSizes(Camera camera) {
         Camera.Parameters params = camera.getParameters();
         // defer to preview instead of params.getSupportedVideoSizes() http://bit.ly/1rxOsq0
         // but prefer SupportedVideoSizes!
