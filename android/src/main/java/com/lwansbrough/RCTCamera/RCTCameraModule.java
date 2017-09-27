@@ -55,6 +55,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     public RCTCameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
         _reactContext = reactContext;
+
         _sensorOrientationChecker = new RCTSensorOrientationChecker(_reactContext);
         _reactContext.addLifecycleEventListener(this);
         sound.load(MediaActionSound.SHUTTER_CLICK);
