@@ -4,10 +4,43 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
 import android.view.MotionEvent;
+import android.view.Surface;
 
 public class RCTCameraUtils {
     private static final int FOCUS_AREA_MOTION_EVENT_EDGE_LENGTH = 100;
     private static final int FOCUS_AREA_WEIGHT = 1000;
+
+    public static final int RCT_CAMERA_ASPECT_FILL = 0;
+    public static final int RCT_CAMERA_ASPECT_FIT = 1;
+    public static final int RCT_CAMERA_ASPECT_STRETCH = 2;
+    public static final int RCT_CAMERA_CAPTURE_MODE_STILL = 0;
+    public static final int RCT_CAMERA_CAPTURE_MODE_VIDEO = 1;
+    public static final int RCT_CAMERA_CAPTURE_TARGET_MEMORY = 0;
+    public static final int RCT_CAMERA_CAPTURE_TARGET_DISK = 1;
+    public static final int RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL = 2;
+    public static final int RCT_CAMERA_CAPTURE_TARGET_TEMP = 3;
+    public static final int RCT_CAMERA_ORIENTATION_AUTO = Integer.MAX_VALUE;
+    public static final int RCT_CAMERA_ORIENTATION_PORTRAIT = Surface.ROTATION_0;
+    public static final int RCT_CAMERA_ORIENTATION_PORTRAIT_UPSIDE_DOWN = Surface.ROTATION_180;
+    public static final int RCT_CAMERA_ORIENTATION_LANDSCAPE_LEFT = Surface.ROTATION_90;
+    public static final int RCT_CAMERA_ORIENTATION_LANDSCAPE_RIGHT = Surface.ROTATION_270;
+    public static final int RCT_CAMERA_TYPE_FRONT = 1;
+    public static final int RCT_CAMERA_TYPE_BACK = 2;
+    public static final int RCT_CAMERA_FLASH_MODE_OFF = 0;
+    public static final int RCT_CAMERA_FLASH_MODE_ON = 1;
+    public static final int RCT_CAMERA_FLASH_MODE_AUTO = 2;
+    public static final int RCT_CAMERA_TORCH_MODE_OFF = 0;
+    public static final int RCT_CAMERA_TORCH_MODE_ON = 1;
+    public static final int RCT_CAMERA_TORCH_MODE_AUTO = 2;
+    public static final String RCT_CAMERA_CAPTURE_QUALITY_PREVIEW = "preview";
+    public static final String RCT_CAMERA_CAPTURE_QUALITY_HIGH = "high";
+    public static final String RCT_CAMERA_CAPTURE_QUALITY_MEDIUM = "medium";
+    public static final String RCT_CAMERA_CAPTURE_QUALITY_LOW = "low";
+    public static final String RCT_CAMERA_CAPTURE_QUALITY_1080P = "1080p";
+    public static final String RCT_CAMERA_CAPTURE_QUALITY_720P = "720p";
+    public static final String RCT_CAMERA_CAPTURE_QUALITY_480P = "480p";
+    public static final int MEDIA_TYPE_IMAGE = 1;
+    public static final int MEDIA_TYPE_VIDEO = 2;
 
     /**
      * Computes a Camera.Area corresponding to the new focus area to focus the camera on. This is

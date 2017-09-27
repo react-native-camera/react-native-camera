@@ -14,7 +14,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
-import android.view.Surface;
 
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
@@ -38,38 +37,6 @@ import javax.annotation.Nullable;
 public class RCTCameraModule extends ReactContextBaseJavaModule
     implements MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener, LifecycleEventListener {
     private static final String TAG = "RCTCameraModule";
-
-    public static final int RCT_CAMERA_ASPECT_FILL = 0;
-    public static final int RCT_CAMERA_ASPECT_FIT = 1;
-    public static final int RCT_CAMERA_ASPECT_STRETCH = 2;
-    public static final int RCT_CAMERA_CAPTURE_MODE_STILL = 0;
-    public static final int RCT_CAMERA_CAPTURE_MODE_VIDEO = 1;
-    public static final int RCT_CAMERA_CAPTURE_TARGET_MEMORY = 0;
-    public static final int RCT_CAMERA_CAPTURE_TARGET_DISK = 1;
-    public static final int RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL = 2;
-    public static final int RCT_CAMERA_CAPTURE_TARGET_TEMP = 3;
-    public static final int RCT_CAMERA_ORIENTATION_AUTO = Integer.MAX_VALUE;
-    public static final int RCT_CAMERA_ORIENTATION_PORTRAIT = Surface.ROTATION_0;
-    public static final int RCT_CAMERA_ORIENTATION_PORTRAIT_UPSIDE_DOWN = Surface.ROTATION_180;
-    public static final int RCT_CAMERA_ORIENTATION_LANDSCAPE_LEFT = Surface.ROTATION_90;
-    public static final int RCT_CAMERA_ORIENTATION_LANDSCAPE_RIGHT = Surface.ROTATION_270;
-    public static final int RCT_CAMERA_TYPE_FRONT = 1;
-    public static final int RCT_CAMERA_TYPE_BACK = 2;
-    public static final int RCT_CAMERA_FLASH_MODE_OFF = 0;
-    public static final int RCT_CAMERA_FLASH_MODE_ON = 1;
-    public static final int RCT_CAMERA_FLASH_MODE_AUTO = 2;
-    public static final int RCT_CAMERA_TORCH_MODE_OFF = 0;
-    public static final int RCT_CAMERA_TORCH_MODE_ON = 1;
-    public static final int RCT_CAMERA_TORCH_MODE_AUTO = 2;
-    public static final String RCT_CAMERA_CAPTURE_QUALITY_PREVIEW = "preview";
-    public static final String RCT_CAMERA_CAPTURE_QUALITY_HIGH = "high";
-    public static final String RCT_CAMERA_CAPTURE_QUALITY_MEDIUM = "medium";
-    public static final String RCT_CAMERA_CAPTURE_QUALITY_LOW = "low";
-    public static final String RCT_CAMERA_CAPTURE_QUALITY_1080P = "1080p";
-    public static final String RCT_CAMERA_CAPTURE_QUALITY_720P = "720p";
-    public static final String RCT_CAMERA_CAPTURE_QUALITY_480P = "480p";
-    public static final int MEDIA_TYPE_IMAGE = 1;
-    public static final int MEDIA_TYPE_VIDEO = 2;
 
     private static ReactApplicationContext _reactContext;
     private RCTSensorOrientationChecker _sensorOrientationChecker;
@@ -157,9 +124,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             private Map<String, Object> getAspectConstants() {
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
                     {
-                        put("stretch", RCT_CAMERA_ASPECT_STRETCH);
-                        put("fit", RCT_CAMERA_ASPECT_FIT);
-                        put("fill", RCT_CAMERA_ASPECT_FILL);
+                        put("stretch", RCTCameraUtils.RCT_CAMERA_ASPECT_STRETCH);
+                        put("fit", RCTCameraUtils.RCT_CAMERA_ASPECT_FIT);
+                        put("fill", RCTCameraUtils.RCT_CAMERA_ASPECT_FILL);
                     }
                 });
             }
@@ -175,8 +142,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             private Map<String, Object> getTypeConstants() {
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
                     {
-                        put("front", RCT_CAMERA_TYPE_FRONT);
-                        put("back", RCT_CAMERA_TYPE_BACK);
+                        put("front", RCTCameraUtils.RCT_CAMERA_TYPE_FRONT);
+                        put("back", RCTCameraUtils.RCT_CAMERA_TYPE_BACK);
                     }
                 });
             }
@@ -184,14 +151,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             private Map<String, Object> getCaptureQualityConstants() {
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
                     {
-                        put("low", RCT_CAMERA_CAPTURE_QUALITY_LOW);
-                        put("medium", RCT_CAMERA_CAPTURE_QUALITY_MEDIUM);
-                        put("high", RCT_CAMERA_CAPTURE_QUALITY_HIGH);
-                        put("photo", RCT_CAMERA_CAPTURE_QUALITY_HIGH);
-                        put("preview", RCT_CAMERA_CAPTURE_QUALITY_PREVIEW);
-                        put("480p", RCT_CAMERA_CAPTURE_QUALITY_480P);
-                        put("720p", RCT_CAMERA_CAPTURE_QUALITY_720P);
-                        put("1080p", RCT_CAMERA_CAPTURE_QUALITY_1080P);
+                        put("low", RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_LOW);
+                        put("medium", RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_MEDIUM);
+                        put("high", RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH);
+                        put("photo", RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH);
+                        put("preview", RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_PREVIEW);
+                        put("480p", RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_480P);
+                        put("720p", RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_720P);
+                        put("1080p", RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_1080P);
                     }
                 });
             }
@@ -199,8 +166,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             private Map<String, Object> getCaptureModeConstants() {
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
                     {
-                        put("still", RCT_CAMERA_CAPTURE_MODE_STILL);
-                        put("video", RCT_CAMERA_CAPTURE_MODE_VIDEO);
+                        put("still", RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL);
+                        put("video", RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_VIDEO);
                     }
                 });
             }
@@ -208,10 +175,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             private Map<String, Object> getCaptureTargetConstants() {
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
                     {
-                        put("memory", RCT_CAMERA_CAPTURE_TARGET_MEMORY);
-                        put("disk", RCT_CAMERA_CAPTURE_TARGET_DISK);
-                        put("cameraRoll", RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL);
-                        put("temp", RCT_CAMERA_CAPTURE_TARGET_TEMP);
+                        put("memory", RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY);
+                        put("disk", RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK);
+                        put("cameraRoll", RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL);
+                        put("temp", RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_TEMP);
                     }
                 });
             }
@@ -219,11 +186,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             private Map<String, Object> getOrientationConstants() {
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
                     {
-                        put("auto", RCT_CAMERA_ORIENTATION_AUTO);
-                        put("landscapeLeft", RCT_CAMERA_ORIENTATION_LANDSCAPE_LEFT);
-                        put("landscapeRight", RCT_CAMERA_ORIENTATION_LANDSCAPE_RIGHT);
-                        put("portrait", RCT_CAMERA_ORIENTATION_PORTRAIT);
-                        put("portraitUpsideDown", RCT_CAMERA_ORIENTATION_PORTRAIT_UPSIDE_DOWN);
+                        put("auto", RCTCameraUtils.RCT_CAMERA_ORIENTATION_AUTO);
+                        put("landscapeLeft", RCTCameraUtils.RCT_CAMERA_ORIENTATION_LANDSCAPE_LEFT);
+                        put("landscapeRight", RCTCameraUtils.RCT_CAMERA_ORIENTATION_LANDSCAPE_RIGHT);
+                        put("portrait", RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT);
+                        put("portraitUpsideDown", RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT_UPSIDE_DOWN);
                     }
                 });
             }
@@ -231,9 +198,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             private Map<String, Object> getFlashModeConstants() {
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
                     {
-                        put("off", RCT_CAMERA_FLASH_MODE_OFF);
-                        put("on", RCT_CAMERA_FLASH_MODE_ON);
-                        put("auto", RCT_CAMERA_FLASH_MODE_AUTO);
+                        put("off", RCTCameraUtils.RCT_CAMERA_FLASH_MODE_OFF);
+                        put("on", RCTCameraUtils.RCT_CAMERA_FLASH_MODE_ON);
+                        put("auto", RCTCameraUtils.RCT_CAMERA_FLASH_MODE_AUTO);
                     }
                 });
             }
@@ -241,9 +208,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             private Map<String, Object> getTorchModeConstants() {
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
                     {
-                        put("off", RCT_CAMERA_TORCH_MODE_OFF);
-                        put("on", RCT_CAMERA_TORCH_MODE_ON);
-                        put("auto", RCT_CAMERA_TORCH_MODE_AUTO);
+                        put("off", RCTCameraUtils.RCT_CAMERA_TORCH_MODE_OFF);
+                        put("on", RCTCameraUtils.RCT_CAMERA_TORCH_MODE_ON);
+                        put("auto", RCTCameraUtils.RCT_CAMERA_TORCH_MODE_AUTO);
                     }
                 });
             }
@@ -295,18 +262,18 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         // Set video output file.
         mVideoFile = null;
         switch (options.getInt("target")) {
-            case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
-                mVideoFile = getTempMediaFile(MEDIA_TYPE_VIDEO); // temporarily
+            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY:
+                mVideoFile = getTempMediaFile(RCTCameraUtils.MEDIA_TYPE_VIDEO); // temporarily
                 break;
-            case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
-                mVideoFile = getOutputCameraRollFile(MEDIA_TYPE_VIDEO);
+            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
+                mVideoFile = getOutputCameraRollFile(RCTCameraUtils.MEDIA_TYPE_VIDEO);
                 break;
-            case RCT_CAMERA_CAPTURE_TARGET_TEMP:
-                mVideoFile = getTempMediaFile(MEDIA_TYPE_VIDEO);
+            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_TEMP:
+                mVideoFile = getTempMediaFile(RCTCameraUtils.MEDIA_TYPE_VIDEO);
                 break;
             default:
-            case RCT_CAMERA_CAPTURE_TARGET_DISK:
-                mVideoFile = getOutputMediaFile(MEDIA_TYPE_VIDEO);
+            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK:
+                mVideoFile = getOutputMediaFile(RCTCameraUtils.MEDIA_TYPE_VIDEO);
                 break;
         }
         if (mVideoFile == null) {
@@ -423,13 +390,13 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
         WritableMap response = new WritableNativeMap();
         switch (mRecordingOptions.getInt("target")) {
-            case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
+            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                 byte[] encoded = convertFileToByteArray(mVideoFile);
                 response.putString("data", new String(encoded, Base64.DEFAULT));
                 mRecordingPromise.resolve(response);
                 f.delete();
                 break;
-            case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
+            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.Video.Media.DATA, mVideoFile.getPath());
                 values.put(MediaStore.Video.Media.TITLE, mRecordingOptions.hasKey("title") ? mRecordingOptions.getString("title") : "video");
@@ -452,8 +419,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 response.putString("path", Uri.fromFile(mVideoFile).toString());
                 mRecordingPromise.resolve(response);
                 break;
-            case RCT_CAMERA_CAPTURE_TARGET_TEMP:
-            case RCT_CAMERA_CAPTURE_TARGET_DISK:
+            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_TEMP:
+            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK:
                 response.putString("path", Uri.fromFile(mVideoFile).toString());
                 mRecordingPromise.resolve(response);
         }
@@ -487,7 +454,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) {
         int orientation = options.hasKey("orientation") ? options.getInt("orientation") : RCTCamera.getInstance().getOrientation();
-        if (orientation == RCT_CAMERA_ORIENTATION_AUTO) {
+        if (orientation == RCTCameraUtils.RCT_CAMERA_ORIENTATION_AUTO) {
             _sensorOrientationChecker.onResume();
             _sensorOrientationChecker.registerOrientationListener(new RCTSensorOrientationListener() {
                 @Override
@@ -510,7 +477,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             return;
         }
 
-        if (options.getInt("mode") == RCT_CAMERA_CAPTURE_MODE_VIDEO) {
+        if (options.getInt("mode") == RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_VIDEO) {
             record(options, promise);
             return;
         }
@@ -584,14 +551,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
 
         switch (options.getInt("target")) {
-            case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
+            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                 String encoded = mutableImage.toBase64(jpegQualityPercent);
                 WritableMap response = new WritableNativeMap();
                 response.putString("data", encoded);
                 promise.resolve(response);
                 break;
-            case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL: {
-                File cameraRollFile = getOutputCameraRollFile(MEDIA_TYPE_IMAGE);
+            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL: {
+                File cameraRollFile = getOutputCameraRollFile(RCTCameraUtils.MEDIA_TYPE_IMAGE);
                 if (cameraRollFile == null) {
                     promise.reject("Error creating media file.");
                     return;
@@ -610,8 +577,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
                 break;
             }
-            case RCT_CAMERA_CAPTURE_TARGET_DISK: {
-                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK: {
+                File pictureFile = getOutputMediaFile(RCTCameraUtils.MEDIA_TYPE_IMAGE);
                 if (pictureFile == null) {
                     promise.reject("Error creating media file.");
                     return;
@@ -628,8 +595,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
                 break;
             }
-            case RCT_CAMERA_CAPTURE_TARGET_TEMP: {
-                File tempFile = getTempMediaFile(MEDIA_TYPE_IMAGE);
+            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_TEMP: {
+                File tempFile = getTempMediaFile(RCTCameraUtils.MEDIA_TYPE_IMAGE);
                 if (tempFile == null) {
                     promise.reject("Error creating media file.");
                     return;
@@ -673,9 +640,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     private File getOutputMediaFile(int type) {
         // Get environment directory type id from requested media type.
         String environmentDirectoryType;
-        if (type == MEDIA_TYPE_IMAGE) {
+        if (type == RCTCameraUtils.MEDIA_TYPE_IMAGE) {
             environmentDirectoryType = Environment.DIRECTORY_PICTURES;
-        } else if (type == MEDIA_TYPE_VIDEO) {
+        } else if (type == RCTCameraUtils.MEDIA_TYPE_VIDEO) {
             environmentDirectoryType = Environment.DIRECTORY_MOVIES;
         } else {
             Log.e(TAG, "Unsupported media type:" + type);
@@ -707,9 +674,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         // Create a media file name
         String fileName = String.format("%s", new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()));
 
-        if (type == MEDIA_TYPE_IMAGE) {
+        if (type == RCTCameraUtils.MEDIA_TYPE_IMAGE) {
             fileName = String.format("IMG_%s.jpg", fileName);
-        } else if (type == MEDIA_TYPE_VIDEO) {
+        } else if (type == RCTCameraUtils.MEDIA_TYPE_VIDEO) {
             fileName = String.format("VID_%s.mp4", fileName);
         } else {
             Log.e(TAG, "Unsupported media type:" + type);
@@ -725,9 +692,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             File outputDir = _reactContext.getCacheDir();
             File outputFile;
 
-            if (type == MEDIA_TYPE_IMAGE) {
+            if (type == RCTCameraUtils.MEDIA_TYPE_IMAGE) {
                 outputFile = File.createTempFile("IMG_" + timeStamp, ".jpg", outputDir);
-            } else if (type == MEDIA_TYPE_VIDEO) {
+            } else if (type == RCTCameraUtils.MEDIA_TYPE_VIDEO) {
                 outputFile = File.createTempFile("VID_" + timeStamp, ".mp4", outputDir);
             } else {
                 Log.e(TAG, "Unsupported media type:" + type);

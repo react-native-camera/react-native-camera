@@ -5,7 +5,6 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.view.MotionEvent;
@@ -139,8 +138,8 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 _camera = RCTCamera.getInstance().acquireCameraInstance(_cameraType);
                 Camera.Parameters parameters = _camera.getParameters();
 
-                final boolean isCaptureModeStill = (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_STILL);
-                final boolean isCaptureModeVideo = (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_VIDEO);
+                final boolean isCaptureModeStill = (_captureMode == RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL);
+                final boolean isCaptureModeVideo = (_captureMode == RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_VIDEO);
                 if (!isCaptureModeStill && !isCaptureModeVideo) {
                     throw new RuntimeException("Unsupported capture mode:" + _captureMode);
                 }
