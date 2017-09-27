@@ -1,4 +1,4 @@
-package com.lwansbrough.RCTCamera;
+package com.lwansbrough.JavaCamera;
 
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -55,7 +55,8 @@ public class RCTCameraUtils {
      * @throws RuntimeException if unable to compute valid intersection between MotionEvent region
      * and SurfaceTexture region.
      */
-    protected static Camera.Area computeFocusAreaFromMotionEvent(final MotionEvent event, final int surfaceTextureWidth, final int surfaceTextureHeight) {
+    //TODO: Pedro = Changed from Protected to Public!!!
+    public static Camera.Area computeFocusAreaFromMotionEvent(final MotionEvent event, final int surfaceTextureWidth, final int surfaceTextureHeight) {
         // Get position of first touch pointer.
         final int pointerId = event.getPointerId(0);
         final int pointerIndex = event.findPointerIndex(pointerId);

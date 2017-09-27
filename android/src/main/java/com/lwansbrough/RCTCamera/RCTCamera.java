@@ -7,6 +7,7 @@ package com.lwansbrough.RCTCamera;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.util.Log;
+import com.lwansbrough.JavaCamera.RCTCameraUtils;
 
 import java.util.HashMap;
 import java.util.List;
