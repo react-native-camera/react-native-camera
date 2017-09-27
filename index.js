@@ -181,8 +181,7 @@ export default class Camera extends Component {
     if (check) {
       this.checkPromise = makeCancelable(check());
       this.checkPromise.promise
-      .then((result) => {
-        const isAuthorized = result;
+      .then((isAuthorized) => {
         this.setState({ isAuthorized });
       })
       .catch(() => {}); // Ignore the rejection for now.
