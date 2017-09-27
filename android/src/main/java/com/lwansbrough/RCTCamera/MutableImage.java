@@ -16,6 +16,8 @@ import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
 
 import com.facebook.react.bridge.ReadableMap;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -143,7 +145,7 @@ public class MutableImage {
         return Base64.encodeToString(toJpeg(currentRepresentation, jpegQualityPercent), Base64.DEFAULT);
     }
 
-    public void writeDataToFile(File file, ReadableMap options, int jpegQualityPercent) throws IOException {
+    public void writeDataToFile(File file, ObjectNode options, int jpegQualityPercent) throws IOException {
         FileOutputStream fos = new FileOutputStream(file);
         fos.write(toJpeg(currentRepresentation, jpegQualityPercent));
         fos.close();
@@ -176,22 +178,22 @@ public class MutableImage {
         exif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(ExifInterface.ORIENTATION_NORMAL));
     }
 
-    private void writeLocationExifData(ReadableMap options, ExifInterface exif) {
-        if(!options.hasKey("metadata"))
+    private void writeLocationExifData(ObjectNode options, ExifInterface exif) {
+        if(!options.has("metadata"))
             return;
 
-        ReadableMap metadata = options.getMap("metadata");
-        if (!metadata.hasKey("location"))
+        JsonNode metadata = options.get("metadata");
+        if (!metadata.has("location"))
             return;
 
-        ReadableMap location = metadata.getMap("location");
-        if(!location.hasKey("coords"))
+        JsonNode location = metadata.get("location");
+        if(!location.has("coords"))
             return;
 
         try {
-            ReadableMap coords = location.getMap("coords");
-            double latitude = coords.getDouble("latitude");
-            double longitude = coords.getDouble("longitude");
+            JsonNode coords = location.get("coords");
+            double latitude = coords.get("latitude").asDouble();
+            double longitude = coords.get("longitude").asDouble();
 
             GPS.writeExifData(latitude, longitude, exif);
         } catch (IOException e) {

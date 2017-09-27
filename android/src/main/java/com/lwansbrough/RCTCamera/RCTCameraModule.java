@@ -15,14 +15,12 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 
-import com.facebook.react.bridge.LifecycleEventListener;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.WritableNativeMap;
+import com.facebook.react.bridge.*;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import com.lwansbrough.JavaCamera.RCTCameraUtils;
 
 import java.io.*;
@@ -32,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 import javax.annotation.Nullable;
 
@@ -452,6 +451,74 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         return byteArray;
     }
 
+
+    /** Converts a {@link ReadableMap} into an Json {@link ObjectNode} */
+    static ObjectNode toJsonObject(ReadableMap readableMap) {
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ObjectNode result = nodeFactory.objectNode();
+        ReadableMapKeySetIterator iterator = readableMap.keySetIterator();
+        while (iterator.hasNextKey()) {
+            String key = iterator.nextKey();
+            ReadableType type = readableMap.getType(key);
+            switch (type) {
+                case Null:
+                    result.putNull(key);
+                    break;
+                case Boolean:
+                    result.put(key, readableMap.getBoolean(key));
+                    break;
+                case Number:
+                    result.put(key, readableMap.getDouble(key));
+                    break;
+                case String:
+                    result.put(key, readableMap.getString(key));
+                    break;
+                case Map:
+                    result.set(key, toJsonObject(readableMap.getMap(key)));
+                    break;
+                case Array:
+                    result.set(key, toJsonArray(readableMap.getArray(key)));
+                    break;
+                default:
+                    Log.e(TAG, "Could not convert object with key: " + key + ".");
+            }
+        }
+        return result;
+    }
+
+    /** Converts a {@link ReadableArray} into an Json {@link ArrayNode} */
+    static  ArrayNode toJsonArray(ReadableArray readableArray) {
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ArrayNode result = nodeFactory.arrayNode();
+        for (int i = 0; i < readableArray.size(); i++) {
+            ReadableType indexType = readableArray.getType(i);
+            switch (indexType) {
+                case Null:
+                    result.addNull();
+                    break;
+                case Boolean:
+                    result.add(readableArray.getBoolean(i));
+                    break;
+                case Number:
+                    result.add(readableArray.getDouble(i));
+                    break;
+                case String:
+                    result.add(readableArray.getString(i));
+                    break;
+                case Map:
+                    result.add(toJsonObject(readableArray.getMap(i)));
+                    break;
+                case Array:
+                    result.add(toJsonArray(readableArray.getArray(i)));
+                    break;
+                default:
+                    Log.e(TAG, "Could not convert object at index " + i + ".");
+            }
+        }
+        return result;
+    }
+
+
     @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) {
         int orientation = options.hasKey("orientation") ? options.getInt("orientation") : RCTCamera.getInstance().getOrientation();
@@ -528,6 +595,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
      * concurrently which would blow the memory (esp on smaller devices), and slow things down.
      */
     private synchronized void processImage(MutableImage mutableImage, ReadableMap options, Promise promise) {
+
+        //A copy of the options to an ObjectNode to be used by MutableImage Class
+        ObjectNode j_options = toJsonObject(options);
+
         boolean shouldFixOrientation = options.hasKey("fixOrientation") && options.getBoolean("fixOrientation");
         if(shouldFixOrientation) {
             try {
@@ -566,7 +637,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 }
 
                 try {
-                    mutableImage.writeDataToFile(cameraRollFile, options, jpegQualityPercent);
+                    mutableImage.writeDataToFile(cameraRollFile, j_options, jpegQualityPercent);
                 } catch (IOException | NullPointerException e) {
                     promise.reject("failed to save image file", e);
                     return;
@@ -586,7 +657,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 }
 
                 try {
-                    mutableImage.writeDataToFile(pictureFile, options, 85);
+                    mutableImage.writeDataToFile(pictureFile, j_options, 85);
                 } catch (IOException e) {
                     promise.reject("failed to save image file", e);
                     return;
@@ -604,7 +675,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 }
 
                 try {
-                    mutableImage.writeDataToFile(tempFile, options, 85);
+                    mutableImage.writeDataToFile(tempFile, j_options, 85);
                 } catch (IOException e) {
                     promise.reject("failed to save image file", e);
                     return;
