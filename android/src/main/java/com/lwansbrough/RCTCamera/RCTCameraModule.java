@@ -10,6 +10,7 @@ import android.hardware.Camera;
 import android.media.*;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -672,7 +673,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
     private File getOutputMediaFile(int type) {
         // Get environment directory type id from requested media type.
-        String environmentDirectoryType;
+        String environmentDirectoryType; // IDEA: Ignored as we are storing all our data in Smala Folder
         if (type == MEDIA_TYPE_IMAGE) {
             environmentDirectoryType = Environment.DIRECTORY_PICTURES;
         } else if (type == MEDIA_TYPE_VIDEO) {
@@ -682,17 +683,31 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             return null;
         }
 
-        return getOutputFile(
-                type,
-                Environment.getExternalStoragePublicDirectory(environmentDirectoryType)
-        );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            return getOutputFile(
+                    type,
+                    new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Smala")
+            );
+        } else {
+            return getOutputFile(
+                    type,
+                    new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Smala")
+            );
+        }
     }
 
     private File getOutputCameraRollFile(int type) {
-        return getOutputFile(
-                type,
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
-        );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            return getOutputFile(
+                    type,
+                    new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Smala")
+            );
+        } else {
+            return getOutputFile(
+                    type,
+                    new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Smala")
+            );
+        }
     }
 
     private File getOutputFile(int type, File storageDir) {
