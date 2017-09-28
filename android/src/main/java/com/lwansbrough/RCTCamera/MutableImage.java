@@ -1,4 +1,4 @@
-package com.lwansbrough.JavaCamera;
+package com.lwansbrough.RCTCamera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -171,6 +171,45 @@ public class MutableImage {
             exif.saveAttributes();
         } catch (ImageProcessingException  | IOException e) {
             Log.e(TAG, "failed to save exif data", e);
+        }
+    }
+
+    //TODO: CREATE A POLIMORFISM OF WriteDataToFile and WriteLocationExifData passing directly the latitude and longitude
+    public void writeDataToFile(File file, double latitude, double longitude, int jpegQualityPercent) throws IOException {
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(toJpeg(currentRepresentation, jpegQualityPercent));
+        fos.close();
+
+        try {
+            ExifInterface exif = new ExifInterface(file.getAbsolutePath());
+
+            // copy original exif data to the output exif...
+            // unfortunately, this Android ExifInterface class doesn't understand all the tags so we lose some
+            for (Directory directory : originalImageMetaData().getDirectories()) {
+                for (Tag tag : directory.getTags()) {
+                    int tagType = tag.getTagType();
+                    Object object = directory.getObject(tagType);
+                    exif.setAttribute(tag.getTagName(), object.toString());
+                }
+            }
+
+            writeLocationExifData(latitude, longitude, exif);
+
+            if(hasBeenReoriented)
+                rewriteOrientation(exif);
+
+            exif.saveAttributes();
+        } catch (ImageProcessingException  | IOException e) {
+            Log.e(TAG, "failed to save exif data", e);
+        }
+    }
+
+    private void writeLocationExifData(double latitude, double longitude, ExifInterface exif) {
+        try
+        {
+            GPS.writeExifData(latitude, longitude, exif);
+        } catch (IOException e) {
+            Log.e(TAG, "Couldn't write location data", e);
         }
     }
 

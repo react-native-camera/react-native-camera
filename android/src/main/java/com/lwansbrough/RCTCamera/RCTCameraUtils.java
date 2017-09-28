@@ -1,12 +1,22 @@
-package com.lwansbrough.JavaCamera;
+package com.lwansbrough.RCTCamera;
 
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Surface;
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.ReadableType;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class RCTCameraUtils {
+    private static final String TAG = "RCTCameraUtils";
+
     private static final int FOCUS_AREA_MOTION_EVENT_EDGE_LENGTH = 100;
     private static final int FOCUS_AREA_WEIGHT = 1000;
 
@@ -102,5 +112,71 @@ public class RCTCameraUtils {
         Rect focusAreaRectRounded = new Rect();
         focusAreaRect.round(focusAreaRectRounded);
         return new Camera.Area(focusAreaRectRounded, FOCUS_AREA_WEIGHT);
+    }
+
+    /** Converts a {@link ReadableMap} into an Json {@link ObjectNode} */
+    static ObjectNode toJsonObject(ReadableMap readableMap) {
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ObjectNode result = nodeFactory.objectNode();
+        ReadableMapKeySetIterator iterator = readableMap.keySetIterator();
+        while (iterator.hasNextKey()) {
+            String key = iterator.nextKey();
+            ReadableType type = readableMap.getType(key);
+            switch (type) {
+                case Null:
+                    result.putNull(key);
+                    break;
+                case Boolean:
+                    result.put(key, readableMap.getBoolean(key));
+                    break;
+                case Number:
+                    result.put(key, readableMap.getDouble(key));
+                    break;
+                case String:
+                    result.put(key, readableMap.getString(key));
+                    break;
+                case Map:
+                    result.set(key, toJsonObject(readableMap.getMap(key)));
+                    break;
+                case Array:
+                    result.set(key, toJsonArray(readableMap.getArray(key)));
+                    break;
+                default:
+                    Log.e(TAG, "Could not convert object with key: " + key + ".");
+            }
+        }
+        return result;
+    }
+
+    /** Converts a {@link ReadableArray} into an Json {@link ArrayNode} */
+    static  ArrayNode toJsonArray(ReadableArray readableArray) {
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ArrayNode result = nodeFactory.arrayNode();
+        for (int i = 0; i < readableArray.size(); i++) {
+            ReadableType indexType = readableArray.getType(i);
+            switch (indexType) {
+                case Null:
+                    result.addNull();
+                    break;
+                case Boolean:
+                    result.add(readableArray.getBoolean(i));
+                    break;
+                case Number:
+                    result.add(readableArray.getDouble(i));
+                    break;
+                case String:
+                    result.add(readableArray.getString(i));
+                    break;
+                case Map:
+                    result.add(toJsonObject(readableArray.getMap(i)));
+                    break;
+                case Array:
+                    result.add(toJsonArray(readableArray.getArray(i)));
+                    break;
+                default:
+                    Log.e(TAG, "Could not convert object at index " + i + ".");
+            }
+        }
+        return result;
     }
 }
