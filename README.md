@@ -75,14 +75,14 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 
 3. Append the following lines to `android/settings.gradle`:
 
-	```
+	```gradle
 	include ':react-native-camera'
 	project(':react-native-camera').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-camera/android')
 	```
 
 4. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
 
-	```
+	```gradle
     compile project(':react-native-camera')
 	```
 5. Declare the permissions in your Android Manifest (required for `video recording` feature)
