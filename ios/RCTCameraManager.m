@@ -289,6 +289,10 @@ RCT_CUSTOM_VIEW_PROPERTY(mirrorImage, BOOL, RCTCamera) {
   self.mirrorImage = [RCTConvert BOOL:json];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(mirrorVideo, BOOL, RCTCamera) {
+  self.mirrorVideo = [RCTConvert BOOL:json];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTCamera) {
   self.barCodeTypes = [RCTConvert NSArray:json];
 }
@@ -312,6 +316,7 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
 - (id)init {
   if ((self = [super init])) {
     self.mirrorImage = false;
+    self.mirrorVideo = false;
 
     self.sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
 
@@ -764,6 +769,10 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
   dispatch_async(self.sessionQueue, ^{
     [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:orientation];
+  
+    if (self.mirrorVideo) {
+       [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoMirrored:YES];
+    }
 
     //Create temporary URL to record to
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];

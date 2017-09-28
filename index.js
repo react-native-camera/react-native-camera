@@ -102,6 +102,7 @@ export default class Camera extends Component {
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
+    mirrorVideo: PropTypes.bool,
     fixOrientation: PropTypes.bool,
     barCodeTypes: PropTypes.array,
     orientation: PropTypes.oneOfType([
@@ -134,6 +135,7 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
+    mirrorVideo: false,
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -223,6 +225,7 @@ export default class Camera extends Component {
       title: '',
       description: '',
       mirrorImage: props.mirrorImage,
+      mirrorVideo: props.mirrorVideo,
       fixOrientation: props.fixOrientation,
       ...options
     };
