@@ -17,7 +17,7 @@ The comprehensive camera module for React Native. Including photographs, videos,
 
 ##### Permissions
 To enable `video recording` feature you have to add the following code to the `AndroidManifest.xml`:
-```
+```java
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
   <uses-permission android:name="android.permission.RECORD_VIDEO"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -52,7 +52,7 @@ To enable `video recording` feature you have to add the following code to the `A
 ### Mostly automatic install with CocoaPods
 1. `npm install react-native-camera --save`
 2. Add the plugin dependency to your Podfile, pointing at the path where NPM installed it:
-```
+```obj-c
 pod 'react-native-camera', path: '../node_modules/react-native-camera'
 ```
 3. Run `pod install`
@@ -87,7 +87,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 	```
 5. Declare the permissions in your Android Manifest (required for `video recording` feature)
 
-  ```
+  ```java
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
