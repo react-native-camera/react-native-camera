@@ -25,8 +25,7 @@ import java.util.Map;
 
 import com.lwansbrough.JavaCamera.CameraModule;
 
-public class RCTCameraModule extends ReactContextBaseJavaModule
-    implements MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener, LifecycleEventListener {
+public class RCTCameraModule extends ReactContextBaseJavaModule implements MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener, LifecycleEventListener {
     private static final String TAG = "RCTCameraModule";
 
     private CameraModule cameraModule;
@@ -35,13 +34,13 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     private RCTSensorOrientationChecker _sensorOrientationChecker;
     private MediaActionSound sound = new MediaActionSound();
 
-    private MediaRecorder mMediaRecorder;
-    private long MRStartTime;
-    private File mVideoFile;
-    private Camera mCamera = null;
-    private Promise mRecordingPromise = null;
-    private ReadableMap mRecordingOptions;
+    //private MediaRecorder mMediaRecorder;
+    //private long MRStartTime;
+    //private File mVideoFile;
+    //private Promise mRecordingPromise = null;
+    //private ReadableMap mRecordingOptions;
     private Boolean mSafeToCapture = true;
+    private Camera mCamera = null;
 
 
     public RCTCameraModule(ReactApplicationContext reactContext) {
@@ -56,7 +55,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     }
 
     public static ReactApplicationContext getReactContextSingleton() {
-      return _reactContext;
+        return _reactContext;
     }
 
     /**
@@ -72,9 +71,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     public void onInfo(MediaRecorder mr, int what, int extra) {
         if ( what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED ||
                 what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
-            if (mRecordingPromise != null) {
-                releaseMediaRecorder(); // release the MediaRecorder object and resolve promise
-            }
+            //if (mRecordingPromise != null) {
+            //    releaseMediaRecorder(); // release the MediaRecorder object and resolve promise
+            //}
         }
     }
 
@@ -92,9 +91,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         // On any error, release the MediaRecorder object and resolve promise. In particular, this
         // prevents leaving the camera in an unrecoverable state if we crash in the middle of
         // recording.
-        if (mRecordingPromise != null) {
-            releaseMediaRecorder();
-        }
+
+        //if (mRecordingPromise != null) {
+        //    releaseMediaRecorder();
+        //}
     }
 
     @Override
@@ -215,248 +215,245 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     }
 
 
-
-    /**
-     * Prepare media recorder for video capture.
-     *
-     * See "Capturing Videos" at https://developer.android.com/guide/topics/media/camera.html for
-     * a guideline of steps and more information in general.
-     *
-     * @param options Options.
-     * @return Throwable; null if no errors.
-     */
-    private Throwable prepareMediaRecorder(ReadableMap options) {
-        // Prepare CamcorderProfile instance, setting essential options.
-        CamcorderProfile cm = RCTCamera.getInstance().setCaptureVideoQuality(options.getInt("type"), options.getString("quality"));
-        if (cm == null) {
-            return new RuntimeException("CamcorderProfile not found in prepareMediaRecorder.");
-        }
-
-        // Unlock camera to make available for MediaRecorder. Note that this statement must be
-        // executed before calling setCamera when configuring the MediaRecorder instance.
-        mCamera.unlock();
-
-        // Create new MediaRecorder instance.
-        mMediaRecorder = new MediaRecorder();
-
-        // Attach callback to handle maxDuration (@see onInfo method in this file).
-        mMediaRecorder.setOnInfoListener(this);
-        // Attach error listener (@see onError method in this file).
-        mMediaRecorder.setOnErrorListener(this);
-
-        // Set camera.
-        mMediaRecorder.setCamera(mCamera);
-
-        // Set AV sources.
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
-        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-
-        // Adjust for orientation.
-        mMediaRecorder.setOrientationHint(RCTCamera.getInstance().getAdjustedDeviceOrientation());
-
-        // Set video output format and encoding using CamcorderProfile.
-        cm.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
-        mMediaRecorder.setProfile(cm);
-
-        // Set video output file.
-        mVideoFile = null;
-        switch (options.getInt("target")) {
-            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY:
-                mVideoFile = getTempMediaFile(RCTCameraUtils.MEDIA_TYPE_VIDEO); // temporarily
-                break;
-            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
-                mVideoFile = getOutputCameraRollFile(RCTCameraUtils.MEDIA_TYPE_VIDEO);
-                break;
-            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_TEMP:
-                mVideoFile = getTempMediaFile(RCTCameraUtils.MEDIA_TYPE_VIDEO);
-                break;
-            default:
-            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK:
-                mVideoFile = getOutputMediaFile(RCTCameraUtils.MEDIA_TYPE_VIDEO);
-                break;
-        }
-        if (mVideoFile == null) {
-            return new RuntimeException("Error while preparing output file in prepareMediaRecorder.");
-        }
-        mMediaRecorder.setOutputFile(mVideoFile.getPath());
-
-        if (options.hasKey("totalSeconds")) {
-            int totalSeconds = options.getInt("totalSeconds");
-            mMediaRecorder.setMaxDuration(totalSeconds * 1000);
-        }
-
-        if (options.hasKey("maxFileSize")) {
-            int maxFileSize = options.getInt("maxFileSize");
-            mMediaRecorder.setMaxFileSize(maxFileSize);
-        }
-
-        // Prepare the MediaRecorder instance with the provided configuration settings.
-        try {
-            mMediaRecorder.prepare();
-        } catch (Exception ex) {
-            Log.e(TAG, "Media recorder prepare error.", ex);
-            releaseMediaRecorder();
-            return ex;
-        }
-
-        return null;
-    }
-
-    private void record(final ReadableMap options, final Promise promise) {
-        if (mRecordingPromise != null) {
-            return;
-        }
-
-        mCamera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
-        if (mCamera == null) {
-            promise.reject(new RuntimeException("No camera found."));
-            return;
-        }
-
-        Throwable prepareError = prepareMediaRecorder(options);
-        if (prepareError != null) {
-            promise.reject(prepareError);
-            return;
-        }
-
-        try {
-            mMediaRecorder.start();
-            MRStartTime =  System.currentTimeMillis();
-            mRecordingOptions = options;
-            mRecordingPromise = promise;  // only got here if mediaRecorder started
-        } catch (Exception ex) {
-            Log.e(TAG, "Media recorder start error.", ex);
-            promise.reject(ex);
-        }
-    }
-
+//    /**
+//     * Prepare media recorder for video capture.
+//     *
+//     * See "Capturing Videos" at https://developer.android.com/guide/topics/media/camera.html for
+//     * a guideline of steps and more information in general.
+//     *
+//     * @param options Options.
+//     * @return Throwable; null if no errors.
+//     */
+//    private Throwable prepareMediaRecorder(ReadableMap options) {
+//        // Prepare CamcorderProfile instance, setting essential options.
+//        CamcorderProfile cm = RCTCamera.getInstance().setCaptureVideoQuality(options.getInt("type"), options.getString("quality"));
+//        if (cm == null) {
+//            return new RuntimeException("CamcorderProfile not found in prepareMediaRecorder.");
+//        }
+//
+//        // Unlock camera to make available for MediaRecorder. Note that this statement must be
+//        // executed before calling setCamera when configuring the MediaRecorder instance.
+//        mCamera.unlock();
+//
+//        // Create new MediaRecorder instance.
+//        mMediaRecorder = new MediaRecorder();
+//
+//        // Attach callback to handle maxDuration (@see onInfo method in this file).
+//        mMediaRecorder.setOnInfoListener(this);
+//        // Attach error listener (@see onError method in this file).
+//        mMediaRecorder.setOnErrorListener(this);
+//
+//        // Set camera.
+//        mMediaRecorder.setCamera(mCamera);
+//
+//        // Set AV sources.
+//        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+//        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+//
+//        // Adjust for orientation.
+//        mMediaRecorder.setOrientationHint(RCTCamera.getInstance().getAdjustedDeviceOrientation());
+//
+//        // Set video output format and encoding using CamcorderProfile.
+//        cm.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
+//        mMediaRecorder.setProfile(cm);
+//
+//        // Set video output file.
+//        mVideoFile = null;
+//        switch (options.getInt("target")) {
+//            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY:
+//                mVideoFile = getTempMediaFile(RCTCameraUtils.MEDIA_TYPE_VIDEO); // temporarily
+//                break;
+//            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
+//                mVideoFile = getOutputCameraRollFile(RCTCameraUtils.MEDIA_TYPE_VIDEO);
+//                break;
+//            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_TEMP:
+//                mVideoFile = getTempMediaFile(RCTCameraUtils.MEDIA_TYPE_VIDEO);
+//                break;
+//            default:
+//            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK:
+//                mVideoFile = getOutputMediaFile(RCTCameraUtils.MEDIA_TYPE_VIDEO);
+//                break;
+//        }
+//        if (mVideoFile == null) {
+//            return new RuntimeException("Error while preparing output file in prepareMediaRecorder.");
+//        }
+//        mMediaRecorder.setOutputFile(mVideoFile.getPath());
+//
+//        if (options.hasKey("totalSeconds")) {
+//            int totalSeconds = options.getInt("totalSeconds");
+//            mMediaRecorder.setMaxDuration(totalSeconds * 1000);
+//        }
+//
+//        if (options.hasKey("maxFileSize")) {
+//            int maxFileSize = options.getInt("maxFileSize");
+//            mMediaRecorder.setMaxFileSize(maxFileSize);
+//        }
+//
+//        // Prepare the MediaRecorder instance with the provided configuration settings.
+//        try {
+//            mMediaRecorder.prepare();
+//        } catch (Exception ex) {
+//            Log.e(TAG, "Media recorder prepare error.", ex);
+//            releaseMediaRecorder();
+//            return ex;
+//        }
+//
+//        return null;
+//    }
+//
+//    private void record(final ReadableMap options, final Promise promise) {
+//        if (mRecordingPromise != null) {
+//            return;
+//        }
+//
+//        mCamera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+//        if (mCamera == null) {
+//            promise.reject(new RuntimeException("No camera found."));
+//            return;
+//        }
+//
+//        Throwable prepareError = prepareMediaRecorder(options);
+//        if (prepareError != null) {
+//            promise.reject(prepareError);
+//            return;
+//        }
+//
+//        try {
+//            mMediaRecorder.start();
+//            MRStartTime =  System.currentTimeMillis();
+//            mRecordingOptions = options;
+//            mRecordingPromise = promise;  // only got here if mediaRecorder started
+//        } catch (Exception ex) {
+//            Log.e(TAG, "Media recorder start error.", ex);
+//            promise.reject(ex);
+//        }
+//    }
 
 
-    /**
-     * Release media recorder following video capture (or failure to start recording session).
-     *
-     * See "Capturing Videos" at https://developer.android.com/guide/topics/media/camera.html for
-     * a guideline of steps and more information in general.
-     */
-    private void releaseMediaRecorder() {
-        // Must record at least a second or MediaRecorder throws exceptions on some platforms
-        long duration = System.currentTimeMillis() - MRStartTime;
-        if (duration < 1500) {
-            try {
-                Thread.sleep(1500 - duration);
-            } catch(InterruptedException ex) {
-                Log.e(TAG, "releaseMediaRecorder thread sleep error.", ex);
-            }
-        }
+//    /**
+//     * Release media recorder following video capture (or failure to start recording session).
+//     *
+//     * See "Capturing Videos" at https://developer.android.com/guide/topics/media/camera.html for
+//     * a guideline of steps and more information in general.
+//     */
 
-        // Release actual MediaRecorder instance.
-        if (mMediaRecorder != null) {
-            // Stop recording video.
-            try {
-                mMediaRecorder.stop(); // stop the recording
-            } catch (RuntimeException ex) {
-                Log.e(TAG, "Media recorder stop error.", ex);
-            }
+//    private void releaseMediaRecorder() {
+//        // Must record at least a second or MediaRecorder throws exceptions on some platforms
+//        long duration = System.currentTimeMillis() - MRStartTime;
+//        if (duration < 1500) {
+//            try {
+//                Thread.sleep(1500 - duration);
+//            } catch(InterruptedException ex) {
+//                Log.e(TAG, "releaseMediaRecorder thread sleep error.", ex);
+//            }
+//        }
+//
+//        // Release actual MediaRecorder instance.
+//        if (mMediaRecorder != null) {
+//            // Stop recording video.
+//            try {
+//                mMediaRecorder.stop(); // stop the recording
+//            } catch (RuntimeException ex) {
+//                Log.e(TAG, "Media recorder stop error.", ex);
+//            }
+//
+//            // Optionally, remove the configuration settings from the recorder.
+//            mMediaRecorder.reset();
+//
+//            // Release the MediaRecorder.
+//            mMediaRecorder.release();
+//
+//            // Reset variable.
+//            mMediaRecorder = null;
+//        }
+//
+//        // Lock the camera so that future MediaRecorder sessions can use it by calling
+//        // Camera.lock(). Note this is not required on Android 4.0+ unless the
+//        // MediaRecorder.prepare() call fails.
+//        if (mCamera != null) {
+//            mCamera.lock();
+//        }
+//
+//        if (mRecordingPromise == null) {
+//            return;
+//        }
+//
+//        File f = new File(mVideoFile.getPath());
+//        if (!f.exists()) {
+//            mRecordingPromise.reject(new RuntimeException("There is nothing recorded."));
+//            mRecordingPromise = null;
+//            return;
+//        }
+//
+//        f.setReadable(true, false); // so mediaplayer can play it
+//        f.setWritable(true, false); // so can clean it up
+//
+//        WritableMap response = new WritableNativeMap();
+//        switch (mRecordingOptions.getInt("target")) {
+//            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY:
+//                byte[] encoded = convertFileToByteArray(mVideoFile);
+//                response.putString("data", new String(encoded, Base64.DEFAULT));
+//                mRecordingPromise.resolve(response);
+//                f.delete();
+//                break;
+//            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
+//                ContentValues values = new ContentValues();
+//                values.put(MediaStore.Video.Media.DATA, mVideoFile.getPath());
+//                values.put(MediaStore.Video.Media.TITLE, mRecordingOptions.hasKey("title") ? mRecordingOptions.getString("title") : "video");
+//
+//                if (mRecordingOptions.hasKey("description")) {
+//                    values.put(MediaStore.Video.Media.DESCRIPTION, mRecordingOptions.hasKey("description"));
+//                }
+//
+//                if (mRecordingOptions.hasKey("latitude")) {
+//                    values.put(MediaStore.Video.Media.LATITUDE, mRecordingOptions.getString("latitude"));
+//                }
+//
+//                if (mRecordingOptions.hasKey("longitude")) {
+//                    values.put(MediaStore.Video.Media.LONGITUDE, mRecordingOptions.getString("longitude"));
+//                }
+//
+//                values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+//                _reactContext.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+//                addToMediaStore(mVideoFile.getAbsolutePath());
+//                response.putString("path", Uri.fromFile(mVideoFile).toString());
+//                mRecordingPromise.resolve(response);
+//                break;
+//            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_TEMP:
+//            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK:
+//                response.putString("path", Uri.fromFile(mVideoFile).toString());
+//                mRecordingPromise.resolve(response);
+//        }
+//
+//        mRecordingPromise = null;
+//    }
 
-            // Optionally, remove the configuration settings from the recorder.
-            mMediaRecorder.reset();
-
-            // Release the MediaRecorder.
-            mMediaRecorder.release();
-
-            // Reset variable.
-            mMediaRecorder = null;
-        }
-
-        // Lock the camera so that future MediaRecorder sessions can use it by calling
-        // Camera.lock(). Note this is not required on Android 4.0+ unless the
-        // MediaRecorder.prepare() call fails.
-        if (mCamera != null) {
-            mCamera.lock();
-        }
-
-        if (mRecordingPromise == null) {
-            return;
-        }
-
-        File f = new File(mVideoFile.getPath());
-        if (!f.exists()) {
-            mRecordingPromise.reject(new RuntimeException("There is nothing recorded."));
-            mRecordingPromise = null;
-            return;
-        }
-
-        f.setReadable(true, false); // so mediaplayer can play it
-        f.setWritable(true, false); // so can clean it up
-
-        WritableMap response = new WritableNativeMap();
-        switch (mRecordingOptions.getInt("target")) {
-            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY:
-                byte[] encoded = convertFileToByteArray(mVideoFile);
-                response.putString("data", new String(encoded, Base64.DEFAULT));
-                mRecordingPromise.resolve(response);
-                f.delete();
-                break;
-            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Video.Media.DATA, mVideoFile.getPath());
-                values.put(MediaStore.Video.Media.TITLE, mRecordingOptions.hasKey("title") ? mRecordingOptions.getString("title") : "video");
-
-                if (mRecordingOptions.hasKey("description")) {
-                    values.put(MediaStore.Video.Media.DESCRIPTION, mRecordingOptions.hasKey("description"));
-                }
-
-                if (mRecordingOptions.hasKey("latitude")) {
-                    values.put(MediaStore.Video.Media.LATITUDE, mRecordingOptions.getString("latitude"));
-                }
-
-                if (mRecordingOptions.hasKey("longitude")) {
-                    values.put(MediaStore.Video.Media.LONGITUDE, mRecordingOptions.getString("longitude"));
-                }
-
-                values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
-                _reactContext.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
-                addToMediaStore(mVideoFile.getAbsolutePath());
-                response.putString("path", Uri.fromFile(mVideoFile).toString());
-                mRecordingPromise.resolve(response);
-                break;
-            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_TEMP:
-            case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK:
-                response.putString("path", Uri.fromFile(mVideoFile).toString());
-                mRecordingPromise.resolve(response);
-        }
-
-        mRecordingPromise = null;
-    }
-
-    public static byte[] convertFileToByteArray(File f)
-    {
-        byte[] byteArray = null;
-        try
-        {
-            InputStream inputStream = new FileInputStream(f);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            byte[] b = new byte[1024*8];
-            int bytesRead;
-
-            while ((bytesRead = inputStream.read(b)) != -1) {
-                bos.write(b, 0, bytesRead);
-            }
-
-            byteArray = bos.toByteArray();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        return byteArray;
-    }
-
-
+//    public static byte[] convertFileToByteArray(File f)
+//    {
+//        byte[] byteArray = null;
+//        try
+//        {
+//            InputStream inputStream = new FileInputStream(f);
+//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//            byte[] b = new byte[1024*8];
+//            int bytesRead;
+//
+//            while ((bytesRead = inputStream.read(b)) != -1) {
+//                bos.write(b, 0, bytesRead);
+//            }
+//
+//            byteArray = bos.toByteArray();
+//        }
+//        catch (IOException e)
+//        {
+//            e.printStackTrace();
+//        }
+//        return byteArray;
+//    }
 
     //region CAPTURE
     @ReactMethod
-    public void capture(final ReadableMap options, final Promise promise)throws Exception {
+    public void capture(final ReadableMap options, final Promise promise) throws Exception {
 
         int orientation = options.getInt("orientation");
 
@@ -476,7 +473,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         double latitude = options.getDouble("latitude");
         double longitude = options.getDouble("longitude");
 
-       cameraModule.__capture(sound, promise);
+        cameraModule = new CameraModule(_reactContext, orientation, type, quality, playSoundOnCapture, mode, fixOrientation, jpegQuality, target, latitude, longitude);
+        cameraModule.__capture(sound, promise);
     }
 
 //    private void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
@@ -546,7 +544,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     //endregion
 
 
-
     //region STOP CAPTURE
     @ReactMethod
     public void stopCapture(final Promise promise) {
@@ -555,15 +552,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     //endregion
 
 
-
-
     //region HAS FLASH
     @ReactMethod
     public void hasFlash(ReadableMap options, final Promise promise) {
         cameraModule.__hasFlash(options.getInt("type"), promise);
     }
     //endregion
-
 
 
     //region MEDIAFILE TREATMENTS
@@ -607,17 +601,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     @Override
     public void onHostPause() {
         // On pause, we stop any pending recording session
-        if (mRecordingPromise != null) {
-            releaseMediaRecorder();
-        }
+        //if (mRecordingPromise != null) {
+        //    releaseMediaRecorder();
+        //}
     }
 
     @Override
     public void onHostDestroy() {
         // ... do nothing
     }
-
-
-
 
 }
