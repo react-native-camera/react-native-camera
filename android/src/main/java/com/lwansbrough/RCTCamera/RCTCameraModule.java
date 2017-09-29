@@ -460,13 +460,17 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
         int orientation = options.getInt("orientation");
 
-        orientation = 90;
+        orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_LANDSCAPE_LEFT;
 
         int type = options.getInt("type");
+
         String quality = options.getString("quality");
         Boolean playSoundOnCapture = options.getBoolean("playSoundOnCapture");
         int mode = options.getInt("mode");
         Boolean fixOrientation = options.getBoolean("fixOrientation");
+
+        fixOrientation = false;
+
         int jpegQuality = options.getInt("jpegQuality");
         int target = options.getInt("target");
         double latitude = options.getDouble("latitude");
