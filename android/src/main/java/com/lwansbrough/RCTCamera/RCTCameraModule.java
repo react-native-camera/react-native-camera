@@ -455,24 +455,46 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) throws Exception {
 
-        int orientation = options.getInt("orientation");
-
+        int orientation;
+        //orientation = options.getInt("orientation");
         orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_LANDSCAPE_LEFT;
 
-        int type = options.getInt("type");
+        int type;
+        //type = options.getInt("type");
+        type = RCTCameraUtils.MEDIA_TYPE_IMAGE;
 
-        String quality = options.getString("quality");
-        Boolean playSoundOnCapture = options.getBoolean("playSoundOnCapture");
-        int mode = options.getInt("mode");
-        Boolean fixOrientation = options.getBoolean("fixOrientation");
+        String quality;
+        //quality = options.getString("quality");
+        quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
 
+        Boolean playSoundOnCapture;
+        //playSoundOnCapture = options.getBoolean("playSoundOnCapture");
+        playSoundOnCapture = true;
+
+        int mode;
+        //mode = options.getInt("mode");
+        mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
+
+        Boolean fixOrientation;
+        //fixOrientation = options.getBoolean("fixOrientation");
         fixOrientation = false;
 
-        int jpegQuality = options.getInt("jpegQuality");
-        int target = options.getInt("target");
-        double latitude = options.getDouble("latitude");
-        double longitude = options.getDouble("longitude");
+        int jpegQuality;
+        //jpegQuality = options.getInt("jpegQuality");
+        jpegQuality = 80;
 
+        int target;
+        //target = options.getInt("target");
+        target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL;
+
+        double latitude;
+        //latitude = options.getDouble("latitude");
+        latitude = 0;
+
+        double longitude;
+        //longitude = options.getDouble("longitude");
+        longitude = 0;
+        
         cameraModule = new CameraModule(_reactContext, orientation, type, quality, playSoundOnCapture, mode, fixOrientation, jpegQuality, target, latitude, longitude);
         cameraModule.__capture(sound, promise);
     }
