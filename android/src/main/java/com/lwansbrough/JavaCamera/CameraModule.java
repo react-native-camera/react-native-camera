@@ -11,6 +11,8 @@ import android.util.Log;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeMap;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.lwansbrough.RCTCamera.*;
@@ -352,13 +354,13 @@ public class CameraModule {
 
     //TODO: REMOVE PROMISE
     public void __resolveImage(final File imageFile, final Promise promise, boolean addToMediaStore) {
-//        final WritableMap response = new WritableNativeMap();
-//        response.putString("path", Uri.fromFile(imageFile).toString());
+        final WritableMap response = new WritableNativeMap();
+        response.putString("path", Uri.fromFile(imageFile).toString());
 
-        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
-        final ObjectNode response = nodeFactory.objectNode();
+        //JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        //final ObjectNode response = nodeFactory.objectNode();
 
-        response.put("path", Uri.fromFile(imageFile).toString());
+        //response.put("path", Uri.fromFile(imageFile).toString());
 
 
         if(addToMediaStore) {
@@ -373,8 +375,8 @@ public class CameraModule {
                         @Override
                         public void onScanCompleted(String path, Uri uri) {
                             if (uri != null) {
-                                //response.putString("mediaUri", uri.toString());
-                                response.put("mediaUri", uri.toString());
+                                response.putString("mediaUri", uri.toString());
+                                //response.put("mediaUri", uri.toString());
                             }
 
                             promise.resolve(response);
