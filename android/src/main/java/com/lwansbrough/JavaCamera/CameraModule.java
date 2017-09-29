@@ -25,6 +25,8 @@ public class CameraModule {
     private static ReactApplicationContext _reactContext;
     private static final String TAG = "CameraModule";
 
+    Boolean safeToCapture = true;
+
     int _orientation;
     int _type;
     String _quality;
@@ -77,17 +79,8 @@ public class CameraModule {
     }
 
     //TODO: REMOVE PROMISE!!!!
-    private synchronized static void __processImage(
-            MutableImage mutableImage,
-            Boolean fixOrientation,
-            int jpegQuality,
-            int target,
-            double latitude,
-            double longitude,
-            Promise promise
-    )
-    {
-        if(fixOrientation) {
+    private synchronized void __processImage(MutableImage mutableImage, Promise promise){
+        if(this._fixOrientation) {
             try {
                 mutableImage.fixOrientation();
             } catch (MutableImage.ImageMutationFailedException e) {
@@ -104,9 +97,9 @@ public class CameraModule {
 //            }
 //        }
 
-        int jpegQualityPercent = jpegQuality;
+        int jpegQualityPercent = this._jpegQuality;
 
-        switch (target) {
+        switch (this._target) {
             case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                 String encoded = mutableImage.toBase64(jpegQualityPercent);
 
@@ -126,7 +119,7 @@ public class CameraModule {
                 }
 
                 try {
-                    mutableImage.writeDataToFile(cameraRollFile, latitude, longitude, jpegQualityPercent);
+                    mutableImage.writeDataToFile(cameraRollFile, this._latitude, this._longitude, jpegQualityPercent);
                 } catch (IOException | NullPointerException e) {
                     promise.reject("failed to save image file", e);
                     return;
@@ -146,7 +139,7 @@ public class CameraModule {
                 }
 
                 try {
-                    mutableImage.writeDataToFile(pictureFile,  latitude, longitude, 85);
+                    mutableImage.writeDataToFile(pictureFile,  this._latitude, this._longitude, 85);
                 } catch (IOException e) {
                     promise.reject("failed to save image file", e);
                     return;
@@ -164,7 +157,7 @@ public class CameraModule {
                 }
 
                 try {
-                    mutableImage.writeDataToFile(tempFile,  latitude, longitude, 85);
+                    mutableImage.writeDataToFile(tempFile,  this._latitude, this._longitude, 85);
                 } catch (IOException e) {
                     promise.reject("failed to save image file", e);
                     return;
@@ -178,22 +171,7 @@ public class CameraModule {
     }
 
     //TODO: REMOVE PROMISE!!!
-    public static void __capture(
-            final MediaActionSound _mediaActionSound,
-            final Boolean _safeToCapture,
-            final RCTSensorOrientationChecker _sensorOrientationChecker,
-            final int orientation,
-            final int type,
-            final String quality,
-            final Boolean playSoundOnCapture,
-            final int mode,
-            final Boolean fixOrientation,
-            final int jpegQuality,
-            final int target,
-            final double latitude,
-            final double longitude,
-            final Promise promise
-    )throws Exception
+    public void __capture(final MediaActionSound _mediaActionSound, final Promise promise)throws Exception
     {
 //        if (orientation == RCTCameraUtils.RCT_CAMERA_ORIENTATION_AUTO) {
 //            _sensorOrientationChecker.onResume();
@@ -220,42 +198,14 @@ public class CameraModule {
 //                }
 //            });
 //        } else {
-            __captureWithOrientation(
-                    _mediaActionSound,
-                    _safeToCapture,
-                    orientation,
-                    type,
-                    mode,
-                    quality,
-                    playSoundOnCapture,
-                    fixOrientation,
-                    jpegQuality,
-                    target,
-                    latitude,
-                    longitude,
-                    promise);
+            __captureWithOrientation(_mediaActionSound, promise);
 //        }
     }
 
     //TODO: REMOVE PROMISE!!!!
-    private static Boolean sSafeToCapture = true;
-    public static void __captureWithOrientation(
-            MediaActionSound _sound,
-            Boolean _safeToCapture, // value from sSafeToCapture -- can't be a parameter, needs to be refactored
-            int orientation,
-            int type,
-            int mode,
-            String quality,
-            Boolean playSoundOnCapture,
-            final Boolean fixOrientation,
-            final int jpegQuality,
-            final int target,
-            final double latitude,
-            final double longitude,
-            final Promise promise
-    ) throws Exception
+    public void __captureWithOrientation(MediaActionSound _sound, final Promise promise) throws Exception
     {
-        Camera camera = RCTCamera.getInstance().acquireCameraInstance(type);
+        Camera camera = RCTCamera.getInstance().acquireCameraInstance(this._type);
         if (null == camera) {
             throw new Exception("No camera found");
         }
@@ -265,17 +215,17 @@ public class CameraModule {
 //            return;
 //        }
 
-        RCTCamera.getInstance().setCaptureQuality(type, quality);
+        RCTCamera.getInstance().setCaptureQuality(this._type, this._quality);
 
-        if (playSoundOnCapture) {
+        if (this._playSoundOnCapture) {
             _sound.play(MediaActionSound.SHUTTER_CLICK);
         }
 
-        if (quality != null) {
-            RCTCamera.getInstance().setCaptureQuality(type, quality);
+        if (this._quality != null) {
+            RCTCamera.getInstance().setCaptureQuality(this._type, this._quality);
         }
 
-        RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(type, orientation);
+        RCTCamera.getInstance().adjustCameraRotationToDeviceOrientation(this._type, this._orientation);
         camera.setPreviewCallback(null);
 
         Camera.PictureCallback captureCallback = new Camera.PictureCallback() {
@@ -288,18 +238,18 @@ public class CameraModule {
                 AsyncTask.execute(new Runnable() {
                     @Override
                     public void run() {
-                        __processImage(new MutableImage(data), fixOrientation, jpegQuality, target, latitude, longitude, promise);
+                        __processImage(new MutableImage(data), promise);
                     }
                 });
 
-                sSafeToCapture = true;
+                safeToCapture = true;
             }
         };
 
-        if(sSafeToCapture) {
+        if(safeToCapture) {
             try {
                 camera.takePicture(null, null, captureCallback);
-                sSafeToCapture = false;
+                safeToCapture = false;
             } catch(RuntimeException ex) {
                 Log.e(TAG, "Couldn't capture photo.", ex);
             }

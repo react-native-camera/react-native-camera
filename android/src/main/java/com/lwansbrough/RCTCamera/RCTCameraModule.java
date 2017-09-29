@@ -476,21 +476,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         double latitude = options.getDouble("latitude");
         double longitude = options.getDouble("longitude");
 
-       cameraModule.__capture(
-                sound,
-                mSafeToCapture,
-                _sensorOrientationChecker,
-                orientation,
-                type,
-                quality,
-                playSoundOnCapture,
-                mode,
-                fixOrientation,
-                jpegQuality,
-                target,
-                latitude,
-                longitude,
-                promise);
+       cameraModule.__capture(sound, promise);
     }
 
 //    private void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
