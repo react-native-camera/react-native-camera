@@ -578,7 +578,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     //region HAS FLASH
     @ReactMethod
     public void hasFlash(ReadableMap options, final Promise promise) {
-        cameraModule.__hasFlash(options.getInt("type"), promise);
+        //cameraModule.__hasFlash(options.getInt("type"), promise);
+        cameraModule.__hasFlash(RCTCameraUtils.MEDIA_TYPE_IMAGE, promise);
     }
     //endregion
 
