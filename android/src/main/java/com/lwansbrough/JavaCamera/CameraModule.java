@@ -22,8 +22,8 @@ import java.util.Date;
 import java.util.List;
 
 public class CameraModule {
-    private static ReactApplicationContext _reactContext;
-    private static final String TAG = "CameraModule";
+    private ReactApplicationContext _reactContext;
+    private final String TAG = "CameraModule";
 
     Boolean safeToCapture = true;
 
@@ -258,7 +258,7 @@ public class CameraModule {
 
 
     //TODO: REMOVE PROMISE
-    public static void __stopCapture(final Promise promise) {
+    public  void __stopCapture(final Promise promise) {
         //        if (_mRecordingPromise != null) {
         //            __releaseMediaRecorder(); // release the MediaRecorder object
         //            promise.resolve("Finished recording.");
@@ -271,7 +271,7 @@ public class CameraModule {
     }
 
     //TODO: REMOVE PROMISE
-    public static void __hasFlash(int type, final Promise promise) {
+    public void __hasFlash(int type, final Promise promise) {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(type);
         if (null == camera) {
             promise.reject("No camera found.");
@@ -281,7 +281,7 @@ public class CameraModule {
     }
 
 
-    public static File __getOutputMediaFile(int type) {
+    public File __getOutputMediaFile(int type) {
         // Get environment directory type id from requested media type.
         String environmentDirectoryType;
         if (type == RCTCameraUtils.MEDIA_TYPE_IMAGE) {
@@ -299,14 +299,14 @@ public class CameraModule {
         );
     }
 
-    public static File __getOutputCameraRollFile(int type) {
+    public File __getOutputCameraRollFile(int type) {
         return __getOutputFile(
                 type,
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
         );
     }
 
-    public static File __getOutputFile(int type, File storageDir) {
+    public File __getOutputFile(int type, File storageDir) {
         // Create the storage directory if it does not exist
         if (!storageDir.exists()) {
             if (!storageDir.mkdirs()) {
@@ -330,7 +330,7 @@ public class CameraModule {
         return new File(String.format("%s%s%s", storageDir.getPath(), File.separator, fileName));
     }
 
-    public static File __getTempMediaFile(int type) {
+    public File __getTempMediaFile(int type) {
         try {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             File outputDir = _reactContext.getCacheDir();
@@ -351,12 +351,12 @@ public class CameraModule {
         }
     }
 
-    public static void __addToMediaStore(String path) {
+    public void __addToMediaStore(String path) {
         MediaScannerConnection.scanFile(_reactContext, new String[] { path }, null, null);
     }
 
     //TODO: REMOVE PROMISE
-    public static void __resolveImage(final File imageFile, final Promise promise, boolean addToMediaStore) {
+    public void __resolveImage(final File imageFile, final Promise promise, boolean addToMediaStore) {
 //        final WritableMap response = new WritableNativeMap();
 //        response.putString("path", Uri.fromFile(imageFile).toString());
 
