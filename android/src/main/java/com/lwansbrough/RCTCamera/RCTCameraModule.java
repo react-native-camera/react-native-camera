@@ -31,27 +31,28 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     private CameraModule cameraModule;
 
     private static ReactApplicationContext _reactContext;
-    private RCTSensorOrientationChecker _sensorOrientationChecker;
     private MediaActionSound sound = new MediaActionSound();
 
+    //private RCTSensorOrientationChecker _sensorOrientationChecker;
     //private MediaRecorder mMediaRecorder;
     //private long MRStartTime;
     //private File mVideoFile;
     //private Promise mRecordingPromise = null;
     //private ReadableMap mRecordingOptions;
-    private Boolean mSafeToCapture = true;
-    private Camera mCamera = null;
+
+    //private Boolean mSafeToCapture = true;
+    //private Camera mCamera = null;
 
 
     public RCTCameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
         _reactContext = reactContext;
 
-        _sensorOrientationChecker = new RCTSensorOrientationChecker(_reactContext);
+        //_sensorOrientationChecker = new RCTSensorOrientationChecker(_reactContext);
         _reactContext.addLifecycleEventListener(this);
         sound.load(MediaActionSound.SHUTTER_CLICK);
 
-        cameraModule = new CameraModule(_reactContext);
+        //cameraModule = new CameraModule(_reactContext);
     }
 
     public static ReactApplicationContext getReactContextSingleton() {
@@ -485,7 +486,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
         int target;
         //target = options.getInt("target");
-        target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL;
+        target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK;
 
         double latitude;
         //latitude = options.getDouble("latitude");
