@@ -25,11 +25,54 @@ public class CameraModule {
     private static ReactApplicationContext _reactContext;
     private static final String TAG = "CameraModule";
 
+    int _orientation;
+    int _type;
+    String _quality;
+    Boolean _playSoundOnCapture;
+    int _mode;
+    Boolean _fixOrientation;
+    int _jpegQuality;
+    int _target;
+    double _latitude;
+    double _longitude;
+
     public CameraModule() {
 
     }
 
     public CameraModule(ReactApplicationContext context) {
+        this._reactContext = context;
+    }
+
+    public CameraModule(
+            ReactApplicationContext context,
+            int orientation,
+            int type,
+            String quality,
+            Boolean playSoundOnCapture,
+            int mode,
+            Boolean fixOrientation,
+            int jpegQuality,
+            int target,
+            double latitude,
+            double longitude
+    )
+    {
+        this._reactContext = context;
+        this._orientation = orientation;
+        this._type = type;
+        this._quality = quality;
+        this._playSoundOnCapture = playSoundOnCapture;
+        this._mode = mode;
+        this._fixOrientation = fixOrientation;
+        this._jpegQuality = jpegQuality;
+        this._target = target;
+        this._latitude = latitude;
+        this._longitude = longitude;
+    }
+
+    public CameraModule(ReactApplicationContext context, ObjectNode options)
+    {
         this._reactContext = context;
     }
 

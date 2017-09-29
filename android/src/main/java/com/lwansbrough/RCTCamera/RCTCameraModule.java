@@ -459,6 +459,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     public void capture(final ReadableMap options, final Promise promise)throws Exception {
 
         int orientation = options.getInt("orientation");
+
+        orientation = 90;
+
         int type = options.getInt("type");
         String quality = options.getString("quality");
         Boolean playSoundOnCapture = options.getBoolean("playSoundOnCapture");
