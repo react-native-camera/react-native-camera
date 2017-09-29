@@ -5,16 +5,8 @@
 
 package com.lwansbrough.RCTCamera;
 
-import android.content.ContentValues;
-import android.hardware.Camera;
-import android.media.CamcorderProfile;
 import android.media.MediaActionSound;
 import android.media.MediaRecorder;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.provider.MediaStore;
-import android.util.Base64;
-import android.util.Log;
 import com.facebook.react.bridge.*;
 
 import javax.annotation.Nullable;
@@ -578,7 +570,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     //region HAS FLASH
     @ReactMethod
     public void hasFlash(ReadableMap options, final Promise promise) {
-        //cameraModule.__hasFlash(options.getInt("type"), promise);
+        //.__hasFlash(options.getInt("type"), promise);
         cameraModule.__hasFlash(RCTCameraUtils.MEDIA_TYPE_IMAGE, promise);
     }
     //endregion
