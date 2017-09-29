@@ -23,7 +23,7 @@ import java.util.List;
 
 public class CameraModule {
     private ReactApplicationContext _reactContext;
-    private final String TAG = "CameraModule";
+    private static final String TAG = "CameraModule";
 
     Boolean safeToCapture = true;
 
@@ -71,11 +71,6 @@ public class CameraModule {
         this._target = target;
         this._latitude = latitude;
         this._longitude = longitude;
-    }
-
-    public CameraModule(ReactApplicationContext context, ObjectNode options)
-    {
-        this._reactContext = context;
     }
 
     //TODO: REMOVE PROMISE!!!!
