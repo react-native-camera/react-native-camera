@@ -29,6 +29,10 @@ public class CameraModule {
 
     }
 
+    public CameraModule(ReactApplicationContext context) {
+        this._reactContext = context;
+    }
+
     //TODO: REMOVE PROMISE!!!!
     private synchronized static void __processImage(
             MutableImage mutableImage,
