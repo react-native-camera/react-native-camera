@@ -51,7 +51,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         _reactContext.addLifecycleEventListener(this);
         sound.load(MediaActionSound.SHUTTER_CLICK);
 
-        //cameraModule = new CameraModule(_reactContext);
+        cameraModule = new CameraModule(_reactContext);
     }
 
     public static ReactApplicationContext getReactContextSingleton() {
@@ -495,7 +495,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         //longitude = options.getDouble("longitude");
         longitude = 0;
 
-        cameraModule = new CameraModule(_reactContext, orientation, type, quality, playSoundOnCapture, mode, fixOrientation, jpegQuality, target, latitude, longitude);
+        //cameraModule = new CameraModule(_reactContext, orientation, type, quality, playSoundOnCapture, mode, fixOrientation, jpegQuality, target, latitude, longitude);
         cameraModule.__capture(sound, promise);
     }
 
