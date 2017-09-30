@@ -504,7 +504,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     }
 
     private void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
-        Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        final Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
         if (null == camera) {
             promise.reject("No camera found.");
             return;
@@ -545,9 +545,21 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             }
         };
 
+        Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
+            @Override
+            public void onShutter() {
+                try {
+                    camera.setPreviewCallback(null);
+                    camera.setPreviewTexture(null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
         if(mSafeToCapture) {
           try {
-            camera.takePicture(null, null, captureCallback);
+            camera.takePicture(shutterCallback, null, captureCallback);
             mSafeToCapture = false;
           } catch(RuntimeException ex) {
               Log.e(TAG, "Couldn't capture photo.", ex);
