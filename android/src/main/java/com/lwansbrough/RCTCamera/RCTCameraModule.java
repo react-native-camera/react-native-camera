@@ -487,7 +487,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         //longitude = options.getDouble("longitude");
         longitude = 0;
 
-        cameraModule = new CameraModule(_reactContext, orientation, type, quality, playSoundOnCapture, mode, fixOrientation, jpegQuality, target, latitude, longitude);
+        //cameraModule = new CameraModule(_reactContext, orientation, type, quality, playSoundOnCapture, mode, fixOrientation, jpegQuality, target, latitude, longitude);
         cameraModule.__capture(sound, promise);
     }
 
