@@ -30,7 +30,7 @@ To enable `video recording` feature you have to add the following code to the `A
 
 ### Requirements
 1. JDK >= 1.7 (if you run on 1.6 you will get an error on "_cameras = new HashMap<>();")
-2. With iOS 10 and higher you need to add the "Privacy - Camera Usage Description" key to the info.plist of your project. This should be found in 'your_project/ios/your_project/Info.plist'.  Add the following code:
+2. With iOS 10 and higher you need to add the "Privacy - Camera Usage Description" key to the info.plist of your project. This should be found in 'your_project/ios/your_project/Info.plist'. Add the following code:
 ```
 <key>NSCameraUsageDescription</key>
 <string>Your message to user when the camera is accessed for the first time</string>
@@ -44,6 +44,15 @@ To enable `video recording` feature you have to add the following code to the `A
 <string>Your message to user when the microsphone is accessed for the first time</string>
 ```
 3. On Android, you require `buildToolsVersion` of `25.0.2+`. _This should easily and automatically be downloaded by Android Studio's SDK Manager._
+
+4. On iOS 11 and later you need to add `NSPhotoLibraryAddUsageDescription` key to the Info.plist. This key lets you describe the reason your app seeks write-only access to the user’s photo library. Info.plist can be found in 'your_project/ios/your_project/Info.plist'. Add the following code:
+```
+<!-- Include this only if you are planning to use the camera roll -->
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>Your message to user when the photo library is accessed for the first time</string>
+```
+
+NSPhotoLibraryAddUsageDescription
 
 ### Mostly automatic install with react-native
 1. `npm install react-native-camera --save`
