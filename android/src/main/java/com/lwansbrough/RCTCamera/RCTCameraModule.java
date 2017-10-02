@@ -454,7 +454,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
         int type;
         //type = options.getInt("type");
-        type = RCTCameraUtils.MEDIA_TYPE_IMAGE;
+        type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
 
         String quality;
         //quality = options.getString("quality");

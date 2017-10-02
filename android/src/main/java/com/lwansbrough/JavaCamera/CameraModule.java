@@ -45,7 +45,7 @@ public class CameraModule {
 
 
         this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
-        this._type = RCTCameraUtils.MEDIA_TYPE_IMAGE;
+        this._type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
         this._quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
         this._playSoundOnCapture = true;
         this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
@@ -62,7 +62,7 @@ public class CameraModule {
 
 
         this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
-        this._type = RCTCameraUtils.MEDIA_TYPE_IMAGE;
+        this._type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
         this._quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
         this._playSoundOnCapture = true;
         this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
@@ -100,7 +100,7 @@ public class CameraModule {
 //        this._longitude = longitude;
 
         this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
-        this._type = RCTCameraUtils.MEDIA_TYPE_IMAGE;
+        this._type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
         this._quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
         this._playSoundOnCapture = true;
         this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
