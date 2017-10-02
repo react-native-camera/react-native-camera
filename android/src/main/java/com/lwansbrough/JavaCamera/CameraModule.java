@@ -202,7 +202,7 @@ public class CameraModule {
 //                }
 //            });
 //        } else {
-            __captureWithOrientation(_mediaActionSound, promise);
+            //__captureWithOrientation(_mediaActionSound, promise);
 //        }
     }
 
@@ -250,7 +250,7 @@ public class CameraModule {
 
         if(safeToCapture) {
             try {
-                //camera.takePicture(null, null, captureCallback);
+                camera.takePicture(null, null, captureCallback);
                 safeToCapture = false;
             } catch(RuntimeException ex) {
                 Log.e(TAG, "Couldn't capture photo.", ex);
