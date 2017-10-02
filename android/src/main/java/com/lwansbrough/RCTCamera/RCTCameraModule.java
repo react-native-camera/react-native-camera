@@ -44,8 +44,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         _reactContext.addLifecycleEventListener(this);
         sound.load(MediaActionSound.SHUTTER_CLICK);
 
-        cameraModule = new CameraModule(_reactContext);
-        //cameraModule = new CameraModule();
+        //cameraModule = new CameraModule(_reactContext);
+        cameraModule = new CameraModule();
     }
 
     public static ReactApplicationContext getReactContextSingleton() {
@@ -450,11 +450,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
         int orientation;
         //orientation = options.getInt("orientation");
-        orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_LANDSCAPE_LEFT;
+        orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
 
         int type;
         //type = options.getInt("type");
-        type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
+        type = RCTCameraUtils.MEDIA_TYPE_IMAGE;
 
         String quality;
         //quality = options.getString("quality");

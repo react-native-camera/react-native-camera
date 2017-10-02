@@ -11,8 +11,6 @@ import android.util.Log;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.WritableNativeMap;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.lwansbrough.RCTCamera.*;
@@ -53,7 +51,7 @@ public class CameraModule {
         this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
         this._fixOrientation = false;
         this._jpegQuality = 85;
-        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK;
+        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY;
         this._latitude = 0;
         this._longitude = 0;
     }
@@ -70,7 +68,7 @@ public class CameraModule {
         this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
         this._fixOrientation = false;
         this._jpegQuality = 85;
-        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK;
+        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY;
         this._latitude = 0;
         this._longitude = 0;
     }
@@ -108,7 +106,7 @@ public class CameraModule {
         this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
         this._fixOrientation = false;
         this._jpegQuality = 85;
-        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK;
+        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY;
         this._latitude = 0;
         this._longitude = 0;
     }
@@ -136,12 +134,12 @@ public class CameraModule {
             case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                 String encoded = mutableImage.toBase64(this._jpegQuality);
 
-                WritableMap response = new WritableNativeMap();
+                //WritableMap response = new WritableNativeMap();
 
-                //JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
-                //final ObjectNode response = nodeFactory.objectNode();
+                JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+                final ObjectNode response = nodeFactory.objectNode();
 
-                response.putString("data", encoded);
+                response.put("data", encoded);
                 promise.resolve(response);
                 break;
             case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL: {
