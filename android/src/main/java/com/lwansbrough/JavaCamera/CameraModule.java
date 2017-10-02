@@ -40,10 +40,37 @@ public class CameraModule {
 
     public CameraModule() {
 
+        _reactContext =  RCTCameraModule.getReactContextSingleton();
+
+
+
+        this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
+        this._type = RCTCameraUtils.MEDIA_TYPE_IMAGE;
+        this._quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
+        this._playSoundOnCapture = true;
+        this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
+        this._fixOrientation = false;
+        this._jpegQuality = 85;
+        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK;
+        this._latitude = 0;
+        this._longitude = 0;
     }
 
     public CameraModule(ReactApplicationContext context) {
         this._reactContext = context;
+
+
+
+        this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
+        this._type = RCTCameraUtils.MEDIA_TYPE_IMAGE;
+        this._quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
+        this._playSoundOnCapture = true;
+        this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
+        this._fixOrientation = false;
+        this._jpegQuality = 85;
+        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK;
+        this._latitude = 0;
+        this._longitude = 0;
     }
 
     public CameraModule(
@@ -202,7 +229,7 @@ public class CameraModule {
 //                }
 //            });
 //        } else {
-            //__captureWithOrientation(_mediaActionSound, promise);
+            __captureWithOrientation(_mediaActionSound, promise);
 //        }
     }
 

@@ -44,7 +44,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         _reactContext.addLifecycleEventListener(this);
         sound.load(MediaActionSound.SHUTTER_CLICK);
 
-        cameraModule = new CameraModule(_reactContext);
+        //cameraModule = new CameraModule(_reactContext);
+        cameraModule = new CameraModule();
     }
 
     public static ReactApplicationContext getReactContextSingleton() {
