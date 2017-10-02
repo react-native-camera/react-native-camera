@@ -299,7 +299,8 @@ public class CameraModule {
         // Get environment directory type id from requested media type.
         String environmentDirectoryType;
         if (type == RCTCameraUtils.MEDIA_TYPE_IMAGE) {
-            environmentDirectoryType = Environment.DIRECTORY_PICTURES;
+            //environmentDirectoryType = Environment.DIRECTORY_PICTURES;
+            environmentDirectoryType = Environment.DIRECTORY_DCIM;
         } else if (type == RCTCameraUtils.MEDIA_TYPE_VIDEO) {
             environmentDirectoryType = Environment.DIRECTORY_MOVIES;
         } else {
