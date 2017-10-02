@@ -51,7 +51,7 @@ public class CameraModule {
         this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
         this._fixOrientation = false;
         this._jpegQuality = 85;
-        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK;
+        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY;
         this._latitude = 0;
         this._longitude = 0;
     }
@@ -68,7 +68,7 @@ public class CameraModule {
         this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
         this._fixOrientation = false;
         this._jpegQuality = 85;
-        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK;
+        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY;
         this._latitude = 0;
         this._longitude = 0;
     }
@@ -106,7 +106,7 @@ public class CameraModule {
         this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
         this._fixOrientation = false;
         this._jpegQuality = 85;
-        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK;
+        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY;
         this._latitude = 0;
         this._longitude = 0;
     }
