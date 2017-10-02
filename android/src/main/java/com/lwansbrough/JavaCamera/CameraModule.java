@@ -42,8 +42,6 @@ public class CameraModule {
 
         _reactContext =  RCTCameraModule.getReactContextSingleton();
 
-
-
         this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
         this._type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
         this._quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
@@ -58,8 +56,6 @@ public class CameraModule {
 
     public CameraModule(ReactApplicationContext context) {
         this._reactContext = context;
-
-
 
         this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
         this._type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
@@ -98,17 +94,6 @@ public class CameraModule {
         this._target = target;
         this._latitude = latitude;
         this._longitude = longitude;
-
-//        this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
-//        this._type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
-//        this._quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
-//        this._playSoundOnCapture = true;
-//        this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
-//        this._fixOrientation = false;
-//        this._jpegQuality = 85;
-//        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL;
-//        this._latitude = 0;
-//        this._longitude = 0;
     }
 
     //TODO: REMOVE PROMISE!!!!
