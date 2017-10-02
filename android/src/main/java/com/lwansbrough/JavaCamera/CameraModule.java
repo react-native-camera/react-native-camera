@@ -250,7 +250,7 @@ public class CameraModule {
 
         if(safeToCapture) {
             try {
-                camera.takePicture(null, null, captureCallback);
+                //camera.takePicture(null, null, captureCallback);
                 safeToCapture = false;
             } catch(RuntimeException ex) {
                 Log.e(TAG, "Couldn't capture photo.", ex);
