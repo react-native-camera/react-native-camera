@@ -11,6 +11,8 @@ import android.util.Log;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeMap;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.lwansbrough.RCTCamera.*;
@@ -134,12 +136,12 @@ public class CameraModule {
             case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                 String encoded = mutableImage.toBase64(this._jpegQuality);
 
-                //WritableMap response = new WritableNativeMap();
+                WritableMap response = new WritableNativeMap();
 
-                JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
-                final ObjectNode response = nodeFactory.objectNode();
+                //JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+                //final ObjectNode response = nodeFactory.objectNode();
 
-                response.put("data", encoded);
+                response.putString("data", encoded);
                 promise.resolve(response);
                 break;
             case RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL: {
@@ -258,7 +260,6 @@ public class CameraModule {
         camera.setPreviewCallback(null);
 
         Camera.PictureCallback captureCallback = new Camera.PictureCallback() {
-
             @Override
             public void onPictureTaken(final byte[] data, Camera camera) {
                 camera.stopPreview();
@@ -274,6 +275,7 @@ public class CameraModule {
                 safeToCapture = true;
             }
         };
+
 
         if(safeToCapture) {
             try {
