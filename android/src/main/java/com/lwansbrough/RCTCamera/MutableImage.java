@@ -205,15 +205,6 @@ public class MutableImage {
         exif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(ExifInterface.ORIENTATION_NORMAL));
     }
 
-    private void writeLocationExifData(double latitude, double longitude, ExifInterface exif) {
-        try
-        {
-            GPS.writeExifData(latitude, longitude, exif);
-        } catch (IOException e) {
-            Log.e(TAG, "Couldn't write location data", e);
-        }
-    }
-
     private void writeLocationExifData(ReadableMap options, ExifInterface exif) {
         if(!options.hasKey("metadata"))
             return;
@@ -231,6 +222,15 @@ public class MutableImage {
             double latitude = coords.getDouble("latitude");
             double longitude = coords.getDouble("longitude");
 
+            GPS.writeExifData(latitude, longitude, exif);
+        } catch (IOException e) {
+            Log.e(TAG, "Couldn't write location data", e);
+        }
+    }
+
+    private void writeLocationExifData(double latitude, double longitude, ExifInterface exif) {
+        try
+        {
             GPS.writeExifData(latitude, longitude, exif);
         } catch (IOException e) {
             Log.e(TAG, "Couldn't write location data", e);

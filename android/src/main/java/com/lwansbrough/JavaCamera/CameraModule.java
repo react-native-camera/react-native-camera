@@ -163,7 +163,7 @@ public class CameraModule {
                 }
 
                 try {
-                    mutableImage.writeDataToFile(pictureFile,  this._latitude, this._longitude, 85);
+                    mutableImage.writeDataToFile(pictureFile,  this._latitude, this._longitude, this._jpegQuality);
                 } catch (IOException e) {
                     promise.reject("failed to save image file", e);
                     return;
@@ -197,47 +197,10 @@ public class CameraModule {
     //TODO: REMOVE PROMISE!!!
     public void __capture(final Promise promise)throws Exception
     {
-//        if (orientation == RCTCameraUtils.RCT_CAMERA_ORIENTATION_AUTO) {
-//            _sensorOrientationChecker.onResume();
-//            _sensorOrientationChecker.registerOrientationListener(new RCTSensorOrientationListener() {
-//                @Override
-//                public void orientationEvent() {
-//                    int deviceOrientation = _sensorOrientationChecker.getOrientation();
-//                    _sensorOrientationChecker.unregisterOrientationListener();
-//                    _sensorOrientationChecker.onPause();
-//                    __captureWithOrientation(
-//                            _mediaActionSound,
-//                            _safeToCapture,
-//                            deviceOrientation,
-//                            type,
-//                            mode,
-//                            quality,
-//                            playSoundOnCapture,
-//                            fixOrientation,
-//                            jpegQuality,
-//                            target,
-//                            latitude,
-//                            longitude,
-//                            promise);
-//                }
-//            });
-//        } else {
-            __captureWithOrientation(promise);
-//        }
-    }
-
-    //TODO: REMOVE PROMISE!!!!
-    public void __captureWithOrientation(final Promise promise) throws Exception
-    {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(this._type);
         if (null == camera) {
             throw new Exception("No camera found");
         }
-
-//        if (options.getInt("mode") == RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_VIDEO) {
-//            record(options, promise);
-//            return;
-//        }
 
         if (this._playSoundOnCapture) {
             sound.play(MediaActionSound.SHUTTER_CLICK);
@@ -267,7 +230,6 @@ public class CameraModule {
             }
         };
 
-
         if(safeToCapture) {
             try {
                 camera.takePicture(null, null, captureCallback);
@@ -277,7 +239,6 @@ public class CameraModule {
             }
         }
     }
-
 
     //TODO: REMOVE PROMISE
     public  void __stopCapture(final Promise promise) {
@@ -308,10 +269,8 @@ public class CameraModule {
         String environmentDirectoryType;
         if (type == RCTCameraUtils.MEDIA_TYPE_IMAGE) {
             environmentDirectoryType = Environment.DIRECTORY_PICTURES;
-            //environmentDirectoryType = Environment.DIRECTORY_DCIM;
-        } else if (type == RCTCameraUtils.MEDIA_TYPE_VIDEO) {
-            environmentDirectoryType = Environment.DIRECTORY_MOVIES;
-        } else {
+        }
+        else {
             Log.e(TAG, "Unsupported media type:" + type);
             return null;
         }
