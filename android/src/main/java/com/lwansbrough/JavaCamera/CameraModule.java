@@ -302,8 +302,6 @@ public class CameraModule {
 
         if (type == RCTCameraUtils.MEDIA_TYPE_IMAGE) {
             fileName = String.format("IMG_%s.jpg", fileName);
-        } else if (type == RCTCameraUtils.MEDIA_TYPE_VIDEO) {
-            fileName = String.format("VID_%s.mp4", fileName);
         } else {
             Log.e(TAG, "Unsupported media type:" + type);
             return null;
@@ -320,8 +318,6 @@ public class CameraModule {
 
             if (type == RCTCameraUtils.MEDIA_TYPE_IMAGE) {
                 outputFile = File.createTempFile("IMG_" + timeStamp, ".jpg", outputDir);
-            } else if (type == RCTCameraUtils.MEDIA_TYPE_VIDEO) {
-                outputFile = File.createTempFile("VID_" + timeStamp, ".mp4", outputDir);
             } else {
                 Log.e(TAG, "Unsupported media type:" + type);
                 return null;

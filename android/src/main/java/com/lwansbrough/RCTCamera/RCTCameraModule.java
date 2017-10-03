@@ -136,7 +136,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
                     {
                         put("still", RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL);
-                        put("video", RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_VIDEO);
                     }
                 });
             }
@@ -155,7 +154,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
             private Map<String, Object> getOrientationConstants() {
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
                     {
-                        put("auto", RCTCameraUtils.RCT_CAMERA_ORIENTATION_AUTO);
                         put("landscapeLeft", RCTCameraUtils.RCT_CAMERA_ORIENTATION_LANDSCAPE_LEFT);
                         put("landscapeRight", RCTCameraUtils.RCT_CAMERA_ORIENTATION_LANDSCAPE_RIGHT);
                         put("portrait", RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT);

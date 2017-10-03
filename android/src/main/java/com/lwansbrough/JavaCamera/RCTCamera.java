@@ -187,7 +187,6 @@ public class RCTCamera {
         // Set (video) recording hint based on camera type. For video recording, setting
         // this hint can help reduce the time it takes to start recording.
         Camera.Parameters parameters = camera.getParameters();
-        parameters.setRecordingHint(captureMode == RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_VIDEO);
         camera.setParameters(parameters);
     }
 

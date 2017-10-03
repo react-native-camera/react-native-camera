@@ -124,8 +124,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 Camera.Parameters parameters = _camera.getParameters();
 
                 final boolean isCaptureModeStill = (_captureMode == RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL);
-                final boolean isCaptureModeVideo = (_captureMode == RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_VIDEO);
-                if (!isCaptureModeStill && !isCaptureModeVideo) {
+                if (!isCaptureModeStill) {
                     throw new RuntimeException("Unsupported capture mode:" + _captureMode);
                 }
 
@@ -134,7 +133,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 List<String> focusModes = parameters.getSupportedFocusModes();
                 if (isCaptureModeStill && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
                     parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-                } else if (isCaptureModeVideo && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+                } else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
                     parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
                 } else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
                     parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
@@ -145,8 +144,6 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 List<Camera.Size> supportedSizes;
                 if (isCaptureModeStill) {
                     supportedSizes = parameters.getSupportedPictureSizes();
-                } else if (isCaptureModeVideo) {
-                    supportedSizes = RCTCamera.getInstance().getSupportedVideoSizes(_camera);
                 } else {
                     throw new RuntimeException("Unsupported capture mode:" + _captureMode);
                 }
