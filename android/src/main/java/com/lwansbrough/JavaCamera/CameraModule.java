@@ -1,5 +1,6 @@
 package com.lwansbrough.JavaCamera;
 
+import android.content.Context;
 import android.hardware.Camera;
 import android.media.MediaActionSound;
 import android.media.MediaScannerConnection;
@@ -9,7 +10,6 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReactApplicationContext;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 public class CameraModule {
-    private ReactApplicationContext _reactContext;
+    private Context _reactContext;
     private static final String TAG = "CameraModule";
 
     public MediaActionSound sound = new MediaActionSound();
@@ -58,7 +58,7 @@ public class CameraModule {
         this._longitude = 0;
     }
 
-    public CameraModule(ReactApplicationContext context) {
+    public CameraModule(Context context) {
         this._reactContext = context;
 
         sound.load(MediaActionSound.SHUTTER_CLICK);
@@ -76,7 +76,7 @@ public class CameraModule {
     }
 
     public CameraModule(
-            ReactApplicationContext context,
+            Context context,
             int orientation,
             int type,
             String quality,
