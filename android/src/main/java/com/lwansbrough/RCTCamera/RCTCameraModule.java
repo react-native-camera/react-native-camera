@@ -478,7 +478,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
         int target;
         //target = options.getInt("target");
-        target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_DISK;
+        target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL;
 
         double latitude;
         //latitude = options.getDouble("latitude");
