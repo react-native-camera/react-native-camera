@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.lwansbrough.JavaCamera.CameraModule;
 
 public class RCTCameraModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
@@ -155,50 +156,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Lifec
     //region CAPTURE
     @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) throws Exception {
+        //cameraModule = new CameraModule(_reactContext, orientation, type, quality, playSoundOnCapture, mode, fixOrientation, jpegQuality, target, latitude, longitude);
 
-        int orientation;
-        //orientation = options.getInt("orientation");
-        orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
-
-        int type;
-        //type = options.getInt("type");
-        type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
-
-        String quality;
-        //quality = options.getString("quality");
-        quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
-
-        Boolean playSoundOnCapture;
-        //playSoundOnCapture = options.getBoolean("playSoundOnCapture");
-        playSoundOnCapture = true;
-
-        int mode;
-        //mode = options.getInt("mode");
-        mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
-
-        Boolean fixOrientation;
-        //fixOrientation = options.getBoolean("fixOrientation");
-        fixOrientation = false;
-
-        int jpegQuality;
-        //jpegQuality = options.getInt("jpegQuality");
-        jpegQuality = 80;
-
-        //TODO:TARGET
-        //HERE WE CAN USE CAMERA ROLL OR MEMORY (DISK HAS PROBLEMS SO DON'T USE)
-        int target;
-        //target = options.getInt("target");
-        target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL;
-
-        double latitude;
-        //latitude = options.getDouble("latitude");
-        latitude = 0;
-
-        double longitude;
-        //longitude = options.getDouble("longitude");
-        longitude = 0;
-
-        cameraModule = new CameraModule(_reactContext, orientation, type, quality, playSoundOnCapture, mode, fixOrientation, jpegQuality, target, latitude, longitude);
+        ObjectNode j_options = RCTCameraUtils.toJsonObject(options);
+        cameraModule = new CameraModule(j_options);
         cameraModule.__capture(promise);
     }
     //endregion
