@@ -11,9 +11,11 @@ import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.lwansbrough.RCTCamera.*;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,6 +105,95 @@ public class CameraModule {
         this._target = target;
         this._latitude = latitude;
         this._longitude = longitude;
+    }
+
+    public CameraModule(ObjectNode options)
+    {
+        sound.load(MediaActionSound.SHUTTER_CLICK);
+        this._reactContext = RCTCameraModule.getReactContextSingleton();
+
+        InitCameraModuleByOptions(options);
+    }
+
+    public CameraModule(Context context, ObjectNode options)
+    {
+        sound.load(MediaActionSound.SHUTTER_CLICK);
+        this._reactContext = context;
+
+        InitCameraModuleByOptions(options);
+    }
+
+    private void InitCameraModuleByOptions(ObjectNode options)
+    {
+        if(options.has("orientation")) {
+            JsonNode orientation = options.get("orientation");
+            this._orientation = orientation.asInt();
+        } else{
+            this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
+        }
+
+        if(options.has("type")) {
+            JsonNode type = options.get("type");
+            this._type = type.asInt();
+        } else{
+            this._type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
+        }
+
+        if(options.has("quality")) {
+            JsonNode quality = options.get("quality");
+            this._quality = quality.asText();
+        } else{
+            this._quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
+        }
+
+        if(options.has("playSoundOnCapture")) {
+            JsonNode playSoundOnCapture = options.get("playSoundOnCapture");
+            this._playSoundOnCapture = playSoundOnCapture.asBoolean();
+        } else{
+            this._playSoundOnCapture = true;
+        }
+
+        if(options.has("mode")) {
+            JsonNode mode = options.get("mode");
+            this._mode = mode.asInt();
+        } else{
+            this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
+        }
+
+        if(options.has("fixOrientation")) {
+            JsonNode fixOrientation = options.get("fixOrientation");
+            this._fixOrientation = fixOrientation.asBoolean();
+        } else{
+            this._fixOrientation = false;
+        }
+
+        if(options.has("jpegQuality")) {
+            JsonNode jpegQuality = options.get("jpegQuality");
+            this._jpegQuality = jpegQuality.asInt();
+        } else{
+            this._jpegQuality = 85;
+        }
+
+        if(options.has("target")) {
+            JsonNode target = options.get("target");
+            this._target = target.asInt();
+        } else{
+            this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL;
+        }
+
+        if(options.has("latitude")) {
+            JsonNode latitude = options.get("latitude");
+            this._latitude = latitude.asDouble();
+        } else{
+            this._latitude = 0;
+        }
+
+        if(options.has("longitude")) {
+            JsonNode longitude = options.get("longitude");
+            this._longitude = longitude.asDouble();
+        } else {
+            this._longitude = 0;
+        }
     }
 
     //TODO: REMOVE PROMISE!!!!
