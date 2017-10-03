@@ -156,10 +156,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Lifec
     //region CAPTURE
     @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) throws Exception {
-        //cameraModule = new CameraModule(_reactContext, orientation, type, quality, playSoundOnCapture, mode, fixOrientation, jpegQuality, target, latitude, longitude);
 
         ObjectNode j_options = RCTCameraUtils.toJsonObject(options);
         cameraModule = new CameraModule(j_options);
+
         cameraModule.__capture(promise);
     }
     //endregion

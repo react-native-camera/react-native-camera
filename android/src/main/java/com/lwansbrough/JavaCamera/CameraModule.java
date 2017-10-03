@@ -42,70 +42,6 @@ public class CameraModule {
     double _latitude;
     double _longitude;
 
-    public CameraModule() {
-
-        _reactContext =  RCTCameraModule.getReactContextSingleton();
-
-        sound.load(MediaActionSound.SHUTTER_CLICK);
-
-        this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
-        this._type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
-        this._quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
-        this._playSoundOnCapture = true;
-        this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
-        this._fixOrientation = false;
-        this._jpegQuality = 85;
-        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL;
-        this._latitude = 0;
-        this._longitude = 0;
-    }
-
-    public CameraModule(Context context) {
-        this._reactContext = context;
-
-        sound.load(MediaActionSound.SHUTTER_CLICK);
-
-        this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
-        this._type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
-        this._quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
-        this._playSoundOnCapture = true;
-        this._mode = RCTCameraUtils.RCT_CAMERA_CAPTURE_MODE_STILL;
-        this._fixOrientation = false;
-        this._jpegQuality = 85;
-        this._target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL;
-        this._latitude = 0;
-        this._longitude = 0;
-    }
-
-    public CameraModule(
-            Context context,
-            int orientation,
-            int type,
-            String quality,
-            Boolean playSoundOnCapture,
-            int mode,
-            Boolean fixOrientation,
-            int jpegQuality,
-            int target,
-            double latitude,
-            double longitude
-    )
-    {
-        sound.load(MediaActionSound.SHUTTER_CLICK);
-
-        this._reactContext = context;
-
-        this._orientation = orientation;
-        this._type = type;
-        this._quality = quality;
-        this._playSoundOnCapture = playSoundOnCapture;
-        this._mode = mode;
-        this._fixOrientation = fixOrientation;
-        this._jpegQuality = jpegQuality;
-        this._target = target;
-        this._latitude = latitude;
-        this._longitude = longitude;
-    }
 
     public CameraModule(ObjectNode options)
     {
@@ -196,7 +132,7 @@ public class CameraModule {
         }
     }
 
-    //TODO: REMOVE PROMISE!!!!
+    //TODO: REMOVE PROMISE!!!! HERE IS THE PLACE TO TREAT THE PICTURE DATA!!!
     private synchronized void __processImage(JavaMutableImage mutableImage, Promise promise){
         if(this._fixOrientation) {
             try {
