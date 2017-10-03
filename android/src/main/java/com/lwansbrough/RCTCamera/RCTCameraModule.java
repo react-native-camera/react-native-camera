@@ -23,7 +23,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     private CameraModule cameraModule;
 
     private static ReactApplicationContext _reactContext;
-    private MediaActionSound sound = new MediaActionSound();
 
     //private RCTSensorOrientationChecker _sensorOrientationChecker;
     //private MediaRecorder mMediaRecorder;
@@ -35,15 +34,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
     //private Boolean mSafeToCapture = true;
     //private Camera mCamera = null;
 
-
     public RCTCameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
         _reactContext = reactContext;
 
         //_sensorOrientationChecker = new RCTSensorOrientationChecker(_reactContext);
         _reactContext.addLifecycleEventListener(this);
-        sound.load(MediaActionSound.SHUTTER_CLICK);
 
+        //TODO: Here is the best place to call the constructor of camera, but here don't have all the infos needed
         //cameraModule = new CameraModule(_reactContext);
         //cameraModule = new CameraModule();
     }
@@ -476,6 +474,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         //jpegQuality = options.getInt("jpegQuality");
         jpegQuality = 80;
 
+        //TODO:TARGET
+        //HERE WE CAN USE CAMERA ROLL OR MEMORY (DISK HAS PROBLEMS SO DON'T USE)
         int target;
         //target = options.getInt("target");
         target = RCTCameraUtils.RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL;
@@ -489,7 +489,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
         longitude = 0;
 
         cameraModule = new CameraModule(_reactContext, orientation, type, quality, playSoundOnCapture, mode, fixOrientation, jpegQuality, target, latitude, longitude);
-        cameraModule.__capture(sound, promise);
+        cameraModule.__capture(promise);
     }
 
 //    private void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {

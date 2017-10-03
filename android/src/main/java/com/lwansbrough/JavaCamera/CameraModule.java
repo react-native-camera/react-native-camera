@@ -25,6 +25,8 @@ public class CameraModule {
     private ReactApplicationContext _reactContext;
     private static final String TAG = "CameraModule";
 
+    public MediaActionSound sound = new MediaActionSound();
+
     Boolean safeToCapture = true;
 
     int _orientation;
@@ -42,6 +44,8 @@ public class CameraModule {
 
         _reactContext =  RCTCameraModule.getReactContextSingleton();
 
+        sound.load(MediaActionSound.SHUTTER_CLICK);
+
         this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
         this._type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
         this._quality = RCTCameraUtils.RCT_CAMERA_CAPTURE_QUALITY_HIGH;
@@ -56,6 +60,8 @@ public class CameraModule {
 
     public CameraModule(ReactApplicationContext context) {
         this._reactContext = context;
+
+        sound.load(MediaActionSound.SHUTTER_CLICK);
 
         this._orientation = RCTCameraUtils.RCT_CAMERA_ORIENTATION_PORTRAIT;
         this._type = RCTCameraUtils.RCT_CAMERA_TYPE_BACK;
@@ -83,6 +89,8 @@ public class CameraModule {
             double longitude
     )
     {
+        sound.load(MediaActionSound.SHUTTER_CLICK);
+
         this._reactContext = context;
         this._orientation = orientation;
         this._type = type;
@@ -187,7 +195,7 @@ public class CameraModule {
     }
 
     //TODO: REMOVE PROMISE!!!
-    public void __capture(final MediaActionSound _mediaActionSound, final Promise promise)throws Exception
+    public void __capture(final Promise promise)throws Exception
     {
 //        if (orientation == RCTCameraUtils.RCT_CAMERA_ORIENTATION_AUTO) {
 //            _sensorOrientationChecker.onResume();
@@ -214,12 +222,12 @@ public class CameraModule {
 //                }
 //            });
 //        } else {
-            __captureWithOrientation(_mediaActionSound, promise);
+            __captureWithOrientation(promise);
 //        }
     }
 
     //TODO: REMOVE PROMISE!!!!
-    public void __captureWithOrientation(MediaActionSound _sound, final Promise promise) throws Exception
+    public void __captureWithOrientation(final Promise promise) throws Exception
     {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(this._type);
         if (null == camera) {
@@ -232,7 +240,7 @@ public class CameraModule {
 //        }
 
         if (this._playSoundOnCapture) {
-            _sound.play(MediaActionSound.SHUTTER_CLICK);
+            sound.play(MediaActionSound.SHUTTER_CLICK);
         }
 
         if (this._quality != null) {
