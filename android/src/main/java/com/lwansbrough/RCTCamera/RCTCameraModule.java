@@ -16,7 +16,7 @@ import java.util.Map;
 
 import com.lwansbrough.JavaCamera.CameraModule;
 
-public class RCTCameraModule extends ReactContextBaseJavaModule implements MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener, LifecycleEventListener {
+public class RCTCameraModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
     private static final String TAG = "RCTCameraModule";
 
     private CameraModule cameraModule;
@@ -35,38 +35,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule implements Media
 
     public static ReactApplicationContext getReactContextSingleton() {
         return _reactContext;
-    }
-
-    /**
-     * Callback invoked on new MediaRecorder info.
-     *
-     * See https://developer.android.com/reference/android/media/MediaRecorder.OnInfoListener.html
-     * for more information.
-     *
-     * @param mr MediaRecorder instance for which this callback is being invoked.
-     * @param what Type of info we have received.
-     * @param extra Extra code, specific to the info type.
-     */
-    public void onInfo(MediaRecorder mr, int what, int extra) {
-        if ( what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED ||
-                what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
-        }
-    }
-
-    /**
-     * Callback invoked when a MediaRecorder instance encounters an error while recording.
-     *
-     * See https://developer.android.com/reference/android/media/MediaRecorder.OnErrorListener.html
-     * for more information.
-     *
-     * @param mr MediaRecorder instance for which this callback is being invoked.
-     * @param what Type of error that has occurred.
-     * @param extra Extra code, specific to the error type.
-     */
-    public void onError(MediaRecorder mr, int what, int extra) {
-        // On any error, release the MediaRecorder object and resolve promise. In particular, this
-        // prevents leaving the camera in an unrecoverable state if we crash in the middle of
-        // recording.
     }
 
     @Override

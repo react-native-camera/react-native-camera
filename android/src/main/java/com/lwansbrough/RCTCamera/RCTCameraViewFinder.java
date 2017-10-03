@@ -9,13 +9,6 @@ import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.view.MotionEvent;
 import android.view.TextureView;
-import android.os.AsyncTask;
-
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.WritableArray;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.ArrayList;
 import java.util.List;

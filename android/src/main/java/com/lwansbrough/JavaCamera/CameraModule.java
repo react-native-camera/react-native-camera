@@ -92,6 +92,7 @@ public class CameraModule {
         sound.load(MediaActionSound.SHUTTER_CLICK);
 
         this._reactContext = context;
+
         this._orientation = orientation;
         this._type = type;
         this._quality = quality;

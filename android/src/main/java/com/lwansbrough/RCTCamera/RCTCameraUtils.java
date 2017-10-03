@@ -25,7 +25,7 @@ public class RCTCameraUtils {
     public static final int RCT_CAMERA_ASPECT_STRETCH = 2;
     public static final int RCT_CAMERA_CAPTURE_MODE_STILL = 0;
     public static final int RCT_CAMERA_CAPTURE_TARGET_MEMORY = 0;
-    public static final int RCT_CAMERA_CAPTURE_TARGET_DISK = 1;
+    public static final int RCT_CAMERA_CAPTURE_TARGET_DISK = 1; //TODO: NEED TO BE CHECKED, PROBABLY NEED CALL THE AddToMediaStore
     public static final int RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL = 2;
     public static final int RCT_CAMERA_CAPTURE_TARGET_TEMP = 3;
     public static final int RCT_CAMERA_ORIENTATION_PORTRAIT = Surface.ROTATION_0;
