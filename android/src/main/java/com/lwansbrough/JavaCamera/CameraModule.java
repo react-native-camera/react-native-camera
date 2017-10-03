@@ -105,11 +105,11 @@ public class CameraModule {
     }
 
     //TODO: REMOVE PROMISE!!!!
-    private synchronized void __processImage(MutableImage mutableImage, Promise promise){
+    private synchronized void __processImage(JavaMutableImage mutableImage, Promise promise){
         if(this._fixOrientation) {
             try {
                 mutableImage.fixOrientation();
-            } catch (MutableImage.ImageMutationFailedException e) {
+            } catch (JavaMutableImage.ImageMutationFailedException e) {
                 promise.reject("Error fixing orientation image", e);
             }
         }
@@ -118,7 +118,7 @@ public class CameraModule {
 //        if (shouldMirror) {
 //            try {
 //                mutableImage.mirrorImage();
-//            } catch (MutableImage.ImageMutationFailedException e) {
+//            } catch (JavaMutableImage.ImageMutationFailedException e) {
 //                promise.reject("Error mirroring image", e);
 //            }
 //        }
@@ -259,7 +259,7 @@ public class CameraModule {
                 AsyncTask.execute(new Runnable() {
                     @Override
                     public void run() {
-                        __processImage(new MutableImage(data), promise);
+                        __processImage(new JavaMutableImage(data), promise);
                     }
                 });
 

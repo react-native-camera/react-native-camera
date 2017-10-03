@@ -2,11 +2,12 @@
  * Created by Fabrice Armisen (farmisen@gmail.com) on 1/4/16.
  */
 
-package com.lwansbrough.RCTCamera;
+package com.lwansbrough.JavaCamera;
 
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.util.Log;
+import com.lwansbrough.RCTCamera.RCTCameraUtils;
 
 import java.util.HashMap;
 import java.util.List;

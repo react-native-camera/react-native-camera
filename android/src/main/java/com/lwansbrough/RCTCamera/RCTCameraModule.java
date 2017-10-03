@@ -5,7 +5,6 @@
 
 package com.lwansbrough.RCTCamera;
 
-import android.media.MediaActionSound;
 import android.media.MediaRecorder;
 import com.facebook.react.bridge.*;
 

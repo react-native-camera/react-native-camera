@@ -1,4 +1,4 @@
-package com.lwansbrough.RCTCamera;
+package com.lwansbrough.JavaCamera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,7 +15,8 @@ import com.drew.metadata.MetadataException;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
 
-import com.facebook.react.bridge.ReadableMap;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -24,7 +25,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class MutableImage {
+public class JavaMutableImage {
+
     private static final String TAG = "RNCamera";
 
     private final byte[] originalImageData;
@@ -32,7 +34,7 @@ public class MutableImage {
     private Metadata originalImageMetaData;
     private boolean hasBeenReoriented = false;
 
-    public MutableImage(byte[] originalImageData) {
+    public JavaMutableImage(byte[] originalImageData) {
         this.originalImageData = originalImageData;
         this.currentRepresentation = toBitmap(originalImageData);
     }
@@ -143,7 +145,7 @@ public class MutableImage {
         return Base64.encodeToString(toJpeg(currentRepresentation, jpegQualityPercent), Base64.DEFAULT);
     }
 
-    public void writeDataToFile(File file, ReadableMap options, int jpegQualityPercent) throws IOException {
+    public void writeDataToFile(File file, ObjectNode options, int jpegQualityPercent) throws IOException {
         FileOutputStream fos = new FileOutputStream(file);
         fos.write(toJpeg(currentRepresentation, jpegQualityPercent));
         fos.close();
@@ -201,10 +203,6 @@ public class MutableImage {
         }
     }
 
-    private void rewriteOrientation(ExifInterface exif) {
-        exif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(ExifInterface.ORIENTATION_NORMAL));
-    }
-
     private void writeLocationExifData(double latitude, double longitude, ExifInterface exif) {
         try
         {
@@ -214,22 +212,26 @@ public class MutableImage {
         }
     }
 
-    private void writeLocationExifData(ReadableMap options, ExifInterface exif) {
-        if(!options.hasKey("metadata"))
+    private void rewriteOrientation(ExifInterface exif) {
+        exif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(ExifInterface.ORIENTATION_NORMAL));
+    }
+
+    private void writeLocationExifData(ObjectNode options, ExifInterface exif) {
+        if(!options.has("metadata"))
             return;
 
-        ReadableMap metadata = options.getMap("metadata");
-        if (!metadata.hasKey("location"))
+        JsonNode metadata = options.get("metadata");
+        if (!metadata.has("location"))
             return;
 
-        ReadableMap location = metadata.getMap("location");
-        if(!location.hasKey("coords"))
+        JsonNode location = metadata.get("location");
+        if(!location.has("coords"))
             return;
 
         try {
-            ReadableMap coords = location.getMap("coords");
-            double latitude = coords.getDouble("latitude");
-            double longitude = coords.getDouble("longitude");
+            JsonNode coords = location.get("coords");
+            double latitude = coords.get("latitude").asDouble();
+            double longitude = coords.get("longitude").asDouble();
 
             GPS.writeExifData(latitude, longitude, exif);
         } catch (IOException e) {
