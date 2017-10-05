@@ -575,6 +575,70 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
      * concurrently which would blow the memory (esp on smaller devices), and slow things down.
      */
     private synchronized void processImage(MutableImage mutableImage, ReadableMap options, Promise promise) {
+        /*
+        DEVELOPMENT; Use this to debug cropped barcode
+        RCTCamera settings = RCTCamera.getInstance();
+        if ( settings.barcodeFinderVisible() && settings.barcodeFinderHeight() != 0 && settings.barcodeFinderWidth() != 0){
+
+            // find rotation that will be used
+            int deviceRotation = settings.getActualDeviceOrientation();
+            int rotationIndex = 0;
+            switch(deviceRotation){
+                case 0: // portrait
+                    rotationIndex = 6;
+                    break;
+                case 1: // landscape left
+                    rotationIndex = 1;
+                    break;
+                case 2: // portrait upside down
+
+                    break;
+                case 3: // landscape right
+                    rotationIndex = 3;
+                    break;
+            }
+            // rotate
+            try{
+                mutableImage.rotate(rotationIndex);
+            } catch (MutableImage.ImageMutationFailedException e) {
+                android.util.Log.e("RCTCamera","Rotate temp image",e);
+                promise.reject("failed to rotate file", e);
+                return;
+            }
+
+            Bitmap orgBitmap = mutableImage.getCurrentRepresentation();
+            // Get actual size based on %
+            double w1 = orgBitmap.getWidth() * settings.barcodeFinderWidth();
+            double h1 = orgBitmap.getHeight() * settings.barcodeFinderHeight();
+            // find center - new position
+            int x = (orgBitmap.getWidth()/2) - ((int)w1/2);
+            int y = (orgBitmap.getHeight()/2) - ((int)h1/2);
+            // our small image
+            Bitmap croppedBitmap = Bitmap.createBitmap(orgBitmap, x, y, (int)w1, (int)h1);
+            MutableImage newmutable = new MutableImage(croppedBitmap);
+
+            // we do custom stuff
+            File cameraRollFile = getOutputCameraRollFile(MEDIA_TYPE_IMAGE);
+            if (cameraRollFile == null) {
+                promise.reject("Error creating media file.");
+                return;
+            }
+
+            try {
+                newmutable.writeDataToFile(cameraRollFile, options, 60, false);
+            } catch (IOException | NullPointerException e) {
+                promise.reject("failed to save image file", e);
+                return;
+            }
+
+            addToMediaStore(cameraRollFile.getAbsolutePath());
+
+            resolveImage(cameraRollFile, promise, true);
+
+            return;
+        }
+        */
+
         boolean shouldFixOrientation = options.hasKey("fixOrientation") && options.getBoolean("fixOrientation");
         if(shouldFixOrientation) {
             try {
@@ -613,7 +677,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 }
 
                 try {
-                    mutableImage.writeDataToFile(cameraRollFile, options, jpegQualityPercent);
+                    mutableImage.writeDataToFile(cameraRollFile, options, jpegQualityPercent, true);
                 } catch (IOException | NullPointerException e) {
                     promise.reject("failed to save image file", e);
                     return;
@@ -633,7 +697,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 }
 
                 try {
-                    mutableImage.writeDataToFile(pictureFile, options, 85);
+                    mutableImage.writeDataToFile(pictureFile, options, 85, true);
                 } catch (IOException e) {
                     promise.reject("failed to save image file", e);
                     return;
@@ -651,7 +715,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 }
 
                 try {
-                    mutableImage.writeDataToFile(tempFile, options, 85);
+                    mutableImage.writeDataToFile(tempFile, options, 85, true);
                 } catch (IOException e) {
                     promise.reject("failed to save image file", e);
                     return;
