@@ -484,15 +484,6 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
 - (void)initializeCaptureSessionInput:(NSString *)type {
   dispatch_async(self.sessionQueue, ^{
-    if (type == AVMediaTypeAudio) {
-      for (AVCaptureDeviceInput* input in [self.session inputs]) {
-        if ([input.device hasMediaType:AVMediaTypeAudio]) {
-          // If an audio input has been configured we don't need to set it up again
-          return;
-        }
-      }
-    }
-
     [self.session beginConfiguration];
 
     NSError *error = nil;
@@ -518,6 +509,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
     if (type == AVMediaTypeVideo) {
       [self.session removeInput:self.videoCaptureDeviceInput];
+    }
+    else if (type == AVMediaTypeAudio && self.audioCaptureDeviceInput) {
+      [self.session removeInput:self.audioCaptureDeviceInput];
     }
 
     if ([self.session canAddInput:captureDeviceInput]) {
@@ -836,6 +830,13 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
                                   completionBlock:^(NSURL *assetURL, NSError *error) {
                                     if (error) {
                                       self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
+                                      return;
+                                    } else if (assetURL == nil) {
+                                      // Original PR: https://github.com/lwansbrough/react-native-camera/pull/619/
+                                      // It's possible for writing to camera roll to fail,
+                                      // without receiving an error message, but assetURL will be nil
+                                      // Happens when disk is (almost) full
+                                      self.videoReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Not enough storage"));
                                       return;
                                     }
                                     [videoInfo setObject:[assetURL absoluteString] forKey:@"path"];
