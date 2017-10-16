@@ -208,7 +208,7 @@ export default class Camera extends Component {
   _addOnZoomChanged(props) {
     if (Platform.OS === 'ios') {
       const { onZoomChanged } = props || this.props;
-      this.zoomListener = NativeAppEventEmitter.addListener('zoomChanged', onFocusChanged)
+      this.zoomListener = NativeAppEventEmitter.addListener('zoomChanged', onZoomChanged)
     }
   }
   _removeOnBarCodeReadListener() {
