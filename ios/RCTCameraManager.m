@@ -980,7 +980,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
                         [device setExposureMode:AVCaptureExposureModeAutoExpose];
                         [device setExposurePointOfInterest:cameraViewPoint];
                     }
-                    [device setSubjectAreaChangeMonitoringEnabled:true]
+                    [device setSubjectAreaChangeMonitoringEnabled:true];
                     [device unlockForConfiguration];
                 }
             }
