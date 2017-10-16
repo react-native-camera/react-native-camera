@@ -176,12 +176,15 @@ export default class Camera extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { onBarCodeRead, onFocusChanged } = this.props
+    const { onBarCodeRead, onFocusChanged, onZoomChanged } = this.props
     if (onBarCodeRead !== newProps.onBarCodeRead) {
       this._addOnBarCodeReadListener(newProps)
     }
     if (onFocusChanged !== !newProps.onFocusChanged) {
       this._addOnFocusChanged(newProps)
+    }
+    if (onZoomChanged !== !newProps.onZoomChanged) {
+      this._addOnZoomChanged(newProps)
     }
   }
 
