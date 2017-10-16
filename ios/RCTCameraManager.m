@@ -1008,7 +1008,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
           @"velocity": [NSNumber numberWithDouble:velocity]
         };
 
-        [self.bridge.eventDispatcher sendInputEventWithName:@"zoomChanged" body:event];
+        [self.bridge.eventDispatcher sendAppEventWithName:@"zoomChanged" body:event];
 
         device.videoZoomFactor = zoomFactor;
         [device unlockForConfiguration];
