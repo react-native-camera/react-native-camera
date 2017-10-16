@@ -934,6 +934,20 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 {
   CGPoint devicePoint = CGPointMake(.5, .5);
   [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:NO];
+    
+  if (self.camera.camFocus)
+  {
+    [self.camera.camFocus removeFromSuperview];
+  }
+  self.camera.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake([self.view center].x-80, [self.view center].y-80, 160, 160)];
+  [self.camera.camFocus setBackgroundColor:[UIColor clearColor]];
+  [self.view addSubview:self.camera.camFocus];
+  [self.camera.camFocus setNeedsDisplay];
+
+  [UIView beginAnimations:nil context:NULL];
+  [UIView setAnimationDuration:1.0];
+  [self.camera.camFocus setAlpha:0.0];
+  [UIView commitAnimations];
 }
 
 - (void)focusWithMode:(AVCaptureFocusMode)focusMode exposeWithMode:(AVCaptureExposureMode)exposureMode atDevicePoint:(CGPoint)point monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
