@@ -327,7 +327,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             try {
                 PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
                 BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-                Result result = _multiFormatReader.decodeWithState(bitmap);
+                Result result = getBarcodeAnyOrientation();
+                if (result == null){
+                    throw new Exception();
+                }
+//                Result result = _multiFormatReader.decodeWithState(bitmap);
 
                 ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
                 WritableMap event = Arguments.createMap();
@@ -466,5 +470,34 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
         return (float) Math.sqrt(x * x + y * y);
+    }
+
+    private Result getBarcode(int width, int height) {
+        try{
+            PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
+            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+            return _multiFormatReader.decodeWithState(bitmap);
+        } catch (Throwable t) {
+            // meh
+        } finally {
+            _multiFormatReader.reset();
+        }
+        return null;
+    }
+
+    private Result getBarcodeAnyOrientation() {
+        Camera.Size size = camera.getParameters().getPreviewSize();
+
+        int width = size.width;
+        int height = size.height;
+        Result result = getBarcode(width, height);
+        if (result != null)
+            return result;
+
+        rotateImage(width, height);
+        width = size.height;
+        height = size.width;
+
+        return getBarcode(width, height);
     }
 }
