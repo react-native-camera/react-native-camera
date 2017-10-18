@@ -322,22 +322,16 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 width = size.height;
                 height = size.width;
                 imageData = rotated;
-            }
-
-            try {
-                Camera.Size size = camera.getParameters().getPreviewSize();
-
-                int width = size.width;
-                int height = size.height;
-                Result barcode = getBarcode(width, height);
-                if (barcode != null)
-                    return barcode;
-
+            } else {
                 rotateImage(width, height);
                 width = size.height;
                 height = size.width;
-                
-               Result result = getBarcode(width, height);
+            }
+
+            try {
+                PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
+                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+                Result result = _multiFormatReader.decodeWithState(bitmap);
 
                 ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
                 WritableMap event = Arguments.createMap();
@@ -366,18 +360,15 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             }
         }
     }
-    // 11111
-    private Result getBarcode(int width, int height) {
-        try{
-            PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
-            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-            return _multiFormatReader.decodeWithState(bitmap);
-        } catch (Throwable t) {
-            // meh
-        } finally {
-            _multiFormatReader.reset();
+
+    private void rotateImage(int width, int height) {
+        byte[] rotated = new byte[imageData.length];
+        for (int y = 0; y < height; y++) {
+          for (int x = 0; x < width; x++) {
+            rotated[x * height + height - y - 1] = imageData[x + y * width];
+          }
         }
-        return null;
+        imageData = rotated;
     }
 
     @Override
