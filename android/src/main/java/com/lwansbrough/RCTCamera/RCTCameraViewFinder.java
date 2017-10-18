@@ -319,14 +319,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                         rotated[x * height + height - y - 1] = imageData[x + y * width];
                     }
                 }
-                width = size.height;
-                height = size.width;
                 imageData = rotated;
-            } else {
-                rotateImage(width, height);
                 width = size.height;
                 height = size.width;
-            }
+            } 
 
             try {
                 PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
@@ -359,16 +355,6 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 return null;
             }
         }
-    }
-
-    private void rotateImage(int width, int height) {
-        byte[] rotated = new byte[imageData.length];
-        for (int y = 0; y < height; y++) {
-          for (int x = 0; x < width; x++) {
-            rotated[x * height + height - y - 1] = imageData[x + y * width];
-          }
-        }
-        imageData = rotated;
     }
 
     @Override
