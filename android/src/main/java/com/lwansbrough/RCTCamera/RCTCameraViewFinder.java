@@ -345,17 +345,18 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 return null;
             }
 
-            // rotate for zxing if orientation is portrait
-            Result result = getBarcodeAnyOrientation();
-            if (result == null){
-              throw new Exception();
-            }
-
             try {
+                // rotate for zxing if orientation is portrait
+                Result result = getBarcodeAnyOrientation();
+                if (result == null){
+                    throw new Exception();
+                }
+
                 ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
                 WritableMap event = Arguments.createMap();
                 WritableArray resultPoints = Arguments.createArray();
                 ResultPoint[] points = result.getResultPoints();
+                
                 if(points != null) {
                     for (ResultPoint point : points) {
                         WritableMap newPoint = Arguments.createMap();
