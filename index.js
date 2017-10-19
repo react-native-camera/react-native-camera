@@ -69,7 +69,8 @@ export default class Camera extends Component {
     CaptureQuality: CameraManager.CaptureQuality,
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
-    TorchMode: CameraManager.TorchMode
+    TorchMode: CameraManager.TorchMode,
+    WhiteBalancePreset: CameraManager.WhiteBalancePreset
   };
 
   static propTypes = {
@@ -96,6 +97,17 @@ export default class Camera extends Component {
       PropTypes.string,
       PropTypes.number
     ]),
+    iso: PropTypes.number,
+    exposureCompensation: PropTypes.number,
+    exposureDuration: PropTypes.number,
+    whiteBalancePreset: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+    whiteBalance: PropTypes.shape({
+      temperature: PropTypes.number.isRequired,
+      tint: PropTypes.number.isRequired
+    }),
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
     barcodeScannerEnabled: PropTypes.bool,
@@ -256,6 +268,48 @@ export default class Camera extends Component {
       });
     }
     return CameraManager.hasFlash();
+  }
+
+  getSupportedISOValues() {
+    if (Platform.OS === 'android') {
+      const props = convertNativeProps(this.props);
+      return CameraManager.getSupportedISOValues({
+        type: props.type
+      });
+    }
+
+    //On iOS we can use any value in a range.
+    return Promise.resolve([]);
+  }
+
+  getSupportedISORange() {
+    if (Platform.OS === 'android') {
+      const props = convertNativeProps(this.props);
+      return CameraManager.getSupportedISORange({
+        type: props.type
+      });
+    }
+
+    return CameraManager.getSupportedISORange();
+  }
+
+  getSupportedExposureCompensationRange() {
+    if (Platform.OS === 'android') {
+      const props = convertNativeProps(this.props);
+      return CameraManager.getSupportedExposureCompensationRange({
+        type: props.type
+      });
+    }
+    return CameraManager.getSupportedExposureCompensationRange();
+  }
+
+  getSupportedExposureDurationRange() {
+    if (Platform.OS === 'ios') {
+      return CameraManager.getSupportedExposureDurationRange();
+    }
+
+    //Not supported on Android:
+    return Promise.resolve({});
   }
 }
 

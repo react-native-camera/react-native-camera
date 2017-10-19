@@ -56,6 +56,17 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
   RCTCameraTorchModeAuto = AVCaptureTorchModeAuto
 };
 
+typedef NS_ENUM(NSInteger, RCTCameraWhiteBalancePreset) {
+  RCTCameraWhiteBalanceAuto = 0,
+  RCTCameraWhiteBalanceCloudyDaylight = 1,
+  RCTCameraWhiteBalanceDaylight = 2,
+  RCTCameraWhiteBalanceFluorescent = 3,
+  RCTCameraWhiteBalanceIncandescent = 4,
+  RCTCameraWhiteBalanceShade = 5,
+  RCTCameraWhiteBalanceTwilight = 6,
+  RCTCameraWhiteBalanceWarmFluorescent = 7
+};
+
 @interface RCTCameraManager : RCTViewManager<AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate>
 
 @property (nonatomic, strong) dispatch_queue_t sessionQueue;
@@ -82,6 +93,9 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 - (void)capture:(NSDictionary*)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)getFOV:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)getSupportedISORange:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)getSupportedExposureDurationRange:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)getSupportedExposureCompensationRange:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)initializeCaptureSessionInput:(NSString*)type;
 - (void)stopCapture;
 - (void)startSession;

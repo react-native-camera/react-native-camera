@@ -34,13 +34,19 @@ import com.google.zxing.common.HybridBinarizer;
 
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
     private int _cameraType;
-    private int _captureMode;
+    private int _captureMode = RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_STILL;
     private SurfaceTexture _surfaceTexture;
     private int _surfaceTextureWidth;
     private int _surfaceTextureHeight;
     private boolean _isStarting;
     private boolean _isStopping;
     private Camera _camera;
+    private String _captureQuality = "high";
+    private int _torchMode = -1;
+    private int _flashMode = -1;
+    private int _iso = -1;
+    private double _exposureCompensation = 0;
+    private String _whiteBalancePreset = null;
     private float mFingerSpacing;
 
     // concurrency lock for barcode scanner to avoid flooding the runtime
@@ -110,14 +116,43 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     public void setCaptureQuality(String captureQuality) {
         RCTCamera.getInstance().setCaptureQuality(_cameraType, captureQuality);
+        this._captureQuality = captureQuality;
+    }
+
+    private void updateFlashSetting() {
+        if (this._torchMode != RCTCameraModule.RCT_CAMERA_TORCH_MODE_ON) {
+            //On Android the flash and the torch share the same setting. If we
+            //are turning the torch off, let's restore the flash setting.
+            RCTCamera.getInstance().setFlashMode(_cameraType, this._flashMode);
+        } else {
+            //If we are turning the torch on, we override the flash setting.
+            RCTCamera.getInstance().setTorchMode(_cameraType, this._torchMode);
+        }
     }
 
     public void setTorchMode(int torchMode) {
-        RCTCamera.getInstance().setTorchMode(_cameraType, torchMode);
+        this._torchMode = torchMode;
+        updateFlashSetting();
     }
 
     public void setFlashMode(int flashMode) {
-        RCTCamera.getInstance().setFlashMode(_cameraType, flashMode);
+        this._flashMode = flashMode;
+        updateFlashSetting();
+    }
+
+    public void setISO(int iso) {
+        RCTCamera.getInstance().setISO(_cameraType, iso);
+        this._iso = iso;
+    }
+
+    public void setExposureCompensation(double exposureCompensation) {
+        RCTCamera.getInstance().setExposureCompensation(_cameraType, exposureCompensation);
+        this._exposureCompensation = exposureCompensation;
+    }
+
+    public void setWhiteBalancePreset(String whiteBalancePreset) {
+        RCTCamera.getInstance().setWhiteBalancePreset(_cameraType, whiteBalancePreset);
+        this._whiteBalancePreset = whiteBalancePreset;
     }
 
     private void startPreview() {
@@ -136,7 +171,8 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         if (!_isStarting) {
             _isStarting = true;
             try {
-                _camera = RCTCamera.getInstance().acquireCameraInstance(_cameraType);
+                RCTCamera rctCamera = RCTCamera.getInstance();
+                _camera = rctCamera.acquireCameraInstance(_cameraType);
                 Camera.Parameters parameters = _camera.getParameters();
 
                 final boolean isCaptureModeStill = (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_STILL);
@@ -174,6 +210,18 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
 
                 _camera.setParameters(parameters);
+
+                rctCamera.setCaptureMode(_cameraType, _captureMode);
+                rctCamera.setCaptureQuality(_cameraType, _captureQuality);
+                if(_torchMode == RCTCameraModule.RCT_CAMERA_TORCH_MODE_ON) {
+                    rctCamera.setTorchMode(_cameraType, _torchMode);
+                } else {
+                    rctCamera.setFlashMode(_cameraType, _flashMode);
+                }
+                rctCamera.setISO(_cameraType, _iso);
+                rctCamera.setExposureCompensation(_cameraType, _exposureCompensation);
+                rctCamera.setWhiteBalancePreset(_cameraType, _whiteBalancePreset);
+
                 _camera.setPreviewTexture(_surfaceTexture);
                 _camera.startPreview();
                 // send previews to `onPreviewFrame`

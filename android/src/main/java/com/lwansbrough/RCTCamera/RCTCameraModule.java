@@ -24,6 +24,8 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.Arguments;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -31,6 +33,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -68,6 +71,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     public static final String RCT_CAMERA_CAPTURE_QUALITY_1080P = "1080p";
     public static final String RCT_CAMERA_CAPTURE_QUALITY_720P = "720p";
     public static final String RCT_CAMERA_CAPTURE_QUALITY_480P = "480p";
+    public static final String RCT_CAMERA_WHITE_BALANCE_AUTO = Camera.Parameters.WHITE_BALANCE_AUTO;
+    public static final String RCT_CAMERA_WHITE_BALANCE_CLOUDY_DAYLIGHT = Camera.Parameters.WHITE_BALANCE_CLOUDY_DAYLIGHT;
+    public static final String RCT_CAMERA_WHITE_BALANCE_DAYLIGHT = Camera.Parameters.WHITE_BALANCE_DAYLIGHT;
+    public static final String RCT_CAMERA_WHITE_BALANCE_FLUORESCENT = Camera.Parameters.WHITE_BALANCE_FLUORESCENT;
+    public static final String RCT_CAMERA_WHITE_BALANCE_INCANDESCENT = Camera.Parameters.WHITE_BALANCE_INCANDESCENT;
+    public static final String RCT_CAMERA_WHITE_BALANCE_SHADE = Camera.Parameters.WHITE_BALANCE_SHADE;
+    public static final String RCT_CAMERA_WHITE_BALANCE_TWILIGHT = Camera.Parameters.WHITE_BALANCE_TWILIGHT;
+    public static final String RCT_CAMERA_WHITE_BALANCE_WARM_FLUORESCENT = Camera.Parameters.WHITE_BALANCE_WARM_FLUORESCENT;
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
 
@@ -152,6 +163,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 put("Orientation", getOrientationConstants());
                 put("FlashMode", getFlashModeConstants());
                 put("TorchMode", getTorchModeConstants());
+                put("WhiteBalancePreset", getWhiteBalanceConstants());
             }
 
             private Map<String, Object> getAspectConstants() {
@@ -244,6 +256,21 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                         put("off", RCT_CAMERA_TORCH_MODE_OFF);
                         put("on", RCT_CAMERA_TORCH_MODE_ON);
                         put("auto", RCT_CAMERA_TORCH_MODE_AUTO);
+                    }
+                });
+            }
+
+            private Map<String, Object> getWhiteBalanceConstants() {
+                return Collections.unmodifiableMap(new HashMap<String, Object>() {
+                    {
+                        put("auto", RCT_CAMERA_WHITE_BALANCE_AUTO);
+                        put("cloudyDaylight", RCT_CAMERA_WHITE_BALANCE_CLOUDY_DAYLIGHT);
+                        put("daylight", RCT_CAMERA_WHITE_BALANCE_DAYLIGHT);
+                        put("fluorescent", RCT_CAMERA_WHITE_BALANCE_FLUORESCENT);
+                        put("incandescent", RCT_CAMERA_WHITE_BALANCE_INCANDESCENT);
+                        put("shade", RCT_CAMERA_WHITE_BALANCE_SHADE);
+                        put("twilight", RCT_CAMERA_WHITE_BALANCE_TWILIGHT);
+                        put("warmFluorescent", RCT_CAMERA_WHITE_BALANCE_WARM_FLUORESCENT);
                     }
                 });
             }
@@ -668,6 +695,100 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
         List<String> flashModes = camera.getParameters().getSupportedFlashModes();
         promise.resolve(null != flashModes && !flashModes.isEmpty());
+    }
+
+    private List<Integer> getSupportedISOValues(Camera camera) {
+      List<Integer> result = new ArrayList<>();
+      Camera.Parameters parameters = camera.getParameters();
+      String key = RCTCameraUtils.findISOValuesParameter(parameters);
+
+      if(null == key) {
+        return result;
+      }
+
+      String valuesStr = parameters.get(key);
+      String[] values = valuesStr.split(",");
+
+      for(int i = 0; i < values.length; i++) {
+          int parsed;
+          try {
+            parsed = Integer.parseInt(values[i]);
+            result.add(parsed);
+          } catch(NumberFormatException e) {
+            continue;
+          }
+      }
+
+      return result;
+    }
+
+    @ReactMethod
+    public void getSupportedISOValues(ReadableMap options, final Promise promise) {
+        Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        if(camera == null) {
+          promise.reject("No camera found.");
+          return;
+        }
+
+        List<Integer> values = getSupportedISOValues(camera);
+        WritableArray result = Arguments.createArray();
+
+        for(int i : values) {
+          result.pushInt(i);
+        }
+
+        promise.resolve(result);
+    }
+
+    @ReactMethod
+    public void getSupportedISORange(ReadableMap options, final Promise promise) {
+        Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        if(camera == null) {
+          promise.reject("No camera found.");
+          return;
+        }
+
+        List<Integer> values = getSupportedISOValues(camera);
+
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+
+        if(!values.isEmpty()) {
+          for(int i : values) {
+            if(i < min) {
+              min = i;
+            }
+
+            if(i > max) {
+              max = i;
+            }
+          }
+        } else {
+          min = -1;
+          max = -1;
+        }
+
+        WritableMap result = Arguments.createMap();
+        result.putInt("min", min);
+        result.putInt("max", max);
+        promise.resolve(result);
+    }
+
+    @ReactMethod
+    public void getSupportedExposureCompensationRange(ReadableMap options, final Promise promise) {
+        Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        if(camera == null) {
+          promise.reject("No camera found.");
+          return;
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+        WritableMap result = Arguments.createMap();
+        double step = parameters.getExposureCompensationStep();
+        result.putDouble("min", parameters.getMinExposureCompensation()*step);
+        result.putDouble("max", parameters.getMaxExposureCompensation()*step);
+        result.putDouble("step", step);
+        promise.resolve(result);
     }
 
     private File getOutputMediaFile(int type) {

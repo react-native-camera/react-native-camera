@@ -3,11 +3,16 @@ package com.lwansbrough.RCTCamera;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.view.MotionEvent;
 
 public class RCTCameraUtils {
     private static final int FOCUS_AREA_MOTION_EVENT_EDGE_LENGTH = 100;
     private static final int FOCUS_AREA_WEIGHT = 1000;
+
+    //Some known property names that contain ISO information. Taken from https://stackoverflow.com/a/23567103/3489942:
+    private static final String[] ISO_KEYS = new String[] {"iso", "iso-speed", "nv-picture-iso"};
+    private static final String[] ISO_VALUES_KEYS = new String[] {"iso-values", "iso-speed-values", "iso-mode-values", "nv-picture-iso-values"};
 
     /**
      * Computes a Camera.Area corresponding to the new focus area to focus the camera on. This is
@@ -68,5 +73,35 @@ public class RCTCameraUtils {
         Rect focusAreaRectRounded = new Rect();
         focusAreaRect.round(focusAreaRectRounded);
         return new Camera.Area(focusAreaRectRounded, FOCUS_AREA_WEIGHT);
+    }
+
+    private static String searchParameters(Parameters parameters, String[] strs) {
+      String result = null;
+
+      for(int i = 0; i < strs.length; i++) {
+          result = parameters.get(strs[i]);
+
+          if(result != null) {
+              return strs[i];
+          }
+      }
+
+      return null;
+    }
+
+    /**
+     * Searches the camera parameters structure for some known keys that contain the ISO value.
+     * Returns null is none of the known keys is found.
+     */
+    protected static String findISOParameter(Parameters parameters) {
+        return searchParameters(parameters, ISO_KEYS);
+    }
+
+    /**
+     * Searches the camera parameters structure for some known keys that contain the available ISO values.
+     * Returns null is none of the known keys is found.
+     */
+    protected static String findISOValuesParameter(Parameters parameters) {
+        return searchParameters(parameters, ISO_VALUES_KEYS);
     }
 }

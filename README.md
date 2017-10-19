@@ -7,7 +7,7 @@ The comprehensive camera module for React Native. Including photographs, videos,
 - Pull Requests are welcome, if you open a pull request we will do our best to get to it in a timely manner
 - Pull Request Reviews and even more welcome! we need help testing, reviewing, and updating open PRs
 - If you are interested in contributing more actively, please contact me (same username on Twitter, Facebook, etc.) Thanks!
-- We are now on [Open Collective](https://opencollective.com/react-native-camera#sponsor)! Contributions are appreciated and will be used to fund core contributors. [more details](#open-collective) 
+- We are now on [Open Collective](https://opencollective.com/react-native-camera#sponsor)! Contributions are appreciated and will be used to fund core contributors. [more details](#open-collective)
 
 #### Breaking Changes
 ##### android build tools has been bumped to 25.0.2, please update (can be done via android cli or AndroidStudio)
@@ -272,6 +272,50 @@ Values:
 
 Use the `torchMode` property to specify the camera torch mode.
 
+#### `iso`
+
+Use the `iso` property to define the sensor sensitivity (ISO).
+
+On iOS, use `getSupportedISORange` to obtain the range of valid values for this property. Setting this property on iOS disables the automatic exposure algorithm.
+
+On Android, use `getSupportedISOValues` to obtain a list of valid values for this property. An empty list means this setting is not supported on the device.
+
+#### `iOS` `exposureDuration`
+
+Use the `exposureDuration` property to set the exposure duration (in seconds).
+
+Use `getSupportedExposureDurationRange` to obtain the range of valid values for this property. Setting this property disables the automatic exposure algorithm.
+
+#### `exposureCompensation`
+
+Use the `exposureCompensation` property to define the bias to be applied to the target exposure value (in EV units).
+
+Use `getSupportedExposureCompensationRange` to obtain the range of valid valures for this property.
+
+#### `whiteBalancePreset`
+
+Values:
+`Camera.constants.WhiteBalancePreset.auto`,
+`Camera.constants.WhiteBalancePreset.cloudyDaylight`,
+`Camera.constants.WhiteBalancePreset.daylight`,
+`Camera.constants.WhiteBalancePreset.fluorescent`,
+`Camera.constants.WhiteBalancePreset.incandescent`,
+`Camera.constants.WhiteBalancePreset.shade`,
+`Camera.constants.WhiteBalancePreset.twilight`,
+`Camera.constants.WhiteBalancePreset.warmFluorescent`
+
+Use the `whiteBalancePreset` property to set a white balance preset.
+
+On Android, those constants map to the presets defined by the [API](https://developer.android.com/reference/android/hardware/Camera.Parameters.html#WHITE_BALANCE_AUTO).
+
+On iOS, they map to temperature settings defined by `react-native-camera` itself. Those presets do not necessarily look the same on both platforms. This option exists on iOS merely to make the API more consistent across platforms. iOS provides a much finer control of the white balance that can be accessed using the `whiteBalance` property.
+
+#### `iOS` `whiteBalance`
+
+Use the `whiteBalance` property to adjust the white balance. Do not use `whiteBalance` and `whiteBalancePreset` at the same time.
+
+This property is an object containing two values: `temperature` contains the color temperature in kelvin and `tint` is a value between -150 and +150.
+
 #### `iOS` `onFocusChanged: Event { nativeEvent: { touchPoint: { x, y } }`
 
 iOS: Called when a touch focus gesture has been made.
@@ -311,8 +355,8 @@ If set to `true`, the image returned will be mirrored.
 If set to `true`, the image returned will be rotated to the _right way up_.  WARNING: It uses a significant amount of memory and my cause your application to crash if the device cannot provide enough RAM to perform the rotation.
 
 (_If you find that you need to use this option because your images are incorrectly oriented by default,
-could please submit a PR and include the make model of the device.  We believe that it's not 
-required functionality any more and would like to remove it._) 
+could please submit a PR and include the make model of the device.  We believe that it's not
+required functionality any more and would like to remove it._)
 
 ## Component instance methods
 
@@ -345,6 +389,30 @@ The promise will be fulfilled with an object with some of the following properti
 #### `iOS` `getFOV(): Promise`
 
 Returns the camera's current field of view.
+
+#### `getSupportedISORange(): Promise`
+
+The promise returned by this method resolves to an object containing the keys `min` and `max` that define the minimum and maximum ISO values respectively.
+
+On iOS, any value in the returned range is valid.
+
+On Android, only some predetermined values are valid. The `getSupportedISOValues` method should be used in this case.
+
+#### `Android` `getSupportedISOValues(): Promise`
+
+The promise returned by this method resolves to an array of integers that are the ISO values accepted on the device. An empty array indicates that this setting is not supported by the device.
+
+#### `iOS` `getSupportedExposureDurationRange(): Promise`
+
+The promise returned by this method resolves to an object containing the keys `min` and `max` that define the minimum and maximum exposure times (in seconds) respectively.
+
+#### `getSupportedExposureCompensationRange(): Promise`
+
+The promise returned by this method resolves to an object containing the keys `min`, `max` and `step` that define the range of valid exposure compensation values.
+
+On iOS, any value between `min` and `max` is valid, therefore the `step` value will always be zero.
+
+On Android, the valid values are `min`, `min + step`, `min + 2*step`, ..., `max`, however, any value between `min` and `max` can be passed to `exposureCompensation`. The closest valid setting will be used.
 
 #### `hasFlash(): Promise`
 
