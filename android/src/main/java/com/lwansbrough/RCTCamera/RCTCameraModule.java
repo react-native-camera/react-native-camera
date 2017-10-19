@@ -290,7 +290,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         } else {
             mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             mMediaRecorder.setVideoFrameRate(cm.videoFrameRate);
-//            mMediaRecorder.setVideoSize(cm.videoFrameWidth, cm.videoFrameHeight);
+            mMediaRecorder.setVideoSize(cm.videoFrameWidth, cm.videoFrameHeight);
             mMediaRecorder.setVideoEncodingBitRate(cm.videoBitRate);
             mMediaRecorder.setVideoEncoder(cm.videoCodec);
         }
