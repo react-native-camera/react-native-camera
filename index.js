@@ -44,6 +44,10 @@ function convertNativeProps(props) {
     newProps.captureMode = Camera.constants.CaptureMode[props.captureMode];
   }
 
+  if (typeof props.captureAudio === 'string') {
+    newProps.captureAudio = Camera.constants.CaptureAudio[props.captureAudio];
+  }
+
   if (typeof props.captureTarget === 'string') {
     newProps.captureTarget = Camera.constants.CaptureTarget[props.captureTarget];
   }
@@ -54,6 +58,7 @@ function convertNativeProps(props) {
   }
 
   newProps.barcodeScannerEnabled = typeof props.onBarCodeRead === 'function'
+  
 
   return newProps;
 }
@@ -65,6 +70,7 @@ export default class Camera extends Component {
     BarCodeType: CameraManager.BarCodeType,
     Type: CameraManager.Type,
     CaptureMode: CameraManager.CaptureMode,
+    CaptureAudio: CameraManager.CaptureAudio,
     CaptureTarget: CameraManager.CaptureTarget,
     CaptureQuality: CameraManager.CaptureQuality,
     Orientation: CameraManager.Orientation,
@@ -156,8 +162,7 @@ export default class Camera extends Component {
     this._addOnBarCodeReadListener()
 
     let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode })
-    let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
-    let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
+    let check = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
 
     if (check) {
       const isAuthorized = await check();

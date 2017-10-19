@@ -281,16 +281,22 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         // Set camera.
         mMediaRecorder.setCamera(mCamera);
 
-        // Set AV sources.
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+
+        // Set AV sources.
+        if (options.getBoolean("audio")) {
+            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+            mMediaRecorder.setProfile(cm);
+        } else {
+            mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            mMediaRecorder.setVideoFrameRate(cm.videoFrameRate);
+//            mMediaRecorder.setVideoSize(cm.videoFrameWidth, cm.videoFrameHeight);
+            mMediaRecorder.setVideoEncodingBitRate(cm.videoBitRate);
+            mMediaRecorder.setVideoEncoder(cm.videoCodec);
+        }
 
         // Adjust for orientation.
         mMediaRecorder.setOrientationHint(RCTCamera.getInstance().getAdjustedDeviceOrientation());
-
-        // Set video output format and encoding using CamcorderProfile.
-        cm.fileFormat = MediaRecorder.OutputFormat.MPEG_4;
-        mMediaRecorder.setProfile(cm);
 
         // Set video output file.
         mVideoFile = null;
