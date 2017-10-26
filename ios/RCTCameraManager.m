@@ -457,6 +457,7 @@ RCT_EXPORT_METHOD(lockAutoExposure:(NSDictionary *)options resolve:(RCTPromiseRe
 
     if ([device lockForConfiguration:&error]) {
         [device setExposureMode:AVCaptureExposureModeAutoExpose];
+        device.whiteBalanceMode = AVCaptureWhiteBalanceModeLocked;
         [device unlockForConfiguration];
         resolve(@YES);
     } else {
@@ -470,6 +471,7 @@ RCT_EXPORT_METHOD(unlockAutoExposure:(NSDictionary *)options resolve:(RCTPromise
 
     if ([device lockForConfiguration:&error]) {
         [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+        device.whiteBalanceMode = AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance;
         [device unlockForConfiguration];
         resolve(@YES);
     } else {
