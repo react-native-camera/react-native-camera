@@ -457,9 +457,10 @@ RCT_EXPORT_METHOD(lockAutoExposure:(NSDictionary *)options resolve:(RCTPromiseRe
 
     if ([device lockForConfiguration:&error]) {
         [device setExposureMode:AVCaptureExposureModeAutoExpose];
-        device.whiteBalanceMode = AVCaptureWhiteBalanceModeLocked;
-        [device unlockForConfiguration];
-        resolve(@YES);
+        [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:AVCaptureWhiteBalanceGainsCurrent completionHandler:^(CMTime syncTime) {
+          [device unlockForConfiguration];
+          resolve(@YES);
+        }];
     } else {
         reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Can't obtain lock for configuration"));
     }
