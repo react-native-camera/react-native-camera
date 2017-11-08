@@ -316,13 +316,22 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             }
 
             RCTCamera settings = RCTCamera.getInstance();
-
+            Camera.Parameters params = camera.getParameters();
             // lets convert preview to bytearray that we can use
-            YuvImage imageConvert = new YuvImage(this.imageData, camera.getParameters().getPreviewFormat(), camera.getParameters().getPreviewSize().width, camera.getParameters().getPreviewSize().height, null);
+            YuvImage imageConvert;
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             int quality = 50; //set quality
-            imageConvert.compressToJpeg(new Rect(0, 0, camera.getParameters().getPreviewSize().width, camera.getParameters().getPreviewSize().height), quality, baos);//this line decreases the image quality
-            this.imageData = baos.toByteArray();
+            try {
+
+                imageConvert = new YuvImage(this.imageData, params.getPreviewFormat(), params.getPreviewSize().width, params.getPreviewSize().height, null);
+                imageConvert.compressToJpeg(new Rect(0, 0, params.getPreviewSize().width, params.getPreviewSize().height), quality, baos);//this line decreases the image quality
+                this.imageData = baos.toByteArray();
+                baos = null;
+            }
+            catch(Exception e){
+                android.util.Log.e("RCTCamera","Convert preview",e);
+                return null;
+            }
 
             // find rotation that will be used
             int deviceRotation = settings.getActualDeviceOrientation();
