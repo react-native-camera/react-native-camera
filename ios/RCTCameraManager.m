@@ -460,9 +460,11 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
       self.metadataOutput = metadataOutput;
         if (self.barcodeFinderVisible) {
-            double cameraViewWidth = [[UIScreen mainScreen] bounds].size.height;
-            double cameraViewHeight = [[UIScreen mainScreen] bounds].size.width;
-            CGRect scanLimit = CGRectMake((cameraViewWidth/2)-(self.barcodeFinderPercentageSizeWidth/2),(cameraViewHeight/2)-(self.barcodeFinderPercentageSizeHeight/2), self.barcodeFinderPercentageSizeWidth, self.barcodeFinderPercentageSizeHeight);
+            double cameraViewWidth = [[UIScreen mainScreen] bounds].size.width;
+            double cameraViewHeight = [[UIScreen mainScreen] bounds].size.height;
+            double w = cameraViewWidth * self.barcodeFinderPercentageSizeWidth;
+            double h = cameraViewHeight * self.barcodeFinderPercentageSizeHeight;
+            CGRect scanLimit = CGRectMake((cameraViewWidth/2)-(w/2),(cameraViewHeight/2)-(h/2), w, h);
             [self.previewLayer metadataOutputRectOfInterestForRect: scanLimit];
         }
     }
