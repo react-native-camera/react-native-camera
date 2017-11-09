@@ -297,13 +297,12 @@ RCT_CUSTOM_VIEW_PROPERTY(barcodeFinderVisible, BOOL, RCTCamera) {
   self.barcodeFinderVisible = [RCTConvert BOOL:json];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(barcodeFinderWidth, float, RCTCamera) {
-  self.barcodeFinderWidth = [RCTConvert float:json];
+RCT_CUSTOM_VIEW_PROPERTY(barcodeFinderPercentageSize, NSArray, RCTCamera) {
+    NSArray* arr = [RCTConvert NSArray:json];
+    self.barcodeFinderPercentageSizeWidth = [[arr objectAtIndex:0] doubleValue];
+    self.barcodeFinderPercentageSizeHeight = [[arr objectAtIndex:1] doubleValue];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(barcodeFinderHeight, float, RCTCamera) {
-  self.barcodeFinderHeight = [RCTConvert float:json];
-}
 
 RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
   BOOL captureAudio = [RCTConvert BOOL:json];
@@ -463,10 +462,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
         if (self.barcodeFinderVisible) {
             double cameraViewWidth = [[UIScreen mainScreen] bounds].size.height;
             double cameraViewHeight = [[UIScreen mainScreen] bounds].size.width;
-            CGRect scanLimit = CGRectMake((cameraViewHeight/2)-(self.barcodeFinderHeight/2),(cameraViewWidth/2)-(self.barcodeFinderWidth/2), self.barcodeFinderHeight, self.barcodeFinderWidth);
+            CGRect scanLimit = CGRectMake((cameraViewWidth/2)-(self.barcodeFinderPercentageSizeWidth/2),(cameraViewHeight/2)-(self.barcodeFinderPercentageSizeHeight/2), self.barcodeFinderPercentageSizeWidth, self.barcodeFinderPercentageSizeHeight);
             [self.previewLayer metadataOutputRectOfInterestForRect: scanLimit];
         }
-
     }
 
     __weak RCTCameraManager *weakSelf = self;
