@@ -1026,11 +1026,13 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 {
     #if !(TARGET_IPHONE_SIMULATOR)
         if (quality) {
-            [self.session beginConfiguration];
-            if ([self.session canSetSessionPreset:quality]) {
-                self.session.sessionPreset = quality;
-            }
-            [self.session commitConfiguration];
+            dispatch_async([self sessionQueue], ^{
+                [self.session beginConfiguration];
+                if ([self.session canSetSessionPreset:quality]) {
+                    self.session.sessionPreset = quality;
+                }
+                [self.session commitConfiguration];
+            });
         }
     #endif
 }
