@@ -149,7 +149,7 @@ RCT_CUSTOM_VIEW_PROPERTY(captureQuality, NSInteger, RCTCamera) {
   switch (quality) {
     default:
     case RCTCameraCaptureSessionPresetHigh:
-      qualityString = AVCaptureSessionPresetHigh;
+      qualityString = AVCaptureSessionPreset3840x2160;
       break;
     case RCTCameraCaptureSessionPresetMedium:
       qualityString = AVCaptureSessionPresetMedium;
@@ -491,7 +491,7 @@ RCT_EXPORT_METHOD(setExposure:(NSDictionary *)options exposure:(double)exposure 
     expTime = CMTimeMinimum(expTime, device.activeFormat.maxExposureDuration);
 
     if ([device lockForConfiguration:&error]) {
-        [device setExposureModeCustomWithDuration:expTime ISO:AVCaptureISOCurrent completionHandler:^(CMTime syncTime) {
+        [device setExposureModeCustomWithDuration:expTime ISO:100 completionHandler:^(CMTime syncTime) {
             resolve(@YES);
         }];
         [device unlockForConfiguration];
@@ -760,7 +760,7 @@ RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(
                   CMTime expTime = CMTimeMaximum(CMTimeMakeWithSeconds([exposure doubleValue], 1000000), device.activeFormat.minExposureDuration);
                   expTime = CMTimeMinimum(expTime, device.activeFormat.maxExposureDuration);
                   
-                  [bracketedStillImageSettings addObject:[AVCaptureManualExposureBracketedStillImageSettings manualExposureSettingsWithExposureDuration:expTime ISO:AVCaptureISOCurrent]];
+                  [bracketedStillImageSettings addObject:[AVCaptureManualExposureBracketedStillImageSettings manualExposureSettingsWithExposureDuration:expTime ISO:100]];
               }
           }
           
