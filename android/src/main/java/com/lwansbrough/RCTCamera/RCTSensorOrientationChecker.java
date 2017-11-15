@@ -11,12 +11,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.view.Surface;
 
-import com.facebook.react.bridge.ReactApplicationContext;
-
-interface RCTSensorOrientationListener {
-    void orientationEvent();
-}
-
 public class RCTSensorOrientationChecker {
 
     int mOrientation = 0;
@@ -24,10 +18,16 @@ public class RCTSensorOrientationChecker {
     private SensorManager mSensorManager;
     private RCTSensorOrientationListener mListener = null;
 
+    /*
     public RCTSensorOrientationChecker( ReactApplicationContext reactContext) {
         mSensorEventListener = new Listener();
         mSensorManager = (SensorManager) reactContext.getSystemService(Context.SENSOR_SERVICE);
+    }
+    */
 
+    public RCTSensorOrientationChecker( Context context) {
+        mSensorEventListener = new Listener();
+        mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
     }
 
     /**
