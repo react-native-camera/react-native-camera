@@ -295,6 +295,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             case 2: mMediaRecorder.setOrientationHint(270);
               break;
             case 3: mMediaRecorder.setOrientationHint(180);
+              break;
           }
 
         // Set video output format and encoding using CamcorderProfile.
