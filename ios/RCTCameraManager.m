@@ -149,7 +149,7 @@ RCT_CUSTOM_VIEW_PROPERTY(captureQuality, NSInteger, RCTCamera) {
   switch (quality) {
     default:
     case RCTCameraCaptureSessionPresetHigh:
-      qualityString = AVCaptureSessionPresetHigh;
+      qualityString = AVCaptureSessionPreset3840x2160;
       break;
     case RCTCameraCaptureSessionPresetMedium:
       qualityString = AVCaptureSessionPresetMedium;
@@ -457,9 +457,10 @@ RCT_EXPORT_METHOD(lockAutoExposure:(NSDictionary *)options resolve:(RCTPromiseRe
 
     if ([device lockForConfiguration:&error]) {
         [device setExposureMode:AVCaptureExposureModeAutoExpose];
-        device.whiteBalanceMode = AVCaptureWhiteBalanceModeLocked;
-        [device unlockForConfiguration];
-        resolve(@YES);
+        [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:AVCaptureWhiteBalanceGainsCurrent completionHandler:^(CMTime syncTime) {
+          [device unlockForConfiguration];
+          resolve(@YES);
+        }];
     } else {
         reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Can't obtain lock for configuration"));
     }
