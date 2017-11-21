@@ -80,6 +80,7 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, assign) NSInteger captureTarget;
 @property (nonatomic, strong) NSMutableArray *sources;
 @property (nonatomic, strong) NSMutableArray *exposures;
+@property (nonatomic, strong) NSMutableArray *exposureBrackets;
 
 
 - (void)changeOrientation:(NSInteger)orientation;

@@ -479,26 +479,6 @@ RCT_EXPORT_METHOD(unlockAutoExposure:(NSDictionary *)options resolve:(RCTPromise
     }
 }
 
-RCT_EXPORT_METHOD(setExposure:(NSDictionary *)options exposure:(double)exposure resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
-    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    NSError *error;
-    NSLog(@"Exposure: %f", exposure);
-    NSLog(@"Exposure min: %f", CMTimeGetSeconds(device.activeFormat.minExposureDuration));
-    NSLog(@"Exposure max: %f", CMTimeGetSeconds(device.activeFormat.maxExposureDuration));
-
-    CMTime expTime = CMTimeMaximum(CMTimeMakeWithSeconds(exposure, 1000000), device.activeFormat.minExposureDuration);
-    expTime = CMTimeMinimum(expTime, device.activeFormat.maxExposureDuration);
-
-    if ([device lockForConfiguration:&error]) {
-        [device setExposureModeCustomWithDuration:expTime ISO:AVCaptureISOCurrent completionHandler:^(CMTime syncTime) {
-            resolve(@YES);
-        }];
-        [device unlockForConfiguration];
-    } else {
-        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Can't obtain lock for configuration"));
-    }
-}
-
 RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
 
@@ -549,6 +529,20 @@ RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(
         [strongSelf.session startRunning];
       });
     }]];
+      
+    NSMutableArray *bracketedStillImageSettings = [[NSMutableArray alloc] init];
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    CMTime expTime = device.activeFormat.maxExposureDuration;
+
+    for ( int i = 0; i < self.stillImageOutput.maxBracketedCapturePhotoCount; i++) {
+      [bracketedStillImageSettings addObject:[AVCaptureManualExposureBracketedStillImageSettings manualExposureSettingsWithExposureDuration:expTime ISO:100]];
+    }
+    
+    AVCapturePhotoBracketSettings *settings = [AVCapturePhotoBracketSettings photoBracketSettingsWithRawPixelFormatType:0 processedFormat:nil bracketedSettings:bracketedStillImageSettings];
+
+    [self.stillImageOutput setPreparedPhotoSettingsArray:@[settings] completionHandler:^(BOOL prepared, NSError *error) {
+        NSLog(@"Capture preparation ready: %@", prepared ? @"YES" : @"NO");
+    }];
 
     [self.session startRunning];
   });
@@ -735,8 +729,6 @@ RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(
       self.exposures = [options objectForKey:@"exposures"];
       [self.sources removeAllObjects];
       
-      AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-      
       NSMutableArray *exposuresBrackets = [NSMutableArray array];
       
       int itemsRemaining = [self.exposures count];
@@ -750,24 +742,41 @@ RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(
           j+=range.length;
       }
       
-      for (NSArray *bracket in exposuresBrackets) {
-          NSMutableArray *bracketedStillImageSettings = [[NSMutableArray alloc] init];
-
-          for (NSNumber *exposure in bracket) {
-              NSLog(@"%lu / %lu", bracketedStillImageSettings.count, self.stillImageOutput.maxBracketedCapturePhotoCount);
-              if (bracketedStillImageSettings.count < self.stillImageOutput.maxBracketedCapturePhotoCount) {
-                  CMTime expTime = CMTimeMaximum(CMTimeMakeWithSeconds([exposure doubleValue], 1000000), device.activeFormat.minExposureDuration);
-                  expTime = CMTimeMinimum(expTime, device.activeFormat.maxExposureDuration);
-                  
-                  [bracketedStillImageSettings addObject:[AVCaptureManualExposureBracketedStillImageSettings manualExposureSettingsWithExposureDuration:expTime ISO:AVCaptureISOCurrent]];
-              }
-          }
-          
-          AVCapturePhotoBracketSettings *settings = [AVCapturePhotoBracketSettings photoBracketSettingsWithRawPixelFormatType:0 processedFormat:nil bracketedSettings:bracketedStillImageSettings];
-          [self.stillImageOutput capturePhotoWithSettings:settings delegate:self];
-      }
+      self.exposureBrackets = exposuresBrackets;
+      [self captureBracket];
 #endif
   });
+}
+
+- (void)captureBracket {
+    NSLog(@"bracket: captureBracket");
+    if ([self.exposureBrackets count]) {
+        NSLog(@"bracket: jobs remaining");
+        NSMutableArray *bracketedStillImageSettings = [[NSMutableArray alloc] init];
+        NSArray *bracket = [self.exposureBrackets lastObject];
+        AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+
+        [self.exposureBrackets removeLastObject];
+        
+        for (NSNumber *exposure in bracket) {
+            NSLog(@"bracket expoures: %lu / %lu", bracketedStillImageSettings.count, self.stillImageOutput.maxBracketedCapturePhotoCount);
+            CMTime expTime = CMTimeMaximum(CMTimeMakeWithSeconds([exposure doubleValue], 1000000), device.activeFormat.minExposureDuration);
+            expTime = CMTimeMinimum(expTime, device.activeFormat.maxExposureDuration);
+            NSLog(@"bracket seconds = %f", CMTimeGetSeconds(expTime));
+
+            [bracketedStillImageSettings addObject:[AVCaptureManualExposureBracketedStillImageSettings manualExposureSettingsWithExposureDuration:expTime ISO:100]];
+        }
+        
+        AVCapturePhotoBracketSettings *settings = [AVCapturePhotoBracketSettings photoBracketSettingsWithRawPixelFormatType:0 processedFormat:nil bracketedSettings:bracketedStillImageSettings];
+        [self.stillImageOutput capturePhotoWithSettings:settings delegate:self];
+    } else {
+        NSLog(@"bracket: jobs done");
+    }
+}
+
+- (void)captureOutput:(AVCapturePhotoOutput *)output didCapturePhotoForResolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings {
+    NSLog(@"bracket: didCapturePhotoForResolvedSettings");
+    [self captureBracket];
 }
 
 
