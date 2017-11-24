@@ -282,7 +282,7 @@ On Android, use `getSupportedISOValues` to obtain a list of valid values for thi
 
 #### `iOS` `exposureDuration`
 
-Use the `exposureDuration` property to set the exposure duration (in seconds).
+Use the `exposureDuration` property to set the exposure. This property is an object containing two integer values: `value` and `scale`. Those values are passed to [CMTimeMake](https://developer.apple.com/documentation/coremedia/1400785-cmtimemake?language=objc) to create a CMTime.
 
 Use `getSupportedExposureDurationRange` to obtain the range of valid values for this property. Setting this property disables the automatic exposure algorithm.
 

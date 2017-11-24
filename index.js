@@ -99,7 +99,10 @@ export default class Camera extends Component {
     ]),
     iso: PropTypes.number,
     exposureCompensation: PropTypes.number,
-    exposureDuration: PropTypes.number,
+    exposureDuration: PropTypes.shape({
+      value: PropTypes.number.isRequired,
+      scale: PropTypes.number.isRequired
+    }),
     whiteBalancePreset: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number

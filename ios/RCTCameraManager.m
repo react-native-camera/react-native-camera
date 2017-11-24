@@ -18,7 +18,7 @@
 @property (assign, nonatomic) NSInteger torchMode;
 @property (assign, nonatomic) NSInteger iso;
 @property (assign, nonatomic) double exposureCompensation;
-@property (assign, nonatomic) double exposureDuration;
+@property (assign, nonatomic) CMTime *exposureDuration;
 @property (assign, nonatomic) AVCaptureWhiteBalanceTemperatureAndTintValues *whiteBalance;
 
 @end
@@ -326,18 +326,33 @@ RCT_EXPORT_METHOD(getSupportedISORange:(RCTPromiseResolveBlock)resolve reject:(R
   if(self.iso != -1) {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if (![device lockForConfiguration:&error]) {
       NSLog(@"%@", error);
       return;
     }
-    [device setExposureModeCustomWithDuration:AVCaptureExposureDurationCurrent ISO:(float)self.iso completionHandler: nil];
+    [device setExposureModeCustomWithDuration:self.exposureDuration != nil ? *(self.exposureDuration) : AVCaptureExposureDurationCurrent ISO:(float)self.iso completionHandler: nil];
     [device unlockForConfiguration];
   }
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(exposureDuration, NSInteger, RCTCamera) {
-  self.exposureDuration = [RCTConvert double:json];
+RCT_CUSTOM_VIEW_PROPERTY(exposureDuration, NSDictionary, RCTCamera) {
+  if(json) {
+    NSDictionary *dict = [RCTConvert NSDictionary:json];
+    NSInteger value = [dict[@"value"] integerValue];
+    NSInteger scale = [dict[@"scale"] integerValue];
+
+    if(self.exposureDuration == nil) {
+      self.exposureDuration = malloc(sizeof(CMTime));
+    }
+
+    *(self.exposureDuration) = CMTimeMake(value, scale);
+  } else {
+    if(self.exposureDuration != nil) {
+      free(self.exposureDuration);
+      self.exposureDuration = nil;
+    }
+  }
   dispatch_async(self.sessionQueue, ^{
     [self setExposureDuration];
   });
@@ -353,20 +368,19 @@ RCT_EXPORT_METHOD(getSupportedExposureDurationRange:(RCTPromiseResolveBlock)reso
 }
 
 - (void)setExposureDuration {
-  if(self.exposureDuration != -1) {
+  if(self.exposureDuration != nil) {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if (![device lockForConfiguration:&error]) {
       NSLog(@"%@", error);
       return;
     }
-    
-    [device setExposureModeCustomWithDuration:CMTimeMakeWithSeconds(self.exposureDuration, NSEC_PER_SEC) ISO:AVCaptureISOCurrent completionHandler: nil];
+
+    [device setExposureModeCustomWithDuration: *(self.exposureDuration) ISO:self.iso != -1 ? self.iso : AVCaptureISOCurrent completionHandler: nil];
     [device unlockForConfiguration];
   }
 }
-
 
 RCT_CUSTOM_VIEW_PROPERTY(exposureCompensation, float, RCTCamera) {
   self.exposureCompensation = [RCTConvert float:json];
@@ -387,7 +401,7 @@ RCT_EXPORT_METHOD(getSupportedExposureCompensationRange:(RCTPromiseResolveBlock)
 - (void)setExposureCompensation {
   AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
   NSError *error = nil;
-  
+
   if(![device lockForConfiguration:&error]) {
     NSLog(@"%@", error);
     return;
@@ -398,7 +412,7 @@ RCT_EXPORT_METHOD(getSupportedExposureCompensationRange:(RCTPromiseResolveBlock)
 
 RCT_CUSTOM_VIEW_PROPERTY(whiteBalancePreset, NSInteger, RCTCamera) {
   NSInteger preset = json ? [RCTConvert NSInteger:json] : RCTCameraWhiteBalanceAuto;
-  
+
   if(preset == RCTCameraWhiteBalanceAuto) {
     if(self.whiteBalance != nil) {
       free(self.whiteBalance);
@@ -408,52 +422,52 @@ RCT_CUSTOM_VIEW_PROPERTY(whiteBalancePreset, NSInteger, RCTCamera) {
     if(self.whiteBalance == nil) {
       self.whiteBalance = malloc(sizeof(AVCaptureWhiteBalanceTemperatureAndTintValues));
     }
-    
+
     self.whiteBalance->tint = 0;
-    
+
     switch(preset) {
       case RCTCameraWhiteBalanceCloudyDaylight:
         self.whiteBalance->temperature = 6500;
         break;
-        
+
       case RCTCameraWhiteBalanceDaylight:
         self.whiteBalance->temperature = 6500;
         break;
-        
+
       case RCTCameraWhiteBalanceFluorescent:
         self.whiteBalance->temperature = 4200;
         break;
-        
+
       case RCTCameraWhiteBalanceIncandescent:
         self.whiteBalance->temperature = 2500;
         break;
-        
+
       case RCTCameraWhiteBalanceShade:
         self.whiteBalance->temperature = 9000;
         break;
-        
+
       case RCTCameraWhiteBalanceTwilight:
         self.whiteBalance->temperature = 2500;
         break;
-        
+
       case RCTCameraWhiteBalanceWarmFluorescent:
         self.whiteBalance->temperature = 3200;
         break;
     }
-    
+
     dispatch_async(self.sessionQueue, ^{
       [self setWhiteBalance];
     });
   }
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSInteger, RCTCamera) {
+RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSDictionary, RCTCamera) {
   if(json) {
     NSDictionary *dict = [RCTConvert NSDictionary:json];
     if(self.whiteBalance == nil) {
       self.whiteBalance = malloc(sizeof(AVCaptureWhiteBalanceTemperatureAndTintValues));
     }
-    
+
     self.whiteBalance->temperature = [dict[@"temperature"] floatValue];
     self.whiteBalance->tint = [dict[@"tint"] floatValue];
   } else {
@@ -471,12 +485,12 @@ RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSInteger, RCTCamera) {
   dispatch_async(self.sessionQueue, ^{
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if (![device lockForConfiguration:&error]) {
       NSLog(@"%@", error);
       return;
     }
-    
+
     if(self.whiteBalance == nil) {
       [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
     } else {
@@ -523,13 +537,13 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
     self.sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
 
     self.sensorOrientationChecker = [RCTSensorOrientationChecker new];
-    
+
     self.iso = -1;
-    
+
     self.exposureCompensation = 0;
-    
-    self.exposureDuration = -1;
-    
+
+    self.exposureDuration = nil;
+
     self.whiteBalance = nil;
   }
   return self;
@@ -706,7 +720,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
         return;
       }
     }
-    
+
     [self.session beginConfiguration];
 
     NSError *error = nil;
@@ -744,7 +758,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
         self.videoCaptureDeviceInput = captureDeviceInput;
         [self setFlashMode];
       }
-      
+
       [self.metadataOutput setMetadataObjectTypes:self.metadataOutput.availableMetadataObjectTypes];
     }
 
