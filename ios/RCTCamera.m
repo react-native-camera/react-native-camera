@@ -27,19 +27,19 @@
   BOOL _previousIdleTimerDisabled;
 }
 
-- (void)setOrientation:(NSInteger)orientation
-{
-  [self.manager changeOrientation:orientation];
+// - (void)setOrientation:(NSInteger)orientation
+// {
+//   [self.manager changeOrientation:orientation];
 
-  if (orientation == RCTCameraOrientationAuto) {
-    [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
-    [[NSNotificationCenter defaultCenter] addObserver:self  selector:@selector(orientationChanged:)    name:UIDeviceOrientationDidChangeNotification  object:nil];
-  }
-  else {
-    [[NSNotificationCenter defaultCenter]removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
-    [self changePreviewOrientation:orientation];
-  }
-}
+//   if (orientation == RCTCameraOrientationAuto) {
+//     [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
+//     [[NSNotificationCenter defaultCenter] addObserver:self  selector:@selector(orientationChanged:)    name:UIDeviceOrientationDidChangeNotification  object:nil];
+//   }
+//   else {
+//     [[NSNotificationCenter defaultCenter]removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+//     [self changePreviewOrientation:orientation];
+//   }
+// }
 
 - (void)setOnFocusChanged:(BOOL)enabled
 {
@@ -77,6 +77,7 @@
     _defaultOnFocusComponent = YES;
     _onZoomChanged = NO;
     _previousIdleTimerDisabled = [UIApplication sharedApplication].idleTimerDisabled;
+    [[NSNotificationCenter defaultCenter] addObserver:self  selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification  object:nil];
   }
   return self;
 }
@@ -109,11 +110,15 @@
   [UIApplication sharedApplication].idleTimerDisabled = _previousIdleTimerDisabled;
 }
 
-- (void)orientationChanged:(NSNotification *)notification{
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-  [self changePreviewOrientation:orientation];
+// - (void)orientationChanged:(NSNotification *)notification{
+//   UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+//   [self changePreviewOrientation:orientation];
+// }
+- (void)orientationChanged:(NSNotification *)notification {
+  if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
+    self.manager.previewLayer.connection.videoOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+  }
 }
-
 
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -179,13 +184,13 @@
     }
 }
 
-- (void)changePreviewOrientation:(NSInteger)orientation
-{
-    dispatch_async(self.manager.sessionQueue, ^{
-        if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
-            self.manager.previewLayer.connection.videoOrientation = orientation;
-        }
-    });
-}
+// - (void)changePreviewOrientation:(NSInteger)orientation
+// {
+//     dispatch_async(self.manager.sessionQueue, ^{
+//         if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
+//             self.manager.previewLayer.connection.videoOrientation = orientation;
+//         }
+//     });
+// }
 
 @end
