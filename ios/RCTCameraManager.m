@@ -690,12 +690,18 @@ RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(
               NSLog(@"Path %@", fullPath);
               NSLog(@"NB captures: %lu", (unsigned long)self.sources.count);
               if (self.sources.count == self.exposures.count) {
+                if (self.captureResolve) {
                   self.captureResolve(self.sources);
+                  self.captureResolve = nil;
+                }
               }
               CGImageRelease(rotatedCGImage);
             }
             else {
-              self.captureReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
+              if (self.captureReject) {
+                self.captureReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
+                self.captureReject = nil;
+              }
             }
 }
 
