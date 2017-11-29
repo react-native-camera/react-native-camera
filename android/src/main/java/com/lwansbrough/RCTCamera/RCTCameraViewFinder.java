@@ -42,6 +42,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private boolean _isStopping;
     private Camera _camera;
     private float mFingerSpacing;
+    private final Object _cameraInstanceLock;
 
     // concurrency lock for barcode scanner to avoid flooding the runtime
     public static volatile boolean barcodeScannerTaskLock = false;
@@ -53,6 +54,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         super(context);
         this.setSurfaceTextureListener(this);
         this._cameraType = type;
+        this._cameraInstanceLock = new Object();
         this.initBarcodeReader(RCTCamera.getInstance().getBarCodeTypes());
     }
 
@@ -132,9 +134,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         }
     }
 
-    synchronized private void startCamera() {
-        if (!_isStarting) {
-            _isStarting = true;
+    private void startCamera() {
+        synchronized (_cameraInstanceLock) {
+            if (!_isStarting) {
+                _isStarting = true;
+            }
             try {
                 _camera = RCTCamera.getInstance().acquireCameraInstance(_cameraType);
                 Camera.Parameters parameters = _camera.getParameters();
@@ -185,6 +189,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 stopCamera();
             } finally {
                 _isStarting = false;
+                _cameraInstanceLock.notifyAll();
             }
         }
     }
@@ -211,9 +216,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     /**
      * Parse barcodes as BarcodeFormat constants.
-     *
+     * <p>
      * Supports all iOS codes except [code39mod43, itf14]
-     *
+     * <p>
      * Additionally supports [codabar, maxicode, rss14, rssexpanded, upca, upceanextension]
      */
     private BarcodeFormat parseBarCodeString(String c) {
@@ -279,9 +284,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     /**
      * Spawn a barcode reader task if
-     *  - the barcode scanner is enabled (has a onBarCodeRead function)
-     *  - one isn't already running
-     *
+     * - the barcode scanner is enabled (has a onBarCodeRead function)
+     * - one isn't already running
+     * <p>
      * See {Camera.PreviewCallback}
      */
     public void onPreviewFrame(byte[] data, Camera camera) {
@@ -333,7 +338,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 WritableMap event = Arguments.createMap();
                 WritableArray resultPoints = Arguments.createArray();
                 ResultPoint[] points = result.getResultPoints();
-                if(points != null) {
+                if (points != null) {
                     for (ResultPoint point : points) {
                         WritableMap newPoint = Arguments.createMap();
                         newPoint.putString("x", String.valueOf(point.getX()));
@@ -357,12 +362,37 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         }
     }
 
+    private boolean waitForCamera() {
+        synchronized (_cameraInstanceLock) {
+            try {
+                _cameraInstanceLock.wait();
+                return true;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    }
+
+    private boolean cameraAvailable() {
+        if (_camera != null) {
+            return true;
+        }
+        return waitForCamera();
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (cameraAvailable()) {
+            return handleTouchEvent(event);
+        }
+        return false;
+    }
+
+    public boolean handleTouchEvent(MotionEvent event) {
         // Get the pointer ID
         Camera.Parameters params = _camera.getParameters();
         int action = event.getAction();
-
 
         if (event.getPointerCount() > 1) {
             // handle multi-touch events
@@ -401,7 +431,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     /**
      * Handles setting focus to the location of the event.
-     *
+     * <p>
      * Note that this will override the focus mode on the camera to FOCUS_MODE_AUTO if available,
      * even if this was previously something else (such as FOCUS_MODE_CONTINUOUS_*; see also
      * {@link #startCamera()}. However, this makes sense - after the user has initiated any
@@ -437,31 +467,31 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
             // Also set metering area if enabled. If max num metering areas is 0, then metering area
             // is not supported. We can usually safely omit this anyway, though.
-            if (params.getMaxNumMeteringAreas() > 0) {
-                params.setMeteringAreas(focusAreas);
-            }
+            params.setMeteringAreas(focusAreas);
+        }
 
-            // Set parameters before starting auto-focus.
-            _camera.setParameters(params);
+        // Set parameters before starting auto-focus.
+        _camera.setParameters(params);
 
-            // Start auto-focus now that focus area has been set. If successful, then can cancel
-            // it afterwards. Wrap in try-catch to avoid crashing on merely autoFocus fails.
-            try {
-                _camera.autoFocus(new Camera.AutoFocusCallback() {
-                    @Override
-                    public void onAutoFocus(boolean success, Camera camera) {
-                        if (success) {
-                            camera.cancelAutoFocus();
-                        }
+        // Start auto-focus now that focus area has been set. If successful, then can cancel
+        // it afterwards. Wrap in try-catch to avoid crashing on merely autoFocus fails.
+        try {
+            _camera.autoFocus(new Camera.AutoFocusCallback() {
+                @Override
+                public void onAutoFocus(boolean success, Camera camera) {
+                    if (success) {
+                        camera.cancelAutoFocus();
                     }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    /** Determine the space between the first two fingers */
+    /**
+     * Determine the space between the first two fingers
+     */
     private float getFingerSpacing(MotionEvent event) {
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
