@@ -119,10 +119,6 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         RCTCamera.getInstance().setFlashMode(_cameraType, flashMode);
     }
 
-    public void setISO(String iso) {
-        RCTCamera.getInstance().setISO(_cameraType, iso);
-    }
-
     private void startPreview() {
         if (_surfaceTexture != null) {
             startCamera();

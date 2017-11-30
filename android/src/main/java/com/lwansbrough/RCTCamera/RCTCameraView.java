@@ -24,7 +24,6 @@ public class RCTCameraView extends ViewGroup {
     private String _captureQuality = "high";
     private int _torchMode = -1;
     private int _flashMode = -1;
-    private String _iso = RCTCameraModule.RCT_CAMERA_ISO_200;
 
     public RCTCameraView(Context context) {
         super(context);
@@ -123,13 +122,6 @@ public class RCTCameraView extends ViewGroup {
 
     public void setBarCodeTypes(List<String> types) {
         RCTCamera.getInstance().setBarCodeTypes(types);
-    }
-
-    public void setISO(String iso) {
-        this._iso = iso;
-        if (this._viewFinder != null) {
-            this._viewFinder.setISO(iso);
-        }
     }
 
     private boolean setActualDeviceOrientation(Context context) {

@@ -87,9 +87,4 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         }
         view.setBarCodeTypes(result);
     }
-
-    @ReactProp(name = "iso")
-    public void setISO(RCTCameraView view, String iso) {
-        view.setISO(iso);
-    }
 }

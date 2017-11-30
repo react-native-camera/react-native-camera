@@ -43,6 +43,64 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+class GifThread extends Thread
+{
+    private ReadableArray images;
+    private Callback callback;
+
+    GifThread(ReadableArray _images, Callback _callback) {
+        images = _images;
+        callback = _callback;
+    }
+
+    @Override
+    public void run()
+    {
+        ArrayList<Bitmap> bitmaps = new ArrayList<Bitmap>();
+
+        for (int i = 0; i < images.size(); i++) {
+            try {
+                URL url = new URL(images.getString(i));
+                File imgFile = new  File(url.getFile());
+
+                if (imgFile.exists()){
+                    Bitmap b = BitmapFactory.decodeFile(imgFile.getAbsolutePath()); // TODO simplify
+                    Log.e("RCTCamera", b.getByteCount() + "");
+                    bitmaps.add(b);
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        AnimatedGifEncoder encoder = new AnimatedGifEncoder();
+        encoder.setDelay(500);
+        encoder.setRepeat(0);
+        encoder.start(bos);
+        for (Bitmap bitmap : bitmaps) {
+            encoder.addFrame(bitmap);
+        }
+        encoder.finish();
+        byte[] bosba = bos.toByteArray();
+        Log.e("RCTCamera", bosba.length + "");
+
+        FileOutputStream outStream = null;
+        String gifUrl = "file://" + Environment.getExternalStorageDirectory().getPath() + "/animated.gif";
+        try{
+            outStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/animated.gif");
+            outStream.write(bosba);
+            outStream.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        WritableNativeArray resultantArray = new WritableNativeArray();
+        resultantArray.pushString(gifUrl);
+
+        callback.invoke(null, resultantArray);
+    }
+}
+
 public class RCTCameraModule extends ReactContextBaseJavaModule
     implements MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener, LifecycleEventListener {
     private static final String TAG = "RCTCameraModule";
@@ -78,13 +136,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     public static final String RCT_CAMERA_CAPTURE_QUALITY_480P = "480p";
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
-    public static final String RCT_CAMERA_ISO_800 = "800";
-    public static final String RCT_CAMERA_ISO_400 = "400";
-    public static final String RCT_CAMERA_ISO_200 = "200";
-    public static final String RCT_CAMERA_ISO_100 = "100";
-    public static final String RCT_CAMERA_ISO_AUTO = "auto";
 
     private static ReactApplicationContext _reactContext;
+    private static GifThread sideThread;
     private RCTSensorOrientationChecker _sensorOrientationChecker;
 
     private MediaRecorder mMediaRecorder;
@@ -163,7 +217,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 put("Orientation", getOrientationConstants());
                 put("FlashMode", getFlashModeConstants());
                 put("TorchMode", getTorchModeConstants());
-                put("Iso", getISOConstants());
             }
 
             private Map<String, Object> getAspectConstants() {
@@ -256,18 +309,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                         put("off", RCT_CAMERA_TORCH_MODE_OFF);
                         put("on", RCT_CAMERA_TORCH_MODE_ON);
                         put("auto", RCT_CAMERA_TORCH_MODE_AUTO);
-                    }
-                });
-            }
-
-            private Map<String, Object> getISOConstants() {
-                return Collections.unmodifiableMap(new HashMap<String, Object>() {
-                    {
-                        put("800", RCT_CAMERA_ISO_800);
-                        put("400", RCT_CAMERA_ISO_400);
-                        put("200", RCT_CAMERA_ISO_200);
-                        put("100", RCT_CAMERA_ISO_100);
-                        put("auto", RCT_CAMERA_ISO_AUTO);
                     }
                 });
             }
@@ -528,21 +569,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     }
 
     @ReactMethod
-    public void zoom(int val) {
-        RCTCamera.getInstance().zoom(val);
-    }
-
-    @ReactMethod
-    public void setWhiteBalance(String val) {
-        RCTCamera.getInstance().setWhiteBalance(val);
-    }
-
-    @ReactMethod
-    public void getWhiteBalance(Callback callback) {
-        RCTCamera.getInstance().getWhiteBalance(callback);
-    }
-
-    @ReactMethod
     public void getSupportedWhiteBalance(Callback callback) {
         RCTCamera.getInstance().getSupportedWhiteBalance(callback);
     }
@@ -559,46 +585,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void makeGif(ReadableArray images, Callback callback) {
-        ArrayList<Bitmap> bitmaps = new ArrayList<Bitmap>();
-
-        for (int i = 0; i < images.size(); i++) {
-            try {
-                URL url = new URL(images.getString(i));
-                File imgFile = new  File(url.getFile());
-                if (imgFile.exists()){
-                    Bitmap b = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                    Log.e("RCTCamera", b.getByteCount() + "");
-                    bitmaps.add(b);
-                }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        AnimatedGifEncoder encoder = new AnimatedGifEncoder();
-        encoder.setDelay(500);
-        encoder.setRepeat(0);
-        encoder.start(bos);
-        for (Bitmap bitmap : bitmaps) {
-            encoder.addFrame(bitmap);
-        }
-        encoder.finish();
-        byte[] bosba = bos.toByteArray();
-        Log.e("RCTCamera", bosba.length + "");
-
-        FileOutputStream outStream = null;
-        String gifUrl = "file://" + Environment.getExternalStorageDirectory().getPath() + "/animated.gif";
-        try{
-            outStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/animated.gif");
-            outStream.write(bosba);
-            outStream.close();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        WritableNativeArray resultantArray = new WritableNativeArray();
-        resultantArray.pushString(gifUrl);
-        callback.invoke(null, resultantArray);
+        sideThread = new GifThread(images, callback);
+        sideThread.start();
     }
 
     private void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
