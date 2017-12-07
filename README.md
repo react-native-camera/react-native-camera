@@ -239,7 +239,7 @@ The following barcode types can be recognised:
 - `code39`
 - `code39mod43`
 - `code93`
-- `ean13`
+- `ean13` (`iOS` converts `upca` barcodes to `ean13` by adding a leading 0)
 - `ean8`
 - `pdf417`
 - `qr`
