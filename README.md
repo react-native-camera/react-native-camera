@@ -285,6 +285,15 @@ Android: This callback is not yet implemented. However, Android will
 automatically do tap-to-focus if the device supports auto-focus; there is
 currently no way to manage this from javascript.
 
+To get autofocus/tap to focus functionalities working correctly in android
+make sure that the proper permissions are set in your `AndroidManifest.xml`:
+```java
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+```
+
+
+
 #### `iOS` `defaultOnFocusComponent`
 
 Values:
