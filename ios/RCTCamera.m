@@ -127,47 +127,49 @@
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if (!_onFocusChanged) return;
-
+    
     BOOL allTouchesEnded = ([touches count] == [[event touchesForView:self] count]);
-
+    
     // Do not conflict with zooming and etc.
     if (allTouchesEnded && !_multipleTouches) {
         UITouch *touch = [[event allTouches] anyObject];
         CGPoint touchPoint = [touch locationInView:touch.view];
         // Focus camera on this point
         [self.manager focusAtThePoint:touchPoint];
-
+        
         if (self.camFocus)
         {
             [self.camFocus removeFromSuperview];
         }
         NSDictionary *event = @{
-          @"target": self.reactTag,
-          @"touchPoint": @{
-            @"x": [NSNumber numberWithDouble:touchPoint.x],
-            @"y": [NSNumber numberWithDouble:touchPoint.y]
-          }
-        };
+                                @"target": self.reactTag,
+                                @"touchPoint": @{
+                                        @"x": [NSNumber numberWithDouble:touchPoint.x],
+                                        @"y": [NSNumber numberWithDouble:touchPoint.y]
+                                        }
+                                };
         [self.bridge.eventDispatcher sendInputEventWithName:@"focusChanged" body:event];
-
+        
         // Show animated rectangle on the touched area
         if (_defaultOnFocusComponent) {
-            self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-40, touchPoint.y-40, 80, 80)];
+            self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-36, touchPoint.y-36, 72, 72)];
+            
             [self.camFocus setBackgroundColor:[UIColor clearColor]];
             [self addSubview:self.camFocus];
+            
             [self.camFocus setNeedsDisplay];
-
+            
             [UIView beginAnimations:nil context:NULL];
             [UIView setAnimationDuration:1.0];
-            [self.camFocus setAlpha:0.0];
+            //            [self.camFocus setAlpha:0.0];
             [UIView commitAnimations];
         }
     }
-
+    
     if (allTouchesEnded) {
         _multipleTouches = NO;
     }
-
+    
 }
 
 

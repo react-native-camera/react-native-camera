@@ -133,7 +133,7 @@ export default class Camera extends Component {
     playSoundOnCapture: true,
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
-    barCodeTypes: Object.values(CameraManager.BarCodeType),
+    barCodeTypes: Object.values(CameraManager.BarCodeType)
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -279,18 +279,38 @@ export default class Camera extends Component {
     }
     return CameraManager.hasFlash();
   }
+
+  zoom(val) {
+    CameraManager.zoom(val);
+  }
+
+  setWhiteBalance(val) {
+    CameraManager.setWhiteBalance(val);
+  }
+
+  getWhiteBalance(val) {
+    CameraManager.getWhiteBalance(val);
+  }
+
+  getSupportedWhiteBalance(val) {
+    CameraManager.getSupportedWhiteBalance(val);
+  }
+
+  getExposureCompensationRange(val) {
+    CameraManager.getExposureCompensationRange(val);
+  }
 }
 
 export const constants = Camera.constants;
 
 const RCTCamera = requireNativeComponent('RCTCamera', Camera, {nativeOnly: {
-  testID: true,
   renderToHardwareTextureAndroid: true,
   accessibilityLabel: true,
   importantForAccessibility: true,
   accessibilityLiveRegion: true,
   accessibilityComponentType: true,
-  onLayout: true
+  onLayout: true,
+  testID: true
 }});
 
 const styles = StyleSheet.create({

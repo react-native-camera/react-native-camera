@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.TextureView;
 import android.os.AsyncTask;

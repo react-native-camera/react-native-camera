@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.lang.Math;
 
+import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.WritableNativeArray;
+
 public class RCTCamera {
     private static RCTCamera ourInstance;
     private final HashMap<Integer, CameraInfoWrapper> _cameraInfos;
@@ -343,6 +346,46 @@ public class RCTCamera {
             parameters.setFlashMode(value);
             camera.setParameters(parameters);
         }
+    }
+
+    public void getSupportedWhiteBalance(Callback callback) {
+        Camera camera = this.acquireCameraInstance(2);
+        if (null == camera) {
+            return;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        List<String> list = parameters.getSupportedWhiteBalance();
+        String str = "";
+        for (int i = 0; i < list.size(); i++) {
+            String item = list.get(i);
+            str = str.concat(item);
+            str = str.concat(" ");
+        }
+        callback.invoke(null, str);
+    }
+
+    public void getExposureCompensationRange(Callback callback) {
+        Camera camera = this.acquireCameraInstance(2);
+        if (null == camera) {
+            return;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        int min = parameters.getMinExposureCompensation();
+        int max = parameters.getMaxExposureCompensation();
+        WritableNativeArray range = new WritableNativeArray();
+        range.pushInt(min);
+        range.pushInt(max);
+        callback.invoke(null, range);
+    }
+
+    public void setExposureCompensation(int val) {
+        Camera camera = this.acquireCameraInstance(2);
+        if (null == camera) {
+            return;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setExposureCompensation(val);
+        camera.setParameters(parameters);
     }
 
     public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {
