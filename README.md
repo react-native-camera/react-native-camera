@@ -375,6 +375,14 @@ Returns whether or not the camera has flash capabilities.
 
 Ends the current capture session for video captures. Only applies when the current `captureMode` is `video`.
 
+#### `stopPreview()`
+
+Stops the camera preview from running, and natively will make the current capture session pause.
+
+#### `startPreview()`
+
+Starts the camera preview again if previously stopped.
+
 ## Component static methods
 
 #### `iOS` `Camera.checkDeviceAuthorizationStatus(): Promise`
