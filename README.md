@@ -16,6 +16,10 @@ The comprehensive camera module for React Native. Including photographs, videos,
 - if on react-native >= 0.40 `npm i react-native-camera@0.6`
 
 ##### Permissions
+To use the camera on Android you must ask for camera permission:
+```java
+  <uses-permission android:name="android.permission.CAMERA" />
+```
 To enable `video recording` feature you have to add the following code to the `AndroidManifest.xml`:
 ```java
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
