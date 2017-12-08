@@ -42,6 +42,11 @@ RCT_EXPORT_MODULE();
   return self.camera;
 }
 
++ (BOOL)requiresMainQueueSetup
+{
+  return NO;
+}
+
 - (NSDictionary *)constantsToExport
 {
 
@@ -312,7 +317,7 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
   }
 }
 
-- (NSArray *)customDirectEventTypes
+- (NSArray *)customBubblingEventTypes
 {
     return @[
       @"focusChanged",
@@ -384,6 +389,28 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options
   else if (captureMode == RCTCameraCaptureModeVideo) {
     [self captureVideo:captureTarget options:options resolve:resolve reject:reject];
   }
+}
+
+RCT_EXPORT_METHOD(stopPreview) {
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    dispatch_async(self.sessionQueue, ^{
+        if ([self.session isRunning]) {
+            [self.session stopRunning];
+        }
+    });
+}
+
+RCT_EXPORT_METHOD(startPreview) {
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    dispatch_async(self.sessionQueue, ^{
+        if (![self.session isRunning]) {
+            [self.session startRunning];
+        }
+    });
 }
 
 RCT_EXPORT_METHOD(stopCapture) {
