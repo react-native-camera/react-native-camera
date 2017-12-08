@@ -300,6 +300,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         }
     }
 
+
     private class ReaderAsyncTask extends AsyncTask<Void, Void, Void> {
         private byte[] imageData;
         private final Camera camera;
@@ -309,80 +310,20 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             this.imageData = imageData;
         }
 
-        private Result getBarcode(int width, int height) {
-            try{
-              PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
-              BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-              return _multiFormatReader.decodeWithState(bitmap);
-            } catch (Throwable t) {
-                // meh
-            } finally {
-                _multiFormatReader.reset();
+        @Override
+        protected Void doInBackground(Void... ignored) {
+            if (isCancelled() || camera == null) {
+                return null;
             }
-            return null;
-        }
-        
-        private Result getBarcodeAnyOrientation() {
-            Camera.Size size = camera.getParameters().getPreviewSize();
-
-            int width = size.width;
-            int height = size.height;
-            Result result = getBarcode(width, height);
-            if (result != null)
-              return result;
-
-            rotateImage(width, height);
-            width = size.height;
-            height = size.width;
-
-            return getBarcode(width, height);
-        }
-
-        private void rotateImage(int width, int height) {
-            byte[] rotated = new byte[imageData.length];
-            for (int y = 0; y < height; y++) {
-              for (int x = 0; x < width; x++) {
-                rotated[x * height + height - y - 1] = imageData[x + y * width];
-              }
-            }
-            imageData = rotated;
-        }
-        
-                private Result getBarcodeAnyOrientation() {
-            Camera.Size size = camera.getParameters().getPreviewSize();
-
-            int width = size.width;
-            int height = size.height;
-            Result result = getBarcode(width, height);
-            if (result != null)
-              return result;
-
-            rotateImage(width, height);
-            width = size.height;
-            height = size.width;
-
-            return getBarcode(width, height);
-        }
-
-        private void rotateImage(int width, int height) {
-            byte[] rotated = new byte[imageData.length];
-            for (int y = 0; y < height; y++) {
-              for (int x = 0; x < width; x++) {
-                rotated[x * height + height - y - 1] = imageData[x + y * width];
-              }
-            }
-            imageData = rotated;
-        }
-
 
             RCTCamera settings = RCTCamera.getInstance();
             Camera.Parameters params = camera.getParameters();
+            int quality = 50; //set quality to lower, faster to work with
+
             // lets convert preview to bytearray that we can use
             YuvImage imageConvert;
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            int quality = 50; //set quality
             try {
-
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 imageConvert = new YuvImage(this.imageData, params.getPreviewFormat(), params.getPreviewSize().width, params.getPreviewSize().height, null);
                 imageConvert.compressToJpeg(new Rect(0, 0, params.getPreviewSize().width, params.getPreviewSize().height), quality, baos);//this line decreases the image quality
                 this.imageData = baos.toByteArray();
@@ -393,7 +334,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 return null;
             }
 
-            // find rotation that will be used
+            // find rotation that will be used for Mutable Image
             int deviceRotation = settings.getActualDeviceOrientation();
             int rotationIndex = 0;
             switch(deviceRotation){
@@ -410,21 +351,6 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                     rotationIndex = 3;
                     break;
             }
-            imageData = rotated;
-        }
-
-        @Override
-        protected Void doInBackground(Void... ignored) {
-            if (isCancelled()) {
-                return null;
-            }
-
-            try {
-                // rotate for zxing if orientation is portrait
-                Result result = getBarcodeAnyOrientation();
-                if (result == null){
-                    throw new Exception();
-                }
 
             // rotate
             MutableImage mutableImage = new MutableImage(this.imageData);
@@ -451,18 +377,17 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 bitmap = Bitmap.createBitmap(bitmap, x, y, width, height);
             }
             else {
+                // fullscreen
                 width = bitmap.getWidth();
                 height = bitmap.getHeight();
             }
 
+            // get dataarray for actual area to scan
             int[] intArray = new int[width*height];
             bitmap.getPixels(intArray, 0, width, 0, 0, width, height);
 
-
-
             try {
-
-                LuminanceSource source = new RGBLuminanceSource(width, height,intArray);
+                LuminanceSource source = new RGBLuminanceSource(width, height, intArray);
                 BinaryBitmap bbitmap = new BinaryBitmap(new HybridBinarizer(source));
                 Result result = _multiFormatReader.decodeWithState(bbitmap);
 
@@ -470,7 +395,6 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 WritableMap event = Arguments.createMap();
                 WritableArray resultPoints = Arguments.createArray();
                 ResultPoint[] points = result.getResultPoints();
-                
                 if(points != null) {
                     for (ResultPoint point : points) {
                         WritableMap newPoint = Arguments.createMap();
@@ -479,7 +403,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                         resultPoints.pushMap(newPoint);
                     }
                 }
-                
+
                 event.putArray("bounds", resultPoints);
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());
