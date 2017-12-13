@@ -16,7 +16,8 @@ typedef NS_ENUM(NSInteger, RCTCameraCaptureSessionPreset) {
   RCTCameraCaptureSessionPresetPhoto = 3,
   RCTCameraCaptureSessionPreset480p = 4,
   RCTCameraCaptureSessionPreset720p = 5,
-  RCTCameraCaptureSessionPreset1080p = 6
+  RCTCameraCaptureSessionPreset1080p = 6,
+  RCTCameraCaptureSessionPresetPreview = 7
 };
 
 typedef NS_ENUM(NSInteger, RCTCameraCaptureMode) {
@@ -75,6 +76,7 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, strong) RCTPromiseResolveBlock videoResolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock videoReject;
 @property (nonatomic, strong) RCTCamera *camera;
+@property (nonatomic, assign) BOOL cropToViewport;
 
 
 - (void)changeOrientation:(NSInteger)orientation;
