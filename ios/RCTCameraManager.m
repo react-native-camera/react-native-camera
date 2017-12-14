@@ -676,6 +676,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
              NOTE: This is for barcode development purposes
              Cropping of image to actually see what area we are scanning
              */
+             /*
             // use some value, this is probably wrong
             NSNumber *imageWidth = [NSNumber numberWithDouble:[[UIScreen mainScreen] bounds].size.width];
             NSNumber *imageHeight = [NSNumber numberWithDouble:[[UIScreen mainScreen] bounds].size.height];
@@ -703,6 +704,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
             // crop the image
             cgImage = CGImageCreateWithImageInRect(cgImage, scanLimit);
+            */
             // ##############################################
 
 
