@@ -306,15 +306,7 @@ Adjust size and style:
   2. add it to your project
   3. add it as a child to the Camera
 ```javascript
-<Camera>
-    <MyCustomBarcodeFinder />
-</Camera>
-```
-**NOTE:** The scan area is cropped and as long the first to <View> components remain intact it should show the correct size.
-```javascript
-<View style={[styles.container]}>
-    <View style={[styles.finder, this.getSizeStyles()]}>
-        { place your design here }
+<Camera barcodeFinderComponent={<CustomBarcodeFinder />} />
 ```
 
 #### `flashMode`

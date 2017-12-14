@@ -481,20 +481,48 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     }
 
     AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
+    CGRect scanBarcodeArea = CGRectMake(0, 0, 0, 0);
     if ([self.session canAddOutput:metadataOutput]) {
-      [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
-      [self.session addOutput:metadataOutput];
-      [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
-      self.metadataOutput = metadataOutput;
+
+        [self.session addOutput:metadataOutput];
+        [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
+        [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
+
+        // we only want to scan specified area
+        // NOTE; Seems we can only set the actual rect after session started, else it doesn't work
         if (self.barcodeFinderVisible) {
-            double cameraViewWidth = [[UIScreen mainScreen] bounds].size.width;
-            double cameraViewHeight = [[UIScreen mainScreen] bounds].size.height;
-            double w = cameraViewWidth * self.barcodeFinderPercentageSizeWidth;
-            double h = cameraViewHeight * self.barcodeFinderPercentageSizeHeight;
-            CGRect scanLimit = CGRectMake((cameraViewWidth/2)-(w/2),(cameraViewHeight/2)-(h/2), w, h);
-            [self.previewLayer metadataOutputRectOfInterestForRect: scanLimit];
+
+          NSNumber *imageWidth = [NSNumber numberWithFloat:self.previewLayer.frame.size.width];
+          NSNumber *imageHeight = [NSNumber numberWithFloat:self.previewLayer.frame.size.height];
+          double imageUseWidth = [imageWidth doubleValue];
+          double imageUseHeight = [imageHeight doubleValue];
+          double cropWidth = imageUseWidth * self.barcodeFinderPercentageSizeWidth;
+          double cropHeight = imageUseHeight * self.barcodeFinderPercentageSizeHeight;
+          double cropX = (imageUseWidth/2)-(cropWidth/2);
+          double cropY = (imageUseHeight/2)-(cropHeight/2);
+          CGRect scanLimit = CGRectMake(cropX, cropY, cropWidth, cropHeight);
+          scanBarcodeArea = [_previewLayer metadataOutputRectOfInterestForRect:scanLimit];
+          [metadataOutput setRectOfInterest:scanBarcodeArea];
+
+        /* ############################
+         DEBUG PURPOSE, get some values and draw yellow rect of actual scanning area
+        */
+
+          /*
+          NSLog(@"Display size width: %@, height: %@", imageWidth, imageHeight);
+          NSLog(@"Percent size width: %f, height: %f", self.barcodeFinderPercentageSizeWidth, self.barcodeFinderPercentageSizeHeight);
+          NSLog(@"Crop search area: %@", NSStringFromCGRect(scanLimit));
+          NSLog(@"Crop search converted: %@", NSStringFromCGRect(scanBarcodeArea));
+
+          // PAUSE AND PLAY WILL DRAW YELLOW RECT, IF VALID, might appear auto as well. who knows.
+          UIView *scanAreaView = [[UIView alloc] initWithFrame:scanLimit];
+          scanAreaView.layer.borderColor = [UIColor yellowColor].CGColor;
+          scanAreaView.layer.borderWidth = 4;
+          [self.view addSubview:scanAreaView];
+          */
         }
     }
+    self.metadataOutput = metadataOutput;
 
     __weak RCTCameraManager *weakSelf = self;
     [self setRuntimeErrorHandlingObserver:[NSNotificationCenter.defaultCenter addObserverForName:AVCaptureSessionRuntimeErrorNotification object:self.session queue:nil usingBlock:^(NSNotification *note) {
@@ -640,9 +668,44 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
           CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
           //get all the metadata in the image
           NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
-
           // create cgimage
           CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
+
+
+            /* ##############################################
+             NOTE: This is for barcode development purposes
+             Cropping of image to actually see what area we are scanning
+             */
+            // use some value, this is probably wrong
+            NSNumber *imageWidth = [NSNumber numberWithDouble:[[UIScreen mainScreen] bounds].size.width];
+            NSNumber *imageHeight = [NSNumber numberWithDouble:[[UIScreen mainScreen] bounds].size.height];
+            NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:
+                                     [NSNumber numberWithBool:NO], (NSString *)kCGImageSourceShouldCache,
+                                     nil];
+            CFDictionaryRef imageProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, (CFDictionaryRef)options);
+            if (imageProperties) {
+                // grab actual size of the image
+                imageWidth = (NSNumber *)CFDictionaryGetValue(imageProperties, kCGImagePropertyPixelWidth);
+                imageHeight = (NSNumber *)CFDictionaryGetValue(imageProperties, kCGImagePropertyPixelHeight);
+                CFRelease(imageProperties);
+            }
+
+            // width is height and height is width
+            // calculate our actual crop area
+            double imageUseWidth = [imageHeight doubleValue];
+            double imageUseHeight = [imageWidth doubleValue];
+            double cropWidth = imageUseWidth * self.barcodeFinderPercentageSizeWidth;
+            double cropHeight = imageUseHeight * self.barcodeFinderPercentageSizeHeight;
+            double cropX = (imageUseWidth/2)-(cropWidth/2);
+            double cropY = (imageUseHeight/2)-(cropHeight/2);
+            // wierd, x is y and y is x
+            CGRect scanLimit = CGRectMake(cropY, cropX, cropHeight, cropWidth);
+
+            // crop the image
+            cgImage = CGImageCreateWithImageInRect(cgImage, scanLimit);
+            // ##############################################
+
+
 
           // Rotate it
           CGImageRef rotatedCGImage;
