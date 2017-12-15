@@ -106,7 +106,8 @@ RCT_EXPORT_MODULE();
                @"720p": @(RCTCameraCaptureSessionPreset720p),
                @"AVCaptureSessionPreset1280x720": @(RCTCameraCaptureSessionPreset720p),
                @"1080p": @(RCTCameraCaptureSessionPreset1080p),
-               @"AVCaptureSessionPreset1920x1080": @(RCTCameraCaptureSessionPreset1080p)
+               @"AVCaptureSessionPreset1920x1080": @(RCTCameraCaptureSessionPreset1080p),
+               @"preview": @(RCTCameraCaptureSessionPresetPreview)
                },
            @"CaptureTarget": @{
                @"memory": @(RCTCameraCaptureTargetMemory),
@@ -140,6 +141,7 @@ RCT_EXPORT_VIEW_PROPERTY(onFocusChanged, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL);
 
 RCT_CUSTOM_VIEW_PROPERTY(captureQuality, NSInteger, RCTCamera) {
+  self.cropToViewport = false;
   NSInteger quality = [RCTConvert NSInteger:json];
   NSString *qualityString;
   switch (quality) {
@@ -164,6 +166,10 @@ RCT_CUSTOM_VIEW_PROPERTY(captureQuality, NSInteger, RCTCamera) {
       break;
     case RCTCameraCaptureSessionPreset480p:
       qualityString = AVCaptureSessionPreset640x480;
+      break;
+    case RCTCameraCaptureSessionPresetPreview:
+      qualityString = AVCaptureSessionPresetPhoto;
+      self.cropToViewport = true;
       break;
   }
 
@@ -736,6 +742,15 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
             }
           } else {
             rotatedCGImage = cgImage;
+          }
+
+          // Crop it (if capture quality is set to preview)
+          if (self.cropToViewport) {
+            CGSize viewportSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
+            CGRect captureRect = CGRectMake(0, 0, CGImageGetWidth(rotatedCGImage), CGImageGetHeight(rotatedCGImage));
+            CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(viewportSize, captureRect);
+
+            rotatedCGImage = CGImageCreateWithImageInRect(rotatedCGImage, croppedSize);
           }
 
           // Erase stupid TIFF stuff
