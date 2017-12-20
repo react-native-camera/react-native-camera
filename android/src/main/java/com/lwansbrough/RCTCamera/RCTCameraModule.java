@@ -586,8 +586,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 int type = options.getInt("type");
                 float paddingWidth = RCTCamera.getInstance().getPreviewPaddingWidth(type);
                 float paddingHeight = RCTCamera.getInstance().getPreviewPaddingHeight(type);
+                int orientation = _reactContext.getResources().getConfiguration().orientation;
 
-                mutableImage.cropToPreview(paddingWidth, paddingHeight);
+                mutableImage.cropToPreview(orientation, paddingWidth, paddingHeight);
             } catch (MutableImage.ImageMutationFailedException e) {
                 promise.reject("Error cropping image to preview", e);
             }

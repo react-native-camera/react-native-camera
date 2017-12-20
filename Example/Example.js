@@ -14,7 +14,6 @@ const styles = StyleSheet.create({
   },
   preview: {
     flex: 1,
-    alignSelf: "stretch",
     justifyContent: 'flex-end',
     alignItems: 'center'
   },
@@ -187,7 +186,7 @@ export default class Example extends React.Component {
           onZoomChanged={() => {}}
           defaultTouchToFocus
           mirrorImage={false}
-          cropToPreview={false}
+          cropToPreview={true}
         />
         <View style={[styles.overlay, styles.topOverlay]}>
           <TouchableOpacity
