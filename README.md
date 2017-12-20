@@ -265,6 +265,7 @@ The barcode type is provided in the `data` object.
 #### `barCodeTypes`
 
 An array of barcode types to search for. Defaults to all types listed above. No effect if `onBarCodeRead` is undefined.
+Example: `<Camera barCodeTypes={[Camera.constants.BarCodeType.qr]} />`
 
 #### `flashMode`
 
