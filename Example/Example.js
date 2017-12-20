@@ -13,9 +13,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   preview: {
-    flex: 1,
+    alignSelf: "stretch",
     justifyContent: 'flex-end',
     alignItems: 'center',
+    height: 200
   },
   overlay: {
     position: 'absolute',
