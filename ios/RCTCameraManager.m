@@ -627,15 +627,6 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
           // create cgimage
           CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
-
-          // Crop it (if capture quality is set to preview)
-          if (self.cropToPreview) {
-              CGSize viewportSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
-              CGRect captureRect = CGRectMake(0, 0, CGImageGetWidth(cgImage), CGImageGetHeight(cgImage));
-              CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(viewportSize, captureRect);
-            
-              cgImage = CGImageCreateWithImageInRect(cgImage, croppedSize);
-          }
             
           // Rotate it
           CGImageRef rotatedCGImage;
@@ -664,6 +655,22 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
             }
           } else {
             rotatedCGImage = cgImage;
+          }
+            
+          // Crop it
+          if (self.cropToPreview) {
+              CGSize viewportSize;
+              
+              if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]))
+              {
+                  viewportSize = CGSizeMake(self.previewLayer.frame.size.height, self.previewLayer.frame.size.width);
+              } else {
+                  viewportSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
+              }
+              
+              CGRect captureRect = CGRectMake(0, 0, CGImageGetWidth(rotatedCGImage), CGImageGetHeight(rotatedCGImage));
+              CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(viewportSize, captureRect);
+              rotatedCGImage = CGImageCreateWithImageInRect(rotatedCGImage, croppedSize);
           }
 
           // Erase stupid TIFF stuff
