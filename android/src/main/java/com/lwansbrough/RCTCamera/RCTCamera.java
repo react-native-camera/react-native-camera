@@ -475,7 +475,6 @@ public class RCTCamera {
         public int rotation = 0;
         public int previewWidth = -1;
         public int previewHeight = -1;
-        public int previewHeight = -1;
         public float previewPaddingHeight = -1;
         public float previewPaddingWidth = -1;
 

@@ -580,7 +580,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             }
         }
 
-        boolean shouldCropToPreview = options.hasKey(“cropToPreview”) && options.getBoolean(“cropToPreview”);
+        boolean shouldCropToPreview = options.hasKey("cropToPreview") && options.getBoolean("cropToPreview");
         if (shouldCropToPreview) {
             try {
                 int type = options.getInt("type");
