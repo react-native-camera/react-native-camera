@@ -13,8 +13,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   preview: {
-    alignSelf: "stretch",
-    aspectRatio: 1,
+    flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center'
   },
