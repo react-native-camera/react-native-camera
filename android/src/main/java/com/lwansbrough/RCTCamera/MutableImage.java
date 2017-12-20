@@ -76,7 +76,7 @@ public class MutableImage {
         }
     }
 
-    public void cropToPreview(int orientation, float xPercentage, float yPercentage) throws ImageMutationFailedException {
+    public void cropToPreview(int orientation, float xPercentage, float yPercentage) throws IllegalArgumentException {
         int width = this.currentRepresentation.getWidth();
         int height = this.currentRepresentation.getHeight();
 

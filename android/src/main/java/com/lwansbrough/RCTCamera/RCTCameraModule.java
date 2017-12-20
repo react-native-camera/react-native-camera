@@ -589,7 +589,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 int orientation = _reactContext.getResources().getConfiguration().orientation;
 
                 mutableImage.cropToPreview(orientation, paddingWidth, paddingHeight);
-            } catch (MutableImage.ImageMutationFailedException e) {
+            } catch (IllegalArgumentException e) {
                 promise.reject("Error cropping image to preview", e);
             }
         }
