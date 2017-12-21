@@ -10,6 +10,7 @@ import {
   View,
   ViewPropTypes
 } from 'react-native';
+import Viewfinder from './Viewfinder'
 
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
 const CAMERA_REF = 'camera';
@@ -116,7 +117,15 @@ export default class Camera extends Component {
     type: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
-    ])
+    ]),
+    viewFinderBackgroundColor: PropTypes.string,
+    viewFinderBorderColor: PropTypes.string,
+    viewFinderBorderWidth: PropTypes.number,
+    viewFinderBorderLength: PropTypes.number,
+    viewFinderShowLoadingIndicator: PropTypes.bool,
+    viewFinderHeight: PropTypes.number,
+    viewFinderWidth: PropTypes.number,
+    millisecondDelayBetweenScans: PropTypes.number,
   };
 
   static defaultProps = {
@@ -200,13 +209,37 @@ export default class Camera extends Component {
   render() {
     const style = [styles.base, this.props.style];
     const nativeProps = convertNativeProps(this.props);
+    let viewFinder = this.props.showViewFinder ? (
+        <Viewfinder
+          backgroundColor={this.props.viewFinderBackgroundColor}
+          color={this.props.viewFinderBorderColor}
+          borderWidth={this.props.viewFinderBorderWidth}
+          borderLength={this.props.viewFinderBorderLength}
+          height={this.props.viewFinderHeight}
+          isLoading={this.props.viewFinderShowLoadingIndicator}
+          width={this.props.viewFinderWidth}
+        />
+      ) : null;
 
-    return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
+    return <RCTCamera ref={CAMERA_REF} {...nativeProps} >
+      <View style={style} collapsable={false}>
+        {viewFinder}
+        {this.props.children}
+      </View>
+    </RCTCamera>
   }
 
   _onBarCodeRead = (data) => {
     if (this.props.onBarCodeRead) {
-      this.props.onBarCodeRead(data)
+      if (this.props.millisecondDelayBetweenScans) {
+        this.componentWillUnmount()
+        this.props.onBarCodeRead(data)
+        setTimeout(() => {
+          this.componentWillMount()
+        }, this.props.millisecondDelayBetweenScans)
+      } else {
+        this.props.onBarCodeRead(data)
+      }
     }
   };
 
