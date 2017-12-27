@@ -185,6 +185,7 @@ export default class Example extends React.Component {
           onFocusChanged={() => {}}
           onZoomChanged={() => {}}
           defaultTouchToFocus
+          onFocusChanged = {(e) => console.log(e)}
           mirrorImage={false}
         />
         <View style={[styles.overlay, styles.topOverlay]}>
