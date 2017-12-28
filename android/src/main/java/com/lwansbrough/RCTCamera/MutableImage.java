@@ -176,15 +176,15 @@ public class MutableImage {
     }
 
     private void writeLocationExifData(ReadableMap options, ExifInterface exif) {
-        if(!options.hasKey("metadata"))
+        if(!options.hasKey("metadata") || options.isNull("metadata"))
             return;
 
         ReadableMap metadata = options.getMap("metadata");
-        if (!metadata.hasKey("location"))
+        if (!metadata.hasKey("location") || metadata.isNull("location"))
             return;
 
         ReadableMap location = metadata.getMap("location");
-        if(!location.hasKey("coords"))
+        if(!location.hasKey("coords") || location.isNull("coords"))
             return;
 
         try {
