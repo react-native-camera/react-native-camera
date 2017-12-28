@@ -233,6 +233,7 @@ export default class Camera extends Component {
     if (options.mode === Camera.constants.CaptureMode.video) {
       options.totalSeconds = (options.totalSeconds > -1 ? options.totalSeconds : -1);
       options.preferredTimeScale = options.preferredTimeScale || 30;
+      options.cropToPreview = false;
       this.setState({ isRecording: true });
     }
 
