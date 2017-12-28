@@ -153,7 +153,9 @@ class BadInstagramCloneApp extends Component {
        *`position` object returned from `navigator.geolocation.getCurrentPosition()`
        *const myLocation = position;
        */
-    const options = {captureMode:Camera.constants.CaptureMode.still, captureQuality:Camera.constants.CaptureQuality.high, /* metadata:{location: myLocation} */};
+    const options = {captureMode:Camera.constants.CaptureMode.still,
+            captureQuality:Camera.constants.CaptureQuality.high,
+            /* metadata:{location: myLocation} */};
     //options.location = ...
     this.camera.capture( options )
       .then((data) => console.log(data))
