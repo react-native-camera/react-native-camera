@@ -487,7 +487,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         int orientation = (options.hasKey("orientation") && !options.isNull("orientation"))  ? options.getInt("orientation") : RCTCamera.getInstance().getOrientation();
         if (orientation == RCT_CAMERA_ORIENTATION_AUTO) {
             _sensorOrientationChecker.onResume();
-            _sensorOrientathionChecker.registerOrientationListener(new RCTSensorOrientationListener() {
+            _sensorOrientationChecker.registerOrientationListener(new RCTSensorOrientationListener() {
                 @Override
                 public void orientationEvent() {
                     int deviceOrientation = _sensorOrientationChecker.getOrientation();
