@@ -28,7 +28,7 @@ public class RCTCameraView extends ViewGroup {
     public RCTCameraView(Context context) {
         super(context);
         this._context = context;
-        RCTCamera.createInstance(getDeviceOrientation(context));
+        RCTCamera.createInstance(getDeviceOrientation(context),getScreenSize());
 
         _orientationListener = new OrientationEventListener(context, SensorManager.SENSOR_DELAY_NORMAL) {
             @Override
