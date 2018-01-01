@@ -16,7 +16,7 @@ import org.reactnative.camera.tasks.FaceDetectorAsyncTask;
 import org.reactnative.camera.tasks.FaceDetectorAsyncTaskDelegate;
 import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
 import org.reactnative.camera.utils.ImageDimensions;
-import org.reactnative.facedetector.ExpoFaceDetector;
+import org.reactnative.facedetector.RNFaceDetector;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
@@ -40,7 +40,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class ExpoCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate {
+public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate {
   private Queue<Promise> mPictureTakenPromises = new ConcurrentLinkedQueue<>();
   private Map<Promise, ReadableMap> mPictureTakenOptions = new ConcurrentHashMap<>();
   private Promise mVideoRecordedPromise;
@@ -52,29 +52,29 @@ public class ExpoCameraView extends CameraView implements LifecycleEventListener
 
   // Scanning-related properties
   private final MultiFormatReader mMultiFormatReader = new MultiFormatReader();
-  private final ExpoFaceDetector mFaceDetector;
+  private final RNFaceDetector mFaceDetector;
   private boolean mShouldDetectFaces = false;
   private boolean mShouldScanBarCodes = false;
-  private int mFaceDetectorMode = ExpoFaceDetector.FAST_MODE;
-  private int mFaceDetectionLandmarks = ExpoFaceDetector.NO_LANDMARKS;
-  private int mFaceDetectionClassifications = ExpoFaceDetector.NO_CLASSIFICATIONS;
+  private int mFaceDetectorMode = RNFaceDetector.FAST_MODE;
+  private int mFaceDetectionLandmarks = RNFaceDetector.NO_LANDMARKS;
+  private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
 
-  public ExpoCameraView(ThemedReactContext themedReactContext) {
+  public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext);
     initBarcodeReader();
-    mFaceDetector = new ExpoFaceDetector(themedReactContext);
+    mFaceDetector = new RNFaceDetector(themedReactContext);
     setupFaceDetector();
     themedReactContext.addLifecycleEventListener(this);
 
     addCallback(new Callback() {
       @Override
       public void onCameraOpened(CameraView cameraView) {
-        ExpoCameraViewHelper.emitCameraReadyEvent(cameraView);
+        RNCameraViewHelper.emitCameraReadyEvent(cameraView);
       }
 
       @Override
       public void onMountError(CameraView cameraView) {
-        ExpoCameraViewHelper.emitMountErrorEvent(cameraView);
+        RNCameraViewHelper.emitMountErrorEvent(cameraView);
       }
 
       @Override
@@ -101,7 +101,7 @@ public class ExpoCameraView extends CameraView implements LifecycleEventListener
 
       @Override
       public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int rotation) {
-        int correctRotation = ExpoCameraViewHelper.getCorrectCameraRotation(rotation, getFacing());
+        int correctRotation = RNCameraViewHelper.getCorrectCameraRotation(rotation, getFacing());
 
         if (mShouldScanBarCodes && !barCodeScannerTaskLock && cameraView instanceof BarCodeScannerAsyncTaskDelegate) {
           barCodeScannerTaskLock = true;
@@ -165,7 +165,7 @@ public class ExpoCameraView extends CameraView implements LifecycleEventListener
 
       CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
       if (options.hasKey("quality")) {
-        profile = ExpoCameraViewHelper.getCamcorderProfile(options.getInt("quality"));
+        profile = RNCameraViewHelper.getCamcorderProfile(options.getInt("quality"));
       }
 
       boolean recordAudio = !options.hasKey("mute");
@@ -213,7 +213,7 @@ public class ExpoCameraView extends CameraView implements LifecycleEventListener
       return;
     }
 
-    ExpoCameraViewHelper.emitBarCodeReadEvent(this, barCode);
+    RNCameraViewHelper.emitBarCodeReadEvent(this, barCode);
   }
 
   public void onBarCodeScanningTaskCompleted() {
@@ -265,15 +265,15 @@ public class ExpoCameraView extends CameraView implements LifecycleEventListener
     SparseArray<Face> facesDetected = facesReported == null ? new SparseArray<Face>() : facesReported;
 
     ImageDimensions dimensions = new ImageDimensions(sourceWidth, sourceHeight, sourceRotation, getFacing());
-    ExpoCameraViewHelper.emitFacesDetectedEvent(this, facesDetected, dimensions);
+    RNCameraViewHelper.emitFacesDetectedEvent(this, facesDetected, dimensions);
   }
 
-  public void onFaceDetectionError(ExpoFaceDetector faceDetector) {
+  public void onFaceDetectionError(RNFaceDetector faceDetector) {
     if (!mShouldDetectFaces) {
       return;
     }
 
-    ExpoCameraViewHelper.emitFaceDetectionErrorEvent(this, faceDetector);
+    RNCameraViewHelper.emitFaceDetectionErrorEvent(this, faceDetector);
   }
 
   @Override
@@ -290,7 +290,7 @@ public class ExpoCameraView extends CameraView implements LifecycleEventListener
     } else {
       WritableMap error = Arguments.createMap();
       error.putString("message", "Camera permissions not granted - component could not be rendered.");
-      ExpoCameraViewHelper.emitMountErrorEvent(this);
+      RNCameraViewHelper.emitMountErrorEvent(this);
     }
   }
 

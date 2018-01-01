@@ -9,9 +9,9 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseArray;
 
-import org.reactnative.facedetector.ExpoFaceDetector;
-import org.reactnative.facedetector.ExpoFrame;
-import org.reactnative.facedetector.ExpoFrameFactory;
+import org.reactnative.facedetector.RNFaceDetector;
+import org.reactnative.facedetector.RNFrame;
+import org.reactnative.facedetector.RNFrameFactory;
 import org.reactnative.facedetector.FaceDetectorUtils;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -41,7 +41,7 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, SparseArra
   private Context mContext;
   private ReadableMap mOptions;
   private int mOrientation = ExifInterface.ORIENTATION_UNDEFINED;
-  private ExpoFaceDetector mExpoFaceDetector;
+  private RNFaceDetector mRNFaceDetector;
 
   public FileFaceDetectionAsyncTask(Context context, ReadableMap options, Promise promise) {
     mUri = options.getString("uri");
@@ -89,7 +89,7 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, SparseArra
       return null;
     }
 
-    mExpoFaceDetector = detectorForOptions(mOptions, mContext);
+    mRNFaceDetector = detectorForOptions(mOptions, mContext);
     Bitmap bitmap = BitmapFactory.decodeFile(mPath);
     mWidth = bitmap.getWidth();
     mHeight = bitmap.getHeight();
@@ -101,8 +101,8 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, SparseArra
       Log.e(ERROR_TAG, "Reading orientation from file `" + mPath + "` failed.", e);
     }
 
-    ExpoFrame frame = ExpoFrameFactory.buildFrame(bitmap);
-    return mExpoFaceDetector.detect(frame);
+    RNFrame frame = RNFrameFactory.buildFrame(bitmap);
+    return mRNFaceDetector.detect(frame);
   }
 
   @Override
@@ -128,12 +128,12 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, SparseArra
     image.putString("uri", mUri);
     result.putMap("image", image);
 
-    mExpoFaceDetector.release();
+    mRNFaceDetector.release();
     mPromise.resolve(result);
   }
 
-  private static ExpoFaceDetector detectorForOptions(ReadableMap options, Context context) {
-    ExpoFaceDetector detector = new ExpoFaceDetector(context);
+  private static RNFaceDetector detectorForOptions(ReadableMap options, Context context) {
+    RNFaceDetector detector = new RNFaceDetector(context);
     detector.setTrackingEnabled(false);
 
     if(options.hasKey(MODE_OPTION_KEY)) {

@@ -16,7 +16,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 public class FaceDetectorModule extends ReactContextBaseJavaModule {
-  private static final String TAG = "ExpoFaceDetector";
+  private static final String TAG = "RNFaceDetector";
 //  private ScopedContext mScopedContext;
 private static ReactApplicationContext mScopedContext;
 
@@ -43,8 +43,8 @@ private static ReactApplicationContext mScopedContext;
       private Map<String, Object> getFaceDetectionModeConstants() {
         return Collections.unmodifiableMap(new HashMap<String, Object>() {
           {
-            put("fast", ExpoFaceDetector.FAST_MODE);
-            put("accurate", ExpoFaceDetector.ACCURATE_MODE);
+            put("fast", RNFaceDetector.FAST_MODE);
+            put("accurate", RNFaceDetector.ACCURATE_MODE);
           }
         });
       }
@@ -52,8 +52,8 @@ private static ReactApplicationContext mScopedContext;
       private Map<String, Object> getFaceDetectionClassificationsConstants() {
         return Collections.unmodifiableMap(new HashMap<String, Object>() {
           {
-            put("all", ExpoFaceDetector.ALL_CLASSIFICATIONS);
-            put("none", ExpoFaceDetector.NO_CLASSIFICATIONS);
+            put("all", RNFaceDetector.ALL_CLASSIFICATIONS);
+            put("none", RNFaceDetector.NO_CLASSIFICATIONS);
           }
         });
       }
@@ -61,8 +61,8 @@ private static ReactApplicationContext mScopedContext;
       private Map<String, Object> getFaceDetectionLandmarksConstants() {
         return Collections.unmodifiableMap(new HashMap<String, Object>() {
           {
-            put("all", ExpoFaceDetector.ALL_LANDMARKS);
-            put("none", ExpoFaceDetector.NO_LANDMARKS);
+            put("all", RNFaceDetector.ALL_LANDMARKS);
+            put("none", RNFaceDetector.NO_LANDMARKS);
           }
         });
       }

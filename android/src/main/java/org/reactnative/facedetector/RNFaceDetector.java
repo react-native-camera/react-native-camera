@@ -8,7 +8,7 @@ import org.reactnative.camera.utils.ImageDimensions;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 
-public class ExpoFaceDetector {
+public class RNFaceDetector {
   public static int ALL_CLASSIFICATIONS = FaceDetector.ALL_CLASSIFICATIONS;
   public static int NO_CLASSIFICATIONS = FaceDetector.NO_CLASSIFICATIONS;
   public static int ALL_LANDMARKS = FaceDetector.ALL_LANDMARKS;
@@ -25,7 +25,7 @@ public class ExpoFaceDetector {
   private float mMinFaceSize = 0.15f;
   private int mMode = FAST_MODE;
 
-  public ExpoFaceDetector(Context context) {
+  public RNFaceDetector(Context context) {
     mBuilder = new FaceDetector.Builder(context);
     mBuilder.setMinFaceSize(mMinFaceSize);
     mBuilder.setMode(mMode);
@@ -43,7 +43,7 @@ public class ExpoFaceDetector {
     return mFaceDetector.isOperational();
   }
 
-  public SparseArray<Face> detect(ExpoFrame frame) {
+  public SparseArray<Face> detect(RNFrame frame) {
     // If the frame has different dimensions, create another face detector.
     // Otherwise we will get nasty "inconsistent image dimensions" error from detector
     // and no face will be detected.

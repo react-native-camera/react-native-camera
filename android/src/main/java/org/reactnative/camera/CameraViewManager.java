@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class CameraViewManager extends ViewGroupManager<ExpoCameraView> {
+public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   public enum Events {
     EVENT_CAMERA_READY("onCameraReady"),
     EVENT_ON_MOUNT_ERROR("onMountError"),
@@ -41,10 +41,10 @@ public class CameraViewManager extends ViewGroupManager<ExpoCameraView> {
     }
   }
 
-  private static final String REACT_CLASS = "ExponentCamera";
+  private static final String REACT_CLASS = "RNnentCamera";
 
   private static CameraViewManager instance;
-  private ExpoCameraView mCameraView;
+  private RNCameraView mCameraView;
 
   public CameraViewManager() {
     super();
@@ -59,8 +59,8 @@ public class CameraViewManager extends ViewGroupManager<ExpoCameraView> {
   }
 
   @Override
-  protected ExpoCameraView createViewInstance(ThemedReactContext themedReactContext) {
-    mCameraView = new ExpoCameraView(themedReactContext);
+  protected RNCameraView createViewInstance(ThemedReactContext themedReactContext) {
+    mCameraView = new RNCameraView(themedReactContext);
     return mCameraView;
   }
 
@@ -75,42 +75,42 @@ public class CameraViewManager extends ViewGroupManager<ExpoCameraView> {
   }
 
   @ReactProp(name = "type")
-  public void setType(ExpoCameraView view, int type) {
+  public void setType(RNCameraView view, int type) {
     view.setFacing(type);
   }
 
   @ReactProp(name = "ratio")
-  public void setRatio(ExpoCameraView view, String ratio) {
+  public void setRatio(RNCameraView view, String ratio) {
     view.setAspectRatio(AspectRatio.parse(ratio));
   }
 
   @ReactProp(name = "flashMode")
-  public void setFlashMode(ExpoCameraView view, int torchMode) {
+  public void setFlashMode(RNCameraView view, int torchMode) {
     view.setFlash(torchMode);
   }
 
   @ReactProp(name = "autoFocus")
-  public void setAutoFocus(ExpoCameraView view, boolean autoFocus) {
+  public void setAutoFocus(RNCameraView view, boolean autoFocus) {
     view.setAutoFocus(autoFocus);
   }
 
   @ReactProp(name = "focusDepth")
-  public void setFocusDepth(ExpoCameraView view, float depth) {
+  public void setFocusDepth(RNCameraView view, float depth) {
     view.setFocusDepth(depth);
   }
 
   @ReactProp(name = "zoom")
-  public void setZoom(ExpoCameraView view, float zoom) {
+  public void setZoom(RNCameraView view, float zoom) {
     view.setZoom(zoom);
   }
 
   @ReactProp(name = "whiteBalance")
-  public void setWhiteBalance(ExpoCameraView view, int whiteBalance) {
+  public void setWhiteBalance(RNCameraView view, int whiteBalance) {
     view.setWhiteBalance(whiteBalance);
   }
 
   @ReactProp(name = "barCodeTypes")
-  public void setBarCodeTypes(ExpoCameraView view, ReadableArray barCodeTypes) {
+  public void setBarCodeTypes(RNCameraView view, ReadableArray barCodeTypes) {
     if (barCodeTypes == null) {
       return;
     }
@@ -122,27 +122,27 @@ public class CameraViewManager extends ViewGroupManager<ExpoCameraView> {
   }
 
   @ReactProp(name = "barCodeScannerEnabled")
-  public void setBarCodeScanning(ExpoCameraView view, boolean barCodeScannerEnabled) {
+  public void setBarCodeScanning(RNCameraView view, boolean barCodeScannerEnabled) {
     view.setShouldScanBarCodes(barCodeScannerEnabled);
   }
 
   @ReactProp(name = "faceDetectorEnabled")
-  public void setFaceDetecting(ExpoCameraView view, boolean faceDetectorEnabled) {
+  public void setFaceDetecting(RNCameraView view, boolean faceDetectorEnabled) {
     view.setShouldDetectFaces(faceDetectorEnabled);
   }
 
   @ReactProp(name = "faceDetectionMode")
-  public void setFaceDetectionMode(ExpoCameraView view, int mode) {
+  public void setFaceDetectionMode(RNCameraView view, int mode) {
     view.setFaceDetectionMode(mode);
   }
 
   @ReactProp(name = "faceDetectionLandmarks")
-  public void setFaceDetectionLandmarks(ExpoCameraView view, int landmarks) {
+  public void setFaceDetectionLandmarks(RNCameraView view, int landmarks) {
     view.setFaceDetectionLandmarks(landmarks);
   }
 
   @ReactProp(name = "faceDetectionClassifications")
-  public void setFaceDetectionClassifications(ExpoCameraView view, int classifications) {
+  public void setFaceDetectionClassifications(RNCameraView view, int classifications) {
     view.setFaceDetectionClassifications(classifications);
   }
 
@@ -154,7 +154,7 @@ public class CameraViewManager extends ViewGroupManager<ExpoCameraView> {
         promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
       }
     } else {
-      Bitmap image = ExpoCameraViewHelper.generateSimulatorPhoto(mCameraView.getWidth(), mCameraView.getHeight());
+      Bitmap image = RNCameraViewHelper.generateSimulatorPhoto(mCameraView.getWidth(), mCameraView.getHeight());
       ByteBuffer byteBuffer = ByteBuffer.allocate(image.getRowBytes() * image.getHeight());
       image.copyPixelsToBuffer(byteBuffer);
       new ResolveTakenPictureAsyncTask(byteBuffer.array(), promise, options).execute();
@@ -163,7 +163,7 @@ public class CameraViewManager extends ViewGroupManager<ExpoCameraView> {
 
   public void record(final ReadableMap options, final Promise promise) {
     // TODO fix this
-//    Exponent.getInstance().getPermissions(new Exponent.PermissionsListener() {
+//    RNnent.getInstance().getPermissions(new RNnent.PermissionsListener() {
 //      @Override
 //      public void permissionsGranted() {
 //        if (mCameraView.isCameraOpened()) {

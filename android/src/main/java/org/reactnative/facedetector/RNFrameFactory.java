@@ -8,8 +8,8 @@ import com.google.android.gms.vision.Frame;
 
 import java.nio.ByteBuffer;
 
-public class ExpoFrameFactory {
-  public static ExpoFrame buildFrame(byte[] bitmapData, int width, int height, int rotation) {
+public class RNFrameFactory {
+  public static RNFrame buildFrame(byte[] bitmapData, int width, int height, int rotation) {
     Frame.Builder builder = new Frame.Builder();
 
     ByteBuffer byteBuffer = ByteBuffer.wrap(bitmapData);
@@ -31,13 +31,13 @@ public class ExpoFrameFactory {
 
     ImageDimensions dimensions = new ImageDimensions(width, height, rotation);
 
-    return new ExpoFrame(builder.build(), dimensions);
+    return new RNFrame(builder.build(), dimensions);
   }
 
-  public static ExpoFrame buildFrame(Bitmap bitmap) {
+  public static RNFrame buildFrame(Bitmap bitmap) {
     Frame.Builder builder = new Frame.Builder();
     builder.setBitmap(bitmap);
     ImageDimensions dimensions = new ImageDimensions(bitmap.getWidth(), bitmap.getHeight());
-    return new ExpoFrame(builder.build(), dimensions);
+    return new RNFrame(builder.build(), dimensions);
   }
 }

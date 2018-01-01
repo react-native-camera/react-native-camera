@@ -2,7 +2,7 @@ package org.reactnative.camera;
 
 import android.content.Context;
 
-import org.reactnative.facedetector.ExpoFaceDetector;
+import org.reactnative.facedetector.RNFaceDetector;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -70,7 +70,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
   @Override
   public String getName() {
-    return "ExponentCameraModule";
+    return "RNCameraModule";
   }
 
   @Nullable
@@ -94,8 +94,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
           private Map<String, Object> getFaceDetectionModeConstants() {
             return Collections.unmodifiableMap(new HashMap<String, Object>() {
               {
-                put("fast", ExpoFaceDetector.FAST_MODE);
-                put("accurate", ExpoFaceDetector.ACCURATE_MODE);
+                put("fast", RNFaceDetector.FAST_MODE);
+                put("accurate", RNFaceDetector.ACCURATE_MODE);
               }
             });
           }
@@ -103,8 +103,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
           private Map<String, Object> getFaceDetectionClassificationsConstants() {
             return Collections.unmodifiableMap(new HashMap<String, Object>() {
               {
-                put("all", ExpoFaceDetector.ALL_CLASSIFICATIONS);
-                put("none", ExpoFaceDetector.NO_CLASSIFICATIONS);
+                put("all", RNFaceDetector.ALL_CLASSIFICATIONS);
+                put("none", RNFaceDetector.NO_CLASSIFICATIONS);
               }
             });
           }
@@ -112,8 +112,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
           private Map<String, Object> getFaceDetectionLandmarksConstants() {
             return Collections.unmodifiableMap(new HashMap<String, Object>() {
               {
-                put("all", ExpoFaceDetector.ALL_LANDMARKS);
-                put("none", ExpoFaceDetector.NO_LANDMARKS);
+                put("all", RNFaceDetector.ALL_LANDMARKS);
+                put("none", RNFaceDetector.NO_LANDMARKS);
               }
             });
           }

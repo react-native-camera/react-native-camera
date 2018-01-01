@@ -2,9 +2,9 @@ package org.reactnative.camera.tasks;
 
 import android.util.SparseArray;
 
-import org.reactnative.facedetector.ExpoFaceDetector;
-import org.reactnative.facedetector.ExpoFrame;
-import org.reactnative.facedetector.ExpoFrameFactory;
+import org.reactnative.facedetector.RNFaceDetector;
+import org.reactnative.facedetector.RNFrame;
+import org.reactnative.facedetector.RNFrameFactory;
 import com.google.android.gms.vision.face.Face;
 
 public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, SparseArray<Face>> {
@@ -12,12 +12,12 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Spar
   private int mWidth;
   private int mHeight;
   private int mRotation;
-  private ExpoFaceDetector mFaceDetector;
+  private RNFaceDetector mFaceDetector;
   private FaceDetectorAsyncTaskDelegate mDelegate;
 
   public FaceDetectorAsyncTask(
       FaceDetectorAsyncTaskDelegate delegate,
-      ExpoFaceDetector faceDetector,
+      RNFaceDetector faceDetector,
       byte[] imageData,
       int width,
       int height,
@@ -37,7 +37,7 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Spar
       return null;
     }
 
-    ExpoFrame frame = ExpoFrameFactory.buildFrame(mImageData, mWidth, mHeight, mRotation);
+    RNFrame frame = RNFrameFactory.buildFrame(mImageData, mWidth, mHeight, mRotation);
     return mFaceDetector.detect(frame);
   }
 

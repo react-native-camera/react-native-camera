@@ -16,7 +16,7 @@ import org.reactnative.camera.events.CameraReadyEvent;
 import org.reactnative.camera.events.FaceDetectionErrorEvent;
 import org.reactnative.camera.events.FacesDetectedEvent;
 import org.reactnative.camera.utils.ImageDimensions;
-import org.reactnative.facedetector.ExpoFaceDetector;
+import org.reactnative.facedetector.RNFaceDetector;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
@@ -32,7 +32,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.UUID;
 
-public class ExpoCameraViewHelper {
+public class RNCameraViewHelper {
   // Mount error event
 
   public static void emitMountErrorEvent(ViewGroup view) {
@@ -73,7 +73,7 @@ public class ExpoCameraViewHelper {
     reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
   }
 
-  public static void emitFaceDetectionErrorEvent(ViewGroup view, ExpoFaceDetector faceDetector) {
+  public static void emitFaceDetectionErrorEvent(ViewGroup view, RNFaceDetector faceDetector) {
     FaceDetectionErrorEvent event = FaceDetectionErrorEvent.obtain(view.getId(), faceDetector);
     ReactContext reactContext = (ReactContext) view.getContext();
     reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
