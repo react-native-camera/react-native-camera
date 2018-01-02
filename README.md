@@ -45,7 +45,7 @@ To enable `video recording` feature you have to add the following code to the `A
 
 <!-- Include this only if you are planning to use the microphone for video recording -->
 <key>NSMicrophoneUsageDescription</key>
-<string>Your message to user when the microsphone is accessed for the first time</string>
+<string>Your message to user when the microphone is accessed for the first time</string>
 ```
 3. On Android, you require `buildToolsVersion` of `25.0.2+`. _This should easily and automatically be downloaded by Android Studio's SDK Manager._
 
@@ -140,7 +140,7 @@ class BadInstagramCloneApp extends Component {
       </View>
     );
   }
-  
+
   onBarCodeRead(e) {
     console.log(
         "Barcode Found!",
@@ -285,6 +285,7 @@ The barcode type is provided in the `data` object.
 #### `barCodeTypes`
 
 An array of barcode types to search for. Defaults to all types listed above. No effect if `onBarCodeRead` is undefined.
+Example: `<Camera barCodeTypes={[Camera.constants.BarCodeType.qr]} />`
 
 Use static const `Camera.constants.BarCodeType` for selecting scan types in `barCodeTypes` and to very the results in `onBarCodeRead`.
 
@@ -302,7 +303,7 @@ Adjust size and style:
 
 ##### Make a custom barcode finder
 
-  1. make a copy of barcode-finder.js and place it in your project
+  1. make a copy of src/BarcodeFinder.js and place it in your project
   2. add it to your project
   3. add it as a child to the Camera
 ```javascript

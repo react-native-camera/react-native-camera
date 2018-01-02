@@ -11,14 +11,14 @@ import {
 /**
     HOW TO MAKE CUSTOM BARCODE FINDER
 
-    1. make a copy of barcode-finder.js and place it in your project
+    1. make a copy of src/BarcodeFinder.js and place it in your project
     2. add it to your project
     3. add it as a child to the Camera
       <Camera barcodeFinderComponent={<MyCustomBarcodeFinder />} />
 **/
 
 class BarcodeFinder extends Component {
-  
+
   constructor(props) {
     super(props);
   }

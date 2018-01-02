@@ -7,10 +7,13 @@ import {
   Platform,
   StyleSheet,
   requireNativeComponent,
+  ViewPropTypes,
+  Dimensions,
   View,
-  ViewPropTypes
 } from 'react-native';
+import BarcodeFinder from './BarcodeFinder';
 
+const {height, width} = Dimensions.get('window');
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
 const CAMERA_REF = 'camera';
 
@@ -53,13 +56,12 @@ function convertNativeProps(props) {
     newProps.barCodeTypes = [];
   }
 
-  newProps.barcodeScannerEnabled = typeof props.onBarCodeRead === 'function'
+  newProps.barcodeScannerEnabled = typeof props.onBarCodeRead === 'function';
 
   return newProps;
 }
 
 export default class Camera extends Component {
-
   static constants = {
     Aspect: CameraManager.Aspect,
     BarCodeType: CameraManager.BarCodeType,
@@ -69,33 +71,18 @@ export default class Camera extends Component {
     CaptureQuality: CameraManager.CaptureQuality,
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
-    TorchMode: CameraManager.TorchMode
+    TorchMode: CameraManager.TorchMode,
   };
 
   static propTypes = {
     ...ViewPropTypes,
-    aspect: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number
-    ]),
+    aspect: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     captureAudio: PropTypes.bool,
-    captureMode: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number
-    ]),
-    captureQuality: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number
-    ]),
-    captureTarget: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number
-    ]),
+    captureMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    captureQuality: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    captureTarget: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     defaultOnFocusComponent: PropTypes.bool,
-    flashMode: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number
-    ]),
+    flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
     barcodeScannerEnabled: PropTypes.bool,
@@ -104,19 +91,15 @@ export default class Camera extends Component {
     mirrorImage: PropTypes.bool,
     fixOrientation: PropTypes.bool,
     barCodeTypes: PropTypes.array,
-    orientation: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number
-    ]),
+    orientation: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     playSoundOnCapture: PropTypes.bool,
-    torchMode: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number
-    ]),
-    type: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number
-    ])
+    torchMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    type: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    barcodeFinderVisible: PropTypes.bool,
+    barcodeFinderWidth: PropTypes.number,
+    barcodeFinderHeight: PropTypes.number,
+    barcodeFinderStyle: PropTypes.object,
+    barcodeFinderPercentageSize: PropTypes.array,
   };
 
   static defaultProps = {
@@ -134,6 +117,11 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
+    barcodeFinderVisible: false,
+    barcodeFinderWidth: 200,
+    barcodeFinderHeight: 200,
+    barcodeFinderStyle: {borderColor: "rgba(255,255,255,0.6)", borderWidth: 1},
+    barcodeFinderComponent: <BarcodeFinder />,
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -141,6 +129,7 @@ export default class Camera extends Component {
   static checkAudioAuthorizationStatus = CameraManager.checkAudioAuthorizationStatus;
 
   setNativeProps(props) {
+    // eslint-disable-next-line
     this.refs[CAMERA_REF].setNativeProps(props);
   }
 
@@ -148,16 +137,19 @@ export default class Camera extends Component {
     super();
     this.state = {
       isAuthorized: false,
-      isRecording: false
+      isRecording: false,
     };
   }
 
   async componentWillMount() {
-    this._addOnBarCodeReadListener()
+    this._addOnBarCodeReadListener();
 
-    let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode })
-    let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
-    let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
+    let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode });
+    let hasVideoAndAudio =
+      this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video;
+    let check = hasVideoAndAudio
+      ? Camera.checkDeviceAuthorizationStatus
+      : Camera.checkVideoAuthorizationStatus;
 
     if (check) {
       const isAuthorized = await check();
@@ -166,7 +158,7 @@ export default class Camera extends Component {
   }
 
   componentWillUnmount() {
-    this._removeOnBarCodeReadListener()
+    this._removeOnBarCodeReadListener();
 
     if (this.state.isRecording) {
       this.stopCapture();
@@ -174,39 +166,62 @@ export default class Camera extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { onBarCodeRead } = this.props
+    const { onBarCodeRead } = this.props;
     if (onBarCodeRead !== newProps.onBarCodeRead) {
-      this._addOnBarCodeReadListener(newProps)
+      this._addOnBarCodeReadListener(newProps);
     }
   }
 
   _addOnBarCodeReadListener(props) {
-    const { onBarCodeRead } = props || this.props
-    this._removeOnBarCodeReadListener()
+    const { onBarCodeRead } = props || this.props;
+    this._removeOnBarCodeReadListener();
     if (onBarCodeRead) {
       this.cameraBarCodeReadListener = Platform.select({
         ios: NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead),
-        android: DeviceEventEmitter.addListener('CameraBarCodeReadAndroid',  this._onBarCodeRead)
-      })
+        android: DeviceEventEmitter.addListener('CameraBarCodeReadAndroid', this._onBarCodeRead),
+      });
     }
   }
   _removeOnBarCodeReadListener() {
-    const listener = this.cameraBarCodeReadListener
+    const listener = this.cameraBarCodeReadListener;
     if (listener) {
-      listener.remove()
+      listener.remove();
     }
   }
 
-  render() {
-    const style = [styles.base, this.props.style];
-    const nativeProps = convertNativeProps(this.props);
-
-    return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
+  _child(){
+    var props = {
+      style: this.props.barcodeFinderStyle,
+      width: this.props.barcodeFinderWidth,
+      height: this.props.barcodeFinderHeight
+    }
+    return React.cloneElement(this.props.barcodeFinderComponent, props);
   }
 
-  _onBarCodeRead = (data) => {
+  render() {
+    // Should we show barcode finder, use in child or use default
+    var childs = null;
+    var barcodeFinderPercentageSize = [0,0];
+    if(this.props.barcodeFinderVisible){
+      // we need % size of viewFinder
+      barcodeFinderPercentageSize = [(this.props.barcodeFinderWidth/width),(this.props.barcodeFinderHeight/height)]
+      childs = <View style={{left:0,right:0,bottom:0,top:0,position:'absolute',justifyContent:'center',alignItems:'center'}}><View style={{width:this.props.barcodeFinderWidth,height:this.props.barcodeFinderHeight}}>{this._child()}</View></View>;
+    }
+    // TODO - style is not used, figure it out why
+    // eslint-disable-next-line
+    const style = [styles.base, this.props.style];
+    const nativeProps = convertNativeProps(Object.assign({},this.props,{barcodeFinderPercentageSize}));
+    return (<View style={{flex:1}}>
+              <View style={{flex:1}}>
+                <RCTCamera ref={CAMERA_REF} {...nativeProps} />
+              </View>
+              {childs}
+            </View>);
+  }
+
+  _onBarCodeRead = data => {
     if (this.props.onBarCodeRead) {
-      this.props.onBarCodeRead(data)
+      this.props.onBarCodeRead(data);
     }
   };
 
@@ -224,11 +239,11 @@ export default class Camera extends Component {
       description: '',
       mirrorImage: props.mirrorImage,
       fixOrientation: props.fixOrientation,
-      ...options
+      ...options,
     };
 
     if (options.mode === Camera.constants.CaptureMode.video) {
-      options.totalSeconds = (options.totalSeconds > -1 ? options.totalSeconds : -1);
+      options.totalSeconds = options.totalSeconds > -1 ? options.totalSeconds : -1;
       options.preferredTimeScale = options.preferredTimeScale || 30;
       this.setState({ isRecording: true });
     }
@@ -240,7 +255,7 @@ export default class Camera extends Component {
     if (Platform.OS === 'android') {
       const props = convertNativeProps(this.props);
       CameraManager.startPreview({
-        type: props.type
+        type: props.type,
       });
     } else {
       CameraManager.startPreview();
@@ -251,7 +266,7 @@ export default class Camera extends Component {
     if (Platform.OS === 'android') {
       const props = convertNativeProps(this.props);
       CameraManager.stopPreview({
-        type: props.type
+        type: props.type,
       });
     } else {
       CameraManager.stopPreview();
@@ -263,7 +278,7 @@ export default class Camera extends Component {
       this.setState({ isRecording: false });
       return CameraManager.stopCapture();
     }
-    return Promise.resolve("Not Recording.");
+    return Promise.resolve('Not Recording.');
   }
 
   getFOV() {
@@ -274,7 +289,7 @@ export default class Camera extends Component {
     if (Platform.OS === 'android') {
       const props = convertNativeProps(this.props);
       return CameraManager.hasFlash({
-        type: props.type
+        type: props.type,
       });
     }
     return CameraManager.hasFlash();
@@ -283,15 +298,17 @@ export default class Camera extends Component {
 
 export const constants = Camera.constants;
 
-const RCTCamera = requireNativeComponent('RCTCamera', Camera, {nativeOnly: {
-  testID: true,
-  renderToHardwareTextureAndroid: true,
-  accessibilityLabel: true,
-  importantForAccessibility: true,
-  accessibilityLiveRegion: true,
-  accessibilityComponentType: true,
-  onLayout: true
-}});
+const RCTCamera = requireNativeComponent('RCTCamera', Camera, {
+  nativeOnly: {
+    testID: true,
+    renderToHardwareTextureAndroid: true,
+    accessibilityLabel: true,
+    importantForAccessibility: true,
+    accessibilityLiveRegion: true,
+    accessibilityComponentType: true,
+    onLayout: true,
+  },
+});
 
 const styles = StyleSheet.create({
   base: {},

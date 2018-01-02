@@ -487,46 +487,10 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     }
 
     AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
-    CGRect scanBarcodeArea = CGRectMake(0, 0, 0, 0);
     if ([self.session canAddOutput:metadataOutput]) {
-
         [self.session addOutput:metadataOutput];
         [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
         [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
-
-        // we only want to scan specified area
-        // NOTE; Seems we can only set the actual rect after session started, else it doesn't work
-        if (self.barcodeFinderVisible) {
-
-          NSNumber *imageWidth = [NSNumber numberWithFloat:self.previewLayer.frame.size.width];
-          NSNumber *imageHeight = [NSNumber numberWithFloat:self.previewLayer.frame.size.height];
-          double imageUseWidth = [imageWidth doubleValue];
-          double imageUseHeight = [imageHeight doubleValue];
-          double cropWidth = imageUseWidth * self.barcodeFinderPercentageSizeWidth;
-          double cropHeight = imageUseHeight * self.barcodeFinderPercentageSizeHeight;
-          double cropX = (imageUseWidth/2)-(cropWidth/2);
-          double cropY = (imageUseHeight/2)-(cropHeight/2);
-          CGRect scanLimit = CGRectMake(cropX, cropY, cropWidth, cropHeight);
-          scanBarcodeArea = [_previewLayer metadataOutputRectOfInterestForRect:scanLimit];
-          [metadataOutput setRectOfInterest:scanBarcodeArea];
-
-        /* ############################
-         DEBUG PURPOSE, get some values and draw yellow rect of actual scanning area
-        */
-
-          /*
-          NSLog(@"Display size width: %@, height: %@", imageWidth, imageHeight);
-          NSLog(@"Percent size width: %f, height: %f", self.barcodeFinderPercentageSizeWidth, self.barcodeFinderPercentageSizeHeight);
-          NSLog(@"Crop search area: %@", NSStringFromCGRect(scanLimit));
-          NSLog(@"Crop search converted: %@", NSStringFromCGRect(scanBarcodeArea));
-
-          // PAUSE AND PLAY WILL DRAW YELLOW RECT, IF VALID, might appear auto as well. who knows.
-          UIView *scanAreaView = [[UIView alloc] initWithFrame:scanLimit];
-          scanAreaView.layer.borderColor = [UIColor yellowColor].CGColor;
-          scanAreaView.layer.borderWidth = 4;
-          [self.view addSubview:scanAreaView];
-          */
-        }
     }
     self.metadataOutput = metadataOutput;
 
@@ -536,11 +500,49 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       dispatch_async(strongSelf.sessionQueue, ^{
         // Manually restarting the session since it must have been stopped due to an error.
         [strongSelf.session startRunning];
+        [strongSelf scanCropArea];
       });
     }]];
 
     [self.session startRunning];
+    [self scanCropArea];
+
   });
+}
+
+- (void)scanCropArea {
+    // we only want to scan specified area
+    // NOTE; Seems we can only set the actual rect after session started, else it doesn't work
+    if (self.barcodeFinderVisible) {
+
+        NSNumber *imageWidth = [NSNumber numberWithFloat:self.previewLayer.frame.size.width];
+        NSNumber *imageHeight = [NSNumber numberWithFloat:self.previewLayer.frame.size.height];
+        double imageUseWidth = [imageWidth doubleValue];
+        double imageUseHeight = [imageHeight doubleValue];
+        double cropWidth = imageUseWidth * self.barcodeFinderPercentageSizeWidth;
+        double cropHeight = imageUseHeight * self.barcodeFinderPercentageSizeHeight;
+        double cropX = (imageUseWidth/2)-(cropWidth/2);
+        double cropY = (imageUseHeight/2)-(cropHeight/2);
+        CGRect scanLimit = CGRectMake(cropX, cropY, cropWidth, cropHeight);
+        CGRect scanBarcodeArea = [_previewLayer metadataOutputRectOfInterestForRect:scanLimit];
+        [self.metadataOutput setRectOfInterest:scanBarcodeArea];
+
+        /* ############################
+         DEBUG PURPOSE, get some values and draw yellow rect of actual scanning area
+         */
+        /*
+        NSLog(@"Display size width: %@, height: %@", imageWidth, imageHeight);
+        NSLog(@"Percent size width: %f, height: %f", self.barcodeFinderPercentageSizeWidth, self.barcodeFinderPercentageSizeHeight);
+        NSLog(@"Crop search area: %@", NSStringFromCGRect(scanLimit));
+        NSLog(@"Crop search converted: %@", NSStringFromCGRect(scanBarcodeArea));
+
+        // PAUSE AND PLAY WILL DRAW YELLOW RECT, IF VALID, might appear auto as well. who knows.
+        UIView *scanAreaView = [[UIView alloc] initWithFrame:scanLimit];
+        scanAreaView.layer.borderColor = [UIColor yellowColor].CGColor;
+        scanAreaView.layer.borderWidth = 4;
+        [self.view addSubview:scanAreaView];
+        */
+    }
 }
 
 - (void)stopSession {
