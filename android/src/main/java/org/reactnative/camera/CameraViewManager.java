@@ -41,7 +41,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     }
   }
 
-  private static final String REACT_CLASS = "RNnentCamera";
+  private static final String REACT_CLASS = "RNCamera";
 
   private static CameraViewManager instance;
   private RNCameraView mCameraView;
@@ -163,7 +163,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
 
   public void record(final ReadableMap options, final Promise promise) {
     // TODO fix this
-//    RNnent.getInstance().getPermissions(new RNnent.PermissionsListener() {
+//    RN.getInstance().getPermissions(new RN.PermissionsListener() {
 //      @Override
 //      public void permissionsGranted() {
 //        if (mCameraView.isCameraOpened()) {
