@@ -312,12 +312,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
         mMediaRecorder.setOutputFile(mVideoFile.getPath());
 
-        if (options.hasKey("totalSeconds")) {
+        if (options.hasKey("totalSeconds") && !options.isNull("totalSeconds")) {
             int totalSeconds = options.getInt("totalSeconds");
             mMediaRecorder.setMaxDuration(totalSeconds * 1000);
         }
 
-        if (options.hasKey("maxFileSize")) {
+        if (options.hasKey("maxFileSize") && !options.isNull("maxFileSize")) {
             int maxFileSize = options.getInt("maxFileSize");
             mMediaRecorder.setMaxFileSize(maxFileSize);
         }
@@ -430,17 +430,17 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.Video.Media.DATA, mVideoFile.getPath());
-                values.put(MediaStore.Video.Media.TITLE, mRecordingOptions.hasKey("title") ? mRecordingOptions.getString("title") : "video");
+                values.put(MediaStore.Video.Media.TITLE, (mRecordingOptions.hasKey("title") && !mRecordingOptions.isNull("title")) ? mRecordingOptions.getString("title") : "video");
 
-                if (mRecordingOptions.hasKey("description")) {
+                if (mRecordingOptions.hasKey("description") && !mRecordingOptions.isNull("description")) {
                     values.put(MediaStore.Video.Media.DESCRIPTION, mRecordingOptions.hasKey("description"));
                 }
 
-                if (mRecordingOptions.hasKey("latitude")) {
+                if (mRecordingOptions.hasKey("latitude") && !mRecordingOptions.isNull("latitude")) {
                     values.put(MediaStore.Video.Media.LATITUDE, mRecordingOptions.getString("latitude"));
                 }
 
-                if (mRecordingOptions.hasKey("longitude")) {
+                if (mRecordingOptions.hasKey("longitude") && !mRecordingOptions.isNull("longitude")) {
                     values.put(MediaStore.Video.Media.LONGITUDE, mRecordingOptions.getString("longitude"));
                 }
 
@@ -484,7 +484,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) {
-        int orientation = options.hasKey("orientation") ? options.getInt("orientation") : RCTCamera.getInstance().getOrientation();
+        int orientation = (options.hasKey("orientation") && !options.isNull("orientation"))  ? options.getInt("orientation") : RCTCamera.getInstance().getOrientation();
         if (orientation == RCT_CAMERA_ORIENTATION_AUTO) {
             _sensorOrientationChecker.onResume();
             _sensorOrientationChecker.registerOrientationListener(new RCTSensorOrientationListener() {
@@ -515,12 +515,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
         RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
 
-        if (options.hasKey("playSoundOnCapture") && options.getBoolean("playSoundOnCapture")) {
+        if (options.hasKey("playSoundOnCapture") && !options.isNull("playSoundOnCapture") && options.getBoolean("playSoundOnCapture")) {
             MediaActionSound sound = new MediaActionSound();
             sound.play(MediaActionSound.SHUTTER_CLICK);
         }
 
-        if (options.hasKey("quality")) {
+        if (options.hasKey("quality") && !options.isNull("quality")) {
             RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
         }
 
@@ -571,7 +571,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
      * concurrently which would blow the memory (esp on smaller devices), and slow things down.
      */
     private synchronized void processImage(MutableImage mutableImage, ReadableMap options, Promise promise) {
-        boolean shouldFixOrientation = options.hasKey("fixOrientation") && options.getBoolean("fixOrientation");
+        boolean shouldFixOrientation = options.hasKey("fixOrientation") && !options.isNull("fixOrientation") && options.getBoolean("fixOrientation");
         if(shouldFixOrientation) {
             try {
                 mutableImage.fixOrientation();
@@ -580,7 +580,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             }
         }
 
-        boolean shouldMirror = options.hasKey("mirrorImage") && options.getBoolean("mirrorImage");
+        boolean shouldMirror = options.hasKey("mirrorImage") && !options.isNull("mirrorImage") && options.getBoolean("mirrorImage");
         if (shouldMirror) {
             try {
                 mutableImage.mirrorImage();
@@ -590,7 +590,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
 
         int jpegQualityPercent = 80;
-        if(options.hasKey("jpegQuality")) {
+        if(options.hasKey("jpegQuality") && !options.isNull("jpegQuality")) {
             jpegQualityPercent = options.getInt("jpegQuality");
         }
 
