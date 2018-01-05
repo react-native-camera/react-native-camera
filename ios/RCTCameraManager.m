@@ -35,11 +35,8 @@ RCT_EXPORT_MODULE();
     self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
     self.previewLayer.needsDisplayOnBoundsChange = YES;
   #endif
-
-  if(!self.camera){
-    self.camera = [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
-  }
-  return self.camera;
+    
+  return [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
 }
 
 + (BOOL)requiresMainQueueSetup
