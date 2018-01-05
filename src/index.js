@@ -8,8 +8,12 @@ import {
   StyleSheet,
   requireNativeComponent,
   ViewPropTypes,
+  Dimensions,
+  View,
 } from 'react-native';
+import BarcodeFinder from './BarcodeFinder';
 
+const {height, width} = Dimensions.get('window');
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
 const CAMERA_REF = 'camera';
 
@@ -91,6 +95,11 @@ export default class Camera extends Component {
     playSoundOnCapture: PropTypes.bool,
     torchMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     type: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    barcodeFinderVisible: PropTypes.bool,
+    barcodeFinderWidth: PropTypes.number,
+    barcodeFinderHeight: PropTypes.number,
+    barcodeFinderStyle: PropTypes.object,
+    barcodeFinderPercentageSize: PropTypes.array,
   };
 
   static defaultProps = {
@@ -108,6 +117,11 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
+    barcodeFinderVisible: false,
+    barcodeFinderWidth: 200,
+    barcodeFinderHeight: 200,
+    barcodeFinderStyle: {borderColor: "rgba(255,255,255,0.6)", borderWidth: 1},
+    barcodeFinderComponent: <BarcodeFinder />,
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -175,13 +189,34 @@ export default class Camera extends Component {
     }
   }
 
+  _child(){
+    var props = {
+      style: this.props.barcodeFinderStyle,
+      width: this.props.barcodeFinderWidth,
+      height: this.props.barcodeFinderHeight
+    }
+    return React.cloneElement(this.props.barcodeFinderComponent, props);
+  }
+
   render() {
+    // Should we show barcode finder, use in child or use default
+    var childs = null;
+    var barcodeFinderPercentageSize = [0,0];
+    if(this.props.barcodeFinderVisible){
+      // we need % size of viewFinder
+      barcodeFinderPercentageSize = [(this.props.barcodeFinderWidth/width),(this.props.barcodeFinderHeight/height)]
+      childs = <View style={{left:0,right:0,bottom:0,top:0,position:'absolute',justifyContent:'center',alignItems:'center'}}><View style={{width:this.props.barcodeFinderWidth,height:this.props.barcodeFinderHeight}}>{this._child()}</View></View>;
+    }
     // TODO - style is not used, figure it out why
     // eslint-disable-next-line
     const style = [styles.base, this.props.style];
-    const nativeProps = convertNativeProps(this.props);
-
-    return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
+    const nativeProps = convertNativeProps(Object.assign({},this.props,{barcodeFinderPercentageSize}));
+    return (<View style={{flex:1}}>
+              <View style={{flex:1}}>
+                <RCTCamera ref={CAMERA_REF} {...nativeProps} />
+              </View>
+              {childs}
+            </View>);
   }
 
   _onBarCodeRead = data => {

@@ -5,8 +5,10 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.view.MotionEvent;
 import android.view.TextureView;
@@ -18,6 +20,7 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.EnumMap;
@@ -26,8 +29,9 @@ import java.util.EnumSet;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
+import com.google.zxing.LuminanceSource;
 import com.google.zxing.MultiFormatReader;
-import com.google.zxing.PlanarYUVLuminanceSource;
+import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.common.HybridBinarizer;
@@ -42,6 +46,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private boolean _isStopping;
     private Camera _camera;
     private float mFingerSpacing;
+    private List<String> _barCodeTypes;
 
     // concurrency lock for barcode scanner to avoid flooding the runtime
     public static volatile boolean barcodeScannerTaskLock = false;
@@ -53,7 +58,6 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         super(context);
         this.setSurfaceTextureListener(this);
         this._cameraType = type;
-        this.initBarcodeReader(RCTCamera.getInstance().getBarCodeTypes());
     }
 
     @Override
@@ -118,6 +122,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     public void setFlashMode(int flashMode) {
         RCTCamera.getInstance().setFlashMode(_cameraType, flashMode);
+    }
+
+    public void setBarCodeTypes(List<String> barCodeTypes) {
+        _barCodeTypes = barCodeTypes;
+        this.initBarcodeReader(_barCodeTypes);
     }
 
     private void startPreview() {
@@ -217,39 +226,39 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
      * Additionally supports [codabar, maxicode, rss14, rssexpanded, upca, upceanextension]
      */
     private BarcodeFormat parseBarCodeString(String c) {
-        if ("aztec".equals(c)) {
+        if ("AZTEC".equals(c)) {
             return BarcodeFormat.AZTEC;
-        } else if ("ean13".equals(c)) {
-            return BarcodeFormat.EAN_13;
-        } else if ("ean8".equals(c)) {
-            return BarcodeFormat.EAN_8;
-        } else if ("qr".equals(c)) {
-            return BarcodeFormat.QR_CODE;
-        } else if ("pdf417".equals(c)) {
-            return BarcodeFormat.PDF_417;
-        } else if ("upce".equals(c)) {
-            return BarcodeFormat.UPC_E;
-        } else if ("datamatrix".equals(c)) {
-            return BarcodeFormat.DATA_MATRIX;
-        } else if ("code39".equals(c)) {
-            return BarcodeFormat.CODE_39;
-        } else if ("code93".equals(c)) {
-            return BarcodeFormat.CODE_93;
-        } else if ("interleaved2of5".equals(c)) {
-            return BarcodeFormat.ITF;
-        } else if ("codabar".equals(c)) {
+        } else if ("CODABAR".equals(c)) {
             return BarcodeFormat.CODABAR;
-        } else if ("code128".equals(c)) {
+        } else if ("CODE_128".equals(c)) {
             return BarcodeFormat.CODE_128;
-        } else if ("maxicode".equals(c)) {
+        } else if ("CODE_93".equals(c)) {
+            return BarcodeFormat.CODE_93;
+        } else if ("CODE_39".equals(c)) {
+            return BarcodeFormat.CODE_39;
+        } else if ("DATA_MATRIX".equals(c)) {
+            return BarcodeFormat.DATA_MATRIX;
+        } else if ("EAN_13".equals(c)) {
+            return BarcodeFormat.EAN_13;
+        } else if ("EAN_8".equals(c)) {
+            return BarcodeFormat.EAN_8;
+        } else if ("ITF".equals(c)) {
+            return BarcodeFormat.ITF;
+        } else if ("MAXICODE".equals(c)) {
             return BarcodeFormat.MAXICODE;
-        } else if ("rss14".equals(c)) {
+        } else if ("PDF_417".equals(c)) {
+            return BarcodeFormat.PDF_417;
+        } else if ("QR_CODE".equals(c)) {
+            return BarcodeFormat.QR_CODE;
+        } else if ("RSS_14".equals(c)) {
             return BarcodeFormat.RSS_14;
-        } else if ("rssexpanded".equals(c)) {
+        } else if ("RSS_EXPANDED".equals(c)) {
             return BarcodeFormat.RSS_EXPANDED;
-        } else if ("upca".equals(c)) {
+        } else if ("UPC_A".equals(c)) {
             return BarcodeFormat.UPC_A;
-        } else if ("upceanextension".equals(c)) {
+        } else if ("UPC_E".equals(c)) {
+            return BarcodeFormat.UPC_E;
+        } else if ("UPC_EAN_EXTENSION".equals(c)) {
             return BarcodeFormat.UPC_EAN_EXTENSION;
         } else {
             android.util.Log.v("RCTCamera", "Unsupported code.. [" + c + "]");
@@ -291,6 +300,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         }
     }
 
+
     private class ReaderAsyncTask extends AsyncTask<Void, Void, Void> {
         private byte[] imageData;
         private final Camera camera;
@@ -300,63 +310,91 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             this.imageData = imageData;
         }
 
-        private Result getBarcode(int width, int height) {
-            try{
-              PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
-              BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-              return _multiFormatReader.decodeWithState(bitmap);
-            } catch (Throwable t) {
-                // meh
-            } finally {
-                _multiFormatReader.reset();
-            }
-            return null;
-        }
-
-        private Result getBarcodeAnyOrientation() {
-            Camera.Size size = camera.getParameters().getPreviewSize();
-
-            int width = size.width;
-            int height = size.height;
-            Result result = getBarcode(width, height);
-            if (result != null)
-              return result;
-
-            rotateImage(width, height);
-            width = size.height;
-            height = size.width;
-
-            return getBarcode(width, height);
-        }
-
-        private void rotateImage(int width, int height) {
-            byte[] rotated = new byte[imageData.length];
-            for (int y = 0; y < height; y++) {
-              for (int x = 0; x < width; x++) {
-                rotated[x * height + height - y - 1] = imageData[x + y * width];
-              }
-            }
-            imageData = rotated;
-        }
-
         @Override
         protected Void doInBackground(Void... ignored) {
-            if (isCancelled()) {
+            if (isCancelled() || camera == null) {
                 return null;
             }
 
+            RCTCamera settings = RCTCamera.getInstance();
+            Camera.Parameters params = camera.getParameters();
+            int quality = 50; //set quality to lower, faster to work with
+
+            // lets convert preview to bytearray that we can use
+            YuvImage imageConvert;
             try {
-                // rotate for zxing if orientation is portrait
-                Result result = getBarcodeAnyOrientation();
-                if (result == null){
-                    throw new Exception();
-                }
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                imageConvert = new YuvImage(this.imageData, params.getPreviewFormat(), params.getPreviewSize().width, params.getPreviewSize().height, null);
+                imageConvert.compressToJpeg(new Rect(0, 0, params.getPreviewSize().width, params.getPreviewSize().height), quality, baos);//this line decreases the image quality
+                this.imageData = baos.toByteArray();
+                baos = null;
+            }
+            catch(Exception e){
+                android.util.Log.e("RCTCamera","Convert preview",e);
+                return null;
+            }
+
+            // find rotation that will be used for Mutable Image
+            int deviceRotation = settings.getActualDeviceOrientation();
+            int rotationIndex = 0;
+            switch(deviceRotation){
+                case 0: // portrait
+                    rotationIndex = 6;
+                    break;
+                case 1: // landscape left
+                    rotationIndex = 1;
+                    break;
+                case 2: // portrait upside down
+
+                    break;
+                case 3: // landscape right
+                    rotationIndex = 3;
+                    break;
+            }
+
+            // rotate
+            MutableImage mutableImage = new MutableImage(this.imageData);
+            try{
+                mutableImage.rotate(rotationIndex);
+            } catch (MutableImage.ImageMutationFailedException e) {
+                android.util.Log.e("RCTCamera","Rotate temp image",e);
+                return null;
+            }
+
+            Bitmap bitmap = mutableImage.getCurrentRepresentation();
+            int width; int height;
+
+            // if using viewfinder, crop search area
+            if ( settings.barcodeFinderVisible() && settings.barcodeFinderHeight() != 0 && settings.barcodeFinderWidth() != 0) {
+
+                // Get actual size based on %
+                width = (int) (bitmap.getWidth() * settings.barcodeFinderWidth() );
+                height = (int) (bitmap.getHeight() * settings.barcodeFinderHeight() );
+                // find center - new position
+                int x = (bitmap.getWidth() / 2) - (width / 2);
+                int y = (bitmap.getHeight() / 2) - (height / 2);
+                // our small image
+                bitmap = Bitmap.createBitmap(bitmap, x, y, width, height);
+            }
+            else {
+                // fullscreen
+                width = bitmap.getWidth();
+                height = bitmap.getHeight();
+            }
+
+            // get dataarray for actual area to scan
+            int[] intArray = new int[width*height];
+            bitmap.getPixels(intArray, 0, width, 0, 0, width, height);
+
+            try {
+                LuminanceSource source = new RGBLuminanceSource(width, height, intArray);
+                BinaryBitmap bbitmap = new BinaryBitmap(new HybridBinarizer(source));
+                Result result = _multiFormatReader.decodeWithState(bbitmap);
 
                 ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
                 WritableMap event = Arguments.createMap();
                 WritableArray resultPoints = Arguments.createArray();
                 ResultPoint[] points = result.getResultPoints();
-                
                 if(points != null) {
                     for (ResultPoint point : points) {
                         WritableMap newPoint = Arguments.createMap();
@@ -365,7 +403,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                         resultPoints.pushMap(newPoint);
                     }
                 }
-                
+
                 event.putArray("bounds", resultPoints);
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());
@@ -373,6 +411,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
             } catch (Throwable t) {
                 // meh
+                android.util.Log.v("RCTCamera", "Barcode scan not found anything");
             } finally {
                 _multiFormatReader.reset();
                 RCTCameraViewFinder.barcodeScannerTaskLock = false;

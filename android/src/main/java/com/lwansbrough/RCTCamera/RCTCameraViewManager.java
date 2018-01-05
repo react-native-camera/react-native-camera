@@ -75,6 +75,18 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         view.setBarcodeScannerEnabled(barcodeScannerEnabled);
     }
 
+    @ReactProp(name = "barcodeFinderVisible")
+    public void setBarcodeFinderVisible(RCTCameraView view, boolean barcodeScannerEnabled) {
+        view.setBarcodeFinderVisible(barcodeScannerEnabled);
+    }
+
+    @ReactProp(name = "barcodeFinderPercentageSize")
+    public void setBarcodeFinderPercentageSize(RCTCameraView view, ReadableArray viewFinderSize) {
+        if(viewFinderSize!=null || viewFinderSize.size()==2){
+            view.setBarcodeFinderPercentageSize(viewFinderSize.getDouble(0),viewFinderSize.getDouble(1));
+        }
+    }
+
     @ReactProp(name = "barCodeTypes")
     public void setBarCodeTypes(RCTCameraView view, ReadableArray barCodeTypes) {
         if (barCodeTypes == null) {

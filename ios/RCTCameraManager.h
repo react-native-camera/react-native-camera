@@ -72,6 +72,9 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, assign) NSInteger videoTarget;
 @property (nonatomic, assign) NSInteger orientation;
 @property (nonatomic, assign) BOOL mirrorImage;
+@property (nonatomic, assign) BOOL barcodeFinderVisible;
+@property (nonatomic, assign) double barcodeFinderPercentageSizeWidth;
+@property (nonatomic, assign) double barcodeFinderPercentageSizeHeight;
 @property (nonatomic, strong) NSArray* barCodeTypes;
 @property (nonatomic, strong) RCTPromiseResolveBlock videoResolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock videoReject;
