@@ -322,6 +322,14 @@ from javascript.
 
 If set to `true`, the device will not sleep while the camera preview is visible. This mimics the behavior of the default camera app, which keeps the device awake while open.
 
+#### `Android` `permissionDialogTitle`
+
+Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this change the title of the dialog prompt requesting permissions.
+
+#### `Android` `permissionDialogMessage`
+
+Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this change the content of the dialog prompt requesting permissions.
+
 #### `mirrorImage`
 
 If set to `true`, the image returned will be mirrored.

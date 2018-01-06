@@ -8,6 +8,7 @@ import {
   StyleSheet,
   requireNativeComponent,
   ViewPropTypes,
+  PermissionsAndroid,
 } from 'react-native';
 
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
@@ -91,6 +92,8 @@ export default class Camera extends Component {
     playSoundOnCapture: PropTypes.bool,
     torchMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     type: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    permissionDialogTitle: PropTypes.string,
+    permissionDialogMessage: PropTypes.string
   };
 
   static defaultProps = {
@@ -108,6 +111,8 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
+    permissionDialogTitle: '',
+    permissionDialogMessage: ''
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -131,16 +136,31 @@ export default class Camera extends Component {
     this._addOnBarCodeReadListener();
 
     let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode });
-    let hasVideoAndAudio =
-      this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video;
-    let check = hasVideoAndAudio
-      ? Camera.checkDeviceAuthorizationStatus
-      : Camera.checkVideoAuthorizationStatus;
+    let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video;
+      
+    if (Platform.OS === 'ios') {
+      
+      let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
 
-    if (check) {
-      const isAuthorized = await check();
-      this.setState({ isAuthorized });
+      if (check) {
+        const isAuthorized = await check();
+        this.setState({ isAuthorized });
+      }
+
+    } else if (Platform.OS === 'android') {
+      
+      const granted = await PermissionsAndroid.request( PermissionsAndroid.PERMISSIONS.CAMERA, { 
+          title: this.props.permissionDialogTitle, 
+          message:  this.props.permissionDialogMessage, 
+        }
+      );
+        
+      this.setState({ isAuthorized: granted === PermissionsAndroid.RESULTS.GRANTED });
+    } else {
+      
+      this.setState({ isAuthorized: true })
     }
+    
   }
 
   componentWillUnmount() {
@@ -181,7 +201,11 @@ export default class Camera extends Component {
     const style = [styles.base, this.props.style];
     const nativeProps = convertNativeProps(this.props);
 
-    return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
+    if(this.state.isAuthorized) {
+      return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
+    } else {
+      return null
+    }
   }
 
   _onBarCodeRead = data => {
