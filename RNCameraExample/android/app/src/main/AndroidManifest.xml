@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
     package="com.rncameraexample"
     android:versionCode="1"
     android:versionName="1.0">
@@ -8,14 +9,16 @@
 
     <uses-sdk
         android:minSdkVersion="16"
-        android:targetSdkVersion="22" />
+        android:targetSdkVersion="26" />
 
     <application
       android:name=".MainApplication"
       android:allowBackup="true"
       android:label="@string/app_name"
       android:icon="@mipmap/ic_launcher"
-      android:theme="@style/AppTheme">
+      android:theme="@style/AppTheme"
+      tools:node="replace"
+    >
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
