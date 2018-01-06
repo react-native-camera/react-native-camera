@@ -9,6 +9,9 @@ import {
   requireNativeComponent,
   ViewPropTypes,
   PermissionsAndroid,
+  ActivityIndicator,
+  View,
+  Text,
 } from 'react-native';
 
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
@@ -93,7 +96,9 @@ export default class Camera extends Component {
     torchMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     type: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     permissionDialogTitle: PropTypes.string,
-    permissionDialogMessage: PropTypes.string
+    permissionDialogMessage: PropTypes.string,
+    notAuthorizedView: PropTypes.element,
+    pendingAuthorizationView: PropTypes.element,
   };
 
   static defaultProps = {
@@ -112,7 +117,30 @@ export default class Camera extends Component {
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
     permissionDialogTitle: '',
-    permissionDialogMessage: ''
+    permissionDialogMessage: '',
+    notAuthorizedView: (
+      <View style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <Text style={{
+          textAlign: 'center',
+          fontSize: 16,
+        }}>
+          Camera not authorized
+        </Text>
+      </View>
+    ),
+    pendingAuthorizationView: (
+      <View style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <ActivityIndicator size="small"/>
+      </View>
+    ),
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -128,6 +156,7 @@ export default class Camera extends Component {
     super();
     this.state = {
       isAuthorized: false,
+      isAuthorizationChecked: false,
       isRecording: false,
     };
   }
@@ -144,7 +173,7 @@ export default class Camera extends Component {
 
       if (check) {
         const isAuthorized = await check();
-        this.setState({ isAuthorized });
+        this.setState({ isAuthorized, isAuthorizationChecked: true });
       }
 
     } else if (Platform.OS === 'android') {
@@ -155,10 +184,10 @@ export default class Camera extends Component {
         }
       );
         
-      this.setState({ isAuthorized: granted === PermissionsAndroid.RESULTS.GRANTED });
+      this.setState({ isAuthorized: granted === PermissionsAndroid.RESULTS.GRANTED, isAuthorizationChecked: true });
     } else {
       
-      this.setState({ isAuthorized: true })
+      this.setState({ isAuthorized: true, isAuthorizationChecked: true })
     }
     
   }
@@ -203,8 +232,10 @@ export default class Camera extends Component {
 
     if(this.state.isAuthorized) {
       return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
+    } else if (!this.state.isAuthorizationChecked) {
+      return this.props.pendingAuthorizationView
     } else {
-      return null
+      return this.props.notAuthorizedView
     }
   }
 
