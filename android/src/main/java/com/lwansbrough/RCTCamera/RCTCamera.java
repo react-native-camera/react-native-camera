@@ -6,6 +6,7 @@ package com.lwansbrough.RCTCamera;
 
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -26,12 +27,13 @@ public class RCTCamera {
     private int _orientation = -1;
     private int _actualDeviceOrientation = 0;
     private int _adjustedDeviceOrientation = 0;
+    private DisplayMetrics _screen = null;
 
     public static RCTCamera getInstance() {
         return ourInstance;
     }
-    public static void createInstance(int deviceOrientation) {
-        ourInstance = new RCTCamera(deviceOrientation);
+    public static void createInstance(int deviceOrientation,DisplayMetrics displayMetrics) {
+        ourInstance = new RCTCamera(deviceOrientation,displayMetrics);
     }
 
 
@@ -397,8 +399,11 @@ public class RCTCamera {
         parameters.setRotation(cameraInfo.rotation);
 
         // set preview size
-        // defaults to highest resolution available
-        Camera.Size optimalPreviewSize = getBestSize(parameters.getSupportedPreviewSizes(), Integer.MAX_VALUE, Integer.MAX_VALUE);
+        // defaults to highest resolution available for screen
+        // swap width and height, because getSupportedPreviewSizes returns landscape values
+        int maxHeight= (_screen.heightPixels>_screen.widthPixels)?(_screen.widthPixels):(_screen.heightPixels);
+        int maxWidth= (_screen.heightPixels>_screen.widthPixels)?(_screen.heightPixels):(_screen.widthPixels);
+        Camera.Size optimalPreviewSize = getBestSize(parameters.getSupportedPreviewSizes(), maxWidth, maxHeight);
         int width = optimalPreviewSize.width;
         int height = optimalPreviewSize.height;
 
@@ -418,12 +423,13 @@ public class RCTCamera {
         }
     }
 
-    private RCTCamera(int deviceOrientation) {
+    private RCTCamera(int deviceOrientation,DisplayMetrics displayMetrics) {
         _cameras = new HashMap<>();
         _cameraInfos = new HashMap<>();
         _cameraTypeToIndex = new HashMap<>();
 
         _actualDeviceOrientation = deviceOrientation;
+        _screen=displayMetrics;
 
         // map camera types to camera indexes and collect cameras properties
         for (int i = 0; i < Camera.getNumberOfCameras(); i++) {

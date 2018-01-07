@@ -6,6 +6,7 @@ package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
 import android.hardware.SensorManager;
+import android.util.DisplayMetrics;
 import android.view.OrientationEventListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -27,7 +28,7 @@ public class RCTCameraView extends ViewGroup {
     public RCTCameraView(Context context) {
         super(context);
         this._context = context;
-        RCTCamera.createInstance(getDeviceOrientation(context));
+        RCTCamera.createInstance(getDeviceOrientation(context),getScreenSize());
 
         _orientationListener = new OrientationEventListener(context, SensorManager.SENSOR_DELAY_NORMAL) {
             @Override
@@ -122,7 +123,11 @@ public class RCTCameraView extends ViewGroup {
     public void setBarCodeTypes(List<String> types) {
         RCTCamera.getInstance().setBarCodeTypes(types);
     }
-
+    public DisplayMetrics getScreenSize(){
+        DisplayMetrics metrics = new DisplayMetrics();
+        ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrics);
+        return metrics;
+    }
     private boolean setActualDeviceOrientation(Context context) {
         int actualDeviceOrientation = getDeviceOrientation(context);
         if (_actualDeviceOrientation != actualDeviceOrientation) {
