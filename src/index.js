@@ -8,6 +8,10 @@ import {
   StyleSheet,
   requireNativeComponent,
   ViewPropTypes,
+  PermissionsAndroid,
+  ActivityIndicator,
+  View,
+  Text,
 } from 'react-native';
 
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
@@ -91,6 +95,10 @@ export default class Camera extends Component {
     playSoundOnCapture: PropTypes.bool,
     torchMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     type: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    permissionDialogTitle: PropTypes.string,
+    permissionDialogMessage: PropTypes.string,
+    notAuthorizedView: PropTypes.element,
+    pendingAuthorizationView: PropTypes.element,
   };
 
   static defaultProps = {
@@ -108,6 +116,31 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
+    permissionDialogTitle: '',
+    permissionDialogMessage: '',
+    notAuthorizedView: (
+      <View style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <Text style={{
+          textAlign: 'center',
+          fontSize: 16,
+        }}>
+          Camera not authorized
+        </Text>
+      </View>
+    ),
+    pendingAuthorizationView: (
+      <View style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <ActivityIndicator size="small"/>
+      </View>
+    ),
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -123,6 +156,7 @@ export default class Camera extends Component {
     super();
     this.state = {
       isAuthorized: false,
+      isAuthorizationChecked: false,
       isRecording: false,
     };
   }
@@ -131,16 +165,31 @@ export default class Camera extends Component {
     this._addOnBarCodeReadListener();
 
     let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode });
-    let hasVideoAndAudio =
-      this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video;
-    let check = hasVideoAndAudio
-      ? Camera.checkDeviceAuthorizationStatus
-      : Camera.checkVideoAuthorizationStatus;
+    let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video;
+      
+    if (Platform.OS === 'ios') {
+      
+      let check = hasVideoAndAudio ? Camera.checkDeviceAuthorizationStatus : Camera.checkVideoAuthorizationStatus;
 
-    if (check) {
-      const isAuthorized = await check();
-      this.setState({ isAuthorized });
+      if (check) {
+        const isAuthorized = await check();
+        this.setState({ isAuthorized, isAuthorizationChecked: true });
+      }
+
+    } else if (Platform.OS === 'android') {
+      
+      const granted = await PermissionsAndroid.request( PermissionsAndroid.PERMISSIONS.CAMERA, { 
+          title: this.props.permissionDialogTitle, 
+          message:  this.props.permissionDialogMessage, 
+        }
+      );
+        
+      this.setState({ isAuthorized: granted === PermissionsAndroid.RESULTS.GRANTED, isAuthorizationChecked: true });
+    } else {
+      
+      this.setState({ isAuthorized: true, isAuthorizationChecked: true })
     }
+    
   }
 
   componentWillUnmount() {
@@ -181,7 +230,13 @@ export default class Camera extends Component {
     const style = [styles.base, this.props.style];
     const nativeProps = convertNativeProps(this.props);
 
-    return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
+    if(this.state.isAuthorized) {
+      return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
+    } else if (!this.state.isAuthorizationChecked) {
+      return this.props.pendingAuthorizationView
+    } else {
+      return this.props.notAuthorizedView
+    }
   }
 
   _onBarCodeRead = data => {

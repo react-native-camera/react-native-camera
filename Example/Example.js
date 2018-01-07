@@ -186,6 +186,8 @@ export default class Example extends React.Component {
           onZoomChanged={() => {}}
           defaultTouchToFocus
           mirrorImage={false}
+          permissionDialogTitle="Sample title"
+          permissionDialogMessage="Sample dialog message"
         />
         <View style={[styles.overlay, styles.topOverlay]}>
           <TouchableOpacity
