@@ -1,7 +1,13 @@
-
 # React Native Camera [![Backers on Open Collective](https://opencollective.com/react-native-camera/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-camera/sponsors/badge.svg)](#sponsors) [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![Gitter](https://badges.gitter.im/lwansbrough/react-native-camera.svg)](https://gitter.im/lwansbrough/react-native-camera)
 
 The comprehensive camera module for React Native. Including photographs, videos, and barcode scanning!
+
+### Experimental
+RNCamera and FaceDetector module for Android based on Expo camera module (https://docs.expo.io/versions/latest/sdk/camera.html)
+
+You can test and use this from master like this:
+
+`import { RNCamera, FaceDetector } from 'react-native-camera';`
 
 ### Contributing
 - Pull Requests are welcome, if you open a pull request we will do our best to get to it in a timely manner
