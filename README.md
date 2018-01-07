@@ -324,11 +324,23 @@ If set to `true`, the device will not sleep while the camera preview is visible.
 
 #### `Android` `permissionDialogTitle`
 
-Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this change the title of the dialog prompt requesting permissions.
+Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the title of the dialog prompt requesting permissions.
 
 #### `Android` `permissionDialogMessage`
 
-Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this change the content of the dialog prompt requesting permissions.
+Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the content of the dialog prompt requesting permissions.
+
+#### `notAuthorizedView`
+
+By default a `Camera not authorized` message will be displayed when access to the camera has been denied, if set displays the passed react element instead of the default one.
+
+#### `pendingAuthorizationView`
+
+By default a <ActivityIndicator> will be displayed while the component is waiting for the user to grant/deny access to the camera, if set displays the passed react element instead of the default one.
+
+#### `pendingAuthorizationView`
+
+
 
 #### `mirrorImage`
 
