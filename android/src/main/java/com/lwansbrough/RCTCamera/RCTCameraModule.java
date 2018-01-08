@@ -484,6 +484,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) {
+        if (RCTCamera.getInstance() == null) {
+            promise.reject("Camera is not ready yet.");
+            return;
+        }
+
         int orientation = options.hasKey("orientation") ? options.getInt("orientation") : RCTCamera.getInstance().getOrientation();
         if (orientation == RCT_CAMERA_ORIENTATION_AUTO) {
             _sensorOrientationChecker.onResume();
