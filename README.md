@@ -110,6 +110,15 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   ```
 
+6. Add jitpack to android/build.gradle
+```gradle
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+
 ## Usage
 
 All you need is to `require` the `react-native-camera` module and then use the
