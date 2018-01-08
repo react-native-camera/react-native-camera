@@ -580,6 +580,20 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             }
         }
 
+        boolean shouldCropToPreview = options.hasKey("cropToPreview") && options.getBoolean("cropToPreview");
+        if (shouldCropToPreview) {
+            try {
+                int type = options.getInt("type");
+                float paddingWidth = RCTCamera.getInstance().getPreviewPaddingWidth(type);
+                float paddingHeight = RCTCamera.getInstance().getPreviewPaddingHeight(type);
+                int orientation = _reactContext.getResources().getConfiguration().orientation;
+
+                mutableImage.cropToPreview(orientation, paddingWidth, paddingHeight);
+            } catch (IllegalArgumentException e) {
+                promise.reject("Error cropping image to preview", e);
+            }
+        }
+
         boolean shouldMirror = options.hasKey("mirrorImage") && options.getBoolean("mirrorImage");
         if (shouldMirror) {
             try {

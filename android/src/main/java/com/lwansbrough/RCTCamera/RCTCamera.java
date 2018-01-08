@@ -4,6 +4,7 @@
 
 package com.lwansbrough.RCTCamera;
 
+import android.graphics.drawable.GradientDrawable;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.util.Log;
@@ -71,6 +72,22 @@ public class RCTCamera {
             return 0;
         }
         return cameraInfo.previewHeight;
+    }
+
+    public float getPreviewPaddingHeight(int type) {
+        CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
+        if (null == cameraInfo) {
+            return 0;
+        }
+        return cameraInfo.previewPaddingHeight;
+    }
+
+    public float getPreviewPaddingWidth(int type) {
+        CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
+        if (null == cameraInfo) {
+            return 0;
+        }
+        return cameraInfo.previewPaddingWidth;
     }
 
     public Camera.Size getBestSize(List<Camera.Size> supportedSizes, int maxWidth, int maxHeight) {
@@ -418,6 +435,16 @@ public class RCTCamera {
         }
     }
 
+    public void setPreviewPadding(int type, float width, float height) {
+        CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
+        if (cameraInfo == null) {
+            return;
+        }
+
+        cameraInfo.previewPaddingWidth = Math.abs(width);
+        cameraInfo.previewPaddingHeight = Math.abs(height);
+    }
+
     private RCTCamera(int deviceOrientation) {
         _cameras = new HashMap<>();
         _cameraInfos = new HashMap<>();
@@ -448,6 +475,8 @@ public class RCTCamera {
         public int rotation = 0;
         public int previewWidth = -1;
         public int previewHeight = -1;
+        public float previewPaddingHeight = -1;
+        public float previewPaddingWidth = -1;
 
         public CameraInfoWrapper(Camera.CameraInfo info) {
             this.info = info;

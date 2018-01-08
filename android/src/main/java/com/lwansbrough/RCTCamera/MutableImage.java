@@ -76,6 +76,26 @@ public class MutableImage {
         }
     }
 
+    public void cropToPreview(int orientation, float xPercentage, float yPercentage) throws IllegalArgumentException {
+        int width = this.currentRepresentation.getWidth();
+        int height = this.currentRepresentation.getHeight();
+
+        int x = (int) Math.round(height * xPercentage);
+        int y = (int) Math.round(width * yPercentage);
+
+        if (orientation == 1) {
+            int cropWidth = width - (y*2);
+            int cropHeight =  height - (x*2);
+
+            this.currentRepresentation = Bitmap.createBitmap(this.currentRepresentation, y, x, cropWidth, cropHeight);
+        } else {
+            int cropWidth = width - (x*2);
+            int cropHeight =  height - (y*2);
+
+            this.currentRepresentation = Bitmap.createBitmap(this.currentRepresentation, x, y, cropWidth, cropHeight);
+        }
+    }
+
     //see http://www.impulseadventure.com/photo/exif-orientation.html
     private void rotate(int exifOrientation) throws ImageMutationFailedException {
         final Matrix bitmapMatrix = new Matrix();
