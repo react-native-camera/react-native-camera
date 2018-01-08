@@ -30,10 +30,14 @@ public class MutableImage {
     private Bitmap currentRepresentation;
     private Metadata originalImageMetaData;
     private boolean hasBeenReoriented = false;
+    public int width = 0;
+    public int height = 0;
 
     public MutableImage(byte[] originalImageData) {
         this.originalImageData = originalImageData;
         this.currentRepresentation = toBitmap(originalImageData);
+        this.width = currentRepresentation.getWidth();
+        this.height = currentRepresentation.getHeight();
     }
 
     public void mirrorImage() throws ImageMutationFailedException {
@@ -45,8 +49,8 @@ public class MutableImage {
                 currentRepresentation,
                 0,
                 0,
-                currentRepresentation.getWidth(),
-                currentRepresentation.getHeight(),
+                width,
+                height,
                 m,
                 false
         );
@@ -114,8 +118,8 @@ public class MutableImage {
                 currentRepresentation,
                 0,
                 0,
-                currentRepresentation.getWidth(),
-                currentRepresentation.getHeight(),
+                width,
+                height,
                 bitmapMatrix,
                 false
         );

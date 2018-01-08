@@ -653,7 +653,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                     return;
                 }
 
-                resolveImage(tempFile, promise, false);
+                resolve(tempFile, promise, false, mutableImage.width, mutableImage.height);
 
                 break;
             }
@@ -798,9 +798,15 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         // ... do nothing
     }
 
-    private void resolveImage(final File imageFile, final Promise promise, boolean addToMediaStore) {
+    private void resolve(final File imageFile, final Promise promise, boolean addToMediaStore, final int imageWidth, final int imageHeight) {
         final WritableMap response = new WritableNativeMap();
-        response.putString("path", Uri.fromFile(imageFile).toString());
+        if ( imageWidth > 0 && imageHeight > 0 ) {
+          response.putString("uri", Uri.fromFile(imageFile).toString());
+          response.putInt("width", imageWidth);
+          response.putInt("height", imageHeight);
+        } else {
+          response.putString("path", Uri.fromFile(imageFile).toString());
+        }
 
         if(addToMediaStore) {
             // borrowed from react-native CameraRollManager, it finds and returns the 'internal'
@@ -825,4 +831,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
     }
 
+  private void resolveImage(final File imageFile, final Promise promise, boolean addToMediaStore) {
+      resolve(imageFile, promise, addToMediaStore, 0, 0);
+  }
 }

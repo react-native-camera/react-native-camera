@@ -736,7 +736,18 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     }];
     return;
   }
-  resolve(@{@"path":responseString});
+
+  CGImageRef imageRef = CGImageRetain([[UIImage alloc]initWithContentsOfFile:responseString].CGImage);
+  float imageWidth = (float)CGImageGetWidth(imageRef);
+  float imageHeight = (float)CGImageGetHeight(imageRef);
+  CGImageRelease(imageRef);
+
+  NSMutableDictionary *imageFormattedData = [NSMutableDictionary dictionaryWithDictionary:@{
+    @"uri":responseString,
+    @"width":[NSNumber numberWithFloat:imageWidth],
+    @"height":[NSNumber numberWithFloat:imageHeight],
+  }];
+  resolve(imageFormattedData);
 }
 
 - (CGImageRef)newCGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
