@@ -382,7 +382,7 @@ The promise will be fulfilled with an object with some of the following properti
  - `duration`: (currently iOS video only) video file duration
  - `size`: (currently iOS video only) video file size (in bytes)
 
-#### `iOS` `getFOV(): Promise`
+#### `getFOV(): Promise`
 
 Returns the camera's current field of view.
 

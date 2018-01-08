@@ -825,4 +825,17 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
     }
 
+    @ReactMethod
+    public void getFOV(final Promise promise) {
+        RCTCamera rctCamera = RCTCamera.getInstance();
+        // iOS side gets just the horizontal FoV
+        double backHorizontalFov = rctCamera.getHorizontalFOV(RCT_CAMERA_TYPE_BACK);
+        double frontHorizontalFov = rctCamera.getHorizontalFOV(RCT_CAMERA_TYPE_FRONT);
+
+        final WritableMap response = new WritableNativeMap();
+        response.putDouble("" + RCT_CAMERA_TYPE_BACK, backHorizontalFov);
+        response.putDouble("" + RCT_CAMERA_TYPE_FRONT, frontHorizontalFov);
+
+        promise.resolve(response);
+    }
 }
