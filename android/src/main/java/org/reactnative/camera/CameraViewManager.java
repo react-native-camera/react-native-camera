@@ -1,0 +1,196 @@
+package org.reactnative.camera;
+
+import android.Manifest;
+import android.graphics.Bitmap;
+import android.os.Build;
+import android.support.annotation.Nullable;
+
+import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.common.MapBuilder;
+import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.uimanager.ViewGroupManager;
+import com.facebook.react.uimanager.annotations.ReactProp;
+import com.google.android.cameraview.AspectRatio;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public class CameraViewManager extends ViewGroupManager<RNCameraView> {
+  public enum Events {
+    EVENT_CAMERA_READY("onCameraReady"),
+    EVENT_ON_MOUNT_ERROR("onMountError"),
+    EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
+    EVENT_ON_FACES_DETECTED("onFacesDetected"),
+    EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError");
+
+    private final String mName;
+
+    Events(final String name) {
+      mName = name;
+    }
+
+    @Override
+    public String toString() {
+      return mName;
+    }
+  }
+
+  private static final String REACT_CLASS = "RNCamera";
+
+  private static CameraViewManager instance;
+  private RNCameraView mCameraView;
+
+  public CameraViewManager() {
+    super();
+    instance = this;
+  }
+
+  public static CameraViewManager getInstance() { return instance; }
+
+  @Override
+  public String getName() {
+    return REACT_CLASS;
+  }
+
+  @Override
+  protected RNCameraView createViewInstance(ThemedReactContext themedReactContext) {
+    mCameraView = new RNCameraView(themedReactContext);
+    return mCameraView;
+  }
+
+  @Override
+  @Nullable
+  public Map<String, Object> getExportedCustomDirectEventTypeConstants() {
+    MapBuilder.Builder<String, Object> builder = MapBuilder.builder();
+    for (Events event : Events.values()) {
+      builder.put(event.toString(), MapBuilder.of("registrationName", event.toString()));
+    }
+    return builder.build();
+  }
+
+  @ReactProp(name = "type")
+  public void setType(RNCameraView view, int type) {
+    view.setFacing(type);
+  }
+
+  @ReactProp(name = "ratio")
+  public void setRatio(RNCameraView view, String ratio) {
+    view.setAspectRatio(AspectRatio.parse(ratio));
+  }
+
+  @ReactProp(name = "flashMode")
+  public void setFlashMode(RNCameraView view, int torchMode) {
+    view.setFlash(torchMode);
+  }
+
+  @ReactProp(name = "autoFocus")
+  public void setAutoFocus(RNCameraView view, boolean autoFocus) {
+    view.setAutoFocus(autoFocus);
+  }
+
+  @ReactProp(name = "focusDepth")
+  public void setFocusDepth(RNCameraView view, float depth) {
+    view.setFocusDepth(depth);
+  }
+
+  @ReactProp(name = "zoom")
+  public void setZoom(RNCameraView view, float zoom) {
+    view.setZoom(zoom);
+  }
+
+  @ReactProp(name = "whiteBalance")
+  public void setWhiteBalance(RNCameraView view, int whiteBalance) {
+    view.setWhiteBalance(whiteBalance);
+  }
+
+  @ReactProp(name = "barCodeTypes")
+  public void setBarCodeTypes(RNCameraView view, ReadableArray barCodeTypes) {
+    if (barCodeTypes == null) {
+      return;
+    }
+    List<String> result = new ArrayList<>(barCodeTypes.size());
+    for (int i = 0; i < barCodeTypes.size(); i++) {
+      result.add(barCodeTypes.getString(i));
+    }
+    view.setBarCodeTypes(result);
+  }
+
+  @ReactProp(name = "barCodeScannerEnabled")
+  public void setBarCodeScanning(RNCameraView view, boolean barCodeScannerEnabled) {
+    view.setShouldScanBarCodes(barCodeScannerEnabled);
+  }
+
+  @ReactProp(name = "faceDetectorEnabled")
+  public void setFaceDetecting(RNCameraView view, boolean faceDetectorEnabled) {
+    view.setShouldDetectFaces(faceDetectorEnabled);
+  }
+
+  @ReactProp(name = "faceDetectionMode")
+  public void setFaceDetectionMode(RNCameraView view, int mode) {
+    view.setFaceDetectionMode(mode);
+  }
+
+  @ReactProp(name = "faceDetectionLandmarks")
+  public void setFaceDetectionLandmarks(RNCameraView view, int landmarks) {
+    view.setFaceDetectionLandmarks(landmarks);
+  }
+
+  @ReactProp(name = "faceDetectionClassifications")
+  public void setFaceDetectionClassifications(RNCameraView view, int classifications) {
+    view.setFaceDetectionClassifications(classifications);
+  }
+
+  public void takePicture(ReadableMap options, Promise promise) {
+    if (!Build.FINGERPRINT.contains("generic")) {
+      if (mCameraView.isCameraOpened()) {
+        mCameraView.takePicture(options, promise);
+      } else {
+        promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
+      }
+    } else {
+      Bitmap image = RNCameraViewHelper.generateSimulatorPhoto(mCameraView.getWidth(), mCameraView.getHeight());
+      ByteBuffer byteBuffer = ByteBuffer.allocate(image.getRowBytes() * image.getHeight());
+      image.copyPixelsToBuffer(byteBuffer);
+      new ResolveTakenPictureAsyncTask(byteBuffer.array(), promise, options).execute();
+    }
+  }
+
+  public void record(final ReadableMap options, final Promise promise) {
+    // TODO fix this
+//    RN.getInstance().getPermissions(new RN.PermissionsListener() {
+//      @Override
+//      public void permissionsGranted() {
+//        if (mCameraView.isCameraOpened()) {
+//          mCameraView.record(options, promise);
+//        } else {
+//          promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
+//        }
+//      }
+//
+//      @Override
+//      public void permissionsDenied() {
+//        promise.reject(new SecurityException("User rejected audio permissions"));
+//      }
+//    }, new String[]{Manifest.permission.RECORD_AUDIO});
+
+  }
+
+  public void stopRecording() {
+    if (mCameraView.isCameraOpened()) {
+      mCameraView.stopRecording();
+    }
+  }
+
+  public Set<AspectRatio> getSupportedRatios() {
+    if (mCameraView.isCameraOpened()) {
+      return mCameraView.getSupportedAspectRatios();
+    }
+    return null;
+  }
+}

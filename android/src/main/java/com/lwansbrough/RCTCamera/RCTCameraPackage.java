@@ -10,11 +10,19 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.facebook.react.bridge.JavaScriptModule;
 
+import org.reactnative.camera.CameraModule;
+import org.reactnative.camera.CameraViewManager;
+import org.reactnative.facedetector.FaceDetectorModule;
+
 public class RCTCameraPackage implements ReactPackage {
 
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactApplicationContext) {
-        return Collections.<NativeModule>singletonList(new RCTCameraModule(reactApplicationContext));
+        return Arrays.<NativeModule>asList(
+            new RCTCameraModule(reactApplicationContext),
+            new CameraModule(reactApplicationContext),
+            new FaceDetectorModule(reactApplicationContext)
+        );
     }
 
     // Deprecated in RN 0.47
@@ -24,8 +32,10 @@ public class RCTCameraPackage implements ReactPackage {
 
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactApplicationContext) {
-        //noinspection ArraysAsListWithZeroOrOneArgument
-        return Collections.<ViewManager>singletonList(new RCTCameraViewManager());
+        return Arrays.<ViewManager>asList(
+            new RCTCameraViewManager(),
+            new CameraViewManager()
+        );
     }
 
 }

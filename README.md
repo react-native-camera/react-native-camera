@@ -1,7 +1,13 @@
-
 # React Native Camera [![Backers on Open Collective](https://opencollective.com/react-native-camera/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-camera/sponsors/badge.svg)](#sponsors) [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![Gitter](https://badges.gitter.im/lwansbrough/react-native-camera.svg)](https://gitter.im/lwansbrough/react-native-camera)
 
 The comprehensive camera module for React Native. Including photographs, videos, and barcode scanning!
+
+### Experimental
+RNCamera and FaceDetector module for Android based on Expo camera module (https://docs.expo.io/versions/latest/sdk/camera.html)
+
+You can test and use this from master like this:
+
+`import { RNCamera, FaceDetector } from 'react-native-camera';`
 
 ### Contributing
 - Pull Requests are welcome, if you open a pull request we will do our best to get to it in a timely manner
@@ -34,7 +40,7 @@ To enable `video recording` feature you have to add the following code to the `A
 
 ### Requirements
 1. JDK >= 1.7 (if you run on 1.6 you will get an error on "_cameras = new HashMap<>();")
-2. With iOS 10 and higher you need to add the "Privacy - Camera Usage Description" key to the info.plist of your project. This should be found in 'your_project/ios/your_project/Info.plist'. Add the following code:
+2. With iOS 10 and higher you need to add the "Privacy - Camera Usage Description" key to the Info.plist of your project. This should be found in 'your_project/ios/your_project/Info.plist'. Add the following code:
 ```
 <key>NSCameraUsageDescription</key>
 <string>Your message to user when the camera is accessed for the first time</string>
@@ -55,8 +61,6 @@ To enable `video recording` feature you have to add the following code to the `A
 <key>NSPhotoLibraryAddUsageDescription</key>
 <string>Your message to user when the photo library is accessed for the first time</string>
 ```
-
-NSPhotoLibraryAddUsageDescription
 
 ### Mostly automatic install with react-native
 1. `npm install react-native-camera --save`
@@ -105,6 +109,15 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   ```
+
+6. Add jitpack to android/build.gradle
+```gradle
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
+```
 
 ## Usage
 
@@ -269,6 +282,7 @@ The barcode type is provided in the `data` object.
 #### `barCodeTypes`
 
 An array of barcode types to search for. Defaults to all types listed above. No effect if `onBarCodeRead` is undefined.
+Example: `<Camera barCodeTypes={[Camera.constants.BarCodeType.qr]} />`
 
 #### `flashMode`
 
@@ -326,6 +340,26 @@ from javascript.
 #### `iOS` `keepAwake`
 
 If set to `true`, the device will not sleep while the camera preview is visible. This mimics the behavior of the default camera app, which keeps the device awake while open.
+
+#### `Android` `permissionDialogTitle`
+
+Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the title of the dialog prompt requesting permissions.
+
+#### `Android` `permissionDialogMessage`
+
+Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the content of the dialog prompt requesting permissions.
+
+#### `notAuthorizedView`
+
+By default a `Camera not authorized` message will be displayed when access to the camera has been denied, if set displays the passed react element instead of the default one.
+
+#### `pendingAuthorizationView`
+
+By default a <ActivityIndicator> will be displayed while the component is waiting for the user to grant/deny access to the camera, if set displays the passed react element instead of the default one.
+
+#### `pendingAuthorizationView`
+
+
 
 #### `mirrorImage`
 
