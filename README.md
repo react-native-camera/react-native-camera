@@ -443,6 +443,36 @@ This component supports subviews, so if you wish to use the camera view as a bac
 
 To see more of the `react-native-camera` in action, you can check out the source in [Example](https://github.com/lwansbrough/react-native-camera/tree/master/Example) folder.
 
+## Q & A
+
+#### meta-data android 26	
+```
+AndroidManifest.xml:25:13-35 Error:
+     Attribute meta-data#android.support.VERSION@value value=(26.0.2) from [com.android.support:exifinterface:26.0.2] Android
+Manifest.xml:25:13-35
+  is also present at [com.android.support:support-v4:26.0.1] AndroidManifest.xml:28:13-35 value=(26.0.1).
+        Suggestion: add 'tools:replace="android:value"' to <meta-data> element at AndroidManifest.xml:23:9-25:38 to override.
+```
+
+Add this to your AndroidManifest.xml:
+
+- [ ]           xmlns:tools="http://schemas.android.com/tools"
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+```
+- [ ] tools:node="replace"
+```xml
+<application
+      android:name=".MainApplication"
+      android:allowBackup="true"
+      android:label="@string/app_name"
+      android:icon="@mipmap/ic_launcher"
+      android:theme="@style/AppTheme"
+      tools:node="replace"
+    >
+ ```
 
 ## Open Collective
 We are just beginning a funding campaign for react-native-camera. Contributions are greatly appreciated. When we gain more than $250 we will begin distributing funds to core maintainers in a fully transparent manner. Feedback for this process is welcomed, we will continue to evolve the strategy as we grow and learn more.
