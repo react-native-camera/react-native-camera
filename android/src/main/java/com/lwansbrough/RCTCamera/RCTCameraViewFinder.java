@@ -42,6 +42,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private boolean _isStopping;
     private Camera _camera;
     private float mFingerSpacing;
+    private int _coordX = 0;
+    private int _coordY = 0;
+    private boolean _focusFromCoordinates = false;
 
     // concurrency lock for barcode scanner to avoid flooding the runtime
     public static volatile boolean barcodeScannerTaskLock = false;
@@ -132,6 +135,18 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         }
     }
 
+    public void setX(int x) {
+        this._coordX = x;
+    }
+
+    public void setY(int y) {
+        this._coordY = y;
+    }
+
+    public void setFocusFromCoordinates(boolean focusFromCoordinates) {
+        this._focusFromCoordinates = focusFromCoordinates;
+    }
+
     synchronized private void startCamera() {
         if (!_isStarting) {
             _isStarting = true;
@@ -153,6 +168,26 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 } else if (isCaptureModeVideo && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
                     parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
                 } else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                }
+
+                //Set from coordinates
+                if (_focusFromCoordinates) {
+                    // Compute focus area rect.
+                    Camera.Area focusAreaFromCoordinates;
+                    try {
+                        focusAreaFromCoordinates = RCTCameraUtils.computeFocusAreaFromCoordinates((float) _coordX,(float) _coordY, _surfaceTextureWidth, _surfaceTextureHeight);
+                    } catch (final RuntimeException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+
+                    // Set focus mode to auto.
+                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                    // Set focus area.
+                    final ArrayList<Camera.Area> focusAreas = new ArrayList<Camera.Area>();
+                    focusAreas.add(focusAreaFromCoordinates);
+                    parameters.setFocusAreas(focusAreas);
                     parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                 }
 

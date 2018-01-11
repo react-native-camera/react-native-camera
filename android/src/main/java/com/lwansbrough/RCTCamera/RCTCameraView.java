@@ -23,6 +23,9 @@ public class RCTCameraView extends ViewGroup {
     private String _captureQuality = "high";
     private int _torchMode = -1;
     private int _flashMode = -1;
+    private int _coordX = 0;
+    private int _coordY = 0;
+    private boolean _focusFromCoordinates = false;
 
     public RCTCameraView(Context context) {
         super(context);
@@ -112,6 +115,26 @@ public class RCTCameraView extends ViewGroup {
         RCTCamera.getInstance().setOrientation(orientation);
         if (this._viewFinder != null) {
             layoutViewFinder();
+        }
+    }
+
+    public void setX(int x) {
+        this._coordX = x;
+        if (this._viewFinder != null) {
+            this._viewFinder.setX(x);
+        }
+    }
+
+    public void setY(int y) {
+        this._coordY = y;
+        if (this._viewFinder != null) {
+            this._viewFinder.setY(y);
+        }
+    }
+    public void setFocusFromCoordinates(boolean focusFromCoordinates) {
+        this._focusFromCoordinates = focusFromCoordinates;
+        if (this._viewFinder != null) {
+            this._viewFinder.setFocusFromCoordinates(focusFromCoordinates);
         }
     }
 

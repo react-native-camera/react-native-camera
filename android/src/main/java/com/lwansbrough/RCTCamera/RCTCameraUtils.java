@@ -29,6 +29,13 @@ public class RCTCameraUtils {
         final float centerX = event.getX(pointerIndex);
         final float centerY = event.getY(pointerIndex);
 
+       return computeFocusAreaFromCoordinates(centerX, centerY, surfaceTextureWidth, surfaceTextureHeight);
+    }
+
+    protected static Camera.Area computeFocusAreaFromCoordinates(final float centerX, final float centerY,
+                                                                 final int surfaceTextureWidth, final int surfaceTextureHeight) {
+        // Get position of first touch pointer.
+
         // Build event rect. Note that coordinates increase right and down, such that left <= right
         // and top <= bottom.
         final RectF eventRect = new RectF(
