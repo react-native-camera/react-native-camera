@@ -183,12 +183,12 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                     }
 
                     // Set focus mode to auto.
-                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                     // Set focus area.
                     final ArrayList<Camera.Area> focusAreas = new ArrayList<Camera.Area>();
                     focusAreas.add(focusAreaFromCoordinates);
                     parameters.setFocusAreas(focusAreas);
-                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+//                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                 }
 
                 // set picture size
