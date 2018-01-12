@@ -387,6 +387,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // Fast swiping and touching while component is being loaded can cause _camera to be null.
+        if (_camera == null) {
+            return false;
+        }
+
         // Get the pointer ID
         Camera.Parameters params = _camera.getParameters();
         int action = event.getAction();
