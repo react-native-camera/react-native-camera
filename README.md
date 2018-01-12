@@ -5,9 +5,14 @@ The comprehensive camera module for React Native. Including photographs, videos,
 ### Experimental
 RNCamera and FaceDetector module for Android based on Expo camera module (https://docs.expo.io/versions/latest/sdk/camera.html)
 
-You can test and use this from master like this:
+You can test and use this from `master` like this:
 
 `import { RNCamera, FaceDetector } from 'react-native-camera';`
+
+#### How to use master branch?
+Inside your package.json, use this
+`"react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera"`
+instead of `"react-native-camera": "^0.12.0"`.
 
 ### Contributing
 - Pull Requests are welcome, if you open a pull request we will do our best to get to it in a timely manner
