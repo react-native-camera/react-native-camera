@@ -87,12 +87,12 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         view.setBarCodeTypes(result);
     }
 
-    @ReactProp(name = "coordX")
+    @ReactProp(name = "focusCenterX")
     public void setX(RCTCameraView view, int x) {
         view.setX(x);
     }
 
-    @ReactProp(name = "coordY")
+    @ReactProp(name = "focusCenterY")
     public void setY(RCTCameraView view, int y) {
         view.setY(y);
     }
