@@ -308,7 +308,7 @@ Values:
 
 Use the `torchMode` property to specify the camera torch mode.
 
-#### `iOS` `onFocusChanged: Event { nativeEvent: { touchPoint: { x, y } }`
+#### `onFocusChanged: Event { nativeEvent: { touchPoint: { x, y } }`
 
 iOS: Called when a touch focus gesture has been made.
 By default, `onFocusChanged` is not defined and tap-to-focus is disabled.
