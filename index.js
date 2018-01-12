@@ -69,10 +69,7 @@ export default class Camera extends Component {
     CaptureQuality: CameraManager.CaptureQuality,
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
-    TorchMode: CameraManager.TorchMode,
-    FocusFromCoordinates: CameraManager.FocusFromCoordinates,
-    FocusCenterX: CameraManager.FocusCenterX,
-    FocusCenterY: CameraManager.FocusCenterY
+    TorchMode: CameraManager.TorchMode
   };
 
   static propTypes = {
@@ -120,9 +117,9 @@ export default class Camera extends Component {
       PropTypes.string,
       PropTypes.number
     ]),
-    FocusFromCoordinates: PropTypes.bool,
-    FocusCenterX: PropTypes.number,
-    FocusCenterY: PropTypes.number,
+    focusFromCoordinates: PropTypes.bool,
+    focusCenterX: PropTypes.number,
+    focusCenterY: PropTypes.number,
   };
 
   static defaultProps = {
@@ -140,7 +137,7 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
-    FocusFromCoordinates: false
+    focusFromCoordinates: false
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
