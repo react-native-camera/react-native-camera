@@ -140,8 +140,8 @@ public class RCTCamera {
               continue;
           }
 
-          int currentDelta = Math.abs(closestSize.width - matchWidth) * Math.abs(closestSize.height - matchHeight);
-          int newDelta = Math.abs(size.width - matchWidth) * Math.abs(size.height - matchHeight);
+          double currentDelta = Math.sqrt(Math.pow(closestSize.width - matchWidth,2) + Math.pow(closestSize.height - matchHeight,2));
+          double newDelta = Math.sqrt(Math.pow(size.width - matchWidth,2) + Math.pow(size.height - matchHeight,2));
 
           if (newDelta < currentDelta) {
               closestSize = size;
