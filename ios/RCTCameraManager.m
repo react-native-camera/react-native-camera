@@ -1083,7 +1083,9 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
             dispatch_async([self sessionQueue], ^{
                 [self.session beginConfiguration];
                 if ([self.session canSetSessionPreset:quality]) {
-                    self.session.sessionPreset = quality;
+                  self.session.sessionPreset = quality;
+                } else {
+                  self.session.sessionPreset = AVCaptureSessionPresetHigh;
                 }
                 [self.session commitConfiguration];
             });
