@@ -106,7 +106,9 @@ RCT_EXPORT_MODULE();
                @"720p": @(RCTCameraCaptureSessionPreset720p),
                @"AVCaptureSessionPreset1280x720": @(RCTCameraCaptureSessionPreset720p),
                @"1080p": @(RCTCameraCaptureSessionPreset1080p),
-               @"AVCaptureSessionPreset1920x1080": @(RCTCameraCaptureSessionPreset1080p)
+               @"AVCaptureSessionPreset1920x1080": @(RCTCameraCaptureSessionPreset1080p),
+               @"4k": @(RCTCameraCaptureSessionPreset4k),
+               @"AVCaptureSessionPreset3840x2160": @(RCTCameraCaptureSessionPreset4k)
                },
            @"CaptureTarget": @{
                @"memory": @(RCTCameraCaptureTargetMemory),
@@ -155,6 +157,9 @@ RCT_CUSTOM_VIEW_PROPERTY(captureQuality, NSInteger, RCTCamera) {
       break;
     case RCTCameraCaptureSessionPresetPhoto:
       qualityString = AVCaptureSessionPresetPhoto;
+      break;
+    case RCTCameraCaptureSessionPreset4k:
+      qualityString = AVCaptureSessionPreset3840x2160;
       break;
     case RCTCameraCaptureSessionPreset1080p:
       qualityString = AVCaptureSessionPreset1920x1080;
@@ -627,7 +632,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
           // create cgimage
           CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
-            
+
           // Rotate it
           CGImageRef rotatedCGImage;
           if ([options objectForKey:@"rotation"]) {
@@ -656,18 +661,18 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
           } else {
             rotatedCGImage = cgImage;
           }
-            
+
           // Crop it
           if (self.cropToPreview) {
               CGSize viewportSize;
-              
+
               if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]))
               {
                   viewportSize = CGSizeMake(self.previewLayer.frame.size.height, self.previewLayer.frame.size.width);
               } else {
                   viewportSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
               }
-              
+
               CGRect captureRect = CGRectMake(0, 0, CGImageGetWidth(rotatedCGImage), CGImageGetHeight(rotatedCGImage));
               CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(viewportSize, captureRect);
               rotatedCGImage = CGImageCreateWithImageInRect(rotatedCGImage, croppedSize);
