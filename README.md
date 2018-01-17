@@ -213,7 +213,7 @@ Values: `true` or `false` (default)
 
 Will crop the captured image to match the content that is displayed in the preview view. Works on both `Android` and `iOS`. Will be ignored if `captureMode` is other then `Camera.constants.CaptureMode.still`.
 
-#### `iOS` `audio`
+#### `iOS` `captureAudio`
 
 Values: `true` (Boolean), `false` (default)
 
