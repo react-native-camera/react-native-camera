@@ -402,8 +402,8 @@ The promise will be fulfilled with an object with some of the following properti
 
  - `data`: Returns a base64-encoded string with the capture data (only returned with the deprecated `Camera.constants.CaptureTarget.memory`)
  - `path`: Returns the path of the captured image or video file on disk
- - `width`: (currently iOS video only) returns the video file's frame width
- - `height`: (currently iOS video only) returns the video file's frame height
+ - `width`: (not yet implemented for Android video) returns the image or video file's frame width (taking image orientation into account)
+ - `height`: (not yet implemented for Android video) returns the image or video file's frame height (taking image orientation into account)
  - `duration`: (currently iOS video only) video file duration
  - `size`: (currently iOS video only) video file size (in bytes)
 

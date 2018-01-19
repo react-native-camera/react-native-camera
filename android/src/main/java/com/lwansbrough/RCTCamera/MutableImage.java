@@ -1,5 +1,6 @@
 package com.lwansbrough.RCTCamera;
 
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -36,6 +37,14 @@ public class MutableImage {
         this.currentRepresentation = toBitmap(originalImageData);
     }
 
+    public int getWidth() {
+        return this.currentRepresentation.getWidth();
+    }
+
+    public int getHeight() {
+        return this.currentRepresentation.getHeight();
+    }
+
     public void mirrorImage() throws ImageMutationFailedException {
         Matrix m = new Matrix();
 
@@ -45,8 +54,8 @@ public class MutableImage {
                 currentRepresentation,
                 0,
                 0,
-                currentRepresentation.getWidth(),
-                currentRepresentation.getHeight(),
+                getWidth(),
+                getHeight(),
                 m,
                 false
         );
@@ -77,13 +86,13 @@ public class MutableImage {
     }
 
     public void cropToPreview(int orientation, float xPercentage, float yPercentage) throws IllegalArgumentException {
-        int width = this.currentRepresentation.getWidth();
-        int height = this.currentRepresentation.getHeight();
+        int width = getWidth();
+        int height = getHeight();
 
         int x = (int) Math.round(height * xPercentage);
         int y = (int) Math.round(width * yPercentage);
 
-        if (orientation == 1) {
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             int cropWidth = width - (y*2);
             int cropHeight =  height - (x*2);
 
@@ -134,8 +143,8 @@ public class MutableImage {
                 currentRepresentation,
                 0,
                 0,
-                currentRepresentation.getWidth(),
-                currentRepresentation.getHeight(),
+                getWidth(),
+                getHeight(),
                 bitmapMatrix,
                 false
         );

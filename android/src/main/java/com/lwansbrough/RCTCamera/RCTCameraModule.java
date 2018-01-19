@@ -6,6 +6,7 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.ContentValues;
+import android.content.res.Configuration;
 import android.hardware.Camera;
 import android.media.*;
 import android.net.Uri;
@@ -576,6 +577,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
      * concurrently which would blow the memory (esp on smaller devices), and slow things down.
      */
     private synchronized void processImage(MutableImage mutableImage, ReadableMap options, Promise promise) {
+        int orientation = _reactContext.getResources().getConfiguration().orientation;
+
         boolean shouldFixOrientation = options.hasKey("fixOrientation") && options.getBoolean("fixOrientation");
         if(shouldFixOrientation) {
             try {
@@ -591,7 +594,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 int type = options.getInt("type");
                 float paddingWidth = RCTCamera.getInstance().getPreviewPaddingWidth(type);
                 float paddingHeight = RCTCamera.getInstance().getPreviewPaddingHeight(type);
-                int orientation = _reactContext.getResources().getConfiguration().orientation;
 
                 mutableImage.cropToPreview(orientation, paddingWidth, paddingHeight);
             } catch (IllegalArgumentException e) {
@@ -613,11 +615,16 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             jpegQualityPercent = options.getInt("jpegQuality");
         }
 
+        int imgWidth = (orientation == Configuration.ORIENTATION_PORTRAIT) ? mutableImage.getHeight() : mutableImage.getWidth();
+        int imgHeight = (orientation == Configuration.ORIENTATION_PORTRAIT) ? mutableImage.getWidth() : mutableImage.getHeight();
+
         switch (options.getInt("target")) {
             case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                 String encoded = mutableImage.toBase64(jpegQualityPercent);
                 WritableMap response = new WritableNativeMap();
                 response.putString("data", encoded);
+                response.putInt("width", imgWidth);
+                response.putInt("height", imgHeight);
                 promise.resolve(response);
                 break;
             case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL: {
@@ -636,7 +643,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
                 addToMediaStore(cameraRollFile.getAbsolutePath());
 
-                resolveImage(cameraRollFile, promise, true);
+                resolveImage(cameraRollFile, imgWidth, imgHeight, promise, true);
 
                 break;
             }
@@ -654,7 +661,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                     return;
                 }
 
-                resolveImage(pictureFile, promise, false);
+                resolveImage(pictureFile, imgWidth, imgHeight, promise, false);
 
                 break;
             }
@@ -672,7 +679,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                     return;
                 }
 
-                resolveImage(tempFile, promise, false);
+                resolveImage(tempFile, imgWidth, imgHeight, promise, false);
 
                 break;
             }
@@ -817,9 +824,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         // ... do nothing
     }
 
-    private void resolveImage(final File imageFile, final Promise promise, boolean addToMediaStore) {
+    private void resolveImage(final File imageFile, final int imgWidth, final int imgHeight, final Promise promise, boolean addToMediaStore) {
         final WritableMap response = new WritableNativeMap();
         response.putString("path", Uri.fromFile(imageFile).toString());
+        response.putInt("width", imgWidth);
+        response.putInt("height", imgHeight);
 
         if(addToMediaStore) {
             // borrowed from react-native CameraRollManager, it finds and returns the 'internal'

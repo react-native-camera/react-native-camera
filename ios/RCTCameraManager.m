@@ -616,7 +616,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       UIGraphicsEndImageContext();
 
       NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
-      [self saveImage:imageData target:target metadata:nil resolve:resolve reject:reject];
+      [self saveImage:imageData imageSize:size target:target metadata:nil resolve:resolve reject:reject];
 #else
       [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:orientation];
 
@@ -692,9 +692,18 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
           CGImageDestinationAddImage(destination, rotatedCGImage, (CFDictionaryRef) imageMetadata);
           // And write
           CGImageDestinationFinalize(destination);
+          CGSize frameSize;
+          if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]))
+          {
+            frameSize = CGSizeMake(CGImageGetHeight(rotatedCGImage),
+                                   CGImageGetWidth(rotatedCGImage));
+          } else {
+            frameSize = CGSizeMake(CGImageGetWidth(rotatedCGImage),
+                                   CGImageGetHeight(rotatedCGImage));
+          }
           CFRelease(destination);
 
-          [self saveImage:rotatedImageData target:target metadata:imageMetadata resolve:resolve reject:reject];
+          [self saveImage:rotatedImageData imageSize:viewportSize target:target metadata:imageMetadata resolve:resolve reject:reject];
 
           CGImageRelease(rotatedCGImage);
         }
@@ -707,7 +716,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 }
 
 
-- (void)saveImage:(NSData*)imageData target:(NSInteger)target metadata:(NSDictionary *)metadata resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+- (void)saveImage:(NSData*)imageData imageSize:(CGSize)imageSize target:(NSInteger)target metadata:(NSDictionary *)metadata resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
   NSString *responseString;
 
   if (target == RCTCameraCaptureTargetMemory) {
@@ -746,7 +755,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     }];
     return;
   }
-  resolve(@{@"path":responseString});
+  resolve(@{@"path":responseString, @"width":[NSNumber numberWithFloat:imageSize.width], @"height":[NSNumber numberWithFloat:imageSize.height]});
 }
 
 - (CGImageRef)newCGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
