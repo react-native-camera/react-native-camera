@@ -633,6 +633,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
           // create cgimage
           CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
 
+          // setup viewport size before using
+          CGSize viewportSize;
+
           // Rotate it
           CGImageRef rotatedCGImage;
           if ([options objectForKey:@"rotation"]) {
@@ -664,7 +667,6 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
           // Crop it
           if (self.cropToPreview) {
-              CGSize viewportSize;
 
               if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]))
               {
