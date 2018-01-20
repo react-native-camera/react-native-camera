@@ -24,6 +24,7 @@ public class RCTCameraView extends ViewGroup {
     private String _captureQuality = "high";
     private int _torchMode = -1;
     private int _flashMode = -1;
+    private boolean _clearWindowBackground = false;
 
     public RCTCameraView(Context context) {
         super(context);
@@ -77,6 +78,7 @@ public class RCTCameraView extends ViewGroup {
             if (-1 != this._torchMode) {
                 _viewFinder.setTorchMode(this._torchMode);
             }
+            _viewFinder.setClearWindowBackground(this._clearWindowBackground);
             addView(_viewFinder);
         }
     }
@@ -122,6 +124,13 @@ public class RCTCameraView extends ViewGroup {
 
     public void setBarCodeTypes(List<String> types) {
         RCTCamera.getInstance().setBarCodeTypes(types);
+    }
+
+    public void setClearWindowBackground(boolean clearWindowBackground) {
+        this._clearWindowBackground = clearWindowBackground;
+        if (this._viewFinder != null) {
+            this._viewFinder.setClearWindowBackground(clearWindowBackground);
+        }
     }
 
     private boolean setActualDeviceOrientation(Context context) {
