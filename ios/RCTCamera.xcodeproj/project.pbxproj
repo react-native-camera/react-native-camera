@@ -11,6 +11,9 @@
 		4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */; };
 		454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */; };
+		71C7FFD02013C7E5006EB75A /* RCTCameraUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFCF2013C7E5006EB75A /* RCTCameraUtils.m */; };
+		71C7FFD32013C817006EB75A /* RCTImageUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFD22013C817006EB75A /* RCTImageUtils.m */; };
+		71C7FFD62013C824006EB75A /* RCTFileSystem.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFD52013C824006EB75A /* RCTFileSystem.m */; };
 		9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */; };
 /* End PBXBuildFile section */
 
@@ -35,6 +38,16 @@
 		410701491ACB732B00C6AA39 /* RCTCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTCameraManager.h; sourceTree = "<group>"; };
 		4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCameraManager.m; sourceTree = "<group>"; };
 		454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+ImageMetadata.m"; sourceTree = "<group>"; };
+		71C7FFC82013C7AE006EB75A /* CandidateRCTCameraManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CandidateRCTCameraManager.h; sourceTree = "<group>"; };
+		71C7FFC92013C7AE006EB75A /* CandidateRCTCameraManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CandidateRCTCameraManager.m; sourceTree = "<group>"; };
+		71C7FFCB2013C7BF006EB75A /* CandidateRCTCamera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CandidateRCTCamera.h; sourceTree = "<group>"; };
+		71C7FFCC2013C7BF006EB75A /* CandidateRCTCamera.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CandidateRCTCamera.m; sourceTree = "<group>"; };
+		71C7FFCE2013C7E5006EB75A /* RCTCameraUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTCameraUtils.h; sourceTree = "<group>"; };
+		71C7FFCF2013C7E5006EB75A /* RCTCameraUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTCameraUtils.m; sourceTree = "<group>"; };
+		71C7FFD12013C817006EB75A /* RCTImageUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTImageUtils.h; sourceTree = "<group>"; };
+		71C7FFD22013C817006EB75A /* RCTImageUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTImageUtils.m; sourceTree = "<group>"; };
+		71C7FFD42013C824006EB75A /* RCTFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTFileSystem.h; sourceTree = "<group>"; };
+		71C7FFD52013C824006EB75A /* RCTFileSystem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTFileSystem.m; sourceTree = "<group>"; };
 		9FE592B11CA3CBF500788287 /* RCTSensorOrientationChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTSensorOrientationChecker.h; sourceTree = "<group>"; };
 		9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTSensorOrientationChecker.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -53,6 +66,12 @@
 		410701241ACB719800C6AA39 = {
 			isa = PBXGroup;
 			children = (
+				71C7FFD42013C824006EB75A /* RCTFileSystem.h */,
+				71C7FFD52013C824006EB75A /* RCTFileSystem.m */,
+				71C7FFD12013C817006EB75A /* RCTImageUtils.h */,
+				71C7FFD22013C817006EB75A /* RCTImageUtils.m */,
+				71C7FFCE2013C7E5006EB75A /* RCTCameraUtils.h */,
+				71C7FFCF2013C7E5006EB75A /* RCTCameraUtils.m */,
 				9FE592B11CA3CBF500788287 /* RCTSensorOrientationChecker.h */,
 				9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */,
 				0314E39C1B661A460092D183 /* CameraFocusSquare.m */,
@@ -62,6 +81,10 @@
 				410701481ACB732B00C6AA39 /* RCTCamera.m */,
 				410701491ACB732B00C6AA39 /* RCTCameraManager.h */,
 				4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */,
+				71C7FFC82013C7AE006EB75A /* CandidateRCTCameraManager.h */,
+				71C7FFC92013C7AE006EB75A /* CandidateRCTCameraManager.m */,
+				71C7FFCB2013C7BF006EB75A /* CandidateRCTCamera.h */,
+				71C7FFCC2013C7BF006EB75A /* CandidateRCTCamera.m */,
 				410701301ACB723B00C6AA39 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -131,9 +154,12 @@
 			files = (
 				0314E39D1B661A460092D183 /* CameraFocusSquare.m in Sources */,
 				454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */,
+				71C7FFD62013C824006EB75A /* RCTFileSystem.m in Sources */,
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,
 				4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */,
+				71C7FFD02013C7E5006EB75A /* RCTCameraUtils.m in Sources */,
 				9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */,
+				71C7FFD32013C817006EB75A /* RCTImageUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
