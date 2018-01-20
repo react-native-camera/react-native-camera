@@ -131,6 +131,9 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         this._clearWindowBackground = clearWindowBackground;
     }
 
+    public void setZoom(int zoom) {
+        RCTCamera.getInstance().setZoom(_cameraType, zoom);
+   }
 
     private void startPreview() {
         if (_surfaceTexture != null) {
@@ -385,7 +388,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 WritableMap event = Arguments.createMap();
                 WritableArray resultPoints = Arguments.createArray();
                 ResultPoint[] points = result.getResultPoints();
-                
+
                 if(points != null) {
                     for (ResultPoint point : points) {
                         WritableMap newPoint = Arguments.createMap();
@@ -394,7 +397,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                         resultPoints.pushMap(newPoint);
                     }
                 }
-                
+
                 event.putArray("bounds", resultPoints);
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());

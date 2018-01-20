@@ -362,6 +362,22 @@ public class RCTCamera {
         }
     }
 
+    public void setZoom(int cameraType, int zoom) {
+        Camera camera = this.acquireCameraInstance(cameraType);
+        if (null == camera) {
+            return;
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+        int maxZoom = parameters.getMaxZoom();
+        if (parameters.isZoomSupported()) {
+            if (zoom >=0 && zoom < maxZoom) {
+                parameters.setZoom(zoom);
+                camera.setParameters(parameters);
+            }
+        }
+    }
+
     public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {
         Camera camera = _cameras.get(type);
         if (null == camera) {

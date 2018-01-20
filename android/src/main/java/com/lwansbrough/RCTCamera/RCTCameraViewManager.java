@@ -60,6 +60,11 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         view.setFlashMode(flashMode);
     }
 
+    @ReactProp(name = "zoom")
+    public void setZoom(RCTCameraView view, int zoom) {
+        view.setZoom(zoom);
+    }
+
     @ReactProp(name = "orientation")
     public void setOrientation(RCTCameraView view, int orientation) {
         view.setOrientation(orientation);
