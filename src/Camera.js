@@ -87,6 +87,7 @@ export default class Camera extends Component {
     onBarCodeRead: PropTypes.func,
     barcodeScannerEnabled: PropTypes.bool,
     cropToPreview: PropTypes.bool,
+    clearWindowBackground: PropTypes.bool,
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
@@ -117,6 +118,7 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     cropToPreview: false,
+    clearWindowBackground: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
     permissionDialogTitle: '',
     permissionDialogMessage: '',
@@ -191,18 +193,16 @@ export default class Camera extends Component {
         message: this.props.permissionDialogMessage,
       });
 
-      // On devices before SDK version 23, the permissions are automatically granted if they appear in the manifest, 
+      // On devices before SDK version 23, the permissions are automatically granted if they appear in the manifest,
       // so check and request should always be true.
       // https://github.com/facebook/react-native-website/blob/master/docs/permissionsandroid.md
-      const isAuthorized = Platform.Version >= 23
-		      ? granted === PermissionsAndroid.RESULTS.GRANTED
-          : granted === true;
-      
+      const isAuthorized =
+        Platform.Version >= 23 ? granted === PermissionsAndroid.RESULTS.GRANTED : granted === true;
+
       this.setState({
-	      isAuthorized,
-		    isAuthorizationChecked: true
+        isAuthorized,
+        isAuthorizationChecked: true,
       });
-      
     } else {
       this.setState({ isAuthorized: true, isAuthorizationChecked: true });
     }
@@ -276,7 +276,7 @@ export default class Camera extends Component {
       mirrorImage: props.mirrorImage,
       fixOrientation: props.fixOrientation,
       cropToPreview: props.cropToPreview,
-      ...options
+      ...options,
     };
 
     if (options.mode === Camera.constants.CaptureMode.video) {

@@ -347,6 +347,14 @@ from javascript.
 
 If set to `true`, the device will not sleep while the camera preview is visible. This mimics the behavior of the default camera app, which keeps the device awake while open.
 
+#### `Android` `clearWindowBackground`
+
+Values:
+`true`
+`false` (default)
+
+If you encounter performance issue while using a window background drawable (typically defined in theme to emulate splashscreen behavior), set this to true to automatically clear window background once camera is started.
+
 #### `Android` `permissionDialogTitle`
 
 Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the title of the dialog prompt requesting permissions.

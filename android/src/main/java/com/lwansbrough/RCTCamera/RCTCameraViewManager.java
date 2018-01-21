@@ -86,4 +86,9 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         }
         view.setBarCodeTypes(result);
     }
+
+    @ReactProp(name = "clearWindowBackground")
+    public void setClearWindowBackground(RCTCameraView view, boolean clearWindowBackground) {
+        view.setClearWindowBackground(clearWindowBackground);
+    }
 }

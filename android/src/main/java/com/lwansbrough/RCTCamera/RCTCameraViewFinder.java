@@ -4,7 +4,9 @@
 
 package com.lwansbrough.RCTCamera;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -41,6 +43,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private boolean _isStarting;
     private boolean _isStopping;
     private Camera _camera;
+    private boolean _clearWindowBackground = false;
     private float mFingerSpacing;
 
     // concurrency lock for barcode scanner to avoid flooding the runtime
@@ -124,6 +127,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         RCTCamera.getInstance().setFlashMode(_cameraType, flashMode);
     }
 
+    public void setClearWindowBackground(boolean clearWindowBackground) {
+        this._clearWindowBackground = clearWindowBackground;
+    }
+
+
     private void startPreview() {
         if (_surfaceTexture != null) {
             startCamera();
@@ -180,6 +188,12 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 _camera.setParameters(parameters);
                 _camera.setPreviewTexture(_surfaceTexture);
                 _camera.startPreview();
+                // clear window background if needed
+                if (_clearWindowBackground) {
+                    Activity activity = getActivity();
+                    if (activity != null)
+                        activity.getWindow().setBackgroundDrawable(null);
+                }
                 // send previews to `onPreviewFrame`
                 _camera.setPreviewCallback(this);
             } catch (NullPointerException e) {
@@ -211,6 +225,17 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 _isStopping = false;
             }
         }
+    }
+
+    private Activity getActivity() {
+        Context context = getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity)context;
+            }
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+        return null;
     }
 
     /**
