@@ -3,7 +3,7 @@
 The comprehensive camera module for React Native. Including photographs, videos, and barcode scanning!
 
 ### Experimental
-RNCamera and FaceDetector module for Android based on Expo camera module (https://docs.expo.io/versions/latest/sdk/camera.html)
+RNCamera (Android/Ios) and FaceDetector(Android only) module  based on Expo camera module (https://docs.expo.io/versions/latest/sdk/camera.html)
 
 You can test and use this from `master` like this:
 
