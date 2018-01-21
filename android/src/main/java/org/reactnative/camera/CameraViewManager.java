@@ -162,23 +162,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   }
 
   public void record(final ReadableMap options, final Promise promise) {
-    // TODO fix this
-//    RN.getInstance().getPermissions(new RN.PermissionsListener() {
-//      @Override
-//      public void permissionsGranted() {
-//        if (mCameraView.isCameraOpened()) {
-//          mCameraView.record(options, promise);
-//        } else {
-//          promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
-//        }
-//      }
-//
-//      @Override
-//      public void permissionsDenied() {
-//        promise.reject(new SecurityException("User rejected audio permissions"));
-//      }
-//    }, new String[]{Manifest.permission.RECORD_AUDIO});
-
+    if (mCameraView.isCameraOpened()) {
+        mCameraView.record(options, promise);
+    } else {
+        promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
+    }
   }
 
   public void stopRecording() {
