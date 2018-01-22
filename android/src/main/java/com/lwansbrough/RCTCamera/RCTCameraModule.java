@@ -729,6 +729,24 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         promise.resolve(null != flashModes && !flashModes.isEmpty());
     }
 
+    @ReactMethod
+    public void setZoom(ReadableMap options, int zoom) {
+        RCTCamera instance = RCTCamera.getInstance();
+        if (instance == null) return;
+
+        Camera camera = instance.acquireCameraInstance(options.getInt("type"));
+        if (camera == null) return;
+
+        Camera.Parameters parameters = camera.getParameters();
+        int maxZoom = parameters.getMaxZoom();
+        if (parameters.isZoomSupported()) {
+            if (zoom >=0 && zoom < maxZoom) {
+                parameters.setZoom(zoom);
+                camera.setParameters(parameters);
+            }
+        }
+    }
+
     private File getOutputMediaFile(int type) {
         // Get environment directory type id from requested media type.
         String environmentDirectoryType;

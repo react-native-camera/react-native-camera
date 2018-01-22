@@ -90,6 +90,7 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 - (void)stopSession;
 - (void)focusAtThePoint:(CGPoint) atPoint;
 - (void)zoom:(CGFloat)velocity reactTag:(NSNumber *)reactTag;
+- (void)setZoom;
 
 
 @end

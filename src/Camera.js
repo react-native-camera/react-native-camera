@@ -27,6 +27,12 @@ function convertNativeProps(props) {
     newProps.flashMode = Camera.constants.FlashMode[props.flashMode];
   }
 
+  if (typeof props.zoom === 'string' || typeof props.zoom === 'number') {
+    if (props.zoom >= 0 && props.zoom <= 100) {
+      newProps.zoom = parseInt(props.zoom);
+    }
+  }
+
   if (typeof props.orientation === 'string') {
     newProps.orientation = Camera.constants.Orientation[props.orientation];
   }
@@ -71,6 +77,7 @@ export default class Camera extends Component {
     CaptureQuality: CameraManager.CaptureQuality,
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
+    Zoom: CameraManager.Zoom,
     TorchMode: CameraManager.TorchMode,
   };
 
@@ -83,6 +90,7 @@ export default class Camera extends Component {
     captureTarget: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     defaultOnFocusComponent: PropTypes.bool,
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    zoom: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
     barcodeScannerEnabled: PropTypes.bool,
@@ -114,6 +122,7 @@ export default class Camera extends Component {
     captureQuality: CameraManager.CaptureQuality.high,
     defaultOnFocusComponent: true,
     flashMode: CameraManager.FlashMode.off,
+    zoom: 0,
     playSoundOnCapture: true,
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
@@ -332,6 +341,17 @@ export default class Camera extends Component {
     }
     return CameraManager.hasFlash();
   }
+
+	setZoom(zoom) {
+    if (Platform.OS === 'android') {
+      const props = convertNativeProps(this.props);
+      return CameraManager.setZoom({
+        type: props.type,
+      }, zoom);
+    }
+
+		return CameraManager.setZoom(zoom);
+	}
 }
 
 export const constants = Camera.constants;

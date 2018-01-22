@@ -453,6 +453,20 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     resolve(@(device.hasFlash));
 }
 
+RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
+    if (isnan(zoomFactor)) {
+        return;
+    }
+    NSError *error = nil;
+    AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
+    if ([device lockForConfiguration:&error]) {
+        device.videoZoomFactor = zoomFactor;
+        [device unlockForConfiguration];
+    } else {
+        NSLog(@"error: %@", error);
+    }
+}
+
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
