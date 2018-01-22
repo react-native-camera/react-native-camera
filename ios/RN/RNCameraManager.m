@@ -9,19 +9,14 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 
-//#if __has_include("EXFaceDetectorManager.h")
-//#import "EXFaceDetectorManager.h"
-//#else
-//#import "EXFaceDetectorManagerStub.h"
-//#endif
-
 @implementation RNCameraManager
 
-RCT_EXPORT_MODULE(ReactNativeCameraManager);
+RCT_EXPORT_MODULE(RNCameraManager);
+//RCT_EXPORT_MODULE(RNCamera);
 RCT_EXPORT_VIEW_PROPERTY(onCameraReady, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onMountError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
-RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onFaceDetected, RCTDirectEventBlock);
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -61,15 +56,14 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
                      @"480p": @(RNCameraVideo4x3),
                      @"4:3": @(RNCameraVideo4x3),
                      },
-             @"BarCodeType" : [[self class] validBarCodeTypes]
-             //             @"FaceDetection" : [[self  class] faceDetectorConstants]
+             @"BarCodeType" : [[self class] validBarCodeTypes],
+             @"FaceDetection" : [[self  class] faceDetectorConstants]
              };
 }
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    //    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead", @"onFacesDetected"];
-    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead"];
+    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead", @"onFaceDetected"];
 }
 
 + (NSDictionary *)validBarCodeTypes
@@ -93,13 +87,7 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
 
 + (NSDictionary *)faceDetectorConstants
 {
-    //#if __has_include("EXFaceDetectorManager.h")
-    //    return [EXFaceDetectorManager constants];
-    //#elif __has_include("EXFaceDetectorManagerStub.h")
-    //    return [EXFaceDetectorManagerStub constants];
-    //#endif
-    
-    return nil;
+    return [RNFaceDetectorManager constants];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RNCamera)
@@ -174,7 +162,6 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RNCamera)
 
 RCT_REMAP_METHOD(takePicture,
                  options:(NSDictionary *)options
-                 reactTag:(nonnull NSNumber *)reactTag
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -192,9 +179,15 @@ RCT_REMAP_METHOD(takePicture,
     }
     resolve(response);
 #else
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
-        RNCamera *view = viewRegistry[reactTag];
-        if (![view isKindOfClass:[RNCamera class]]) {
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        RNCamera *view = nil;
+        for (NSNumber *reactTag in viewRegistry) {
+            UIView *reactView = viewRegistry[reactTag];
+            if ([reactView isKindOfClass:[RNCamera class]]) {
+                view = (RNCamera *)reactView;
+            }
+        }
+        if (!view) {
             RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
         } else {
             [view takePicture:options resolve:resolve reject:reject];

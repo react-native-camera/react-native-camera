@@ -1,0 +1,4 @@
+target “RNCameraExample” do
+  pod 'GoogleMobileVision/FaceDetector'
+  pod 'GoogleMobileVision/MVDataOutput'
+end
