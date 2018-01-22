@@ -57,6 +57,14 @@ public class MutableImage {
         this.currentRepresentation = bitmap;
     }
 
+    public int getImageWidth() {
+        return currentRepresentation.getWidth();
+    }
+
+    public int getImageHeight() {
+        return currentRepresentation.getHeight();
+    }
+
     public void fixOrientation() throws ImageMutationFailedException {
         try {
             Metadata metadata = originalImageMetaData();
