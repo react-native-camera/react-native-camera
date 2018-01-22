@@ -17,7 +17,7 @@
 
 @property (nonatomic, strong) RCTPromiseResolveBlock videoRecordedResolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock videoRecordedReject;
-@property (nonatomic, strong) id faceDetectorManager;
+@property (nonatomic, strong) RNFaceDetectorManager *faceDetectorManager;
 
 @property (nonatomic, copy) RCTDirectEventBlock onCameraReady;
 @property (nonatomic, copy) RCTDirectEventBlock onMountError;
@@ -287,22 +287,22 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)updateFaceDetecting:(id)faceDetecting
 {
-    //    [_faceDetectorManager setIsEnabled:faceDetecting];
+    [_faceDetectorManager setIsEnabled:faceDetecting];
 }
 
 - (void)updateFaceDetectionMode:(id)requestedMode
 {
-    //    [_faceDetectorManager setMode:requestedMode];
+    [_faceDetectorManager setMode:requestedMode];
 }
 
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks
 {
-    //    [_faceDetectorManager setLandmarksDetected:requestedLandmarks];
+    [_faceDetectorManager setLandmarksDetected:requestedLandmarks];
 }
 
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications
 {
-    //    [_faceDetectorManager setClassificationsDetected:requestedClassifications];
+    [_faceDetectorManager setClassificationsDetected:requestedClassifications];
 }
 
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
@@ -365,7 +365,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // At the time of writing AVCaptureMovieFileOutput and AVCaptureVideoDataOutput (> GMVDataOutput)
         // cannot coexist on the same AVSession (see: https://stackoverflow.com/a/4986032/1123156).
         // We stop face detection here and restart it in when AVCaptureMovieFileOutput finishes recording.
-        //        [_faceDetectorManager stopFaceDetection];
+        [_faceDetectorManager stopFaceDetection];
         [self setupMovieFileCapture];
     }
     
@@ -707,7 +707,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self cleanupMovieFileCapture];
     // If face detection has been running prior to recording to file
     // we reenable it here (see comment in -record).
-    //    [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
+    [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
     
     if (self.session.sessionPreset != AVCaptureSessionPresetHigh) {
         [self updateSessionPreset:AVCaptureSessionPresetHigh];
@@ -716,18 +716,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 # pragma mark - Face detector
 
-- (id)createFaceDetectorManager
+- (RNFaceDetectorManager*)createFaceDetectorManager
 {
-    //    Class faceDetectorManagerClass = NSClassFromString(@"EXFaceDetectorManager"); //ruim
-    //    Class faceDetectorManagerStubClass = NSClassFromString(@"EXFaceDetectorManagerStub"); //ruim
-    //
-    //    if (faceDetectorManagerClass) {
-    //        return [[faceDetectorManagerClass alloc] initWithSessionQueue:_sessionQueue delegate:self];
-    //    } else if (faceDetectorManagerStubClass) {
-    //        return [[faceDetectorManagerStubClass alloc] init];
-    //    }
-    
-    return nil;
+    return [[RNFaceDetectorManager alloc] initWithSessionQueue:_sessionQueue delegate:self];
 }
 
 - (void)onFacesDetected:(NSArray<NSDictionary *> *)faces
