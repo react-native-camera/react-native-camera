@@ -11,6 +11,11 @@
 		4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */; };
 		454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */; };
+		7147DBB32015319E003C59C3 /* RNFaceDetectorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB22015319E003C59C3 /* RNFaceDetectorManager.m */; };
+		7147DBB620155340003C59C3 /* RNFaceDetectorModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB520155340003C59C3 /* RNFaceDetectorModule.m */; };
+		7147DBB9201553EE003C59C3 /* RNFaceDetectorPointTransformCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB8201553EE003C59C3 /* RNFaceDetectorPointTransformCalculator.m */; };
+		7147DBBC20155594003C59C3 /* RNFaceDetectorUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBBB20155594003C59C3 /* RNFaceDetectorUtils.m */; };
+		7147DBBF20155694003C59C3 /* RNFaceEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBBE20155694003C59C3 /* RNFaceEncoder.m */; };
 		7162BE672013EAA100FE51FF /* RNCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFCC2013C7BF006EB75A /* RNCamera.m */; };
 		7162BE682013EAA400FE51FF /* RNCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFC92013C7AE006EB75A /* RNCameraManager.m */; };
 		71C7FFD02013C7E5006EB75A /* RNCameraUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFCF2013C7E5006EB75A /* RNCameraUtils.m */; };
@@ -40,6 +45,16 @@
 		410701491ACB732B00C6AA39 /* RCTCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTCameraManager.h; sourceTree = "<group>"; };
 		4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCameraManager.m; sourceTree = "<group>"; };
 		454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+ImageMetadata.m"; sourceTree = "<group>"; };
+		7147DBB12015319E003C59C3 /* RNFaceDetectorManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNFaceDetectorManager.h; sourceTree = "<group>"; };
+		7147DBB22015319E003C59C3 /* RNFaceDetectorManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNFaceDetectorManager.m; sourceTree = "<group>"; };
+		7147DBB420155340003C59C3 /* RNFaceDetectorModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNFaceDetectorModule.h; sourceTree = "<group>"; };
+		7147DBB520155340003C59C3 /* RNFaceDetectorModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNFaceDetectorModule.m; sourceTree = "<group>"; };
+		7147DBB7201553EE003C59C3 /* RNFaceDetectorPointTransformCalculator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNFaceDetectorPointTransformCalculator.h; sourceTree = "<group>"; };
+		7147DBB8201553EE003C59C3 /* RNFaceDetectorPointTransformCalculator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNFaceDetectorPointTransformCalculator.m; sourceTree = "<group>"; };
+		7147DBBA20155594003C59C3 /* RNFaceDetectorUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNFaceDetectorUtils.h; sourceTree = "<group>"; };
+		7147DBBB20155594003C59C3 /* RNFaceDetectorUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNFaceDetectorUtils.m; sourceTree = "<group>"; };
+		7147DBBD20155694003C59C3 /* RNFaceEncoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNFaceEncoder.h; sourceTree = "<group>"; };
+		7147DBBE20155694003C59C3 /* RNFaceEncoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNFaceEncoder.m; sourceTree = "<group>"; };
 		71C7FFC82013C7AE006EB75A /* RNCameraManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNCameraManager.h; sourceTree = "<group>"; };
 		71C7FFC92013C7AE006EB75A /* RNCameraManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNCameraManager.m; sourceTree = "<group>"; };
 		71C7FFCB2013C7BF006EB75A /* RNCamera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNCamera.h; sourceTree = "<group>"; };
@@ -68,6 +83,7 @@
 		410701241ACB719800C6AA39 = {
 			isa = PBXGroup;
 			children = (
+				7147DBB02015317E003C59C3 /* FaceDetector */,
 				714166162013E1B600EE9FCC /* RN */,
 				714166152013E19D00EE9FCC /* RCT */,
 				410701301ACB723B00C6AA39 /* Products */,
@@ -113,6 +129,23 @@
 				71C7FFCC2013C7BF006EB75A /* RNCamera.m */,
 			);
 			path = RN;
+			sourceTree = "<group>";
+		};
+		7147DBB02015317E003C59C3 /* FaceDetector */ = {
+			isa = PBXGroup;
+			children = (
+				7147DBB12015319E003C59C3 /* RNFaceDetectorManager.h */,
+				7147DBB22015319E003C59C3 /* RNFaceDetectorManager.m */,
+				7147DBB420155340003C59C3 /* RNFaceDetectorModule.h */,
+				7147DBB520155340003C59C3 /* RNFaceDetectorModule.m */,
+				7147DBB7201553EE003C59C3 /* RNFaceDetectorPointTransformCalculator.h */,
+				7147DBB8201553EE003C59C3 /* RNFaceDetectorPointTransformCalculator.m */,
+				7147DBBA20155594003C59C3 /* RNFaceDetectorUtils.h */,
+				7147DBBB20155594003C59C3 /* RNFaceDetectorUtils.m */,
+				7147DBBD20155694003C59C3 /* RNFaceEncoder.h */,
+				7147DBBE20155694003C59C3 /* RNFaceEncoder.m */,
+			);
+			path = FaceDetector;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -172,11 +205,16 @@
 			files = (
 				0314E39D1B661A460092D183 /* CameraFocusSquare.m in Sources */,
 				454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */,
+				7147DBBC20155594003C59C3 /* RNFaceDetectorUtils.m in Sources */,
 				71C7FFD62013C824006EB75A /* RNFileSystem.m in Sources */,
+				7147DBB9201553EE003C59C3 /* RNFaceDetectorPointTransformCalculator.m in Sources */,
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,
 				4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */,
+				7147DBBF20155694003C59C3 /* RNFaceEncoder.m in Sources */,
 				71C7FFD02013C7E5006EB75A /* RNCameraUtils.m in Sources */,
 				7162BE682013EAA400FE51FF /* RNCameraManager.m in Sources */,
+				7147DBB32015319E003C59C3 /* RNFaceDetectorManager.m in Sources */,
+				7147DBB620155340003C59C3 /* RNFaceDetectorModule.m in Sources */,
 				7162BE672013EAA100FE51FF /* RNCamera.m in Sources */,
 				9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */,
 				71C7FFD32013C817006EB75A /* RNImageUtils.m in Sources */,
@@ -217,6 +255,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"${BUILT_PRODUCTS_DIR}/**",
+					"$(PROJECT_DIR)/../../../ios/Pods/**",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -231,8 +273,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../../ios/Pods/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../ios/Pods/**";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -262,6 +305,10 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"${BUILT_PRODUCTS_DIR}/**",
+					"$(PROJECT_DIR)/../../../ios/Pods/**",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -269,8 +316,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../../ios/Pods/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../ios/Pods/**";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

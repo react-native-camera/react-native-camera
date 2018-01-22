@@ -3,17 +3,11 @@
 #import <React/RCTBridgeModule.h>
 #import <UIKit/UIKit.h>
 #import "RNCamera.h"
-
-//#if __has_include("EXFaceDetectorManager.h")
-//#import "EXFaceDetectorManager.h"
-//#else
-//#import "EXFaceDetectorManagerStub.h"
-//#endif
+#import "RNFaceDetectorManager.h"
 
 @class RNCamera;
 
-//@interface CandidateRCTCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, EXFaceDetectorDelegate>
-@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate>
+@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate>
 
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
 @property(nonatomic, strong) AVCaptureSession *session;
