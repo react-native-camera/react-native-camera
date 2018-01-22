@@ -719,7 +719,7 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
           }
           CFRelease(destination);
 
-          [self saveImage:rotatedImageData imageSize:viewportSize target:target metadata:imageMetadata resolve:resolve reject:reject];
+          [self saveImage:rotatedImageData imageSize:frameSize target:target metadata:imageMetadata resolve:resolve reject:reject];
 
           CGImageRelease(rotatedCGImage);
         }
