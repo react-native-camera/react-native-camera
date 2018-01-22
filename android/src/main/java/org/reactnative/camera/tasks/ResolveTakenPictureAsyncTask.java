@@ -3,8 +3,11 @@ package org.reactnative.camera.tasks;
 import android.content.res.Resources;
 import android.graphics.Matrix;
 import android.os.AsyncTask;
+import android.support.media.ExifInterface;
 
 import org.reactnative.MutableImage;
+import org.reactnative.camera.RNCameraViewHelper;
+
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
@@ -41,12 +44,25 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
       String encoded = mutableImage.toBase64(getQuality());
 
       response.putString("base64", encoded);
+      response.putInt("width", mutableImage.getImageWidth());
+      response.putInt("height", mutableImage.getImageHeight());
+      if (mOptions.hasKey("exif") && mOptions.getBoolean("exif")) {
+        ExifInterface exifInterface = new ExifInterface(inputStream);
+        WritableMap exifData = RNCameraViewHelper.getExifData(exifInterface);
+        response.putMap("exif", exifData);
+      }
+
+      //TODO: create local cache directory, save image to file and insert into response "uri" key
+      // with the path to the file
+      //response.putString("uri", outputPath);
 
       return response;
     } catch (Resources.NotFoundException e) {
       mPromise.reject(ERROR_TAG, "Documents directory of the app could not be found.", e);
       e.printStackTrace();
    } catch (MutableImage.ImageMutationFailedException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
       e.printStackTrace();
     } finally {
       try {
