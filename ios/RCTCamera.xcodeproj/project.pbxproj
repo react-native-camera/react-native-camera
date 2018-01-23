@@ -257,7 +257,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"${BUILT_PRODUCTS_DIR}/**",
-					"$(PROJECT_DIR)/../../../ios/Pods/**",
+					"$(PROJECT_DIR)/../../../ios/Frameworks/**",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -273,9 +273,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../../ios/Pods/**";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../../ios/Frameworks/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../ios/Pods/**";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../ios/Frameworks/**";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -307,7 +307,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"${BUILT_PRODUCTS_DIR}/**",
-					"$(PROJECT_DIR)/../../../ios/Pods/**",
+					"$(PROJECT_DIR)/../../../ios/Frameworks/**",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -316,9 +316,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../../ios/Pods/**";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../../ios/Frameworks/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../ios/Pods/**";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../ios/Frameworks/**";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
