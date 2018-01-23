@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
-const CAMERA_REF = 'camera';
 
 function convertNativeProps(props) {
   const newProps = { ...props };
@@ -170,7 +169,7 @@ export default class Camera extends Component {
 
   setNativeProps(props) {
     // eslint-disable-next-line
-    this.refs[CAMERA_REF].setNativeProps(props);
+    this._cameraRef.setNativeProps(props);
   }
 
   constructor() {
@@ -180,6 +179,8 @@ export default class Camera extends Component {
       isAuthorizationChecked: false,
       isRecording: false,
     };
+    this._cameraRef = null;
+    this._cameraHandle = null;
   }
 
   async componentWillMount() {
@@ -251,6 +252,16 @@ export default class Camera extends Component {
     }
   }
 
+  _setReference = ref => {
+    if (ref) {
+      this._cameraRef = ref;
+      this._cameraHandle = findNodeHandle(ref);
+    } else {
+      this._cameraRef = null;
+      this._cameraHandle = null;
+    }
+  };
+
   render() {
     // TODO - style is not used, figure it out why
     // eslint-disable-next-line
@@ -258,7 +269,7 @@ export default class Camera extends Component {
     const nativeProps = convertNativeProps(this.props);
 
     if (this.state.isAuthorized) {
-      return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
+      return <RCTCamera ref={this._setReference} {...nativeProps} />;
     } else if (!this.state.isAuthorizationChecked) {
       return this.props.pendingAuthorizationView;
     } else {
@@ -303,7 +314,7 @@ export default class Camera extends Component {
   startPreview() {
     if (Platform.OS === 'android') {
       UIManager.dispatchViewManagerCommand(
-        findNodeHandle(this),
+        this._cameraHandle,
         UIManager.RCTCamera.Commands.startPreview,
       );
     } else {
@@ -314,7 +325,7 @@ export default class Camera extends Component {
   stopPreview() {
     if (Platform.OS === 'android') {
       UIManager.dispatchViewManagerCommand(
-        findNodeHandle(this),
+        this._cameraHandle,
         UIManager.RCTCamera.Commands.stopPreview,
       );
     } else {
