@@ -16,6 +16,8 @@ import org.reactnative.camera.tasks.FaceDetectorAsyncTask;
 import org.reactnative.camera.tasks.FaceDetectorAsyncTaskDelegate;
 import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
 import org.reactnative.camera.utils.ImageDimensions;
+import org.reactnative.camera.utils.RNFileUtils;
+import org.reactnative.camera.utils.ScopedContext;
 import org.reactnative.facedetector.RNFaceDetector;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
@@ -81,7 +83,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       public void onPictureTaken(CameraView cameraView, final byte[] data) {
         Promise promise = mPictureTakenPromises.poll();
         ReadableMap options = mPictureTakenOptions.remove(promise);
-        new ResolveTakenPictureAsyncTask(data, promise, options).execute();
+        File cacheDirectory = CameraModule.getScopedContext().getCacheDirectory();
+        new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory).execute();
       }
 
       @Override
@@ -89,8 +92,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         if (mVideoRecordedPromise != null) {
           if (path != null) {
             WritableMap result = Arguments.createMap();
-            // TODO - fix this
-            //result.putString("uri", ExpFileUtils.uriFromFile(new File(path)).toString());
+            result.putString("uri", RNFileUtils.uriFromFile(new File(path)).toString());
             mVideoRecordedPromise.resolve(result);
           } else {
             mVideoRecordedPromise.reject("E_RECORDING", "Couldn't stop recording - there is none in progress");
@@ -156,10 +158,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   public void record(ReadableMap options, final Promise promise) {
-//    try {
-      // TODO - fix this
-      String path = "";
-      //String path = ExpFileUtils.generateOutputPath(CameraModule.getScopedContextSingleton().getCacheDir(), "Camera", ".mp4");
+    try {
+      File cacheDirectory = CameraModule.getScopedContext().getCacheDirectory();
+      String path = RNFileUtils.getOutputFilePath(cacheDirectory, ".mp4");
       int maxDuration = options.hasKey("maxDuration") ? options.getInt("maxDuration") : -1;
       int maxFileSize = options.hasKey("maxFileSize") ? options.getInt("maxFileSize") : -1;
 
@@ -175,9 +176,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       } else {
         promise.reject("E_RECORDING_FAILED", "Starting video recording failed. Another recording might be in progress.");
       }
-//    } catch (IOException e) {
-//      promise.reject("E_RECORDING_FAILED", "Starting video recording failed - could not create video file.");
-//    }
+    } catch (IOException e) {
+      promise.reject("E_RECORDING_FAILED", "Starting video recording failed - could not create video file.");
+    }
   }
 
   /**
