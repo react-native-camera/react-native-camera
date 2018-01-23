@@ -12,7 +12,6 @@
 @implementation RNCameraManager
 
 RCT_EXPORT_MODULE(RNCameraManager);
-//RCT_EXPORT_MODULE(RNCamera);
 RCT_EXPORT_VIEW_PROPERTY(onCameraReady, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onMountError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
@@ -168,10 +167,10 @@ RCT_REMAP_METHOD(takePicture,
 #if TARGET_IPHONE_SIMULATOR
     NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
     float quality = [options[@"quality"] floatValue];
-    //    NSString *path = [RCTFileSystem generatePathInDirectory:[self.bridge.scopedModules.fileSystem.cachesDirectory stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+    NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
     UIImage *generatedPhoto = [RNImageUtils generatePhotoOfSize:CGSizeMake(200, 200)];
     NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
-    //    response[@"uri"] = [RCTImageUtils writeImage:photoData toPath:path];
+    response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
     response[@"width"] = @(generatedPhoto.size.width);
     response[@"height"] = @(generatedPhoto.size.height);
     if ([options[@"base64"] boolValue]) {
@@ -223,7 +222,7 @@ RCT_REMAP_METHOD(record,
     }];
 }
 
-RCT_REMAP_METHOD(stopRecording)
+RCT_EXPORT_METHOD(stopRecording)
 {
     [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         RNCamera *view = nil;

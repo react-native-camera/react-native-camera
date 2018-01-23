@@ -30,5 +30,11 @@
     return [directory stringByAppendingPathComponent:fileName];
 }
 
++ (NSString *)cacheDirectoryPath
+{
+    NSArray *array = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    return [array objectAtIndex:0];
+}
+
 @end
 

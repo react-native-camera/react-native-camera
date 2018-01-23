@@ -325,8 +325,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
             float quality = [options[@"quality"] floatValue];
             NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
-            //            NSString *path = [RCTFileSystem generatePathInDirectory:[self.bridge.scopedModules.fileSystem.cachesDirectory stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
-            //            response[@"uri"] = [RCTImageUtils writeImage:takenImageData toPath:path];
+            NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+            response[@"uri"] = [RNImageUtils writeImage:takenImageData toPath:path];
             response[@"width"] = @(takenImage.size.width);
             response[@"height"] = @(takenImage.size.height);
             
@@ -389,9 +389,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [connection setVideoOrientation:[RNCameraUtils videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
         
         dispatch_async(self.sessionQueue, ^{
-            //            NSString *path = [RCTFileSystem generatePathInDirectory:[self.bridge.scopedModules.fileSystem.cachesDirectory stringByAppendingPathComponent:@"Camera"] withExtension:@".mov"];
-            //            NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
-            //            [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+            NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingString:@"Camera"] withExtension:@".mov"];
+            NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
+            [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
             self.videoRecordedResolve = resolve;
             self.videoRecordedReject = reject;
         });
