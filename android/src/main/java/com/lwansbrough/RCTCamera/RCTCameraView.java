@@ -6,7 +6,6 @@ package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
 import android.hardware.SensorManager;
-import android.util.Log;
 import android.view.OrientationEventListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -142,6 +141,16 @@ public class RCTCameraView extends ViewGroup {
         if (this._viewFinder != null) {
             this._viewFinder.setClearWindowBackground(clearWindowBackground);
         }
+    }
+
+    public void stopPreview() {
+        if (_viewFinder == null) return;
+        _viewFinder.stopPreview();
+    }
+
+    public void startPreview() {
+        if (_viewFinder == null) return;
+        _viewFinder.startPreview();
     }
 
     private boolean setActualDeviceOrientation(Context context) {

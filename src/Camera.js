@@ -6,12 +6,14 @@ import {
   NativeModules,
   Platform,
   StyleSheet,
+  findNodeHandle,
   requireNativeComponent,
   ViewPropTypes,
   PermissionsAndroid,
   ActivityIndicator,
   View,
   Text,
+  UIManager,
 } from 'react-native';
 
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
@@ -300,10 +302,10 @@ export default class Camera extends Component {
 
   startPreview() {
     if (Platform.OS === 'android') {
-      const props = convertNativeProps(this.props);
-      CameraManager.startPreview({
-        type: props.type,
-      });
+      UIManager.dispatchViewManagerCommand(
+        findNodeHandle(this),
+        UIManager.RCTCamera.Commands.startPreview,
+      );
     } else {
       CameraManager.startPreview();
     }
@@ -311,10 +313,10 @@ export default class Camera extends Component {
 
   stopPreview() {
     if (Platform.OS === 'android') {
-      const props = convertNativeProps(this.props);
-      CameraManager.stopPreview({
-        type: props.type,
-      });
+      UIManager.dispatchViewManagerCommand(
+        findNodeHandle(this),
+        UIManager.RCTCamera.Commands.stopPreview,
+      );
     } else {
       CameraManager.stopPreview();
     }
@@ -342,16 +344,19 @@ export default class Camera extends Component {
     return CameraManager.hasFlash();
   }
 
-	setZoom(zoom) {
+  setZoom(zoom) {
     if (Platform.OS === 'android') {
       const props = convertNativeProps(this.props);
-      return CameraManager.setZoom({
-        type: props.type,
-      }, zoom);
+      return CameraManager.setZoom(
+        {
+          type: props.type,
+        },
+        zoom,
+      );
     }
 
-		return CameraManager.setZoom(zoom);
-	}
+    return CameraManager.setZoom(zoom);
+  }
 }
 
 export const constants = Camera.constants;
