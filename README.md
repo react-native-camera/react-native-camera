@@ -89,6 +89,23 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 5. Click `RCTCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
 5. Run your project (`Cmd+R`)
 
+### Installing GMV on iOS
+GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RCTCamera project.
+
+1. Download:
+Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSymbolUtilities-1.1.1.tar.gz
+Google Utilities: https://dl.google.com/dl/cpdc/978f81964b50a7c0/GoogleUtilities-1.3.2.tar.gz
+Google Mobile Vision: https://dl.google.com/dl/cpdc/df83c97cbca53eaf/GoogleMobileVision-1.1.0.tar.gz
+Google network Utilities: https://dl.google.com/dl/cpdc/54fd7b7ef8fd3edc/GoogleNetworkingUtilities-1.2.2.tar.gz
+Google Interchange Utilities: https://dl.google.com/dl/cpdc/1a7f7ba905b2c029/GoogleInterchangeUtilities-1.2.2.tar.gz
+
+2. Extract everything to one folder. Delete "BarcodeDetector" and "copy" folders from Google Mobile Vision.
+
+3.
+Open XCode, right click on your project and choose "New Group". Rename the new folder to "Frameworks". Right click on "Frameworks" and select "add files to 'YOUR_PROJECT'". Select all content from the folder of step 2, click on Options. Select "Copy items if needed", leave "Create groups" selected and choose all your targets on the "Add to targets" section. Then, click on "Add".
+
+4. On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
+5. On your target -> Build Settings -> Other Linker Flags -> add -lz, -ObjC and -lc++
 
 #### Android
 1. `npm install react-native-camera --save`
