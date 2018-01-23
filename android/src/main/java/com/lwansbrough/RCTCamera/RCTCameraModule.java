@@ -73,7 +73,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
     private static ReactApplicationContext _reactContext;
     private RCTSensorOrientationChecker _sensorOrientationChecker;
-    private MediaActionSound sound = new MediaActionSound();
 
     private MediaRecorder mMediaRecorder;
     private long MRStartTime;
@@ -88,7 +87,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         _reactContext = reactContext;
         _sensorOrientationChecker = new RCTSensorOrientationChecker(_reactContext);
         _reactContext.addLifecycleEventListener(this);
-        sound.load(MediaActionSound.SHUTTER_CLICK);
     }
 
     public static ReactApplicationContext getReactContextSingleton() {
@@ -492,6 +490,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) {
+        if (RCTCamera.getInstance() == null) {
+            promise.reject("Camera is not ready yet.");
+            return;
+        }
+
         int orientation = options.hasKey("orientation") ? options.getInt("orientation") : RCTCamera.getInstance().getOrientation();
         if (orientation == RCT_CAMERA_ORIENTATION_AUTO) {
             _sensorOrientationChecker.onResume();
@@ -510,7 +513,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     }
 
     private void captureWithOrientation(final ReadableMap options, final Promise promise, int deviceOrientation) {
-        Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
+        final Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
         if (null == camera) {
             promise.reject("No camera found.");
             return;
@@ -524,6 +527,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
 
         if (options.hasKey("playSoundOnCapture") && options.getBoolean("playSoundOnCapture")) {
+            MediaActionSound sound = new MediaActionSound();
             sound.play(MediaActionSound.SHUTTER_CLICK);
         }
 
@@ -551,9 +555,21 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             }
         };
 
+        Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
+            @Override
+            public void onShutter() {
+                try {
+                    camera.setPreviewCallback(null);
+                    camera.setPreviewTexture(null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
         if(mSafeToCapture) {
           try {
-            camera.takePicture(null, null, captureCallback);
+            camera.takePicture(shutterCallback, null, captureCallback);
             mSafeToCapture = false;
           } catch(RuntimeException ex) {
               Log.e(TAG, "Couldn't capture photo.", ex);
@@ -572,6 +588,20 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 mutableImage.fixOrientation();
             } catch (MutableImage.ImageMutationFailedException e) {
                 promise.reject("Error fixing orientation image", e);
+            }
+        }
+
+        boolean shouldCropToPreview = options.hasKey("cropToPreview") && options.getBoolean("cropToPreview");
+        if (shouldCropToPreview) {
+            try {
+                int type = options.getInt("type");
+                float paddingWidth = RCTCamera.getInstance().getPreviewPaddingWidth(type);
+                float paddingHeight = RCTCamera.getInstance().getPreviewPaddingHeight(type);
+                int orientation = _reactContext.getResources().getConfiguration().orientation;
+
+                mutableImage.cropToPreview(orientation, paddingWidth, paddingHeight);
+            } catch (IllegalArgumentException e) {
+                promise.reject("Error cropping image to preview", e);
             }
         }
 
@@ -624,7 +654,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 }
 
                 try {
-                    mutableImage.writeDataToFile(pictureFile, options, 85);
+                    mutableImage.writeDataToFile(pictureFile, options, jpegQualityPercent);
                 } catch (IOException e) {
                     promise.reject("failed to save image file", e);
                     return;
@@ -642,7 +672,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 }
 
                 try {
-                    mutableImage.writeDataToFile(tempFile, options, 85);
+                    mutableImage.writeDataToFile(tempFile, options, jpegQualityPercent);
                 } catch (IOException e) {
                     promise.reject("failed to save image file", e);
                     return;
@@ -663,6 +693,28 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         } else {
             promise.resolve("Not recording.");
         }
+    }
+
+    @ReactMethod
+    public void stopPreview(ReadableMap options) {
+        RCTCamera instance = RCTCamera.getInstance();
+        if (instance == null) return;
+
+        Camera camera = instance.acquireCameraInstance(options.getInt("type"));
+        if (camera == null) return;
+
+        camera.stopPreview();
+    }
+
+    @ReactMethod
+    public void startPreview(ReadableMap options) {
+        RCTCamera instance = RCTCamera.getInstance();
+        if (instance == null) return;
+
+        Camera camera = instance.acquireCameraInstance(options.getInt("type"));
+        if (camera == null) return;
+
+        camera.startPreview();
     }
 
     @ReactMethod

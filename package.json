@@ -1,30 +1,55 @@
 {
   "name": "react-native-camera",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lwansbrough/react-native-camera.git"
-  },
-  "version": "0.10.0",
   "description": "A Camera component for React Native. Also reads barcodes.",
+  "version": "0.13.0",
   "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
-  "nativePackage": true,
-  "license": "MIT",
-  "homepage": "https://github.com/lwansbrough/react-native-camera",
-  "keywords": [
-    "react-native",
-    "react",
-    "native",
-    "camera",
-    "qr",
-    "code",
-    "barcode"
-  ],
-  "dependencies": {
-    "prop-types": "^15.5.10"
-  },
   "collective": {
     "type": "opencollective",
     "url": "https://opencollective.com/react-native-camera",
     "logo": "https://opencollective.com/opencollective/logo.txt"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "prop-types": "^15.5.10"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.0.2",
+    "eslint": "^4.12.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-react": "^7.3.0",
+    "eslint-plugin-react-native": "^3.2.0",
+    "lint-staged": "^5.0.0",
+    "pre-commit": "^1.2.2",
+    "prettier": "^1.9.2"
+  },
+  "homepage": "https://github.com/react-native-community/react-native-camera",
+  "keywords": [
+    "barcode",
+    "camera",
+    "code",
+    "native",
+    "qr",
+    "react",
+    "react-native"
+  ],
+  "license": "MIT",
+  "lint-staged": {
+    "*.js": [
+      "yarn prettier",
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "main": "src/index.js",
+  "nativePackage": true,
+  "pre-commit": "lint:staged",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/react-native-community/react-native-camera.git"
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "lint:staged": "lint-staged",
+    "prettier": "prettier --write --single-quote true --trailing-comma all --print-width 100"
   }
 }
