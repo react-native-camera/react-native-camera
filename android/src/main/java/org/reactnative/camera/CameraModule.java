@@ -2,6 +2,7 @@ package org.reactnative.camera;
 
 import android.content.Context;
 
+import org.reactnative.camera.utils.ScopedContext;
 import org.reactnative.facedetector.RNFaceDetector;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -25,7 +26,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
   private static ReactApplicationContext mReactContext;
 
-//  private static ScopedContext mScopedContext;
+  private static ScopedContext mScopedContext;
   static final int VIDEO_2160P = 0;
   static final int VIDEO_1080P = 1;
   static final int VIDEO_720P = 2;
@@ -58,14 +59,15 @@ public class CameraModule extends ReactContextBaseJavaModule {
   public CameraModule(ReactApplicationContext reactContext) {
     super(reactContext);
     mReactContext = reactContext;
+    mScopedContext = new ScopedContext(mReactContext);
   }
 
   public static ReactApplicationContext getReactContextSingleton() {
     return mReactContext;
   }
 
-  public static Context getScopedContextSingleton() {
-    return mReactContext;
+  public static ScopedContext getScopedContext() {
+    return mScopedContext;
   }
 
   @Override

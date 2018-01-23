@@ -6,6 +6,8 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 
 import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
+import org.reactnative.camera.utils.ScopedContext;
+
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;

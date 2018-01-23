@@ -1,12 +1,14 @@
 package org.reactnative.camera.tasks;
 
 import android.content.res.Resources;
-import android.graphics.Matrix;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.media.ExifInterface;
 
 import org.reactnative.MutableImage;
 import org.reactnative.camera.RNCameraViewHelper;
+import org.reactnative.camera.utils.RNFileUtils;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -14,6 +16,9 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, WritableMap> {
@@ -21,12 +26,20 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
   private Promise mPromise;
   private byte[] mImageData;
   private ReadableMap mOptions;
+  private File mCacheDirectory;
 
   public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options) {
     mPromise = promise;
     mOptions = options;
     mImageData = imageData;
   }
+
+    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory) {
+        mPromise = promise;
+        mOptions = options;
+        mImageData = imageData;
+        mCacheDirectory = cacheDirectory;
+    }
 
   private int getQuality() {
     return (int) (mOptions.getDouble("quality") * 100);
@@ -52,9 +65,14 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         response.putMap("exif", exifData);
       }
 
-      //TODO: create local cache directory, save image to file and insert into response "uri" key
-      // with the path to the file
-      //response.putString("uri", outputPath);
+      ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
+      mutableImage.getBitmap().compress(Bitmap.CompressFormat.JPEG, getQuality(), imageStream);
+
+      // Write compressed image to file in cache directory
+      String filePath = writeStreamToFile(imageStream);
+      File imageFile = new File(filePath);
+      String fileUri = Uri.fromFile(imageFile).toString();
+      response.putString("uri", fileUri);
 
       return response;
     } catch (Resources.NotFoundException e) {
@@ -77,6 +95,35 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     // An exception had to occur, promise has already been rejected. Do not try to resolve it again.
     return null;
   }
+
+  private String writeStreamToFile(ByteArrayOutputStream inputStream) throws IOException {
+    String outputPath = null;
+    IOException exception = null;
+    FileOutputStream outputStream = null;
+
+    try {
+        outputPath = RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg");
+        outputStream = new FileOutputStream(outputPath);
+        inputStream.writeTo(outputStream);
+    } catch (IOException e) {
+        e.printStackTrace();
+        exception = e;
+    } finally {
+        try {
+            if (outputStream != null) {
+                outputStream.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    if (exception != null) {
+        throw exception;
+    }
+
+    return outputPath;
+}
 
   @Override
   protected void onPostExecute(WritableMap response) {
