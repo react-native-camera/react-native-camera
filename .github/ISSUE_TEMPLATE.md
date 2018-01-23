@@ -1,3 +1,7 @@
+### Which implementation are you using
+
+RCTCamera or RNCamera?
+
 ### Steps to reproduce
 1.
 2.
