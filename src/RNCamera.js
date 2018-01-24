@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { mapValues } from 'lodash';
-import { Platform, NativeModules, ViewPropTypes, requireNativeComponent } from 'react-native';
+import { findNodeHandle, Platform, NativeModules, ViewPropTypes, requireNativeComponent } from 'react-native';
 
 import type { FaceFeature } from './FaceDetector';
 
@@ -124,6 +124,8 @@ export default class Camera extends React.Component<PropsType> {
     faceDetectionClassifications: CameraManager.FaceDetection.Classifications.none,
   };
 
+  _cameraRef: ?Object;
+  _cameraHandle: ?number;
   _lastEvents: { [string]: string };
   _lastEventsTimes: { [string]: Date };
 
@@ -140,12 +142,12 @@ export default class Camera extends React.Component<PropsType> {
     if (!options.quality) {
       options.quality = 1;
     }
-    return await CameraManager.takePicture(options);
+    return await CameraManager.takePicture(options, this._cameraHandle);
   }
 
   async getSupportedRatiosAsync() {
     if (Platform.OS === 'android') {
-      return await CameraManager.getSupportedRatios();
+      return await CameraManager.getSupportedRatios(this._cameraHandle);
     } else {
       throw new Error('Ratio is not supported on iOS');
     }
@@ -157,11 +159,11 @@ export default class Camera extends React.Component<PropsType> {
     } else if (typeof options.quality === 'string') {
       options.quality = Camera.Constants.VideoQuality[options.quality];
     }
-    return await CameraManager.record(options);
+    return await CameraManager.record(options, this._cameraHandle);
   }
 
   stopRecording() {
-    CameraManager.stopRecording();
+    CameraManager.stopRecording(this._cameraHandle);
   }
 
   _onMountError = () => {
@@ -195,14 +197,25 @@ export default class Camera extends React.Component<PropsType> {
     }
   };
 
+  _setReference = (ref: ?Object) => {
+    if (ref) {
+      this._cameraRef = ref;
+      this._cameraHandle = findNodeHandle(ref);
+    } else {
+      this._cameraRef = null;
+      this._cameraHandle = null;
+    }
+  };
+
   render() {
     const nativeProps = this._convertNativeProps(this.props);
 
     return (
       <RNCamera
         {...nativeProps}
+        ref={this._setReference}
         onMountError={this._onMountError}
-        onCameraRead={this._onCameraReady}
+        onCameraReady={this._onCameraReady}
         onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
         onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
       />

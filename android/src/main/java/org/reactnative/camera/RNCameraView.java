@@ -45,6 +45,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate {
   private Queue<Promise> mPictureTakenPromises = new ConcurrentLinkedQueue<>();
   private Map<Promise, ReadableMap> mPictureTakenOptions = new ConcurrentHashMap<>();
+  private Map<Promise, File> mPictureTakenDirectories = new ConcurrentHashMap<>();
   private Promise mVideoRecordedPromise;
   private List<String> mBarCodeTypes = null;
 
@@ -83,7 +84,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       public void onPictureTaken(CameraView cameraView, final byte[] data) {
         Promise promise = mPictureTakenPromises.poll();
         ReadableMap options = mPictureTakenOptions.remove(promise);
-        File cacheDirectory = CameraModule.getScopedContext().getCacheDirectory();
+        final File cacheDirectory = mPictureTakenDirectories.remove(promise);
         new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory).execute();
       }
 
@@ -151,15 +152,15 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     initBarcodeReader();
   }
 
-  public void takePicture(ReadableMap options, final Promise promise) {
+  public void takePicture(ReadableMap options, final Promise promise, File cacheDirectory) {
     mPictureTakenPromises.add(promise);
     mPictureTakenOptions.put(promise, options);
+    mPictureTakenDirectories.put(promise, cacheDirectory);
     super.takePicture();
   }
 
-  public void record(ReadableMap options, final Promise promise) {
+  public void record(ReadableMap options, final Promise promise, File cacheDirectory) {
     try {
-      File cacheDirectory = CameraModule.getScopedContext().getCacheDirectory();
       String path = RNFileUtils.getOutputFilePath(cacheDirectory, ".mp4");
       int maxDuration = options.hasKey("maxDuration") ? options.getInt("maxDuration") : -1;
       int maxFileSize = options.hasKey("maxFileSize") ? options.getInt("maxFileSize") : -1;

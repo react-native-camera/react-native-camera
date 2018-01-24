@@ -161,6 +161,7 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RNCamera)
 
 RCT_REMAP_METHOD(takePicture,
                  options:(NSDictionary *)options
+                 reactTag:(nonnull NSNumber *)reactTag
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -178,17 +179,10 @@ RCT_REMAP_METHOD(takePicture,
     }
     resolve(response);
 #else
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        RNCamera *view = nil;
-        for (NSNumber *reactTag in viewRegistry) {
-            UIView *reactView = viewRegistry[reactTag];
-            if ([reactView isKindOfClass:[RNCamera class]]) {
-                view = (RNCamera *)reactView;
-                break;
-            }
-        }
-        if (!view) {
-            RCTLogError(@"Could not find RNCamera view on viewRegistry");
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
+        RNCamera *view = viewRegistry[reactTag];
+        if (![view isKindOfClass:[RNCamera class]]) {
+            RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
         } else {
             [view takePicture:options resolve:resolve reject:reject];
         }
@@ -198,6 +192,7 @@ RCT_REMAP_METHOD(takePicture,
 
 RCT_REMAP_METHOD(record,
                  withOptions:(NSDictionary *)options
+                 reactTag:(nonnull NSNumber *)reactTag
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -205,36 +200,22 @@ RCT_REMAP_METHOD(record,
     reject(@"E_RECORDING_FAILED", @"Video recording is not supported on a simulator.", nil);
     return;
 #endif
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        RNCamera *view = nil;
-        for (NSNumber *reactTag in viewRegistry) {
-            UIView *reactView = viewRegistry[reactTag];
-            if ([reactView isKindOfClass:[RNCamera class]]) {
-                view = (RNCamera *)reactView;
-                break;
-            }
-        }
-        if (!view) {
-            RCTLogError(@"Could not find RNCamera view on viewRegistry");
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
+        RNCamera *view = viewRegistry[reactTag];
+        if (![view isKindOfClass:[RNCamera class]]) {
+            RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
         } else {
             [view record:options resolve:resolve reject:reject];
         }
     }];
 }
 
-RCT_EXPORT_METHOD(stopRecording)
+RCT_REMAP_METHOD(stopRecording, reactTag:(nonnull NSNumber *)reactTag)
 {
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        RNCamera *view = nil;
-        for (NSNumber *reactTag in viewRegistry) {
-            UIView *reactView = viewRegistry[reactTag];
-            if ([reactView isKindOfClass:[RNCamera class]]) {
-                view = (RNCamera *)reactView;
-                break;
-            }
-        }
-        if (!view) {
-            RCTLogError(@"Could not find RNCamera view on viewRegistry");
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
+        RNCamera *view = viewRegistry[reactTag];
+        if (![view isKindOfClass:[RNCamera class]]) {
+            RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
         } else {
             [view stopRecording];
         }
