@@ -38,11 +38,11 @@ repositories {
 }
 
 dependencies {
-  api 'com.facebook.react:react-native:+'
-  api "com.google.zxing:core:3.2.1"
-  api "com.drewnoakes:metadata-extractor:2.9.1"
-  api 'com.google.android.gms:play-services-vision:+'
-  api "com.android.support:exifinterface:26.0.2"
+  compile 'com.facebook.react:react-native:+'
+  compile "com.google.zxing:core:3.2.1"
+  compile "com.drewnoakes:metadata-extractor:2.9.1"
+  compile 'com.google.android.gms:play-services-vision:+'
+  compile "com.android.support:exifinterface:26.0.2"
 
-  api 'com.github.react-native-community:cameraview:df60b07573'
+  compile 'com.github.react-native-community:cameraview:df60b07573'
 }
