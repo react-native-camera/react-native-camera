@@ -85,24 +85,23 @@ public class MutableImage {
         }
     }
 
-    public void cropToPreview(int orientation, float xPercentage, float yPercentage) throws IllegalArgumentException {
-        int width = getWidth();
-        int height = getHeight();
+    public void cropToPreview(double previewRatio) throws IllegalArgumentException {
+        int pictureWidth = getWidth(), pictureHeight = getHeight();
+        int targetPictureWidth, targetPictureHeight;
 
-        int x = (int) Math.round(height * xPercentage);
-        int y = (int) Math.round(width * yPercentage);
-
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            int cropWidth = width - (y*2);
-            int cropHeight =  height - (x*2);
-
-            this.currentRepresentation = Bitmap.createBitmap(this.currentRepresentation, y, x, cropWidth, cropHeight);
+        if (previewRatio * pictureHeight > pictureWidth) {
+            targetPictureWidth = pictureWidth;
+            targetPictureHeight = (int) (pictureWidth / previewRatio);
         } else {
-            int cropWidth = width - (x*2);
-            int cropHeight =  height - (y*2);
-
-            this.currentRepresentation = Bitmap.createBitmap(this.currentRepresentation, x, y, cropWidth, cropHeight);
+            targetPictureHeight = pictureHeight;
+            targetPictureWidth = (int) (pictureHeight * previewRatio);
         }
+        this.currentRepresentation = Bitmap.createBitmap(
+                this.currentRepresentation,
+                (pictureWidth - targetPictureWidth) / 2,
+                (pictureHeight - targetPictureHeight) / 2,
+                targetPictureWidth,
+                targetPictureHeight);
     }
 
     //see http://www.impulseadventure.com/photo/exif-orientation.html

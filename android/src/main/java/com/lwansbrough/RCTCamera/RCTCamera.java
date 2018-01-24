@@ -74,20 +74,20 @@ public class RCTCamera {
         return cameraInfo.previewHeight;
     }
 
-    public float getPreviewPaddingHeight(int type) {
+    public int getPreviewVisibleHeight(int type) {
         CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
         if (null == cameraInfo) {
             return 0;
         }
-        return cameraInfo.previewPaddingHeight;
+        return cameraInfo.previewVisibleHeight;
     }
 
-    public float getPreviewPaddingWidth(int type) {
+    public int getPreviewVisibleWidth(int type) {
         CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
         if (null == cameraInfo) {
             return 0;
         }
-        return cameraInfo.previewPaddingWidth;
+        return cameraInfo.previewVisibleWidth;
     }
 
     public Camera.Size getBestSize(List<Camera.Size> supportedSizes, int maxWidth, int maxHeight) {
@@ -451,14 +451,14 @@ public class RCTCamera {
         }
     }
 
-    public void setPreviewPadding(int type, float width, float height) {
+    public void setPreviewVisibleSize(int type, int width, int height) {
         CameraInfoWrapper cameraInfo = _cameraInfos.get(type);
         if (cameraInfo == null) {
             return;
         }
 
-        cameraInfo.previewPaddingWidth = Math.abs(width);
-        cameraInfo.previewPaddingHeight = Math.abs(height);
+        cameraInfo.previewVisibleWidth = width;
+        cameraInfo.previewVisibleHeight = height;
     }
 
     private RCTCamera(int deviceOrientation) {
@@ -491,8 +491,8 @@ public class RCTCamera {
         public int rotation = 0;
         public int previewWidth = -1;
         public int previewHeight = -1;
-        public float previewPaddingHeight = -1;
-        public float previewPaddingWidth = -1;
+        public int previewVisibleWidth = -1;
+        public int previewVisibleHeight = -1;
 
         public CameraInfoWrapper(Camera.CameraInfo info) {
             this.info = info;

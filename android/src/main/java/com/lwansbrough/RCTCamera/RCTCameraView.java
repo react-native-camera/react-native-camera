@@ -210,10 +210,7 @@ public class RCTCameraView extends ViewGroup {
         int viewFinderPaddingX = (int) ((width - viewfinderWidth) / 2);
         int viewFinderPaddingY = (int) ((height - viewfinderHeight) / 2);
 
-        float paddingXPercentage = (float)viewFinderPaddingX / (float)viewfinderWidth;
-        float paddingYPercentage = (float)viewFinderPaddingY / (float)viewfinderHeight;
-
-        RCTCamera.getInstance().setPreviewPadding(_viewFinder.getCameraType(), paddingXPercentage, paddingYPercentage);
+        RCTCamera.getInstance().setPreviewVisibleSize(_viewFinder.getCameraType(), (int) width, (int) height);
 
         this._viewFinder.layout(viewFinderPaddingX, viewFinderPaddingY, viewFinderPaddingX + viewfinderWidth, viewFinderPaddingY + viewfinderHeight);
         this.postInvalidate(this.getLeft(), this.getTop(), this.getRight(), this.getBottom());
