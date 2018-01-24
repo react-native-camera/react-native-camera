@@ -316,6 +316,7 @@ export default class Camera extends Component {
       UIManager.dispatchViewManagerCommand(
         this._cameraHandle,
         UIManager.RCTCamera.Commands.startPreview,
+        [],
       );
     } else {
       CameraManager.startPreview();
@@ -327,6 +328,7 @@ export default class Camera extends Component {
       UIManager.dispatchViewManagerCommand(
         this._cameraHandle,
         UIManager.RCTCamera.Commands.stopPreview,
+        [],
       );
     } else {
       CameraManager.stopPreview();
