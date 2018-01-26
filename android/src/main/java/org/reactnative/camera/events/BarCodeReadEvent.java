@@ -24,7 +24,7 @@ public class BarCodeReadEvent extends Event<BarCodeReadEvent> {
     if (event == null) {
       event = new BarCodeReadEvent();
     }
-    event.init(viewTag);
+    event.init(viewTag, barCode);
     return event;
   }
 
