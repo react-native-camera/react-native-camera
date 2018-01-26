@@ -17,7 +17,7 @@
 
 @property (nonatomic, strong) RCTPromiseResolveBlock videoRecordedResolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock videoRecordedReject;
-@property (nonatomic, strong) RNFaceDetectorManager *faceDetectorManager;
+@property (nonatomic, strong) id faceDetectorManager;
 
 @property (nonatomic, copy) RCTDirectEventBlock onCameraReady;
 @property (nonatomic, copy) RCTDirectEventBlock onMountError;
@@ -716,9 +716,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 # pragma mark - Face detector
 
-- (RNFaceDetectorManager*)createFaceDetectorManager
+- (id)createFaceDetectorManager
 {
-    return [[RNFaceDetectorManager alloc] initWithSessionQueue:_sessionQueue delegate:self];
+    Class faceDetectorManagerClass = NSClassFromString(@"RNFaceDetectorManager");
+    Class faceDetectorManagerStubClass = NSClassFromString(@"RNFaceDetectorManagerStub");
+    
+    if (faceDetectorManagerClass) {
+        return [[faceDetectorManagerClass alloc] initWithSessionQueue:_sessionQueue delegate:self];
+    } else if (faceDetectorManagerStubClass) {
+        return [[faceDetectorManagerStubClass alloc] init];
+    }
+    
+    return nil;
 }
 
 - (void)onFacesDetected:(NSArray<NSDictionary *> *)faces
