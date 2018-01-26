@@ -86,7 +86,11 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
 
 + (NSDictionary *)faceDetectorConstants
 {
+#if __has_include("RNFaceDetectorManager.h")
     return [RNFaceDetectorManager constants];
+#else
+    return [RNFaceDetectorManagerStub constants];
+#endif
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RNCamera)

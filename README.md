@@ -89,7 +89,15 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 5. Click `RCTCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
 5. Run your project (`Cmd+R`)
 
-### Installing GMV on iOS
+
+### Post install steps
+#### iOS
+
+Face Detecion (available on RNCamera on master branch) is optional. If you want it, you are going to need to install GMV, as mentioned in the next section.
+
+If you do not need it, open your app xcode project, on the Project Navigator, expand the RCTCamera project, right click on the FaceDetector folder and delete it (move to trash, if you want). If you keep that folder and do not follow the GMV installation setps, your project will not compile.
+
+#### Installing GMV on iOS (master branch only)
 GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RCTCamera project.
 
 1. Download:
@@ -101,11 +109,11 @@ Google Interchange Utilities: https://dl.google.com/dl/cpdc/1a7f7ba905b2c029/Goo
 
 2. Extract everything to one folder. Delete "BarcodeDetector" and "copy" folders from Google Mobile Vision.
 
-3.
-Open XCode, right click on your project and choose "New Group". Rename the new folder to "Frameworks". Right click on "Frameworks" and select "add files to 'YOUR_PROJECT'". Select all content from the folder of step 2, click on Options. Select "Copy items if needed", leave "Create groups" selected and choose all your targets on the "Add to targets" section. Then, click on "Add".
+3. Open XCode, right click on your project and choose "New Group". Rename the new folder to "Frameworks". Right click on "Frameworks" and select "add files to 'YOUR_PROJECT'". Select all content from the folder of step 2, click on Options. Select "Copy items if needed", leave "Create groups" selected and choose all your targets on the "Add to targets" section. Then, click on "Add".
 
 4. On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
 5. On your target -> Build Settings -> Other Linker Flags -> add -lz, -ObjC and -lc++
+6. To force indexing and prevent erros, restart xcode and reopen your project again before compiling.
 
 #### Android
 1. `npm install react-native-camera --save`

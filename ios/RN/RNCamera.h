@@ -3,7 +3,12 @@
 #import <React/RCTBridgeModule.h>
 #import <UIKit/UIKit.h>
 #import "RNCamera.h"
+
+#if __has_include("RNFaceDetectorManager.h")
 #import "RNFaceDetectorManager.h"
+#else
+#import "RNFaceDetectorManagerStub.h"
+#endif
 
 @class RNCamera;
 

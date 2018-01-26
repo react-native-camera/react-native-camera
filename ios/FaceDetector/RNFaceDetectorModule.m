@@ -28,7 +28,7 @@ static NSDictionary *defaultDetectorOptions = nil;
     return self;
 }
 
-RCT_EXPORT_MODULE(ReactNativeFaceDetector);
+RCT_EXPORT_MODULE(RNFaceDetector);
 
 @synthesize bridge = _bridge;
 
