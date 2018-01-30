@@ -196,6 +196,8 @@ export default class CameraScreen extends React.Component {
         onFacesDetected={this.onFacesDetected}
         onFaceDetectionError={this.onFaceDetectionError}
         focusDepth={this.state.depth}
+        permissionDialogTitle={'Permission to use camera'}
+        permissionDialogMessage={'We need your permission to use your camera phone'}
       >
         <View
           style={{
