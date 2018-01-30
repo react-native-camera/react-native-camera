@@ -2,9 +2,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { mapValues } from 'lodash';
-import { findNodeHandle, Platform, NativeModules, ViewPropTypes, requireNativeComponent } from 'react-native';
+import { 
+  findNodeHandle, 
+  Platform, 
+  NativeModules, 
+  ViewPropTypes, 
+  requireNativeComponent, 
+  View, 
+  ActivityIndicator, 
+  Text,
+ } from 'react-native';
 
 import type { FaceFeature } from './FaceDetector';
+
+import { requestPermissions } from './handlePermissions';
 
 type PictureOptions = {
   quality?: number,
@@ -108,6 +119,10 @@ export default class Camera extends React.Component<PropsType> {
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     autoFocus: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
+    permissionDialogTitle: PropTypes.string,
+    permissionDialogMessage: PropTypes.string,
+    notAuthorizedView: PropTypes.element,
+    pendingAuthorizationView: PropTypes.element,
   };
 
   static defaultProps: Object = {
@@ -122,6 +137,37 @@ export default class Camera extends React.Component<PropsType> {
     barCodeTypes: Object.values(CameraManager.BarCodeType),
     faceDetectionLandmarks: CameraManager.FaceDetection.Landmarks.none,
     faceDetectionClassifications: CameraManager.FaceDetection.Classifications.none,
+    permissionDialogTitle: '',
+    permissionDialogMessage: '',
+    notAuthorizedView: (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Text
+          style={{
+            textAlign: 'center',
+            fontSize: 16,
+          }}
+        >
+          Camera not authorized
+        </Text>
+      </View>
+    ),
+    pendingAuthorizationView: (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <ActivityIndicator size="small" />
+      </View>
+    ),
   };
 
   _cameraRef: ?Object;
@@ -133,6 +179,10 @@ export default class Camera extends React.Component<PropsType> {
     super(props);
     this._lastEvents = {};
     this._lastEventsTimes = {};
+    this.state = {
+      isAuthorized: false,
+      isAuthorizationChecked: false,
+    };
   }
 
   async takePictureAsync(options?: PictureOptions) {
@@ -207,19 +257,31 @@ export default class Camera extends React.Component<PropsType> {
     }
   };
 
+  async componentWillMount() {
+    const hasVideoAndAudio = true; //TODO implement capture mode for camera / video like RCTCamera. Now, infer always video.
+    const isAuthorized = await requestPermissions(hasVideoAndAudio, CameraManager, Platform.OS, this.props.permissionDialogTitle, this.props.permissionDialogMessage);
+    this.setState({ isAuthorized, isAuthorizationChecked: true });
+  }
+
   render() {
     const nativeProps = this._convertNativeProps(this.props);
 
-    return (
-      <RNCamera
-        {...nativeProps}
-        ref={this._setReference}
-        onMountError={this._onMountError}
-        onCameraReady={this._onCameraReady}
-        onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
-        onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
-      />
-    );
+    if (this.state.isAuthorized) {
+      return (
+        <RNCamera
+          {...nativeProps}
+          ref={this._setReference}
+          onMountError={this._onMountError}
+          onCameraReady={this._onCameraReady}
+          onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
+          onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
+        />
+      );
+    } else if (!this.state.isAuthorizationChecked) {
+      return this.props.pendingAuthorizationView;
+    } else {
+      return this.props.notAuthorizedView;
+    }
   }
 
   _convertNativeProps(props: PropsType) {

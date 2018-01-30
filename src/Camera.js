@@ -16,6 +16,8 @@ import {
   UIManager,
 } from 'react-native';
 
+import { requestPermissions } from './handlePermissions';
+
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
 
 function convertNativeProps(props) {
@@ -190,34 +192,8 @@ export default class Camera extends Component {
     let hasVideoAndAudio =
       this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video;
 
-    if (Platform.OS === 'ios') {
-      let check = hasVideoAndAudio
-        ? Camera.checkDeviceAuthorizationStatus
-        : Camera.checkVideoAuthorizationStatus;
-
-      if (check) {
-        const isAuthorized = await check();
-        this.setState({ isAuthorized, isAuthorizationChecked: true });
-      }
-    } else if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
-        title: this.props.permissionDialogTitle,
-        message: this.props.permissionDialogMessage,
-      });
-
-      // On devices before SDK version 23, the permissions are automatically granted if they appear in the manifest,
-      // so check and request should always be true.
-      // https://github.com/facebook/react-native-website/blob/master/docs/permissionsandroid.md
-      const isAuthorized =
-        Platform.Version >= 23 ? granted === PermissionsAndroid.RESULTS.GRANTED : granted === true;
-
-      this.setState({
-        isAuthorized,
-        isAuthorizationChecked: true,
-      });
-    } else {
-      this.setState({ isAuthorized: true, isAuthorizationChecked: true });
-    }
+    const isAuthorized = await requestPermissions(hasVideoAndAudio, Camera, Platform.OS, this.props.permissionDialogTitle, this.props.permissionDialogMessage);
+    this.setState({ isAuthorized, isAuthorizationChecked: true });
   }
 
   componentWillUnmount() {
