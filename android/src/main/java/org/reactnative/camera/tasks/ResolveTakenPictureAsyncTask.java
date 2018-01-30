@@ -2,11 +2,13 @@ package org.reactnative.camera.tasks;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.media.ExifInterface;
+import android.util.Base64;
 
-import org.reactnative.MutableImage;
 import org.reactnative.camera.RNCameraViewHelper;
 import org.reactnative.camera.utils.RNFileUtils;
 
@@ -27,6 +29,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
   private byte[] mImageData;
   private ReadableMap mOptions;
   private File mCacheDirectory;
+  private Bitmap mBitmap;
 
   public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options) {
     mPromise = promise;
@@ -48,53 +51,105 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
   @Override
   protected WritableMap doInBackground(Void... voids) {
     WritableMap response = Arguments.createMap();
-    ByteArrayInputStream inputStream = new ByteArrayInputStream(mImageData);
+    ByteArrayInputStream inputStream = null;
 
-    try {
-      MutableImage mutableImage = new MutableImage(mImageData);
-      mutableImage.mirrorImage();
-      mutableImage.fixOrientation();
-      String encoded = mutableImage.toBase64(getQuality());
-
-      response.putString("base64", encoded);
-      response.putInt("width", mutableImage.getImageWidth());
-      response.putInt("height", mutableImage.getImageHeight());
-      if (mOptions.hasKey("exif") && mOptions.getBoolean("exif")) {
-        ExifInterface exifInterface = new ExifInterface(inputStream);
-        WritableMap exifData = RNCameraViewHelper.getExifData(exifInterface);
-        response.putMap("exif", exifData);
+      // we need the stream only for photos from a device
+      if (mBitmap == null) {
+          mBitmap = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
+          inputStream = new ByteArrayInputStream(mImageData);
       }
 
-      ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
-      mutableImage.getBitmap().compress(Bitmap.CompressFormat.JPEG, getQuality(), imageStream);
-
-      // Write compressed image to file in cache directory
-      String filePath = writeStreamToFile(imageStream);
-      File imageFile = new File(filePath);
-      String fileUri = Uri.fromFile(imageFile).toString();
-      response.putString("uri", fileUri);
-
-      return response;
-    } catch (Resources.NotFoundException e) {
-      mPromise.reject(ERROR_TAG, "Documents directory of the app could not be found.", e);
-      e.printStackTrace();
-   } catch (MutableImage.ImageMutationFailedException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
       try {
-        if (inputStream != null) {
-          inputStream.close();
-        }
+          if (inputStream != null) {
+              ExifInterface exifInterface = new ExifInterface(inputStream);
+              // Get orientation of the image from mImageData via inputStream
+              int orientation = exifInterface.getAttributeInt(
+                      ExifInterface.TAG_ORIENTATION,
+                      ExifInterface.ORIENTATION_UNDEFINED
+              );
+
+              // Rotate the bitmap to the proper orientation if needed
+              if (orientation != ExifInterface.ORIENTATION_UNDEFINED) {
+                  mBitmap = rotateBitmap(mBitmap, getImageRotation(orientation));
+              }
+
+              // Write Exif data to the response if requested
+              if (mOptions.hasKey("exif") && mOptions.getBoolean("exif")) {
+                  WritableMap exifData = RNCameraViewHelper.getExifData(exifInterface);
+                  response.putMap("exif", exifData);
+              }
+          }
+
+          // Upon rotating, write the image's dimensions to the response
+          response.putInt("width", mBitmap.getWidth());
+          response.putInt("height", mBitmap.getHeight());
+
+          // Cache compressed image in imageStream
+          ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
+          mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), imageStream);
+
+          // Write compressed image to file in cache directory
+          String filePath = writeStreamToFile(imageStream);
+          File imageFile = new File(filePath);
+          String fileUri = Uri.fromFile(imageFile).toString();
+          response.putString("uri", fileUri);
+
+          // Write base64-encoded image to the response if requested
+          if (mOptions.hasKey("base64") && mOptions.getBoolean("base64")) {
+              response.putString("base64", Base64.encodeToString(imageStream.toByteArray(), Base64.DEFAULT));
+          }
+
+          // Cleanup
+          imageStream.close();
+          if (inputStream != null) {
+              inputStream.close();
+              inputStream = null;
+          }
+
+          return response;
+      } catch (Resources.NotFoundException e) {
+          mPromise.reject(ERROR_TAG, "Documents directory of the app could not be found.", e);
+          e.printStackTrace();
       } catch (IOException e) {
-        e.printStackTrace();
+          mPromise.reject(ERROR_TAG, "An unknown I/O exception has occurred.", e);
+          e.printStackTrace();
+      } finally {
+          try {
+              if (inputStream != null) {
+                  inputStream.close();
+              }
+          } catch (IOException e) {
+              e.printStackTrace();
+          }
       }
-    }
 
     // An exception had to occur, promise has already been rejected. Do not try to resolve it again.
     return null;
   }
+
+    private Bitmap rotateBitmap(Bitmap source, int angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
+
+    // Get rotation degrees from Exif orientation enum
+
+    private int getImageRotation(int orientation) {
+        int rotationDegrees = 0;
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotationDegrees = 90;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotationDegrees = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotationDegrees = 270;
+                break;
+        }
+        return rotationDegrees;
+    }
 
   private String writeStreamToFile(ByteArrayOutputStream inputStream) throws IOException {
     String outputPath = null;
