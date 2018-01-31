@@ -192,7 +192,7 @@ export default class Camera extends Component {
     let hasVideoAndAudio =
       this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video;
 
-    const isAuthorized = await requestPermissions(hasVideoAndAudio, Camera, Platform.OS, this.props.permissionDialogTitle, this.props.permissionDialogMessage);
+    const isAuthorized = await requestPermissions(hasVideoAndAudio, Camera, this.props.permissionDialogTitle, this.props.permissionDialogMessage);
     this.setState({ isAuthorized, isAuthorizationChecked: true });
   }
 
