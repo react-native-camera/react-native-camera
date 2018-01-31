@@ -50,6 +50,7 @@ type PropsType = ViewPropTypes & {
   autoFocus?: string | boolean | number,
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
+  captureAudio?: boolean,
 };
 
 const CameraManager: Object =
@@ -123,6 +124,7 @@ export default class Camera extends React.Component<PropsType> {
     permissionDialogMessage: PropTypes.string,
     notAuthorizedView: PropTypes.element,
     pendingAuthorizationView: PropTypes.element,
+    captureAudio: PropTypes.bool,
   };
 
   static defaultProps: Object = {
@@ -168,6 +170,7 @@ export default class Camera extends React.Component<PropsType> {
         <ActivityIndicator size="small" />
       </View>
     ),
+    captureAudio: false,
   };
 
   _cameraRef: ?Object;
@@ -258,8 +261,8 @@ export default class Camera extends React.Component<PropsType> {
   };
 
   async componentWillMount() {
-    const hasVideoAndAudio = true; //TODO implement capture mode for camera / video like RCTCamera. Now, infer always video.
-    const isAuthorized = await requestPermissions(hasVideoAndAudio, CameraManager, Platform.OS, this.props.permissionDialogTitle, this.props.permissionDialogMessage);
+    const hasVideoAndAudio = this.props.captureAudio;
+    const isAuthorized = await requestPermissions(hasVideoAndAudio, CameraManager, this.props.permissionDialogTitle, this.props.permissionDialogMessage);
     this.setState({ isAuthorized, isAuthorizationChecked: true });
   }
 

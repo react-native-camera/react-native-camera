@@ -1,7 +1,7 @@
 import { PermissionsAndroid, Platform } from 'react-native';
 
-export const requestPermissions = async (hasVideoAndAudio, CameraManager, osType, permissionDialogTitle, permissionDialogMessage) => {
-    if (osType === 'ios') {
+export const requestPermissions = async (hasVideoAndAudio, CameraManager, permissionDialogTitle, permissionDialogMessage) => {
+    if (Platform.OS === 'ios') {
         let check = hasVideoAndAudio
             ? CameraManager.checkDeviceAuthorizationStatus
             : CameraManager.checkVideoAuthorizationStatus;
@@ -10,7 +10,7 @@ export const requestPermissions = async (hasVideoAndAudio, CameraManager, osType
             const isAuthorized = await check();
             return isAuthorized;
         }
-    } else if (osType === 'android') {
+    } else if (Platform.OS === 'android') {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
             title: permissionDialogTitle,
             message: permissionDialogMessage,
