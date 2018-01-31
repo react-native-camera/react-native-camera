@@ -1,0 +1,1 @@
+This is a work around for file flattening introduced by https://github.com/CocoaPods/CocoaPods/pull/728
