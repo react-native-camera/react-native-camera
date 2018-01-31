@@ -495,6 +495,13 @@ RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(
     
     resolve(boundaries);
 }
+
+RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    resolve([NSNumber numberWithDouble: device.lensAperture]);
+}
+
+
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
