@@ -43,11 +43,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate {
+  private ThemedReactContext mThemedReactContext;
   private Queue<Promise> mPictureTakenPromises = new ConcurrentLinkedQueue<>();
   private Map<Promise, ReadableMap> mPictureTakenOptions = new ConcurrentHashMap<>();
   private Map<Promise, File> mPictureTakenDirectories = new ConcurrentHashMap<>();
   private Promise mVideoRecordedPromise;
   private List<String> mBarCodeTypes = null;
+
+  private boolean mIsPaused = false;
+  private boolean mIsNew = true;
 
   // Concurrency lock for scanners to avoid flooding the runtime
   public volatile boolean barCodeScannerTaskLock = false;
@@ -65,6 +69,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext);
     initBarcodeReader();
+    mThemedReactContext = themedReactContext;
     mFaceDetector = new RNFaceDetector(themedReactContext);
     setupFaceDetector();
     themedReactContext.addLifecycleEventListener(this);
@@ -286,8 +291,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   @Override
   public void onHostResume() {
     if (hasCameraPermissions()) {
-      if (!Build.FINGERPRINT.contains("generic")) {
-        start();
+      if ((mIsPaused && !isCameraOpened()) || mIsNew) {
+        mIsPaused = false;
+        mIsNew = false;
+        if (!Build.FINGERPRINT.contains("generic")) {
+          start();
+        }
       }
     } else {
       WritableMap error = Arguments.createMap();
@@ -298,7 +307,10 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   @Override
   public void onHostPause() {
-    stop();
+    if (!mIsPaused && isCameraOpened()) {
+      mIsPaused = true;
+      stop();
+    }
   }
 
   @Override
