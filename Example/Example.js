@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
   preview: {
     flex: 1,
     justifyContent: 'flex-end',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   overlay: {
     position: 'absolute',
@@ -179,6 +179,7 @@ export default class Example extends React.Component {
           onZoomChanged={() => {}}
           defaultTouchToFocus
           mirrorImage={false}
+          cropToPreview={false}
           permissionDialogTitle="Sample title"
           permissionDialogMessage="Sample dialog message"
         />

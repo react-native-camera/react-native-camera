@@ -47,7 +47,7 @@ public class FaceDetectionErrorEvent extends Event<FaceDetectionErrorEvent> {
 
   private WritableMap serializeEventData() {
     WritableMap map = Arguments.createMap();
-    map.putBoolean("isOperational", mFaceDetector.isOperational());
+    map.putBoolean("isOperational", mFaceDetector != null ? mFaceDetector.isOperational() : false);
     return map;
   }
 }

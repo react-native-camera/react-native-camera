@@ -2,9 +2,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { mapValues } from 'lodash';
-import { Platform, NativeModules, ViewPropTypes, requireNativeComponent } from 'react-native';
+import { 
+  findNodeHandle, 
+  Platform, 
+  NativeModules, 
+  ViewPropTypes, 
+  requireNativeComponent, 
+  View, 
+  ActivityIndicator, 
+  Text,
+ } from 'react-native';
 
 import type { FaceFeature } from './FaceDetector';
+
+import { requestPermissions } from './handlePermissions';
 
 type PictureOptions = {
   quality?: number,
@@ -39,6 +50,7 @@ type PropsType = ViewPropTypes & {
   autoFocus?: string | boolean | number,
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
+  captureAudio?: boolean,
 };
 
 const CameraManager: Object =
@@ -108,6 +120,11 @@ export default class Camera extends React.Component<PropsType> {
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     autoFocus: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
+    permissionDialogTitle: PropTypes.string,
+    permissionDialogMessage: PropTypes.string,
+    notAuthorizedView: PropTypes.element,
+    pendingAuthorizationView: PropTypes.element,
+    captureAudio: PropTypes.bool,
   };
 
   static defaultProps: Object = {
@@ -122,8 +139,42 @@ export default class Camera extends React.Component<PropsType> {
     barCodeTypes: Object.values(CameraManager.BarCodeType),
     faceDetectionLandmarks: CameraManager.FaceDetection.Landmarks.none,
     faceDetectionClassifications: CameraManager.FaceDetection.Classifications.none,
+    permissionDialogTitle: '',
+    permissionDialogMessage: '',
+    notAuthorizedView: (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Text
+          style={{
+            textAlign: 'center',
+            fontSize: 16,
+          }}
+        >
+          Camera not authorized
+        </Text>
+      </View>
+    ),
+    pendingAuthorizationView: (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <ActivityIndicator size="small" />
+      </View>
+    ),
+    captureAudio: false,
   };
 
+  _cameraRef: ?Object;
+  _cameraHandle: ?number;
   _lastEvents: { [string]: string };
   _lastEventsTimes: { [string]: Date };
 
@@ -131,6 +182,10 @@ export default class Camera extends React.Component<PropsType> {
     super(props);
     this._lastEvents = {};
     this._lastEventsTimes = {};
+    this.state = {
+      isAuthorized: false,
+      isAuthorizationChecked: false,
+    };
   }
 
   async takePictureAsync(options?: PictureOptions) {
@@ -140,12 +195,12 @@ export default class Camera extends React.Component<PropsType> {
     if (!options.quality) {
       options.quality = 1;
     }
-    return await CameraManager.takePicture(options);
+    return await CameraManager.takePicture(options, this._cameraHandle);
   }
 
   async getSupportedRatiosAsync() {
     if (Platform.OS === 'android') {
-      return await CameraManager.getSupportedRatios();
+      return await CameraManager.getSupportedRatios(this._cameraHandle);
     } else {
       throw new Error('Ratio is not supported on iOS');
     }
@@ -157,11 +212,11 @@ export default class Camera extends React.Component<PropsType> {
     } else if (typeof options.quality === 'string') {
       options.quality = Camera.Constants.VideoQuality[options.quality];
     }
-    return await CameraManager.record(options);
+    return await CameraManager.record(options, this._cameraHandle);
   }
 
   stopRecording() {
-    CameraManager.stopRecording();
+    CameraManager.stopRecording(this._cameraHandle);
   }
 
   _onMountError = () => {
@@ -195,18 +250,41 @@ export default class Camera extends React.Component<PropsType> {
     }
   };
 
+  _setReference = (ref: ?Object) => {
+    if (ref) {
+      this._cameraRef = ref;
+      this._cameraHandle = findNodeHandle(ref);
+    } else {
+      this._cameraRef = null;
+      this._cameraHandle = null;
+    }
+  };
+
+  async componentWillMount() {
+    const hasVideoAndAudio = this.props.captureAudio;
+    const isAuthorized = await requestPermissions(hasVideoAndAudio, CameraManager, this.props.permissionDialogTitle, this.props.permissionDialogMessage);
+    this.setState({ isAuthorized, isAuthorizationChecked: true });
+  }
+
   render() {
     const nativeProps = this._convertNativeProps(this.props);
 
-    return (
-      <RNCamera
-        {...nativeProps}
-        onMountError={this._onMountError}
-        onCameraRead={this._onCameraReady}
-        onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
-        onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
-      />
-    );
+    if (this.state.isAuthorized) {
+      return (
+        <RNCamera
+          {...nativeProps}
+          ref={this._setReference}
+          onMountError={this._onMountError}
+          onCameraReady={this._onCameraReady}
+          onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
+          onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
+        />
+      );
+    } else if (!this.state.isAuthorizationChecked) {
+      return this.props.pendingAuthorizationView;
+    } else {
+      return this.props.notAuthorizedView;
+    }
   }
 
   _convertNativeProps(props: PropsType) {
@@ -240,11 +318,18 @@ export const Constants = Camera.Constants;
 
 const RNCamera = requireNativeComponent('RNCamera', Camera, {
   nativeOnly: {
-    onCameraReady: true,
-    onMountError: true,
-    onBarCodeRead: true,
-    onFaceDetected: true,
-    faceDetectorEnabled: true,
+    accessibilityComponentType: true,
+    accessibilityLabel: true,
+    accessibilityLiveRegion: true,
     barCodeScannerEnabled: true,
+    faceDetectorEnabled: true,
+    importantForAccessibility: true,
+    onBarCodeRead: true,
+    onCameraReady: true,
+    onFaceDetected: true,
+    onLayout: true,
+    onMountError: true,
+    renderToHardwareTextureAndroid: true,
+    testID: true,
   },
 });

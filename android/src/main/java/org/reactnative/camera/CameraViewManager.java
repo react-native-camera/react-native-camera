@@ -6,6 +6,8 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 
 import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
+import org.reactnative.camera.utils.ScopedContext;
+
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
@@ -43,16 +45,6 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
 
   private static final String REACT_CLASS = "RNCamera";
 
-  private static CameraViewManager instance;
-  private RNCameraView mCameraView;
-
-  public CameraViewManager() {
-    super();
-    instance = this;
-  }
-
-  public static CameraViewManager getInstance() { return instance; }
-
   @Override
   public String getName() {
     return REACT_CLASS;
@@ -60,8 +52,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
 
   @Override
   protected RNCameraView createViewInstance(ThemedReactContext themedReactContext) {
-    mCameraView = new RNCameraView(themedReactContext);
-    return mCameraView;
+    return new RNCameraView(themedReactContext);
   }
 
   @Override
@@ -144,53 +135,5 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "faceDetectionClassifications")
   public void setFaceDetectionClassifications(RNCameraView view, int classifications) {
     view.setFaceDetectionClassifications(classifications);
-  }
-
-  public void takePicture(ReadableMap options, Promise promise) {
-    if (!Build.FINGERPRINT.contains("generic")) {
-      if (mCameraView.isCameraOpened()) {
-        mCameraView.takePicture(options, promise);
-      } else {
-        promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
-      }
-    } else {
-      Bitmap image = RNCameraViewHelper.generateSimulatorPhoto(mCameraView.getWidth(), mCameraView.getHeight());
-      ByteBuffer byteBuffer = ByteBuffer.allocate(image.getRowBytes() * image.getHeight());
-      image.copyPixelsToBuffer(byteBuffer);
-      new ResolveTakenPictureAsyncTask(byteBuffer.array(), promise, options).execute();
-    }
-  }
-
-  public void record(final ReadableMap options, final Promise promise) {
-    // TODO fix this
-//    RN.getInstance().getPermissions(new RN.PermissionsListener() {
-//      @Override
-//      public void permissionsGranted() {
-//        if (mCameraView.isCameraOpened()) {
-//          mCameraView.record(options, promise);
-//        } else {
-//          promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
-//        }
-//      }
-//
-//      @Override
-//      public void permissionsDenied() {
-//        promise.reject(new SecurityException("User rejected audio permissions"));
-//      }
-//    }, new String[]{Manifest.permission.RECORD_AUDIO});
-
-  }
-
-  public void stopRecording() {
-    if (mCameraView.isCameraOpened()) {
-      mCameraView.stopRecording();
-    }
-  }
-
-  public Set<AspectRatio> getSupportedRatios() {
-    if (mCameraView.isCameraOpened()) {
-      return mCameraView.getSupportedAspectRatios();
-    }
-    return null;
   }
 }

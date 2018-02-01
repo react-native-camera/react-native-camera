@@ -6,16 +6,19 @@ import {
   NativeModules,
   Platform,
   StyleSheet,
+  findNodeHandle,
   requireNativeComponent,
   ViewPropTypes,
   PermissionsAndroid,
   ActivityIndicator,
   View,
   Text,
+  UIManager,
 } from 'react-native';
 
+import { requestPermissions } from './handlePermissions';
+
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
-const CAMERA_REF = 'camera';
 
 function convertNativeProps(props) {
   const newProps = { ...props };
@@ -25,6 +28,12 @@ function convertNativeProps(props) {
 
   if (typeof props.flashMode === 'string') {
     newProps.flashMode = Camera.constants.FlashMode[props.flashMode];
+  }
+
+  if (typeof props.zoom === 'string' || typeof props.zoom === 'number') {
+    if (props.zoom >= 0 && props.zoom <= 100) {
+      newProps.zoom = parseInt(props.zoom);
+    }
   }
 
   if (typeof props.orientation === 'string') {
@@ -71,6 +80,7 @@ export default class Camera extends Component {
     CaptureQuality: CameraManager.CaptureQuality,
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
+    Zoom: CameraManager.Zoom,
     TorchMode: CameraManager.TorchMode,
   };
 
@@ -83,9 +93,12 @@ export default class Camera extends Component {
     captureTarget: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     defaultOnFocusComponent: PropTypes.bool,
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    zoom: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
     barcodeScannerEnabled: PropTypes.bool,
+    cropToPreview: PropTypes.bool,
+    clearWindowBackground: PropTypes.bool,
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
@@ -112,9 +125,12 @@ export default class Camera extends Component {
     captureQuality: CameraManager.CaptureQuality.high,
     defaultOnFocusComponent: true,
     flashMode: CameraManager.FlashMode.off,
+    zoom: 0,
     playSoundOnCapture: true,
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
+    cropToPreview: false,
+    clearWindowBackground: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
     permissionDialogTitle: '',
     permissionDialogMessage: '',
@@ -155,7 +171,7 @@ export default class Camera extends Component {
 
   setNativeProps(props) {
     // eslint-disable-next-line
-    this.refs[CAMERA_REF].setNativeProps(props);
+    this._cameraRef.setNativeProps(props);
   }
 
   constructor() {
@@ -165,6 +181,8 @@ export default class Camera extends Component {
       isAuthorizationChecked: false,
       isRecording: false,
     };
+    this._cameraRef = null;
+    this._cameraHandle = null;
   }
 
   async componentWillMount() {
@@ -174,28 +192,8 @@ export default class Camera extends Component {
     let hasVideoAndAudio =
       this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video;
 
-    if (Platform.OS === 'ios') {
-      let check = hasVideoAndAudio
-        ? Camera.checkDeviceAuthorizationStatus
-        : Camera.checkVideoAuthorizationStatus;
-
-      if (check) {
-        const isAuthorized = await check();
-        this.setState({ isAuthorized, isAuthorizationChecked: true });
-      }
-    } else if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
-        title: this.props.permissionDialogTitle,
-        message: this.props.permissionDialogMessage,
-      });
-
-      this.setState({
-        isAuthorized: granted === PermissionsAndroid.RESULTS.GRANTED,
-        isAuthorizationChecked: true,
-      });
-    } else {
-      this.setState({ isAuthorized: true, isAuthorizationChecked: true });
-    }
+    const isAuthorized = await requestPermissions(hasVideoAndAudio, Camera, this.props.permissionDialogTitle, this.props.permissionDialogMessage);
+    this.setState({ isAuthorized, isAuthorizationChecked: true });
   }
 
   componentWillUnmount() {
@@ -230,6 +228,16 @@ export default class Camera extends Component {
     }
   }
 
+  _setReference = ref => {
+    if (ref) {
+      this._cameraRef = ref;
+      this._cameraHandle = findNodeHandle(ref);
+    } else {
+      this._cameraRef = null;
+      this._cameraHandle = null;
+    }
+  };
+
   render() {
     // TODO - style is not used, figure it out why
     // eslint-disable-next-line
@@ -237,7 +245,7 @@ export default class Camera extends Component {
     const nativeProps = convertNativeProps(this.props);
 
     if (this.state.isAuthorized) {
-      return <RCTCamera ref={CAMERA_REF} {...nativeProps} />;
+      return <RCTCamera ref={this._setReference} {...nativeProps} />;
     } else if (!this.state.isAuthorizationChecked) {
       return this.props.pendingAuthorizationView;
     } else {
@@ -265,12 +273,14 @@ export default class Camera extends Component {
       description: '',
       mirrorImage: props.mirrorImage,
       fixOrientation: props.fixOrientation,
+      cropToPreview: props.cropToPreview,
       ...options,
     };
 
     if (options.mode === Camera.constants.CaptureMode.video) {
       options.totalSeconds = options.totalSeconds > -1 ? options.totalSeconds : -1;
       options.preferredTimeScale = options.preferredTimeScale || 30;
+      options.cropToPreview = false;
       this.setState({ isRecording: true });
     }
 
@@ -279,10 +289,11 @@ export default class Camera extends Component {
 
   startPreview() {
     if (Platform.OS === 'android') {
-      const props = convertNativeProps(this.props);
-      CameraManager.startPreview({
-        type: props.type,
-      });
+      UIManager.dispatchViewManagerCommand(
+        this._cameraHandle,
+        UIManager.RCTCamera.Commands.startPreview,
+        [],
+      );
     } else {
       CameraManager.startPreview();
     }
@@ -290,10 +301,11 @@ export default class Camera extends Component {
 
   stopPreview() {
     if (Platform.OS === 'android') {
-      const props = convertNativeProps(this.props);
-      CameraManager.stopPreview({
-        type: props.type,
-      });
+      UIManager.dispatchViewManagerCommand(
+        this._cameraHandle,
+        UIManager.RCTCamera.Commands.stopPreview,
+        [],
+      );
     } else {
       CameraManager.stopPreview();
     }
@@ -319,6 +331,20 @@ export default class Camera extends Component {
       });
     }
     return CameraManager.hasFlash();
+  }
+
+  setZoom(zoom) {
+    if (Platform.OS === 'android') {
+      const props = convertNativeProps(this.props);
+      return CameraManager.setZoom(
+        {
+          type: props.type,
+        },
+        zoom,
+      );
+    }
+
+    return CameraManager.setZoom(zoom);
   }
 }
 

@@ -4,7 +4,9 @@
 
 package com.lwansbrough.RCTCamera;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -41,6 +43,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private boolean _isStarting;
     private boolean _isStopping;
     private Camera _camera;
+    private boolean _clearWindowBackground = false;
     private float mFingerSpacing;
 
     // concurrency lock for barcode scanner to avoid flooding the runtime
@@ -83,6 +86,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
     }
 
+    public int getCameraType() {
+        return _cameraType;
+    }
+
     public double getRatio() {
         int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
         int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
@@ -120,13 +127,21 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         RCTCamera.getInstance().setFlashMode(_cameraType, flashMode);
     }
 
-    private void startPreview() {
+    public void setClearWindowBackground(boolean clearWindowBackground) {
+        this._clearWindowBackground = clearWindowBackground;
+    }
+
+    public void setZoom(int zoom) {
+        RCTCamera.getInstance().setZoom(_cameraType, zoom);
+   }
+
+    public void startPreview() {
         if (_surfaceTexture != null) {
             startCamera();
         }
     }
 
-    private void stopPreview() {
+    public void stopPreview() {
         if (_camera != null) {
             stopCamera();
         }
@@ -176,6 +191,12 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 _camera.setParameters(parameters);
                 _camera.setPreviewTexture(_surfaceTexture);
                 _camera.startPreview();
+                // clear window background if needed
+                if (_clearWindowBackground) {
+                    Activity activity = getActivity();
+                    if (activity != null)
+                        activity.getWindow().setBackgroundDrawable(null);
+                }
                 // send previews to `onPreviewFrame`
                 _camera.setPreviewCallback(this);
             } catch (NullPointerException e) {
@@ -207,6 +228,17 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 _isStopping = false;
             }
         }
+    }
+
+    private Activity getActivity() {
+        Context context = getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity)context;
+            }
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+        return null;
     }
 
     /**
@@ -356,7 +388,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 WritableMap event = Arguments.createMap();
                 WritableArray resultPoints = Arguments.createArray();
                 ResultPoint[] points = result.getResultPoints();
-                
+
                 if(points != null) {
                     for (ResultPoint point : points) {
                         WritableMap newPoint = Arguments.createMap();
@@ -365,7 +397,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                         resultPoints.pushMap(newPoint);
                     }
                 }
-                
+
                 event.putArray("bounds", resultPoints);
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());
@@ -383,6 +415,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // Fast swiping and touching while component is being loaded can cause _camera to be null.
+        if (_camera == null) {
+            return false;
+        }
+
         // Get the pointer ID
         Camera.Parameters params = _camera.getParameters();
         int action = event.getAction();
