@@ -1,7 +1,6 @@
 package org.reactnative.camera;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.CamcorderProfile;
@@ -10,15 +9,6 @@ import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
 import android.view.View;
 
-import org.reactnative.camera.tasks.BarCodeScannerAsyncTask;
-import org.reactnative.camera.tasks.BarCodeScannerAsyncTaskDelegate;
-import org.reactnative.camera.tasks.FaceDetectorAsyncTask;
-import org.reactnative.camera.tasks.FaceDetectorAsyncTaskDelegate;
-import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
-import org.reactnative.camera.utils.ImageDimensions;
-import org.reactnative.camera.utils.RNFileUtils;
-import org.reactnative.camera.utils.ScopedContext;
-import org.reactnative.facedetector.RNFaceDetector;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
@@ -31,6 +21,15 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.Result;
+
+import org.reactnative.camera.tasks.BarCodeScannerAsyncTask;
+import org.reactnative.camera.tasks.BarCodeScannerAsyncTaskDelegate;
+import org.reactnative.camera.tasks.FaceDetectorAsyncTask;
+import org.reactnative.camera.tasks.FaceDetectorAsyncTaskDelegate;
+import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
+import org.reactnative.camera.utils.ImageDimensions;
+import org.reactnative.camera.utils.RNFileUtils;
+import org.reactnative.facedetector.RNFaceDetector;
 
 import java.io.File;
 import java.io.IOException;
