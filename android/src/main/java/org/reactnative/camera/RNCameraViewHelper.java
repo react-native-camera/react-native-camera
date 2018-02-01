@@ -10,13 +10,6 @@ import android.support.media.ExifInterface;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
-import org.reactnative.camera.events.BarCodeReadEvent;
-import org.reactnative.camera.events.CameraMountErrorEvent;
-import org.reactnative.camera.events.CameraReadyEvent;
-import org.reactnative.camera.events.FaceDetectionErrorEvent;
-import org.reactnative.camera.events.FacesDetectedEvent;
-import org.reactnative.camera.utils.ImageDimensions;
-import org.reactnative.facedetector.RNFaceDetector;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
@@ -25,12 +18,17 @@ import com.google.android.cameraview.CameraView;
 import com.google.android.gms.vision.face.Face;
 import com.google.zxing.Result;
 
-import java.io.File;
-import java.io.IOException;
+import org.reactnative.camera.events.BarCodeReadEvent;
+import org.reactnative.camera.events.CameraMountErrorEvent;
+import org.reactnative.camera.events.CameraReadyEvent;
+import org.reactnative.camera.events.FaceDetectionErrorEvent;
+import org.reactnative.camera.events.FacesDetectedEvent;
+import org.reactnative.camera.utils.ImageDimensions;
+import org.reactnative.facedetector.RNFaceDetector;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.UUID;
 
 public class RNCameraViewHelper {
 

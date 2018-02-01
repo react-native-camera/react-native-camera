@@ -1,27 +1,17 @@
 package org.reactnative.camera;
 
-import android.Manifest;
-import android.graphics.Bitmap;
-import android.os.Build;
 import android.support.annotation.Nullable;
 
-import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
-import org.reactnative.camera.utils.ScopedContext;
-
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableArray;
-import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.google.android.cameraview.AspectRatio;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   public enum Events {
@@ -44,6 +34,13 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   }
 
   private static final String REACT_CLASS = "RNCamera";
+
+  @Override
+  public void onDropViewInstance(RNCameraView view) {
+    view.stop();
+    super.onDropViewInstance(view);
+  }
+
 
   @Override
   public String getName() {
