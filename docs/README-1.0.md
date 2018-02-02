@@ -37,6 +37,10 @@ To enable `video recording` feature you have to add the following code to the `A
 
 ![5j2jduk](https://cloud.githubusercontent.com/assets/2302315/22190752/6bc6ccd0-e0da-11e6-8e2f-6f22a3567a57.gif)
 
+## Migrating from RCTCamera to RNCamera
+
+See this [doc](https://github.com/react-native-community/react-native-camera/blob/master/docs/migration.md).
+
 ## Getting started
 
 ### Requirements
@@ -142,7 +146,12 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 4. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
 
 	```gradle
-    compile project(':react-native-camera')
+        compile (project(':react-native-camera')) {
+        exclude group: "com.google.android.gms"
+    }
+        compile ("com.google.android.gms:play-services-vision:10.2.0") {
+        force = true;
+    }
 	```
 5. Declare the permissions in your Android Manifest (required for `video recording` feature)
 
@@ -160,6 +169,8 @@ allprojects {
     }
 }
 ```
+
+Follow the Q & A section if you are having compilation issues.
 
 ## Usage
 
