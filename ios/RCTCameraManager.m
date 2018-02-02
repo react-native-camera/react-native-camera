@@ -655,7 +655,7 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
     }
 }
 
-- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(AVCaptureBracketedStillImageSettings *)bracketSettings error:(NSError *)error
+- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(AVCaptureManualExposureBracketedStillImageSettings *)bracketSettings error:(NSError *)error
 {
             if (photoSampleBuffer) {
               NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:photoSampleBuffer];
@@ -691,7 +691,12 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
               NSString *documentsDirectory = [paths firstObject];
                 
               NSFileManager *fileManager = [NSFileManager defaultManager];
-              NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"jpg"];
+              Float64 exposureDuration = CMTimeGetSeconds(bracketSettings.exposureDuration);
+              Float64 iso = bracketSettings.ISO;
+                
+              NSString *exposureString = [NSString stringWithFormat: @"%lf_%lf", iso, exposureDuration];
+
+              NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[exposureString stringByAppendingString:[[NSUUID UUID] UUIDString]]] stringByAppendingPathExtension:@"jpg"];
                 
               [fileManager createFileAtPath:fullPath contents:rotatedImageData attributes:nil];
                 
