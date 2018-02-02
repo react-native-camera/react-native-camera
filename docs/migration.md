@@ -7,7 +7,14 @@ Please follow the [RNCamera doc](https://github.com/react-native-community/react
 
 ### Android
 
-On `android/app/build.gradle`, change the line: `compile (project(':react-native-camera'))` to:
+1. On the MainApplication of your Android project change the import of RCTCameraPackage line to:
+```
+import org.reactnative.RNCameraPackage;
+```
+
+2. Inside the getPackages() methods change `new RCTCameraPackage()` to `new RNCameraPackage()`.
+
+3. On `android/app/build.gradle`, change the line: `compile (project(':react-native-camera'))` to:
   ```gradle
         compile (project(':react-native-camera')) {
         exclude group: "com.google.android.gms"
@@ -17,7 +24,7 @@ On `android/app/build.gradle`, change the line: `compile (project(':react-native
     }
   ```
 
-Add jitpack to android/build.gradle
+4. Add jitpack to android/build.gradle
 ```gradle
 allprojects {
     repositories {
