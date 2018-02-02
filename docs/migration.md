@@ -1,8 +1,20 @@
 # Migrating from RCTCamera to RNCamera
 
-## Compiling
+## Project Integration
 
 Please follow the [RNCamera doc](https://github.com/react-native-community/react-native-camera/blob/master/docs/RNCamera.md) instalation guide to install the face detection frameworks on both platforms.
+
+### iOS
+
+Open your app's XCode project. Expand the Libraries folder in the project navigation and right click and delete the RCTCamera.xcodeproj.
+
+On your project's target, on `Build Phases`, click on libRCTCamera.a and delete (press the - button below).
+
+You can follow the instalation steps for RNCamera on the readme to link the new RNCamera project to your app's XCode project.
+
+You can do it via `react-native link` command or by the manual steps.
+
+Before building and running again, do a complete clean on your project.
 
 
 ### Android
