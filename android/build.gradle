@@ -44,5 +44,5 @@ dependencies {
   compile 'com.google.android.gms:play-services-vision:+'
   compile "com.android.support:exifinterface:26.0.2"
 
-  compile 'com.github.react-native-community:cameraview:df60b07573'
+  compile 'com.github.react-native-community:cameraview:d5d9b0d925494ef451ce3eef3fdf14cc874d9baa'
 }

@@ -35,7 +35,7 @@
 /* Begin PBXFileReference section */
 		0314E39B1B661A0C0092D183 /* CameraFocusSquare.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CameraFocusSquare.h; sourceTree = "<group>"; };
 		0314E39C1B661A460092D183 /* CameraFocusSquare.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraFocusSquare.m; sourceTree = "<group>"; };
-		4107012F1ACB723B00C6AA39 /* libRCTCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		4107012F1ACB723B00C6AA39 /* libRNCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		410701471ACB732B00C6AA39 /* RCTCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTCamera.h; sourceTree = "<group>"; };
 		410701481ACB732B00C6AA39 /* RCTCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCamera.m; sourceTree = "<group>"; };
 		410701491ACB732B00C6AA39 /* RCTCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTCameraManager.h; sourceTree = "<group>"; };
@@ -80,7 +80,7 @@
 		410701301ACB723B00C6AA39 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4107012F1ACB723B00C6AA39 /* libRCTCamera.a */,
+				4107012F1ACB723B00C6AA39 /* libRNCamera.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -123,9 +123,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4107012E1ACB723B00C6AA39 /* RCTCamera */ = {
+		4107012E1ACB723B00C6AA39 /* RNCamera */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 410701411ACB723B00C6AA39 /* Build configuration list for PBXNativeTarget "RCTCamera" */;
+			buildConfigurationList = 410701411ACB723B00C6AA39 /* Build configuration list for PBXNativeTarget "RNCamera" */;
 			buildPhases = (
 				4107012B1ACB723B00C6AA39 /* Sources */,
 				4107012C1ACB723B00C6AA39 /* Frameworks */,
@@ -135,9 +135,9 @@
 			);
 			dependencies = (
 			);
-			name = RCTCamera;
+			name = RNCamera;
 			productName = RCTCamera;
-			productReference = 4107012F1ACB723B00C6AA39 /* libRCTCamera.a */;
+			productReference = 4107012F1ACB723B00C6AA39 /* libRNCamera.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -153,7 +153,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 410701281ACB719800C6AA39 /* Build configuration list for PBXProject "RCTCamera" */;
+			buildConfigurationList = 410701281ACB719800C6AA39 /* Build configuration list for PBXProject "RNCamera" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -165,7 +165,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4107012E1ACB723B00C6AA39 /* RCTCamera */,
+				4107012E1ACB723B00C6AA39 /* RNCamera */,
 			);
 		};
 /* End PBXProject section */
@@ -299,7 +299,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		410701281ACB719800C6AA39 /* Build configuration list for PBXProject "RCTCamera" */ = {
+		410701281ACB719800C6AA39 /* Build configuration list for PBXProject "RNCamera" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				410701291ACB719800C6AA39 /* Debug */,
@@ -308,7 +308,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		410701411ACB723B00C6AA39 /* Build configuration list for PBXNativeTarget "RCTCamera" */ = {
+		410701411ACB723B00C6AA39 /* Build configuration list for PBXNativeTarget "RNCamera" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				410701421ACB723B00C6AA39 /* Debug */,
