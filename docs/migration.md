@@ -21,7 +21,7 @@ Before building and running again, do a complete clean on your project.
 
 1. On the MainApplication of your Android project change the import of RCTCameraPackage line to:
 ```
-import org.reactnative.RNCameraPackage;
+import org.reactnative.camera.RNCameraPackage;
 ```
 
 2. Inside the getPackages() methods change `new RCTCameraPackage()` to `new RNCameraPackage()`.

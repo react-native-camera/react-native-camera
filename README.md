@@ -14,6 +14,34 @@ Inside your package.json, use this
 `"react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera"`
 instead of `"react-native-camera": "^0.12.0"`.
 
+#### Package change
+
+We are getting close to the 1.0 release and changed the package name's from RCTCamera to RNCamera, if you are using master branch, your app will not compile right away.
+
+Steps to adapt:
+
+### iOS
+
+Open your app's XCode project. Expand the Libraries folder in the project navigation and right click and delete the RCTCamera.xcodeproj.
+
+On your project's target, on `Build Phases`, click on libRCTCamera.a and delete (press the - button below).
+
+You can follow the instalation steps for RNCamera on the readme to link the new RNCamera project to your app's XCode project.
+
+You can do it via `react-native link` command or by the manual steps.
+
+Before building and running again, do a complete clean on your project.
+
+
+### Android
+
+1. On the MainApplication of your Android project change the import of RCTCameraPackage line to:
+```
+import org.reactnative.camera.RNCameraPackage;
+```
+
+2. Inside the getPackages() methods change `new RCTCameraPackage()` to `new RNCameraPackage()`.
+
 ### Contributing
 - Pull Requests are welcome, if you open a pull request we will do our best to get to it in a timely manner
 - Pull Request Reviews and even more welcome! we need help testing, reviewing, and updating open PRs
