@@ -1,4 +1,4 @@
-package org.reactnative;
+package org.reactnative.camera;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
