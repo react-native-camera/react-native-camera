@@ -426,6 +426,30 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             self.stillImageOutput = stillImageOutput;
         }
         
+        // create VideoOutput for processing
+        AVCaptureVideoDataOutput *videoDataOutput = [AVCaptureVideoDataOutput new];
+        NSDictionary *newSettings = @{ (NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) };
+        videoDataOutput.videoSettings = newSettings;
+        
+        // discard if the data output queue is blocked (as we process the still image
+        [videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
+        
+        // create a serial dispatch queue used for the sample buffer delegate as well as when a still image is captured
+        // a serial dispatch queue must be used to guarantee that video frames will be delivered in order
+        // see the header doc for setSampleBufferDelegate:queue: for more information
+        dispatch_queue_t videoDataOutputQueue = dispatch_queue_create("VideoDataOutputQueue", DISPATCH_QUEUE_SERIAL);
+        [videoDataOutput setSampleBufferDelegate:self queue:videoDataOutputQueue];
+        //  [videoDataOutput setSampleBufferDelegate:self]
+        
+        if ([captureSession canAddOutput:videoDataOutput]) {
+            [captureSession addOutput:videoDataOutput];
+        }
+        else {
+            NSLog(@"Error: [captureSession addOutput:videoDataOutput];");
+            // Handle the failure.
+        }
+        
+        
         [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
         [self setupOrDisableBarcodeScanner];
         
@@ -644,6 +668,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
     
     [_metadataOutput setMetadataObjectTypes:availableRequestedObjectTypes];
+}
+
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
+{
+    NSLog(@"---- captureOutput");
 }
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects
