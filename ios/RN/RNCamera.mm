@@ -8,6 +8,9 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 #import <AVFoundation/AVFoundation.h>
+#import <opencv2/opencv.hpp>
+#import <opencv2/objdetect.hpp>
+
 
 @interface RNCamera ()
 
@@ -32,6 +35,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (id)initWithBridge:(RCTBridge *)bridge
 {
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"haarcascade_frontalface_alt.xml"
+                                                     ofType:nil];
+    std::string cascade_path = (char *)[path UTF8String];
+    if (!cascade.load(cascade_path)) {
+        NSLog(@"Couldn't load haar cascade file.");
+    }
+    
     if ((self = [super init])) {
         self.bridge = bridge;
         self.session = [AVCaptureSession new];
@@ -670,10 +680,196 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [_metadataOutput setMetadataObjectTypes:availableRequestedObjectTypes];
 }
 
+# pragma mark - OpenCV-Processing
+
+#ifdef __cplusplus
+- (void)processImage:(Mat&)image;
+{
+    //  Scalar average = mean(image);
+    //NSLog(@"---- Processing Frame");
+    
+    cv::Mat grayMat;
+    cv::cvtColor(image, grayMat, CV_BGR2GRAY);
+    
+    cv::equalizeHist(grayMat, grayMat);
+    
+    objects.clear();
+    cascade.detectMultiScale(grayMat, objects,
+                             4.6, 1,
+                             CV_HAAR_SCALE_IMAGE,
+                             cv::Size(40, 40));
+    
+    for(size_t i = 0; i < objects.size(); ++i) {
+        //    cv::Point center;
+        //    int radius;
+        //    const cv::Rect& r = objects[i];
+        //    center.x = cv::saturate_cast<int>((r.x + r.width*0.5));
+        //    center.y = cv::saturate_cast<int>((r.y + r.height*0.5));
+        //    radius = cv::saturate_cast<int>((r.width + r.height)*0.25);
+        //    cv::circle(image, center, radius, cv::Scalar(80,80,255), 3, 8, 0 );
+        [self onFacesDetected: [NSArray new]];
+    }
+    
+    //  // Do some OpenCV stuff with the image
+    //  Mat image_copy;
+    //  cvtColor(image, image_copy, CV_BGRA2BGR);
+    //
+    //  // invert image
+    //  bitwise_not(image_copy, image_copy);
+    //  cvtColor(image_copy, image, CV_BGR2BGRA);
+}
+
+
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
-    NSLog(@"---- captureOutput");
+    
+    (void)captureOutput;
+    (void)connection;
+    
+    // convert from Core Media to Core Video
+    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    CVPixelBufferLockBaseAddress(imageBuffer, 0);
+    
+    void* bufferAddress;
+    size_t width;
+    size_t height;
+    size_t bytesPerRow;
+    
+    CGColorSpaceRef colorSpace;
+    CGContextRef context;
+    
+    int format_opencv;
+    
+    OSType format = CVPixelBufferGetPixelFormatType(imageBuffer);
+    if (format == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
+        
+        format_opencv = CV_8UC1;
+        
+        bufferAddress = CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0);
+        width = CVPixelBufferGetWidthOfPlane(imageBuffer, 0);
+        height = CVPixelBufferGetHeightOfPlane(imageBuffer, 0);
+        bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 0);
+        
+    } else { // expect kCVPixelFormatType_32BGRA
+        
+        format_opencv = CV_8UC4;
+        
+        bufferAddress = CVPixelBufferGetBaseAddress(imageBuffer);
+        width = CVPixelBufferGetWidth(imageBuffer);
+        height = CVPixelBufferGetHeight(imageBuffer);
+        bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+        
+    }
+    
+    // delegate image processing to the delegate
+    cv::Mat image((int)height, (int)width, format_opencv, bufferAddress, bytesPerRow);
+    
+    CGImage* dstImage;
+    
+    [self processImage:image];
+    
+    // check if matrix data pointer or dimensions were changed by the delegate
+    bool iOSimage = false;
+    if (height == (size_t)image.rows && width == (size_t)image.cols && format_opencv == image.type() && bufferAddress == image.data && bytesPerRow == image.step) {
+        iOSimage = true;
+    }
+    
+    
+    // (create color space, create graphics context, render buffer)
+    CGBitmapInfo bitmapInfo;
+    
+    // basically we decide if it's a grayscale, rgb or rgba image
+    if (image.channels() == 1) {
+        colorSpace = CGColorSpaceCreateDeviceGray();
+        bitmapInfo = kCGImageAlphaNone;
+    } else if (image.channels() == 3) {
+        colorSpace = CGColorSpaceCreateDeviceRGB();
+        bitmapInfo = kCGImageAlphaNone;
+        if (iOSimage) {
+            bitmapInfo |= kCGBitmapByteOrder32Little;
+        } else {
+            bitmapInfo |= kCGBitmapByteOrder32Big;
+        }
+    } else {
+        colorSpace = CGColorSpaceCreateDeviceRGB();
+        bitmapInfo = kCGImageAlphaPremultipliedFirst;
+        if (iOSimage) {
+            bitmapInfo |= kCGBitmapByteOrder32Little;
+        } else {
+            bitmapInfo |= kCGBitmapByteOrder32Big;
+        }
+    }
+    
+    if (iOSimage) {
+        context = CGBitmapContextCreate(bufferAddress, width, height, 8, bytesPerRow, colorSpace, bitmapInfo);
+        dstImage = CGBitmapContextCreateImage(context);
+        CGContextRelease(context);
+    } else {
+        
+        NSData *data = [NSData dataWithBytes:image.data length:image.elemSize()*image.total()];
+        CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
+        
+        // Creating CGImage from cv::Mat
+        dstImage = CGImageCreate(image.cols,                                 // width
+                                 image.rows,                                 // height
+                                 8,                                          // bits per component
+                                 8 * image.elemSize(),                       // bits per pixel
+                                 image.step,                                 // bytesPerRow
+                                 colorSpace,                                 // colorspace
+                                 bitmapInfo,                                 // bitmap info
+                                 provider,                                   // CGDataProviderRef
+                                 NULL,                                       // decode
+                                 false,                                      // should interpolate
+                                 kCGRenderingIntentDefault                   // intent
+                                 );
+        
+        CGDataProviderRelease(provider);
+    }
+    
+    
+    // render buffer
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        //      self.customPreviewLayer.contents = (__bridge id)dstImage;
+    });
+    
+    
+    //    recordingCountDown--;
+    //    if (self.recordVideo == YES && recordingCountDown < 0) {
+    //      lastSampleTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+    //      //      CMTimeShow(lastSampleTime);
+    //      if (self.recordAssetWriter.status != AVAssetWriterStatusWriting) {
+    //        [self.recordAssetWriter startWriting];
+    //        [self.recordAssetWriter startSessionAtSourceTime:lastSampleTime];
+    //        if (self.recordAssetWriter.status != AVAssetWriterStatusWriting) {
+    //          NSLog(@"[Camera] Recording Error: asset writer status is not writing: %@", self.recordAssetWriter.error);
+    //          return;
+    //        } else {
+    //          NSLog(@"[Camera] Video recording started");
+    //        }
+    //      }
+    //
+    //      if (self.recordAssetWriterInput.readyForMoreMediaData) {
+    //        CVImageBufferRef pixelBuffer = [self pixelBufferFromCGImage:dstImage];
+    //        if (! [self.recordPixelBufferAdaptor appendPixelBuffer:pixelBuffer
+    //                                          withPresentationTime:lastSampleTime] ) {
+    //          NSLog(@"Video Writing Error");
+    //        }
+    //        if (pixelBuffer != nullptr)
+    //          CVPixelBufferRelease(pixelBuffer);
+    //      }
+    //
+    //    }
+    
+    
+    // cleanup
+    CGImageRelease(dstImage);
+    
+    CGColorSpaceRelease(colorSpace);
+    
+    CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+    
 }
+#endif
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects
        fromConnection:(AVCaptureConnection *)connection
