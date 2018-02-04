@@ -32,9 +32,6 @@
 @property (assign, nonatomic) NSInteger whiteBalance;
 @property (nonatomic, assign, getter=isReadingBarCodes) BOOL barCodeReading;
 
-std::vector<cv::Rect> objects;
-cv::CascadeClassifier cascade;
-
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;
 - (void)updateFlashMode;
