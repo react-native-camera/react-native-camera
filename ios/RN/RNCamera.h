@@ -1,3 +1,4 @@
+#import "OpenCVProcessor.hpp"
 #import <AVFoundation/AVFoundation.h>
 #import <React/RCTBridge.h>
 #import <React/RCTBridgeModule.h>
@@ -12,7 +13,7 @@
 
 @class RNCamera;
 
-@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate>
+@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate, OpenCVProcessorFaceDetectorDelegate>
 
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
 @property(nonatomic, strong) AVCaptureSession *session;

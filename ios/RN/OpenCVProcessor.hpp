@@ -7,6 +7,9 @@ using namespace cv;
 
 #import <AVFoundation/AVFoundation.h>
 
+@protocol OpenCVProcessorFaceDetectorDelegate
+- (void)onFacesDetected:(NSArray<NSDictionary *> *)faces;
+@end
 
 @class OpenCVProcessor;
 
@@ -16,9 +19,11 @@ using namespace cv;
     std::vector<cv::Rect> objects;
     cv::CascadeClassifier cascade;
 #endif
+    id delegate;
 }
 
 - (id) init;
-@end
 
+- (id) initWithDelegate:(id <OpenCVProcessorFaceDetectorDelegate>)delegateObj;
+@end
 

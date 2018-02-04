@@ -18,14 +18,16 @@
     return self;
 }
 
+- (id) initWithDelegate:(id)delegateObj {
+    delegate = delegateObj;
+    return self;
+}
+
 # pragma mark - OpenCV-Processing
 
 #ifdef __cplusplus
 - (void)processImage:(Mat&)image;
 {
-    //  Scalar average = mean(image);
-    NSLog(@"---- Processing Frame");
-    
     cv::Mat grayMat;
     cv::cvtColor(image, grayMat, CV_BGR2GRAY);
     
@@ -38,23 +40,8 @@
                              cv::Size(40, 40));
     
     for(size_t i = 0; i < objects.size(); ++i) {
-        //    cv::Point center;
-        //    int radius;
-        //    const cv::Rect& r = objects[i];
-        //    center.x = cv::saturate_cast<int>((r.x + r.width*0.5));
-        //    center.y = cv::saturate_cast<int>((r.y + r.height*0.5));
-        //    radius = cv::saturate_cast<int>((r.width + r.height)*0.25);
-        //    cv::circle(image, center, radius, cv::Scalar(80,80,255), 3, 8, 0 );
-        //        [self onFacesDetected: [NSDictionary new]];
+        [delegate onFacesDetected:[NSArray new]];
     }
-    
-    //  // Do some OpenCV stuff with the image
-    //  Mat image_copy;
-    //  cvtColor(image, image_copy, CV_BGRA2BGR);
-    //
-    //  // invert image
-    //  bitwise_not(image_copy, image_copy);
-    //  cvtColor(image_copy, image, CV_BGR2BGRA);
 }
 
 
@@ -210,5 +197,3 @@
 #endif
 
 @end
-
-
