@@ -441,8 +441,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [videoDataOutput setSampleBufferDelegate:self queue:videoDataOutputQueue];
         //  [videoDataOutput setSampleBufferDelegate:self]
         
-        if ([captureSession canAddOutput:videoDataOutput]) {
-            [captureSession addOutput:videoDataOutput];
+        if ([self.session canAddOutput:videoDataOutput]) {
+            [self.session addOutput:videoDataOutput];
         }
         else {
             NSLog(@"Error: [captureSession addOutput:videoDataOutput];");
