@@ -27,7 +27,7 @@ class BadInstagramCloneApp extends Component {
               this.camera = ref;
             }}
             style = {styles.preview}
-            type={RNCamera.Constants.Type.front}
+            type={RNCamera.Constants.Type.back}
             flashMode={RNCamera.Constants.FlashMode.on}
             permissionDialogTitle={'Permission to use camera'}
             permissionDialogMessage={'We need your permission to use your camera phone'}
