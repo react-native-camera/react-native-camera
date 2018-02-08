@@ -77,17 +77,21 @@
 
 - (void)processImage:(Mat&)image;
 {
+    int orientation = 3;
     //cv::equalizeHist(image, image);
     
     // rotate image according to device-rotation
     UIDeviceOrientation interfaceOrientation = [[UIDevice currentDevice] orientation];
     if (interfaceOrientation == UIDeviceOrientationPortrait) {
+        int orientation = 0;
         transpose(image, image);
         flip(image, image,1);
     } else  if (interfaceOrientation == UIDeviceOrientationPortraitUpsideDown) {
+        int orientation = 2;
         transpose(image, image);
         flip(image, image,0);
     } else  if (interfaceOrientation == UIDeviceOrientationLandscapeLeft) {
+        int orientation = 1;
         flip(image, image,-1);
     }
     
@@ -110,8 +114,8 @@
         for( int i = 0; i < objects.size(); i++ )
         {
             cv::Rect face = objects[i];
-            id objects[] = { @(face.x), @(face.y), @(face.width), @(face.height) };
-            id keys[] = { @"x", @"y", @"width", @"height" };
+            id objects[] = { @(face.x), @(face.y), @(face.width), @(face.height), @(orientation) };
+            id keys[] = { @"x", @"y", @"width", @"height", @"orientation" };
             NSUInteger count = sizeof(objects) / sizeof(id);
             NSDictionary *faceDescriptor = [NSDictionary dictionaryWithObjects:objects
                                                                        forKeys:keys count:count];
@@ -158,4 +162,3 @@
 #endif
 
 @end
-
