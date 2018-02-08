@@ -38,8 +38,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.bridge = bridge;
         self.session = [AVCaptureSession new];
         self.sessionQueue = dispatch_queue_create("cameraQueue", DISPATCH_QUEUE_SERIAL);
-//        self.faceDetectorManager = [self createFaceDetectorManager];
-        self.openCVProcessor = [OpenCVProcessor new];
+        //        self.faceDetectorManager = [self createFaceDetectorManager];
+        self.openCVProcessor = [[OpenCVProcessor new] initWithDelegate:self];
 #if !(TARGET_IPHONE_SIMULATOR)
         self.previewLayer =
         [AVCaptureVideoPreviewLayer layerWithSession:self.session];
@@ -368,7 +368,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // At the time of writing AVCaptureMovieFileOutput and AVCaptureVideoDataOutput (> GMVDataOutput)
         // cannot coexist on the same AVSession (see: https://stackoverflow.com/a/4986032/1123156).
         // We stop face detection here and restart it in when AVCaptureMovieFileOutput finishes recording.
-//        [_faceDetectorManager stopFaceDetection];
+        //        [_faceDetectorManager stopFaceDetection];
         [self setupMovieFileCapture];
     }
     
@@ -431,7 +431,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         
         // create VideoOutput for processing
         AVCaptureVideoDataOutput *videoDataOutput = [AVCaptureVideoDataOutput new];
-        NSDictionary *newSettings = @{ (NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) };
+        NSDictionary *newSettings = @{ (NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) };
         videoDataOutput.videoSettings = newSettings;
         
         // discard if the data output queue is blocked (as we process the still image
@@ -453,7 +453,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
         
         
-//        [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
+        //        [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
         [self setupOrDisableBarcodeScanner];
         
         __weak RNCamera *weakSelf = self;
@@ -479,7 +479,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     return;
 #endif
     dispatch_async(self.sessionQueue, ^{
-//        [_faceDetectorManager stopFaceDetection];
+        //        [_faceDetectorManager stopFaceDetection];
         [self.previewLayer removeFromSuperlayer];
         [self.session commitConfiguration];
         [self.session stopRunning];
@@ -734,7 +734,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self cleanupMovieFileCapture];
     // If face detection has been running prior to recording to file
     // we reenable it here (see comment in -record).
-//    [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
+    //    [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
     
     if (self.session.sessionPreset != AVCaptureSessionPresetHigh) {
         [self updateSessionPreset:AVCaptureSessionPresetHigh];

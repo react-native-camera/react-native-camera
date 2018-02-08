@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		001F67882027265A001A21D8 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 001F67872027265A001A21D8 /* opencv2.framework */; };
-		001F678A202727FF001A21D8 /* haarcascade_frontalface_alt.xml in CopyFiles */ = {isa = PBXBuildFile; fileRef = 001F6789202727F0001A21D8 /* haarcascade_frontalface_alt.xml */; };
 		001F681120274350001A21D8 /* OpenCVProcessor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 001F681020274350001A21D8 /* OpenCVProcessor.mm */; };
+		0036F41F202C958F002EF644 /* lbpcascade_frontalface_improved.xml in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0036F41E202C9563002EF644 /* lbpcascade_frontalface_improved.xml */; };
 		0314E39D1B661A460092D183 /* CameraFocusSquare.m in Sources */ = {isa = PBXBuildFile; fileRef = 0314E39C1B661A460092D183 /* CameraFocusSquare.m */; };
 		4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */; };
@@ -35,7 +35,7 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				001F678A202727FF001A21D8 /* haarcascade_frontalface_alt.xml in CopyFiles */,
+				0036F41F202C958F002EF644 /* lbpcascade_frontalface_improved.xml in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -43,9 +43,9 @@
 
 /* Begin PBXFileReference section */
 		001F67872027265A001A21D8 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../../../../../Downloads/opencv2.framework; sourceTree = "<group>"; };
-		001F6789202727F0001A21D8 /* haarcascade_frontalface_alt.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = haarcascade_frontalface_alt.xml; sourceTree = SOURCE_ROOT; };
 		001F680F2027431C001A21D8 /* OpenCVProcessor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OpenCVProcessor.hpp; sourceTree = "<group>"; };
 		001F681020274350001A21D8 /* OpenCVProcessor.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVProcessor.mm; sourceTree = "<group>"; };
+		0036F41E202C9563002EF644 /* lbpcascade_frontalface_improved.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = lbpcascade_frontalface_improved.xml; sourceTree = "<group>"; };
 		0314E39B1B661A0C0092D183 /* CameraFocusSquare.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CameraFocusSquare.h; sourceTree = "<group>"; };
 		0314E39C1B661A460092D183 /* CameraFocusSquare.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraFocusSquare.m; sourceTree = "<group>"; };
 		4107012F1ACB723B00C6AA39 /* libRNCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -138,7 +138,7 @@
 		714166162013E1B600EE9FCC /* RN */ = {
 			isa = PBXGroup;
 			children = (
-				001F6789202727F0001A21D8 /* haarcascade_frontalface_alt.xml */,
+				0036F41E202C9563002EF644 /* lbpcascade_frontalface_improved.xml */,
 				71C7FFD42013C824006EB75A /* RNFileSystem.h */,
 				71C7FFD52013C824006EB75A /* RNFileSystem.m */,
 				71C7FFD12013C817006EB75A /* RNImageUtils.h */,
