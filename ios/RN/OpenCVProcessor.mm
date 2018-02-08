@@ -83,15 +83,15 @@
     // rotate image according to device-rotation
     UIDeviceOrientation interfaceOrientation = [[UIDevice currentDevice] orientation];
     if (interfaceOrientation == UIDeviceOrientationPortrait) {
-        int orientation = 0;
+        orientation = 0;
         transpose(image, image);
         flip(image, image,1);
     } else  if (interfaceOrientation == UIDeviceOrientationPortraitUpsideDown) {
-        int orientation = 2;
+        orientation = 2;
         transpose(image, image);
         flip(image, image,0);
     } else  if (interfaceOrientation == UIDeviceOrientationLandscapeLeft) {
-        int orientation = 1;
+        orientation = 1;
         flip(image, image,-1);
     }
     
@@ -162,3 +162,4 @@
 #endif
 
 @end
+
