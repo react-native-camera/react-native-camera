@@ -2,7 +2,7 @@
 
 ## Project Integration
 
-Please follow the [RNCamera doc](https://github.com/react-native-community/react-native-camera/blob/master/docs/RNCamera.md) instalation guide to install the face detection frameworks on both platforms.
+Please follow the [RNCamera doc](https://github.com/react-native-community/react-native-camera/blob/master/docs/RNCamera.md) installation guide to install the face detection frameworks on both platforms.
 
 ### iOS
 
@@ -10,7 +10,7 @@ Open your app's XCode project. Expand the Libraries folder in the project naviga
 
 On your project's target, on `Build Phases`, click on libRCTCamera.a and delete (press the - button below).
 
-You can follow the instalation steps for RNCamera on the readme to link the new RNCamera project to your app's XCode project.
+You can follow the installation steps for RNCamera on the readme to link the new RNCamera project to your app's XCode project.
 
 You can do it via `react-native link` command or by the manual steps.
 
@@ -20,29 +20,30 @@ Before building and running again, do a complete clean on your project.
 ### Android
 
 1. On the MainApplication of your Android project change the import of RCTCameraPackage line to:
-```
+```java
 import org.reactnative.camera.RNCameraPackage;
 ```
 
 2. Inside the getPackages() methods change `new RCTCameraPackage()` to `new RNCameraPackage()`.
 
 3. On `android/app/build.gradle`, change the line: `compile (project(':react-native-camera'))` to:
-  ```gradle
-        compile (project(':react-native-camera')) {
-        exclude group: "com.google.android.gms"
-    }
-        compile ("com.google.android.gms:play-services-vision:10.2.0") {
-        force = true;
-    }
-  ```
+```gradle
+compile (project(':react-native-camera')) {
+  exclude group: "com.google.android.gms"
+}
+compile ("com.google.android.gms:play-services-vision:10.2.0") {
+  force = true;
+}
+```
 
 4. Add jitpack to android/build.gradle
 ```gradle
 allprojects {
-    repositories {
-        maven { url "https://jitpack.io" }
-    }
-}```
+  repositories {
+    maven { url "https://jitpack.io" }
+  }
+}
+```
 
 ## Usage differences
 
@@ -59,10 +60,12 @@ On RNCamera you do not need to specify `captureMode`. The RNCameara, in any stat
 ### `capture` to `takePictureAsync` or `recordAsync`
 
 Let's say you have a component with a RCTCamera taking a photo:
-```
+```jsx
 import Camera from 'react-native-camera';
+
 class TakePicture extends Component {
-takePicture = async () => {
+
+  takePicture = async () => {
     try {
       const data = await this.camera.capture();
       console.log('Path to image: ' + data.path);
@@ -70,7 +73,8 @@ takePicture = async () => {
       // console.log('err: ', err);
     }
   };
-render() {
+
+  render() {
     return (
       <View style={styles.container}>
         <Camera
@@ -97,10 +101,12 @@ render() {
 ```
 
 You should change this to:
-```
+```jsx
 import { RNCamera } from 'react-native-camera';
+
 class TakePicture extends Component {
-takePicture = async () => {
+
+  takePicture = async () => {
     try {
       const data = await this.camera.takePictureAsync();
       console.log('Path to image: ' + data.uri);
@@ -108,7 +114,8 @@ takePicture = async () => {
       // console.log('err: ', err);
     }
   };
-render() {
+
+  render() {
     return (
       <View style={styles.container}>
         <RNCamera
