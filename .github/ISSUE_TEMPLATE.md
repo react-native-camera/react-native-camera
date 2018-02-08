@@ -1,6 +1,9 @@
+### Warning
+RCTCamera will be deprecated soon, follow our migration guide here https://github.com/react-native-community/react-native-camera/blob/master/docs/migration.md
+
 ### Which implementation are you using
 
-RCTCamera or RNCamera?
+RCTCamera or *RNCamera*?
 
 ### Steps to reproduce
 1.
