@@ -41,6 +41,7 @@
 - (void)updateZoom;
 - (void)updateWhiteBalance;
 - (void)updateFaceDetecting:(id)isDetectingFaces;
+- (void)updateFaceDetectionExpectedOrientation:(NSInteger)expectedFaceOrientation;
 - (void)updateFaceDetectionMode:(id)requestedMode;
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks;
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications;

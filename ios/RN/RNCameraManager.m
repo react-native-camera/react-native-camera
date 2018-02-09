@@ -131,6 +131,12 @@ RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSInteger, RNCamera)
     [view updateWhiteBalance];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(faceDetectionExpectedOrientation, NSInteger, RNCamera)
+{
+    [view updateFaceDetectionExpectedOrientation:[RCTConvert NSInteger:json]];
+}
+
+
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
 {
     [view updateFaceDetecting:json];

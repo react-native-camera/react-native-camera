@@ -5,12 +5,14 @@
 @implementation OpenCVProcessor{
     BOOL saveDemoFrame;
     int processedFrames;
+    NSInteger expectedFaceOrientation;
 }
 
 - (id) init {
     
-    saveDemoFrame = false;
+    saveDemoFrame = true;
     processedFrames = 0;
+    expectedFaceOrientation = -1;
     
     NSString *path = [[NSBundle mainBundle] pathForResource:@"lbpcascade_frontalface_improved.xml"
                                                      ofType:nil];
@@ -29,6 +31,11 @@
 - (id) initWithDelegate:(id)delegateObj {
     delegate = delegateObj;
     return self;
+}
+
+- (void)setExpectedFaceOrientation:(NSInteger)expectedOrientation
+{
+    expectedFaceOrientation = expectedOrientation;
 }
 
 # pragma mark - OpenCV-Processing
@@ -80,22 +87,39 @@
     int orientation = 3;
     //cv::equalizeHist(image, image);
     
-    // rotate image according to device-rotation
-    UIDeviceOrientation interfaceOrientation = [[UIDevice currentDevice] orientation];
-    if (interfaceOrientation == UIDeviceOrientationPortrait) {
-        orientation = 0;
-        transpose(image, image);
-        flip(image, image,1);
-    } else  if (interfaceOrientation == UIDeviceOrientationPortraitUpsideDown) {
-        orientation = 2;
-        transpose(image, image);
-        flip(image, image,0);
-    } else  if (interfaceOrientation == UIDeviceOrientationLandscapeLeft) {
-        orientation = 1;
-        flip(image, image,-1);
+    if(expectedFaceOrientation != -1){
+        orientation = expectedFaceOrientation;
+    } else {
+        // rotate image according to device-orientation
+        UIDeviceOrientation interfaceOrientation = [[UIDevice currentDevice] orientation];
+        if (interfaceOrientation == UIDeviceOrientationPortrait) {
+            orientation = 0;
+        } else  if (interfaceOrientation == UIDeviceOrientationPortraitUpsideDown) {
+            orientation = 2;
+        } else  if (interfaceOrientation == UIDeviceOrientationLandscapeLeft) {
+            orientation = 1;
+        }
     }
     
-    cv::resize(image, image, cv::Size(0,0), 360./(float)image.cols, 360./(float)image.cols, cv::INTER_CUBIC);
+    switch(orientation){
+        case 0:
+            transpose(image, image);
+            flip(image, image,1);
+            break;
+        case 1:
+            flip(image, image,-1);
+            break;
+        case 2:
+            transpose(image, image);
+            flip(image, image,0);
+            break;
+    }
+    
+    float imageWidth = 480.;
+    float scale = imageWidth / (float)image.cols;
+    float imageHeight = (float)image.rows * scale;
+    
+    cv::resize(image, image, cv::Size(0,0), scale, scale, cv::INTER_CUBIC);
     
     if(saveDemoFrame){
         [self saveImageToDisk:image];
@@ -104,17 +128,17 @@
     objects.clear();
     cascade.detectMultiScale(image,
                              objects,
-                             2.0,
+                             1.2,
                              3,
-                             CV_HAAR_SCALE_IMAGE,
-                             cv::Size(30, 30));
+                             0,
+                             cv::Size(10, 10));
     
     if(objects.size() > 0){
         NSMutableArray *faces = [[NSMutableArray alloc] initWithCapacity:objects.size()];
         for( int i = 0; i < objects.size(); i++ )
         {
             cv::Rect face = objects[i];
-            id objects[] = { @(face.x), @(face.y), @(face.width), @(face.height), @(orientation) };
+            id objects[] = { [NSNumber numberWithFloat:face.x / imageWidth], [NSNumber numberWithFloat:face.y / imageHeight], [NSNumber numberWithFloat:face.width / imageWidth], [NSNumber numberWithFloat:face.height / imageHeight], @(orientation) };
             id keys[] = { @"x", @"y", @"width", @"height", @"orientation" };
             NSUInteger count = sizeof(objects) / sizeof(id);
             NSDictionary *faceDescriptor = [NSDictionary dictionaryWithObjects:objects
@@ -162,4 +186,3 @@
 #endif
 
 @end
-
