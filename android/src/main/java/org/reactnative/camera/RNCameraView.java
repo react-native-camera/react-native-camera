@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
@@ -26,10 +27,13 @@ import org.reactnative.camera.tasks.BarCodeScannerAsyncTask;
 import org.reactnative.camera.tasks.BarCodeScannerAsyncTaskDelegate;
 import org.reactnative.camera.tasks.FaceDetectorAsyncTask;
 import org.reactnative.camera.tasks.FaceDetectorAsyncTaskDelegate;
+import org.reactnative.camera.tasks.OpenCVProcessorAsyncTask;
+import org.reactnative.camera.tasks.OpenCVProcessorAsyncTaskDelegate;
 import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.facedetector.RNFaceDetector;
+import org.reactnative.opencv.OpenCVProcessor;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +45,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate {
+public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, OpenCVProcessorAsyncTaskDelegate {
   private ThemedReactContext mThemedReactContext;
   private Queue<Promise> mPictureTakenPromises = new ConcurrentLinkedQueue<>();
   private Map<Promise, ReadableMap> mPictureTakenOptions = new ConcurrentHashMap<>();
@@ -59,6 +63,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   // Scanning-related properties
   private final MultiFormatReader mMultiFormatReader = new MultiFormatReader();
   private final RNFaceDetector mFaceDetector;
+  private final OpenCVProcessor openCVProcessor;
   private boolean mShouldDetectFaces = false;
   private boolean mShouldScanBarCodes = false;
   private int mFaceDetectorMode = RNFaceDetector.FAST_MODE;
@@ -70,6 +75,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     initBarcodeReader();
     mThemedReactContext = themedReactContext;
     mFaceDetector = new RNFaceDetector(themedReactContext);
+    openCVProcessor = new OpenCVProcessor(themedReactContext);
     setupFaceDetector();
     themedReactContext.addLifecycleEventListener(this);
 
@@ -116,10 +122,14 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           new BarCodeScannerAsyncTask(delegate, mMultiFormatReader, data, width, height).execute();
         }
 
-        if (mShouldDetectFaces && !faceDetectorTaskLock && cameraView instanceof FaceDetectorAsyncTaskDelegate) {
-          faceDetectorTaskLock = true;
-          FaceDetectorAsyncTaskDelegate delegate = (FaceDetectorAsyncTaskDelegate) cameraView;
-          new FaceDetectorAsyncTask(delegate, mFaceDetector, data, width, height, correctRotation).execute();
+//        if (mShouldDetectFaces && !faceDetectorTaskLock && cameraView instanceof FaceDetectorAsyncTaskDelegate) {
+//          faceDetectorTaskLock = true;
+//          FaceDetectorAsyncTaskDelegate delegate = (FaceDetectorAsyncTaskDelegate) cameraView;
+//          new FaceDetectorAsyncTask(delegate, mFaceDetector, data, width, height, correctRotation).execute();
+//        }
+        {
+          OpenCVProcessorAsyncTaskDelegate delegate = (OpenCVProcessorAsyncTaskDelegate) cameraView;
+          new OpenCVProcessorAsyncTask(delegate, openCVProcessor, data, width, height, correctRotation).execute();
         }
       }
     });
@@ -263,15 +273,31 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     setScanning(mShouldDetectFaces || mShouldScanBarCodes);
   }
 
-  public void onFacesDetected(SparseArray<Face> facesReported, int sourceWidth, int sourceHeight, int sourceRotation) {
+//  public void onFacesDetected(SparseArray<Face> facesReported, int sourceWidth, int sourceHeight, int sourceRotation) {
+//    if (!mShouldDetectFaces) {
+//      return;
+//    }
+//
+//    SparseArray<Face> facesDetected = facesReported == null ? new SparseArray<Face>() : facesReported;
+//
+//    ImageDimensions dimensions = new ImageDimensions(sourceWidth, sourceHeight, sourceRotation, getFacing());
+//    RNCameraViewHelper.emitFacesDetectedEvent(this, facesDetected, dimensions);
+//  }
+
+  public void onFacesDetected(SparseArray<Object> facesReported, int sourceWidth, int sourceHeight, int sourceRotation) {
     if (!mShouldDetectFaces) {
       return;
     }
 
-    SparseArray<Face> facesDetected = facesReported == null ? new SparseArray<Face>() : facesReported;
+    SparseArray<Object> facesDetected = facesReported == null ? new SparseArray<Object>() : facesReported;
 
     ImageDimensions dimensions = new ImageDimensions(sourceWidth, sourceHeight, sourceRotation, getFacing());
-    RNCameraViewHelper.emitFacesDetectedEvent(this, facesDetected, dimensions);
+//    RNCameraViewHelper.emitFacesDetectedEvent(this, facesDetected, dimensions);
+  }
+
+  @Override
+  public void onFaceDetectionError(OpenCVProcessor openCVProcessor) {
+//    RNCameraViewHelper.emitFaceDetectionErrorEvent(this, openCVProcessor);
   }
 
   public void onFaceDetectionError(RNFaceDetector faceDetector) {

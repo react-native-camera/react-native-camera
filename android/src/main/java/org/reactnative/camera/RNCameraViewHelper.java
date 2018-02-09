@@ -182,21 +182,21 @@ public class RNCameraViewHelper {
   // Face detection events
 
   public static void emitFacesDetectedEvent(
-      ViewGroup view,
-      SparseArray<Face> faces,
-      ImageDimensions dimensions
-      ) {
+          ViewGroup view,
+          SparseArray<Face> faces,
+          ImageDimensions dimensions
+  ) {
     float density = view.getResources().getDisplayMetrics().density;
 
     double scaleX = (double) view.getWidth() / (dimensions.getWidth() * density);
     double scaleY = (double) view.getHeight() / (dimensions.getHeight() * density);
 
     FacesDetectedEvent event = FacesDetectedEvent.obtain(
-        view.getId(),
-        faces,
-        dimensions,
-        scaleX,
-        scaleY
+            view.getId(),
+            faces,
+            dimensions,
+            scaleX,
+            scaleY
     );
 
     ReactContext reactContext = (ReactContext) view.getContext();
