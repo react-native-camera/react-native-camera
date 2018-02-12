@@ -53,6 +53,9 @@
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "lint": "eslint src",
     "lint:staged": "lint-staged",
-    "prettier": "prettier --write --single-quote true --trailing-comma all --print-width 100"
+    "prettier": "prettier --write --single-quote true --trailing-comma all --print-width 100",
+    "release:patch": "npm run check && npm version patch && git push --follow-tags",
+    "release:minor": "npm run check && npm version minor && git push --follow-tags",
+    "release:major": "npm run check && npm version major && git push --follow-tags"
   }
 }
