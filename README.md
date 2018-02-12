@@ -133,7 +133,7 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 #### Android
 1. `npm install react-native-camera --save`
 2. Open up `android/app/src/main/java/[...]/MainApplication.java
-  - Add `import org.reactnative.RNCameraPackage;` to the imports at the top of the file
+  - Add `import org.reactnative.camera.RNCameraPackage;` to the imports at the top of the file
   - Add `new RNCameraPackage()` to the list returned by the `getPackages()` method. Add a comma to the previous item if there's already something there.
 
 3. Append the following lines to `android/settings.gradle`:
