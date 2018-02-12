@@ -13,6 +13,8 @@
     "prop-types": "^15.5.10"
   },
   "devDependencies": {
+    "@commitlint/cli": "^6.1.0",
+    "@commitlint/config-conventional": "^6.1.0",
     "babel-eslint": "^8.0.2",
     "eslint": "^4.12.0",
     "eslint-plugin-import": "^2.7.0",
@@ -48,6 +50,7 @@
     "url": "https://github.com/react-native-community/react-native-camera.git"
   },
   "scripts": {
+    "commitmsg": "commitlint -e $GIT_PARAMS",
     "lint": "eslint src",
     "lint:staged": "lint-staged",
     "prettier": "prettier --write --single-quote true --trailing-comma all --print-width 100"
