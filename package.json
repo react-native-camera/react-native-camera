@@ -20,6 +20,7 @@
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-react": "^7.3.0",
     "eslint-plugin-react-native": "^3.2.0",
+    "husky": "^0.14.3",
     "lint-staged": "^5.0.0",
     "pre-commit": "^1.2.2",
     "prettier": "^1.9.2"
