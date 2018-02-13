@@ -57,16 +57,18 @@ public class OpenCVProcessor {
     }
 
     private void saveMatToDisk(Mat mat) {
-        Imgcodecs.imwrite(String.format("/sdcard/nect/%d.jpg", new Object[]{String.valueOf(System.currentTimeMillis())}), mat);
+        Imgcodecs.imwrite("/sdcard/nect/" + String.valueOf(System.currentTimeMillis()) + ".jpg", mat);
     }
 
     public SparseArray<Map<String, Float>> detect(byte[] imageData, int width, int height) {
         SparseArray<Map<String, Float>> faces = new SparseArray();
-        if (this.frame % 10 == 0) {
+        if (this.frame % 15 == 0) {
             Mat mat = new Mat((height / 2) + height, width, CvType.CV_8UC1);
             mat.put(0, 0, imageData);
+
             Mat grayMat = new Mat();
-            Imgproc.cvtColor(mat, grayMat, 106);
+            Imgproc.cvtColor(mat, grayMat, Imgproc.COLOR_YUV2GRAY_420);
+
             Core.transpose(grayMat, grayMat);
             Core.flip(grayMat, grayMat, -1);
 
@@ -75,23 +77,27 @@ public class OpenCVProcessor {
             float imageHeight = grayMat.rows() * scale;
 
             Imgproc.resize(grayMat, grayMat, new Size(), scale, scale, 2);
+
             if (this.frame == 30) {
                 Log.d(ReactConstants.TAG, "---SAVE IMAGE!!--- ");
-                saveMatToDisk(grayMat);
+//                saveMatToDisk(grayMat);
             }
+
             MatOfRect rec = new MatOfRect();
             this.faceDetector.detectMultiScale(grayMat, rec, 1.2, 3, 0, new Size(10, 10), new Size());
+
             Rect[] detectedObjects = rec.toArray();
             if (detectedObjects.length > 0) {
                 Log.d(ReactConstants.TAG, "---FOUND FACE!!--- ");
-            }
-            for (int i = 0; i < detectedObjects.length; i++) {
-                Map<String, Float> face = new HashMap();
-                face.put("x", detectedObjects[i].x / imageWidth);
-                face.put("y", detectedObjects[i].y / imageHeight);
-                face.put("width", detectedObjects[i].width / imageWidth);
-                face.put("height", detectedObjects[i].height / imageHeight);
-                faces.append(i, face);
+
+                for (int i = 0; i < detectedObjects.length; i++) {
+                    Map<String, Float> face = new HashMap();
+                    face.put("x", detectedObjects[i].x / imageWidth);
+                    face.put("y", detectedObjects[i].y / imageHeight);
+                    face.put("width", detectedObjects[i].width / imageWidth);
+                    face.put("height", detectedObjects[i].height / imageHeight);
+                    faces.append(i, face);
+                }
             }
         }
         this.frame++;
