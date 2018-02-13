@@ -9,5 +9,5 @@ public interface OpenCVProcessorAsyncTaskDelegate {
 
   void onFaceDetectionError(OpenCVProcessor openCVProcessor);
 
-  void onFacesDetected(SparseArray<Map<String, Float>> sparseArray, int i, int i2, int i3);
+  void onFacesDetected(SparseArray<Map<String, Float>> sparseArray, int sourceWidth, int sourceHeight, int sourceRotation);
 }
