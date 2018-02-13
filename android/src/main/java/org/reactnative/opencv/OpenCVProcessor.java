@@ -19,7 +19,7 @@ import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
-import org.reactnative.camera.C0623R;
+import org.reactnative.camera.R;
 
 public class OpenCVProcessor {
     private CascadeClassifier faceDetector;
@@ -29,7 +29,7 @@ public class OpenCVProcessor {
     public OpenCVProcessor(Context context) {
         this.reactContext = context;
         try {
-            InputStream is = this.reactContext.getResources().openRawResource(C0623R.raw.lbpcascade_frontalface_improved);
+            InputStream is = this.reactContext.getResources().openRawResource(R.raw.lbpcascade_frontalface_improved);
             File mCascadeFile = new File(this.reactContext.getDir("cascade", 0), "lbpcascade_frontalface_improved.xml");
             FileOutputStream os = new FileOutputStream(mCascadeFile);
             byte[] buffer = new byte[4096];
@@ -57,7 +57,7 @@ public class OpenCVProcessor {
     }
 
     private void saveMatToDisk(Mat mat) {
-        Imgcodecs.imwrite(String.format("/sdcard/nect/%d.jpg", new Object[]{Long.valueOf(System.currentTimeMillis())}), mat);
+        Imgcodecs.imwrite(String.format("/sdcard/nect/%d.jpg", new Object[]{String.valueOf(System.currentTimeMillis())}), mat);
     }
 
     public SparseArray<Map<String, Float>> detect(byte[] imageData, int width, int height) {
@@ -69,25 +69,28 @@ public class OpenCVProcessor {
             Imgproc.cvtColor(mat, grayMat, 106);
             Core.transpose(grayMat, grayMat);
             Core.flip(grayMat, grayMat, -1);
-            float scale = 480.0f / ((float) grayMat.cols());
-            float imageHeight = ((float) grayMat.rows()) * scale;
-            Imgproc.resize(grayMat, grayMat, new Size(), (double) scale, (double) scale, 2);
+
+            float imageWidth = 480f;
+            float scale = imageWidth / grayMat.cols();
+            float imageHeight = grayMat.rows() * scale;
+
+            Imgproc.resize(grayMat, grayMat, new Size(), scale, scale, 2);
             if (this.frame == 30) {
                 Log.d(ReactConstants.TAG, "---SAVE IMAGE!!--- ");
                 saveMatToDisk(grayMat);
             }
             MatOfRect rec = new MatOfRect();
-            this.faceDetector.detectMultiScale(grayMat, rec, 1.2d, 3, 0, new Size(10.0d, 10.0d), new Size());
+            this.faceDetector.detectMultiScale(grayMat, rec, 1.2, 3, 0, new Size(10, 10), new Size());
             Rect[] detectedObjects = rec.toArray();
             if (detectedObjects.length > 0) {
                 Log.d(ReactConstants.TAG, "---FOUND FACE!!--- ");
             }
             for (int i = 0; i < detectedObjects.length; i++) {
                 Map<String, Float> face = new HashMap();
-                face.put("x", Float.valueOf(((float) detectedObjects[i].f33x) / 480.0f));
-                face.put("y", Float.valueOf(((float) detectedObjects[i].f34y) / imageHeight));
-                face.put("width", Float.valueOf(((float) detectedObjects[i].width) / 480.0f));
-                face.put("height", Float.valueOf(((float) detectedObjects[i].height) / imageHeight));
+                face.put("x", detectedObjects[i].x / imageWidth);
+                face.put("y", detectedObjects[i].y / imageHeight);
+                face.put("width", detectedObjects[i].width / imageWidth);
+                face.put("height", detectedObjects[i].height / imageHeight);
                 faces.append(i, face);
             }
         }

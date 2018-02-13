@@ -43,6 +43,7 @@ dependencies {
   compile "com.drewnoakes:metadata-extractor:2.9.1"
   compile 'com.google.android.gms:play-services-vision:+'
   compile "com.android.support:exifinterface:26.0.2"
+  compile project(':openCVLibrary340')
 
   compile 'com.github.react-native-community:cameraview:d5d9b0d925494ef451ce3eef3fdf14cc874d9baa'
 }
