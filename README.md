@@ -33,13 +33,13 @@ To enable `video recording` feature you have to add the following code to the `A
 
 ## Migrating from RCTCamera to RNCamera
 
-See this [doc](https://github.com/react-native-community/react-native-camera/blob/master/docs/migration.md).
+See this [doc](./docs/migration.md)
 
 ### RNCamera Docs
-[RNCamera](./docs/RNCamera)
+[RNCamera](./docs/RNCamera.md)
 
 ### Docs old RCTCamera
-[RCTCamera](./docs/RCTCamera)
+[RCTCamera](./docs/RCTCamera.md)
 
 ## Getting started
 
