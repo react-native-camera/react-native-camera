@@ -322,6 +322,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             CGRect cropRect = CGRectMake(frame.origin.x * width, frame.origin.y * height, frame.size.width * width, frame.size.height * height);
             takenImage = [RNImageUtils cropImage:takenImage toRect:cropRect];
             
+            if ([options[@"mirrorImage"] boolValue]) {
+                takenImage = [RNImageUtils mirrorImage:takenImage];
+            }
+            
             NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
             float quality = [options[@"quality"] floatValue];
             NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
@@ -338,16 +342,21 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 int imageRotation;
                 switch (takenImage.imageOrientation) {
                     case UIImageOrientationLeft:
+                    case UIImageOrientationRightMirrored:
                         imageRotation = 90;
                         break;
                     case UIImageOrientationRight:
+                    case UIImageOrientationLeftMirrored:
                         imageRotation = -90;
                         break;
                     case UIImageOrientationDown:
+                    case UIImageOrientationDownMirrored:
                         imageRotation = 180;
                         break;
+                    case UIImageOrientationUpMirrored:
                     default:
                         imageRotation = 0;
+                        break;
                 }
                 [RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
             }

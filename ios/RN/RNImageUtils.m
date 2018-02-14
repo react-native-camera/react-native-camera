@@ -38,6 +38,29 @@
     return image;
 }
 
++ (UIImage *)mirrorImage:(UIImage *)image
+{
+    UIImageOrientation flippedOrientation = UIImageOrientationUpMirrored;
+    switch (image.imageOrientation) {
+        case UIImageOrientationDown:
+            flippedOrientation = UIImageOrientationDownMirrored;
+            break;
+        case UIImageOrientationLeft:
+            flippedOrientation = UIImageOrientationRightMirrored;
+            break;
+        case UIImageOrientationUp:
+            flippedOrientation = UIImageOrientationUpMirrored;
+            break;
+        case UIImageOrientationRight:
+            flippedOrientation = UIImageOrientationLeftMirrored;
+            break;
+        default:
+            break;
+    }
+    UIImage * flippedImage = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:flippedOrientation];
+    return flippedImage;
+}
+
 + (NSString *)writeImage:(NSData *)image toPath:(NSString *)path
 {
     [image writeToFile:path atomically:YES];
