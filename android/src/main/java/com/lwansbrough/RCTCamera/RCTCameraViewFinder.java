@@ -4,7 +4,9 @@
 
 package com.lwansbrough.RCTCamera;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -41,6 +43,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     private boolean _isStarting;
     private boolean _isStopping;
     private Camera _camera;
+    private boolean _clearWindowBackground = false;
     private float mFingerSpacing;
 
     // concurrency lock for barcode scanner to avoid flooding the runtime
@@ -83,6 +86,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
     }
 
+    public int getCameraType() {
+        return _cameraType;
+    }
+
     public double getRatio() {
         int width = RCTCamera.getInstance().getPreviewWidth(this._cameraType);
         int height = RCTCamera.getInstance().getPreviewHeight(this._cameraType);
@@ -120,13 +127,21 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         RCTCamera.getInstance().setFlashMode(_cameraType, flashMode);
     }
 
-    private void startPreview() {
+    public void setClearWindowBackground(boolean clearWindowBackground) {
+        this._clearWindowBackground = clearWindowBackground;
+    }
+
+    public void setZoom(int zoom) {
+        RCTCamera.getInstance().setZoom(_cameraType, zoom);
+   }
+
+    public void startPreview() {
         if (_surfaceTexture != null) {
             startCamera();
         }
     }
 
-    private void stopPreview() {
+    public void stopPreview() {
         if (_camera != null) {
             stopCamera();
         }
@@ -176,6 +191,12 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 _camera.setParameters(parameters);
                 _camera.setPreviewTexture(_surfaceTexture);
                 _camera.startPreview();
+                // clear window background if needed
+                if (_clearWindowBackground) {
+                    Activity activity = getActivity();
+                    if (activity != null)
+                        activity.getWindow().setBackgroundDrawable(null);
+                }
                 // send previews to `onPreviewFrame`
                 _camera.setPreviewCallback(this);
             } catch (NullPointerException e) {
@@ -207,6 +228,17 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 _isStopping = false;
             }
         }
+    }
+
+    private Activity getActivity() {
+        Context context = getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity)context;
+            }
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+        return null;
     }
 
     /**
@@ -300,39 +332,63 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             this.imageData = imageData;
         }
 
+        private Result getBarcode(int width, int height) {
+            try{
+              PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
+              BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+              return _multiFormatReader.decodeWithState(bitmap);
+            } catch (Throwable t) {
+                // meh
+            } finally {
+                _multiFormatReader.reset();
+            }
+            return null;
+        }
+
+        private Result getBarcodeAnyOrientation() {
+            Camera.Size size = camera.getParameters().getPreviewSize();
+
+            int width = size.width;
+            int height = size.height;
+            Result result = getBarcode(width, height);
+            if (result != null)
+              return result;
+
+            rotateImage(width, height);
+            width = size.height;
+            height = size.width;
+
+            return getBarcode(width, height);
+        }
+
+        private void rotateImage(int width, int height) {
+            byte[] rotated = new byte[imageData.length];
+            for (int y = 0; y < height; y++) {
+              for (int x = 0; x < width; x++) {
+                rotated[x * height + height - y - 1] = imageData[x + y * width];
+              }
+            }
+            imageData = rotated;
+        }
+
         @Override
         protected Void doInBackground(Void... ignored) {
             if (isCancelled()) {
                 return null;
             }
 
-            Camera.Size size = camera.getParameters().getPreviewSize();
-
-            int width = size.width;
-            int height = size.height;
-
-            // rotate for zxing if orientation is portrait
-            if (RCTCamera.getInstance().getActualDeviceOrientation() == 0) {
-                byte[] rotated = new byte[imageData.length];
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        rotated[x * height + height - y - 1] = imageData[x + y * width];
-                    }
-                }
-                width = size.height;
-                height = size.width;
-                imageData = rotated;
-            }
-
             try {
-                PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
-                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-                Result result = _multiFormatReader.decodeWithState(bitmap);
+                // rotate for zxing if orientation is portrait
+                Result result = getBarcodeAnyOrientation();
+                if (result == null){
+                    throw new Exception();
+                }
 
                 ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
                 WritableMap event = Arguments.createMap();
                 WritableArray resultPoints = Arguments.createArray();
                 ResultPoint[] points = result.getResultPoints();
+
                 if(points != null) {
                     for (ResultPoint point : points) {
                         WritableMap newPoint = Arguments.createMap();
@@ -359,6 +415,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // Fast swiping and touching while component is being loaded can cause _camera to be null.
+        if (_camera == null) {
+            return false;
+        }
+
         // Get the pointer ID
         Camera.Parameters params = _camera.getParameters();
         int action = event.getAction();
