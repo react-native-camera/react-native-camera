@@ -49,6 +49,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                  selector:@selector(orientationChanged:)
                                                      name:UIDeviceOrientationDidChangeNotification
                                                    object:nil];
+        self.autoFocus = -1;
         //        [[NSNotificationCenter defaultCenter] addObserver:self
         //                                                 selector:@selector(bridgeDidForeground:)
         //                                                     name:EX_UNVERSIONED(@"EXKernelBridgeDidForegroundNotification")
@@ -209,7 +210,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
     
-    if (device.focusMode != RNCameraAutoFocusOff) {
+    if (self.autoFocus < 0 || device.focusMode != RNCameraAutoFocusOff) {
         return;
     }
     
