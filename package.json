@@ -23,7 +23,11 @@
     "husky": "^0.14.3",
     "lint-staged": "^5.0.0",
     "pre-commit": "^1.2.2",
-    "prettier": "^1.9.2"
+    "prettier": "^1.9.2",
+    "generate-changelog": "1.7.0",
+    "simple-git": "1.89.0",
+    "idx": "2.2.0",
+    "minimist": "1.2.0"
   },
   "homepage": "https://github.com/react-native-community/react-native-camera",
   "keywords": [
