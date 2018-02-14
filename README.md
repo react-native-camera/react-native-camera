@@ -98,8 +98,11 @@ If you do not need it and do not wnat to install the GMV frameworks, open your a
 If you want to make this automatic, you can add a postinstall script to your app `package.json`. Inside the `postinstall_project` there is a xcode project ready with the folder removed (we opened xcode, removed the folder from the project and copied the resulting project file). The post install script is:
 ```
 #!/bin/bash
-rm -rf node_modules/react-native-camera/ios/FaceDetector
-cp node_modules/react-native-camera/postinstall_project/projectWithoutFaceDetection.pbxproj node_modules/react-native-camera/ios/RCTCamera.xcodeproj/project.pbxproj
+echo "Creating project without FaceDetector"
+if [ -e node_modules/react-native-camera/ios/FaceDetector ] ; then
+  rm -rf node_modules/react-native-camera/ios/FaceDetector
+fi
+cp node_modules/react-native-camera/postinstall_project/projectWithoutFaceDetection.pbxproj node_modules/react-native-camera/ios/RNCamera.xcodeproj/project.pbxproj
 ```
 
 And add something like this to the `scripts` section in your `package.json`:
