@@ -73,6 +73,10 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                   mBitmap = rotateBitmap(mBitmap, getImageRotation(orientation));
               }
 
+              if (mOptions.hasKey("mirrorImage") && mOptions.getBoolean("mirrorImage")) {
+                  mBitmap = flipHorizontally(mBitmap);
+              }
+
               // Write Exif data to the response if requested
               if (mOptions.hasKey("exif") && mOptions.getBoolean("exif")) {
                   WritableMap exifData = RNCameraViewHelper.getExifData(exifInterface);
@@ -130,6 +134,12 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private Bitmap rotateBitmap(Bitmap source, int angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
+
+    private Bitmap flipHorizontally(Bitmap source) {
+        Matrix matrix = new Matrix();
+        matrix.preScale(-1.0f, 1.0f);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
