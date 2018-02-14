@@ -19,6 +19,9 @@ import { requestPermissions } from './handlePermissions';
 
 type PictureOptions = {
   quality?: number,
+  base64?: boolean,
+  mirrorImage?: boolean,
+  exif?: boolean,
 };
 
 type TrackedFaceFeature = FaceFeature & {
@@ -29,6 +32,7 @@ type RecordingOptions = {
   maxDuration?: number,
   maxFileSize?: number,
   quality?: number | string,
+  mute?: boolean,
 };
 
 type EventCallbackArgumentsType = {
