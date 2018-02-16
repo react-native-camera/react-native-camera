@@ -10,7 +10,7 @@
 
 - (id) init {
     
-    saveDemoFrame = true;
+    saveDemoFrame = false;
     processedFrames = 0;
     expectedFaceOrientation = -1;
     

@@ -79,7 +79,7 @@ public class OpenCVProcessor {
             Imgproc.resize(grayMat, grayMat, new Size(), scale, scale, 2);
 
             if (this.frame == 30) {
-                Log.d(ReactConstants.TAG, "---SAVE IMAGE!!--- ");
+//                Log.d(ReactConstants.TAG, "---SAVE IMAGE!!--- ");
 //                saveMatToDisk(grayMat);
             }
 
