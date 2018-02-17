@@ -114,6 +114,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setShouldScanBarCodes(barCodeScannerEnabled);
   }
 
+  @ReactProp(name = "faceDetectionExpectedOrientation")
+  public void setFaceDetectionExpectedOrientation(RNCameraView view, int faceDetectionExpectedOrientation) {
+    view.setFaceDetectionExpectedOrientation(faceDetectionExpectedOrientation);
+  }
+
   @ReactProp(name = "faceDetectorEnabled")
   public void setFaceDetecting(RNCameraView view, boolean faceDetectorEnabled) {
     view.setShouldDetectFaces(faceDetectorEnabled);

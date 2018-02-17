@@ -26,7 +26,7 @@ public class OpenCVProcessorAsyncTask extends AsyncTask<Void, Void, SparseArray<
     if (isCancelled() || this.mDelegate == null || this.mOpenCVProcessor == null) {
       return null;
     }
-    return this.mOpenCVProcessor.detect(this.mImageData, this.mWidth, this.mHeight);
+    return this.mOpenCVProcessor.detect(this.mImageData, this.mWidth, this.mHeight, this.mRotation);
   }
 
   protected void onPostExecute(SparseArray<Map<String, Float>> faces) {

@@ -3,6 +3,9 @@ package org.reactnative.opencv;
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Surface;
+import android.view.WindowManager;
+
 import com.facebook.react.common.ReactConstants;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,6 +28,7 @@ public class OpenCVProcessor {
     private CascadeClassifier faceDetector;
     private int frame = 0;
     private Context reactContext;
+    private int faceDetectionExpectedOrientation = -1;
 
     public OpenCVProcessor(Context context) {
         this.reactContext = context;
@@ -60,7 +64,7 @@ public class OpenCVProcessor {
         Imgcodecs.imwrite("/sdcard/nect/" + String.valueOf(System.currentTimeMillis()) + ".jpg", mat);
     }
 
-    public SparseArray<Map<String, Float>> detect(byte[] imageData, int width, int height) {
+    public SparseArray<Map<String, Float>> detect(byte[] imageData, int width, int height, int rotation) {
         SparseArray<Map<String, Float>> faces = new SparseArray();
         if (this.frame % 15 == 0) {
             Mat mat = new Mat((height / 2) + height, width, CvType.CV_8UC1);
@@ -69,8 +73,56 @@ public class OpenCVProcessor {
             Mat grayMat = new Mat();
             Imgproc.cvtColor(mat, grayMat, Imgproc.COLOR_YUV2GRAY_420);
 
-            Core.transpose(grayMat, grayMat);
-            Core.flip(grayMat, grayMat, -1);
+            int imageRotation = 1;
+            switch(rotation) {
+                case 90:
+                    imageRotation = 2;
+                    break;
+                case 180:
+                    imageRotation = 3;
+                    break;
+                case 270:
+                    imageRotation = 0;
+                    break;
+            }
+
+            int expectedFaceOrientation = 3;
+
+            if(faceDetectionExpectedOrientation != -1){
+                expectedFaceOrientation = faceDetectionExpectedOrientation;
+            } else {
+                // rotate image according to device-orientation
+                WindowManager wManager = (WindowManager) reactContext.getSystemService(reactContext.WINDOW_SERVICE);
+                int deviceRotation = wManager.getDefaultDisplay().getRotation();
+
+                switch (deviceRotation) {
+                    case Surface.ROTATION_0:
+                        expectedFaceOrientation = 0;
+                        break;
+                    case Surface.ROTATION_90:
+                        expectedFaceOrientation = 1;
+                        break;
+                    case Surface.ROTATION_180:
+                        expectedFaceOrientation = 2;
+                        break;
+                }
+            }
+
+            int rotationToBeApplied = expectedFaceOrientation + imageRotation % 4;
+
+            switch(rotationToBeApplied){
+                case 2:
+                    Core.transpose(grayMat, grayMat);
+                    Core.flip(grayMat, grayMat,1);
+                    break;
+                case 3:
+                    Core.flip(grayMat, grayMat,-1);
+                    break;
+                case 0:
+                    Core.transpose(grayMat, grayMat);
+                    Core.flip(grayMat, grayMat,0);
+                    break;
+            }
 
             float imageWidth = 480f;
             float scale = imageWidth / grayMat.cols();
@@ -78,13 +130,13 @@ public class OpenCVProcessor {
 
             Imgproc.resize(grayMat, grayMat, new Size(), scale, scale, 2);
 
-            if (this.frame == 30) {
+//            if (this.frame == 30) {
 //                Log.d(ReactConstants.TAG, "---SAVE IMAGE!!--- ");
 //                saveMatToDisk(grayMat);
-            }
+//            }
 
             MatOfRect rec = new MatOfRect();
-            this.faceDetector.detectMultiScale(grayMat, rec, 1.2, 3, 0, new Size(10, 10), new Size());
+            this.faceDetector.detectMultiScale(grayMat, rec, 1.3, 3, 0, new Size(50, 50), new Size());
 
             Rect[] detectedObjects = rec.toArray();
             if (detectedObjects.length > 0) {
@@ -96,11 +148,16 @@ public class OpenCVProcessor {
                     face.put("y", detectedObjects[i].y / imageHeight);
                     face.put("width", detectedObjects[i].width / imageWidth);
                     face.put("height", detectedObjects[i].height / imageHeight);
+                    face.put("orientation", (float) expectedFaceOrientation);
                     faces.append(i, face);
                 }
             }
         }
         this.frame++;
         return faces;
+    }
+
+    public void setFaceDetectionExpectedOrientation(int expectedOrientation){
+        faceDetectionExpectedOrientation = expectedOrientation;
     }
 }

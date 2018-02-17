@@ -91,7 +91,7 @@ public class OpenCVProcessorFacesDetectedEvent extends Event<OpenCVProcessorFace
             serializedFace.putDouble("y", face.get("y"));
             serializedFace.putDouble("width", face.get("width"));
             serializedFace.putDouble("height", face.get("height"));
-            serializedFace.putDouble("orientation", 0);
+            serializedFace.putDouble("orientation", face.get("orientation"));
             facesList.pushMap(serializedFace);
         }
         WritableMap event = Arguments.createMap();
