@@ -68,9 +68,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         _faceDetecting = newFaceDetecting;
         [self _runBlockIfQueueIsPresent:^{
             if ([self isDetectingFaces]) {
-                [self tryEnablingFaceDetection];
+                if (_dataOutput) {
+                    [self _setConnectionsEnabled:true];
+                } else {
+                    [self tryEnablingFaceDetection];
+                }
             } else {
-                [self stopFaceDetection];
+                [self _setConnectionsEnabled:false];
             }
         }];
     }
@@ -154,6 +158,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 # pragma mark Private API
+
+- (void)_setConnectionsEnabled:(BOOL)enabled
+{
+    if (!_dataOutput) {
+        return;
+    }
+    for (AVCaptureConnection *connection in _dataOutput.connections) {
+        connection.enabled = enabled;
+    }
+}
 
 - (void)_resetFaceDetector
 {
