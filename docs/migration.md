@@ -55,7 +55,7 @@ Instead of importing `Camera`, now, you should import `{ RNCamera }` from `react
 
 On RCTCamera, you would set the camera `captureMode` to `still` or `video` and you could only record or take a picture depending on the `captureMode` of your `Camera`.
 
-On RNCamera you do not need to specify `captureMode`. The RNCameara, in any state, can record or take a picture calling the appropriate method.
+On RNCamera you do not need to specify `captureMode`. The RNCamera, in any state, can record or take a picture calling the appropriate method.
 
 ### `capture` to `takePictureAsync` or `recordAsync`
 
