@@ -68,7 +68,7 @@
     return [fileURL absoluteString];
 }
 
-+ (UIImage *)forceUpOrientation:(UIImage *)image toRect:(CGRect)rect
++ (UIImage *)forceUpOrientation:(UIImage *)image
 {
     if (image.imageOrientation != UIImageOrientationUp) {
         UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
