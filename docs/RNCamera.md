@@ -246,6 +246,8 @@ Supported options:
 
  - `exif` (boolean true or false) Use this with `true` if you want a exif data map of the picture taken on the return data of your promise. If no value is specified `exif:false` is used.
 
+ - `forceUpOrientation` (iOS only, boolean true or false). This property allows to force portrait orientation based on actual data instead of exif data.
+
 The promise will be fulfilled with an object with some of the following properties:
 
  - `width`: returns the image's width (taking image orientation into account)
