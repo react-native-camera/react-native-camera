@@ -324,6 +324,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             if ([options[@"mirrorImage"] boolValue]) {
                 takenImage = [RNImageUtils mirrorImage:takenImage];
             }
+            
+            if ([options[@"width"] integerValue]) {
+                takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
+            }
+            
             if ([options[@"forceUpOrientation"] boolValue]) {
                 takenImage = [RNImageUtils forceUpOrientation:takenImage];
             }
