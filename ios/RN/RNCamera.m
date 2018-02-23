@@ -324,17 +324,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             if ([options[@"mirrorImage"] boolValue]) {
                 takenImage = [RNImageUtils mirrorImage:takenImage];
             }
-<<<<<<< HEAD
-=======
             
             if ([options[@"width"] integerValue]) {
                 takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
             }
-            
-            if ([options[@"forceUpOrientation"] boolValue]) {
-                takenImage = [RNImageUtils forceUpOrientation:takenImage];
-            }
->>>>>>> c03db73... Add width property on iOS. Allows to specify an image width on capture
             
             NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
             float quality = [options[@"quality"] floatValue];
