@@ -48,6 +48,7 @@
     ]
   },
   "main": "src/index.js",
+  "types": "types",
   "nativePackage": true,
   "pre-commit": "lint:staged",
   "repository": {
