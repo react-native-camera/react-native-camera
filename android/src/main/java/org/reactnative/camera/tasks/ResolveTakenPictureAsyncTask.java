@@ -61,6 +61,9 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
       try {
           if (inputStream != null) {
+              if (mOptions.hasKey("width") && mOptions.hasKey("height")) {
+                  mBitmap = resizeBitmap(mBitmap, mOptions.getInteger("width"), mOptions.getInteger("height"));
+              }
               ExifInterface exifInterface = new ExifInterface(inputStream);
               // Get orientation of the image from mImageData via inputStream
               int orientation = exifInterface.getAttributeInt(
@@ -135,6 +138,20 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
+
+    public Bitmap resizeBitmap(Bitmap bm, int newWidth, int newHeight) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+
+        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
+        bm.recycle();
+        return resizedBitmap;
     }
 
     private Bitmap flipHorizontally(Bitmap source) {
