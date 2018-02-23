@@ -12,16 +12,16 @@
 import { Component } from 'react';
 import { ViewProperties } from "react-native";
 
-type AutoFocus = { on, off };
-type FlashMode = { on, off, torch, auto }
-type CameraType = { front, back }
-type WhiteBalance = { sunny, cloudy, shadow, incandescent, fluorescent, auto }
-type BarCodeType = { aztec, code128, code39, code39mod43, code93, ean13, ean8, pdf417, qr, upce, interleaved2of5, itf14, datamatrix }
-type VideoQuality = { '2160p', '1080p', '720p', '480p', '4:3' }
+type AutoFocus = { on: any, off: any };
+type FlashMode = { on: any, off: any, torch: any, auto: any };
+type CameraType = { front: any, back: any };
+type WhiteBalance = { sunny: any, cloudy: any, shadow: any, incandescent: any, fluorescent: any, auto: any };
+type BarCodeType = { aztec: any, code128: any, code39: any, code39mod43: any, code93: any, ean13: any, ean8: any, pdf417: any, qr: any, upce: any, interleaved2of5: any, itf14: any, datamatrix: any };
+type VideoQuality = { '2160p': any, '1080p': any, '720p': any, '480p': any, '4:3': any };
 
-type FaceDetectionClassifications = { all, none }
-type FaceDetectionLandmarks = { all, none }
-type FaceDetectionMode = { fast, accurate }
+type FaceDetectionClassifications = { all: any, none: any };
+type FaceDetectionLandmarks = { all: any, none: any };
+type FaceDetectionMode = { fast: any, accurate: any };
 
 export interface Constants {
     AutoFocus: AutoFocus;
@@ -37,7 +37,7 @@ export interface Constants {
     }
 }
 
-export interface RNCameraProps extends ViewProperties {
+export interface RNCameraProps {
     autoFocus?: keyof AutoFocus;
     type?: keyof CameraType;
     flashMode?: keyof FlashMode;
@@ -139,7 +139,7 @@ interface RecordResponse {
     uri: string;
 }
 
-export class RNCamera extends Component<RNCameraProps> {
+export class RNCamera extends Component<RNCameraProps & ViewProperties> {
     static Constants: Constants;
 
     takePictureAsync(options?: TakePictureOptions): Promise<TakePictureResponse>;
@@ -148,6 +148,18 @@ export class RNCamera extends Component<RNCameraProps> {
 
     /** Android only */
     getSupportedRatiosAsync(): Promise<string[]>;
+}
+
+interface DetectionOptions {
+    mode?: keyof FaceDetectionMode,
+    detectLandmarks?: keyof FaceDetectionLandmarks,
+    runClassifications?: keyof FaceDetectionClassifications
+}
+
+export class FaceDetector {
+    private constructor();
+    static Constants: Constants['FaceDetection'];
+    static detectFacesAsync(uri: string, options?: DetectionOptions): Promise<Face[]>;
 }
 
 // -- DEPRECATED CONTENT BELOW
