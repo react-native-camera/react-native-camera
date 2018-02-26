@@ -62,7 +62,6 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         try {
             if (inputStream != null) {
                 ExifInterface exifInterface = new ExifInterface(inputStream);
-
                 // Get orientation of the image from mImageData via inputStream
                 int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                         ExifInterface.ORIENTATION_UNDEFINED);
@@ -71,9 +70,8 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                     mBitmap = resizeBitmap(mBitmap, mOptions.getInt("width"));
                 }
 
-                // Rotate the bitmap to the proper orientation if needed and asked
-                if (mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation")
-                        && orientation != ExifInterface.ORIENTATION_UNDEFINED) {
+                // Rotate the bitmap to the proper orientation if needed
+                if (mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation") && orientation != ExifInterface.ORIENTATION_UNDEFINED) {
                     mBitmap = rotateBitmap(mBitmap, getImageRotation(orientation));
                 }
 
@@ -86,7 +84,6 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                     WritableMap exifData = RNCameraViewHelper.getExifData(exifInterface);
                     response.putMap("exif", exifData);
                 }
-
             }
 
             // Upon rotating, write the image's dimensions to the response
@@ -146,7 +143,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         int width = bm.getWidth();
         int height = bm.getHeight();
         float scaleRatio = (float) newWidth / (float) width;
-
+    
         return Bitmap.createScaledBitmap(bm, newWidth, (int) (height * scaleRatio), true);
     }
 
