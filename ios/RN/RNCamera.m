@@ -324,6 +324,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             if ([options[@"mirrorImage"] boolValue]) {
                 takenImage = [RNImageUtils mirrorImage:takenImage];
             }
+            if ([options[@"forceUpOrientation"] boolValue]) {
+                takenImage = [RNImageUtils forceUpOrientation:takenImage];
+            }
             
             NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
             float quality = [options[@"quality"] floatValue];
@@ -336,6 +339,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             if ([options[@"base64"] boolValue]) {
                 response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
             }
+
+            
             
             if ([options[@"exif"] boolValue]) {
                 int imageRotation;
