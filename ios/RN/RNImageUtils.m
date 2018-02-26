@@ -81,6 +81,18 @@
     return [UIImage imageWithCGImage:[newImage CGImage]  scale:1.0 orientation:(newImage.imageOrientation)];
 }
 
++ (UIImage *)forceUpOrientation:(UIImage *)image
+{
+    if (image.imageOrientation != UIImageOrientationUp) {
+        UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
+        [image drawInRect:CGRectMake(0, 0, image.size.width, image.size.height)];
+        image = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+    }
+    return image;
+} 
+
+
 + (void)updatePhotoMetadata:(CMSampleBufferRef)imageSampleBuffer withAdditionalData:(NSDictionary *)additionalData inResponse:(NSMutableDictionary *)response
 {
     CFDictionaryRef exifAttachments = CMGetAttachment(imageSampleBuffer, kCGImagePropertyExifDictionary, NULL);

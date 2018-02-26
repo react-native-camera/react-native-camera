@@ -250,6 +250,8 @@ Supported options:
  
  - `fixOrientation` (android only, boolean true or false) Use this with `true` if you want to fix incorrect image orientation (can take up to 5 seconds on some devices). Do not provide this if you only need EXIF based orientation.
 
+ - `forceUpOrientation` (iOS only, boolean true or false). This property allows to force portrait orientation based on actual data instead of exif data.
+
 The promise will be fulfilled with an object with some of the following properties:
 
  - `width`: returns the image's width (taking image orientation into account)
