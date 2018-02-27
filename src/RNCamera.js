@@ -22,6 +22,9 @@ type PictureOptions = {
   base64?: boolean,
   mirrorImage?: boolean,
   exif?: boolean,
+  width?: number,
+  fixOrientation?: boolean,
+  forceUpOrientation?: boolean,
 };
 
 type TrackedFaceFeature = FaceFeature & {

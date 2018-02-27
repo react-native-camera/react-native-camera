@@ -116,7 +116,10 @@ interface TakePictureOptions {
     quality?: number;
     base64?: boolean;
     exif?: boolean;
+    width?: number;
 
+    /** Android only */
+    fixOrientation?: boolean;
     /** iOS only */
     forceUpOrientation?: boolean;
 }
