@@ -117,6 +117,7 @@ interface TakePictureOptions {
     base64?: boolean;
     exif?: boolean;
     width?: number;
+    mirrorImage?: boolean;
 
     /** Android only */
     fixOrientation?: boolean;
