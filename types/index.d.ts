@@ -67,7 +67,7 @@ export interface RNCameraProps {
     // -- ANDROID ONLY PROPS
 
     /** Android only */
-    ratio?: number;
+    ratio?: string;
     /** Android only */
     permissionDialogTitle?: string;
     /** Android only */
@@ -116,6 +116,9 @@ interface TakePictureOptions {
     quality?: number;
     base64?: boolean;
     exif?: boolean;
+
+    /** iOS only */
+    forceUpOrientation?: boolean;
 }
 
 interface TakePictureResponse {
