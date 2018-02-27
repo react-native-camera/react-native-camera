@@ -68,6 +68,19 @@
     return [fileURL absoluteString];
 }
 
++ (UIImage *) scaleImage:(UIImage*)image toWidth:(NSInteger)width
+{
+    width /= [UIScreen mainScreen].scale; // prevents image from being incorrectly resized on retina displays
+    float scaleRatio = (float) width / (float) image.size.width;
+    CGSize size = CGSizeMake(width, (int) (image.size.height * scaleRatio));
+    
+    UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
+    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return [UIImage imageWithCGImage:[newImage CGImage]  scale:1.0 orientation:(newImage.imageOrientation)];
+}
+
 + (UIImage *)forceUpOrientation:(UIImage *)image
 {
     if (image.imageOrientation != UIImageOrientationUp) {
@@ -78,6 +91,7 @@
     }
     return image;
 } 
+
 
 + (void)updatePhotoMetadata:(CMSampleBufferRef)imageSampleBuffer withAdditionalData:(NSDictionary *)additionalData inResponse:(NSMutableDictionary *)response
 {

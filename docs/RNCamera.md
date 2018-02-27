@@ -240,11 +240,15 @@ Takes a picture, saves in your app's cache directory and returns a promise.
 
 Supported options:
 
+ - `width` (integer). This property allows to specify the width that the returned image should have, image ratio will not be affected. If no value is specified the maximum image size is used (capture may take longer).
+
  - `quality` (float between 0 to 1.0). This property is used to compress the output jpeg file with 1 meaning no jpeg compression will be applied. If no value is specified `quality:1` is used.
 
  - `base64` (boolean true or false) Use this with `true` if you want a base64 representation of the picture taken on the return data of your promise. If no value is specified `base64:false` is used.
 
  - `exif` (boolean true or false) Use this with `true` if you want a exif data map of the picture taken on the return data of your promise. If no value is specified `exif:false` is used.
+ 
+ - `fixOrientation` (android only, boolean true or false) Use this with `true` if you want to fix incorrect image orientation (can take up to 5 seconds on some devices). Do not provide this if you only need EXIF based orientation.
 
  - `forceUpOrientation` (iOS only, boolean true or false). This property allows to force portrait orientation based on actual data instead of exif data.
 

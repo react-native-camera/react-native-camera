@@ -328,6 +328,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 takenImage = [RNImageUtils forceUpOrientation:takenImage];
             }
             
+            if ([options[@"width"] integerValue]) {
+                takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
+            }
+            
             NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
             float quality = [options[@"quality"] floatValue];
             NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
