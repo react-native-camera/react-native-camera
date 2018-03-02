@@ -66,7 +66,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
 
   public RNCameraView(ThemedReactContext themedReactContext) {
-    super(themedReactContext);
+    super(themedReactContext, true);
     initBarcodeReader();
     mThemedReactContext = themedReactContext;
     mFaceDetector = new RNFaceDetector(themedReactContext);
