@@ -2,16 +2,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { mapValues } from 'lodash';
-import { 
-  findNodeHandle, 
-  Platform, 
-  NativeModules, 
-  ViewPropTypes, 
-  requireNativeComponent, 
-  View, 
-  ActivityIndicator, 
+import {
+  findNodeHandle,
+  Platform,
+  NativeModules,
+  ViewPropTypes,
+  requireNativeComponent,
+  View,
+  ActivityIndicator,
   Text,
- } from 'react-native';
+} from 'react-native';
 
 import type { FaceFeature } from './FaceDetector';
 
@@ -58,33 +58,34 @@ type PropsType = ViewPropTypes & {
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
   captureAudio?: boolean,
+  useCamera2Api?: boolean,
 };
 
-const CameraManager: Object =
-  NativeModules.RNCameraManager || NativeModules.RNCameraModule || {
-  stubbed: true,
-  Type: {
-    back: 1,
-  },
-  AutoFocus: {
-    on: 1
-  },
-  FlashMode: {
-    off: 1,
-  },
-  WhiteBalance: {},
-  BarCodeType: {},
-  FaceDetection: {
-    fast: 1,
-    Mode: {},
-    Landmarks: {
-      none: 0,
+const CameraManager: Object = NativeModules.RNCameraManager ||
+  NativeModules.RNCameraModule || {
+    stubbed: true,
+    Type: {
+      back: 1,
     },
-    Classifications: {
-      none: 0,
+    AutoFocus: {
+      on: 1,
     },
-  },
-};
+    FlashMode: {
+      off: 1,
+    },
+    WhiteBalance: {},
+    BarCodeType: {},
+    FaceDetection: {
+      fast: 1,
+      Mode: {},
+      Landmarks: {
+        none: 0,
+      },
+      Classifications: {
+        none: 0,
+      },
+    },
+  };
 
 const EventThrottleMs = 500;
 
@@ -132,6 +133,7 @@ export default class Camera extends React.Component<PropsType> {
     notAuthorizedView: PropTypes.element,
     pendingAuthorizationView: PropTypes.element,
     captureAudio: PropTypes.bool,
+    useCamera2Api: PropTypes.bool,
   };
 
   static defaultProps: Object = {
@@ -178,6 +180,7 @@ export default class Camera extends React.Component<PropsType> {
       </View>
     ),
     captureAudio: false,
+    useCamera2Api: false,
   };
 
   _cameraRef: ?Object;
@@ -269,7 +272,12 @@ export default class Camera extends React.Component<PropsType> {
 
   async componentWillMount() {
     const hasVideoAndAudio = this.props.captureAudio;
-    const isAuthorized = await requestPermissions(hasVideoAndAudio, CameraManager, this.props.permissionDialogTitle, this.props.permissionDialogMessage);
+    const isAuthorized = await requestPermissions(
+      hasVideoAndAudio,
+      CameraManager,
+      this.props.permissionDialogTitle,
+      this.props.permissionDialogMessage,
+    );
     this.setState({ isAuthorized, isAuthorizationChecked: true });
   }
 
