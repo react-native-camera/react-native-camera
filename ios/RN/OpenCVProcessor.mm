@@ -6,6 +6,7 @@
     BOOL saveDemoFrame;
     int processedFrames;
     NSInteger expectedFaceOrientation;
+    NSInteger objectsToDetect;
 }
 
 - (id) init {
@@ -13,6 +14,7 @@
     saveDemoFrame = false;
     processedFrames = 0;
     expectedFaceOrientation = -1;
+    objectsToDetect = 0; // face
     
     NSString *path = [[NSBundle mainBundle] pathForResource:@"lbpcascade_frontalface_improved.xml"
                                                      ofType:nil];
@@ -36,6 +38,11 @@
 - (void)setExpectedFaceOrientation:(NSInteger)expectedOrientation
 {
     expectedFaceOrientation = expectedOrientation;
+}
+
+- (void)updateObjectsToDetect:(NSInteger)givenObjectsToDetect
+{
+    objectsToDetect = givenObjectsToDetect;
 }
 
 # pragma mark - OpenCV-Processing
@@ -82,7 +89,7 @@
     UIImageWriteToSavedPhotosAlbum(finalImage, nil, nil, nil);
 }
 
-- (void)processImage:(Mat&)image;
+- (int)rotateImage:(Mat&)image;
 {
     int orientation = 3;
     //cv::equalizeHist(image, image);
@@ -115,11 +122,25 @@
             break;
     }
     
-    float imageWidth = 480.;
-    float scale = imageWidth / (float)image.cols;
-    float imageHeight = (float)image.rows * scale;
+    return orientation;
+}
+
+- (int)resizeImage:(Mat&)image width:(int)width;
+{
+    float scale = width / (float)image.cols;
     
     cv::resize(image, image, cv::Size(0,0), scale, scale, cv::INTER_CUBIC);
+    
+    return scale;
+}
+
+- (void)processImageFaces:(Mat&)image;
+{
+    int orientation = [self rotateImage:image];
+    
+    float imageWidth = 480.;
+    int scale = [self resizeImage:image width:imageWidth];
+    float imageHeight = (float)image.rows * scale;
     
     if(saveDemoFrame){
         [self saveImageToDisk:image];
@@ -149,6 +170,112 @@
     }
 }
 
+- (BOOL) compareContourAreasReverse: (std::vector<cv::Point>) contour1 contour2:(std::vector<cv::Point>) contour2  {
+    double i = fabs( contourArea(cv::Mat(contour1)) );
+    double j = fabs( contourArea(cv::Mat(contour2)) );
+    return ( i > j );
+}
+
+- (void)processImageTextBlocks:(Mat&)image;
+{
+    int orientation = [self rotateImage:image];
+    
+    float imageWidth = 1080.;
+    int scale = [self resizeImage:image width:imageWidth];
+    float imageHeight = (float)image.rows * scale;
+    
+    float rectKernX = 17.;
+    float rectKernY = 6.;
+    float sqKernXY = 40.;
+    float minSize = 3000.;
+    float maxSize = 100000.;
+    
+    cv::Mat processedImage = image.clone();
+    
+    // initialize a rectangular and square structuring kernel
+    //float factor = (float)min(image.rows, image.cols) / 600.;
+    Mat rectKernel = getStructuringElement(MORPH_RECT, cv::Size(rectKernX, rectKernY));
+    Mat rectKernel2 = getStructuringElement(MORPH_RECT, cv::Size(sqKernXY, (int)(0.666666*sqKernXY)));
+    
+    // Smooth the image using a 3x3 Gaussian, then apply the blackhat morphological
+    // operator to find dark regions on a light background
+    GaussianBlur(processedImage, processedImage, cv::Size(3, 3), 0);
+    morphologyEx(processedImage, processedImage, MORPH_BLACKHAT, rectKernel);
+    
+    
+    // Compute the Scharr gradient of the blackhat image
+    Mat imageGrad;
+    Sobel(processedImage, imageGrad, CV_32F, 1, 0, CV_SCHARR);
+    convertScaleAbs(imageGrad/8, processedImage);
+    
+    // Apply a closing operation using the rectangular kernel to close gaps in between
+    // letters, then apply Otsu's thresholding method
+    morphologyEx(processedImage, processedImage, MORPH_CLOSE, rectKernel);
+    threshold(processedImage, processedImage, 0, 255, THRESH_BINARY | THRESH_OTSU);
+    erode(processedImage, processedImage, Mat(), cv::Point(-1, -1), 2, 1, 1);
+    
+    
+    // Perform another closing operation, this time using the square kernel to close gaps
+    // between lines of TextBlocks
+    morphologyEx(processedImage, processedImage, MORPH_CLOSE, rectKernel2);
+    
+    
+    // Find contours in the thresholded image and sort them by size
+    float minContourArea = minSize;
+    float maxContourArea = maxSize;
+    std::vector< std::vector<cv::Point> > contours;
+    std::vector<Vec4i> hierarchy;
+    findContours(processedImage, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+    
+    // Create a result vector
+    std::vector<RotatedRect> minRects;
+    for (int i = 0, I = contours.size(); i < I; ++i) {
+        // Filter by provided area limits
+        if (contourArea(contours[i]) > minContourArea && contourArea(contours[i]) < maxContourArea)
+            minRects.push_back(minAreaRect(Mat(contours[i])));
+    }
+    
+    if(saveDemoFrame){
+        cv::Mat debugDrawing = image.clone();
+        for (int i = 0, I = minRects.size(); i < I; ++i) {
+            Point2f rect_points[4]; minRects[i].points( rect_points );
+            for( int j = 0; j < 4; ++j )
+                line( debugDrawing, rect_points[j], rect_points[(j+1)%4], Scalar(255,0,0), 1, 8 );
+        }
+        
+        [self saveImageToDisk:debugDrawing];
+    }
+    
+    if(minRects.size() > 0){
+        NSMutableArray *detectedObjects = [[NSMutableArray alloc] init];
+        for(int i = 0, I = minRects.size(); i < I; ++i){
+            Point2f rect_points[4]; minRects[i].points( rect_points );
+            
+            float xRel = rect_points[1].x / imageWidth;
+            float yRel = rect_points[1].y / imageHeight;
+            float widthRel = fabsf(rect_points[3].x - rect_points[1].x) / imageWidth;
+            float heightRel = fabsf(rect_points[3].y - rect_points[1].y) / imageHeight;
+            float sizeRel = fabsf(widthRel * heightRel);
+            float ratio =  fabsf(rect_points[3].y - rect_points[1].y) / fabsf(rect_points[3].x - rect_points[1].x);
+            
+            // if object large enough
+            if(sizeRel >= 0.01 & ratio >= 4.5 & ratio <= 10.0){
+                id objects[] = { [NSNumber numberWithFloat:xRel], [NSNumber numberWithFloat:yRel], [NSNumber numberWithFloat:widthRel], [NSNumber numberWithFloat:heightRel], @(orientation) };
+                id keys[] = { @"x", @"y", @"width", @"height", @"orientation" };
+                NSUInteger count = sizeof(objects) / sizeof(id);
+                NSDictionary *objectDescriptor = [NSDictionary dictionaryWithObjects:objects
+                                                                             forKeys:keys count:count];
+                
+                [detectedObjects addObject:objectDescriptor];
+            }
+        }
+        if([detectedObjects count] > 0){
+            [delegate onFacesDetected:detectedObjects];
+        }
+    }
+}
+
+
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
@@ -176,7 +303,14 @@
         // delegate image processing to the delegate
         cv::Mat image((int)height, (int)width, format_opencv, bufferAddress, bytesPerRow);
         
-        [self processImage:image];
+        switch(objectsToDetect){
+            case 0:
+                [self processImageFaces:image];
+                break;
+            case 1:
+                [self processImageTextBlocks:image];
+                break;
+        }
         
         // cleanup
         CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
@@ -186,3 +320,4 @@
 #endif
 
 @end
+

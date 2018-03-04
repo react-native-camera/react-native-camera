@@ -44,6 +44,7 @@ type PropsType = ViewPropTypes & {
   onBarCodeRead?: Function,
   faceDetectionMode?: number,
   faceDetectionExpectedOrientation?: number,
+  objectsToDetect?: number,
   flashMode?: number | string,
   barCodeTypes?: Array<string>,
   whiteBalance?: number | string,
@@ -115,6 +116,7 @@ export default class Camera extends React.Component<PropsType> {
     onFacesDetected: PropTypes.func,
     faceDetectionMode: PropTypes.number,
     faceDetectionExpectedOrientation: PropTypes.number,
+    objectsToDetect: PropTypes.number,
     faceDetectionLandmarks: PropTypes.number,
     faceDetectionClassifications: PropTypes.number,
     barCodeTypes: PropTypes.arrayOf(PropTypes.string),
@@ -142,6 +144,7 @@ export default class Camera extends React.Component<PropsType> {
     flashMode: CameraManager.FlashMode.off,
     whiteBalance: CameraManager.WhiteBalance.auto,
     faceDetectionExpectedOrientation: -1,
+    objectsToDetect: -1,
     faceDetectionMode: CameraManager.FaceDetection.fast,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
     faceDetectionLandmarks: CameraManager.FaceDetection.Landmarks.none,
@@ -345,3 +348,4 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     testID: true,
   },
 });
+s

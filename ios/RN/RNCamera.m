@@ -293,6 +293,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [_openCVProcessor setExpectedFaceOrientation:expectedFaceOrientation];
 }
 
+- (void)updateObjectsToDetect:(NSInteger)objectsToDetect
+{
+    [_openCVProcessor updateObjectsToDetect:objectsToDetect];
+}
+
 - (void)updateFaceDetecting:(id)faceDetecting
 {
     [_faceDetectorManager setIsEnabled:faceDetecting];

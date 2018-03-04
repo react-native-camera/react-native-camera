@@ -25,4 +25,6 @@ using namespace cv;
 - (id) init;
 - (id) initWithDelegate:(id <OpenCVProcessorFaceDetectorDelegate>)delegateObj;
 - (void)setExpectedFaceOrientation:(NSInteger)expectedFaceOrientation;
+- (void)updateObjectsToDetect:(NSInteger)objectsToDetect;
 @end
+
