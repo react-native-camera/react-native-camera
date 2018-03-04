@@ -348,4 +348,3 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     testID: true,
   },
 });
-s
