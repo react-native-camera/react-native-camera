@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
     ss.source_files = "ios/FaceDetector/**/*.{h,m}"
   end
 
-  s.default_subspec = "RN"
+  s.default_subspecs = "RN", "RCT"
 
   s.preserve_paths = 'LICENSE', 'README.md', 'package.json', 'index.js'
 
