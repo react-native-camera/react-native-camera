@@ -553,8 +553,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             @Override
             public void onShutter() {
                 try {
-                    camera.setPreviewCallback(null);
-                    camera.setPreviewTexture(null);
+                    if (options.hasKey("onBarCodeRead")) {
+                        camera.setPreviewCallback(null);
+                        camera.setPreviewTexture(null);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
