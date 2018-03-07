@@ -11,7 +11,7 @@
 
 - (id) init {
     
-    saveDemoFrame = false;
+    saveDemoFrame = true;
     processedFrames = 0;
     expectedFaceOrientation = -1;
     objectsToDetect = 0; // face
@@ -125,7 +125,7 @@
     return orientation;
 }
 
-- (int)resizeImage:(Mat&)image width:(int)width;
+- (float)resizeImage:(Mat&)image width:(float)width;
 {
     float scale = width / (float)image.cols;
     
@@ -140,7 +140,7 @@
     
     float imageWidth = 480.;
     int scale = [self resizeImage:image width:imageWidth];
-    float imageHeight = (float)image.rows * scale;
+    float imageHeight = (float)image.rows;
     
     if(saveDemoFrame){
         [self saveImageToDisk:image];
@@ -159,11 +159,15 @@
         for( int i = 0; i < objects.size(); i++ )
         {
             cv::Rect face = objects[i];
-            id objects[] = { [NSNumber numberWithFloat:face.x / imageWidth], [NSNumber numberWithFloat:face.y / imageHeight], [NSNumber numberWithFloat:face.width / imageWidth], [NSNumber numberWithFloat:face.height / imageHeight], @(orientation) };
-            id keys[] = { @"x", @"y", @"width", @"height", @"orientation" };
-            NSUInteger count = sizeof(objects) / sizeof(id);
-            NSDictionary *faceDescriptor = [NSDictionary dictionaryWithObjects:objects
-                                                                       forKeys:keys count:count];
+            
+            NSDictionary *faceDescriptor = @{
+                                             @"x" : [NSNumber numberWithFloat:face.x / imageWidth],
+                                             @"y" : [NSNumber numberWithFloat:face.y / imageHeight],
+                                             @"width": [NSNumber numberWithFloat:face.width / imageWidth],
+                                             @"height": [NSNumber numberWithFloat:face.height / imageHeight],
+                                             @"orientation": @(orientation)
+                                             };
+            
             [faces addObject:faceDescriptor];
         }
         [delegate onFacesDetected:faces];
@@ -180,15 +184,18 @@
 {
     int orientation = [self rotateImage:image];
     
-    float imageWidth = 1080.;
-    int scale = [self resizeImage:image width:imageWidth];
-    float imageHeight = (float)image.rows * scale;
+    float algorithmWidth = 1080.;
+    float imageWidth = 720.;
+    float algorithmScale = imageWidth / algorithmWidth;
+    float scale = [self resizeImage:image width:imageWidth];
     
-    float rectKernX = 17.;
-    float rectKernY = 6.;
-    float sqKernXY = 40.;
-    float minSize = 3000.;
-    float maxSize = 100000.;
+    float imageHeight = image.rows;
+    
+    float rectKernX = 17. * algorithmScale;
+    float rectKernY = 6. * algorithmScale;
+    float sqKernXY = 40. * algorithmScale;
+    float minSize = 3000. * algorithmScale;
+    float maxSize = 100000. * algorithmScale;
     
     cv::Mat processedImage = image.clone();
     
@@ -249,22 +256,25 @@
     if(minRects.size() > 0){
         NSMutableArray *detectedObjects = [[NSMutableArray alloc] init];
         for(int i = 0, I = minRects.size(); i < I; ++i){
-            Point2f rect_points[4]; minRects[i].points( rect_points );
+            Point2f rect_points[4];
+            minRects[i].points( rect_points );
             
             float xRel = rect_points[1].x / imageWidth;
             float yRel = rect_points[1].y / imageHeight;
             float widthRel = fabsf(rect_points[3].x - rect_points[1].x) / imageWidth;
             float heightRel = fabsf(rect_points[3].y - rect_points[1].y) / imageHeight;
             float sizeRel = fabsf(widthRel * heightRel);
-            float ratio =  fabsf(rect_points[3].y - rect_points[1].y) / fabsf(rect_points[3].x - rect_points[1].x);
+            float ratio =  fabsf(rect_points[3].x - rect_points[1].x) / fabsf(rect_points[3].y - rect_points[1].y);
             
             // if object large enough
-            if(sizeRel >= 0.01 & ratio >= 4.5 & ratio <= 10.0){
-                id objects[] = { [NSNumber numberWithFloat:xRel], [NSNumber numberWithFloat:yRel], [NSNumber numberWithFloat:widthRel], [NSNumber numberWithFloat:heightRel], @(orientation) };
-                id keys[] = { @"x", @"y", @"width", @"height", @"orientation" };
-                NSUInteger count = sizeof(objects) / sizeof(id);
-                NSDictionary *objectDescriptor = [NSDictionary dictionaryWithObjects:objects
-                                                                             forKeys:keys count:count];
+            if(sizeRel >= 0.03 & ratio >= 6. & ratio <= 8.){
+                NSDictionary *objectDescriptor = @{
+                                                   @"x" : [NSNumber numberWithFloat:xRel],
+                                                   @"y" : [NSNumber numberWithFloat:yRel],
+                                                   @"width": [NSNumber numberWithFloat:widthRel],
+                                                   @"height": [NSNumber numberWithFloat:heightRel],
+                                                   @"orientation": @(orientation)
+                                                   };
                 
                 [detectedObjects addObject:objectDescriptor];
             }
