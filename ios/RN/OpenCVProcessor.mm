@@ -11,7 +11,7 @@
 
 - (id) init {
     
-    saveDemoFrame = true;
+    saveDemoFrame = false;
     processedFrames = 0;
     expectedFaceOrientation = -1;
     objectsToDetect = 0; // face
@@ -154,8 +154,8 @@
                              0,
                              cv::Size(10, 10));
     
+    NSMutableArray *faces = [[NSMutableArray alloc] initWithCapacity:objects.size()];
     if(objects.size() > 0){
-        NSMutableArray *faces = [[NSMutableArray alloc] initWithCapacity:objects.size()];
         for( int i = 0; i < objects.size(); i++ )
         {
             cv::Rect face = objects[i];
@@ -170,8 +170,8 @@
             
             [faces addObject:faceDescriptor];
         }
-        [delegate onFacesDetected:faces];
     }
+    [delegate onFacesDetected:faces];
 }
 
 - (BOOL) compareContourAreasReverse: (std::vector<cv::Point>) contour1 contour2:(std::vector<cv::Point>) contour2  {
@@ -185,7 +185,7 @@
     int orientation = [self rotateImage:image];
     
     float algorithmWidth = 1080.;
-    float imageWidth = 720.;
+    float imageWidth = 480.;
     float algorithmScale = imageWidth / algorithmWidth;
     float scale = [self resizeImage:image width:imageWidth];
     
@@ -253,8 +253,8 @@
         [self saveImageToDisk:debugDrawing];
     }
     
+    NSMutableArray *detectedObjects = [[NSMutableArray alloc] init];
     if(minRects.size() > 0){
-        NSMutableArray *detectedObjects = [[NSMutableArray alloc] init];
         for(int i = 0, I = minRects.size(); i < I; ++i){
             Point2f rect_points[4];
             minRects[i].points( rect_points );
@@ -279,10 +279,8 @@
                 [detectedObjects addObject:objectDescriptor];
             }
         }
-        if([detectedObjects count] > 0){
-            [delegate onFacesDetected:detectedObjects];
-        }
     }
+    [delegate onFacesDetected:detectedObjects];
 }
 
 
