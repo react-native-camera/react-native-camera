@@ -43,7 +43,6 @@ class BadInstagramCloneApp extends Component {
       </View>
     );
   }
-  }
 
   takePicture = async function() {
     if (this.camera) {
