@@ -18,12 +18,14 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.lang.Math;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -319,17 +321,19 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (RCTCamera.getInstance().isBarcodeScannerEnabled() && !RCTCameraViewFinder.barcodeScannerTaskLock) {
             RCTCameraViewFinder.barcodeScannerTaskLock = true;
-            new ReaderAsyncTask(camera, data).execute();
+            new ReaderAsyncTask(camera, data, this._cameraType).execute();
         }
     }
 
     private class ReaderAsyncTask extends AsyncTask<Void, Void, Void> {
         private byte[] imageData;
         private final Camera camera;
+        private int cameraType;
 
-        ReaderAsyncTask(Camera camera, byte[] imageData) {
+        ReaderAsyncTask(Camera camera, byte[] imageData, int type) {
             this.camera = camera;
             this.imageData = imageData;
+            this.cameraType = type;
         }
 
         private Result getBarcode(int width, int height) {
@@ -401,6 +405,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 event.putArray("bounds", resultPoints);
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());
+                event.putMap("bounds", this.getBounds(result.getResultPoints()));
                 reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("CameraBarCodeReadAndroid", event);
 
             } catch (Throwable t) {
@@ -410,6 +415,57 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 RCTCameraViewFinder.barcodeScannerTaskLock = false;
                 return null;
             }
+        }
+
+        private WritableMap getBounds(ResultPoint[] points) {
+            double ox = Double.MAX_VALUE;
+            double oy = Double.MAX_VALUE;
+            double mx = -1;
+            double my = -1;
+
+            for (ResultPoint p : points) {
+                double dx = this.translateX((double)p.getX());
+                double dy = this.translateY((double)p.getY());
+                ox = Math.min(ox, dx);
+                oy = Math.min(oy, dy);
+                mx = Math.max(ox, dx);
+                my = Math.max(oy, dy);
+            }
+
+            double width = mx - ox;
+            double height = my - oy;
+
+            WritableMap boundsOrigin = new WritableNativeMap();
+            boundsOrigin.putInt("x", (int)ox);
+            boundsOrigin.putInt("y", (int)oy);
+
+            WritableMap boundsSize = new WritableNativeMap();
+            boundsSize.putInt("width", (int)width);
+            boundsSize.putInt("height", (int)height);
+
+            WritableMap bounds = new WritableNativeMap();
+            bounds.putMap("origin", boundsOrigin);
+            bounds.putMap("size", boundsSize);
+
+            return bounds;
+        }
+
+        private double translateX(double x) {
+            double cameraWidth = (double)RCTCamera.getInstance().getPreviewWidth(this.cameraType);
+            double deviceWidth = (double)getContext().getResources().getDisplayMetrics().widthPixels;
+            double deviceDensity = (double)getResources().getDisplayMetrics().density;
+            double apparentWidth = deviceWidth / deviceDensity;
+            double result = Math.abs(x - cameraWidth) / cameraWidth  * apparentWidth;
+            return result;
+        }
+
+        private double translateY(double y) {
+            double cameraHeight = (double)RCTCamera.getInstance().getPreviewHeight(this.cameraType);
+            double deviceHeight = (double)getContext().getResources().getDisplayMetrics().heightPixels;
+            double deviceDensity = (double)getResources().getDisplayMetrics().density;
+            double apparentHeight = deviceHeight / deviceDensity - 20;
+            double result = Math.abs(y - cameraHeight) / cameraHeight * apparentHeight;
+            return result;
         }
     }
 
