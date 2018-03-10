@@ -14,7 +14,6 @@
 
 @property (nonatomic, weak) RCTCameraManager *manager;
 @property (nonatomic, weak) RCTBridge *bridge;
-@property (nonatomic, strong) RCTCameraFocusSquare *camFocus;
 
 @end
 
@@ -148,7 +147,7 @@
             @"y": [NSNumber numberWithDouble:touchPoint.y]
           }
         };
-        [self.bridge.eventDispatcher sendInputEventWithName:@"focusChanged" body:event];
+        [self.bridge.eventDispatcher sendAppEventWithName:@"focusChanged" body:event];
 
         // Show animated rectangle on the touched area
         if (_defaultOnFocusComponent) {
