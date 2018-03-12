@@ -284,6 +284,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [device unlockForConfiguration];
 }
 
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 - (void)updateFaceDetecting:(id)faceDetecting
 {
     [_faceDetectorManager setIsEnabled:faceDetecting];
@@ -303,6 +304,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     [_faceDetectorManager setClassificationsDetected:requestedClassifications];
 }
+#endif
 
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
@@ -382,7 +384,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // At the time of writing AVCaptureMovieFileOutput and AVCaptureVideoDataOutput (> GMVDataOutput)
         // cannot coexist on the same AVSession (see: https://stackoverflow.com/a/4986032/1123156).
         // We stop face detection here and restart it in when AVCaptureMovieFileOutput finishes recording.
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager stopFaceDetection];
+#endif
         [self setupMovieFileCapture];
     }
     
@@ -443,7 +447,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             self.stillImageOutput = stillImageOutput;
         }
         
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
+#endif
         [self setupOrDisableBarcodeScanner];
         
         __weak RNCamera *weakSelf = self;
@@ -469,7 +475,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     return;
 #endif
     dispatch_async(self.sessionQueue, ^{
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager stopFaceDetection];
+#endif
         [self.previewLayer removeFromSuperlayer];
         [self.session commitConfiguration];
         [self.session stopRunning];
@@ -720,11 +728,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
     self.videoRecordedResolve = nil;
     self.videoRecordedReject = nil;
-    
+
     [self cleanupMovieFileCapture];
+
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
     // If face detection has been running prior to recording to file
     // we reenable it here (see comment in -record).
     [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
+#endif
     
     if (self.session.sessionPreset != AVCaptureSessionPresetHigh) {
         [self updateSessionPreset:AVCaptureSessionPresetHigh];
@@ -738,11 +749,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     Class faceDetectorManagerClass = NSClassFromString(@"RNFaceDetectorManager");
     Class faceDetectorManagerStubClass = NSClassFromString(@"RNFaceDetectorManagerStub");
     
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
     if (faceDetectorManagerClass) {
         return [[faceDetectorManagerClass alloc] initWithSessionQueue:_sessionQueue delegate:self];
     } else if (faceDetectorManagerStubClass) {
         return [[faceDetectorManagerStubClass alloc] init];
     }
+#endif
     
     return nil;
 }

@@ -106,9 +106,9 @@ export default class Camera extends React.Component<PropsType> {
     flashMode: CameraManager.FlashMode,
     autoFocus: CameraManager.AutoFocus,
     whiteBalance: CameraManager.WhiteBalance,
-    faceDetectionMode: CameraManager.FaceDetection.Mode,
-    faceDetectionLandmarks: CameraManager.FaceDetection.Landmarks,
-    faceDetectionClassifications: CameraManager.FaceDetection.Classifications,
+    faceDetectionMode: (CameraManager.FaceDetection || {}).Mode,
+    faceDetectionLandmarks: (CameraManager.FaceDetection || {}).Landmarks,
+    faceDetectionClassifications: (CameraManager.FaceDetection || {}).Classifications,
   };
 
   static propTypes = {
@@ -144,10 +144,10 @@ export default class Camera extends React.Component<PropsType> {
     autoFocus: CameraManager.AutoFocus.on,
     flashMode: CameraManager.FlashMode.off,
     whiteBalance: CameraManager.WhiteBalance.auto,
-    faceDetectionMode: CameraManager.FaceDetection.fast,
+    faceDetectionMode: (CameraManager.FaceDetection || {}).fast,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
-    faceDetectionLandmarks: CameraManager.FaceDetection.Landmarks.none,
-    faceDetectionClassifications: CameraManager.FaceDetection.Classifications.none,
+    faceDetectionLandmarks: ((CameraManager.FaceDetection || {}).Landmarks || {}).none,
+    faceDetectionClassifications: ((CameraManager.FaceDetection || {}).Classifications || {}).none,
     permissionDialogTitle: '',
     permissionDialogMessage: '',
     notAuthorizedView: (

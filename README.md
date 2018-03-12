@@ -84,35 +84,15 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 1. `npm install react-native-camera --save`
 2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
 3. Go to `node_modules` ➜ `react-native-camera` and add `RNCamera.xcodeproj`
-4. In XCode, in the project navigator, select your project. Add `libRNCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
-5. Click `RNCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
+4. Expand the `RNCamera.xcodeproj` ➜ `Products` folder
+5. In XCode, in the project navigator, select your project. Add `libRNCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
+6. Click `RNCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
 
-### Face Detection Steps
+##### Face Detection Steps
 
 Face Detecion is optional on iOS. If you want it, you are going to need to install Google Mobile Vision frameworks in your project, as mentioned in the next section.
 
-##### No Face Detection steps
-
-If you do not need it and do not want to install the GMV frameworks, open your app xcode project, on the Project Navigator, expand the RNCamera project, right click on the FaceDetector folder and delete it (move to trash, if you want). If you keep that folder and do not follow the GMV installation setps, your project will not compile.
-
-If you want to make this automatic, you can add a postinstall script to your app `package.json`. Inside the `postinstall_project` there is a xcode project ready with the folder removed (we opened xcode, removed the folder from the project and copied the resulting project file). The post install script is:
-```
-#!/bin/bash
-echo "Creating project without FaceDetector"
-if [ -e node_modules/react-native-camera/ios/FaceDetector ] ; then
-  rm -rf node_modules/react-native-camera/ios/FaceDetector
-fi
-cp node_modules/react-native-camera/postinstall_project/projectWithoutFaceDetection.pbxproj node_modules/react-native-camera/ios/RNCamera.xcodeproj/project.pbxproj
-```
-
-And add something like this to the `scripts` section in your `package.json`:
-
-*Note:* The face detection code is excluded by default for the **CocoaPods** installation.
-```
-"postinstall": "./scripts/post.sh",
-```
-
-##### Installing GMV frameworks
+###### Installing GMV frameworks
 GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RNCamera project.
 
 1. If using **CocoaPods** modify the dependency towards `react-native-camera` in your
@@ -150,7 +130,7 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 
 #### Android
 1. `npm install react-native-camera --save`
-2. Open up `android/app/src/main/java/[...]/MainApplication.java
+2. Open up `android/app/src/main/java/[...]/MainApplication.java`
   - Add `import org.reactnative.camera.RNCameraPackage;` to the imports at the top of the file
   - Add `new RNCameraPackage()` to the list returned by the `getPackages()` method. Add a comma to the previous item if there's already something there.
 
@@ -164,13 +144,17 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 4. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
 
 	```gradle
-        compile (project(':react-native-camera')) {
+    compile (project(':react-native-camera')) {
         exclude group: "com.google.android.gms"
-    }
-        compile ("com.google.android.gms:play-services-vision:10.2.0") {
-        force = true;
+        compile 'com.android.support:exifinterface:25.+'
+        compile ('com.google.android.gms:play-services-vision:10.2.0') {
+            force = true
+        }
     }
 	```
+
+  > You may need to use different versions, e.g. `27.+` instead of `25.+` and `11.8.0` instead of `10.2.0`.
+
 5. Declare the permissions in your Android Manifest (required for `video recording` feature)
 
   ```java
