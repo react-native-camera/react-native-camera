@@ -659,15 +659,22 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
 {
             if (photoSampleBuffer) {
               NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:photoSampleBuffer];
-    
+
               // Create image source
               CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
+
               //get all the metadata in the image
               NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
-    
+
+              // Resize to HDR working resolution
+              NSDictionary *options = @{
+                  @"kCGImageSourceCreateThumbnailWithTransform": @YES,
+                  @"kCGImageSourceThumbnailMaxPixelSize": @2108,
+                  @"kCGImageSourceCreateThumbnailFromImageAlways": @YES
+              };
               // create cgimage
-              CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
-    
+              CGImageRef cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, (CFDictionaryRef)options);
+
               // Rotate it
               CGImageRef rotatedCGImage;
 
