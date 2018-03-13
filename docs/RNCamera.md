@@ -284,8 +284,13 @@ The promise will be fulfilled with an object with some of the following properti
      - `ios` Specifies capture settings suitable for VGA quality (640x480 pixel) video output. (Same as RNCamera.Constants.VideoQuality.480p).
      - `android` Quality level corresponding to the 480p (720 x 480) resolution but with video frame width set to 640.
 
-  If nothing is passed the device's highest camera quality will be used as default.
-
+    If nothing is passed the device's highest camera quality will be used as default.
+ - `iOS` `codec`. This option specifies the codec of the output video. Setting the codec is only supported on `iOS >= 10`. The possible values are:
+   - `RNCamera.Constants.VideoCodec['H264']`
+   - `RNCamera.Constants.VideoCodec['JPEG']`
+   - `RNCamera.Constants.VideoCodec['HVEC']` (`iOS >= 11`)
+   - `RNCamera.Constants.VideoCodec['AppleProRes422']` (`iOS >= 11`)
+   - `RNCamera.Constants.VideoCodec['AppleProRes4444']` (`iOS >= 11`)
  - `maxDuration` (float greater than 0). Specifies the maximum duration of the video to be recorded in seconds. If nothing is specified, no time limit will be used.
 
  - `maxFileSize` (int greater than 0). Specifies the maximum file size, in bytes, of the video to be recorded. For 1mb, for example, use 1*1024*1024. If nothing is specified, no size limit will be used.
@@ -295,6 +300,8 @@ The promise will be fulfilled with an object with some of the following properti
  The promise will be fulfilled with an object with some of the following properties:
 
  - `uri`: returns the path to the video saved on your app's cache directory.
+
+ - `iOS` `codec`: the codec of the recorded video. One of `RNCamera.Constants.VideoCodec`
 
  #### `stopRecording: void`
 
