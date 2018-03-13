@@ -668,17 +668,11 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
 
               // Resize to HDR working resolution
               NSDictionary *options = @{
-                  @"kCGImageSourceCreateThumbnailWithTransform": @YES,
-                  @"kCGImageSourceThumbnailMaxPixelSize": @2108,
-                  @"kCGImageSourceCreateThumbnailFromImageAlways": @YES
+                  @"kCGImageSourceCreateThumbnailFromImageAlways": @YES,
+                  @"kCGImageSourceThumbnailMaxPixelSize": @2108
               };
               // create cgimage
-              CGImageRef cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, (CFDictionaryRef)options);
-
-              // Rotate it
-              CGImageRef rotatedCGImage;
-
-              rotatedCGImage = cgImage;
+              CGImageRef rotatedCGImage = CGImageSourceCreateThumbnailAtIndex(source, 0, (CFDictionaryRef)options);
     
               // Erase stupid TIFF stuff
               [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
