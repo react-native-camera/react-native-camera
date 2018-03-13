@@ -18,6 +18,7 @@ type CameraType = { front: any, back: any };
 type WhiteBalance = { sunny: any, cloudy: any, shadow: any, incandescent: any, fluorescent: any, auto: any };
 type BarCodeType = { aztec: any, code128: any, code39: any, code39mod43: any, code93: any, ean13: any, ean8: any, pdf417: any, qr: any, upce: any, interleaved2of5: any, itf14: any, datamatrix: any };
 type VideoQuality = { '2160p': any, '1080p': any, '720p': any, '480p': any, '4:3': any };
+type VideoCodec = { 'H264': symbol, 'JPEG': symbol, 'HVEC': symbol, 'AppleProRes422': symbol, 'AppleProRes4444': symbol };
 
 type FaceDetectionClassifications = { all: any, none: any };
 type FaceDetectionLandmarks = { all: any, none: any };
@@ -26,6 +27,7 @@ type FaceDetectionMode = { fast: any, accurate: any };
 export interface Constants {
     AutoFocus: AutoFocus;
     FlashMode: FlashMode;
+    VideoCodec: VideoCodec;
     Type: CameraType;
     WhiteBalance: WhiteBalance;
     VideoQuality: VideoQuality;
@@ -142,11 +144,16 @@ interface RecordOptions {
     maxDuration?: number;
     maxFileSize?: number;
     mute?: boolean;
+
+    /** iOS only */
+    codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
 }
 
 interface RecordResponse {
     /** Path to the video saved on your app's cache directory. */
     uri: string;
+    /** iOS only */
+    codec: VideoCodec[keyof VideoCodec];
 }
 
 export class RNCamera extends Component<RNCameraProps & ViewProperties> {
