@@ -35,6 +35,7 @@ type RecordingOptions = {
   maxDuration?: number,
   maxFileSize?: number,
   quality?: number | string,
+  codec?: string,
   mute?: boolean,
 };
 
@@ -96,6 +97,7 @@ export default class Camera extends React.Component<PropsType> {
     AutoFocus: CameraManager.AutoFocus,
     WhiteBalance: CameraManager.WhiteBalance,
     VideoQuality: CameraManager.VideoQuality,
+    VideoCodec: CameraManager.VideoCodec,
     BarCodeType: CameraManager.BarCodeType,
     FaceDetection: CameraManager.FaceDetection,
   };
