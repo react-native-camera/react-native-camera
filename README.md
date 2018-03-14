@@ -165,11 +165,12 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 
 	```gradle
         compile (project(':react-native-camera')) {
-        exclude group: "com.google.android.gms"
-    }
+        	exclude group: "com.google.android.gms"
+		compile 'com.android.support:exifinterface:27.+'
+    	}
         compile ("com.google.android.gms:play-services-vision:10.2.0") {
-        force = true;
-    }
+        	force = true;
+    	}
 	```
 5. Declare the permissions in your Android Manifest (required for `video recording` feature)
 
