@@ -1,24 +1,27 @@
 buildscript {
   repositories {
     jcenter()
+    maven {
+      url 'https://maven.google.com'
+    }
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:1.2.3'
+    classpath 'com.android.tools.build:gradle:3.0.0'
   }
 }
 
 apply plugin: 'com.android.library'
 
 android {
-  compileSdkVersion 25
-  buildToolsVersion "25.0.2"
+  compileSdkVersion 26
+    buildToolsVersion "26.0.2"
 
   defaultConfig {
     minSdkVersion 16
-    targetSdkVersion 22
+    targetSdkVersion 26
     versionCode 1
-    versionName "1.0"
+    versionName "1.0.0"
   }
   lintOptions {
     abortOnError false
@@ -28,10 +31,18 @@ android {
 
 repositories {
   mavenCentral()
+  maven {
+   url 'https://maven.google.com'
+  }
+  maven { url "https://jitpack.io" }
 }
 
 dependencies {
-  compile "com.facebook.react:react-native:0.19.+"
+  compile 'com.facebook.react:react-native:+'
   compile "com.google.zxing:core:3.2.1"
   compile "com.drewnoakes:metadata-extractor:2.9.1"
+  compile 'com.google.android.gms:play-services-vision:+'
+  compile "com.android.support:exifinterface:+"
+
+  compile 'com.github.react-native-community:cameraview:cc47bb28ed2fc54a8c56a4ce9ce53edd1f0af3a5'
 }
