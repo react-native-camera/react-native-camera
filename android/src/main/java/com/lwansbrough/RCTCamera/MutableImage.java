@@ -219,7 +219,7 @@ public class MutableImage {
     // Even the value is formatted as double it is returned as a String because exif.setAttribute requires it.
     private String convertExposureTimeToDoubleFormat(String exposureTime) {
         if(!exposureTime.contains("/"))
-          return;
+          return "";
 
         String exposureFractions[]= exposureTime.split("/");
         double divider = Double.parseDouble(exposureFractions[1]);
