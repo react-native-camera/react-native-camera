@@ -46,7 +46,7 @@ public class MutableImage {
         return this.currentRepresentation.getHeight();
     }
 
-    public void mirrorImage() throws ImageMutationFailedException {
+    public void mirrorImage() throws com.lwansbrough.RCTCamera.MutableImage.ImageMutationFailedException {
         Matrix m = new Matrix();
 
         m.preScale(-1, 1);
@@ -62,12 +62,12 @@ public class MutableImage {
         );
 
         if (bitmap == null)
-            throw new ImageMutationFailedException("failed to mirror");
+            throw new com.lwansbrough.RCTCamera.MutableImage.ImageMutationFailedException("failed to mirror");
 
         this.currentRepresentation = bitmap;
     }
 
-    public void fixOrientation() throws ImageMutationFailedException {
+    public void fixOrientation() throws com.lwansbrough.RCTCamera.MutableImage.ImageMutationFailedException {
         try {
             Metadata metadata = originalImageMetaData();
 
@@ -82,7 +82,7 @@ public class MutableImage {
                 }
             }
         } catch (ImageProcessingException | IOException | MetadataException e) {
-            throw new ImageMutationFailedException("failed to fix orientation", e);
+            throw new com.lwansbrough.RCTCamera.MutableImage.ImageMutationFailedException("failed to fix orientation", e);
         }
     }
 
@@ -106,7 +106,7 @@ public class MutableImage {
     }
 
     //see http://www.impulseadventure.com/photo/exif-orientation.html
-    private void rotate(int exifOrientation) throws ImageMutationFailedException {
+    private void rotate(int exifOrientation) throws com.lwansbrough.RCTCamera.MutableImage.ImageMutationFailedException {
         final Matrix bitmapMatrix = new Matrix();
         switch (exifOrientation) {
             case 1:
@@ -150,7 +150,7 @@ public class MutableImage {
         );
 
         if (transformedBitmap == null)
-            throw new ImageMutationFailedException("failed to rotate");
+            throw new com.lwansbrough.RCTCamera.MutableImage.ImageMutationFailedException("failed to rotate");
 
         this.currentRepresentation = transformedBitmap;
         this.hasBeenReoriented = true;
@@ -190,15 +190,16 @@ public class MutableImage {
 
             // Add missing exif data from a sub directory
             ExifSubIFDDirectory directory = originalImageMetaData()
-               .getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+                    .getFirstDirectoryOfType(ExifSubIFDDirectory.class);
             for (Tag tag : directory.getTags()) {
                 int tagType = tag.getTagType();
                 // As some of exif data does not follow naming of the ExifInterface the names need
                 // to be transformed into Upper camel case format.
                 String tagName = tag.getTagName().replaceAll(" ", "");
                 Object object = directory.getObject(tagType);
-                if (tagName.equals(ExifInterface.TAG_EXPOSURE_TIME)) {
-                    exif.setAttribute(tagName, convertExposureTimeToDoubleFormat(object.toString()));
+                String convertedTime = convertExposureTimeToDoubleFormat(object.toString());
+                if (tagName.equals(ExifInterface.TAG_EXPOSURE_TIME) && convertedTime != null) {
+                    exif.setAttribute(tagName, convertedTime);
                 } else {
                     exif.setAttribute(tagName, object.toString());
                 }
@@ -218,8 +219,9 @@ public class MutableImage {
     // Reformats exposure time value to match ExifInterface format. Example 1/11 -> 0.0909
     // Even the value is formatted as double it is returned as a String because exif.setAttribute requires it.
     private String convertExposureTimeToDoubleFormat(String exposureTime) {
+
         if(!exposureTime.contains("/"))
-          return "";
+            return null;
 
         String exposureFractions[]= exposureTime.split("/");
         double divider = Double.parseDouble(exposureFractions[1]);
@@ -248,7 +250,7 @@ public class MutableImage {
             double latitude = coords.getDouble("latitude");
             double longitude = coords.getDouble("longitude");
 
-            GPS.writeExifData(latitude, longitude, exif);
+            com.lwansbrough.RCTCamera.MutableImage.GPS.writeExifData(latitude, longitude, exif);
         } catch (IOException e) {
             Log.e(TAG, "Couldn't write location data", e);
         }
