@@ -1,5 +1,6 @@
 package com.lwansbrough.RCTCamera;
 
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -14,6 +15,7 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.facebook.react.bridge.ReadableMap;
 
 import java.io.BufferedInputStream;
@@ -36,6 +38,14 @@ public class MutableImage {
         this.currentRepresentation = toBitmap(originalImageData);
     }
 
+    public int getWidth() {
+        return this.currentRepresentation.getWidth();
+    }
+
+    public int getHeight() {
+        return this.currentRepresentation.getHeight();
+    }
+
     public void mirrorImage() throws ImageMutationFailedException {
         Matrix m = new Matrix();
 
@@ -45,8 +55,8 @@ public class MutableImage {
                 currentRepresentation,
                 0,
                 0,
-                currentRepresentation.getWidth(),
-                currentRepresentation.getHeight(),
+                getWidth(),
+                getHeight(),
                 m,
                 false
         );
@@ -74,6 +84,25 @@ public class MutableImage {
         } catch (ImageProcessingException | IOException | MetadataException e) {
             throw new ImageMutationFailedException("failed to fix orientation", e);
         }
+    }
+
+    public void cropToPreview(double previewRatio) throws IllegalArgumentException {
+        int pictureWidth = getWidth(), pictureHeight = getHeight();
+        int targetPictureWidth, targetPictureHeight;
+
+        if (previewRatio * pictureHeight > pictureWidth) {
+            targetPictureWidth = pictureWidth;
+            targetPictureHeight = (int) (pictureWidth / previewRatio);
+        } else {
+            targetPictureHeight = pictureHeight;
+            targetPictureWidth = (int) (pictureHeight * previewRatio);
+        }
+        this.currentRepresentation = Bitmap.createBitmap(
+                this.currentRepresentation,
+                (pictureWidth - targetPictureWidth) / 2,
+                (pictureHeight - targetPictureHeight) / 2,
+                targetPictureWidth,
+                targetPictureHeight);
     }
 
     //see http://www.impulseadventure.com/photo/exif-orientation.html
@@ -114,8 +143,8 @@ public class MutableImage {
                 currentRepresentation,
                 0,
                 0,
-                currentRepresentation.getWidth(),
-                currentRepresentation.getHeight(),
+                getWidth(),
+                getHeight(),
                 bitmapMatrix,
                 false
         );
@@ -151,12 +180,27 @@ public class MutableImage {
             ExifInterface exif = new ExifInterface(file.getAbsolutePath());
 
             // copy original exif data to the output exif...
-            // unfortunately, this Android ExifInterface class doesn't understand all the tags so we lose some
             for (Directory directory : originalImageMetaData().getDirectories()) {
                 for (Tag tag : directory.getTags()) {
                     int tagType = tag.getTagType();
                     Object object = directory.getObject(tagType);
                     exif.setAttribute(tag.getTagName(), object.toString());
+                }
+            }
+
+            // Add missing exif data from a sub directory
+            ExifSubIFDDirectory directory = originalImageMetaData()
+               .getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+            for (Tag tag : directory.getTags()) {
+                int tagType = tag.getTagType();
+                // As some of exif data does not follow naming of the ExifInterface the names need
+                // to be transformed into Upper camel case format.
+                String tagName = tag.getTagName().replaceAll(" ", "");
+                Object object = directory.getObject(tagType);
+                if (tagName.equals(ExifInterface.TAG_EXPOSURE_TIME)) {
+                    exif.setAttribute(tagName, convertExposureTimeToDoubleFormat(object.toString()));
+                } else {
+                    exif.setAttribute(tagName, object.toString());
                 }
             }
 
@@ -169,6 +213,18 @@ public class MutableImage {
         } catch (ImageProcessingException  | IOException e) {
             Log.e(TAG, "failed to save exif data", e);
         }
+    }
+
+    // Reformats exposure time value to match ExifInterface format. Example 1/11 -> 0.0909
+    // Even the value is formatted as double it is returned as a String because exif.setAttribute requires it.
+    private String convertExposureTimeToDoubleFormat(String exposureTime) {
+        if(!exposureTime.contains("/"))
+          return "";
+
+        String exposureFractions[]= exposureTime.split("/");
+        double divider = Double.parseDouble(exposureFractions[1]);
+        double exposureTimeAsDouble = 1.0f / divider;
+        return Double.toString(exposureTimeAsDouble);
     }
 
     private void rewriteOrientation(ExifInterface exif) {
