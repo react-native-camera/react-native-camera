@@ -292,8 +292,12 @@ public class RNCameraViewHelper {
     textPaint.setColor(Color.YELLOW);
     textPaint.setTextSize(35);
     Calendar calendar = Calendar.getInstance();
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.YY HH:mm:ss", Locale.getDefault());
-    canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.1f, height * 0.9f, textPaint);
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd G '->' HH:mm:ss z");
+    canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.1f, height * 0.2f, textPaint);
+    canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.2f, height * 0.4f, textPaint);
+    canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.3f, height * 0.6f, textPaint);
+    canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.4f, height * 0.8f, textPaint);
+
     return fakePhoto;
   }
 }

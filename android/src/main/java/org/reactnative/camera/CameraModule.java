@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import java.io.ByteArrayOutputStream;
+
 import javax.annotation.Nullable;
 
 public class CameraModule extends ReactContextBaseJavaModule {
@@ -201,9 +203,12 @@ public class CameraModule extends ReactContextBaseJavaModule {
                 }
               } else {
                   Bitmap image = RNCameraViewHelper.generateSimulatorPhoto(cameraView.getWidth(), cameraView.getHeight());
-                  ByteBuffer byteBuffer = ByteBuffer.allocate(image.getRowBytes() * image.getHeight());
-                  image.copyPixelsToBuffer(byteBuffer);
-                  new ResolveTakenPictureAsyncTask(byteBuffer.array(), promise, options).execute();
+
+                  ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                  image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                  byte[] byteArray = stream.toByteArray();
+
+                  new ResolveTakenPictureAsyncTask(byteArray, promise, options, cacheDirectory).execute();
               }
         } catch (Exception e) {
           promise.reject("E_CAMERA_BAD_VIEWTAG", "takePictureAsync: Expected a Camera component");
