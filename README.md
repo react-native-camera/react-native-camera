@@ -89,11 +89,11 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 
 ### Face Detection Steps
 
-Face Detecion is optional on iOS. If you want it, you are going to need to install Google Mobile Vision frameworks in your project, as mentioned in the next section.
+Face Detection is optional on iOS. If you want it, you are going to need to install Google Mobile Vision frameworks in your project, as mentioned in the next section.
 
 ##### No Face Detection steps
 
-If you do not need it and do not want to install the GMV frameworks, open your app xcode project, on the Project Navigator, expand the RNCamera project, right click on the FaceDetector folder and delete it (move to trash, if you want). If you keep that folder and do not follow the GMV installation setps, your project will not compile.
+If you do not need it and do not want to install the GMV frameworks, open your app xcode project, on the Project Navigator, expand the RNCamera project, right click on the FaceDetector folder and delete it (move to trash, if you want). If you keep that folder and do not follow the GMV installation steps, your project will not compile.
 
 If you want to make this automatic, you can add a postinstall script to your app `package.json`. Inside the `postinstall_project` there is a xcode project ready with the folder removed (we opened xcode, removed the folder from the project and copied the resulting project file). The post install script is:
 ```
@@ -146,7 +146,7 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 
 5. On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
 6. On your target -> Build Settings -> Other Linker Flags -> add -lz, -ObjC and -lc++
-7. To force indexing and prevent erros, restart xcode and reopen your project again before compiling.
+7. To force indexing and prevent errors, restart xcode and reopen your project again before compiling.
 
 #### Android
 1. `npm install react-native-camera --save`
