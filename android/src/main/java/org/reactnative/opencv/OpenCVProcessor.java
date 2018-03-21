@@ -141,8 +141,8 @@ public class OpenCVProcessor {
     }
 
     public SparseArray<Map<String, Float>> detect(byte[] imageData, int width, int height, int rotation) {
-        SparseArray<Map<String, Float>> objects = new SparseArray();
         if (this.frame % 15 == 0) {
+            SparseArray<Map<String, Float>> objects = new SparseArray();
             Mat mat = new Mat((height / 2) + height, width, CvType.CV_8UC1);
             mat.put(0, 0, imageData);
 
@@ -158,9 +158,10 @@ public class OpenCVProcessor {
                     break;
             }
 
+            return objects;
         }
         this.frame++;
-        return objects;
+        return null;
     }
 
     private SparseArray<Map<String, Float>> detectFaces(Mat image, int rotation) {

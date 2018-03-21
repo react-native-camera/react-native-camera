@@ -286,7 +286,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   public void onFacesDetected(SparseArray<Map<String, Float>> facesReported, int sourceWidth, int sourceHeight, int sourceRotation) {
-    if (facesReported.size() != 0) {
+    if (facesReported != null) {
       RNCameraViewHelper.emitFacesDetectedEvent(this, facesReported, new ImageDimensions(sourceWidth, sourceHeight, sourceRotation, getFacing()));
     }
   }
