@@ -119,6 +119,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setFaceDetectionExpectedOrientation(faceDetectionExpectedOrientation);
   }
 
+  @ReactProp(name = "objectsToDetect")
+  public void updateObjectsToDetect(RNCameraView view, int objectsToDetect) {
+    view.updateObjectsToDetect(objectsToDetect);
+  }
+
   @ReactProp(name = "faceDetectorEnabled")
   public void setFaceDetecting(RNCameraView view, boolean faceDetectorEnabled) {
     view.setShouldDetectFaces(faceDetectorEnabled);

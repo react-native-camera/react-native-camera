@@ -267,7 +267,7 @@
             float ratio =  fabsf(rect_points[3].x - rect_points[1].x) / fabsf(rect_points[3].y - rect_points[1].y);
             
             // if object large enough
-            if(sizeRel >= 0.03 & ratio >= 6. & ratio <= 8.){
+            if(sizeRel >= 0.025 & ratio >= 5.5 & ratio <= 8.5){
                 NSDictionary *objectDescriptor = @{
                                                    @"x" : [NSNumber numberWithFloat:xRel],
                                                    @"y" : [NSNumber numberWithFloat:yRel],

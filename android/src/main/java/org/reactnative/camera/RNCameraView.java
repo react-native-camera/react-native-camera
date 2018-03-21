@@ -62,6 +62,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private boolean mShouldDetectFaces = false;
   private boolean mShouldScanBarCodes = false;
   private int mFaceDetectionExpectedOrientation = -1;
+  private int mObjectsToDetect = 0;
   private int mFaceDetectorMode = RNFaceDetector.FAST_MODE;
   private int mFaceDetectionLandmarks = RNFaceDetector.NO_LANDMARKS;
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
@@ -248,6 +249,13 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mFaceDetectionExpectedOrientation = expectedFaceOrientation;
     if (openCVProcessor != null) {
       openCVProcessor.setFaceDetectionExpectedOrientation(expectedFaceOrientation);
+    }
+  }
+
+  public void updateObjectsToDetect(int objectsToDetect){
+    mObjectsToDetect = objectsToDetect;
+    if(openCVProcessor != null){
+      openCVProcessor.updateObjectsToDetect(objectsToDetect);
     }
   }
 
