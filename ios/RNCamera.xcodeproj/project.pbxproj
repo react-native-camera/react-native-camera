@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		001F67882027265A001A21D8 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 001F67872027265A001A21D8 /* opencv2.framework */; };
-		001F681120274350001A21D8 /* OpenCVProcessor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 001F681020274350001A21D8 /* OpenCVProcessor.mm */; };
-		0036F41F202C958F002EF644 /* lbpcascade_frontalface_improved.xml in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0036F41E202C9563002EF644 /* lbpcascade_frontalface_improved.xml */; };
 		0314E39D1B661A460092D183 /* CameraFocusSquare.m in Sources */ = {isa = PBXBuildFile; fileRef = 0314E39C1B661A460092D183 /* CameraFocusSquare.m */; };
 		4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */; };
@@ -35,17 +32,12 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				0036F41F202C958F002EF644 /* lbpcascade_frontalface_improved.xml in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		001F67872027265A001A21D8 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../../../../../Downloads/opencv2.framework; sourceTree = "<group>"; };
-		001F680F2027431C001A21D8 /* OpenCVProcessor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OpenCVProcessor.hpp; sourceTree = "<group>"; };
-		001F681020274350001A21D8 /* OpenCVProcessor.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVProcessor.mm; sourceTree = "<group>"; };
-		0036F41E202C9563002EF644 /* lbpcascade_frontalface_improved.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = lbpcascade_frontalface_improved.xml; sourceTree = "<group>"; };
 		0314E39B1B661A0C0092D183 /* CameraFocusSquare.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CameraFocusSquare.h; sourceTree = "<group>"; };
 		0314E39C1B661A460092D183 /* CameraFocusSquare.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraFocusSquare.m; sourceTree = "<group>"; };
 		4107012F1ACB723B00C6AA39 /* libRNCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -85,25 +77,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				001F67882027265A001A21D8 /* opencv2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		001F678620272624001A21D8 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				001F67872027265A001A21D8 /* opencv2.framework */,
-			);
-			path = Frameworks;
-			sourceTree = "<group>";
-		};
 		410701241ACB719800C6AA39 = {
 			isa = PBXGroup;
 			children = (
-				001F678620272624001A21D8 /* Frameworks */,
 				7147DBB02015317E003C59C3 /* FaceDetector */,
 				714166162013E1B600EE9FCC /* RN */,
 				714166152013E19D00EE9FCC /* RCT */,
@@ -138,7 +120,6 @@
 		714166162013E1B600EE9FCC /* RN */ = {
 			isa = PBXGroup;
 			children = (
-				0036F41E202C9563002EF644 /* lbpcascade_frontalface_improved.xml */,
 				71C7FFD42013C824006EB75A /* RNFileSystem.h */,
 				71C7FFD52013C824006EB75A /* RNFileSystem.m */,
 				71C7FFD12013C817006EB75A /* RNImageUtils.h */,
@@ -151,8 +132,6 @@
 				71C7FFCC2013C7BF006EB75A /* RNCamera.m */,
 				7103647920195C53009691D1 /* RNFaceDetectorManagerStub.h */,
 				7103647A20195C53009691D1 /* RNFaceDetectorManagerStub.m */,
-				001F680F2027431C001A21D8 /* OpenCVProcessor.hpp */,
-				001F681020274350001A21D8 /* OpenCVProcessor.mm */,
 			);
 			path = RN;
 			sourceTree = "<group>";
@@ -233,7 +212,6 @@
 				71D5C728201B8A2A0030A15E /* RNFaceEncoder.m in Sources */,
 				454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */,
 				71C7FFD62013C824006EB75A /* RNFileSystem.m in Sources */,
-				001F681120274350001A21D8 /* OpenCVProcessor.mm in Sources */,
 				71D5C729201B8A2D0030A15E /* RNFaceDetectorUtils.m in Sources */,
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,
 				71D5C72C201B8A360030A15E /* RNFaceDetectorManager.m in Sources */,
@@ -286,7 +264,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)/../../../ios/**",
 					"${BUILT_PRODUCTS_DIR}/**",
-					"$(PROJECT_DIR)/../../../ios/**",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -341,7 +318,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)/../../../ios/**",
 					"${BUILT_PRODUCTS_DIR}/**",
-					"$(PROJECT_DIR)/../../../ios/**",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

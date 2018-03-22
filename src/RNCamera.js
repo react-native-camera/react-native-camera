@@ -51,8 +51,6 @@ type PropsType = ViewPropTypes & {
   onCameraReady?: Function,
   onBarCodeRead?: Function,
   faceDetectionMode?: number,
-  faceDetectionExpectedOrientation?: number,
-  objectsToDetect?: number,
   flashMode?: number | string,
   barCodeTypes?: Array<string>,
   whiteBalance?: number | string,
@@ -125,19 +123,13 @@ export default class Camera extends React.Component<PropsType> {
     onBarCodeRead: PropTypes.func,
     onFacesDetected: PropTypes.func,
     faceDetectionMode: PropTypes.number,
-    faceDetectionExpectedOrientation: PropTypes.number,
-    objectsToDetect: PropTypes.number,
     faceDetectionLandmarks: PropTypes.number,
     faceDetectionClassifications: PropTypes.number,
     barCodeTypes: PropTypes.arrayOf(PropTypes.string),
     type: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    autoFocus: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-      PropTypes.bool,
-    ]),
+    autoFocus: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
     permissionDialogTitle: PropTypes.string,
     permissionDialogMessage: PropTypes.string,
     notAuthorizedView: PropTypes.element,
@@ -154,13 +146,10 @@ export default class Camera extends React.Component<PropsType> {
     autoFocus: CameraManager.AutoFocus.on,
     flashMode: CameraManager.FlashMode.off,
     whiteBalance: CameraManager.WhiteBalance.auto,
-    faceDetectionExpectedOrientation: -1,
-    objectsToDetect: -1,
     faceDetectionMode: CameraManager.FaceDetection.fast,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
     faceDetectionLandmarks: CameraManager.FaceDetection.Landmarks.none,
-    faceDetectionClassifications:
-      CameraManager.FaceDetection.Classifications.none,
+    faceDetectionClassifications: CameraManager.FaceDetection.Classifications.none,
     permissionDialogTitle: '',
     permissionDialogMessage: '',
     notAuthorizedView: (
@@ -169,12 +158,14 @@ export default class Camera extends React.Component<PropsType> {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-        }}>
+        }}
+      >
         <Text
           style={{
             textAlign: 'center',
             fontSize: 16,
-          }}>
+          }}
+        >
           Camera not authorized
         </Text>
       </View>
@@ -185,7 +176,8 @@ export default class Camera extends React.Component<PropsType> {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-        }}>
+        }}
+      >
         <ActivityIndicator size="small" />
       </View>
     ),
@@ -251,9 +243,7 @@ export default class Camera extends React.Component<PropsType> {
     }
   };
 
-  _onObjectDetected = (callback: ?Function) => ({
-    nativeEvent,
-  }: EventCallbackArgumentsType) => {
+  _onObjectDetected = (callback: ?Function) => ({ nativeEvent }: EventCallbackArgumentsType) => {
     const { type } = nativeEvent;
 
     if (
