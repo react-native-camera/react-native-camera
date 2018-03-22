@@ -17,6 +17,9 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.google.android.cameraview.CameraView;
 import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.text.Text;
+import com.google.android.gms.vision.text.TextBlock;
+import com.google.android.gms.vision.text.TextRecognizer;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
@@ -27,6 +30,8 @@ import org.reactnative.camera.tasks.BarCodeScannerAsyncTaskDelegate;
 import org.reactnative.camera.tasks.FaceDetectorAsyncTask;
 import org.reactnative.camera.tasks.FaceDetectorAsyncTaskDelegate;
 import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
+import org.reactnative.camera.tasks.TextRecognizerAsyncTask;
+import org.reactnative.camera.tasks.TextRecognizerAsyncTaskDelegate;
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.facedetector.RNFaceDetector;
@@ -41,7 +46,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate {
+public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate,
+    TextRecognizerAsyncTaskDelegate {
   private ThemedReactContext mThemedReactContext;
   private Queue<Promise> mPictureTakenPromises = new ConcurrentLinkedQueue<>();
   private Map<Promise, ReadableMap> mPictureTakenOptions = new ConcurrentHashMap<>();
@@ -55,12 +61,15 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   // Concurrency lock for scanners to avoid flooding the runtime
   public volatile boolean barCodeScannerTaskLock = false;
   public volatile boolean faceDetectorTaskLock = false;
+  public volatile boolean textRecognizerTaskLock = false;
 
   // Scanning-related properties
   private final MultiFormatReader mMultiFormatReader = new MultiFormatReader();
   private final RNFaceDetector mFaceDetector;
+  private final TextRecognizer mTextRecognizer;
   private boolean mShouldDetectFaces = false;
   private boolean mShouldScanBarCodes = false;
+  private boolean mShouldRecognizeText = false;
   private int mFaceDetectorMode = RNFaceDetector.FAST_MODE;
   private int mFaceDetectionLandmarks = RNFaceDetector.NO_LANDMARKS;
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
@@ -71,6 +80,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mThemedReactContext = themedReactContext;
     mFaceDetector = new RNFaceDetector(themedReactContext);
     setupFaceDetector();
+    mTextRecognizer = new TextRecognizer.Builder(themedReactContext).build();
     themedReactContext.addLifecycleEventListener(this);
 
     addCallback(new Callback() {
@@ -121,6 +131,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           FaceDetectorAsyncTaskDelegate delegate = (FaceDetectorAsyncTaskDelegate) cameraView;
           new FaceDetectorAsyncTask(delegate, mFaceDetector, data, width, height, correctRotation).execute();
         }
+
+        if (mShouldRecognizeText && !textRecognizerTaskLock && cameraView instanceof TextRecognizerAsyncTaskDelegate) {
+          textRecognizerTaskLock = true;
+          TextRecognizerAsyncTaskDelegate delegate = (TextRecognizerAsyncTaskDelegate) cameraView;
+          new TextRecognizerAsyncTask(delegate, mTextRecognizer, data, width, height, correctRotation).execute();
+        }
       }
     });
   }
@@ -145,7 +161,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   @Override
   public void onViewAdded(View child) {
     if (this.getView() == child || this.getView() == null) return;
-    // remove and readd view to make sure it is in the back.
+    // remove and read view to make sure it is in the back.
     // @TODO figure out why there was a z order issue in the first place and fix accordingly.
     this.removeView(this.getView());
     this.addView(this.getView(), 0);
@@ -210,7 +226,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   public void setShouldScanBarCodes(boolean shouldScanBarCodes) {
     this.mShouldScanBarCodes = shouldScanBarCodes;
-    setScanning(mShouldDetectFaces || mShouldScanBarCodes);
+    setScanning(mShouldDetectFaces || mShouldScanBarCodes || mShouldRecognizeText);
   }
 
   public void onBarCodeRead(Result barCode) {
@@ -260,7 +276,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   public void setShouldDetectFaces(boolean shouldDetectFaces) {
     this.mShouldDetectFaces = shouldDetectFaces;
-    setScanning(mShouldDetectFaces || mShouldScanBarCodes);
+    setScanning(mShouldDetectFaces || mShouldScanBarCodes || mShouldRecognizeText);
   }
 
   public void onFacesDetected(SparseArray<Face> facesReported, int sourceWidth, int sourceHeight, int sourceRotation) {
@@ -285,6 +301,28 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   @Override
   public void onFaceDetectingTaskCompleted() {
     faceDetectorTaskLock = false;
+  }
+
+  public void setShouldRecognizeText(boolean shouldRecognizeText) {
+    this.mShouldRecognizeText = shouldRecognizeText;
+    setScanning(mShouldDetectFaces || mShouldScanBarCodes || mShouldRecognizeText);
+  }
+
+  @Override
+  public void onTextRecognized(SparseArray<TextBlock> textBlocks, int sourceWidth, int sourceHeight, int sourceRotation) {
+    if (!mShouldRecognizeText) {
+      return;
+    }
+
+    SparseArray<TextBlock> textBlocksDetected = textBlocks == null ? new SparseArray<TextBlock>() : textBlocks;
+    ImageDimensions dimensions = new ImageDimensions(sourceWidth, sourceHeight, sourceRotation, getFacing());
+
+    RNCameraViewHelper.emitTextRecognizedEvent(this, textBlocksDetected, dimensions);
+  }
+
+  @Override
+  public void onTextRecognizerTaskCompleted() {
+    textRecognizerTaskLock = false;
   }
 
   @Override
