@@ -23,15 +23,16 @@ import org.reactnative.camera.events.CameraMountErrorEvent;
 import org.reactnative.camera.events.CameraReadyEvent;
 import org.reactnative.camera.events.FaceDetectionErrorEvent;
 import org.reactnative.camera.events.FacesDetectedEvent;
+import org.reactnative.camera.events.OpenCVProcessorFacesDetectedEvent;
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.facedetector.RNFaceDetector;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Map;
 
 public class RNCameraViewHelper {
-
   public static final String[][] exifTags = new String[][]{
           {"string", ExifInterface.TAG_ARTIST},
           {"int", ExifInterface.TAG_BITS_PER_SAMPLE},
@@ -181,22 +182,24 @@ public class RNCameraViewHelper {
 
   // Face detection events
 
+  // Face detection events
+
   public static void emitFacesDetectedEvent(
-      ViewGroup view,
-      SparseArray<Face> faces,
-      ImageDimensions dimensions
-      ) {
+          ViewGroup view,
+          SparseArray<Map<String, Float>> faces,
+          ImageDimensions dimensions
+  ) {
     float density = view.getResources().getDisplayMetrics().density;
 
     double scaleX = (double) view.getWidth() / (dimensions.getWidth() * density);
     double scaleY = (double) view.getHeight() / (dimensions.getHeight() * density);
 
-    FacesDetectedEvent event = FacesDetectedEvent.obtain(
-        view.getId(),
-        faces,
-        dimensions,
-        scaleX,
-        scaleY
+    OpenCVProcessorFacesDetectedEvent event = OpenCVProcessorFacesDetectedEvent.obtain(
+            view.getId(),
+            faces,
+            dimensions,
+            scaleX,
+            scaleY
     );
 
     ReactContext reactContext = (ReactContext) view.getContext();

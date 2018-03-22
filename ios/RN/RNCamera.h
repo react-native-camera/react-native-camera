@@ -1,3 +1,4 @@
+#import "OpenCVProcessor.hpp"
 #import <AVFoundation/AVFoundation.h>
 #import <React/RCTBridge.h>
 #import <React/RCTBridgeModule.h>
@@ -11,7 +12,7 @@
 
 @class RNCamera;
 
-@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate>
+@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate, OpenCVProcessorFaceDetectorDelegate>
 
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
 @property(nonatomic, strong) AVCaptureSession *session;
@@ -40,6 +41,8 @@
 - (void)updateZoom;
 - (void)updateWhiteBalance;
 - (void)updateFaceDetecting:(id)isDetectingFaces;
+- (void)updateFaceDetectionExpectedOrientation:(NSInteger)faceDetectionExpectedOrientation;
+- (void)updateObjectsToDetect:(NSInteger)objectsToDetect;
 - (void)updateFaceDetectionMode:(id)requestedMode;
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks;
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications;
