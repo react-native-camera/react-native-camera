@@ -31,6 +31,22 @@ type TrackedFaceFeature = FaceFeature & {
   faceID?: number,
 };
 
+type TrackedTextFeature = {
+  type: string,
+  bounds: {
+    size: {
+      width: number,
+      height: number,
+    },
+    origin: {
+      x: number,
+      y: number,
+    },
+  },
+  value: string,
+  components: Array<TrackedTextFeature>,
+};
+
 type RecordingOptions = {
   maxDuration?: number,
   maxFileSize?: number,
@@ -58,7 +74,7 @@ type PropsType = ViewPropTypes & {
   autoFocus?: string | boolean | number,
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
-  onTextRecognized?: Function,
+  onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
   captureAudio?: boolean,
   useCamera2Api?: boolean,
 };
