@@ -424,6 +424,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
 
         dispatch_async(self.sessionQueue, ^{
+            [self updateFlashMode];
             NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingString:@"Camera"] withExtension:@".mov"];
             NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
             [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
