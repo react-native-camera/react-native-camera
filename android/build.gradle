@@ -51,8 +51,8 @@ dependencies {
   compile 'com.facebook.react:react-native:+'
   compile "com.google.zxing:core:3.2.1"
   compile "com.drewnoakes:metadata-extractor:2.9.1"
-  compile 'com.google.android.gms:play-services-vision:$googlePlayServicesVersion'
-  compile 'com.android.support:exifinterface:$supportLibVersion'
+  compile "com.google.android.gms:play-services-vision:$googlePlayServicesVersion"
+  compile "com.android.support:exifinterface:$supportLibVersion"
 
   compile 'com.github.react-native-community:cameraview:d529251d24c0a367a28eea28f0eac2269d12f772'
 }
