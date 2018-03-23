@@ -16,6 +16,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.google.android.cameraview.CameraView;
 import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.text.TextBlock;
 import com.google.zxing.Result;
 
 import org.reactnative.camera.events.BarCodeReadEvent;
@@ -23,6 +24,7 @@ import org.reactnative.camera.events.CameraMountErrorEvent;
 import org.reactnative.camera.events.CameraReadyEvent;
 import org.reactnative.camera.events.FaceDetectionErrorEvent;
 import org.reactnative.camera.events.FacesDetectedEvent;
+import org.reactnative.camera.events.TextRecognizedEvent;
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.facedetector.RNFaceDetector;
 
@@ -217,6 +219,29 @@ public class RNCameraViewHelper {
     reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
   }
 
+  // Text recognition event
+
+  public static void emitTextRecognizedEvent(
+      ViewGroup view,
+      SparseArray<TextBlock> textBlocks,
+      ImageDimensions dimensions) {
+    float density = view.getResources().getDisplayMetrics().density;
+
+    double scaleX = (double) view.getWidth() / (dimensions.getWidth() * density);
+    double scaleY = (double) view.getHeight() / (dimensions.getHeight() * density);
+
+    TextRecognizedEvent event = TextRecognizedEvent.obtain(
+        view.getId(),
+        textBlocks,
+        dimensions,
+        scaleX,
+        scaleY
+    );
+
+    ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  }
+
   // Utilities
 
   public static int getCorrectCameraRotation(int rotation, int facing) {
@@ -292,8 +317,12 @@ public class RNCameraViewHelper {
     textPaint.setColor(Color.YELLOW);
     textPaint.setTextSize(35);
     Calendar calendar = Calendar.getInstance();
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.YY HH:mm:ss", Locale.getDefault());
-    canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.1f, height * 0.9f, textPaint);
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd G '->' HH:mm:ss z");
+    canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.1f, height * 0.2f, textPaint);
+    canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.2f, height * 0.4f, textPaint);
+    canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.3f, height * 0.6f, textPaint);
+    canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.4f, height * 0.8f, textPaint);
+
     return fakePhoto;
   }
 }

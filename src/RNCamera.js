@@ -31,6 +31,22 @@ type TrackedFaceFeature = FaceFeature & {
   faceID?: number,
 };
 
+type TrackedTextFeature = {
+  type: string,
+  bounds: {
+    size: {
+      width: number,
+      height: number,
+    },
+    origin: {
+      x: number,
+      y: number,
+    },
+  },
+  value: string,
+  components: Array<TrackedTextFeature>,
+};
+
 type RecordingOptions = {
   maxDuration?: number,
   maxFileSize?: number,
@@ -58,6 +74,7 @@ type PropsType = ViewPropTypes & {
   autoFocus?: string | boolean | number,
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
+  onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
   captureAudio?: boolean,
   useCamera2Api?: boolean,
 };
@@ -122,6 +139,7 @@ export default class Camera extends React.Component<PropsType> {
     onCameraReady: PropTypes.func,
     onBarCodeRead: PropTypes.func,
     onFacesDetected: PropTypes.func,
+    onTextRecognized: PropTypes.func,
     faceDetectionMode: PropTypes.number,
     faceDetectionLandmarks: PropTypes.number,
     faceDetectionClassifications: PropTypes.number,
@@ -295,6 +313,7 @@ export default class Camera extends React.Component<PropsType> {
           onCameraReady={this._onCameraReady}
           onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
           onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
+          onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
         />
       );
     } else if (!this.state.isAuthorizationChecked) {
@@ -315,8 +334,13 @@ export default class Camera extends React.Component<PropsType> {
       newProps.faceDetectorEnabled = true;
     }
 
+    if (props.onTextRecognized) {
+      newProps.textRecognizerEnabled = true;
+    }
+
     if (Platform.OS === 'ios') {
       delete newProps.ratio;
+      delete newProps.textRecognizerEnabled;
     }
 
     return newProps;
@@ -340,6 +364,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     accessibilityLiveRegion: true,
     barCodeScannerEnabled: true,
     faceDetectorEnabled: true,
+    textRecognizerEnabled: true,
     importantForAccessibility: true,
     onBarCodeRead: true,
     onCameraReady: true,

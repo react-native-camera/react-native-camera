@@ -1,6 +1,6 @@
 # React Native Camera [![Backers on Open Collective](https://opencollective.com/react-native-camera/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-camera/sponsors/badge.svg)](#sponsors) [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![npm downloads](https://img.shields.io/npm/dm/react-native-camera.svg)](https://www.npmjs.com/package/react-native-camera)
 
-The comprehensive camera module for React Native. Including photographs, videos, face detection and barcode scanning!
+The comprehensive camera module for React Native. Including photographs, videos, face detection, barcode scanning and text recognition (Android only)!
 
 `import { RNCamera, FaceDetector } from 'react-native-camera';`
 
@@ -88,21 +88,42 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 5. In XCode, in the project navigator, select your project. Add `libRNCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
 6. Click `RNCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
 
-##### Face Detection Steps
+### Face Detection or Text Recognition Steps
 
-Face Detecion is optional on iOS. If you want it, you are going to need to install Google Mobile Vision frameworks in your project, as mentioned in the next section.
+Face Detection is optional on iOS. If you want it, you are going to need to install Google Mobile Vision frameworks in your project, as mentioned in the next section.
 
-###### Installing GMV frameworks
+##### No Face Detection steps
+
+If you do not need it and do not want to install the GMV frameworks, open your app xcode project, on the Project Navigator, expand the RNCamera project, right click on the FaceDetector folder and delete it (move to trash, if you want). If you keep that folder and do not follow the GMV installation steps, your project will not compile.
+
+If you want to make this automatic, you can add a postinstall script to your app `package.json`. Inside the `postinstall_project` there is a xcode project ready with the folder removed (we opened xcode, removed the folder from the project and copied the resulting project file). The post install script is:
+```
+#!/bin/bash
+echo "Creating project without FaceDetector"
+if [ -e node_modules/react-native-camera/ios/FaceDetector ] ; then
+  rm -rf node_modules/react-native-camera/ios/FaceDetector
+fi
+cp node_modules/react-native-camera/postinstall_project/projectWithoutFaceDetection.pbxproj node_modules/react-native-camera/ios/RNCamera.xcodeproj/project.pbxproj
+```
+
+And add something like this to the `scripts` section in your `package.json`:
+
+*Note:* The face detection code is excluded by default for the **CocoaPods** installation.
+```
+"postinstall": "./scripts/post.sh",
+```
+
+##### Installing GMV frameworks
 GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RNCamera project.
 
 1. If using **CocoaPods** modify the dependency towards `react-native-camera` in your
- `Podfile`, from 
+ `Podfile`, from
 
  ```
  pod 'react-native-camera', path: '../node_modules/react-native-camera'
 ```
 
-to 
+to
 
 ```
 pod 'react-native-camera', subspecs: ['RCT', 'RN', 'FaceDetector'], path: '../node_modules/react-native-camera'
@@ -126,7 +147,7 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 
 5. On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
 6. On your target -> Build Settings -> Other Linker Flags -> add -lz, -ObjC and -lc++
-7. To force indexing and prevent erros, restart xcode and reopen your project again before compiling.
+7. To force indexing and prevent errors, restart xcode and reopen your project again before compiling.
 
 #### Android
 1. `npm install react-native-camera --save`
@@ -169,6 +190,83 @@ allprojects {
     repositories {
         maven { url "https://jitpack.io" }
     }
+}
+```
+
+The current Android library defaults to the below values for the Google SDK and Libraries,
+
+```gradle
+def DEFAULT_COMPILE_SDK_VERSION             = 26
+def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
+def DEFAULT_TARGET_SDK_VERSION              = 26
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "10.2.0"
+def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
+```
+
+You can override this settings by adding a Project-wide gradle configuration properties for
+use by all modules in your ReactNative project by adding the below to `android/build.gradle`
+file,
+
+```gradle
+buildscript {...}
+
+allprojects {...}
+
+/**
+* Project-wide gradle configuration properties for use by all modules
+*/
+ext {
+    compileSdkVersion           = 26
+    targetSdkVersion            = 26
+    buildToolsVersion           = "26.0.2"
+    googlePlayServicesVersion   = "12.0.0"
+    supportLibVersion           = "27.1.0"
+}
+```
+
+The above settings in the ReactNative project over-rides the values present in the `react-native-camera`
+module. For your reference below is the `android/build.gradle` file of the module.
+
+```gradle
+buildscript {
+...
+
+def DEFAULT_COMPILE_SDK_VERSION             = 26
+def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
+def DEFAULT_TARGET_SDK_VERSION              = 26
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "10.2.0"
+def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
+
+android {
+  compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
+  buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
+
+  defaultConfig {
+    minSdkVersion 16
+    targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
+
+    versionCode 1
+    versionName "1.0.0"
+  }
+  lintOptions {
+    abortOnError false
+    warning 'InvalidPackage'
+  }
+}
+
+...
+
+dependencies {
+  def googlePlayServicesVersion = rootProject.hasProperty('googlePlayServicesVersion')  ? rootProject.googlePlayServicesVersion : DEFAULT_GOOGLE_PLAY_SERVICES_VERSION
+  def supportLibVersion = rootProject.hasProperty('supportLibVersion')  ? rootProject.supportLibVersion : DEFAULT_SUPPORT_LIBRARY_VERSION
+
+  compile 'com.facebook.react:react-native:+'
+  compile "com.google.zxing:core:3.2.1"
+  compile "com.drewnoakes:metadata-extractor:2.9.1"
+  compile 'com.google.android.gms:play-services-vision:$googlePlayServicesVersion'
+  compile 'com.android.support:exifinterface:$supportLibVersion'
+
+  compile 'com.github.react-native-community:cameraview:cc47bb28ed2fc54a8c56a4ce9ce53edd1f0af3a5'
 }
 ```
 

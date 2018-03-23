@@ -233,6 +233,14 @@ Values: `RNCamera.Constants.FaceDetection.Classifications.all` or `RNCamera.Cons
 
 Classification is determining whether a certain facial characteristic is present. For example, a face can be classified with regards to whether its eyes are open or closed. Another example is whether the face is smiling or not.
 
+### Text Recognition Related props
+
+Only available in Android. RNCamera uses the Google Mobile Vision frameworks for Text Recognition, you can read more info about it [here](https://developers.google.com/vision/android/text-overview).
+
+#### `onTextRecognized`
+
+Method to be called when text is detected. Receives a Text Recognized Event object. The interesting value of this object is the `textBlocks` value, which is an array with objects of the [TextBlock](https://developers.google.com/android/reference/com/google/android/gms/vision/text/TextBlock) properties.
+
 #### `takePictureAsync([options]): Promise`
 
 Takes a picture, saves in your app's cache directory and returns a promise.

@@ -10,6 +10,10 @@ RCTCamera is **DEPRECATED** on v1.0.0 follow our migration guide here https://gi
 2.
 3.
 
+### Does it work with Expo Camera?
+RNCamera is based on Expo Camera, if this does not work with Expo Camera it won't work with RNCamera as well.
+You should open an issue there as well, so we can cooperate in a solution.
+
 ### Expected behaviour
 Tell us what should happen
 
