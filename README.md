@@ -116,13 +116,13 @@ And add something like this to the `scripts` section in your `package.json`:
 GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RNCamera project.
 
 1. If using **CocoaPods** modify the dependency towards `react-native-camera` in your
- `Podfile`, from 
+ `Podfile`, from
 
  ```
  pod 'react-native-camera', path: '../node_modules/react-native-camera'
 ```
 
-to 
+to
 
 ```
 pod 'react-native-camera', subspecs: ['RCT', 'RN', 'FaceDetector'], path: '../node_modules/react-native-camera'
@@ -164,13 +164,7 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 4. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
 
 	```gradle
-        compile (project(':react-native-camera')) {
-        	exclude group: "com.google.android.gms"
-		compile 'com.android.support:exifinterface:27.+'
-    	}
-        compile ("com.google.android.gms:play-services-vision:10.2.0") {
-        	force = true;
-    	}
+    compile project(':react-native-camera')
 	```
 5. Declare the permissions in your Android Manifest (required for `video recording` feature)
 
@@ -186,6 +180,83 @@ allprojects {
     repositories {
         maven { url "https://jitpack.io" }
     }
+}
+```
+
+The current Android library defaults to the below values for the Google SDK and Libraries,
+
+```gradle
+def DEFAULT_COMPILE_SDK_VERSION             = 26
+def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
+def DEFAULT_TARGET_SDK_VERSION              = 26
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "10.2.0"
+def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
+```
+
+You can override this settings by adding a Project-wide gradle configuration properties for
+use by all modules in your ReactNative project by adding the below to `android/build.gradle`
+file,
+
+```gradle
+buildscript {...}
+
+allprojects {...}
+
+/**
+* Project-wide gradle configuration properties for use by all modules
+*/
+ext {
+    compileSdkVersion           = 26
+    targetSdkVersion            = 26
+    buildToolsVersion           = "26.0.2"
+    googlePlayServicesVersion   = "12.0.0"
+    supportLibVersion           = "27.1.0"
+}
+```
+
+The above settings in the ReactNative project over-rides the values present in the `react-native-camera`
+module. For your reference below is the `android/build.gradle` file of the module.
+
+```gradle
+buildscript {
+...
+
+def DEFAULT_COMPILE_SDK_VERSION             = 26
+def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
+def DEFAULT_TARGET_SDK_VERSION              = 26
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "10.2.0"
+def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
+
+android {
+  compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
+  buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
+
+  defaultConfig {
+    minSdkVersion 16
+    targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
+
+    versionCode 1
+    versionName "1.0.0"
+  }
+  lintOptions {
+    abortOnError false
+    warning 'InvalidPackage'
+  }
+}
+
+...
+
+dependencies {
+  def googlePlayServicesVersion = rootProject.hasProperty('googlePlayServicesVersion')  ? rootProject.googlePlayServicesVersion : DEFAULT_GOOGLE_PLAY_SERVICES_VERSION
+  def supportLibVersion = rootProject.hasProperty('supportLibVersion')  ? rootProject.supportLibVersion : DEFAULT_SUPPORT_LIBRARY_VERSION
+
+  compile 'com.facebook.react:react-native:+'
+  compile "com.google.zxing:core:3.2.1"
+  compile "com.drewnoakes:metadata-extractor:2.9.1"
+  compile 'com.google.android.gms:play-services-vision:$googlePlayServicesVersion'
+  compile 'com.android.support:exifinterface:$supportLibVersion'
+
+  compile 'com.github.react-native-community:cameraview:cc47bb28ed2fc54a8c56a4ce9ce53edd1f0af3a5'
 }
 ```
 
