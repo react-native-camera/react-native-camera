@@ -70,7 +70,8 @@ export interface RNCameraProps {
     faceDetectionClassifications?: keyof FaceDetectionClassifications;
 
     // -- ANDROID ONLY PROPS
-
+    /** Android only */
+    onTextRecognized?(response: { textBlocks: TrackedTextFeature[] }): void;
     /** Android only */
     ratio?: string;
     /** Android only */
@@ -90,13 +91,15 @@ interface Point {
     y: number
 }
 
+interface Size {
+    width: number;
+    height: number;
+}
+
 interface Face {
     faceID?: number,
     bounds: {
-        size: {
-            width: number;
-            height: number;
-        };
+        size: Size;
         origin: Point;
     };
     smilingProbability?: number;
@@ -115,6 +118,16 @@ interface Face {
     noseBasePosition?: Point;
     yawAngle?: number;
     rollAngle?: number;
+}
+
+interface TrackedTextFeature {
+    type: 'block' | 'line' | 'element';
+    bounds: {
+        size: Size;
+        origin: Point;
+    },
+    value: string;
+    components: TrackedTextFeature[];
 }
 
 interface TakePictureOptions {
