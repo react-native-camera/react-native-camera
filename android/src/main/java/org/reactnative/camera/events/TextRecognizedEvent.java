@@ -104,7 +104,7 @@ public class TextRecognizedEvent extends Event<TextRecognizedEvent> {
 
     WritableMap size = Arguments.createMap();
     size.putDouble("width", text.getBoundingBox().width() * this.mScaleX);
-    size.putDouble("height", text.getBoundingBox().width() * this.mScaleY);
+    size.putDouble("height", text.getBoundingBox().height() * this.mScaleY);
 
     WritableMap bounds = Arguments.createMap();
     bounds.putMap("origin", origin);
