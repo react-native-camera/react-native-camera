@@ -19,7 +19,8 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_MOUNT_ERROR("onMountError"),
     EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
     EVENT_ON_FACES_DETECTED("onFacesDetected"),
-    EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError");
+    EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
+    EVENT_ON_TEXT_RECOGNIZED("onTextRecognized");
 
     private final String mName;
 
@@ -137,5 +138,10 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "faceDetectionClassifications")
   public void setFaceDetectionClassifications(RNCameraView view, int classifications) {
     view.setFaceDetectionClassifications(classifications);
+  }
+
+  @ReactProp(name = "textRecognizerEnabled")
+  public void setTextRecognizing(RNCameraView view, boolean textRecognizerEnabled) {
+    view.setShouldRecognizeText(textRecognizerEnabled);
   }
 }
