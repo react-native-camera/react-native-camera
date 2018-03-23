@@ -8,13 +8,17 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 #import <GoogleMobileVision/GoogleMobileVision.h>
 #import <GoogleMVDataOutput/GoogleMVDataOutput.h>
+#endif
+
 
 @protocol RNFaceDetectorDelegate
 - (void)onFacesDetected:(NSArray<NSDictionary *> *)faces;
 @end
 
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 @interface RNFaceDetectorManager : NSObject
 
 - (NSDictionary *)constantsToExport;
@@ -31,3 +35,4 @@
 - (void)stopFaceDetection;
 
 @end
+#endif

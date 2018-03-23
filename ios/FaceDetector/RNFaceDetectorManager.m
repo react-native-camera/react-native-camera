@@ -5,6 +5,7 @@
 //  Created by Joao Guilherme Daros Fidelis on 21/01/18.
 //
 
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 #import <React/RCTConvert.h>
 #import "RNCamera.h"
 #import "RNFaceEncoder.h"
@@ -272,3 +273,4 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 @end
+#endif

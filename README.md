@@ -84,8 +84,9 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 1. `npm install react-native-camera --save`
 2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
 3. Go to `node_modules` ➜ `react-native-camera` and add `RNCamera.xcodeproj`
-4. In XCode, in the project navigator, select your project. Add `libRNCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
-5. Click `RNCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
+4. Expand the `RNCamera.xcodeproj` ➜ `Products` folder
+5. In XCode, in the project navigator, select your project. Add `libRNCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
+6. Click `RNCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
 
 ### Face Detection or Text Recognition Steps
 
@@ -150,7 +151,7 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 
 #### Android
 1. `npm install react-native-camera --save`
-2. Open up `android/app/src/main/java/[...]/MainApplication.java
+2. Open up `android/app/src/main/java/[...]/MainApplication.java`
   - Add `import org.reactnative.camera.RNCameraPackage;` to the imports at the top of the file
   - Add `new RNCameraPackage()` to the list returned by the `getPackages()` method. Add a comma to the previous item if there's already something there.
 
@@ -164,8 +165,17 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 4. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
 
 	```gradle
-    compile project(':react-native-camera')
+    compile (project(':react-native-camera')) {
+        exclude group: "com.google.android.gms"
+        compile 'com.android.support:exifinterface:25.+'
+        compile ('com.google.android.gms:play-services-vision:10.2.0') {
+            force = true
+        }
+    }
 	```
+
+  > You may need to use different versions, e.g. `27.+` instead of `25.+` and `11.8.0` instead of `10.2.0`.
+
 5. Declare the permissions in your Android Manifest (required for `video recording` feature)
 
   ```java

@@ -105,10 +105,14 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
 
 + (NSDictionary *)faceDetectorConstants
 {
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 #if __has_include("RNFaceDetectorManager.h")
     return [RNFaceDetectorManager constants];
 #else
     return [RNFaceDetectorManagerStub constants];
+#endif
+#else
+    return [NSDictionary new];
 #endif
 }
 

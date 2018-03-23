@@ -5,6 +5,7 @@
 //  Created by Joao Guilherme Daros Fidelis on 21/01/18.
 //
 
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 #import "RNFaceDetectorModule.h"
 #import "RNFaceEncoder.h"
 #import "RNFileSystem.h"
@@ -193,3 +194,4 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
 }
 
 @end
+#endif
