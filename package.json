@@ -63,6 +63,6 @@
     "release:version": "node ./changelog --version $VERSION && git push origin && git push origin --follow-tags",
     "release:major": "node ./changelog --major && npm version major && git push origin && git push origin --follow-tags",
     "release:minor": "node ./changelog --minor && npm version minor && git push origin && git push origin --follow-tags",
-    "release:patch": "node ./changelog --patch && npm version patch && git push origin && git push origin --follow-tags",
+    "release:patch": "node ./changelog --patch && npm version patch && git push origin && git push origin --follow-tags"
   }
 }
