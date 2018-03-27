@@ -120,8 +120,6 @@ A string representing the camera ratio in the format 'height:width'. Default is 
 
 Use `getSupportedRatiosAsync` method to get ratio strings supported by your camera on Android.
 
-## Component instance methods
-
 #### `type`
 
 Values: `RNCamera.Constants.Type.front` or `RNCamera.Constants.Type.back` (default)
@@ -240,6 +238,8 @@ Only available in Android. RNCamera uses the Google Mobile Vision frameworks for
 #### `onTextRecognized`
 
 Method to be called when text is detected. Receives a Text Recognized Event object. The interesting value of this object is the `textBlocks` value, which is an array with objects of the [TextBlock](https://developers.google.com/android/reference/com/google/android/gms/vision/text/TextBlock) properties.
+
+## Component instance methods
 
 #### `takePictureAsync([options]): Promise`
 
