@@ -57,10 +57,11 @@ export interface RNCameraProps {
     // -- BARCODE PROPS
     barCodeTypes?: Array<keyof BarCodeType>;
     onBarCodeRead?(event: {
-        data: string
-        type: keyof BarCodeType
+        data: string,
+        type: keyof BarCodeType,
+        bounds:[{x:string,y:string}]|{origin:{x:string,y:string},size:{height:string,width:string}}
     }): void;
-
+    
     // -- FACE DETECTION PROPS
 
     onFacesDetected?(response: { faces: Face[] }): void;

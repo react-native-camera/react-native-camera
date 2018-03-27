@@ -702,10 +702,20 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             AVMetadataMachineReadableCodeObject *codeMetadata = (AVMetadataMachineReadableCodeObject *) metadata;
             for (id barcodeType in self.barCodeTypes) {
                 if ([metadata.type isEqualToString:barcodeType]) {
-
+                    AVMetadataMachineReadableCodeObject *transformed = (AVMetadataMachineReadableCodeObject *)[_previewLayer transformedMetadataObjectForMetadataObject:metadata];
                     NSDictionary *event = @{
                                             @"type" : codeMetadata.type,
-                                            @"data" : codeMetadata.stringValue
+                                            @"data" : codeMetadata.stringValue,
+                                            @"bounds": @{
+                                                @"origin": @{
+                                                    @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
+                                                    @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y]
+                                                },
+                                                @"size": @{
+                                                    @"height": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
+                                                    @"width": [NSString stringWithFormat:@"%f", transformed.bounds.size.width]
+                                                }
+                                            }
                                             };
 
                     [self onCodeRead:event];
