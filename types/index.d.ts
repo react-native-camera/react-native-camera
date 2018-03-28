@@ -59,7 +59,11 @@ export interface RNCameraProps {
     onBarCodeRead?(event: {
         data: string,
         type: keyof BarCodeType,
-        bounds:[{x:string,y:string}]|{origin:{x:string,y:string},size:{height:string,width:string}}
+        /**
+         * @description For Android use `[Point<string>, Point<string>]`
+         * @description For iOS use `{ origin: Point<string>, size: Size<string> }`
+         */
+        bounds: [Point<string>, Point<string>] | { origin: Point<string>, size: Size<string> }
     }): void;
     
     // -- FACE DETECTION PROPS
@@ -87,14 +91,14 @@ export interface RNCameraProps {
 
 }
 
-interface Point {
-    x: number,
-    y: number
+interface Point<T = number> {
+    x: T,
+    y: T
 }
 
-interface Size {
-    width: number;
-    height: number;
+interface Size<T = number> {
+    width: T;
+    height: T;
 }
 
 interface Face {
