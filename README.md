@@ -189,6 +189,7 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 allprojects {
     repositories {
         maven { url "https://jitpack.io" }
+        maven { url "https://maven.google.com" }
     }
 }
 ```
