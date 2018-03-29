@@ -203,12 +203,9 @@ public class CameraModule extends ReactContextBaseJavaModule {
                 }
               } else {
                   Bitmap image = RNCameraViewHelper.generateSimulatorPhoto(cameraView.getWidth(), cameraView.getHeight());
-
                   ByteArrayOutputStream stream = new ByteArrayOutputStream();
                   image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                  byte[] byteArray = stream.toByteArray();
-
-                  new ResolveTakenPictureAsyncTask(byteArray, promise, options, cacheDirectory).execute();
+                  new ResolveTakenPictureAsyncTask(stream.toByteArray(), promise, options, cacheDirectory).execute();
               }
         } catch (Exception e) {
           promise.reject("E_CAMERA_BAD_VIEWTAG", "takePictureAsync: Expected a Camera component");
