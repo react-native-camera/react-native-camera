@@ -168,13 +168,13 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
     compile (project(':react-native-camera')) {
         exclude group: "com.google.android.gms"
         compile 'com.android.support:exifinterface:25.+'
-        compile ('com.google.android.gms:play-services-vision:10.2.0') {
+        compile ('com.google.android.gms:play-services-vision:12.0.1') {
             force = true
         }
     }
 	```
 
-  > You may need to use different versions, e.g. `27.+` instead of `25.+` and `11.8.0` instead of `10.2.0`.
+  > You may need to use different exifinterface versions, e.g. `27.+` instead of `25.+`.
 
 5. Declare the permissions in your Android Manifest (required for `video recording` feature)
 
@@ -200,7 +200,7 @@ The current Android library defaults to the below values for the Google SDK and 
 def DEFAULT_COMPILE_SDK_VERSION             = 26
 def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
 def DEFAULT_TARGET_SDK_VERSION              = 26
-def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "10.2.0"
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
 def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
 ```
 
@@ -220,7 +220,7 @@ ext {
     compileSdkVersion           = 26
     targetSdkVersion            = 26
     buildToolsVersion           = "26.0.2"
-    googlePlayServicesVersion   = "12.0.0"
+    googlePlayServicesVersion   = "12.0.1"
     supportLibVersion           = "27.1.0"
 }
 ```
@@ -235,7 +235,7 @@ buildscript {
 def DEFAULT_COMPILE_SDK_VERSION             = 26
 def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
 def DEFAULT_TARGET_SDK_VERSION              = 26
-def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "10.2.0"
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
 def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
 
 android {
