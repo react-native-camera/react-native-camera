@@ -116,26 +116,43 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
       }
 
+      private byte[] rotateImage(byte[]imageData,int height,int width){
+        byte[] rotated = new byte[imageData.length];
+        for (int y = 0; y < width; y++) {
+          for (int x = 0; x < height; x++) {
+            rotated[x * width + width - y - 1] = imageData[x + y * height];
+          }
+        }
+        return rotated;
+      }
+
       @Override
       public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int rotation) {
         int correctRotation = RNCameraViewHelper.getCorrectCameraRotation(rotation, getFacing());
-
+        int correctWidth=width;
+        int correctHeight=height;
+        byte[] correctData=data;
+        if(correctRotation==90){
+          correctWidth=height;
+          correctHeight=width;
+          correctData=rotateImage(data,correctHeight,correctWidth);
+        }
         if (mShouldScanBarCodes && !barCodeScannerTaskLock && cameraView instanceof BarCodeScannerAsyncTaskDelegate) {
           barCodeScannerTaskLock = true;
           BarCodeScannerAsyncTaskDelegate delegate = (BarCodeScannerAsyncTaskDelegate) cameraView;
-          new BarCodeScannerAsyncTask(delegate, mMultiFormatReader, data, width, height).execute();
+          new BarCodeScannerAsyncTask(delegate, mMultiFormatReader, correctData, correctWidth, correctHeight).execute();
         }
 
         if (mShouldDetectFaces && !faceDetectorTaskLock && cameraView instanceof FaceDetectorAsyncTaskDelegate) {
           faceDetectorTaskLock = true;
           FaceDetectorAsyncTaskDelegate delegate = (FaceDetectorAsyncTaskDelegate) cameraView;
-          new FaceDetectorAsyncTask(delegate, mFaceDetector, data, width, height, correctRotation).execute();
+          new FaceDetectorAsyncTask(delegate, mFaceDetector, correctData, correctWidth, correctHeight, correctRotation).execute();
         }
 
         if (mShouldRecognizeText && !textRecognizerTaskLock && cameraView instanceof TextRecognizerAsyncTaskDelegate) {
           textRecognizerTaskLock = true;
           TextRecognizerAsyncTaskDelegate delegate = (TextRecognizerAsyncTaskDelegate) cameraView;
-          new TextRecognizerAsyncTask(delegate, mTextRecognizer, data, width, height, correctRotation).execute();
+          new TextRecognizerAsyncTask(delegate, mTextRecognizer, correctData, correctWidth, correctHeight, correctRotation).execute();
         }
       }
     });
