@@ -252,11 +252,11 @@ Supported options:
  - `quality` (float between 0 to 1.0). This property is used to compress the output jpeg file with 1 meaning no jpeg compression will be applied. If no value is specified `quality:1` is used.
 
  - `base64` (boolean true or false) Use this with `true` if you want a base64 representation of the picture taken on the return data of your promise. If no value is specified `base64:false` is used.
- 
+
  - `mirrorImage` (boolean true or false). Use this with `true` if you want the resulting rendered picture to be mirrored (inverted in the vertical axis). If no value is specified `mirrorImage:false` is used.
 
  - `exif` (boolean true or false) Use this with `true` if you want a exif data map of the picture taken on the return data of your promise. If no value is specified `exif:false` is used.
- 
+
  - `fixOrientation` (android only, boolean true or false) Use this with `true` if you want to fix incorrect image orientation (can take up to 5 seconds on some devices). Do not provide this if you only need EXIF based orientation.
 
  - `forceUpOrientation` (iOS only, boolean true or false). This property allows to force portrait orientation based on actual data instead of exif data.
@@ -269,6 +269,7 @@ The promise will be fulfilled with an object with some of the following properti
  - `base64`: returns the base64 representation of the image if required.
  - `exif`: returns an exif map of the image if required.
 
+- `skipProcessing` (android only, boolean). This property skips all image processing on android, this makes taking photos super fast, but you loose some of the information, width, height and the ability to do some processing on the image (base64, width, quality, mirrorImage, exif, etc)
  #### `recordAsync([options]): Promise`
 
  Records a video, saves it in your app's cache directory and returns a promise when stopRecording is called or either maxDuration or maxFileSize specified are reached.
@@ -276,19 +277,19 @@ The promise will be fulfilled with an object with some of the following properti
  Supported options:
 
  - `quality`. This option specifies the quality of the video to be taken. The possible values are:
-   - `RNCamera.Constants.VideoQuality.2160p`. 
+   - `RNCamera.Constants.VideoQuality.2160p`.
       - `ios` Specifies capture settings suitable for 2160p (also called UHD or 4K) quality (3840x2160 pixel) video output.
       - `android` Quality level corresponding to the 2160p (3840x2160) resolution. (Android Lollipop and above only!).
-   - `RNCamera.Constants.VideoQuality.1080p`. 
+   - `RNCamera.Constants.VideoQuality.1080p`.
      - `ios` Specifies capture settings suitable for 1080p quality (1920x1080 pixel) video output.
       - `android` Quality level corresponding to the 1080p (1920 x 1080) resolution.
-   - `RNCamera.Constants.VideoQuality.720p`. 
+   - `RNCamera.Constants.VideoQuality.720p`.
      - `ios` Specifies capture settings suitable for 720p quality (1280x720 pixel) video output.
      - `android` Quality level corresponding to the 720p (1280 x 720) resolution.
-   - `RNCamera.Constants.VideoQuality.480p`. 
+   - `RNCamera.Constants.VideoQuality.480p`.
      - `ios` Specifies capture settings suitable for VGA quality (640x480 pixel) video output.
      - `android` Quality level corresponding to the 480p (720 x 480) resolution.
-   - `RNCamera.Constants.VideoQuality.4:3`. 
+   - `RNCamera.Constants.VideoQuality.4:3`.
      - `ios` Specifies capture settings suitable for VGA quality (640x480 pixel) video output. (Same as RNCamera.Constants.VideoQuality.480p).
      - `android` Quality level corresponding to the 480p (720 x 480) resolution but with video frame width set to 640.
 
