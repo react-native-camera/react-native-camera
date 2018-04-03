@@ -143,7 +143,10 @@ interface TakePictureOptions {
     mirrorImage?: boolean;
 
     /** Android only */
+    skipProcessing?: boolean;
+    /** Android only */
     fixOrientation?: boolean;
+    
     /** iOS only */
     forceUpOrientation?: boolean;
 }
