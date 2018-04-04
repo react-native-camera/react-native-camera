@@ -164,10 +164,22 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     if (null == preview) {
       return;
     }
+    float width = right - left;
+    float height = bottom - top;
+    float ratio = getAspectRatio().toFloat();
+    int correctHeight;
+    int correctWidth;
     this.setBackgroundColor(Color.BLACK);
-    int width = right - left;
-    int height = bottom - top;
-    preview.layout(0, 0, width, height);
+    if (height / width > ratio) {
+      correctHeight = (int) (width * ratio);
+      correctWidth = (int) width;
+    } else {
+      correctHeight = (int) height;
+      correctWidth = (int)(height*ratio);
+    }
+    int paddingX = (int) ((width - correctWidth) / 2);
+    int paddingY = (int) ((height - correctHeight) / 2);
+    preview.layout(paddingX, paddingY, correctWidth+paddingX, correctHeight+paddingY);
   }
 
   @Override
