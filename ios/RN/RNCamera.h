@@ -11,13 +11,13 @@
 
 @class RNCamera;
 
-@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate>
+@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, RNFaceDetectorDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
 
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
 @property(nonatomic, strong) AVCaptureSession *session;
 @property(nonatomic, strong) AVCaptureDeviceInput *videoCaptureDeviceInput;
 @property(nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
-@property(nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
+//@property(nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
 @property(nonatomic, strong) AVCaptureMetadataOutput *metadataOutput;
 @property(nonatomic, strong) id runtimeErrorHandlingObserver;
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
@@ -34,6 +34,14 @@
 @property(nonatomic, assign) BOOL isDetectingFaces;
 @property(nonatomic, assign) AVVideoCodecType videoCodecType;
 @property(nonatomic, assign) AVCaptureVideoStabilizationMode videoStabilizationMode;
+
+@property(nonatomic, strong) AVAssetWriter *videoWriter;
+@property(nonatomic, strong) AVAssetWriterInput* writerInput;
+@property(nonatomic, strong) AVCaptureVideoDataOutput* videoOutput;
+@property(nonatomic, strong) NSTimer* timer;
+@property(nonatomic, assign) BOOL canAppendBuffer;
+@property(nonatomic, assign) CMTime bufferTimestamp;
+@property(nonatomic, assign) Float64 maxDuration;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;
@@ -58,5 +66,6 @@
 - (void)onCodeRead:(NSDictionary *)event;
 - (void)onFacesDetected:(NSDictionary *)event;
 - (void)onPictureSaved:(NSDictionary *)event;
+- (void)stopAssetWriter;
 
 @end
