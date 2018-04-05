@@ -35,6 +35,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.bridge = bridge;
         self.session = [AVCaptureSession new];
         self.sessionQueue = dispatch_queue_create("cameraQueue", DISPATCH_QUEUE_SERIAL);
+        self.frameBufferQueue = dispatch_queue_create("frameQueue", DISPATCH_QUEUE_SERIAL);
         self.faceDetectorManager = [self createFaceDetectorManager];
 #if !(TARGET_IPHONE_SIMULATOR)
         self.previewLayer =
@@ -473,7 +474,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self.videoWriter startWriting];
             [self.videoWriter startSessionAtSourceTime:CMSampleBufferGetPresentationTimeStamp(sampleBuffer)];
             dispatch_async(dispatch_get_main_queue(), ^{
-                self.timer = [NSTimer scheduledTimerWithTimeInterval:self.maxDuration target:self selector:@selector(stopAssetWriter) userInfo:nil repeats:NO];
+                self.maxDurationTimer = [NSTimer scheduledTimerWithTimeInterval:self.maxDuration target:self selector:@selector(stopAssetWriter) userInfo:nil repeats:NO];
             });
         }
         [self.writerInput appendSampleBuffer:sampleBuffer];
@@ -797,7 +798,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self.videoWriter addInput:self.writerInput];
 
     self.videoOutput = [[AVCaptureVideoDataOutput alloc] init];
-    [self.videoOutput setSampleBufferDelegate:self queue:self.sessionQueue];
+    [self.videoOutput setSampleBufferDelegate:self queue:self.frameBufferQueue];
     if ( [self.session canAddOutput:self.videoOutput] ){
         [self.session addOutput:self.videoOutput];
     }
