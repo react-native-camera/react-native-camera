@@ -310,8 +310,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [connection setVideoOrientation:[RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]]];
+    
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
         if (imageSampleBuffer && !error) {
+            if ([options[@"autoStopPreview"] boolValue]) {
+                [self stopPreview];
+            }
+
             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
 
             UIImage *takenImage = [UIImage imageWithData:imageData];
@@ -433,6 +438,30 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
         self.videoRecordedResolve = resolve;
         self.videoRecordedReject = reject;
+    });
+}
+
+- (void)stopPreview
+{
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    dispatch_async(self.sessionQueue, ^{
+        if ([self.session isRunning]) {
+            [self.session stopRunning];
+        }
+    });
+}
+
+- (void)startPreview
+{
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    dispatch_async(self.sessionQueue, ^{
+        if (![self.session isRunning]) {
+            [self.session startRunning];
+        }
     });
 }
 

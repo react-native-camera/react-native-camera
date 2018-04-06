@@ -248,6 +248,18 @@ export default class Camera extends React.Component<PropsType> {
     return await CameraManager.record(options, this._cameraHandle);
   }
 
+  stopPreview() {
+    if (Platform.OS === 'ios') {
+      CameraManager.stopPreview(this._cameraHandle);
+    }
+  }
+
+  startPreview() {
+    if (Platform.OS === 'ios') {
+      CameraManager.startPreview(this._cameraHandle);
+    }
+  }
+
   stopRecording() {
     CameraManager.stopRecording(this._cameraHandle);
   }

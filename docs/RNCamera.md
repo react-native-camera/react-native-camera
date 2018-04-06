@@ -261,6 +261,8 @@ Supported options:
 
  - `forceUpOrientation` (iOS only, boolean true or false). This property allows to force portrait orientation based on actual data instead of exif data.
 
+ - `autoStopPreview` (iOS only, boolean, default=false). When true, the preview will be stopped automatically as soon as the image is captured (and prior to processing/storage as well as the resolving of the resulting promise). Call `startPreview` to resume the preview.
+
 The promise will be fulfilled with an object with some of the following properties:
 
  - `width`: returns the image's width (taking image orientation into account)
@@ -319,6 +321,14 @@ The promise will be fulfilled with an object with some of the following properti
  #### `Android` `getSupportedRatiosAsync(): Promise`
 
  Android only. Returns a promise. The promise will be fulfilled with an object with an array containing strings with all camera aspect ratios supported by the device.
+
+ #### `iOS` `stopPreview(): void`
+
+ iOS only. Stop/freeze the preview being displayed.
+
+ #### `iOS` `startPreview(): void`
+
+ iOS only. Start/unfreeze the preview being displayed.
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
