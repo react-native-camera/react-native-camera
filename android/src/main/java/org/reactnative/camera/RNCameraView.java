@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.CamcorderProfile;
+import android.media.MediaActionSound;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
@@ -54,6 +55,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private Map<Promise, File> mPictureTakenDirectories = new ConcurrentHashMap<>();
   private Promise mVideoRecordedPromise;
   private List<String> mBarCodeTypes = null;
+  private Boolean mPlaySoundOnCapture = false;
 
   private boolean mIsPaused = false;
   private boolean mIsNew = true;
@@ -201,10 +203,18 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     initBarcodeReader();
   }
 
+  public void setPlaySoundOnCapture(Boolean playSoundOnCapture) {
+    mPlaySoundOnCapture = playSoundOnCapture;
+  }
+
   public void takePicture(ReadableMap options, final Promise promise, File cacheDirectory) {
     mPictureTakenPromises.add(promise);
     mPictureTakenOptions.put(promise, options);
     mPictureTakenDirectories.put(promise, cacheDirectory);
+    if (mPlaySoundOnCapture) {
+      MediaActionSound sound = new MediaActionSound();
+      sound.play(MediaActionSound.SHUTTER_CLICK);
+    }
     super.takePicture();
   }
 
