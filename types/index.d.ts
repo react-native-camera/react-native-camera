@@ -45,6 +45,7 @@ export interface RNCameraProps {
     flashMode?: keyof FlashMode;
     notAuthorizedView?: JSX.Element;
     pendingAuthorizationView?: JSX.Element;
+    useCamera2Api?: boolean;
 
     onCameraReady?(): void;
     onMountError?(): void;
@@ -83,12 +84,13 @@ export interface RNCameraProps {
     permissionDialogTitle?: string;
     /** Android only */
     permissionDialogMessage?: string;
+    /** Android only */
+    playSoundOnCapture?: boolean;
 
     // -- IOS ONLY PROPS
     
     /** iOS Only */
     captureAudio?: boolean;
-
 }
 
 interface Point<T = number> {
