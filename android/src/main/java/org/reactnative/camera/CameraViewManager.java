@@ -120,6 +120,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setUsingCamera2Api(useCamera2Api);
   }
 
+  @ReactProp(name = "playSoundOnCapture")
+  public void setPlaySoundOnCapture(RNCameraView view, boolean playSoundOnCapture) {
+    view.setPlaySoundOnCapture(playSoundOnCapture);
+  }
+
   @ReactProp(name = "faceDetectorEnabled")
   public void setFaceDetecting(RNCameraView view, boolean faceDetectorEnabled) {
     view.setShouldDetectFaces(faceDetectorEnabled);
