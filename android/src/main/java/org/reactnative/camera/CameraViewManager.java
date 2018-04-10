@@ -1,7 +1,6 @@
 package org.reactnative.camera;
 
 import android.support.annotation.Nullable;
-
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -19,6 +18,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_MOUNT_ERROR("onMountError"),
     EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
     EVENT_ON_FACES_DETECTED("onFacesDetected"),
+    EVENT_ON_BARCODES_DETECTED("onGoogleVisionBarcodesDetected"),
     EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
     EVENT_ON_TEXT_RECOGNIZED("onTextRecognized");
 
@@ -143,6 +143,16 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "faceDetectionClassifications")
   public void setFaceDetectionClassifications(RNCameraView view, int classifications) {
     view.setFaceDetectionClassifications(classifications);
+  }
+
+  @ReactProp(name = "googleVisionBarcodeDetectorEnabled")
+  public void setGoogleVisionBarcodeDetecting(RNCameraView view, boolean barcodeDetectorEnabled) {
+    view.setShouldDetectBarcodes(barcodeDetectorEnabled);
+  }
+
+  @ReactProp(name = "googleVisionBarcodeType")
+  public void setGoogleVisionBarcodeType(RNCameraView view, int barcodeType) {
+    view.setGoogleVisionBarcodeType(barcodeType);
   }
 
   @ReactProp(name = "textRecognizerEnabled")

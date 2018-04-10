@@ -1,4 +1,4 @@
-package org.reactnative.facedetector;
+package org.reactnative.frame;
 
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;

@@ -9,46 +9,31 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
 import android.view.View;
-
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.LifecycleEventListener;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.*;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.google.android.cameraview.CameraView;
+import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.face.Face;
-import com.google.android.gms.vision.text.Text;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.Result;
-
-import org.reactnative.camera.tasks.BarCodeScannerAsyncTask;
-import org.reactnative.camera.tasks.BarCodeScannerAsyncTaskDelegate;
-import org.reactnative.camera.tasks.FaceDetectorAsyncTask;
-import org.reactnative.camera.tasks.FaceDetectorAsyncTaskDelegate;
-import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
-import org.reactnative.camera.tasks.TextRecognizerAsyncTask;
-import org.reactnative.camera.tasks.TextRecognizerAsyncTaskDelegate;
+import org.reactnative.camera.tasks.*;
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.camera.utils.RNFileUtils;
+import org.reactnative.barcodedetector.RNBarcodeDetector;
 import org.reactnative.facedetector.RNFaceDetector;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate,
-    TextRecognizerAsyncTaskDelegate {
+    BarcodeDetectorAsyncTaskDelegate, TextRecognizerAsyncTaskDelegate {
   private ThemedReactContext mThemedReactContext;
   private Queue<Promise> mPictureTakenPromises = new ConcurrentLinkedQueue<>();
   private Map<Promise, ReadableMap> mPictureTakenOptions = new ConcurrentHashMap<>();
@@ -63,18 +48,22 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   // Concurrency lock for scanners to avoid flooding the runtime
   public volatile boolean barCodeScannerTaskLock = false;
   public volatile boolean faceDetectorTaskLock = false;
+  public volatile boolean barcodeDetectorTaskLock = false;
   public volatile boolean textRecognizerTaskLock = false;
 
   // Scanning-related properties
   private final MultiFormatReader mMultiFormatReader = new MultiFormatReader();
   private final RNFaceDetector mFaceDetector;
+  private final RNBarcodeDetector mBarcodeDetector;
   private final TextRecognizer mTextRecognizer;
   private boolean mShouldDetectFaces = false;
+  private boolean mShouldDetectBarcodes = false;
   private boolean mShouldScanBarCodes = false;
   private boolean mShouldRecognizeText = false;
   private int mFaceDetectorMode = RNFaceDetector.FAST_MODE;
   private int mFaceDetectionLandmarks = RNFaceDetector.NO_LANDMARKS;
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
+  private int mGoogleVisionBarCodeType = Barcode.ALL_FORMATS;
 
   public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext, true);
@@ -82,6 +71,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mThemedReactContext = themedReactContext;
     mFaceDetector = new RNFaceDetector(themedReactContext);
     setupFaceDetector();
+    mBarcodeDetector = new RNBarcodeDetector(themedReactContext);
+    setupBarcodeDetector();
     mTextRecognizer = new TextRecognizer.Builder(themedReactContext).build();
     themedReactContext.addLifecycleEventListener(this);
 
@@ -118,7 +109,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
       }
 
-      private byte[] rotateImage(byte[]imageData,int height,int width){
+      private byte[] rotateImage(byte[] imageData, int height, int width) {
         byte[] rotated = new byte[imageData.length];
         for (int y = 0; y < width; y++) {
           for (int x = 0; x < height; x++) {
@@ -131,13 +122,13 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       @Override
       public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int rotation) {
         int correctRotation = RNCameraViewHelper.getCorrectCameraRotation(rotation, getFacing());
-        int correctWidth=width;
-        int correctHeight=height;
-        byte[] correctData=data;
-        if(correctRotation==90){
-          correctWidth=height;
-          correctHeight=width;
-          correctData=rotateImage(data,correctHeight,correctWidth);
+        int correctWidth = width;
+        int correctHeight = height;
+        byte[] correctData = data;
+        if (correctRotation == 90) {
+          correctWidth = height;
+          correctHeight = width;
+          correctData = rotateImage(data, correctHeight, correctWidth);
         }
         if (mShouldScanBarCodes && !barCodeScannerTaskLock && cameraView instanceof BarCodeScannerAsyncTaskDelegate) {
           barCodeScannerTaskLock = true;
@@ -149,6 +140,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           faceDetectorTaskLock = true;
           FaceDetectorAsyncTaskDelegate delegate = (FaceDetectorAsyncTaskDelegate) cameraView;
           new FaceDetectorAsyncTask(delegate, mFaceDetector, correctData, correctWidth, correctHeight, correctRotation).execute();
+        }
+
+        if (mShouldDetectBarcodes && !barcodeDetectorTaskLock && cameraView instanceof BarcodeDetectorAsyncTaskDelegate) {
+          barcodeDetectorTaskLock = true;
+          BarcodeDetectorAsyncTaskDelegate delegate = (BarcodeDetectorAsyncTaskDelegate) cameraView;
+          new BarcodeDetectorAsyncTask(delegate, mBarcodeDetector, correctData, correctWidth, correctHeight, correctRotation).execute();
         }
 
         if (mShouldRecognizeText && !textRecognizerTaskLock && cameraView instanceof TextRecognizerAsyncTaskDelegate) {
@@ -177,11 +174,11 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       correctWidth = (int) width;
     } else {
       correctHeight = (int) height;
-      correctWidth = (int)(height*ratio);
+      correctWidth = (int) (height * ratio);
     }
     int paddingX = (int) ((width - correctWidth) / 2);
     int paddingY = (int) ((height - correctHeight) / 2);
-    preview.layout(paddingX, paddingY, correctWidth+paddingX, correctHeight+paddingY);
+    preview.layout(paddingX, paddingY, correctWidth + paddingX, correctHeight + paddingY);
   }
 
   @Override
@@ -265,7 +262,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   public void setShouldScanBarCodes(boolean shouldScanBarCodes) {
     this.mShouldScanBarCodes = shouldScanBarCodes;
-    setScanning(mShouldDetectFaces || mShouldScanBarCodes || mShouldRecognizeText);
+    setScanning(mShouldDetectFaces || mShouldDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
   }
 
   public void onBarCodeRead(Result barCode) {
@@ -315,7 +312,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   public void setShouldDetectFaces(boolean shouldDetectFaces) {
     this.mShouldDetectFaces = shouldDetectFaces;
-    setScanning(mShouldDetectFaces || mShouldScanBarCodes || mShouldRecognizeText);
+    setScanning(mShouldDetectFaces || mShouldDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
+  }
+
+  public void setShouldDetectBarcodes(boolean shouldDetectBarcodes) {
+    this.mShouldDetectBarcodes = shouldDetectBarcodes;
+    setScanning(mShouldDetectFaces || mShouldDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
   }
 
   public void onFacesDetected(SparseArray<Face> facesReported, int sourceWidth, int sourceHeight, int sourceRotation) {
@@ -342,9 +344,46 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     faceDetectorTaskLock = false;
   }
 
+  /**
+   * Initial setup of the barcode detector
+   */
+  private void setupBarcodeDetector() {
+    mBarcodeDetector.setBarcodeType(mGoogleVisionBarCodeType);
+  }
+
+  public void setGoogleVisionBarcodeType(int barcodeType) {
+    mGoogleVisionBarCodeType = barcodeType;
+    if (mBarcodeDetector != null) {
+      mBarcodeDetector.setBarcodeType(barcodeType);
+    }
+  }
+
+  public void onBarcodesDetected(SparseArray<Barcode> barcodesReported, int sourceWidth, int sourceHeight, int sourceRotation) {
+    if (!mShouldDetectBarcodes) {
+      return;
+    }
+
+    SparseArray<Barcode> barcodesDetected = barcodesReported == null ? new SparseArray<Barcode>() : barcodesReported;
+
+    RNCameraViewHelper.emitBarcodesDetectedEvent(this, barcodesDetected);
+  }
+
+  public void onBarcodeDetectionError(RNBarcodeDetector barcodeDetector) {
+    if (!mShouldDetectBarcodes) {
+      return;
+    }
+
+    RNCameraViewHelper.emitBarcodeDetectionErrorEvent(this, barcodeDetector);
+  }
+
+  @Override
+  public void onBarcodeDetectingTaskCompleted() {
+    barcodeDetectorTaskLock = false;
+  }
+
   public void setShouldRecognizeText(boolean shouldRecognizeText) {
     this.mShouldRecognizeText = shouldRecognizeText;
-    setScanning(mShouldDetectFaces || mShouldScanBarCodes || mShouldRecognizeText);
+    setScanning(mShouldDetectFaces || mShouldDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
   }
 
   @Override
@@ -392,6 +431,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   @Override
   public void onHostDestroy() {
     mFaceDetector.release();
+    mBarcodeDetector.release();
     stop();
   }
 

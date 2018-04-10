@@ -8,8 +8,6 @@ import com.facebook.react.uimanager.ViewManager;
 import com.lwansbrough.RCTCamera.RCTCameraModule;
 import com.lwansbrough.RCTCamera.RCTCameraViewManager;
 
-import org.reactnative.camera.CameraModule;
-import org.reactnative.camera.CameraViewManager;
 import org.reactnative.facedetector.FaceDetectorModule;
 
 import java.util.Arrays;

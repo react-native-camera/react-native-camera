@@ -66,9 +66,11 @@ type PropsType = (typeof View.props) & {
   type?: number | string,
   onCameraReady?: Function,
   onBarCodeRead?: Function,
+  onGoogleVisionBarcodesDetected?: Function,
   faceDetectionMode?: number,
   flashMode?: number | string,
   barCodeTypes?: Array<string>,
+  googleVisionBarcodeType?: number,
   whiteBalance?: number | string,
   faceDetectionLandmarks?: number,
   autoFocus?: string | boolean | number,
@@ -79,7 +81,7 @@ type PropsType = (typeof View.props) & {
   useCamera2Api?: boolean,
   playSoundOnCapture?: boolean,
 };
-  
+
 type StateType = {
   isAuthorized: boolean,
   isAuthorizationChecked: boolean,
@@ -110,6 +112,9 @@ const CameraManager: Object = NativeModules.RNCameraManager ||
         none: 0,
       },
     },
+    GoogleVisionBarcodeDetection: {
+      BarcodeType: 0,
+    }
   };
 
 const EventThrottleMs = 500;
@@ -123,6 +128,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     VideoQuality: CameraManager.VideoQuality,
     VideoCodec: CameraManager.VideoCodec,
     BarCodeType: CameraManager.BarCodeType,
+    GoogleVisionBarcodeDetection: CameraManager.GoogleVisionBarcodeDetection,
     FaceDetection: CameraManager.FaceDetection,
   };
 
@@ -135,6 +141,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     faceDetectionMode: (CameraManager.FaceDetection || {}).Mode,
     faceDetectionLandmarks: (CameraManager.FaceDetection || {}).Landmarks,
     faceDetectionClassifications: (CameraManager.FaceDetection || {}).Classifications,
+    googleVisionBarcodeType: (CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeType,
   };
 
   static propTypes = {
@@ -145,12 +152,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
     onMountError: PropTypes.func,
     onCameraReady: PropTypes.func,
     onBarCodeRead: PropTypes.func,
+    onGoogleVisionBarcodesDetected: PropTypes.func,
     onFacesDetected: PropTypes.func,
     onTextRecognized: PropTypes.func,
     faceDetectionMode: PropTypes.number,
     faceDetectionLandmarks: PropTypes.number,
     faceDetectionClassifications: PropTypes.number,
     barCodeTypes: PropTypes.arrayOf(PropTypes.string),
+    googleVisionBarcodeType: PropTypes.number,
     type: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -174,6 +183,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     whiteBalance: CameraManager.WhiteBalance.auto,
     faceDetectionMode: (CameraManager.FaceDetection || {}).fast,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
+    googleVisionBarcodeType: (CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeType,
     faceDetectionLandmarks: ((CameraManager.FaceDetection || {}).Landmarks || {}).none,
     faceDetectionClassifications: ((CameraManager.FaceDetection || {}).Classifications || {}).none,
     permissionDialogTitle: '',
@@ -320,6 +330,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
           ref={this._setReference}
           onMountError={this._onMountError}
           onCameraReady={this._onCameraReady}
+          onGoogleVisionBarcodesDetected={this._onObjectDetected(this.props.onGoogleVisionBarcodesDetected)}
           onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
           onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
           onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
@@ -339,6 +350,10 @@ export default class Camera extends React.Component<PropsType, StateType> {
       newProps.barCodeScannerEnabled = true;
     }
 
+    if (props.onGoogleVisionBarcodesDetected) {
+      newProps.googleVisionBarcodeDetectorEnabled = true;
+    }
+
     if (props.onFacesDetected) {
       newProps.faceDetectorEnabled = true;
     }
@@ -348,6 +363,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
 
     if (Platform.OS === 'ios') {
+      delete newProps.googleVisionBarcodeType;
+      delete newProps.googleVisionBarcodeDetectorEnabled;
       delete newProps.ratio;
       delete newProps.textRecognizerEnabled;
     }
@@ -372,10 +389,12 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     accessibilityLabel: true,
     accessibilityLiveRegion: true,
     barCodeScannerEnabled: true,
+    googleVisionBarcodeDetectorEnabled: true,
     faceDetectorEnabled: true,
     textRecognizerEnabled: true,
     importantForAccessibility: true,
     onBarCodeRead: true,
+    onGoogleVisionBarcodesDetected: true,
     onCameraReady: true,
     onFaceDetected: true,
     onLayout: true,

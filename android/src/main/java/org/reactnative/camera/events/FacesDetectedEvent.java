@@ -14,8 +14,6 @@ import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.google.android.cameraview.CameraView;
 import com.google.android.gms.vision.face.Face;
 
-import java.util.Date;
-
 public class FacesDetectedEvent extends Event<FacesDetectedEvent> {
   private static final Pools.SynchronizedPool<FacesDetectedEvent> EVENTS_POOL =
       new Pools.SynchronizedPool<>(3);
