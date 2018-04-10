@@ -1,7 +1,5 @@
 package org.reactnative.facedetector;
 
-import android.content.Context;
-
 import org.reactnative.facedetector.tasks.FileFaceDetectionAsyncTask;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;

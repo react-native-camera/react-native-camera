@@ -6,7 +6,7 @@
  * Author notes:
  * I've tried to find a easy tool to convert from Flow to Typescript definition files (.d.ts).
  * So we woudn't have to do it manually... Sadly, I haven't found it.
- * 
+ *
  * If you are seeing this from the future, please, send us your cutting-edge technology :) (if it exists)
  */
 import { Component } from 'react';
@@ -23,6 +23,8 @@ type VideoCodec = { 'H264': symbol, 'JPEG': symbol, 'HVEC': symbol, 'AppleProRes
 type FaceDetectionClassifications = { all: any, none: any };
 type FaceDetectionLandmarks = { all: any, none: any };
 type FaceDetectionMode = { fast: any, accurate: any };
+type GoogleVisionBarcodeType = { CODE_128: any, CODE_39: any, CODABAR: any, DATA_MATRIX: any, EAN_13: any, EAN_8: any, ITF: any,
+    QR_CODE: any, UPC_A: any, UPC_E: any, PDF417: any, AZTEC: any }
 
 export interface Constants {
     AutoFocus: AutoFocus;
@@ -36,6 +38,9 @@ export interface Constants {
         Classifications: FaceDetectionClassifications;
         Landmarks: FaceDetectionLandmarks;
         Mode: FaceDetectionMode;
+    },
+    GoogleVisionBarcodeDetection: {
+        BarcodeType: GoogleVisionBarcodeType
     }
 }
 
@@ -57,6 +62,7 @@ export interface RNCameraProps {
 
     // -- BARCODE PROPS
     barCodeTypes?: Array<keyof BarCodeType>;
+    googleVisionBarcodeType?: keyof GoogleVisionBarcodeType;
     onBarCodeRead?(event: {
         data: string,
         type: keyof BarCodeType,
@@ -66,9 +72,10 @@ export interface RNCameraProps {
          */
         bounds: [Point<string>, Point<string>] | { origin: Point<string>, size: Size<string> }
     }): void;
-    
+
     // -- FACE DETECTION PROPS
 
+    onGoogleVisionBarcodesDetected?(response: { barcodes: Barcode[] }): void;
     onFacesDetected?(response: { faces: Face[] }): void;
     onFaceDetectionError?(response: { isOperational: boolean }): void;
     faceDetectionMode?: keyof FaceDetectionMode;
@@ -88,7 +95,7 @@ export interface RNCameraProps {
     playSoundOnCapture?: boolean;
 
     // -- IOS ONLY PROPS
-    
+
     /** iOS Only */
     captureAudio?: boolean;
 }
@@ -101,6 +108,11 @@ interface Point<T = number> {
 interface Size<T = number> {
     width: T;
     height: T;
+}
+
+interface Barcode {
+    data: string;
+    type: string;
 }
 
 interface Face {
@@ -148,7 +160,7 @@ interface TakePictureOptions {
     skipProcessing?: boolean;
     /** Android only */
     fixOrientation?: boolean;
-    
+
     /** iOS only */
     forceUpOrientation?: boolean;
 }

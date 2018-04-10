@@ -4,8 +4,8 @@ import android.util.SparseArray;
 
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
-import org.reactnative.facedetector.RNFrame;
-import org.reactnative.facedetector.RNFrameFactory;
+import org.reactnative.frame.RNFrame;
+import org.reactnative.frame.RNFrameFactory;
 
 
 public class TextRecognizerAsyncTask extends android.os.AsyncTask<Void, Void, SparseArray<TextBlock>> {

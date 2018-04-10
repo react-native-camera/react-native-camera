@@ -2,34 +2,24 @@ package org.reactnative.camera;
 
 import android.graphics.Bitmap;
 import android.os.Build;
-
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.*;
 import com.facebook.react.uimanager.NativeViewHierarchyManager;
 import com.facebook.react.uimanager.UIBlock;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.google.android.cameraview.AspectRatio;
 import com.google.zxing.BarcodeFormat;
-
+import org.reactnative.barcodedetector.BarcodeFormatUtils;
 import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
 import org.reactnative.camera.utils.ScopedContext;
 import org.reactnative.facedetector.RNFaceDetector;
 
+import javax.annotation.Nullable;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import java.io.ByteArrayOutputStream;
-
-import javax.annotation.Nullable;
 
 public class CameraModule extends ReactContextBaseJavaModule {
   private static final String TAG = "CameraModule";
@@ -121,6 +111,11 @@ public class CameraModule extends ReactContextBaseJavaModule {
                 put("none", RNFaceDetector.NO_LANDMARKS);
               }
             });
+          }
+        }));
+        put("GoogleVisionBarcodeDetection", Collections.unmodifiableMap(new HashMap<String, Object>() {
+          {
+            put("BarcodeType", BarcodeFormatUtils.REVERSE_FORMATS);
           }
         }));
       }
