@@ -45,6 +45,8 @@
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications;
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)startPreview;
+- (void)stopPreview;
 - (void)stopRecording;
 - (void)setupOrDisableBarcodeScanner;
 - (void)onReady:(NSDictionary *)event;
