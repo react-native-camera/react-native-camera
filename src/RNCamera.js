@@ -59,7 +59,7 @@ type EventCallbackArgumentsType = {
   nativeEvent: Object,
 };
 
-type PropsType = (typeof View.props) & {
+type PropsType = typeof View.props & {
   zoom?: number,
   ratio?: string,
   focusDepth?: number,
@@ -87,7 +87,6 @@ type StateType = {
   isAuthorizationChecked: boolean,
 };
 
-
 const CameraManager: Object = NativeModules.RNCameraManager ||
   NativeModules.RNCameraModule || {
     stubbed: true,
@@ -114,7 +113,7 @@ const CameraManager: Object = NativeModules.RNCameraManager ||
     },
     GoogleVisionBarcodeDetection: {
       BarcodeType: 0,
-    }
+    },
   };
 
 const EventThrottleMs = 500;
@@ -183,7 +182,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
     whiteBalance: CameraManager.WhiteBalance.auto,
     faceDetectionMode: (CameraManager.FaceDetection || {}).fast,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
-    googleVisionBarcodeType: (CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeType,
+    googleVisionBarcodeType: ((CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeType || {})
+      .None,
     faceDetectionLandmarks: ((CameraManager.FaceDetection || {}).Landmarks || {}).none,
     faceDetectionClassifications: ((CameraManager.FaceDetection || {}).Classifications || {}).none,
     permissionDialogTitle: '',
@@ -330,7 +330,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
           ref={this._setReference}
           onMountError={this._onMountError}
           onCameraReady={this._onCameraReady}
-          onGoogleVisionBarcodesDetected={this._onObjectDetected(this.props.onGoogleVisionBarcodesDetected)}
+          onGoogleVisionBarcodesDetected={this._onObjectDetected(
+            this.props.onGoogleVisionBarcodesDetected,
+          )}
           onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
           onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
           onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}

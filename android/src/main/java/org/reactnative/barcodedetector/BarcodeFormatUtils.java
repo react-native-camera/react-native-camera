@@ -31,6 +31,21 @@ public class BarcodeFormatUtils {
     map.put(Barcode.UPC_E, "UPC_E");
     map.put(Barcode.PDF417, "PDF417");
     map.put(Barcode.AZTEC, "AZTEC");
+    map.put(Barcode.ALL_FORMATS, "ALL");
+    map.put(Barcode.CALENDAR_EVENT, "CALENDAR_EVENT");
+    map.put(Barcode.CONTACT_INFO, "CONTACT_INFO");
+    map.put(Barcode.DRIVER_LICENSE, "DRIVER_LICENSE");
+    map.put(Barcode.EMAIL, "EMAIL");
+    map.put(Barcode.GEO, "GEO");
+    map.put(Barcode.ISBN, "ISBN");
+    map.put(Barcode.PHONE, "PHONE");
+    map.put(Barcode.PRODUCT, "PRODUCT");
+    map.put(Barcode.SMS, "SMS");
+    map.put(Barcode.TEXT, "TEXT");
+    map.put(Barcode.UPC_A, "UPC_A");
+    map.put(Barcode.URL, "URL");
+    map.put(Barcode.WIFI, "WIFI");
+    map.put(-1, "None");
     FORMATS = map;
 
 
@@ -40,7 +55,6 @@ public class BarcodeFormatUtils {
       rmap.put(map.valueAt(i), map.keyAt(i));
     }
 
-    rmap.put("ALL", 0);
     REVERSE_FORMATS = Collections.unmodifiableMap(rmap);
   }
 
