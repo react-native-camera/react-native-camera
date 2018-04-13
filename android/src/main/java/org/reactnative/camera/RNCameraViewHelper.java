@@ -161,8 +161,8 @@ public class RNCameraViewHelper {
   };
   // Mount error event
 
-  public static void emitMountErrorEvent(ViewGroup view) {
-    CameraMountErrorEvent event = CameraMountErrorEvent.obtain(view.getId());
+  public static void emitMountErrorEvent(ViewGroup view, String error) {
+    CameraMountErrorEvent event = CameraMountErrorEvent.obtain(view.getId(), error);
     ReactContext reactContext = (ReactContext) view.getContext();
     reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
   }

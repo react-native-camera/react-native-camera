@@ -20,10 +20,10 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.Result;
+import org.reactnative.barcodedetector.RNBarcodeDetector;
 import org.reactnative.camera.tasks.*;
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.camera.utils.RNFileUtils;
-import org.reactnative.barcodedetector.RNBarcodeDetector;
 import org.reactnative.facedetector.RNFaceDetector;
 
 import java.io.File;
@@ -84,7 +84,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
       @Override
       public void onMountError(CameraView cameraView) {
-        RNCameraViewHelper.emitMountErrorEvent(cameraView);
+        RNCameraViewHelper.emitMountErrorEvent(cameraView, "Camera view threw an error - component could not be rendered.");
       }
 
       @Override
@@ -414,9 +414,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
       }
     } else {
-      WritableMap error = Arguments.createMap();
-      error.putString("message", "Camera permissions not granted - component could not be rendered.");
-      RNCameraViewHelper.emitMountErrorEvent(this);
+      RNCameraViewHelper.emitMountErrorEvent(this, "Camera permissions not granted - component could not be rendered.");
     }
   }
 
@@ -433,6 +431,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mFaceDetector.release();
     mBarcodeDetector.release();
     stop();
+    mThemedReactContext.removeLifecycleEventListener(this);
   }
 
   private boolean hasCameraPermissions() {
