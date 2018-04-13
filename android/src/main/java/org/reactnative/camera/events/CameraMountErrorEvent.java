@@ -1,26 +1,31 @@
 package org.reactnative.camera.events;
 
 import android.support.v4.util.Pools;
-
-import org.reactnative.camera.CameraViewManager;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
-
-import java.util.Date;
+import org.reactnative.camera.CameraViewManager;
 
 public class CameraMountErrorEvent extends Event<CameraMountErrorEvent> {
   private static final Pools.SynchronizedPool<CameraMountErrorEvent> EVENTS_POOL = new Pools.SynchronizedPool<>(3);
-  private CameraMountErrorEvent() {}
+  private String mError;
 
-  public static CameraMountErrorEvent obtain(int viewTag) {
+  private CameraMountErrorEvent() {
+  }
+
+  public static CameraMountErrorEvent obtain(int viewTag, String error) {
     CameraMountErrorEvent event = EVENTS_POOL.acquire();
     if (event == null) {
       event = new CameraMountErrorEvent();
     }
-    event.init(viewTag);
+    event.init(viewTag, error);
     return event;
+  }
+
+  private void init(int viewTag, String error) {
+    super.init(viewTag);
+    mError = error;
   }
 
   @Override
@@ -39,6 +44,8 @@ public class CameraMountErrorEvent extends Event<CameraMountErrorEvent> {
   }
 
   private WritableMap serializeEventData() {
-    return Arguments.createMap();
+    WritableMap arguments = Arguments.createMap();
+    arguments.putString("message", mError);
+    return arguments;
   }
 }

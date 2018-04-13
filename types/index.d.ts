@@ -53,7 +53,9 @@ export interface RNCameraProps {
     useCamera2Api?: boolean;
 
     onCameraReady?(): void;
-    onMountError?(): void;
+    onMountError?(error: {
+        message: string
+    }): void;
 
     /** Value: float from 0 to 1.0 */
     zoom?: number;
