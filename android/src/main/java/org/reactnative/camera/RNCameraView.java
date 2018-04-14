@@ -161,15 +161,26 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     float width = right - left;
     float height = bottom - top;
     float ratio = getAspectRatio().toFloat();
+    int orientation = getResources().getConfiguration().orientation;
     int correctHeight;
     int correctWidth;
     this.setBackgroundColor(Color.BLACK);
-    if (height / width > ratio) {
-      correctHeight = (int) (width * ratio);
-      correctWidth = (int) width;
+    if (orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+      if (ratio * height < width) {
+        correctHeight = (int) (width / ratio);
+        correctWidth = (int) width;
+      } else {
+        correctWidth = (int) (height * ratio);
+        correctHeight = (int) height;
+      }
     } else {
-      correctHeight = (int) height;
-      correctWidth = (int) (height * ratio);
+      if (ratio * width > height) {
+        correctHeight = (int) (width * ratio);
+        correctWidth = (int) width;
+      } else {
+        correctWidth = (int) (height / ratio);
+        correctHeight = (int) height;
+      }
     }
     int paddingX = (int) ((width - correctWidth) / 2);
     int paddingY = (int) ((height - correctHeight) / 2);
