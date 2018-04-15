@@ -16,6 +16,7 @@
   "plugins": [
     "react",
     "react-native",
+    "flowtype"
   ],
   "extends": [
     "eslint:recommended",
@@ -34,7 +35,9 @@
     "no-class-assign": 1,
     "no-console": 1,
     "object-curly-spacing": [1, "always"],
-    "no-unused-vars": ["error", { "ignoreRestSiblings": true }]
+    "no-unused-vars": ["error", { "ignoreRestSiblings": true }],
+    "flowtype/define-flow-type": 1,
+    "flowtype/use-flow-type": 1
   },
   "globals": {
     "__DEV__": true,

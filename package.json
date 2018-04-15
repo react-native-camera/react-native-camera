@@ -17,6 +17,7 @@
     "@commitlint/config-conventional": "^6.1.0",
     "babel-eslint": "^8.0.2",
     "eslint": "^4.12.0",
+    "eslint-plugin-flowtype": "^2.46.2",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-react": "^7.3.0",
     "eslint-plugin-react-native": "^3.2.0",
