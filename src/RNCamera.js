@@ -18,6 +18,18 @@ import type { FaceFeature } from './FaceDetector';
 
 import { requestPermissions } from './handlePermissions';
 
+const styles = StyleSheet.create({
+  authorizationContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notAuthorizedText: {
+    textAlign: 'center',
+    fontSize: 16,
+  },
+});
+
 type PictureOptions = {
   quality?: number,
   base64?: boolean,
@@ -385,17 +397,5 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     onMountError: true,
     renderToHardwareTextureAndroid: true,
     testID: true,
-  },
-});
-
-const styles = StyleSheet.create({
-  authorizationContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  notAuthorizedText: {
-    textAlign: 'center',
-    fontSize: 16,
   },
 });
