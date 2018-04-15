@@ -15,7 +15,8 @@
  */
 package org.reactnative.camera;
 
-import com.google.android.cameraview.AspectRatio;
+
+import org.reactnative.camera.cameraview.AspectRatio;
 
 public interface Constants {
 

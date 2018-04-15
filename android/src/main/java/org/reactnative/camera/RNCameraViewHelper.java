@@ -13,11 +13,12 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.UIManagerModule;
-import com.google.android.cameraview.CameraView;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.zxing.Result;
+
+import org.reactnative.camera.cameraview.CameraView;
 import org.reactnative.camera.events.*;
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.barcodedetector.RNBarcodeDetector;
