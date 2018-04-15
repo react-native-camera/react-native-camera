@@ -18,6 +18,19 @@ import {
 
 import { requestPermissions } from './handlePermissions';
 
+const styles = StyleSheet.create({
+  base: {},
+  authorizationContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notAuthorizedText: {
+    textAlign: 'center',
+    fontSize: 16,
+  },
+});
+
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
 
 function convertNativeProps(props) {
@@ -379,18 +392,5 @@ const RCTCamera = requireNativeComponent('RCTCamera', Camera, {
     accessibilityLiveRegion: true,
     accessibilityComponentType: true,
     onLayout: true,
-  },
-});
-
-const styles = StyleSheet.create({
-  base: {},
-  authorizationContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  notAuthorizedText: {
-    textAlign: 'center',
-    fontSize: 16,
   },
 });
