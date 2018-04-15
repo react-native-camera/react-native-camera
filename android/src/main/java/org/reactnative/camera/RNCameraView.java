@@ -1,6 +1,7 @@
 package org.reactnative.camera;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.CamcorderProfile;
@@ -186,6 +187,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     preview.layout(paddingX, paddingY, correctWidth + paddingX, correctHeight + paddingY);
   }
 
+  @SuppressLint("all")
   @Override
   public void requestLayout() {
     // React handles this for us, so we don't need to call super.requestLayout();
