@@ -371,8 +371,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   /**
-    * Initial setup of the text recongizer
-    */
+   * Initial setup of the text recongizer
+   */
   private void setupTextRecongnizer() {
     mTextRecognizer = new TextRecognizer.Builder(mThemedReactContext).build();
   }
@@ -408,9 +408,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   public void setShouldRecognizeText(boolean shouldRecognizeText) {
-      if (shouldRecognizeText && mTextRecognizer == null) {
-          setupTextRecongnizer();
-      }
+    if (shouldRecognizeText && mTextRecognizer == null) {
+      setupTextRecongnizer();
+    }
     this.mShouldRecognizeText = shouldRecognizeText;
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
   }
@@ -457,8 +457,15 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   @Override
   public void onHostDestroy() {
-    mFaceDetector.release();
-    mGoogleBarcodeDetector.release();
+    if (mFaceDetector != null) {
+      mFaceDetector.release();
+    }
+    if (mGoogleBarcodeDetector != null) {
+      mGoogleBarcodeDetector.release();
+    }
+    if (mTextRecognizer != null) {
+      mTextRecognizer.release();
+    }
     mMultiFormatReader = null;
     stop();
     mThemedReactContext.removeLifecycleEventListener(this);
