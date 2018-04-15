@@ -1,3 +1,23 @@
+#### 1.1.0 (2018-04-15)
+
+##### Chores
+
+* **lint:**
+  *  more lint checks ([3bb9a648](https://github.com/react-native-community/react-native-camera/commit/3bb9a6484af306ac66083dd05ac6c46de542f3b4))
+  *  fix some warnings ([7967e2fb](https://github.com/react-native-community/react-native-camera/commit/7967e2fbce44b15a77ae0cbddf76f0b37fc530ba))
+  *  fix lint to make ci work ([919d07b1](https://github.com/react-native-community/react-native-camera/commit/919d07b162f4a39a2454bebdb387224e21a4ba7a))
+* **package:**  enforce no errors on lint and update packages ([00f4f4c1](https://github.com/react-native-community/react-native-camera/commit/00f4f4c13714a9d4e03a2cd76f2b19de7a78cfe4))
+
+##### New Features
+
+* **ci:**  add first circleci lint and check script ([ee385eec](https://github.com/react-native-community/react-native-camera/commit/ee385eec05b9be5e1f96524206e50aa96085ce19))
+* **android:**  make android gradle check work ([1c7f231a](https://github.com/react-native-community/react-native-camera/commit/1c7f231af460127bebf1f9970367bf64987de34b))
+
+##### Bug Fixes
+
+* **styles:**  place style sheet above everything,prevent undefined styles ([01501892](https://github.com/react-native-community/react-native-camera/commit/01501892b5711db765cc367a24ba7c3233678791))
+* **warnings:**  remove inline styles ([716c4e38](https://github.com/react-native-community/react-native-camera/commit/716c4e389da45fd7d240a8b4acf60a620fa2c372))
+
 ### 1.1.0-2 (2018-04-15)
 
 ##### Chores
