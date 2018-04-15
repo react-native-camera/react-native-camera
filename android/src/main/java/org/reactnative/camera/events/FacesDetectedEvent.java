@@ -4,6 +4,7 @@ import android.support.v4.util.Pools;
 import android.util.SparseArray;
 
 import org.reactnative.camera.CameraViewManager;
+import org.reactnative.camera.cameraview.CameraView;
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.facedetector.FaceDetectorUtils;
 import com.facebook.react.bridge.Arguments;
@@ -11,7 +12,6 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
-import com.google.android.cameraview.CameraView;
 import com.google.android.gms.vision.face.Face;
 
 public class FacesDetectedEvent extends Event<FacesDetectedEvent> {

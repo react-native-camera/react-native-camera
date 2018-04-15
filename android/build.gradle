@@ -1,6 +1,7 @@
 buildscript {
   repositories {
     jcenter()
+    google()
     maven {
       url 'https://maven.google.com'
     }
@@ -17,7 +18,7 @@ def DEFAULT_COMPILE_SDK_VERSION             = 26
 def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
 def DEFAULT_TARGET_SDK_VERSION              = 26
 def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
-def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
+def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.1"
 
 android {
   compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
@@ -57,6 +58,8 @@ dependencies {
   implementation "com.drewnoakes:metadata-extractor:2.9.1"
   implementation "com.google.android.gms:play-services-vision:$googlePlayServicesVersion"
   implementation "com.android.support:exifinterface:$supportLibVersion"
+  implementation "com.android.support:support-annotations:$supportLibVersion"
+  implementation "com.android.support:support-v4:$supportLibVersion"
 
-  implementation 'com.github.react-native-community:cameraview:eb9f726215bbbfcc03a54db92e480d4d02e0c001'
+//  implementation 'com.github.react-native-community:cameraview:eb9f726215bbbfcc03a54db92e480d4d02e0c001'
 }
