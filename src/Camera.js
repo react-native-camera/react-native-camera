@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -9,7 +10,6 @@ import {
   findNodeHandle,
   requireNativeComponent,
   ViewPropTypes,
-  PermissionsAndroid,
   ActivityIndicator,
   View,
   Text,
@@ -194,7 +194,12 @@ export default class Camera extends Component {
     let hasVideoAndAudio =
       this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video;
 
-    const isAuthorized = await requestPermissions(hasVideoAndAudio, Camera, this.props.permissionDialogTitle, this.props.permissionDialogMessage);
+    const isAuthorized = await requestPermissions(
+      hasVideoAndAudio,
+      Camera,
+      this.props.permissionDialogTitle,
+      this.props.permissionDialogMessage,
+    );
     this.setState({ isAuthorized, isAuthorizationChecked: true });
   }
 
@@ -208,15 +213,15 @@ export default class Camera extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { onBarCodeRead, onFocusChanged, onZoomChanged } = this.props
+    const { onBarCodeRead, onFocusChanged, onZoomChanged } = this.props;
     if (onBarCodeRead !== newProps.onBarCodeRead) {
       this._addOnBarCodeReadListener(newProps);
     }
     if (onFocusChanged !== !newProps.onFocusChanged) {
-      this._addOnFocusChanged(newProps)
+      this._addOnFocusChanged(newProps);
     }
     if (onZoomChanged !== !newProps.onZoomChanged) {
-      this._addOnZoomChanged(newProps)
+      this._addOnZoomChanged(newProps);
     }
   }
 
@@ -233,14 +238,14 @@ export default class Camera extends Component {
   _addOnFocusChanged(props) {
     if (Platform.OS === 'ios') {
       const { onFocusChanged } = props || this.props;
-      this.focusListener = NativeAppEventEmitter.addListener('focusChanged', onFocusChanged)
+      this.focusListener = NativeAppEventEmitter.addListener('focusChanged', onFocusChanged);
     }
   }
 
   _addOnZoomChanged(props) {
     if (Platform.OS === 'ios') {
       const { onZoomChanged } = props || this.props;
-      this.zoomListener = NativeAppEventEmitter.addListener('zoomChanged', onZoomChanged)
+      this.zoomListener = NativeAppEventEmitter.addListener('zoomChanged', onZoomChanged);
     }
   }
   _removeOnBarCodeReadListener() {
@@ -250,15 +255,15 @@ export default class Camera extends Component {
     }
   }
   _removeOnFocusChanged() {
-    const listener = this.focusListener
+    const listener = this.focusListener;
     if (listener) {
-      listener.remove()
+      listener.remove();
     }
   }
   _removeOnZoomChanged() {
-    const listener = this.zoomListener
+    const listener = this.zoomListener;
     if (listener) {
-      listener.remove()
+      listener.remove();
     }
   }
 
