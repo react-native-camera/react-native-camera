@@ -135,31 +135,12 @@ export default class Camera extends Component {
     permissionDialogTitle: '',
     permissionDialogMessage: '',
     notAuthorizedView: (
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Text
-          style={{
-            textAlign: 'center',
-            fontSize: 16,
-          }}
-        >
-          Camera not authorized
-        </Text>
+      <View style={styles.authorizationContainer}>
+        <Text style={styles.notAuthorizedText}>Camera not authorized</Text>
       </View>
     ),
     pendingAuthorizationView: (
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
+      <View style={styles.authorizationContainer}>
         <ActivityIndicator size="small" />
       </View>
     ),
@@ -403,4 +384,13 @@ const RCTCamera = requireNativeComponent('RCTCamera', Camera, {
 
 const styles = StyleSheet.create({
   base: {},
+  authorizationContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notAuthorizedText: {
+    textAlign: 'center',
+    fontSize: 16,
+  },
 });

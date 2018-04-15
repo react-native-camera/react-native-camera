@@ -11,6 +11,7 @@ import {
   View,
   ActivityIndicator,
   Text,
+  StyleSheet,
 } from 'react-native';
 
 import type { FaceFeature } from './FaceDetector';
@@ -189,31 +190,12 @@ export default class Camera extends React.Component<PropsType, StateType> {
     permissionDialogTitle: '',
     permissionDialogMessage: '',
     notAuthorizedView: (
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Text
-          style={{
-            textAlign: 'center',
-            fontSize: 16,
-          }}
-        >
-          Camera not authorized
-        </Text>
+      <View style={styles.authorizationContainer}>
+        <Text style={styles.notAuthorizedText}>Camera not authorized</Text>
       </View>
     ),
     pendingAuthorizationView: (
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
+      <View style={styles.authorizationContainer}>
         <ActivityIndicator size="small" />
       </View>
     ),
@@ -403,5 +385,17 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     onMountError: true,
     renderToHardwareTextureAndroid: true,
     testID: true,
+  },
+});
+
+const styles = StyleSheet.create({
+  authorizationContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notAuthorizedText: {
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
