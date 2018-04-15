@@ -15,11 +15,11 @@
   "devDependencies": {
     "@commitlint/cli": "^6.1.0",
     "@commitlint/config-conventional": "^6.1.0",
-    "babel-eslint": "^8.0.2",
-    "eslint": "^4.12.0",
+    "babel-eslint": "^8.2.1",
+    "eslint": "^4.17.0",
     "eslint-plugin-flowtype": "^2.46.2",
-    "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-react": "^7.3.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-react": "^7.6.1",
     "eslint-plugin-react-native": "^3.2.0",
     "generate-changelog": "1.7.0",
     "husky": "^0.14.3",
@@ -28,6 +28,7 @@
     "minimist": "1.2.0",
     "pre-commit": "^1.2.2",
     "prettier": "^1.12.0",
+    "react": "16.3.1",
     "react-native": "^0.55.2",
     "simple-git": "1.89.0"
   },
