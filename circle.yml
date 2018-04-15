@@ -1,0 +1,37 @@
+version: 2
+executorType: docker
+jobs:
+  build:
+    resource_class: large
+    environment:
+      - GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+      - REACT_NATIVE_MAX_WORKERS: 2
+      - ANDROID_BUILD_TOOLS_VERSION: "26.0.2"
+    working_directory: ~/app
+    docker:
+      - image: entria/react-native-android:0.1.72
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - v1-npm
+      - run:
+          name: Install Dependencies
+          command: yarn install
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: Run Checks
+          command: |
+            cd android
+            chmod +x ./gradlew && ./gradlew check
+      - save_cache:
+          key: v1-npm
+          paths:
+            - node_modules/
+      - save_cache:
+          key: v1-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules/
