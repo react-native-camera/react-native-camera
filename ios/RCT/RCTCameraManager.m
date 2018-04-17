@@ -22,8 +22,6 @@
 
 @implementation RCTCameraManager
 
-@synthesize overlay;
-
 RCT_EXPORT_MODULE();
 
 - (UIView *)viewWithProps:(__unused NSDictionary *)props
