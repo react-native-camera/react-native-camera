@@ -466,6 +466,30 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
     }
 }
 
+RCT_EXPORT_METHOD(getExposureCompensationRange:(RCTResponseSenderBlock)callback) {
+  AVCaptureDevice *backCamera = [[self videoCaptureDeviceInput] device];
+  
+  float min = backCamera.minExposureTargetBias;
+  float max = backCamera.maxExposureTargetBias;
+  
+  NSNumber *minNumber = [NSNumber numberWithFloat:min];
+  NSNumber *maxNumber = [NSNumber numberWithFloat:max];
+  id objects[] = {minNumber, maxNumber};
+  NSUInteger count = sizeof(objects) / sizeof(id);
+  NSArray *array = [NSArray arrayWithObjects:objects count:count];
+  
+  callback(@[[NSNull null], array]);
+}
+
+RCT_EXPORT_METHOD(setExposureCompensation:(float)value) {
+  AVCaptureDevice *backCamera = [[self videoCaptureDeviceInput] device];
+  
+  if ([backCamera lockForConfiguration:NULL] == YES) {
+    [backCamera setExposureTargetBias:(float)value completionHandler:nil];
+    [backCamera unlockForConfiguration];
+  }
+}
+
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
