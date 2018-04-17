@@ -10,6 +10,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
 #import "RCTSensorOrientationChecker.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @interface RCTCameraManager ()
 
@@ -464,6 +465,71 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
     } else {
         NSLog(@"error: %@", error);
     }
+}
+
+RCT_EXPORT_METHOD(makeGif:(NSArray *)images callback:(RCTResponseSenderBlock)callback) {
+  NSDictionary *fileProperties = @{
+                                   (__bridge id)kCGImagePropertyGIFDictionary: @{
+                                       (__bridge id)kCGImagePropertyGIFLoopCount: @0, // 0 means loop forever
+                                       }
+                                   };
+  
+  NSDictionary *frameProperties = @{
+                                    (__bridge id)kCGImagePropertyGIFDictionary: @{
+                                        (__bridge id)kCGImagePropertyGIFDelayTime: @0.5f, // a float (not double!) in seconds, rounded to centiseconds in the GIF data
+                                        }
+                                    };
+  
+  NSFileManager *defManager = [NSFileManager defaultManager];
+  NSError *error = nil;
+  
+  NSURL *documentsDirectoryURL = [defManager URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
+  NSURL *fileURL = [documentsDirectoryURL URLByAppendingPathComponent:@"animated.gif"];
+  
+  CGImageDestinationRef destination = CGImageDestinationCreateWithURL((__bridge CFURLRef)fileURL, kUTTypeGIF, images.count, NULL);
+  CGImageDestinationSetProperties(destination, (__bridge CFDictionaryRef)fileProperties);
+  
+  for (NSString *path in images) {
+    @autoreleasepool {
+      UIImage *image = [UIImage imageWithContentsOfFile:path];
+      CGImageDestinationAddImage(destination, [self newCGImageRotatedByAngle:image.CGImage angle:270], (__bridge CFDictionaryRef)frameProperties);
+    }
+  }
+  
+  if (!CGImageDestinationFinalize(destination)) {
+    NSLog(@"failed to finalize image destination");
+  }
+  CFRelease(destination);
+  
+  for (NSString *path in images) {
+    [defManager removeItemAtPath:path error:&error];
+  }
+  if (error) {
+    NSLog(@"Error removing temp files: %@", error);
+  }
+  
+  ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+  NSString *filePath = [fileURL path];
+  NSData *data = [NSData dataWithContentsOfFile:filePath];
+  
+  [library writeImageDataToSavedPhotosAlbum:data metadata:nil completionBlock:^(NSURL *assetURL, NSError *error) {
+    if (error) {
+      NSLog(@"Error Saving GIF to Photo Album: %@", error);
+    } else {
+      //            NSString *assetURLString = [assetURL absoluteString];
+      //            id objects[] = { assetURLString };
+      //            NSUInteger count = sizeof(objects) / sizeof(id);
+      //            NSArray *array = [NSArray arrayWithObjects:objects count:count];
+      //
+      //            callback(@[[NSNull null], array]);
+    }
+  }];
+  
+  // form result and return it
+  id objects[] = { filePath };
+  NSUInteger count = sizeof(objects) / sizeof(id);
+  NSArray *array = [NSArray arrayWithObjects:objects count:count];
+  callback(@[[NSNull null], array]);
 }
 
 RCT_EXPORT_METHOD(getExposureCompensationRange:(RCTResponseSenderBlock)callback) {
