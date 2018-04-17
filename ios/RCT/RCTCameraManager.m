@@ -16,10 +16,13 @@
 
 @property (strong, nonatomic) RCTSensorOrientationChecker * sensorOrientationChecker;
 @property (assign, nonatomic) NSInteger* flashMode;
+@property (nonatomic, strong) UIView *overlay;
 
 @end
 
 @implementation RCTCameraManager
+
+@synthesize overlay;
 
 RCT_EXPORT_MODULE();
 
@@ -788,6 +791,22 @@ RCT_EXPORT_METHOD(setExposureCompensation:(float)value) {
               rotatedCGImage = CGImageCreateWithImageInRect(rotatedCGImage, croppedSize);
           }
 
+          // add overlay
+          self.overlay = [[UIView alloc] initWithFrame:self.view.bounds];
+          self.overlay.layer.backgroundColor = [[UIColor blackColor] CGColor];
+          [self.view addSubview:self.overlay];
+          // add flash animation to the overlay
+          [UIView animateWithDuration:0.3 animations:^{
+            self.overlay.alpha = 0;
+          } completion:^(BOOL finished){
+            // remove overlay on completion
+            if (finished) {
+              [self.overlay removeFromSuperview];
+            } else {
+              NSLog(@"Flash effect error!");
+            }
+          }];
+          
           // Erase stupid TIFF stuff
           [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
 
