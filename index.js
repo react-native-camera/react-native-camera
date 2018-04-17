@@ -153,6 +153,7 @@ export default class Camera extends Component {
 
   async componentWillMount() {
     this._addOnBarCodeReadListener()
+    this._addOnBarCodePhotoListener()
 
     let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode })
     let hasVideoAndAudio = this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video
@@ -166,6 +167,7 @@ export default class Camera extends Component {
 
   componentWillUnmount() {
     this._removeOnBarCodeReadListener()
+    this._removeOnBarCodePhotoListener()
 
     if (this.state.isRecording) {
       this.stopCapture();
@@ -174,8 +176,12 @@ export default class Camera extends Component {
 
   componentWillReceiveProps(newProps) {
     const { onBarCodeRead } = this.props
+    const { onBarCodePhoto } = this.props
     if (onBarCodeRead !== newProps.onBarCodeRead) {
       this._addOnBarCodeReadListener(newProps)
+    }
+    if (onBarCodeRead !== newProps.onBarCodePhoto) {
+      this._addOnBarCodePhotoListener(newProps)
     }
   }
 
@@ -195,6 +201,22 @@ export default class Camera extends Component {
       listener.remove()
     }
   }
+  
+  _addOnBarCodePhotoListener(props) {
+    const { onBarCodePhoto } = props || this.props
+    this._removeOnBarCodePhotoListener()
+    if (onBarCodePhoto) {
+      this.cameraBarCodePhotoListener = Platform.select({
+        ios: NativeAppEventEmitter.addListener('CameraBarCodePhoto', this._onBarCodePhoto),
+      })
+    }
+  }
+  _removeOnBarCodePhotoListener() {
+    const listener = this.cameraBarCodePhotoListener
+    if (listener) {
+      listener.remove()
+    }
+  }
 
   render() {
     const style = [styles.base, this.props.style];
@@ -206,6 +228,12 @@ export default class Camera extends Component {
   _onBarCodeRead = (data) => {
     if (this.props.onBarCodeRead) {
       this.props.onBarCodeRead(data)
+    }
+  };
+  
+  _onBarCodePhoto = (data) => {
+    if (this.props.onBarCodePhoto) {
+      this.props.onBarCodePhoto(data)
     }
   };
 
