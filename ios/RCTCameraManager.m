@@ -447,6 +447,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       [self.session addOutput:metadataOutput];
       [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
       self.metadataOutput = metadataOutput;
+      // The barcode method runs until the session is stopped by the React component.
+      // Thus, we use a boolean so that the image capture only takes place once.
+      self.barCodeImageCaptured = NO;
     }
 
     __weak RCTCameraManager *weakSelf = self;
@@ -880,7 +883,37 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 }
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
+  
+  if (!self.barCodeImageCaptured) {
+    self.barCodeImageCaptured = YES;
+    
+    // Capture a photo immediately after scanning bar code
+    [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
 
+        if (imageDataSampleBuffer) {
+          
+          NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+          UIImage *image = [[UIImage alloc] initWithData:imageData];
+
+          // Save image to disk and grab the file path
+          NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+          NSString *documentsDirectory = [paths firstObject];
+          NSFileManager *fileManager = [NSFileManager defaultManager];
+          NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"jpg"];
+          [fileManager createFileAtPath:fullPath contents:imageData attributes:nil];
+
+          NSDictionary *event = @{
+            @"data": fullPath,
+          };
+          
+          // Send saved image's file path to callback through the event "CameraBarCodePhoto"
+         [self.bridge.eventDispatcher sendAppEventWithName:@"CameraBarCodePhoto" body:event];
+        }
+        
+    }];
+    
+  }  
+  
   for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
     for (id barcodeType in self.barCodeTypes) {
       if ([metadata.type isEqualToString:barcodeType]) {
@@ -906,6 +939,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
       }
     }
   }
+  
 }
 
 
