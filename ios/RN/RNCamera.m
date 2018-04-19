@@ -210,7 +210,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
 
-    if (self.autoFocus < 0 || device.focusMode != RNCameraAutoFocusOff) {
+    if (self.autoFocus < 0 || device.focusMode != RNCameraAutoFocusOff || device.position == RNCameraTypeFront) {
         return;
     }
 
