@@ -884,7 +884,9 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
   
-  if (!self.barCodeImageCaptured) {
+  AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
+  
+  if (!self.barCodeImageCaptured && !device.isAdjustingFocus) {
     self.barCodeImageCaptured = YES;
     
     // Capture a photo immediately after scanning bar code
