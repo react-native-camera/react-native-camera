@@ -450,6 +450,20 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       // The barcode method runs until the session is stopped by the React component.
       // Thus, we use a boolean so that the image capture only takes place once.
       self.barCodeImageCaptured = NO;
+      self.barCodeImageCount = 0; 
+      
+      AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
+      if([device isFocusPointOfInterestSupported]) {
+        CGRect cameraViewRect = [[self camera] bounds];
+        double cameraViewWidth = cameraViewRect.size.width;
+        double cameraViewHeight = cameraViewRect.size.height;
+        double focus_x = atPoint.x/cameraViewWidth;
+        double focus_y = atPoint.y/cameraViewHeight;
+        CGPoint cameraViewPoint = CGPointMake(focus_x, focus_y)
+        [device setFocusPointOfInterest:cameraViewPoint];
+        // [device setFocusMode:AVCaptureFocusModeAutoFocus];
+      }
+      
     }
 
     __weak RCTCameraManager *weakSelf = self;
@@ -886,9 +900,9 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
   
   AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
   
-  if (!self.barCodeImageCaptured && !device.isAdjustingFocus) {
+  if (!self.barCodeImageCaptured && !device.isAdjustingFocus && self.barCodeImageCount > 2) {
     self.barCodeImageCaptured = YES;
-    
+      
     // Capture a photo immediately after scanning bar code
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
 
@@ -896,25 +910,30 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
           
           NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
           UIImage *image = [[UIImage alloc] initWithData:imageData];
-
-          // Save image to disk and grab the file path
-          NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-          NSString *documentsDirectory = [paths firstObject];
-          NSFileManager *fileManager = [NSFileManager defaultManager];
-          NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"jpg"];
-          [fileManager createFileAtPath:fullPath contents:imageData attributes:nil];
-
-          NSDictionary *event = @{
-            @"data": fullPath,
-          };
           
-          // Send saved image's file path to callback through the event "CameraBarCodePhoto"
-         [self.bridge.eventDispatcher sendAppEventWithName:@"CameraBarCodePhoto" body:event];
+          // save to camera roll for testing
+          [[[ALAssetsLibrary alloc] init] writeImageDataToSavedPhotosAlbum:imageData metadata:nil completionBlock:^(NSURL* url, NSError* error) {}];
+
+         //  // Save image to disk and grab the file path
+         //  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+         //  NSString *documentsDirectory = [paths firstObject];
+         //  NSFileManager *fileManager = [NSFileManager defaultManager];
+         //  NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"jpg"];
+         //  [fileManager createFileAtPath:fullPath contents:imageData attributes:nil];
+         //
+         //  NSDictionary *event = @{
+         //    @"data": fullPath,
+         //  };
+         //
+         //  // Send saved image's file path to callback through the event "CameraBarCodePhoto"
+         // [self.bridge.eventDispatcher sendAppEventWithName:@"CameraBarCodePhoto" body:event];
         }
         
     }];
     
-  }  
+  } else {
+    self.barCodeImageCount++;
+  }
   
   for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
     for (id barcodeType in self.barCodeTypes) {
