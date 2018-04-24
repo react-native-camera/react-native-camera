@@ -852,7 +852,7 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
     [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:orientation];
     
     if (self.mirrorVideo) {
-        [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoMirrored:YES]
+        [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoMirrored:YES];
     }
     //Create temporary URL to record to
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
