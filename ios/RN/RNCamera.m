@@ -412,6 +412,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
     [connection setVideoOrientation:[RNCameraUtils videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
 
+    if ([options[@"mirrorVideo"] boolValue]) {
+        [connection setVideoMirrored:YES];
+    }
     if (options[@"codec"]) {
       AVVideoCodecType videoCodecType = options[@"codec"];
       if (@available(iOS 10, *)) {
