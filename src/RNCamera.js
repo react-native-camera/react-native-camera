@@ -321,11 +321,11 @@ export default class Camera extends React.Component<PropsType, StateType> {
     return isAuthorized ? 'READY' : isAuthorizationChecked ? 'PENDING_AUTHORIZATION' : 'NOT_AUTHORIZED';
   }
 
-  // CAF = Children as Function;
-  hasCAF = (): * => typeof this.props.children === 'function';
+  // FaCC = Function as Child Component;
+  hasFaCC = (): * => typeof this.props.children === 'function';
 
   renderChildren = (): * => {
-    if (this.hasCAF()) {
+    if (this.hasFaCC()) {
       return this.props.children({ camera: this, status: this.getStatus() })
     }
     return null;
@@ -334,7 +334,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
   render() {
     const nativeProps = this._convertNativeProps(this.props);
 
-    if (this.state.isAuthorized || this.hasCAF()) {
+    if (this.state.isAuthorized || this.hasFaCC()) {
       return (
         <RNCamera
           {...nativeProps}

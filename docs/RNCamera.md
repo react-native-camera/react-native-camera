@@ -106,9 +106,6 @@ class App extends Component {
     return (
       <View style={styles.container}>
         <RNCamera
-          ref={ref => {
-            this.camera = ref;
-          }}
           style={styles.preview}
           type={RNCamera.Constants.Type.back}
           flashMode={RNCamera.Constants.FlashMode.on}
