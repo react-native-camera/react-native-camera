@@ -386,6 +386,9 @@ The promise will be fulfilled with an object with some of the following properti
    - `RNCamera.Constants.VideoQuality.4:3`.
      - `ios` Specifies capture settings suitable for VGA quality (640x480 pixel) video output. (Same as RNCamera.Constants.VideoQuality.480p).
      - `android` Quality level corresponding to the 480p (720 x 480) resolution but with video frame width set to 640.
+   - `RNCamera.Constants.VideoQuality.288p`.
+     - `ios` Specifies capture settings suitable for CIF quality (352x288 pixel) video output.
+     - `android` Not supported.
 
     If nothing is passed the device's highest camera quality will be used as default.
  - `iOS` `codec`. This option specifies the codec of the output video. Setting the codec is only supported on `iOS >= 10`. The possible values are:
