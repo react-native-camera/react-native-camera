@@ -66,6 +66,7 @@ type RecordingOptions = {
   quality?: number | string,
   codec?: string,
   mute?: boolean,
+  mirrorVideo?: boolean,
 };
 
 type EventCallbackArgumentsType = {
