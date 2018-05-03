@@ -456,6 +456,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             return;
         }
 
+        self.session.sessionPreset = AVCaptureSessionPresetPhoto;
+        
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
             stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
