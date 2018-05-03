@@ -776,8 +776,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
 #endif
 
-    if (self.session.sessionPreset != AVCaptureSessionPresetHigh) {
-        [self updateSessionPreset:AVCaptureSessionPresetHigh];
+    if (self.session.sessionPreset != AVCaptureSessionPresetPhoto) {
+        [self updateSessionPreset:AVCaptureSessionPresetPhoto];
     }
 }
 
