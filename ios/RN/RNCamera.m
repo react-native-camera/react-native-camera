@@ -44,21 +44,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.paused = NO;
         [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
         [self initializeCaptureSessionInput];
+        [self setupMovieFileCapture];
         [self startSession];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(orientationChanged:)
                                                      name:UIDeviceOrientationDidChangeNotification
                                                    object:nil];
         self.autoFocus = -1;
-        //        [[NSNotificationCenter defaultCenter] addObserver:self
-        //                                                 selector:@selector(bridgeDidForeground:)
-        //                                                     name:EX_UNVERSIONED(@"EXKernelBridgeDidForegroundNotification")
-        //                                                   object:self.bridge];
-        //
-        //        [[NSNotificationCenter defaultCenter] addObserver:self
-        //                                                 selector:@selector(bridgeDidBackground:)
-        //                                                     name:EX_UNVERSIONED(@"EXKernelBridgeDidBackgroundNotification")
-        //                                                   object:self.bridge];
 
     }
     return self;
@@ -264,6 +256,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
         [device unlockForConfiguration];
     } else {
+        self.whiteBalance = RNCameraWhiteBalanceFluorescent;
         AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
             .temperature = [RNCameraUtils temperatureForWhiteBalance:self.whiteBalance],
             .tint = 0,
@@ -387,7 +380,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager stopFaceDetection];
 #endif
-        [self setupMovieFileCapture];
+        //[self setupMovieFileCapture];
     }
 
     if (self.movieFileOutput == nil || self.movieFileOutput.isRecording || _videoRecordedResolve != nil || _videoRecordedReject != nil) {
@@ -404,10 +397,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     if (options[@"quality"]) {
-        [self updateSessionPreset:[RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]]];
+        //[self updateSessionPreset:[RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]]];
     }
 
-    [self updateSessionAudioIsMuted:!!options[@"mute"]];
+    //[self updateSessionAudioIsMuted:!!options[@"mute"]];
 
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
     [connection setVideoOrientation:[RNCameraUtils videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
@@ -471,7 +464,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
         // to avoid an exposure rack on some devices that can cause the first few
         // frames of the recorded output to be underexposed.
-        [self setupMovieFileCapture];
+        //[self setupMovieFileCapture];
 #endif
         [self setupOrDisableBarcodeScanner];
 
@@ -769,7 +762,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     self.videoCodecType = nil;
 
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-    [self cleanupMovieFileCapture];
+//    [self cleanupMovieFileCapture];
 
     // If face detection has been running prior to recording to file
     // we reenable it here (see comment in -record).

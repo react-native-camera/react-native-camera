@@ -156,34 +156,34 @@ RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSInteger, RNCamera)
 
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
 {
-    [view updateFaceDetecting:json];
+//    [view updateFaceDetecting:json];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectionMode, NSInteger, RNCamera)
 {
-    [view updateFaceDetectionMode:json];
+//    [view updateFaceDetectionMode:json];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectionLandmarks, NSString, RNCamera)
 {
-    [view updateFaceDetectionLandmarks:json];
+//    [view updateFaceDetectionLandmarks:json];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectionClassifications, NSString, RNCamera)
 {
-    [view updateFaceDetectionClassifications:json];
+//    [view updateFaceDetectionClassifications:json];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(barCodeScannerEnabled, BOOL, RNCamera)
 {
-    
-    view.barCodeReading = [RCTConvert BOOL:json];
-    [view setupOrDisableBarcodeScanner];
+
+//    view.barCodeReading = [RCTConvert BOOL:json];
+//    [view setupOrDisableBarcodeScanner];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RNCamera)
 {
-    [view setBarCodeTypes:[RCTConvert NSArray:json]];
+//    [view setBarCodeTypes:[RCTConvert NSArray:json]];
 }
 
 RCT_REMAP_METHOD(takePicture,
