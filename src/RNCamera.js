@@ -100,6 +100,8 @@ type StateType = {
   isAuthorizationChecked: boolean,
 };
 
+type Status = 'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED';
+
 const CameraManager: Object = NativeModules.RNCameraManager ||
   NativeModules.RNCameraModule || {
     stubbed: true,
@@ -314,10 +316,25 @@ export default class Camera extends React.Component<PropsType, StateType> {
     this.setState({ isAuthorized, isAuthorizationChecked: true });
   }
 
+  getStatus = (): Status => {
+    const { isAuthorized, isAuthorizationChecked } = this.state;
+    return isAuthorized ? 'READY' : isAuthorizationChecked ? 'PENDING_AUTHORIZATION' : 'NOT_AUTHORIZED';
+  }
+
+  // FaCC = Function as Child Component;
+  hasFaCC = (): * => typeof this.props.children === 'function';
+
+  renderChildren = (): * => {
+    if (this.hasFaCC()) {
+      return this.props.children({ camera: this, status: this.getStatus() })
+    }
+    return null;
+  }
+
   render() {
     const nativeProps = this._convertNativeProps(this.props);
 
-    if (this.state.isAuthorized) {
+    if (this.state.isAuthorized || this.hasFaCC()) {
       return (
         <RNCamera
           {...nativeProps}
@@ -330,7 +347,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
           onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
           onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
           onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
-        />
+        >
+        {this.renderChildren()}
+        </RNCamera>
       );
     } else if (!this.state.isAuthorizationChecked) {
       return this.props.pendingAuthorizationView;

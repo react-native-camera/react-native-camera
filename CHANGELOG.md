@@ -1,3 +1,13 @@
+#### 1.1.2-4 (2018-04-25)
+
+##### Chores
+
+* **cameraview:**  integrate google's cameraview directly on rncamera? ([d11ed319](https://github.com/react-native-community/react-native-camera/commit/d11ed31917c26df151b4fb46ab166d2921a9ac99))
+
+##### Bug Fixes
+
+* **search-paths:**  remove unnecessary search paths and add missing one ([dee298b4](https://github.com/react-native-community/react-native-camera/commit/dee298b4fefca4659468fd43e914fd1c970ca930))
+
 #### 1.1.1-3 (2018-04-15)
 
 ##### Build System / Dependencies
