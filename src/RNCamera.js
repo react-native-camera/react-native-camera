@@ -318,7 +318,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
   getStatus = (): Status => {
     const { isAuthorized, isAuthorizationChecked } = this.state;
-    return isAuthorized ? 'READY' : isAuthorizationChecked ? 'PENDING_AUTHORIZATION' : 'NOT_AUTHORIZED';
+    return isAuthorized ? 'READY' : isAuthorizationChecked ? 'NOT_AUTHORIZED' : 'PENDING_AUTHORIZATION';
   }
 
   // FaCC = Function as Child Component;
