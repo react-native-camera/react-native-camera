@@ -325,7 +325,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
   getStatus = (): Status => {
     const { isAuthorized, isAuthorizationChecked } = this.state;
-    if (isAuthorizationChecked) {
+    if (isAuthorizationChecked === false) {
       return CameraStatus.PENDING_AUTHORIZATION;
     }
     return isAuthorized ? CameraStatus.READY : CameraStatus.NOT_AUTHORIZED;
