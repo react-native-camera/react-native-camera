@@ -102,6 +102,12 @@ type StateType = {
 
 type Status = 'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED';
 
+const CameraStatus = {
+  READY: 'READY',
+  PENDING_AUTHORIZATION: 'PENDING_AUTHORIZATION',
+  NOT_AUTHORIZED: 'NOT_AUTHORIZED',
+};
+
 const CameraManager: Object = NativeModules.RNCameraManager ||
   NativeModules.RNCameraModule || {
     stubbed: true,
@@ -144,6 +150,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     BarCodeType: CameraManager.BarCodeType,
     GoogleVisionBarcodeDetection: CameraManager.GoogleVisionBarcodeDetection,
     FaceDetection: CameraManager.FaceDetection,
+    CameraStatus,
   };
 
   // Values under keys from this object will be transformed to native options
@@ -318,18 +325,21 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
   getStatus = (): Status => {
     const { isAuthorized, isAuthorizationChecked } = this.state;
-    return isAuthorized ? 'READY' : isAuthorizationChecked ? 'NOT_AUTHORIZED' : 'PENDING_AUTHORIZATION';
-  }
+    if (isAuthorizationChecked) {
+      return CameraStatus.PENDING_AUTHORIZATION;
+    }
+    return isAuthorized ? CameraStatus.READY : CameraStatus.NOT_AUTHORIZED;
+  };
 
   // FaCC = Function as Child Component;
   hasFaCC = (): * => typeof this.props.children === 'function';
 
   renderChildren = (): * => {
     if (this.hasFaCC()) {
-      return this.props.children({ camera: this, status: this.getStatus() })
+      return this.props.children({ camera: this, status: this.getStatus() });
     }
     return null;
-  }
+  };
 
   render() {
     const nativeProps = this._convertNativeProps(this.props);
@@ -348,7 +358,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
           onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
           onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
         >
-        {this.renderChildren()}
+          {this.renderChildren()}
         </RNCamera>
       );
     } else if (!this.state.isAuthorizationChecked) {
