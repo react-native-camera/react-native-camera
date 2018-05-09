@@ -338,7 +338,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (this.hasFaCC()) {
       return this.props.children({ camera: this, status: this.getStatus() });
     }
-    return null;
+    return this.props.children;
   };
 
   render() {
