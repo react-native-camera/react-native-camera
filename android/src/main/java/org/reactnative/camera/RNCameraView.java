@@ -108,7 +108,11 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         byte[] rotated = new byte[imageData.length];
         for (int y = 0; y < width; y++) {
           for (int x = 0; x < height; x++) {
-            rotated[x * width + width - y - 1] = imageData[x + y * height];
+            int sourceIx = x + y * height;
+            int destIx = x * width + width - y - 1;
+            if (sourceIx >= 0 && sourceIx < imageData.length && destIx >= 0 && destIx < imageData.length) {
+              rotated[destIx] = imageData[sourceIx];
+            }
           }
         }
         return rotated;
