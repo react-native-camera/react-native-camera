@@ -115,7 +115,8 @@ And add something like this to the `scripts` section in your `package.json`:
 ##### Installing GMV frameworks
 GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RNCamera project.
 
-1. If using **CocoaPods** modify the dependency towards `react-native-camera` in your
+###### CocoaPods Path
+1. Modify the dependency towards `react-native-camera` in your
  `Podfile`, from
 
  ```
@@ -128,8 +129,17 @@ to
 pod 'react-native-camera', subspecs: ['RCT', 'RN', 'FaceDetector'], path: '../node_modules/react-native-camera'
 ```
 
+2. Add the following to your `Podfile`: 
+```
+  pod 'GoogleMobileVision/Detector', '~> 1.1.0'
+  pod 'GoogleMobileVision/MVDataOutput', '~> 1.1.0'
+  pod 'GoogleMobileVision/FaceDetector', '~> 1.1.0'
+```
 
-2. Download:
+3. In XCode, On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
+
+###### Non-CocoaPods Path
+1. Download:
 Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSymbolUtilities-1.1.1.tar.gz
 
     Google Utilities: https://dl.google.com/dl/cpdc/978f81964b50a7c0/GoogleUtilities-1.3.2.tar.gz
@@ -140,13 +150,13 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 
     Google Interchange Utilities: https://dl.google.com/dl/cpdc/1a7f7ba905b2c029/GoogleInterchangeUtilities-1.2.2.tar.gz
 
-3. Extract everything to one folder. Delete "BarcodeDetector" and "copy" folders from Google Mobile Vision.
+2. Extract everything to one folder. Delete "BarcodeDetector" and "copy" folders from Google Mobile Vision.
 
-4. Open XCode, right click on your project and choose "New Group". Rename the new folder to "Frameworks". Right click on "Frameworks" and select "add files to 'YOUR_PROJECT'". Select all content from the folder of step 2, click on Options. Select "Copy items if needed", leave "Create groups" selected and choose all your targets on the "Add to targets" section. Then, click on "Add".
+3. Open XCode, right click on your project and choose "New Group". Rename the new folder to "Frameworks". Right click on "Frameworks" and select "add files to 'YOUR_PROJECT'". Select all content from the folder of step 2, click on Options. Select "Copy items if needed", leave "Create groups" selected and choose all your targets on the "Add to targets" section. Then, click on "Add".
 
-5. On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
-6. On your target -> Build Settings -> Other Linker Flags -> add -lz, -ObjC and -lc++
-7. To force indexing and prevent errors, restart xcode and reopen your project again before compiling.
+4. On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
+5. On your target -> Build Settings -> Other Linker Flags -> add -lz, -ObjC and -lc++
+6. To force indexing and prevent errors, restart xcode and reopen your project again before compiling.
 
 #### Android
 1. `npm install react-native-camera --save`

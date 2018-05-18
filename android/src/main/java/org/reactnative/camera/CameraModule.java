@@ -190,18 +190,11 @@ public class CameraModule extends ReactContextBaseJavaModule {
       public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
           RNCameraView cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
           try {
-              if (!Build.FINGERPRINT.contains("generic")) {
-                if (cameraView.isCameraOpened()) {
-                  cameraView.takePicture(options, promise, cacheDirectory);
-                } else {
-                  promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
-                }
-              } else {
-                  Bitmap image = RNCameraViewHelper.generateSimulatorPhoto(cameraView.getWidth(), cameraView.getHeight());
-                  ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                  image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                  new ResolveTakenPictureAsyncTask(stream.toByteArray(), promise, options, cacheDirectory).execute();
-              }
+            if (cameraView.isCameraOpened()) {
+              cameraView.takePicture(options, promise, cacheDirectory);
+            } else {
+              promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
+            }
         } catch (Exception e) {
           promise.reject("E_CAMERA_BAD_VIEWTAG", "takePictureAsync: Expected a Camera component");
         }
