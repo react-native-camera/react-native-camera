@@ -442,9 +442,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       if ((mIsPaused && !isCameraOpened()) || mIsNew) {
         mIsPaused = false;
         mIsNew = false;
-        if (!Build.FINGERPRINT.contains("generic")) {
-          start();
-        }
+        start();
       }
     } else {
       RNCameraViewHelper.emitMountErrorEvent(this, "Camera permissions not granted - component could not be rendered.");
