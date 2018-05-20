@@ -18,6 +18,14 @@ typedef NS_ENUM(NSInteger, RNCameraFlashMode) {
     RNCameraFlashModeAuto = AVCaptureFlashModeAuto
 };
 
+typedef NS_ENUM(NSInteger, RNCameraOrientation) {
+    RNCameraOrientationAuto = 0,
+    RNCameraOrientationLandscapeLeft = AVCaptureVideoOrientationLandscapeLeft,
+    RNCameraOrientationLandscapeRight = AVCaptureVideoOrientationLandscapeRight,
+    RNCameraOrientationPortrait = AVCaptureVideoOrientationPortrait,
+    RNCameraOrientationPortraitUpsideDown = AVCaptureVideoOrientationPortraitUpsideDown
+};
+
 typedef NS_ENUM(NSInteger, RNCameraAutoFocus) {
     RNCameraAutoFocusOff = AVCaptureFocusModeLocked,
     RNCameraAutoFocusOn = AVCaptureFocusModeContinuousAutoFocus,

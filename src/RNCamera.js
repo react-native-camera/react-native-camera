@@ -30,8 +30,11 @@ const styles = StyleSheet.create({
   },
 });
 
+type Orientation = "auto"|"landscapeLeft"|"landscapeRight"|"portrait"|"portraitUpsideDown";
+
 type PictureOptions = {
   quality?: number,
+  orientation?: Orientation,
   base64?: boolean,
   mirrorImage?: boolean,
   exif?: boolean,
@@ -246,6 +249,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
     if (!options.quality) {
       options.quality = 1;
+    }
+    if (options.orientation) {
+      options.orientation = CameraManager.Orientation[options.orientation];
     }
     return await CameraManager.takePicture(options, this._cameraHandle);
   }
