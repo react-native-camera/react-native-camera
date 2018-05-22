@@ -54,7 +54,7 @@ dependencies {
   def supportLibVersion = rootProject.hasProperty('supportLibVersion')  ? rootProject.supportLibVersion : DEFAULT_SUPPORT_LIBRARY_VERSION
 
   compileOnly 'com.facebook.react:react-native:+'
-  implementation 'com.facebook.infer.annotation:infer-annotation:+'
+  compileOnly 'com.facebook.infer.annotation:infer-annotation:+'
   implementation "com.google.zxing:core:3.2.1"
   implementation "com.drewnoakes:metadata-extractor:2.9.1"
   implementation "com.google.android.gms:play-services-vision:$googlePlayServicesVersion"
