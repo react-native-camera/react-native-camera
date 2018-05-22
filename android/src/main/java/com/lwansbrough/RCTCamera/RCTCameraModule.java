@@ -818,7 +818,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
      */
     @Override
     public void onHostResume() {
-        // ... do nothing
+        mSafeToCapture = true;
     }
 
     @Override
