@@ -56,6 +56,13 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
                      @"4:3": @(RNCameraVideo4x3),
                      @"288p": @(RNCameraVideo288p),
                      },
+             @"Orientation": @{
+                     @"auto": @(RNCameraOrientationAuto),
+                     @"landscapeLeft": @(RNCameraOrientationLandscapeLeft),
+                     @"landscapeRight": @(RNCameraOrientationLandscapeRight),
+                     @"portrait": @(RNCameraOrientationPortrait),
+                     @"portraitUpsideDown": @(RNCameraOrientationPortraitUpsideDown)
+                     },
              @"VideoCodec": [[self class] validCodecTypes],
              @"BarCodeType" : [[self class] validBarCodeTypes],
              @"FaceDetection" : [[self  class] faceDetectorConstants]
