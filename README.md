@@ -1,6 +1,6 @@
 # React Native Camera [![Backers on Open Collective](https://opencollective.com/react-native-camera/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-camera/sponsors/badge.svg)](#sponsors) [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![npm downloads](https://img.shields.io/npm/dm/react-native-camera.svg)](https://www.npmjs.com/package/react-native-camera)
 
-The comprehensive camera module for React Native. Including photographs, videos, face detection and barcode scanning!
+The comprehensive camera module for React Native. Including photographs, videos, face detection, barcode scanning and text recognition (Android only)!
 
 `import { RNCamera, FaceDetector } from 'react-native-camera';`
 
@@ -24,7 +24,6 @@ To use the camera on Android you must ask for camera permission:
 To enable `video recording` feature you have to add the following code to the `AndroidManifest.xml`:
 ```java
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-  <uses-permission android:name="android.permission.RECORD_VIDEO"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 ```
@@ -84,16 +83,17 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 1. `npm install react-native-camera --save`
 2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
 3. Go to `node_modules` ➜ `react-native-camera` and add `RNCamera.xcodeproj`
-4. In XCode, in the project navigator, select your project. Add `libRNCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
-5. Click `RNCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
+4. Expand the `RNCamera.xcodeproj` ➜ `Products` folder
+5. In XCode, in the project navigator, select your project. Add `libRNCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
+6. Click `RNCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
 
-### Face Detection Steps
+### Face Detection or Text Recognition Steps
 
-Face Detecion is optional on iOS. If you want it, you are going to need to install Google Mobile Vision frameworks in your project, as mentioned in the next section.
+Face Detection is optional on iOS. If you want it, you are going to need to install Google Mobile Vision frameworks in your project, as mentioned in the next section.
 
 ##### No Face Detection steps
 
-If you do not need it and do not want to install the GMV frameworks, open your app xcode project, on the Project Navigator, expand the RNCamera project, right click on the FaceDetector folder and delete it (move to trash, if you want). If you keep that folder and do not follow the GMV installation setps, your project will not compile.
+If you do not need it and do not want to install the GMV frameworks, open your app xcode project, on the Project Navigator, expand the RNCamera project, right click on the FaceDetector folder and delete it (move to trash, if you want). If you keep that folder and do not follow the GMV installation steps, your project will not compile.
 
 If you want to make this automatic, you can add a postinstall script to your app `package.json`. Inside the `postinstall_project` there is a xcode project ready with the folder removed (we opened xcode, removed the folder from the project and copied the resulting project file). The post install script is:
 ```
@@ -115,21 +115,31 @@ And add something like this to the `scripts` section in your `package.json`:
 ##### Installing GMV frameworks
 GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RNCamera project.
 
-1. If using **CocoaPods** modify the dependency towards `react-native-camera` in your
- `Podfile`, from 
+###### CocoaPods Path
+1. Modify the dependency towards `react-native-camera` in your
+ `Podfile`, from
 
  ```
  pod 'react-native-camera', path: '../node_modules/react-native-camera'
 ```
 
-to 
+to
 
 ```
 pod 'react-native-camera', subspecs: ['RCT', 'RN', 'FaceDetector'], path: '../node_modules/react-native-camera'
 ```
 
+2. Add the following to your `Podfile`: 
+```
+  pod 'GoogleMobileVision/Detector', '~> 1.1.0'
+  pod 'GoogleMobileVision/MVDataOutput', '~> 1.1.0'
+  pod 'GoogleMobileVision/FaceDetector', '~> 1.1.0'
+```
 
-2. Download:
+3. In XCode, On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
+
+###### Non-CocoaPods Path
+1. Download:
 Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSymbolUtilities-1.1.1.tar.gz
 
     Google Utilities: https://dl.google.com/dl/cpdc/978f81964b50a7c0/GoogleUtilities-1.3.2.tar.gz
@@ -140,17 +150,17 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 
     Google Interchange Utilities: https://dl.google.com/dl/cpdc/1a7f7ba905b2c029/GoogleInterchangeUtilities-1.2.2.tar.gz
 
-3. Extract everything to one folder. Delete "BarcodeDetector" and "copy" folders from Google Mobile Vision.
+2. Extract everything to one folder. Delete "BarcodeDetector" and "copy" folders from Google Mobile Vision.
 
-4. Open XCode, right click on your project and choose "New Group". Rename the new folder to "Frameworks". Right click on "Frameworks" and select "add files to 'YOUR_PROJECT'". Select all content from the folder of step 2, click on Options. Select "Copy items if needed", leave "Create groups" selected and choose all your targets on the "Add to targets" section. Then, click on "Add".
+3. Open XCode, right click on your project and choose "New Group". Rename the new folder to "Frameworks". Right click on "Frameworks" and select "add files to 'YOUR_PROJECT'". Select all content from the folder of step 2, click on Options. Select "Copy items if needed", leave "Create groups" selected and choose all your targets on the "Add to targets" section. Then, click on "Add".
 
-5. On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
-6. On your target -> Build Settings -> Other Linker Flags -> add -lz, -ObjC and -lc++
-7. To force indexing and prevent erros, restart xcode and reopen your project again before compiling.
+4. On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
+5. On your target -> Build Settings -> Other Linker Flags -> add -lz, -ObjC and -lc++
+6. To force indexing and prevent errors, restart xcode and reopen your project again before compiling.
 
 #### Android
 1. `npm install react-native-camera --save`
-2. Open up `android/app/src/main/java/[...]/MainApplication.java
+2. Open up `android/app/src/main/java/[...]/MainApplication.java`
   - Add `import org.reactnative.camera.RNCameraPackage;` to the imports at the top of the file
   - Add `new RNCameraPackage()` to the list returned by the `getPackages()` method. Add a comma to the previous item if there's already something there.
 
@@ -164,14 +174,17 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 4. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
 
 	```gradle
-        compile (project(':react-native-camera')) {
-        	exclude group: "com.google.android.gms"
-		compile 'com.android.support:exifinterface:27.+'
-    	}
-        compile ("com.google.android.gms:play-services-vision:10.2.0") {
-        	force = true;
-    	}
+    compile (project(':react-native-camera')) {
+        exclude group: "com.google.android.gms"
+        compile 'com.android.support:exifinterface:25.+'
+        compile ('com.google.android.gms:play-services-vision:12.0.1') {
+            force = true
+        }
+    }
 	```
+
+  > You may need to use different exifinterface versions, e.g. `27.+` instead of `25.+`.
+
 5. Declare the permissions in your Android Manifest (required for `video recording` feature)
 
   ```java
@@ -185,7 +198,85 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 allprojects {
     repositories {
         maven { url "https://jitpack.io" }
+        maven { url "https://maven.google.com" }
     }
+}
+```
+
+The current Android library defaults to the below values for the Google SDK and Libraries,
+
+```gradle
+def DEFAULT_COMPILE_SDK_VERSION             = 26
+def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
+def DEFAULT_TARGET_SDK_VERSION              = 26
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
+def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
+```
+
+You can override this settings by adding a Project-wide gradle configuration properties for
+use by all modules in your ReactNative project by adding the below to `android/build.gradle`
+file,
+
+```gradle
+buildscript {...}
+
+allprojects {...}
+
+/**
+* Project-wide gradle configuration properties for use by all modules
+*/
+ext {
+    compileSdkVersion           = 26
+    targetSdkVersion            = 26
+    buildToolsVersion           = "26.0.2"
+    googlePlayServicesVersion   = "12.0.1"
+    supportLibVersion           = "27.1.0"
+}
+```
+
+The above settings in the ReactNative project over-rides the values present in the `react-native-camera`
+module. For your reference below is the `android/build.gradle` file of the module.
+
+```gradle
+buildscript {
+...
+
+def DEFAULT_COMPILE_SDK_VERSION             = 26
+def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
+def DEFAULT_TARGET_SDK_VERSION              = 26
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
+def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
+
+android {
+  compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
+  buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
+
+  defaultConfig {
+    minSdkVersion 16
+    targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
+
+    versionCode 1
+    versionName "1.0.0"
+  }
+  lintOptions {
+    abortOnError false
+    warning 'InvalidPackage'
+  }
+}
+
+...
+
+dependencies {
+  def googlePlayServicesVersion = rootProject.hasProperty('googlePlayServicesVersion')  ? rootProject.googlePlayServicesVersion : DEFAULT_GOOGLE_PLAY_SERVICES_VERSION
+  def supportLibVersion = rootProject.hasProperty('supportLibVersion')  ? rootProject.supportLibVersion : DEFAULT_SUPPORT_LIBRARY_VERSION
+
+  compile 'com.facebook.react:react-native:+'
+  compile "com.google.zxing:core:3.2.1"
+  compile "com.drewnoakes:metadata-extractor:2.9.1"
+  compile 'com.google.android.gms:play-services-vision:$googlePlayServicesVersion'
+  compile 'com.android.support:exifinterface:$supportLibVersion'
+
+  compile 'com.github.react-native-community:cameraview:cc47bb28ed2fc54a8c56a4ce9ce53edd1f0af3a5'
 }
 ```
 

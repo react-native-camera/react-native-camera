@@ -53,6 +53,31 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         WritableMap response = Arguments.createMap();
         ByteArrayInputStream inputStream = null;
 
+        if (mOptions.hasKey("skipProcessing")) {
+            try {
+                // Prepare file output
+                File imageFile = new File(RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg"));
+                imageFile.createNewFile();
+                FileOutputStream fOut = new FileOutputStream(imageFile);
+
+                // Save byte array (it is already a JPEG)
+                fOut.write(mImageData);
+
+                // Return file system URI
+                String fileUri = Uri.fromFile(imageFile).toString();
+                response.putString("uri", fileUri);
+
+            } catch (Resources.NotFoundException e) {
+                mPromise.reject(ERROR_TAG, "Documents directory of the app could not be found.", e);
+                e.printStackTrace();
+            } catch (IOException e) {
+                mPromise.reject(ERROR_TAG, "An unknown I/O exception has occurred.", e);
+                e.printStackTrace();
+            }
+
+            return response;
+        }
+
         // we need the stream only for photos from a device
         if (mBitmap == null) {
             mBitmap = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
@@ -143,7 +168,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         int width = bm.getWidth();
         int height = bm.getHeight();
         float scaleRatio = (float) newWidth / (float) width;
-    
+
         return Bitmap.createScaledBitmap(bm, newWidth, (int) (height * scaleRatio), true);
     }
 

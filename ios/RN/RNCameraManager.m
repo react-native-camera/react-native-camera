@@ -54,6 +54,7 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
                      @"720p": @(RNCameraVideo720p),
                      @"480p": @(RNCameraVideo4x3),
                      @"4:3": @(RNCameraVideo4x3),
+                     @"288p": @(RNCameraVideo288p),
                      },
              @"VideoCodec": [[self class] validCodecTypes],
              @"BarCodeType" : [[self class] validBarCodeTypes],
@@ -105,10 +106,14 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
 
 + (NSDictionary *)faceDetectorConstants
 {
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 #if __has_include("RNFaceDetectorManager.h")
     return [RNFaceDetectorManager constants];
 #else
     return [RNFaceDetectorManagerStub constants];
+#endif
+#else
+    return [NSDictionary new];
 #endif
 }
 

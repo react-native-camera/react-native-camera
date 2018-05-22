@@ -87,6 +87,8 @@
             return AVCaptureSessionPreset1280x720;
         case RNCameraVideo4x3:
             return AVCaptureSessionPreset640x480;
+        case RNCameraVideo288p:
+            return AVCaptureSessionPreset352x288;
         default:
             return AVCaptureSessionPresetHigh;
     }

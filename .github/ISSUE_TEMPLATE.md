@@ -1,6 +1,9 @@
 ### Warning
 RCTCamera is **DEPRECATED** on v1.0.0 follow our migration guide here https://github.com/react-native-community/react-native-camera/blob/master/docs/migration.md
 
+### Gradle 3
+This package required Gradle 3, follow this migration guide https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration
+
 ### Which implementation are you using
 
 *RNCamera* or RCTCamera (RCTCamera will be removed on v2.0.0)?
@@ -9,6 +12,10 @@ RCTCamera is **DEPRECATED** on v1.0.0 follow our migration guide here https://gi
 1.
 2.
 3.
+
+### Does it work with Expo Camera?
+RNCamera is based on Expo Camera, if this does not work with Expo Camera it won't work with RNCamera as well.
+You should open an issue there as well, so we can cooperate in a solution.
 
 ### Expected behaviour
 Tell us what should happen

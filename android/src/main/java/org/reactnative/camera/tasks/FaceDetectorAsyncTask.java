@@ -1,11 +1,10 @@
 package org.reactnative.camera.tasks;
 
 import android.util.SparseArray;
-
-import org.reactnative.facedetector.RNFaceDetector;
-import org.reactnative.facedetector.RNFrame;
-import org.reactnative.facedetector.RNFrameFactory;
 import com.google.android.gms.vision.face.Face;
+import org.reactnative.frame.RNFrame;
+import org.reactnative.frame.RNFrameFactory;
+import org.reactnative.facedetector.RNFaceDetector;
 
 public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, SparseArray<Face>> {
   private byte[] mImageData;
@@ -48,7 +47,9 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Spar
     if (faces == null) {
       mDelegate.onFaceDetectionError(mFaceDetector);
     } else {
-      mDelegate.onFacesDetected(faces, mWidth, mHeight, mRotation);
+      if (faces.size() > 0) {
+        mDelegate.onFacesDetected(faces, mWidth, mHeight, mRotation);
+      }
       mDelegate.onFaceDetectingTaskCompleted();
     }
   }

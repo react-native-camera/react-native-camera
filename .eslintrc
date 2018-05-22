@@ -1,11 +1,17 @@
 {
+  "parser": "babel-eslint",
   "env": {
     "browser": true,
     "node": true,
     "jest": true,
-    "es6": true
+    "es6": true,
   },
-  "parser": "babel-eslint",
+  "plugins": [
+    "react",
+    "react-native",
+    "flowtype",
+    "import"
+  ],
   "parserOptions": {
     "ecmaVersion": 6,
     "sourceType": "module",
@@ -13,33 +19,50 @@
       "modules": true
     }
   },
-  "plugins": [
-    "react",
-    "react-native",
-  ],
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
+    "plugin:import/errors"
   ],
   "rules": {
     "comma-dangle": [2, "always-multiline"],
     "quotes": [2, "single", { "allowTemplateLiterals": true }],
     "react/prop-types": 0,
+    "no-case-declarations": 0,
     "react/jsx-no-bind": 0,
     "react/display-name": 0,
     "new-cap": 0,
     "react-native/no-unused-styles": 2,
-    "react-native/no-inline-styles": 1,
+    "react-native/split-platform-components": 0,
+    "react-native/no-inline-styles": 0,
     "react-native/no-color-literals": 0,
+    "no-unexpected-multiline": 0,
     "no-class-assign": 1,
-    "no-console": 1,
+    "no-console": 2,
     "object-curly-spacing": [1, "always"],
-    "no-unused-vars": ["error", { "ignoreRestSiblings": true }]
+    "flowtype/define-flow-type": 1,
+    "flowtype/use-flow-type": 1,
+    "import/first": 2,
+    "import/default": 0,
+    "no-unused-vars": ["error", { "ignoreRestSiblings": true }],
+    "import/named": 0,
+    "import/namespace": [2, { "allowComputed": true }],
+    "no-extra-boolean-cast": 0,
+    "import/no-duplicates": 2
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions":[
+          ".js",
+          ".android.js",
+          ".ios.js",
+          ".json"
+        ]
+      }
+    }
   },
   "globals": {
-    "__DEV__": true,
-    "device": true,
-    "element": true,
-    "by": true,
+    "__DEV__": true
   }
 }
