@@ -42,11 +42,6 @@ allprojects {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
         }
-        configurations.all {
-            resolutionStrategy {
-                force 'com.facebook.android:facebook-android-sdk:4.28.0'
-            }
-        }
     }
 }
 
@@ -59,6 +54,15 @@ subprojects {
             }
         }
     }
+    
+    afterEvaluate { 
+        project -> if (project.hasProperty("android")) { 
+            android { 
+                compileSdkVersion 26 
+                buildToolsVersion '26.0.1' 
+            } 
+        } 
+    } 
 }
 ```
 
