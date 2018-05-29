@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.lang.Math;
 
+import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.WritableNativeArray;
+
+
 public class RCTCamera {
     private static RCTCamera ourInstance;
     private final HashMap<Integer, CameraInfoWrapper> _cameraInfos;
@@ -166,6 +170,30 @@ public class RCTCamera {
 
     public int getOrientation() {
         return _orientation;
+    }
+
+    public void getExposureCompensationRange(Callback callback) {
+        Camera camera = this.acquireCameraInstance(2);
+        if (null == camera) {
+            return;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        int min = parameters.getMinExposureCompensation();
+        int max = parameters.getMaxExposureCompensation();
+        WritableNativeArray range = new WritableNativeArray();
+        range.pushInt(min);
+        range.pushInt(max);
+        callback.invoke(null, range);
+    }
+
+    public void setExposureCompensation(int val) {
+        Camera camera = this.acquireCameraInstance(2);
+        if (null == camera) {
+            return;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setExposureCompensation(val);
+        camera.setParameters(parameters);
     }
 
     public void setOrientation(int orientation) {

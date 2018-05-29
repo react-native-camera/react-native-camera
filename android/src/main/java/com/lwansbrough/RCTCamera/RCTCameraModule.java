@@ -7,6 +7,8 @@ package com.lwansbrough.RCTCamera;
 
 import android.content.ContentValues;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.media.*;
 import android.net.Uri;
@@ -22,12 +24,18 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
+import com.facebook.react.bridge.Callback;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,6 +43,65 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+
+
+class GifThread extends Thread
+{
+    private ReadableArray images;
+    private Callback callback;
+
+    GifThread(ReadableArray _images, Callback _callback) {
+        images = _images;
+        callback = _callback;
+    }
+
+    @Override
+    public void run()
+    {
+        ArrayList<Bitmap> bitmaps = new ArrayList<Bitmap>();
+
+        for (int i = 0; i < images.size(); i++) {
+            try {
+                URL url = new URL(images.getString(i));
+                File imgFile = new  File(url.getFile());
+
+                if (imgFile.exists()){
+                    Bitmap b = BitmapFactory.decodeFile(imgFile.getAbsolutePath()); // TODO simplify
+                    Log.e("RCTCamera", b.getByteCount() + "");
+                    bitmaps.add(b);
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        AnimatedGifEncoder encoder = new AnimatedGifEncoder();
+        encoder.setDelay(500);
+        encoder.setRepeat(0);
+        encoder.start(bos);
+        for (Bitmap bitmap : bitmaps) {
+            encoder.addFrame(bitmap);
+        }
+        encoder.finish();
+        byte[] bosba = bos.toByteArray();
+        Log.e("RCTCamera", bosba.length + "");
+
+        FileOutputStream outStream = null;
+        String gifUrl = "file://" + Environment.getExternalStorageDirectory().getPath() + "/animated.gif";
+        try{
+            outStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/animated.gif");
+            outStream.write(bosba);
+            outStream.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        WritableNativeArray resultantArray = new WritableNativeArray();
+        resultantArray.pushString(gifUrl);
+
+        callback.invoke(null, resultantArray);
+    }
+}
 
 public class RCTCameraModule extends ReactContextBaseJavaModule
     implements MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener, LifecycleEventListener {
@@ -73,6 +140,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     public static final int MEDIA_TYPE_VIDEO = 2;
 
     private static ReactApplicationContext _reactContext;
+    private static GifThread sideThread;
     private RCTSensorOrientationChecker _sensorOrientationChecker;
 
     private MediaRecorder mMediaRecorder;
@@ -737,6 +805,22 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
                 camera.setParameters(parameters);
             }
         }
+    }
+
+    @ReactMethod
+    public void getExposureCompensationRange(Callback callback) {
+        RCTCamera.getInstance().getExposureCompensationRange(callback);
+    }
+
+    @ReactMethod
+    public void setExposureCompensation(int val) {
+        RCTCamera.getInstance().setExposureCompensation(val);
+    }
+
+    @ReactMethod
+    public void makeGif(ReadableArray images, Callback callback) {
+        sideThread = new GifThread(images, callback);
+        sideThread.start();
     }
 
     private File getOutputMediaFile(int type) {
