@@ -34,7 +34,7 @@ type GoogleVisionBarcodeType = Readonly<{
 
 // FaCC (Function as Child Components)
 type Self<T> = { [P in keyof T]: P }
-type CameraStatus = Readonly<Self<{ READY, PENDING_AUTHORIZATION, NOT_AUTHORIZED }>>;
+type CameraStatus = Readonly<Self<{ READY: any, PENDING_AUTHORIZATION: any, NOT_AUTHORIZED: any }>>;
 type FaCC = (params: {
     camera: RNCamera,
     status: keyof CameraStatus
