@@ -44,19 +44,19 @@
     }
 }
 
-+ (AVCaptureVideoOrientation)videoOrientationForDeviceOrientation:(UIDeviceOrientation)orientation
++ (CGAffineTransform)videoTransformForOrientation:(UIInterfaceOrientation)orientation
 {
     switch (orientation) {
-        case UIDeviceOrientationPortrait:
-            return AVCaptureVideoOrientationPortrait;
-        case UIDeviceOrientationPortraitUpsideDown:
-            return AVCaptureVideoOrientationPortraitUpsideDown;
-        case UIDeviceOrientationLandscapeLeft:
-            return AVCaptureVideoOrientationLandscapeRight;
-        case UIDeviceOrientationLandscapeRight:
-            return AVCaptureVideoOrientationLandscapeLeft;
+        case UIInterfaceOrientationPortrait:
+            return CGAffineTransformMakeRotation(( 90 * M_PI ) / 180);
+        case UIInterfaceOrientationPortraitUpsideDown:
+            return CGAffineTransformMakeRotation(( -90 * M_PI ) / 180);
+        case UIInterfaceOrientationLandscapeLeft:
+            return CGAffineTransformMakeRotation(( -180 * M_PI ) / 180);
+        case UIInterfaceOrientationLandscapeRight:
+            return CGAffineTransformMakeRotation(0 / 180);
         default:
-            return AVCaptureVideoOrientationPortrait;
+            return CGAffineTransformMakeRotation(0 / 180);
     }
 }
 
