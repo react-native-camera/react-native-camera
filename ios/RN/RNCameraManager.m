@@ -92,6 +92,16 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
     }
 }
 
++ (NSDictionary *)validVideoStabilizationModes
+{
+    return @{
+             @"off": AVCaptureVideoStabilizationModeOff,
+             @"standard": AVCaptureVideoStabilizationModeStandard,
+             @"cinematic": AVCaptureVideoStabilizationModeCinematic,
+             @"auto": AVCaptureVideoStabilizationModeAuto
+             };
+}
+
 + (NSDictionary *)validBarCodeTypes
 {
     return @{

@@ -31,6 +31,7 @@
 @property (assign, nonatomic) NSInteger whiteBalance;
 @property (nonatomic, assign, getter=isReadingBarCodes) BOOL barCodeReading;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
+@property (assign, nonatomic) AVCaptureVideoStabilizationMode videoStabilizationMode;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;
