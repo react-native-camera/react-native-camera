@@ -230,7 +230,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     captureAudio: false,
     useCamera2Api: false,
     playSoundOnCapture: false,
-    pictureSize: 'Photo',
+    pictureSize: '1920x1080',
   };
 
   _cameraRef: ?Object;
@@ -268,6 +268,10 @@ export default class Camera extends React.Component<PropsType, StateType> {
       throw new Error('Ratio is not supported on iOS');
     }
   }
+
+  getAvailablePictureSizes = async (): string[] => {
+    return await CameraManager.getAvailablePictureSizes(this.props.ratio, this._cameraHandle);
+  };
 
   async recordAsync(options?: RecordingOptions) {
     if (!options || typeof options !== 'object') {
