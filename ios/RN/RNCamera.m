@@ -416,8 +416,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self updateSessionAudioIsMuted:!!options[@"mute"]];
 
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
-    if (connection.isVideoStabilizationSupported == YES && self.videoStabilizationMode == YES) {
-        [connection setPreferredVideoStabilizationMode:self.videoStabilizationMode];
+    if (self.videoStabilizationMode != nil) {
+        if (connection.isVideoStabilizationSupported == NO) {
+            RCTLogWarn(@"%s: Video Stabilization is not supported on this device.", __func__);
+        } else {
+            [connection setPreferredVideoStabilizationMode:self.videoStabilizationMode];
+        }
     }
     [connection setVideoOrientation:[RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]]];
 

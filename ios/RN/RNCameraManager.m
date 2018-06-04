@@ -65,7 +65,8 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
                      },
              @"VideoCodec": [[self class] validCodecTypes],
              @"BarCodeType" : [[self class] validBarCodeTypes],
-             @"FaceDetection" : [[self  class] faceDetectorConstants]
+             @"FaceDetection" : [[self  class] faceDetectorConstants],
+             @"VideoStabilization": [[self class] validVideoStabilizationModes]
              };
 }
 
