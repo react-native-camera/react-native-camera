@@ -66,7 +66,8 @@ RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
                      },
              @"VideoCodec": [[self class] validCodecTypes],
              @"BarCodeType" : [[self class] validBarCodeTypes],
-             @"FaceDetection" : [[self class] faceDetectorConstants]
+             @"FaceDetection" : [[self class] faceDetectorConstants],
+             @"VideoStabilization": [[self class] validVideoStabilizationModes]
              };
 }
 
@@ -91,6 +92,16 @@ RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
                  @"JPEG": AVVideoCodecJPEG
                  };
     }
+}
+
++ (NSDictionary *)validVideoStabilizationModes
+{
+    return @{
+             @"off": AVCaptureVideoStabilizationModeOff,
+             @"standard": AVCaptureVideoStabilizationModeStandard,
+             @"cinematic": AVCaptureVideoStabilizationModeCinematic,
+             @"auto": AVCaptureVideoStabilizationModeAuto
+             };
 }
 
 + (NSDictionary *)validBarCodeTypes

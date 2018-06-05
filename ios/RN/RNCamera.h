@@ -33,6 +33,7 @@
 @property (nonatomic, assign) BOOL isReadingBarCodes;
 @property (nonatomic, assign) BOOL isDetectingFaces;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
+@property (assign, nonatomic) AVCaptureVideoStabilizationMode videoStabilizationMode;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;

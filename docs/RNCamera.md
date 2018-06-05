@@ -250,6 +250,17 @@ By default a `Camera not authorized` message will be displayed when access to th
 
 By default a <ActivityIndicator> will be displayed while the component is waiting for the user to grant/deny access to the camera, if set displays the passed react element instead of the default one.
 
+### `iOS` `videoStabilizationMode`
+
+The video stabilization mode used for a video recording. The possible values are:
+
+   - `RNCamera.Constants.VideoStabilization['off']`
+   - `RNCamera.Constants.VideoStabilization['standard']`
+   - `RNCamera.Constants.VideoStabilization['cinematic']`
+   - `RNCamera.Constants.VideoStabilization['auto']`
+
+You can read more about each stabilization type here: https://developer.apple.com/documentation/avfoundation/avcapturevideostabilizationmode
+
 ### Native Event callbacks props
 
 #### `onCameraReady`

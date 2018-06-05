@@ -97,6 +97,7 @@ type PropsType = typeof View.props & {
   captureAudio?: boolean,
   useCamera2Api?: boolean,
   playSoundOnCapture?: boolean,
+  videoStabilizationMode?: string,
   pictureSize?: string,
 };
 
@@ -156,6 +157,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     GoogleVisionBarcodeDetection: CameraManager.GoogleVisionBarcodeDetection,
     FaceDetection: CameraManager.FaceDetection,
     CameraStatus,
+    VideoStabilization: CameraManager.VideoStabilization || {},
   };
 
   // Values under keys from this object will be transformed to native options
@@ -198,6 +200,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     captureAudio: PropTypes.bool,
     useCamera2Api: PropTypes.bool,
     playSoundOnCapture: PropTypes.bool,
+    videoStabilizationMode: PropTypes.string,
     pictureSize: PropTypes.string,
   };
 
