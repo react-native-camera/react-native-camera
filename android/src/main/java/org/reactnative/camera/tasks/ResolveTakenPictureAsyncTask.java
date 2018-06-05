@@ -30,18 +30,14 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private ReadableMap mOptions;
     private File mCacheDirectory;
     private Bitmap mBitmap;
+    private PictureSavedDelegate mPictureSavedDelegate;
 
-    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options) {
-        mPromise = promise;
-        mOptions = options;
-        mImageData = imageData;
-    }
-
-    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory) {
+    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, PictureSavedDelegate delegate) {
         mPromise = promise;
         mOptions = options;
         mImageData = imageData;
         mCacheDirectory = cacheDirectory;
+        mPictureSavedDelegate = delegate;
     }
 
     private int getQuality() {
@@ -231,7 +227,14 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
         // If the response is not null everything went well and we can resolve the promise.
         if (response != null) {
-            mPromise.resolve(response);
+            if (mOptions.hasKey("fastMode") && mOptions.getBoolean("fastMode")) {
+                WritableMap wrapper = Arguments.createMap();
+                wrapper.putInt("id", mOptions.getInt("id"));
+                wrapper.putMap("data", response);
+                mPictureSavedDelegate.onPictureSaved(wrapper);
+            } else {
+                mPromise.resolve(response);
+            }
         }
     }
 

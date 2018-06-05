@@ -21,6 +21,7 @@
 @property (nonatomic, copy) RCTDirectEventBlock onMountError;
 @property (nonatomic, copy) RCTDirectEventBlock onBarCodeRead;
 @property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
+@property (nonatomic, copy) RCTDirectEventBlock onPictureSaved;
 
 @end
 
@@ -82,6 +83,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     if (_onBarCodeRead) {
         _onBarCodeRead(event);
+    }
+}
+
+- (void)onPictureSaved:(NSDictionary *)event
+{
+    if (_onPictureSaved) {
+        _onPictureSaved(event);
     }
 }
 
@@ -210,7 +218,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
 
-    if (self.autoFocus < 0 || device.focusMode != RNCameraAutoFocusOff || device.position == RNCameraTypeFront) {
+    if (device == nil || self.autoFocus < 0 || device.focusMode != RNCameraAutoFocusOff || device.position == RNCameraTypeFront) {
         return;
     }
 
@@ -284,6 +292,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [device unlockForConfiguration];
 }
 
+- (void)updatePictureSize
+{
+    [self updateSessionPreset:self.pictureSize];
+}
+
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 - (void)updateFaceDetecting:(id)faceDetecting
 {
@@ -318,16 +331,24 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [connection setVideoOrientation:orientation];
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
         if (imageSampleBuffer && !error) {
+            BOOL useFastMode = options[@"fastMode"] && [options[@"fastMode"] boolValue];
+            if (useFastMode) {
+                resolve(nil);
+            }
             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
 
             UIImage *takenImage = [UIImage imageWithData:imageData];
 
-            CGRect frame = [_previewLayer metadataOutputRectOfInterestForRect:self.frame];
             CGImageRef takenCGImage = takenImage.CGImage;
-            size_t width = CGImageGetWidth(takenCGImage);
-            size_t height = CGImageGetHeight(takenCGImage);
-            CGRect cropRect = CGRectMake(frame.origin.x * width, frame.origin.y * height, frame.size.width * width, frame.size.height * height);
-            takenImage = [RNImageUtils cropImage:takenImage toRect:cropRect];
+            CGSize previewSize;
+            if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
+                previewSize = CGSizeMake(self.previewLayer.frame.size.height, self.previewLayer.frame.size.width);
+            } else {
+                previewSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
+            }
+            CGRect cropRect = CGRectMake(0, 0, CGImageGetWidth(takenCGImage), CGImageGetHeight(takenCGImage));
+            CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
+            takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
 
             if ([options[@"mirrorImage"] boolValue]) {
                 takenImage = [RNImageUtils mirrorImage:takenImage];
@@ -377,7 +398,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
             }
 
-            resolve(response);
+            if (useFastMode) {
+                [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
+            } else {
+                resolve(response);
+            }
         } else {
             reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be captured", error);
         }
@@ -452,6 +477,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)stopRecording
 {
     [self.movieFileOutput stopRecording];
+}
+
+- (void)resumePreview
+{
+    [[self.previewLayer connection] setEnabled:YES];
+}
+
+- (void)pausePreview
+{
+    [[self.previewLayer connection] setEnabled:NO];
 }
 
 - (void)startSession
@@ -578,10 +613,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 #pragma mark - internal
 
-- (void)updateSessionPreset:(NSString *)preset
+- (void)updateSessionPreset:(AVCaptureSessionPreset)preset
 {
 #if !(TARGET_IPHONE_SIMULATOR)
     if (preset) {
+        if (self.isDetectingFaces && [preset isEqual:AVCaptureSessionPresetPhoto]) {
+            RCTLog(@"AVCaptureSessionPresetPhoto not supported during face detection. Falling back to AVCaptureSessionPresetHigh");
+            preset = AVCaptureSessionPresetHigh;
+        }
         dispatch_async(self.sessionQueue, ^{
             [self.session beginConfiguration];
             if ([self.session canSetSessionPreset:preset]) {
