@@ -441,7 +441,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self updateSessionAudioIsMuted:!!options[@"mute"]];
 
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
-    if (self.videoStabilizationMode != nil) {
+    if (self.videoStabilizationMode != 0) {
         if (connection.isVideoStabilizationSupported == NO) {
             RCTLogWarn(@"%s: Video Stabilization is not supported on this device.", __func__);
         } else {

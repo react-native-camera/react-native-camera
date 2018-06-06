@@ -97,10 +97,10 @@ RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
 + (NSDictionary *)validVideoStabilizationModes
 {
     return @{
-             @"off": AVCaptureVideoStabilizationModeOff,
-             @"standard": AVCaptureVideoStabilizationModeStandard,
-             @"cinematic": AVCaptureVideoStabilizationModeCinematic,
-             @"auto": AVCaptureVideoStabilizationModeAuto
+             @"off": @(AVCaptureVideoStabilizationModeOff),
+             @"standard": @(AVCaptureVideoStabilizationModeStandard),
+             @"cinematic": @(AVCaptureVideoStabilizationModeCinematic),
+             @"auto": @(AVCaptureVideoStabilizationModeAuto)
              };
 }
 
