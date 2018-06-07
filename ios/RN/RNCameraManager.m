@@ -134,7 +134,8 @@ RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
              @"Photo" : AVCaptureSessionPresetPhoto,
              @"High" : AVCaptureSessionPresetHigh,
              @"Medium" : AVCaptureSessionPresetMedium,
-             @"Low" : AVCaptureSessionPresetLow
+             @"Low" : AVCaptureSessionPresetLow,
+             @"None": @(-1),
              };
 }
 
