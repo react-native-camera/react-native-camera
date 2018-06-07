@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import com.facebook.react.bridge.*;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.google.android.cameraview.CameraView;
+import com.google.android.cameraview.Size;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.text.TextBlock;
@@ -43,6 +44,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private Promise mVideoRecordedPromise;
   private List<String> mBarCodeTypes = null;
   private Boolean mPlaySoundOnCapture = false;
+  private Size mViewFinderSize;
 
   private boolean mIsPaused = false;
   private boolean mIsNew = true;
@@ -92,10 +94,10 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
         final File cacheDirectory = mPictureTakenDirectories.remove(promise);
         if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this)
+          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this, mViewFinderSize)
                   .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this)
+          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this, mViewFinderSize)
                   .execute();
         }
       }
@@ -186,9 +188,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         correctHeight = (int) height;
       }
     }
-    int paddingX = (int) ((width - correctWidth) / 2);
-    int paddingY = (int) ((height - correctHeight) / 2);
-    preview.layout(paddingX, paddingY, correctWidth + paddingX, correctHeight + paddingY);
+
+    mViewFinderSize = new Size((int) width, (int) height);
+    preview.layout(0, 0, correctWidth, correctHeight);
   }
 
   @SuppressLint("all")
