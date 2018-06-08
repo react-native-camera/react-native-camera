@@ -423,6 +423,14 @@ The promise will be fulfilled with an object with some of the following properti
  #### `stopRecording: void`
 
  Should be called after recordAsync() to make the promise be fulfilled and get the video uri.
+ 
+ #### `pausePreview: void`
+
+ Pauses the preview. The preview can be resumed again by using resumePreview().
+
+ #### `resumePreview: void`
+
+ Resumes the preview after pausePreview() has been called.
 
  #### `Android` `getSupportedRatiosAsync(): Promise`
 
