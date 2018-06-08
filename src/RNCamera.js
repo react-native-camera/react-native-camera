@@ -291,6 +291,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
     CameraManager.stopRecording(this._cameraHandle);
   }
 
+  pausePreview() {
+    CameraManager.pausePreview(this._cameraHandle);
+  }
+
+  resumePreview() {
+    CameraManager.resumePreview(this._cameraHandle);
+  }
+
   _onMountError = ({ nativeEvent }: EventCallbackArgumentsType) => {
     if (this.props.onMountError) {
       this.props.onMountError(nativeEvent);
