@@ -21,6 +21,7 @@
 @property (nonatomic, copy) RCTDirectEventBlock onMountError;
 @property (nonatomic, copy) RCTDirectEventBlock onBarCodeRead;
 @property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
+@property (nonatomic, copy) RCTDirectEventBlock onBarCodePhoto;
 
 @end
 
@@ -82,6 +83,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     if (_onBarCodeRead) {
         _onBarCodeRead(event);
+    }
+}
+
+- (void)onCodePhoto:(NSDictionary *)event
+{
+    if (_onBarCodePhoto) {
+        _onBarCodePhoto(event);
     }
 }
 
@@ -697,6 +705,33 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects
        fromConnection:(AVCaptureConnection *)connection
 {
+    AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
+    if (!self.barCodeImageCaptured && !device.isAdjustingFocus) {
+        self.barCodeImageCaptured = YES;
+        // Capture a photo immediately after scanning bar code
+        [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo]
+            completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
+            if (imageDataSampleBuffer) {
+                NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+                UIImage *image = [[UIImage alloc] initWithData:imageData];
+                // save to camera roll for testing
+                // [[[ALAssetsLibrary alloc] init] writeImageDataToSavedPhotosAlbum:imageData metadata:nil completionBlock:^(NSURL* url, NSError* error) {}];
+                // Save image to disk and grab the file path
+                NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                NSString *documentsDirectory = [paths firstObject];
+                NSFileManager *fileManager = [NSFileManager defaultManager];
+                NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"jpg"];
+                [fileManager createFileAtPath:fullPath contents:imageData attributes:nil];
+                NSDictionary *event = @{
+                    @"data": fullPath,
+                };
+                RCTLogWarn(@"_onBarCodePhoto True 787 step_1");
+                // Send saved image's file path to callback through the event "CameraBarCodePhoto"
+                [self onCodePhoto:event];
+            }
+        }];
+    }
+
     for(AVMetadataObject *metadata in metadataObjects) {
         if([metadata isKindOfClass:[AVMetadataMachineReadableCodeObject class]]) {
             AVMetadataMachineReadableCodeObject *codeMetadata = (AVMetadataMachineReadableCodeObject *) metadata;

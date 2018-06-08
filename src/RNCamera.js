@@ -79,6 +79,7 @@ type PropsType = typeof View.props & {
   type?: number | string,
   onCameraReady?: Function,
   onBarCodeRead?: Function,
+  onBarCodePhoto?: Function,
   onGoogleVisionBarcodesDetected?: Function,
   faceDetectionMode?: number,
   flashMode?: number | string,
@@ -173,6 +174,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     onMountError: PropTypes.func,
     onCameraReady: PropTypes.func,
     onBarCodeRead: PropTypes.func,
+    onBarCodePhoto: PropTypes.func,
     onGoogleVisionBarcodesDetected: PropTypes.func,
     onFacesDetected: PropTypes.func,
     onTextRecognized: PropTypes.func,
@@ -283,6 +285,12 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
+  _onBarCodePhoto = ({ nativeEvent }) => {
+    if (this.props.onBarCodePhoto) {
+      this.props.onBarCodePhoto(nativeEvent);
+    }
+  };
+
   _onObjectDetected = (callback: ?Function) => ({ nativeEvent }: EventCallbackArgumentsType) => {
     const { type } = nativeEvent;
 
@@ -357,6 +365,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
           onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
           onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
           onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
+          onBarCodePhoto={this._onBarCodePhoto}
         >
           {this.renderChildren()}
         </RNCamera>
@@ -419,6 +428,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     textRecognizerEnabled: true,
     importantForAccessibility: true,
     onBarCodeRead: true,
+    onBarCodePhoto: true,
     onGoogleVisionBarcodesDetected: true,
     onCameraReady: true,
     onFaceDetected: true,

@@ -91,6 +91,9 @@ export interface RNCameraProps {
          */
         bounds: [Point<string>, Point<string>] | { origin: Point<string>, size: Size<string> }
     }): void;
+    onBarCodePhoto?(event: {
+        data: string
+    }): void;
 
     // -- FACE DETECTION PROPS
 
