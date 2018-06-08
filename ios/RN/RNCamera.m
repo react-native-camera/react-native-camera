@@ -616,6 +616,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)updateSessionPreset:(AVCaptureSessionPreset)preset
 {
 #if !(TARGET_IPHONE_SIMULATOR)
+    if ([preset integerValue] < 0) {
+        return;
+    }
     if (preset) {
         if (self.isDetectingFaces && [preset isEqual:AVCaptureSessionPresetPhoto]) {
             RCTLog(@"AVCaptureSessionPresetPhoto not supported during face detection. Falling back to AVCaptureSessionPresetHigh");

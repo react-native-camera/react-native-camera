@@ -234,7 +234,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     captureAudio: false,
     useCamera2Api: false,
     playSoundOnCapture: false,
-    pictureSize: '1920x1080',
+    pictureSize: 'None',
     videoStabilizationMode: 0,
   };
 

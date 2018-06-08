@@ -103,7 +103,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     
   @ReactProp(name = "pictureSize")
   public void setPictureSize(RNCameraView view, String size) {
-    view.setPictureSize(Size.parse(size));
+    view.setPictureSize(size.equals("None") ? null : Size.parse(size));
   }
 
   @ReactProp(name = "barCodeTypes")
