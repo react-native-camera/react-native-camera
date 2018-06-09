@@ -13,7 +13,7 @@ android.enableAapt2=false
 * In the `android/build.gradle` file:
 
 ```
-uildscript {
+buildscript {
     repositories {
         jcenter()
         maven {
