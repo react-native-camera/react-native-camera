@@ -216,6 +216,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     private final SizeMap mPictureSizes = new SizeMap();
 
+    private Size mPictureSize;
+
     private int mFacing;
 
     private AspectRatio mAspectRatio = Constants.DEFAULT_ASPECT_RATIO;
@@ -343,6 +345,42 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     @Override
     Set<AspectRatio> getSupportedAspectRatios() {
         return mPreviewSizes.ratios();
+    }
+
+    @Override
+    SortedSet<Size> getAvailablePictureSizes(AspectRatio ratio) {
+        return mPictureSizes.sizes(ratio);
+    }
+
+    @Override
+    void setPictureSize(Size size) {
+        if (mCaptureSession != null) {
+            try {
+                mCaptureSession.stopRepeating();
+            } catch (CameraAccessException e) {
+                e.printStackTrace();
+            }
+            mCaptureSession.close();
+            mCaptureSession = null;
+        }
+        if (mStillImageReader != null) {
+            mStillImageReader.close();
+        }
+        if (size == null) {
+          if (mAspectRatio == null) {
+            return;
+          }
+          mPictureSizes.sizes(mAspectRatio).last();
+        } else {
+          mPictureSize = size;
+        }
+        prepareStillImageReader();
+        startCaptureSession();
+    }
+
+    @Override
+    Size getPictureSize() {
+        return mPictureSize;
     }
 
     @Override
@@ -653,6 +691,9 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         }
         mPictureSizes.clear();
         collectPictureSizes(mPictureSizes, map);
+        if (mPictureSize == null) {
+            mPictureSize = mPictureSizes.sizes(mAspectRatio).last();
+        }
         for (AspectRatio ratio : mPreviewSizes.ratios()) {
             if (!mPictureSizes.ratios().contains(ratio)) {
                 mPreviewSizes.remove(ratio);
@@ -674,8 +715,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         if (mStillImageReader != null) {
             mStillImageReader.close();
         }
-        Size largest = mPictureSizes.sizes(mAspectRatio).last();
-        mStillImageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(),
+        mStillImageReader = ImageReader.newInstance(mPictureSize.getWidth(), mPictureSize.getHeight(),
                 ImageFormat.JPEG, 1);
         mStillImageReader.setOnImageAvailableListener(mOnImageAvailableListener, null);
     }
@@ -725,6 +765,20 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                     mScanImageReader.getSurface()), mSessionCallback, null);
         } catch (CameraAccessException e) {
             mCallback.onMountError();
+        }
+    }
+
+    @Override
+    public void resumePreview() {
+        startCaptureSession();
+    }
+
+    @Override
+    public void pausePreview() {
+        try {
+            mCaptureSession.stopRepeating();
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
         }
     }
 

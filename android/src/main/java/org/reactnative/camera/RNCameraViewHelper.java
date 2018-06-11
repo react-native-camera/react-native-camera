@@ -175,6 +175,14 @@ public class RNCameraViewHelper {
     reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
   }
 
+  // Picture saved event
+
+  public static void emitPictureSavedEvent(ViewGroup view, WritableMap response) {
+    PictureSavedEvent event = PictureSavedEvent.obtain(view.getId(), response);
+    ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  }
+    
   // Face detection events
 
   public static void emitFacesDetectedEvent(
