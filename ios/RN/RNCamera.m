@@ -451,8 +451,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [connection setVideoOrientation:[RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]]];
 
     if (options[@"codec"]) {
-      AVVideoCodecType videoCodecType = options[@"codec"];
       if (@available(iOS 10, *)) {
+        AVVideoCodecType videoCodecType = options[@"codec"];
         if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
           [self.movieFileOutput setOutputSettings:@{AVVideoCodecKey:videoCodecType} forConnection:connection];
           self.videoCodecType = videoCodecType;
@@ -812,12 +812,15 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
     }
     if (success && self.videoRecordedResolve != nil) {
-      AVVideoCodecType videoCodec = self.videoCodecType;
-      if (videoCodec == nil) {
-        videoCodec = [self.movieFileOutput.availableVideoCodecTypes firstObject];
+      if (@available(iOS 10, *)) {
+          AVVideoCodecType videoCodec = self.videoCodecType;
+          if (videoCodec == nil) {
+              videoCodec = [self.movieFileOutput.availableVideoCodecTypes firstObject];
+          }
+          self.videoRecordedResolve(@{ @"uri": outputFileURL.absoluteString, @"codec":videoCodec });
+      } else {
+          self.videoRecordedResolve(@{ @"uri": outputFileURL.absoluteString });
       }
-
-      self.videoRecordedResolve(@{ @"uri": outputFileURL.absoluteString, @"codec":videoCodec });
     } else if (self.videoRecordedReject != nil) {
         self.videoRecordedReject(@"E_RECORDING_FAILED", @"An error occurred while recording a video.", error);
     }
