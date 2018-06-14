@@ -17,7 +17,7 @@
 @property(nonatomic, strong) AVCaptureSession *session;
 @property(nonatomic, strong) AVCaptureDeviceInput *videoCaptureDeviceInput;
 @property(nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
-//@property(nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
+@property(nonatomic, strong) AVCaptureVideoDataOutput* videoOutput;
 @property(nonatomic, strong) AVCaptureMetadataOutput *metadataOutput;
 @property(nonatomic, strong) id runtimeErrorHandlingObserver;
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
@@ -38,7 +38,6 @@
 @property(nonatomic, strong) dispatch_queue_t frameBufferQueue;
 @property(nonatomic, strong) AVAssetWriter *videoWriter;
 @property(nonatomic, strong) AVAssetWriterInput* writerInput;
-@property(nonatomic, strong) AVCaptureVideoDataOutput* videoOutput;
 @property(nonatomic, assign) BOOL canAppendBuffer;
 @property(nonatomic, assign) CMTime bufferTimestamp;
 @property(nonatomic, assign) Float64 maxDuration;
@@ -66,6 +65,5 @@
 - (void)onCodeRead:(NSDictionary *)event;
 - (void)onFacesDetected:(NSDictionary *)event;
 - (void)onPictureSaved:(NSDictionary *)event;
-- (void)stopAssetWriter;
 
 @end

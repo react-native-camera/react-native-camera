@@ -466,7 +466,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     });
 }
 
-- (void)stopAssetWriter
+- (void)stopRecording
 {
     self.canAppendBuffer = NO;
     [self.writerInput markAsFinished];

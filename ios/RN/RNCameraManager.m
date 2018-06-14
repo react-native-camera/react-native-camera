@@ -325,7 +325,7 @@ RCT_REMAP_METHOD(stopRecording, reactTag:(nonnull NSNumber *)reactTag)
         if (![view isKindOfClass:[RNCamera class]]) {
             RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
         } else {
-            [view stopAssetWriter];
+            [view stopRecording];
         }
     }];
 }
