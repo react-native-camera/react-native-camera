@@ -439,6 +439,10 @@ The promise will be fulfilled with an object with some of the following properti
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
 
+## Testing
+
+To learn about how to test components which uses `RNCamera` check its [documentation about testing](./tests.md).
+
 ## Example
 
 To see more of the `RNCamera` in action, with Face Detection, you can check out the source in [RNCamera Example](https://github.com/react-native-community/rncamera-example) repository.
