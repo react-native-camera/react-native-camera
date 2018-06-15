@@ -33,6 +33,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.graphics.SurfaceTexture;
 
+import com.facebook.react.bridge.ReadableMap;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -503,8 +505,8 @@ public class CameraView extends FrameLayout {
      * Take a picture. The result will be returned to
      * {@link Callback#onPictureTaken(CameraView, byte[])}.
      */
-    public void takePicture() {
-        mImpl.takePicture();
+    public void takePicture(ReadableMap options) {
+        mImpl.takePicture(options);
     }
 
     /**

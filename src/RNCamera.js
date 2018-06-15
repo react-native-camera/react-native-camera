@@ -41,6 +41,7 @@ type PictureOptions = {
   width?: number,
   fixOrientation?: boolean,
   forceUpOrientation?: boolean,
+  pauseAfterCapture?: boolean,
 };
 
 type TrackedFaceFeature = FaceFeature & {
@@ -266,6 +267,11 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (options.orientation) {
       options.orientation = CameraManager.Orientation[options.orientation];
     }
+
+    if (options.pauseAfterCapture === undefined) {
+      options.pauseAfterCapture = false;
+    }
+
     return await CameraManager.takePicture(options, this._cameraHandle);
   }
 
