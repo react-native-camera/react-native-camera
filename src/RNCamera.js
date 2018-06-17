@@ -269,7 +269,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
 
     if (options.cropToPreview === undefined) {
-      options.cropToPreview = true;
+      options.cropToPreview = Platform.select({ android: false, ios: true });
     }
 
     return await CameraManager.takePicture(options, this._cameraHandle);
