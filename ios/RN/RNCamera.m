@@ -450,6 +450,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
     [connection setVideoOrientation:[RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]]];
 
+    if ([options[@"mirrorVideo"] boolValue]) {
+        [connection setVideoMirrored:YES];
+    }
     if (options[@"codec"]) {
       if (@available(iOS 10, *)) {
         AVVideoCodecType videoCodecType = options[@"codec"];
