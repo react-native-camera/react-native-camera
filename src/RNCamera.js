@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   },
 });
 
-type Orientation = "auto"|"landscapeLeft"|"landscapeRight"|"portrait"|"portraitUpsideDown";
+type Orientation = 'auto' | 'landscapeLeft' | 'landscapeRight' | 'portrait' | 'portraitUpsideDown';
 
 type PictureOptions = {
   quality?: number,
@@ -90,6 +90,7 @@ type PropsType = typeof View.props & {
   whiteBalance?: number | string,
   faceDetectionLandmarks?: number,
   autoFocus?: string | boolean | number,
+  autoFocusPointOfInterest?: { x: number, y: number },
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
@@ -188,6 +189,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     autoFocus: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
+    autoFocusPointOfInterest: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number }),
     permissionDialogTitle: PropTypes.string,
     permissionDialogMessage: PropTypes.string,
     notAuthorizedView: PropTypes.element,
@@ -318,7 +320,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
-  async componentWillMount() {
+  async UNSAFE_componentWillMount() {
     const hasVideoAndAudio = this.props.captureAudio;
     const isAuthorized = await requestPermissions(
       hasVideoAndAudio,
