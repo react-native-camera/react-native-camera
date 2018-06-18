@@ -180,7 +180,7 @@ Most cameras have a Auto Focus feature. It adjusts your camera lens position aut
 
 Use the `autoFocus` property to specify the auto focus setting of your camera. `RNCamera.Constants.AutoFocus.on` turns it ON, `RNCamera.Constants.AutoFocus.off` turns it OFF.
 
-#### `autoFocusPointOfInterest`
+#### `iOS` `autoFocusPointOfInterest`
 
 Values: Object `{ x: 0.5, y: 0.5 }`.
 
