@@ -38,9 +38,7 @@
 @property(nonatomic, strong) dispatch_queue_t frameBufferQueue;
 @property(nonatomic, strong) AVAssetWriter *videoWriter;
 @property(nonatomic, strong) AVAssetWriterInput* writerInput;
-@property(nonatomic, assign) BOOL canAppendBuffer;
-@property(nonatomic, assign) CMTime bufferTimestamp;
-@property(nonatomic, assign) Float64 maxDuration;
+@property(nonatomic, assign) BOOL isRecording;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;

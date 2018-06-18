@@ -12,6 +12,9 @@
 @property (nonatomic, weak) RCTBridge *bridge;
 
 @property (nonatomic, assign, getter=isSessionPaused) BOOL paused;
+
+@property (nonatomic, strong) RCTPromiseResolveBlock videoRecordedResolve;
+@property (nonatomic, strong) RCTPromiseRejectBlock videoRecordedReject;
 @property (nonatomic, strong) id faceDetectorManager;
 
 @property (nonatomic, copy) RCTDirectEventBlock onCameraReady;
@@ -396,9 +399,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-    [_faceDetectorManager stopFaceDetection];
-#endif
+    if (_isRecording || _videoRecordedResolve != nil || _videoRecordedReject != nil) {
+        return;
+    }
 
     NSError *error = nil;
     NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".mov"];
@@ -455,33 +458,40 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self updateSessionAudioIsMuted:!!options[@"mute"]];
 
     // @TODO: maxFileSize
-    self.canAppendBuffer = YES;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.maxDuration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        self.canAppendBuffer = NO;
+    _isRecording = YES;
+    self.videoRecordedResolve = resolve;
+    self.videoRecordedReject = reject;
 
-        [self.writerInput markAsFinished];
-        [self.videoWriter finishWritingWithCompletionHandler:^{
-            if (self.videoWriter.status == AVAssetWriterStatusFailed) {
-                return reject(@"E_RECORDING_FAILED", @"An error occurred while recording a video.", nil);
-            }
-
-            resolve(@{ @"uri": self.videoWriter.outputURL.absoluteString });
-        }];
-    });
+    if (options[@"maxDuration"]) {
+        int64_t maxDuration = ([options[@"maxDuration"] floatValue] * NSEC_PER_SEC);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, maxDuration), dispatch_get_main_queue(), ^{
+            [self stopRecording];
+        });
+    }
 }
 
 - (void)stopRecording
 {
-    self.canAppendBuffer = NO;
+    _isRecording = NO;
+
     [self.writerInput markAsFinished];
     [self.videoWriter finishWritingWithCompletionHandler:^{
-        NSLog(@"%@", self.videoWriter.outputURL);
+        if (self.videoWriter.status == AVAssetWriterStatusFailed) {
+            self.videoRecordedReject(@"E_RECORDING_FAILED", @"An error occurred while recording a video.", nil);
+        } else {
+            // @TODO: include video codec in resolved value if available
+            self.videoRecordedResolve(@{ @"uri": self.videoWriter.outputURL.absoluteString });
+        }
+
+        self.videoRecordedResolve = nil;
+        self.videoRecordedReject = nil;
+        self.videoCodecType = nil;
     }];
 }
 
 - (void)captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
-    if (!self.canAppendBuffer) return;
+    if (!_isRecording) return;
 
     if (self.videoWriter.status != AVAssetWriterStatusWriting) {
         [self.videoWriter startWriting];
@@ -513,7 +523,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     //        [self onMountingError:@{@"message": @"Camera permissions not granted - component could not be rendered."}];
     //        return;
     //    }
-    self.canAppendBuffer = NO;
+    _isRecording = NO;
     dispatch_async(self.sessionQueue, ^{
         if (self.presetCamera == AVCaptureDevicePositionUnspecified) {
             return;
