@@ -396,6 +396,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
+    [_faceDetectorManager stopFaceDetection];
+#endif
+
     NSError *error = nil;
     NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".mov"];
     NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
@@ -451,6 +455,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
     [self.writerInput setTransform:videoTransform];
 
+    // @TODO: maxFileSize
     self.canAppendBuffer = YES;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.maxDuration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self.canAppendBuffer = NO;
@@ -793,6 +798,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)setupVideoStreamCapture
 {
+    // @TODO: videoCodecType
     self.videoOutput = [[AVCaptureVideoDataOutput alloc] init];
     self.videoOutput.videoSettings = @{ (id)kCVPixelBufferPixelFormatTypeKey : [NSNumber numberWithInteger:kCVPixelFormatType_32BGRA]};
 
