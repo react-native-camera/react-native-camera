@@ -416,6 +416,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
     // Base transformation that rotates the video based on device orientation.
     CGAffineTransform videoTransform = [RNCameraUtils videoTransformForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    if ([options[@"mirrorImage"] boolValue]) {
+        videoTransform = CGAffineTransformScale(videoTransform, 1, -1);
+    }
+    [self.writerInput setTransform:videoTransform];
 
     if (options[@"quality"]) {
         [self updateSessionPreset:[RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]]];
@@ -432,9 +436,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
     }
 
-    if ([options[@"mirrorImage"] boolValue]) {
-        videoTransform = CGAffineTransformScale(videoTransform, 1, -1);
-    }
     [connection setVideoOrientation:[RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]]];
 
     if (options[@"codec"]) {
@@ -452,8 +453,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     [self updateSessionAudioIsMuted:!!options[@"mute"]];
-
-    [self.writerInput setTransform:videoTransform];
 
     // @TODO: maxFileSize
     self.canAppendBuffer = YES;
