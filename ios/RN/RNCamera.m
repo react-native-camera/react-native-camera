@@ -35,6 +35,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.bridge = bridge;
         self.session = [AVCaptureSession new];
         self.sessionQueue = dispatch_queue_create("cameraQueue", DISPATCH_QUEUE_SERIAL);
+        self.frameBufferQueue = dispatch_queue_create("frameQueue", DISPATCH_QUEUE_SERIAL);
         self.faceDetectorManager = [self createFaceDetectorManager];
 #if !(TARGET_IPHONE_SIMULATOR)
         self.previewLayer =
@@ -51,18 +52,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                      name:UIDeviceOrientationDidChangeNotification
                                                    object:nil];
         self.autoFocus = -1;
-        //        [[NSNotificationCenter defaultCenter] addObserver:self
-        //                                                 selector:@selector(bridgeDidForeground:)
-        //                                                     name:EX_UNVERSIONED(@"EXKernelBridgeDidForegroundNotification")
-        //                                                   object:self.bridge];
-        //
-        //        [[NSNotificationCenter defaultCenter] addObserver:self
-        //                                                 selector:@selector(bridgeDidBackground:)
-        //                                                     name:EX_UNVERSIONED(@"EXKernelBridgeDidBackgroundNotification")
-        //                                                   object:self.bridge];
-
     }
     return self;
+}
+
+- (UIColor *)backgroundColor
+{
+    return [UIColor blackColor];
 }
 
 - (void)onReady:(NSDictionary *)event
@@ -97,7 +93,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     [super layoutSubviews];
     self.previewLayer.frame = self.bounds;
-    [self setBackgroundColor:[UIColor blackColor]];
     [self.layer insertSublayer:self.previewLayer atIndex:0];
 }
 
@@ -322,13 +317,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
     AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
-    int orientation;
-    if ([options[@"orientation"] integerValue]) {
-        orientation = [options[@"orientation"] integerValue];
-    } else {
-        orientation = [RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]];
-    }
-    [connection setVideoOrientation:orientation];
+    [connection setVideoOrientation:[RNCameraUtils videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
+
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
         if (imageSampleBuffer && !error) {
             BOOL useFastMode = options[@"fastMode"] && [options[@"fastMode"] boolValue];
@@ -373,8 +363,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
             }
 
-
-
             if ([options[@"exif"] boolValue]) {
                 int imageRotation;
                 switch (takenImage.imageOrientation) {
@@ -411,28 +399,30 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
-    if (_movieFileOutput == nil) {
-        // At the time of writing AVCaptureMovieFileOutput and AVCaptureVideoDataOutput (> GMVDataOutput)
-        // cannot coexist on the same AVSession (see: https://stackoverflow.com/a/4986032/1123156).
-        // We stop face detection here and restart it in when AVCaptureMovieFileOutput finishes recording.
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-        [_faceDetectorManager stopFaceDetection];
-#endif
-        [self setupMovieFileCapture];
+    if (_isRecording || _videoRecordedResolve != nil || _videoRecordedReject != nil) {
+        return;
     }
 
-    if (self.movieFileOutput == nil || self.movieFileOutput.isRecording || _videoRecordedResolve != nil || _videoRecordedReject != nil) {
-      return;
+    NSError *error = nil;
+    NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".mov"];
+    NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
+    self.videoWriter = [[AVAssetWriter alloc] initWithURL:outputURL fileType:AVFileTypeQuickTimeMovie error:&error];
+    if (error != nil) {
+        NSLog(@"%@", error);
+        reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
+        return;
     }
 
-    if (options[@"maxDuration"]) {
-        Float64 maxDuration = [options[@"maxDuration"] floatValue];
-        self.movieFileOutput.maxRecordedDuration = CMTimeMakeWithSeconds(maxDuration, 30);
-    }
+    NSDictionary *outputSettings = [self.videoOutput recommendedVideoSettingsForAssetWriterWithOutputFileType:AVFileTypeQuickTimeMovie];
+    self.writerInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:outputSettings];
+    [self.videoWriter addInput:self.writerInput];
 
-    if (options[@"maxFileSize"]) {
-        self.movieFileOutput.maxRecordedFileSize = [options[@"maxFileSize"] integerValue];
+    // Base transformation that rotates the video based on device orientation.
+    CGAffineTransform videoTransform = [RNCameraUtils videoTransformForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    if ([options[@"mirrorImage"] boolValue]) {
+        videoTransform = CGAffineTransformScale(videoTransform, 1, -1);
     }
+    [self.writerInput setTransform:videoTransform];
 
     if (options[@"quality"]) {
         [self updateSessionPreset:[RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]]];
@@ -448,6 +438,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [connection setPreferredVideoStabilizationMode:self.videoStabilizationMode];
         }
     }
+
     [connection setVideoOrientation:[RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]]];
 
     if (options[@"codec"]) {
@@ -464,19 +455,52 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
       }
     }
 
-    dispatch_async(self.sessionQueue, ^{
-        [self updateFlashMode];
-        NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".mov"];
-        NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
-        [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
-        self.videoRecordedResolve = resolve;
-        self.videoRecordedReject = reject;
-    });
+    [self updateSessionAudioIsMuted:!!options[@"mute"]];
+
+    // @TODO: maxFileSize
+    _isRecording = YES;
+    self.videoRecordedResolve = resolve;
+    self.videoRecordedReject = reject;
+
+    if (options[@"maxDuration"]) {
+        int64_t maxDuration = ([options[@"maxDuration"] floatValue] * NSEC_PER_SEC);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, maxDuration), dispatch_get_main_queue(), ^{
+            [self stopRecording];
+        });
+    }
 }
 
 - (void)stopRecording
 {
-    [self.movieFileOutput stopRecording];
+    _isRecording = NO;
+
+    [self.writerInput markAsFinished];
+    [self.videoWriter finishWritingWithCompletionHandler:^{
+        if (self.videoWriter.status == AVAssetWriterStatusFailed) {
+            self.videoRecordedReject(@"E_RECORDING_FAILED", @"An error occurred while recording a video.", nil);
+        } else {
+            // @TODO: include video codec in resolved value if available
+            self.videoRecordedResolve(@{ @"uri": self.videoWriter.outputURL.absoluteString });
+        }
+
+        self.videoRecordedResolve = nil;
+        self.videoRecordedReject = nil;
+        self.videoCodecType = nil;
+    }];
+}
+
+- (void)captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
+{
+    if (!_isRecording) return;
+
+    if (self.videoWriter.status != AVAssetWriterStatusWriting) {
+        [self.videoWriter startWriting];
+        [self.videoWriter startSessionAtSourceTime:CMSampleBufferGetPresentationTimeStamp(sampleBuffer)];
+    }
+
+    if (self.writerInput.readyForMoreMediaData) {
+        [self.writerInput appendSampleBuffer:sampleBuffer];
+    }
 }
 
 - (void)resumePreview
@@ -499,13 +523,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     //        [self onMountingError:@{@"message": @"Camera permissions not granted - component could not be rendered."}];
     //        return;
     //    }
+    _isRecording = NO;
     dispatch_async(self.sessionQueue, ^{
         if (self.presetCamera == AVCaptureDevicePositionUnspecified) {
             return;
         }
 
         self.session.sessionPreset = AVCaptureSessionPresetPhoto;
-        
+
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
             stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
@@ -516,13 +541,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
-#else
-        // If AVCaptureVideoDataOutput is not required because of Google Vision
-        // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
-        // to avoid an exposure rack on some devices that can cause the first few
-        // frames of the recorded output to be underexposed.
-        [self setupMovieFileCapture];
 #endif
+
+        [self setupVideoStreamCapture];
         [self setupOrDisableBarcodeScanner];
 
         __weak RNCamera *weakSelf = self;
@@ -764,15 +785,15 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                             @"type" : codeMetadata.type,
                                             @"data" : codeMetadata.stringValue,
                                             @"bounds": @{
-                                                @"origin": @{
-                                                    @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
-                                                    @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y]
-                                                },
-                                                @"size": @{
-                                                    @"height": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
-                                                    @"width": [NSString stringWithFormat:@"%f", transformed.bounds.size.width]
-                                                }
-                                            }
+                                                    @"origin": @{
+                                                            @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
+                                                            @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y]
+                                                            },
+                                                    @"size": @{
+                                                            @"height": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
+                                                            @"width": [NSString stringWithFormat:@"%f", transformed.bounds.size.width]
+                                                            }
+                                                    }
                                             };
 
                     [self onCodeRead:event];
@@ -782,63 +803,23 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 }
 
-# pragma mark - AVCaptureMovieFileOutput
+# pragma mark - AVAssetWriter
 
-- (void)setupMovieFileCapture
+- (void)setupVideoStreamCapture
 {
-    AVCaptureMovieFileOutput *movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+    // @TODO: videoCodecType
+    self.videoOutput = [[AVCaptureVideoDataOutput alloc] init];
+    self.videoOutput.videoSettings = @{ (id)kCVPixelBufferPixelFormatTypeKey : [NSNumber numberWithInteger:kCVPixelFormatType_32BGRA]};
 
-    if ([self.session canAddOutput:movieFileOutput]) {
-        [self.session addOutput:movieFileOutput];
-        self.movieFileOutput = movieFileOutput;
+    _frameBufferQueue = dispatch_queue_create("frameQueue", DISPATCH_QUEUE_SERIAL);
+    [self.videoOutput setSampleBufferDelegate:self queue:_frameBufferQueue];
+    self.videoOutput.alwaysDiscardsLateVideoFrames = YES;
+
+    [self.session beginConfiguration];
+    if ([self.session canAddOutput:self.videoOutput]){
+        [self.session addOutput:self.videoOutput];
     }
-}
-
-- (void)cleanupMovieFileCapture
-{
-    if ([_session.outputs containsObject:_movieFileOutput]) {
-        [_session removeOutput:_movieFileOutput];
-        _movieFileOutput = nil;
-    }
-}
-
-- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
-{
-    BOOL success = YES;
-    if ([error code] != noErr) {
-        NSNumber *value = [[error userInfo] objectForKey:AVErrorRecordingSuccessfullyFinishedKey];
-        if (value) {
-            success = [value boolValue];
-        }
-    }
-    if (success && self.videoRecordedResolve != nil) {
-      if (@available(iOS 10, *)) {
-          AVVideoCodecType videoCodec = self.videoCodecType;
-          if (videoCodec == nil) {
-              videoCodec = [self.movieFileOutput.availableVideoCodecTypes firstObject];
-          }
-          self.videoRecordedResolve(@{ @"uri": outputFileURL.absoluteString, @"codec":videoCodec });
-      } else {
-          self.videoRecordedResolve(@{ @"uri": outputFileURL.absoluteString });
-      }
-    } else if (self.videoRecordedReject != nil) {
-        self.videoRecordedReject(@"E_RECORDING_FAILED", @"An error occurred while recording a video.", error);
-    }
-    self.videoRecordedResolve = nil;
-    self.videoRecordedReject = nil;
-    self.videoCodecType = nil;
-
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-    [self cleanupMovieFileCapture];
-
-    // If face detection has been running prior to recording to file
-    // we reenable it here (see comment in -record).
-    [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
-#endif
-
-    if (self.session.sessionPreset != AVCaptureSessionPresetPhoto) {
-        [self updateSessionPreset:AVCaptureSessionPresetPhoto];
-    }
+    [self.session commitConfiguration];
 }
 
 # pragma mark - Face detector

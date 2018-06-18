@@ -11,29 +11,34 @@
 
 @class RNCamera;
 
-@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate>
+@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, RNFaceDetectorDelegate>
 
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
 @property(nonatomic, strong) AVCaptureSession *session;
 @property(nonatomic, strong) AVCaptureDeviceInput *videoCaptureDeviceInput;
 @property(nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
-@property(nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
+@property(nonatomic, strong) AVCaptureVideoDataOutput* videoOutput;
 @property(nonatomic, strong) AVCaptureMetadataOutput *metadataOutput;
 @property(nonatomic, strong) id runtimeErrorHandlingObserver;
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property(nonatomic, strong) NSArray *barCodeTypes;
 
 @property(nonatomic, assign) NSInteger presetCamera;
-@property (assign, nonatomic) NSInteger flashMode;
-@property (assign, nonatomic) CGFloat zoom;
-@property (assign, nonatomic) NSInteger autoFocus;
-@property (assign, nonatomic) float focusDepth;
-@property (assign, nonatomic) NSInteger whiteBalance;
-@property (assign, nonatomic) AVCaptureSessionPreset pictureSize;
-@property (nonatomic, assign) BOOL isReadingBarCodes;
-@property (nonatomic, assign) BOOL isDetectingFaces;
-@property(assign, nonatomic) AVVideoCodecType videoCodecType;
-@property (assign, nonatomic) AVCaptureVideoStabilizationMode videoStabilizationMode;
+@property(nonatomic, assign) NSInteger flashMode;
+@property(nonatomic, assign) CGFloat zoom;
+@property(nonatomic, assign) NSInteger autoFocus;
+@property(nonatomic, assign) float focusDepth;
+@property(nonatomic, assign) NSInteger whiteBalance;
+@property(nonatomic, assign) AVCaptureSessionPreset pictureSize;
+@property(nonatomic, assign) BOOL isReadingBarCodes;
+@property(nonatomic, assign) BOOL isDetectingFaces;
+@property(nonatomic, assign) AVVideoCodecType videoCodecType;
+@property(nonatomic, assign) AVCaptureVideoStabilizationMode videoStabilizationMode;
+
+@property(nonatomic, strong) dispatch_queue_t frameBufferQueue;
+@property(nonatomic, strong) AVAssetWriter *videoWriter;
+@property(nonatomic, strong) AVAssetWriterInput* writerInput;
+@property(nonatomic, assign) BOOL isRecording;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;
@@ -60,4 +65,3 @@
 - (void)onPictureSaved:(NSDictionary *)event;
 
 @end
-
