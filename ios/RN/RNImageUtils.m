@@ -68,7 +68,7 @@
     return [fileURL absoluteString];
 }
 
-+ (UIImage *) scaleImage:(UIImage*)image toWidth:(NSInteger)width
++ (UIImage *)scaleImage:(UIImage*)image toWidth:(NSInteger)width
 {
     width /= [UIScreen mainScreen].scale; // prevents image from being incorrectly resized on retina displays
     float scaleRatio = (float) width / (float) image.size.width;

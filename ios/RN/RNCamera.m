@@ -51,18 +51,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                      name:UIDeviceOrientationDidChangeNotification
                                                    object:nil];
         self.autoFocus = -1;
-        //        [[NSNotificationCenter defaultCenter] addObserver:self
-        //                                                 selector:@selector(bridgeDidForeground:)
-        //                                                     name:EX_UNVERSIONED(@"EXKernelBridgeDidForegroundNotification")
-        //                                                   object:self.bridge];
-        //
-        //        [[NSNotificationCenter defaultCenter] addObserver:self
-        //                                                 selector:@selector(bridgeDidBackground:)
-        //                                                     name:EX_UNVERSIONED(@"EXKernelBridgeDidBackgroundNotification")
-        //                                                   object:self.bridge];
-
     }
     return self;
+}
+
+- (UIColor *)backgroundColor
+{
+    return [UIColor blackColor];
 }
 
 - (void)onReady:(NSDictionary *)event
@@ -97,7 +92,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     [super layoutSubviews];
     self.previewLayer.frame = self.bounds;
-    [self setBackgroundColor:[UIColor blackColor]];
     [self.layer insertSublayer:self.previewLayer atIndex:0];
 }
 
@@ -505,7 +499,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
 
         self.session.sessionPreset = AVCaptureSessionPresetPhoto;
-        
+
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
             stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
