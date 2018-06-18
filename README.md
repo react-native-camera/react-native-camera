@@ -129,7 +129,8 @@ And add something like this to the `scripts` section in your `package.json`:
 GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RNCamera project.
 
 ###### CocoaPods Path
-1. Modify the dependency towards `react-native-camera` in your
+
+Modify the dependency towards `react-native-camera` in your
  `Podfile`, from
 
  ```
@@ -139,17 +140,10 @@ GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You h
 to
 
 ```
-pod 'react-native-camera', subspecs: ['RCT', 'RN', 'FaceDetector'], path: '../node_modules/react-native-camera'
+pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
+  'FaceDetector'
+]
 ```
-
-2. Add the following to your `Podfile`: 
-```
-  pod 'GoogleMobileVision/Detector', '~> 1.1.0'
-  pod 'GoogleMobileVision/MVDataOutput', '~> 1.1.0'
-  pod 'GoogleMobileVision/FaceDetector', '~> 1.1.0'
-```
-
-3. In XCode, On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
 
 ###### Non-CocoaPods Path
 1. Download:
