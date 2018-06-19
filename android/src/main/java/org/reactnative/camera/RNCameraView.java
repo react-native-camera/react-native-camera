@@ -251,7 +251,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   public void record(ReadableMap options, final Promise promise, File cacheDirectory) {
     try {
-      String path = RNFileUtils.getOutputFilePath(cacheDirectory, ".mp4");
+      String path = options.hasKey("path") ? options.getString("path") : RNFileUtils.getOutputFilePath(cacheDirectory, ".mp4");
       int maxDuration = options.hasKey("maxDuration") ? options.getInt("maxDuration") : -1;
       int maxFileSize = options.hasKey("maxFileSize") ? options.getInt("maxFileSize") : -1;
 

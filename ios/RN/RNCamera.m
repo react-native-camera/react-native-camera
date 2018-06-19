@@ -466,7 +466,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
     dispatch_async(self.sessionQueue, ^{
         [self updateFlashMode];
-        NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".mov"];
+        NSString *path = nil;
+        if (options[@"path"]) {
+            path = options[@"path"];
+        }
+        else {
+            path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".mov"];
+        }
         NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
         [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
         self.videoRecordedResolve = resolve;

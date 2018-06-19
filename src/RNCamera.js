@@ -69,6 +69,7 @@ type RecordingOptions = {
   quality?: number | string,
   codec?: string,
   mute?: boolean,
+  path?: string
 };
 
 type EventCallbackArgumentsType = {
