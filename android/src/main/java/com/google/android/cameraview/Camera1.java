@@ -247,7 +247,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 return;
             }
           SortedSet<Size> sizes = mPictureSizes.sizes(mAspectRatio);
-          if(sizes != null && !sizes.IsEmpty())
+          if(sizes != null && !sizes.isEmpty())
           {
             mPictureSize = sizes.last();
           }
