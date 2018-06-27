@@ -64,7 +64,7 @@ namespace RNCamera
         {
             get
             {
-                return "RCTCameraModule";
+                return "CameraModule";
             }
         }
 

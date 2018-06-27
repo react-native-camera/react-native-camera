@@ -270,7 +270,8 @@ namespace RNCamera
             _barcodeScanningSubscription.Disposable = Disposable.Empty;
 
             // Stop preview
-            await MediaCapture.StopPreviewAsync().AsTask().ConfigureAwait(false);
+            // TODO: uncomment when async dispose is supported
+            // await MediaCapture.StopPreviewAsync().AsTask().ConfigureAwait(false);
 
             // Dispose media capture
             MediaCapture.Dispose();
