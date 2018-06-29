@@ -41,14 +41,27 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
       BinaryBitmap bitmap = generateBitmapFromImageData(mImageData, mWidth, mHeight);
       result = mMultiFormatReader.decodeWithState(bitmap);
     } catch (NotFoundException e) {
-      // No barcode found, result is already null.
+      BinaryBitmap bitmap = generateBitmapFromImageData(rotateImage(mImageData,mWidth, mHeight),mHeight,mWidth);
+      try {
+        result = mMultiFormatReader.decodeWithState(bitmap);
+      } catch (NotFoundException e1) {
+        //no barcode Found
+      }
     } catch (Throwable t) {
       t.printStackTrace();
     }
 
     return result;
   }
-
+  private byte[] rotateImage(byte[]imageData,int width, int height) {
+    byte[] rotated = new byte[imageData.length];
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        rotated[x * height + height - y - 1] = imageData[x + y * width];
+      }
+    }
+    return rotated;
+  }
   @Override
   protected void onPostExecute(Result result) {
     super.onPostExecute(result);
