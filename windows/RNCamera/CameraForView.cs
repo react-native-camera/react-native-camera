@@ -294,8 +294,11 @@ namespace RNCamera
             // Do not use ConfigureAwait(false), subsequent calls must come from Dispatcher thread
             var devices = await DeviceInformation.FindAllAsync(DeviceClass.VideoCapture);
             var device = _panel.HasValue
-                ? devices.FirstOrDefault(d => d.EnclosureLocation.Panel == _panel)
+                ? devices.FirstOrDefault(d => d.EnclosureLocation?.Panel == _panel)
                 : devices.FirstOrDefault();
+
+            // TODO: remove this hack, it defaults the camera to any camera if it cannot find one for a specific panel
+            device = device ?? devices.FirstOrDefault();
 
             if (device == null)
             {
