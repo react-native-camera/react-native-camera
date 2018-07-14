@@ -1,3 +1,7 @@
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
 buildscript {
   repositories {
     jcenter()
@@ -14,22 +18,13 @@ buildscript {
 
 apply plugin: 'com.android.library'
 
-def DEFAULT_COMPILE_SDK_VERSION             = 26
-def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
-def DEFAULT_TARGET_SDK_VERSION              = 26
-def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
-def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
-
 android {
-  compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
-  buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
+  compileSdkVersion safeExtGet('compileSdkVersion', 26)
+  buildToolsVersion safeExtGet('buildToolsVersion', '26.0.2')
 
   defaultConfig {
-    minSdkVersion 16
-    targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
-
-    versionCode 1
-    versionName "1.0.0"
+    minSdkVersion safeExtGet('minSdkVersion', 16)
+    targetSdkVersion safeExtGet('targetSdkVersion', 26)
   }
   lintOptions {
     abortOnError false
@@ -50,15 +45,12 @@ repositories {
 }
 
 dependencies {
-  def googlePlayServicesVersion = rootProject.hasProperty('googlePlayServicesVersion')  ? rootProject.googlePlayServicesVersion : DEFAULT_GOOGLE_PLAY_SERVICES_VERSION
-  def supportLibVersion = rootProject.hasProperty('supportLibVersion')  ? rootProject.supportLibVersion : DEFAULT_SUPPORT_LIBRARY_VERSION
-
   compileOnly 'com.facebook.react:react-native:+'
   compileOnly 'com.facebook.infer.annotation:infer-annotation:+'
   implementation "com.google.zxing:core:3.3.0"
   implementation "com.drewnoakes:metadata-extractor:2.9.1"
-  implementation "com.google.android.gms:play-services-vision:$googlePlayServicesVersion"
-  implementation "com.android.support:exifinterface:$supportLibVersion"
-  implementation "com.android.support:support-annotations:$supportLibVersion"
-  implementation "com.android.support:support-v4:$supportLibVersion"
+  implementation "com.google.android.gms:play-services-vision:${safeExtGet('googlePlayServicesVersion', '12.0.1')}"
+  implementation "com.android.support:exifinterface:${safeExtGet('supportLibVersion', '27.1.0')}"
+  implementation "com.android.support:support-annotations:${safeExtGet('supportLibVersion', '27.1.0')}"
+  implementation "com.android.support:support-v4:${safeExtGet('supportLibVersion', '27.1.0')}"
 }
