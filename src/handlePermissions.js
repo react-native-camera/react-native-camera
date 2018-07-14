@@ -20,7 +20,7 @@ export const requestPermissions = async (hasVideoAndAudio, CameraManager, permis
           // so check and request should always be true.
           // https://github.com/facebook/react-native-website/blob/master/docs/permissionsandroid.md
           const isAuthorized =
-            Platform.Version >= 23 ? granted === PermissionsAndroid.RESULTS.GRANTED : granted === true;
+            Platform.Version < 23 ? true: granted === PermissionsAndroid.RESULTS.GRANTED;
     
           return isAuthorized;
     }
