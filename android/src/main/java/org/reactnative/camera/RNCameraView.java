@@ -10,6 +10,7 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
 import android.view.View;
+import android.os.AsyncTask;
 import com.facebook.react.bridge.*;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.google.android.cameraview.CameraView;
@@ -90,7 +91,13 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
             promise.resolve(null);
         }
         final File cacheDirectory = mPictureTakenDirectories.remove(promise);
-        new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this).execute();
+        if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
+          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this)
+                  .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this)
+                  .execute();
+        }
       }
 
       @Override
