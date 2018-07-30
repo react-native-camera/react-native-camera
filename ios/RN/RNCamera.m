@@ -459,6 +459,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         } else {
             RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
         }
+      }
     }
     
     dispatch_async(self.sessionQueue, ^{
