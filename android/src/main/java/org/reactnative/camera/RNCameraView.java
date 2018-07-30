@@ -98,6 +98,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this)
                   .execute();
         }
+        RNCameraViewHelper.emitPictureTakenEvent(cameraView);
       }
 
       @Override
@@ -232,7 +233,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       throw e;
     }
   }
-        
+
   @Override
   public void onPictureSaved(WritableMap response) {
     RNCameraViewHelper.emitPictureSavedEvent(this, response);
