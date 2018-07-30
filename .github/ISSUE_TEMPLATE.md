@@ -1,5 +1,5 @@
 ### Warning
-RCTCamera is **DEPRECATED** on v1.0.0 follow our migration guide here https://github.com/react-native-community/react-native-camera/blob/master/docs/migration.md
+RCTCamera is **DEPRECATED** on v1.0.0 follow our [Migration guide](https://github.com/react-native-community/react-native-camera/blob/master/docs/migration.md)
 
 ### Which implementation are you using
 
@@ -11,7 +11,7 @@ RCTCamera is **DEPRECATED** on v1.0.0 follow our migration guide here https://gi
 3.
 
 ### Does it work with Expo Camera?
-RNCamera is based on Expo Camera, if this does not work with Expo Camera it won't work with RNCamera as well.
+Check usage with Expo - https://github.com/react-native-community/react-native-camera/blob/master/docs/Expo_Usage.md
 You should open an issue there as well, so we can cooperate in a solution.
 
 ### Expected behaviour
@@ -21,7 +21,6 @@ Tell us what should happen
 Tell us what happens instead
 
 ### Environment
-- **Node.js version**:
 - **React Native version**:
 - **React Native platform + platform version**: iOS 9.0, Android 5.0, etc
 

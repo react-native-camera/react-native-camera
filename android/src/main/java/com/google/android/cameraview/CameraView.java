@@ -37,6 +37,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.SortedSet;
 
 public class CameraView extends FrameLayout {
 
@@ -68,6 +69,7 @@ public class CameraView extends FrameLayout {
     public static final int FLASH_RED_EYE = Constants.FLASH_RED_EYE;
 
     /** The mode for for the camera device's flash control */
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({FLASH_OFF, FLASH_ON, FLASH_TORCH, FLASH_AUTO, FLASH_RED_EYE})
     public @interface Flash {
     }
@@ -219,6 +221,7 @@ public class CameraView extends FrameLayout {
         state.zoom = getZoom();
         state.whiteBalance = getWhiteBalance();
         state.scanning = getScanning();
+        state.pictureSize = getPictureSize();
         return state;
     }
 
@@ -238,6 +241,7 @@ public class CameraView extends FrameLayout {
         setZoom(ss.zoom);
         setWhiteBalance(ss.whiteBalance);
         setScanning(ss.scanning);
+        setPictureSize(ss.pictureSize);
     }
 
     public void setUsingCamera2Api(boolean useCamera2) {
@@ -402,6 +406,31 @@ public class CameraView extends FrameLayout {
     public AspectRatio getAspectRatio() {
         return mImpl.getAspectRatio();
     }
+    
+    /**
+     * Gets all the picture sizes for particular ratio supported by the current camera.
+     *
+     * @param ratio {@link AspectRatio} for which the available image sizes will be returned.
+     */
+    public SortedSet<Size> getAvailablePictureSizes(@NonNull AspectRatio ratio) {
+        return mImpl.getAvailablePictureSizes(ratio);
+    }
+    
+    /**
+     * Sets the size of taken pictures.
+     *
+     * @param size The {@link Size} to be set.
+     */
+    public void setPictureSize(@NonNull Size size) {
+        mImpl.setPictureSize(size);
+    }
+    
+    /**
+     * Gets the size of pictures that will be taken.
+     */
+    public Size getPictureSize() {
+        return mImpl.getPictureSize();
+    }
 
     /**
      * Enables or disables the continuous auto-focus mode. When the current camera doesn't support
@@ -493,6 +522,14 @@ public class CameraView extends FrameLayout {
 
     public void stopRecording() {
         mImpl.stopRecording();
+    }
+    
+    public void resumePreview() {
+        mImpl.resumePreview();
+    }
+    
+    public void pausePreview() {
+        mImpl.pausePreview();
     }
 
     public void setPreviewTexture(SurfaceTexture surfaceTexture) {
@@ -590,6 +627,8 @@ public class CameraView extends FrameLayout {
         int whiteBalance;
 
         boolean scanning;
+        
+        Size pictureSize;
 
         @SuppressWarnings("WrongConstant")
         public SavedState(Parcel source, ClassLoader loader) {
@@ -602,6 +641,7 @@ public class CameraView extends FrameLayout {
             zoom = source.readFloat();
             whiteBalance = source.readInt();
             scanning = source.readByte() != 0;
+            pictureSize = source.readParcelable(loader);
         }
 
         public SavedState(Parcelable superState) {
@@ -619,6 +659,7 @@ public class CameraView extends FrameLayout {
             out.writeFloat(zoom);
             out.writeInt(whiteBalance);
             out.writeByte((byte) (scanning ? 1 : 0));
+            out.writeParcelable(pictureSize, flags);
         }
 
         public static final Creator<SavedState> CREATOR

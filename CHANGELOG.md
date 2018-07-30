@@ -1,3 +1,102 @@
+#### 1.1.5-2 (2018-06-14)
+
+##### Build System / Dependencies
+
+* **change-log:**
+  *  v1.1.4-6 ([86bf1d28](https://github.com/react-native-community/react-native-camera/commit/86bf1d284baf64caa94e3815c9ebed5b0e662369))
+  *  v1.1.3-5 ([98b18950](https://github.com/react-native-community/react-native-camera/commit/98b1895038ccf47f94d7d27811f3540d3847feb7))
+  *  v1.1.2-4 ([4f6b213d](https://github.com/react-native-community/react-native-camera/commit/4f6b213dc63e7ae96c77a1cf1627c14fcda99a94))
+  *  v1.1.1-3 ([821a1b24](https://github.com/react-native-community/react-native-camera/commit/821a1b24e6251ad2a9ba9087c9a427a3b20d0778))
+  *  v1.1.0 ([01e6c843](https://github.com/react-native-community/react-native-camera/commit/01e6c8434d87f4723feff7fec568028bfb140cb5))
+  *  v1.1.0-2 ([deb42144](https://github.com/react-native-community/react-native-camera/commit/deb42144769c3ccc2e593d5dbf586abab244f219))
+
+##### Chores
+
+* **cameraview:**
+  *  integrate google's cameraview directly on rncamera? ([d11ed319](https://github.com/react-native-community/react-native-camera/commit/d11ed31917c26df151b4fb46ab166d2921a9ac99))
+  *  update camera view ([501ffe83](https://github.com/react-native-community/react-native-camera/commit/501ffe8336b9d8bc9743c1ed803fe20b77f2c270))
+* **lint:**
+  *  more lint checks ([3bb9a648](https://github.com/react-native-community/react-native-camera/commit/3bb9a6484af306ac66083dd05ac6c46de542f3b4))
+  *  fix some warnings ([7967e2fb](https://github.com/react-native-community/react-native-camera/commit/7967e2fbce44b15a77ae0cbddf76f0b37fc530ba))
+  *  fix lint to make ci work ([919d07b1](https://github.com/react-native-community/react-native-camera/commit/919d07b162f4a39a2454bebdb387224e21a4ba7a))
+* **package:**  enforce no errors on lint and update packages ([00f4f4c1](https://github.com/react-native-community/react-native-camera/commit/00f4f4c13714a9d4e03a2cd76f2b19de7a78cfe4))
+* **gms:**  change default gms to 12.0.0 ([94c8968b](https://github.com/react-native-community/react-native-camera/commit/94c8968b2633cfa4e16d1e4275eb831065232014))
+
+##### Documentation Changes
+
+* **expo:**  explain how to migrate to and from expo camera module ([#1605](https://github.com/react-native-community/react-native-camera/pull/1605)) ([4a9322cb](https://github.com/react-native-community/react-native-camera/commit/4a9322cb8b7d455fc28f7e67a15bff2fd9d7ea3e))
+* **recipes:**  add some recipes ([ef5c2fef](https://github.com/react-native-community/react-native-camera/commit/ef5c2fef14530110b0c5aec3a044ca27dcfa8d72))
+
+##### New Features
+
+* **preview:**
+  *  add android code ([497a7039](https://github.com/react-native-community/react-native-camera/commit/497a703964e925b6e3e62e39a54a9734a7ed6c40))
+  *  add new props to JS ([9bf9a2e3](https://github.com/react-native-community/react-native-camera/commit/9bf9a2e3162b919d98cab104029250394b2dd3a8))
+  *  add preview methods and more fixes ([b9fb708f](https://github.com/react-native-community/react-native-camera/commit/b9fb708ffc3fd6865191ce6e2bd0a2404a9c657c))
+* **types:**
+  *  add types for [#1547](https://github.com/react-native-community/react-native-camera/pull/1547) ([#1548](https://github.com/react-native-community/react-native-camera/pull/1548)) ([3ce3c80d](https://github.com/react-native-community/react-native-camera/commit/3ce3c80db670cc05dead7636d70dc8fc911a2c6b))
+  *  add types for [#1523](https://github.com/react-native-community/react-native-camera/pull/1523) ([f61004de](https://github.com/react-native-community/react-native-camera/commit/f61004de623a2011e99a6a8092048b513025f5ed))
+  *  add types for [#1518](https://github.com/react-native-community/react-native-camera/pull/1518) (FaCC) ([842dc1cb](https://github.com/react-native-community/react-native-camera/commit/842dc1cb581bd28653549dee86f70c2ff5d65ee2))
+  *  add types for [#1441](https://github.com/react-native-community/react-native-camera/pull/1441) ([be3e0ebf](https://github.com/react-native-community/react-native-camera/commit/be3e0ebfb8ff42a48211b55054325548cd304694))
+  *  add types for [#1428](https://github.com/react-native-community/react-native-camera/pull/1428) ([6cc3d89b](https://github.com/react-native-community/react-native-camera/commit/6cc3d89bec2a55b31c2e7c4f0e597eafc8c31323))
+  *  add types for text detection feature ([c0ace2e9](https://github.com/react-native-community/react-native-camera/commit/c0ace2e94c47a9122a386bcbe99911182da80744))
+* **rn-camera:**  use and export constants ([c8c6fdea](https://github.com/react-native-community/react-native-camera/commit/c8c6fdea0bf15de60c638f504f38dcb9ac80a3e4))
+* **rn_camera:**  add function as children ([45cc8f25](https://github.com/react-native-community/react-native-camera/commit/45cc8f25d2de71b9eee29e1fe14e2f4f3d2feee9))
+* **ci:**  add first circleci lint and check script ([ee385eec](https://github.com/react-native-community/react-native-camera/commit/ee385eec05b9be5e1f96524206e50aa96085ce19))
+* **android:**  make android gradle check work ([1c7f231a](https://github.com/react-native-community/react-native-camera/commit/1c7f231af460127bebf1f9970367bf64987de34b))
+* **play-sound:**  play sound on capture (android) ([69242183](https://github.com/react-native-community/react-native-camera/commit/69242183cc65460040795b866095f34090a9598d))
+
+##### Bug Fixes
+
+* **rn-camera:**
+  *  fix codec backwards compat ([91f5bf45](https://github.com/react-native-community/react-native-camera/commit/91f5bf45672a8b83253ed17c3f90eee64b0f07bf))
+  *  fix types, conversions and casts ([83d0618e](https://github.com/react-native-community/react-native-camera/commit/83d0618e988656dfd9a216b85394ceb5f3a05e9b))
+  *  inject correct status ([858cc4c9](https://github.com/react-native-community/react-native-camera/commit/858cc4c9c8fd456390b274ee4cfddb62fee198ee))
+* **picture-size:**
+  *  create None default value ([ad87c8e3](https://github.com/react-native-community/react-native-camera/commit/ad87c8e3421f2ff1836674a01cb86deb619cdc4e))
+  *  export method and change default value ([9efb7f14](https://github.com/react-native-community/react-native-camera/commit/9efb7f141f8970ad160c852fa837427a79f3d0dc))
+* **cache:**  store video recordings in same directory as photos ([bba84a98](https://github.com/react-native-community/react-native-camera/commit/bba84a983446c25f76aa77793f49d4252cd63ea3))
+* **rn_camera:**  improve naming ([3811d82c](https://github.com/react-native-community/react-native-camera/commit/3811d82c75ceedc27b8aa5550e352159d5daf2b8))
+* **search-paths:**  remove unnecessary search paths and add missing one ([dee298b4](https://github.com/react-native-community/react-native-camera/commit/dee298b4fefca4659468fd43e914fd1c970ca930))
+* **styles:**  place style sheet above everything,prevent undefined styles ([01501892](https://github.com/react-native-community/react-native-camera/commit/01501892b5711db765cc367a24ba7c3233678791))
+* **warnings:**  remove inline styles ([716c4e38](https://github.com/react-native-community/react-native-camera/commit/716c4e389da45fd7d240a8b4acf60a620fa2c372))
+* **barcode:**  better name google variables and correct init ([38e96ed2](https://github.com/react-native-community/react-native-camera/commit/38e96ed24d6b59e108a0ac175eefff22d7b33c27))
+* **Android:**  image stretched instead of cropped ([73eb5fd2](https://github.com/react-native-community/react-native-camera/commit/73eb5fd272c28a6369705d30379dcabae3429301))
+* **barcode-prop:**  fix default value and add more values ([2c87b44b](https://github.com/react-native-community/react-native-camera/commit/2c87b44b1660f44e9f2bc8e7fce207c872933806))
+* **docs:**
+  *  move skipProcessing to 'Supported options' ([8054200f](https://github.com/react-native-community/react-native-camera/commit/8054200f81a754ae2d29532b636f55331e996703))
+  *  Header on the wrong position ([589a0819](https://github.com/react-native-community/react-native-camera/commit/589a08192930f96aa4f7cf255aa4ac0adfd31a12))
+* **types:**  fix types for [#1402](https://github.com/react-native-community/react-native-camera/pull/1402) ([26f9a1e5](https://github.com/react-native-community/react-native-camera/commit/26f9a1e53b3f3b21b86f28d27236849995e7baf9))
+* **ios:**  add video output early to avoid underexposed beginning ([9ef5b29a](https://github.com/react-native-community/react-native-camera/commit/9ef5b29ad5d66f0e6d52e504dab00b862148c60f))
+
+##### Other Changes
+
+*  Implement video stabilization mode property for ios ([#1606](https://github.com/react-native-community/react-native-camera/pull/1606)) ([a090faa0](https://github.com/react-native-community/react-native-camera/commit/a090faa09b417afd41af3739ec2b895de9dca6b6))
+*  Fix java.lang.ArrayIndexOutOfBoundsException with image rotation ([6ce014d3](https://github.com/react-native-community/react-native-camera/commit/6ce014d3ca3805f908fbdcd30da9b982de3bc2da))
+
+#### 1.1.4-6 (2018-05-21)
+
+#### 1.1.3-5 (2018-05-18)
+
+##### New Features
+
+* **types:**
+  *  add types for [#1547](https://github.com/react-native-community/react-native-camera/pull/1547) ([#1548](https://github.com/react-native-community/react-native-camera/pull/1548)) ([3ce3c80d](https://github.com/react-native-community/react-native-camera/commit/3ce3c80db670cc05dead7636d70dc8fc911a2c6b))
+  *  add types for [#1523](https://github.com/react-native-community/react-native-camera/pull/1523) ([f61004de](https://github.com/react-native-community/react-native-camera/commit/f61004de623a2011e99a6a8092048b513025f5ed))
+  *  add types for [#1518](https://github.com/react-native-community/react-native-camera/pull/1518) (FaCC) ([842dc1cb](https://github.com/react-native-community/react-native-camera/commit/842dc1cb581bd28653549dee86f70c2ff5d65ee2))
+* **rn-camera:**  use and export constants ([c8c6fdea](https://github.com/react-native-community/react-native-camera/commit/c8c6fdea0bf15de60c638f504f38dcb9ac80a3e4))
+* **rn_camera:**  add function as children ([45cc8f25](https://github.com/react-native-community/react-native-camera/commit/45cc8f25d2de71b9eee29e1fe14e2f4f3d2feee9))
+
+##### Bug Fixes
+
+* **rn-camera:**  inject correct status ([858cc4c9](https://github.com/react-native-community/react-native-camera/commit/858cc4c9c8fd456390b274ee4cfddb62fee198ee))
+* **cache:**  store video recordings in same directory as photos ([bba84a98](https://github.com/react-native-community/react-native-camera/commit/bba84a983446c25f76aa77793f49d4252cd63ea3))
+* **rn_camera:**  improve naming ([3811d82c](https://github.com/react-native-community/react-native-camera/commit/3811d82c75ceedc27b8aa5550e352159d5daf2b8))
+
+##### Other Changes
+
+*  Fix java.lang.ArrayIndexOutOfBoundsException with image rotation ([6ce014d3](https://github.com/react-native-community/react-native-camera/commit/6ce014d3ca3805f908fbdcd30da9b982de3bc2da))
+
 #### 1.1.2-4 (2018-04-25)
 
 ##### Chores

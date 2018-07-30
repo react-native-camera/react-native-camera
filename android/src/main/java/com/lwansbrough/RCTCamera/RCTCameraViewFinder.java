@@ -363,10 +363,14 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
         private void rotateImage(int width, int height) {
             byte[] rotated = new byte[imageData.length];
-            for (int y = 0; y < height; y++) {
-              for (int x = 0; x < width; x++) {
-                rotated[x * height + height - y - 1] = imageData[x + y * width];
-              }
+            for (int y = 0; y < width; y++) {
+                for (int x = 0; x < height; x++) {
+                    int sourceIx = x + y * height;
+                    int destIx = x * width + width - y - 1;
+                    if (sourceIx >= 0 && sourceIx < imageData.length && destIx >= 0 && destIx < imageData.length) {
+                        rotated[destIx] = imageData[sourceIx];
+                    }
+                }
             }
             imageData = rotated;
         }
@@ -397,7 +401,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                         resultPoints.pushMap(newPoint);
                     }
                 }
-
+                
                 event.putArray("bounds", resultPoints);
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());

@@ -67,10 +67,12 @@ public class BarCodeReadEvent extends Event<BarCodeReadEvent> {
     WritableArray resultPoints = Arguments.createArray();
     ResultPoint[] points = mBarCode.getResultPoints();
     for (ResultPoint point: points) {
-      WritableMap newPoint = Arguments.createMap();
-      newPoint.putString("x", String.valueOf(point.getX()));
-      newPoint.putString("y", String.valueOf(point.getY()));
-      resultPoints.pushMap(newPoint);
+      if(point!=null) {
+        WritableMap newPoint = Arguments.createMap();
+        newPoint.putString("x", String.valueOf(point.getX()));
+        newPoint.putString("y", String.valueOf(point.getY()));
+        resultPoints.pushMap(newPoint);
+      }
     }
     event.putArray("bounds",resultPoints);
     return event;

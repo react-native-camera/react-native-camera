@@ -78,6 +78,98 @@ const styles = StyleSheet.create({
 AppRegistry.registerComponent('BadInstagramCloneApp', () => BadInstagramCloneApp);
 ```
 
+## FaCC (Function as Child Components)
+
+**You can also use it with Facc.*
+
+```javascript
+ 'use strict';
+import React, { Component } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RNCamera } from 'react-native-camera';
+
+const PendingView = () => (
+  <View
+    style={{
+      flex: 1,
+      backgroundColor: 'lightgreen',
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}
+  >
+    <Text>Waiting</Text>
+  </View>
+);
+
+class App extends Component {
+  render() {
+    return (
+      <View style={styles.container}>
+        <RNCamera
+          style={styles.preview}
+          type={RNCamera.Constants.Type.back}
+          flashMode={RNCamera.Constants.FlashMode.on}
+          permissionDialogTitle={'Permission to use camera'}
+          permissionDialogMessage={'We need your permission to use your camera phone'}
+        >
+          {({ camera, status }) => {
+            if (status !== 'READY') return <PendingView />;
+            return (
+              <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
+                <TouchableOpacity onPress={() => this.takePicture(camera)} style={styles.capture}>
+                  <Text style={{ fontSize: 14 }}> SNAP </Text>
+                </TouchableOpacity>
+              </View>
+            );
+          }}
+        </RNCamera>
+      </View>
+    );
+  }
+
+  takePicture = async function(camera) {
+    const options = { quality: 0.5, base64: true };
+    const data = await camera.takePictureAsync(options);
+    //  eslint-disable-next-line
+    console.log(data.uri);
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    backgroundColor: 'black',
+  },
+  preview: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  capture: {
+    flex: 0,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    padding: 15,
+    paddingHorizontal: 20,
+    alignSelf: 'center',
+    margin: 20,
+  },
+});
+
+AppRegistry.registerComponent('BadInstagramCloneApp', () => App);
+```
+
+#### `camera` 
+
+*It's the RNCamera's reference*
+
+#### `status`
+
+'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED'
+
+
+
 ## Properties
 
 #### `autoFocus`
@@ -157,6 +249,17 @@ By default a `Camera not authorized` message will be displayed when access to th
 #### `pendingAuthorizationView`
 
 By default a <ActivityIndicator> will be displayed while the component is waiting for the user to grant/deny access to the camera, if set displays the passed react element instead of the default one.
+
+### `iOS` `videoStabilizationMode`
+
+The video stabilization mode used for a video recording. The possible values are:
+
+   - `RNCamera.Constants.VideoStabilization['off']`
+   - `RNCamera.Constants.VideoStabilization['standard']`
+   - `RNCamera.Constants.VideoStabilization['cinematic']`
+   - `RNCamera.Constants.VideoStabilization['auto']`
+
+You can read more about each stabilization type here: https://developer.apple.com/documentation/avfoundation/avcapturevideostabilizationmode
 
 ### Native Event callbacks props
 
@@ -294,6 +397,9 @@ The promise will be fulfilled with an object with some of the following properti
    - `RNCamera.Constants.VideoQuality.4:3`.
      - `ios` Specifies capture settings suitable for VGA quality (640x480 pixel) video output. (Same as RNCamera.Constants.VideoQuality.480p).
      - `android` Quality level corresponding to the 480p (720 x 480) resolution but with video frame width set to 640.
+   - `RNCamera.Constants.VideoQuality.288p`.
+     - `ios` Specifies capture settings suitable for CIF quality (352x288 pixel) video output.
+     - `android` Not supported.
 
     If nothing is passed the device's highest camera quality will be used as default.
  - `iOS` `codec`. This option specifies the codec of the output video. Setting the codec is only supported on `iOS >= 10`. The possible values are:
@@ -307,9 +413,10 @@ The promise will be fulfilled with an object with some of the following properti
 
  - `maxDuration` (float greater than 0). Specifies the maximum duration of the video to be recorded in seconds. If nothing is specified, no time limit will be used.
 
- - `maxFileSize` (int greater than 0). Specifies the maximum file size, in bytes, of the video to be recorded. For 1mb, for example, use 1*1024*1024. If nothing is specified, no size limit will be used.
+ - `maxFileSize` (int greater than 0). Specifies the maximum file size, in bytes, of the video to be recorded. For 1mb, for example, use 1\*1024\*1024. If nothing is specified, no size limit will be used.
 
  - `mute` (any value). If this flag is given in the option with any value, the video to be recorded will be mute. If nothing is specified, video will NOT be muted.
+ - `path` (file path on disk). Specifies the path on disk to record the video to. You can use the same `uri` returned to continue recording across start/stops
 
  The promise will be fulfilled with an object with some of the following properties:
 
@@ -320,6 +427,14 @@ The promise will be fulfilled with an object with some of the following properti
  #### `stopRecording: void`
 
  Should be called after recordAsync() to make the promise be fulfilled and get the video uri.
+ 
+ #### `pausePreview: void`
+
+ Pauses the preview. The preview can be resumed again by using resumePreview().
+
+ #### `resumePreview: void`
+
+ Resumes the preview after pausePreview() has been called.
 
  #### `Android` `getSupportedRatiosAsync(): Promise`
 
@@ -327,6 +442,10 @@ The promise will be fulfilled with an object with some of the following properti
 
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
+
+## Testing
+
+To learn about how to test components which uses `RNCamera` check its [documentation about testing](./tests.md).
 
 ## Example
 
