@@ -30,7 +30,7 @@ public class PictureTakenEvent extends Event<PictureTakenEvent> {
 
   @Override
   public String getEventName() {
-    return CameraViewManager.Events.EVENT_PICTURE_TAKEN.toString();
+    return CameraViewManager.Events.EVENT_ON_PICTURE_TAKEN.toString();
   }
 
   @Override
