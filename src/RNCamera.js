@@ -66,6 +66,7 @@ type TrackedTextFeature = {
 type RecordingOptions = {
   maxDuration?: number,
   maxFileSize?: number,
+  orientation?: Orientation,
   quality?: number | string,
   codec?: string,
   mute?: boolean,
@@ -284,6 +285,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
       options = {};
     } else if (typeof options.quality === 'string') {
       options.quality = Camera.Constants.VideoQuality[options.quality];
+    }
+    if (typeof options.orientation=== 'string') {
+      options.orientation = CameraManager.Orientation[options.orientation];
     }
     return await CameraManager.record(options, this._cameraHandle);
   }

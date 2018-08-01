@@ -448,8 +448,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [connection setPreferredVideoStabilizationMode:self.videoStabilizationMode];
         }
     }
-    [connection setVideoOrientation:[RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]]];
-
+    int orientation;
+    if ([options[@"orientation"] integerValue]) {
+        orientation = [options[@"orientation"] integerValue];
+    } else {
+        orientation = [RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]];
+    }
+    [connection setVideoOrientation:orientation];
+    
     if (options[@"codec"]) {
       if (@available(iOS 10, *)) {
         AVVideoCodecType videoCodecType = options[@"codec"];
