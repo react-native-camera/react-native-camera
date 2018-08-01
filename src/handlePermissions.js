@@ -15,6 +15,13 @@ export const requestPermissions = async (hasVideoAndAudio, CameraManager, permis
             title: permissionDialogTitle,
             message: permissionDialogMessage,
           });
+        if (!hasVideoAndAudio) {
+            if (Platform.Version >= 23) {
+                return grantedCamera === PermissionsAndroid.RESULTS.GRANTED
+              } else {
+                return grantedCamera === true
+              }
+        }
         const grantedAudio = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, {
             title: permissionDialogTitle,
             message: permissionDialogMessage,
