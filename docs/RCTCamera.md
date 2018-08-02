@@ -256,6 +256,10 @@ By default a <ActivityIndicator> will be displayed while the component is waitin
 
 If set to `true`, the image returned will be mirrored.
 
+#### `mirrorVideo`
+
+If set to `true`, the video returned will be mirrored.
+
 #### `fixOrientation` (_deprecated_)
 
 If set to `true`, the image returned will be rotated to the _right way up_.  WARNING: It uses a significant amount of memory and my cause your application to crash if the device cannot provide enough RAM to perform the rotation.
