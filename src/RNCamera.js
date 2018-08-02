@@ -197,6 +197,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
     autoFocus: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
     permissionDialogTitle: PropTypes.string,
     permissionDialogMessage: PropTypes.string,
+    microphonePermissionDialogTitle: PropTypes.string,
+    microphonePermissionDialogMessage: PropTypes.string,
     notAuthorizedView: PropTypes.element,
     pendingAuthorizationView: PropTypes.element,
     captureAudio: PropTypes.bool,
@@ -223,6 +225,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
     faceDetectionClassifications: ((CameraManager.FaceDetection || {}).Classifications || {}).none,
     permissionDialogTitle: '',
     permissionDialogMessage: '',
+    microphonePermissionDialogTitle: '',
+    microphonePermissionDialogMessage: '',
     notAuthorizedView: (
       <View style={styles.authorizationContainer}>
         <Text style={styles.notAuthorizedText}>Camera not authorized</Text>
@@ -356,6 +360,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
       CameraManager,
       this.props.permissionDialogTitle,
       this.props.permissionDialogMessage,
+      this.props.microphonePermissionDialogTitle,
+      this.props.microphonePermissionDialogMessage,
     );
     this.setState({ isAuthorized, isAuthorizationChecked: true });
   }

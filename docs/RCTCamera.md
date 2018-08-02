@@ -240,6 +240,14 @@ Starting on android M individual permissions must be granted for certain service
 
 Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the content of the dialog prompt requesting permissions.
 
+#### `Android` `microphonePermissionDialogTitle`
+
+Starting on android M individual permissions must be granted for certain services, the microphone is one of them, you can use this to change the title of the dialog prompt requesting permissions.
+
+#### `Android` `microphonePermissionDialogMessage`
+
+Starting on android M individual permissions must be granted for certain services, the microphone is one of them, you can use this to change the content of the dialog prompt requesting permissions.
+
 #### `notAuthorizedView`
 
 By default a `Camera not authorized` message will be displayed when access to the camera has been denied, if set displays the passed react element instead of the default one.

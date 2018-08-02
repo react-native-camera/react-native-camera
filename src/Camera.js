@@ -124,6 +124,8 @@ export default class Camera extends Component {
     type: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     permissionDialogTitle: PropTypes.string,
     permissionDialogMessage: PropTypes.string,
+    microphonePermissionDialogTitle: PropTypes.string,
+    microphonePermissionDialogMessage: PropTypes.string,
     notAuthorizedView: PropTypes.element,
     pendingAuthorizationView: PropTypes.element,
   };
@@ -149,6 +151,8 @@ export default class Camera extends Component {
     barCodeTypes: Object.values(CameraManager.BarCodeType),
     permissionDialogTitle: '',
     permissionDialogMessage: '',
+    microphonePermissionDialogTitle: '',
+    microphonePermissionDialogMessage: '',
     notAuthorizedView: (
       <View style={styles.authorizationContainer}>
         <Text style={styles.notAuthorizedText}>Camera not authorized</Text>
@@ -195,6 +199,8 @@ export default class Camera extends Component {
       Camera,
       this.props.permissionDialogTitle,
       this.props.permissionDialogMessage,
+      this.props.microphonePermissionDialogTitle,
+      this.props.microphonePermissionDialogMessage,
     );
     this.setState({ isAuthorized, isAuthorizationChecked: true });
   }
