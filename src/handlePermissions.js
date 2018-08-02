@@ -11,10 +11,12 @@ export const requestPermissions = async (hasVideoAndAudio, CameraManager, permis
             return isAuthorized;
         }
     } else if (Platform.OS === 'android') {
-        const grantedCamera = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
-            title: permissionDialogTitle,
-            message: permissionDialogMessage,
-          });
+        const cameraPermissionDialog = permissionDialogTitle || permissionDialogMessage ? {
+          title: permissionDialogTitle,
+          message: permissionDialogMessage,
+        } : undefined;
+
+        const grantedCamera = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, cameraPermissionDialog);
         if (!hasVideoAndAudio) {
             return grantedCamera === PermissionsAndroid.RESULTS.GRANTED || grantedCamera === true;
         }
