@@ -111,6 +111,10 @@ export interface RNCameraProps {
     /** Android only */
     permissionDialogMessage?: string;
     /** Android only */
+    microphonePermissionDialogTitle?: string;
+    /** Android only */
+    microphonePermissionDialogMessage?: string;
+    /** Android only */
     playSoundOnCapture?: boolean;
 
     // -- IOS ONLY PROPS

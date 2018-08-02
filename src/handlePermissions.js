@@ -1,6 +1,6 @@
 import { PermissionsAndroid, Platform } from 'react-native';
 
-export const requestPermissions = async (hasVideoAndAudio, CameraManager, permissionDialogTitle, permissionDialogMessage) => {
+export const requestPermissions = async (hasVideoAndAudio, CameraManager, permissionDialogTitle, permissionDialogMessage, microphonePermissionDialogTitle, microphonePermissionDialogMessage) => {
     if (Platform.OS === 'ios') {
         let check = hasVideoAndAudio
             ? CameraManager.checkDeviceAuthorizationStatus
@@ -20,10 +20,13 @@ export const requestPermissions = async (hasVideoAndAudio, CameraManager, permis
         if (!hasVideoAndAudio) {
             return grantedCamera === PermissionsAndroid.RESULTS.GRANTED || grantedCamera === true;
         }
-        const grantedAudio = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, {
-            title: permissionDialogTitle,
-            message: permissionDialogMessage,
-        });
+
+        const microphonePermissionDialog = microphonePermissionDialogTitle || microphonePermissionDialogMessage ? {
+          title: microphonePermissionDialogTitle,
+          message: microphonePermissionDialogMessage,
+        } : undefined;
+
+        const grantedAudio = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, microphonePermissionDialog);
 
         return (grantedCamera === PermissionsAndroid.RESULTS.GRANTED || grantedCamera === true)
             && (grantedAudio === PermissionsAndroid.RESULTS.GRANTED || grantedAudio === true);
