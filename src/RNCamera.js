@@ -69,7 +69,7 @@ type RecordingOptions = {
   quality?: number | string,
   codec?: string,
   mute?: boolean,
-  path?: string
+  path?: string,
 };
 
 type EventCallbackArgumentsType = {
@@ -204,6 +204,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     playSoundOnCapture: PropTypes.bool,
     videoStabilizationMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     pictureSize: PropTypes.string,
+    mirrorVideo: PropTypes.bool,
   };
 
   static defaultProps: Object = {
@@ -237,6 +238,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     playSoundOnCapture: false,
     pictureSize: 'None',
     videoStabilizationMode: 0,
+    mirrorVideo: false,
   };
 
   _cameraRef: ?Object;

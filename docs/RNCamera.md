@@ -408,6 +408,9 @@ The promise will be fulfilled with an object with some of the following properti
    - `RNCamera.Constants.VideoCodec['HVEC']` (`iOS >= 11`)
    - `RNCamera.Constants.VideoCodec['AppleProRes422']` (`iOS >= 11`)
    - `RNCamera.Constants.VideoCodec['AppleProRes4444']` (`iOS >= 11`)
+
+ - `mirrorVideo` (boolean true or false). Use this with `true` if you want the resulting video to be mirrored (inverted in the vertical axis). If no value is specified `mirrorVideo:false` is used.
+
  - `maxDuration` (float greater than 0). Specifies the maximum duration of the video to be recorded in seconds. If nothing is specified, no time limit will be used.
 
  - `maxFileSize` (int greater than 0). Specifies the maximum file size, in bytes, of the video to be recorded. For 1mb, for example, use 1\*1024\*1024. If nothing is specified, no size limit will be used.
