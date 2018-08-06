@@ -13,7 +13,11 @@ export const requestPermissions = async (hasVideoAndAudio, CameraManager, permis
         if(permissionDialogTitle || permissionDialogMessage)
             params = { title: permissionDialogTitle, message: permissionDialogMessage };
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, params);
-        return granted === PermissionsAndroid.RESULTS.GRANTED || granted === true;
+        if (!hasVideoAndAudio)
+            return granted === PermissionsAndroid.RESULTS.GRANTED || granted === true;
+        const grantedAudio = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, params);
+        return (granted === PermissionsAndroid.RESULTS.GRANTED || granted === true)
+            && (grantedAudio === PermissionsAndroid.RESULTS.GRANTED || grantedAudio === true);
     }
     return true;
 }
