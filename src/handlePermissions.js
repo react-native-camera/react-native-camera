@@ -11,7 +11,7 @@ export const requestPermissions = async (hasVideoAndAudio, CameraManager, permis
     } else if (Platform.OS === 'android') {
         let params = undefined;
         if(permissionDialogTitle || permissionDialogMessage)
-            params = {title: permissionDialogTitle, message: permissionDialogMessage};
+            params = { title: permissionDialogTitle, message: permissionDialogMessage };
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, params);
         return granted === PermissionsAndroid.RESULTS.GRANTED || granted === true;
     }
