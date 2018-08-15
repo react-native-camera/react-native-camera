@@ -6,22 +6,18 @@ export const requestPermissions = async (hasVideoAndAudio, CameraManager, permis
             ? CameraManager.checkDeviceAuthorizationStatus
             : CameraManager.checkVideoAuthorizationStatus;
 
-        if (check) {
-            const isAuthorized = await check();
-            return isAuthorized;
-        }
+        if (check) 
+            return await check();
     } else if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
-            title: permissionDialogTitle,
-            message: permissionDialogMessage,
-          });
-    
-          // On devices before SDK version 23, the permissions are automatically granted if they appear in the manifest,
-          // so check and request should always be true.
-          // https://github.com/facebook/react-native-website/blob/master/docs/permissionsandroid.md
-          const isAuthorized = granted === PermissionsAndroid.RESULTS.GRANTED || granted === true;
-    
-          return isAuthorized;
+        let params = undefined;
+        if(permissionDialogTitle || permissionDialogMessage)
+            params = { title: permissionDialogTitle, message: permissionDialogMessage };
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, params);
+        if (!hasVideoAndAudio)
+            return granted === PermissionsAndroid.RESULTS.GRANTED || granted === true;
+        const grantedAudio = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, params);
+        return (granted === PermissionsAndroid.RESULTS.GRANTED || granted === true)
+            && (grantedAudio === PermissionsAndroid.RESULTS.GRANTED || grantedAudio === true);
     }
     return true;
 }

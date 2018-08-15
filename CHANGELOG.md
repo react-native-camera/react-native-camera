@@ -1,3 +1,33 @@
+### 1.2.0-7 (2018-08-09)
+
+##### Build System / Dependencies
+
+* **change-log:**  v1.1.5-2 ([e49e35a0](https://github.com/react-native-community/react-native-camera/commit/e49e35a085b1793cc8692d2c1600eb2e14ffbe75))
+
+##### Documentation Changes
+
+* **expo:**  explain how to migrate to and from expo camera module ([#1605](https://github.com/react-native-community/react-native-camera/pull/1605)) ([4a9322cb](https://github.com/react-native-community/react-native-camera/commit/4a9322cb8b7d455fc28f7e67a15bff2fd9d7ea3e))
+
+##### New Features
+
+* **preview:**
+  *  add android code ([497a7039](https://github.com/react-native-community/react-native-camera/commit/497a703964e925b6e3e62e39a54a9734a7ed6c40))
+  *  add new props to JS ([9bf9a2e3](https://github.com/react-native-community/react-native-camera/commit/9bf9a2e3162b919d98cab104029250394b2dd3a8))
+  *  add preview methods and more fixes ([b9fb708f](https://github.com/react-native-community/react-native-camera/commit/b9fb708ffc3fd6865191ce6e2bd0a2404a9c657c))
+
+##### Bug Fixes
+
+* **rn-camera:**
+  *  fix codec backwards compat ([91f5bf45](https://github.com/react-native-community/react-native-camera/commit/91f5bf45672a8b83253ed17c3f90eee64b0f07bf))
+  *  fix types, conversions and casts ([83d0618e](https://github.com/react-native-community/react-native-camera/commit/83d0618e988656dfd9a216b85394ceb5f3a05e9b))
+* **picture-size:**
+  *  create None default value ([ad87c8e3](https://github.com/react-native-community/react-native-camera/commit/ad87c8e3421f2ff1836674a01cb86deb619cdc4e))
+  *  export method and change default value ([9efb7f14](https://github.com/react-native-community/react-native-camera/commit/9efb7f141f8970ad160c852fa837427a79f3d0dc))
+
+##### Other Changes
+
+*  Implement video stabilization mode property for ios ([#1606](https://github.com/react-native-community/react-native-camera/pull/1606)) ([a090faa0](https://github.com/react-native-community/react-native-camera/commit/a090faa09b417afd41af3739ec2b895de9dca6b6))
+
 #### 1.1.5-2 (2018-06-14)
 
 ##### Build System / Dependencies
