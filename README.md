@@ -176,7 +176,7 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 
   > You may need to use different versions, e.g. `27.+` instead of `25.+` and `11.8.0` instead of `10.2.0`.
 
-5. Declare the permissions in your Android Manifest (required for `video recording` feature)
+5. Declare the permissions in your Android Manifest (required for `video recording` feature) It is very important.
 
   ```java
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
