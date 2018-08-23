@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
   },
   preview: {
     flex: 1,
+    width: Dimensions.get('window').width,
     justifyContent: 'flex-end',
     alignItems: 'center'
   },
