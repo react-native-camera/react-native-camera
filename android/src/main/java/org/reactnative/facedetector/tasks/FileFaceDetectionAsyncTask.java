@@ -3,28 +3,25 @@ package org.reactnative.facedetector.tasks;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.ExifInterface;
+import android.support.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseArray;
 
 import org.reactnative.facedetector.RNFaceDetector;
-import org.reactnative.facedetector.RNFrame;
-import org.reactnative.facedetector.RNFrameFactory;
+import org.reactnative.frame.RNFrame;
+import org.reactnative.frame.RNFrameFactory;
 import org.reactnative.facedetector.FaceDetectorUtils;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
-import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 
 public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, SparseArray<Face>> {
   private static final String ERROR_TAG = "E_FACE_DETECTION_FAILED";

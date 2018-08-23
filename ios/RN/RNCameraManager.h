@@ -18,6 +18,14 @@ typedef NS_ENUM(NSInteger, RNCameraFlashMode) {
     RNCameraFlashModeAuto = AVCaptureFlashModeAuto
 };
 
+typedef NS_ENUM(NSInteger, RNCameraOrientation) {
+    RNCameraOrientationAuto = 0,
+    RNCameraOrientationLandscapeLeft = AVCaptureVideoOrientationLandscapeLeft,
+    RNCameraOrientationLandscapeRight = AVCaptureVideoOrientationLandscapeRight,
+    RNCameraOrientationPortrait = AVCaptureVideoOrientationPortrait,
+    RNCameraOrientationPortraitUpsideDown = AVCaptureVideoOrientationPortraitUpsideDown
+};
+
 typedef NS_ENUM(NSInteger, RNCameraAutoFocus) {
     RNCameraAutoFocusOff = AVCaptureFocusModeLocked,
     RNCameraAutoFocusOn = AVCaptureFocusModeContinuousAutoFocus,
@@ -44,12 +52,14 @@ typedef NS_ENUM(NSInteger, RNCameraVideoResolution) {
     RNCameraVideo1080p = 1,
     RNCameraVideo720p = 2,
     RNCameraVideo4x3 = 3,
+    RNCameraVideo288p = 4,
 };
 
 @interface RNCameraManager : RCTViewManager <RCTBridgeModule>
 
 + (NSDictionary *)validBarCodeTypes;
 + (NSDictionary *)validCodecTypes;
++ (NSDictionary *)validVideoStabilizationModes;
 
 @end
 

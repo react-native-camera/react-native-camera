@@ -1,8 +1,21 @@
 # React Native Camera [![Backers on Open Collective](https://opencollective.com/react-native-camera/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-camera/sponsors/badge.svg)](#sponsors) [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![npm downloads](https://img.shields.io/npm/dm/react-native-camera.svg)](https://www.npmjs.com/package/react-native-camera)
 
-The comprehensive camera module for React Native. Including photographs, videos, face detection, barcode scanning and text recognition (Android only)!
+The comprehensive camera module for React Native. 
 
-`import { RNCamera, FaceDetector } from 'react-native-camera';`
+Supports:
+
+- photographs.
+- videos
+- face detection
+- barcode scanning
+- text recognition (Android only)
+
+
+### Example import
+
+```jsx
+import { RNCamera, FaceDetector } from 'react-native-camera';
+```
 
 #### How to use master branch?
 Inside your package.json, use this
@@ -24,7 +37,6 @@ To use the camera on Android you must ask for camera permission:
 To enable `video recording` feature you have to add the following code to the `AndroidManifest.xml`:
 ```java
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-  <uses-permission android:name="android.permission.RECORD_VIDEO"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 ```
@@ -116,7 +128,9 @@ And add something like this to the `scripts` section in your `package.json`:
 ##### Installing GMV frameworks
 GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RNCamera project.
 
-1. If using **CocoaPods** modify the dependency towards `react-native-camera` in your
+###### CocoaPods Path
+
+Modify the dependency towards `react-native-camera` in your
  `Podfile`, from
 
  ```
@@ -126,11 +140,13 @@ GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You h
 to
 
 ```
-pod 'react-native-camera', subspecs: ['RCT', 'RN', 'FaceDetector'], path: '../node_modules/react-native-camera'
+pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
+  'FaceDetector'
+]
 ```
 
-
-2. Download:
+###### Non-CocoaPods Path
+1. Download:
 Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSymbolUtilities-1.1.1.tar.gz
 
     Google Utilities: https://dl.google.com/dl/cpdc/978f81964b50a7c0/GoogleUtilities-1.3.2.tar.gz
@@ -141,13 +157,13 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 
     Google Interchange Utilities: https://dl.google.com/dl/cpdc/1a7f7ba905b2c029/GoogleInterchangeUtilities-1.2.2.tar.gz
 
-3. Extract everything to one folder. Delete "BarcodeDetector" and "copy" folders from Google Mobile Vision.
+2. Extract everything to one folder. Delete "BarcodeDetector" and "copy" folders from Google Mobile Vision.
 
-4. Open XCode, right click on your project and choose "New Group". Rename the new folder to "Frameworks". Right click on "Frameworks" and select "add files to 'YOUR_PROJECT'". Select all content from the folder of step 2, click on Options. Select "Copy items if needed", leave "Create groups" selected and choose all your targets on the "Add to targets" section. Then, click on "Add".
+3. Open XCode, right click on your project and choose "New Group". Rename the new folder to "Frameworks". Right click on "Frameworks" and select "add files to 'YOUR_PROJECT'". Select all content from the folder of step 2, click on Options. Select "Copy items if needed", leave "Create groups" selected and choose all your targets on the "Add to targets" section. Then, click on "Add".
 
-5. On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
-6. On your target -> Build Settings -> Other Linker Flags -> add -lz, -ObjC and -lc++
-7. To force indexing and prevent errors, restart xcode and reopen your project again before compiling.
+4. On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
+5. On your target -> Build Settings -> Other Linker Flags -> add -lz, -ObjC and -lc++
+6. To force indexing and prevent errors, restart xcode and reopen your project again before compiling.
 
 #### Android
 1. `npm install react-native-camera --save`
@@ -168,13 +184,13 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
     compile (project(':react-native-camera')) {
         exclude group: "com.google.android.gms"
         compile 'com.android.support:exifinterface:25.+'
-        compile ('com.google.android.gms:play-services-vision:10.2.0') {
+        compile ('com.google.android.gms:play-services-vision:12.0.1') {
             force = true
         }
     }
 	```
 
-  > You may need to use different versions, e.g. `27.+` instead of `25.+` and `11.8.0` instead of `10.2.0`.
+  > You may need to use different exifinterface versions, e.g. `27.+` instead of `25.+`.
 
 5. Declare the permissions in your Android Manifest (required for `video recording` feature) It is very important.
 
@@ -189,6 +205,7 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 allprojects {
     repositories {
         maven { url "https://jitpack.io" }
+        maven { url "https://maven.google.com" }
     }
 }
 ```
@@ -199,7 +216,7 @@ The current Android library defaults to the below values for the Google SDK and 
 def DEFAULT_COMPILE_SDK_VERSION             = 26
 def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
 def DEFAULT_TARGET_SDK_VERSION              = 26
-def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "10.2.0"
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
 def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
 ```
 
@@ -219,7 +236,7 @@ ext {
     compileSdkVersion           = 26
     targetSdkVersion            = 26
     buildToolsVersion           = "26.0.2"
-    googlePlayServicesVersion   = "12.0.0"
+    googlePlayServicesVersion   = "12.0.1"
     supportLibVersion           = "27.1.0"
 }
 ```
@@ -234,7 +251,7 @@ buildscript {
 def DEFAULT_COMPILE_SDK_VERSION             = 26
 def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
 def DEFAULT_TARGET_SDK_VERSION              = 26
-def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "10.2.0"
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
 def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
 
 android {

@@ -24,7 +24,15 @@ Pod::Spec.new do |s|
   end
 
   s.subspec "FaceDetector" do |ss|
+    ss.dependency 'react-native-camera/RN'
+    ss.dependency 'react-native-camera/RCT'
+
+    ss.dependency 'GoogleMobileVision/Detector', '~> 1.1.0'
+    ss.dependency 'GoogleMobileVision/MVDataOutput', '~> 1.1.0'
+    ss.dependency 'GoogleMobileVision/FaceDetector', '~> 1.1.0'
+
     ss.source_files = "ios/FaceDetector/**/*.{h,m}"
+    s.static_framework = true
   end
 
   s.default_subspecs = "RN", "RCT"
