@@ -349,6 +349,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
+  // eslint-disable-next-line
   async componentWillMount() {
     const hasVideoAndAudio = this.props.captureAudio;
     const isAuthorized = await requestPermissions(

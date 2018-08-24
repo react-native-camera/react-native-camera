@@ -9,28 +9,28 @@
     "logo": "https://opencollective.com/opencollective/logo.txt"
   },
   "dependencies": {
-    "lodash": "^4.17.4",
-    "prop-types": "^15.5.10"
+    "lodash": "^4.17.10",
+    "prop-types": "^15.6.2"
   },
   "devDependencies": {
-    "@commitlint/cli": "^6.1.0",
-    "@commitlint/config-conventional": "^6.1.0",
-    "babel-eslint": "^8.2.1",
-    "eslint": "^4.17.0",
-    "eslint-plugin-flowtype": "^2.46.2",
-    "eslint-plugin-import": "^2.11.0",
-    "eslint-plugin-react": "^7.6.1",
-    "eslint-plugin-react-native": "^3.2.0",
-    "generate-changelog": "1.7.0",
+    "@commitlint/cli": "^7.0.0",
+    "@commitlint/config-conventional": "^7.0.1",
+    "babel-eslint": "^8.2.6",
+    "eslint": "^5.3.0",
+    "eslint-plugin-flowtype": "^2.50.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-react": "^7.10.0",
+    "eslint-plugin-react-native": "^3.2.1",
+    "generate-changelog": "1.7.1",
     "husky": "^0.14.3",
-    "idx": "2.2.0",
-    "lint-staged": "^7.0.0",
+    "idx": "2.4.0",
+    "lint-staged": "^7.2.0",
     "minimist": "1.2.0",
     "pre-commit": "^1.2.2",
     "prettier": "^1.12.0",
-    "react": "16.3.1",
-    "react-native": "^0.55.2",
-    "simple-git": "1.89.0"
+    "react": "16.4.2",
+    "react-native": "^0.56.0",
+    "simple-git": "1.96.0"
   },
   "homepage": "https://github.com/react-native-community/react-native-camera",
   "keywords": [
