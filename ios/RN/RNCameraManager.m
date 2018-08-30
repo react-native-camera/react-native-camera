@@ -251,7 +251,9 @@ RCT_REMAP_METHOD(takePicture,
                 resolve(nil);
             }
             NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
-            response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
+            if (![options[@"doNotSave"] boolValue]) {
+                response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
+            }
             response[@"width"] = @(generatedPhoto.size.width);
             response[@"height"] = @(generatedPhoto.size.height);
             if ([options[@"base64"] boolValue]) {
