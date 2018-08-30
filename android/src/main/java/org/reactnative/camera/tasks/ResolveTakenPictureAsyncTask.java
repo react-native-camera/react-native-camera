@@ -115,11 +115,13 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
             ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
             mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), imageStream);
 
-            // Write compressed image to file in cache directory
-            String filePath = writeStreamToFile(imageStream);
-            File imageFile = new File(filePath);
-            String fileUri = Uri.fromFile(imageFile).toString();
-            response.putString("uri", fileUri);
+            // Write compressed image to file in cache directory unless otherwise specified
+            if (!mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave")) {
+                String filePath = writeStreamToFile(imageStream);
+                File imageFile = new File(filePath);
+                String fileUri = Uri.fromFile(imageFile).toString();
+                response.putString("uri", fileUri);
+            }
 
             // Write base64-encoded image to the response if requested
             if (mOptions.hasKey("base64") && mOptions.getBoolean("base64")) {
