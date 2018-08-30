@@ -172,8 +172,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         {
             NSError *error = nil;
             if ([device lockForConfiguration:&error]) {
-                if ([device isTorchModeSupported:AVCaptureTorchModeOff]) {
-                    [device setTorchMode:AVCaptureTorchModeOff];
+                if (self.flashMode == RNCameraFlashModeOff) {
+                    if ([device isTorchModeSupported:AVCaptureTorchModeOff]) {
+                        [device setTorchMode:AVCaptureTorchModeOff];
+                    }
+                } else {
+                    if ([device isTorchModeSupported:AVCaptureTorchModeOn]) {
+                        [device setTorchMode:AVCaptureTorchModeOn];
+                    }
                 }
                 [device setFlashMode:self.flashMode];
                 [device unlockForConfiguration];
@@ -457,13 +463,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
           [self.movieFileOutput setOutputSettings:@{AVVideoCodecKey:videoCodecType} forConnection:connection];
           self.videoCodecType = videoCodecType;
         } else {
-          RCTLogWarn(@"%s: Video Codec '%@' is not supported on this device.", __func__, videoCodecType);
+            RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
         }
-      } else {
-        RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
       }
     }
-
+    
     dispatch_async(self.sessionQueue, ^{
         [self updateFlashMode];
         NSString *path = nil;
@@ -473,6 +477,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         else {
             path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".mov"];
         }
+
+        if ([options[@"mirrorVideo"] boolValue]) {
+            if ([connection isVideoMirroringSupported]) {
+                [connection setAutomaticallyAdjustsVideoMirroring:NO];
+                [connection setVideoMirrored:YES];
+            }
+        }
+
         NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
         [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
         self.videoRecordedResolve = resolve;
@@ -823,13 +835,23 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
           if (videoCodec == nil) {
               videoCodec = [self.movieFileOutput.availableVideoCodecTypes firstObject];
           }
-          self.videoRecordedResolve(@{ @"uri": outputFileURL.absoluteString, @"codec":videoCodec });
+          if ([connections[0] isVideoMirrored]) {
+            [self mirrorVideo:outputFileURL completion:^(NSURL *mirroredURL) {
+                self.videoRecordedResolve(@{ @"uri": mirroredURL.absoluteString, @"codec":videoCodec });
+            }];
+          } else {
+            self.videoRecordedResolve(@{ @"uri": outputFileURL.absoluteString, @"codec":videoCodec });
+          }
       } else {
           self.videoRecordedResolve(@{ @"uri": outputFileURL.absoluteString });
       }
     } else if (self.videoRecordedReject != nil) {
         self.videoRecordedReject(@"E_RECORDING_FAILED", @"An error occurred while recording a video.", error);
     }
+    
+}
+
+- (void)cleanupCamera {
     self.videoRecordedResolve = nil;
     self.videoRecordedReject = nil;
     self.videoCodecType = nil;
@@ -845,6 +867,50 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if (self.session.sessionPreset != AVCaptureSessionPresetPhoto) {
         [self updateSessionPreset:AVCaptureSessionPresetPhoto];
     }
+}
+
+- (void)mirrorVideo:(NSURL *)inputURL completion:(void (^)(NSURL* outputUR))completion {
+    AVAsset* videoAsset = [AVAsset assetWithURL:inputURL];
+    AVAssetTrack* clipVideoTrack = [[videoAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+    
+    AVMutableComposition* composition = [[AVMutableComposition alloc] init];
+    [composition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
+    
+    AVMutableVideoComposition* videoComposition = [[AVMutableVideoComposition alloc] init];
+    videoComposition.renderSize = CGSizeMake(clipVideoTrack.naturalSize.height, clipVideoTrack.naturalSize.width);
+    videoComposition.frameDuration = CMTimeMake(1, 30);
+    
+    AVMutableVideoCompositionLayerInstruction* transformer = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:clipVideoTrack];
+    
+    AVMutableVideoCompositionInstruction* instruction = [[AVMutableVideoCompositionInstruction alloc] init];
+    instruction.timeRange = CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(60, 30));
+    
+    CGAffineTransform transform = CGAffineTransformMakeScale(-1.0, 1.0);
+    transform = CGAffineTransformTranslate(transform, -clipVideoTrack.naturalSize.width, 0);
+    transform = CGAffineTransformRotate(transform, M_PI/2.0);
+    transform = CGAffineTransformTranslate(transform, 0.0, -clipVideoTrack.naturalSize.width);
+    
+    [transformer setTransform:transform atTime:kCMTimeZero];
+    
+    [instruction setLayerInstructions:@[transformer]];
+    [videoComposition setInstructions:@[instruction]];
+    
+    // Export
+    AVAssetExportSession* exportSession = [AVAssetExportSession exportSessionWithAsset:videoAsset presetName:AVAssetExportPreset640x480];
+    NSString* filePath = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingString:@"CameraFlip"] withExtension:@".mp4"];
+    NSURL* outputURL = [NSURL fileURLWithPath:filePath];
+    [exportSession setOutputURL:outputURL];
+    [exportSession setOutputFileType:AVFileTypeMPEG4];
+    [exportSession setVideoComposition:videoComposition];
+    [exportSession exportAsynchronouslyWithCompletionHandler:^{
+        if (exportSession.status == AVAssetExportSessionStatusCompleted) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(outputURL);
+            });
+        } else {
+            NSLog(@"Export failed %@", exportSession.error);
+        }
+    }];
 }
 
 # pragma mark - Face detector
