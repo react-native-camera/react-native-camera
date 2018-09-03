@@ -314,7 +314,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
-  _onPictureSaved = ({ nativeEvent }) => {
+  _onPictureSaved = ({ nativeEvent }: EventCallbackArgumentsType) => {
     if (this.props.onPictureSaved) {
       this.props.onPictureSaved(nativeEvent);
     }
@@ -430,7 +430,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
       delete newProps.googleVisionBarcodeType;
       delete newProps.googleVisionBarcodeDetectorEnabled;
       delete newProps.ratio;
-      delete newProps.textRecognizerEnabled;
     }
 
     return newProps;
