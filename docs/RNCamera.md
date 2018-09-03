@@ -336,7 +336,7 @@ Classification is determining whether a certain facial characteristic is present
 
 ### Text Recognition Related props
 
-Only available in Android. RNCamera uses the Google Mobile Vision frameworks for Text Recognition, you can read more info about it [here](https://developers.google.com/vision/android/text-overview).
+RNCamera uses the Google Mobile Vision frameworks for Text Recognition, you can read more info about it [here](https://developers.google.com/vision/android/text-overview).
 
 #### `onTextRecognized`
 

@@ -35,6 +35,14 @@ Pod::Spec.new do |s|
     s.static_framework = true
   end
 
+  s.subspec "TextDetector" do |ss|
+    ss.dependency 'react-native-camera/RN'
+    ss.dependency 'react-native-camera/RCT'
+    ss.dependency 'GoogleMobileVision/TextDetector'
+
+    ss.source_files = "ios/TextDetector/**/*.{h,m}"
+  end
+
   s.default_subspecs = "RN", "RCT"
 
   s.preserve_paths = 'LICENSE', 'README.md', 'package.json', 'index.js'
