@@ -167,7 +167,7 @@ public class MutableImage {
     }
 
     public String toBase64(int jpegQualityPercent) {
-        return Base64.encodeToString(toJpeg(currentRepresentation, jpegQualityPercent), Base64.DEFAULT);
+        return Base64.encodeToString(toJpeg(currentRepresentation, jpegQualityPercent), Base64.NO_WRAP);
     }
 
     public void writeDataToFile(File file, ReadableMap options, int jpegQualityPercent) throws IOException {

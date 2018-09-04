@@ -91,7 +91,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 if (mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation") && orientation != ExifInterface.ORIENTATION_UNDEFINED) {
                     mBitmap = rotateBitmap(mBitmap, getImageRotation(orientation));
                 }
-                
+
                 if (mOptions.hasKey("width")) {
                     mBitmap = resizeBitmap(mBitmap, mOptions.getInt("width"));
                 }
@@ -125,7 +125,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
             // Write base64-encoded image to the response if requested
             if (mOptions.hasKey("base64") && mOptions.getBoolean("base64")) {
-                response.putString("base64", Base64.encodeToString(imageStream.toByteArray(), Base64.DEFAULT));
+                response.putString("base64", Base64.encodeToString(imageStream.toByteArray(), Base64.NO_WRAP));
             }
 
             // Cleanup
