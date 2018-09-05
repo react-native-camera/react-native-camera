@@ -72,6 +72,16 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
      */
     private static final int MAX_PREVIEW_HEIGHT = 1080;
 
+    /**
+     * Max compensation range for brightness
+     */
+    private static final int MAX_BRIGHTNESS_COMPENSATION_RANGE = 100;
+
+    /**
+     * Min compensation range for brightness
+     */
+    private static final int MIN_BRIGHTNESS_COMPENSATION_RANGE = 0;
+
     private final CameraManager mCameraManager;
 
     private final CameraDevice.StateCallback mCameraDeviceCallback
@@ -117,6 +127,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             updateFocusDepth();
             updateWhiteBalance();
             updateZoom();
+            updateBrightness();
             try {
                 mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(),
                         mCaptureCallback, null);
@@ -227,6 +238,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     private boolean mAutoFocus;
 
     private int mFlash;
+
+    private int mBrightness;
 
     private int mDisplayOrientation;
 
@@ -457,6 +470,34 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     @Override
     int getFlash() {
         return mFlash;
+    }
+
+    @Override
+    void setBrightness(int brightness) {
+        if(mBrightness == brightness){
+            return;
+        }
+        int saved = mBrightness;
+        mBrightness = brightness;
+        if(mCaptureSession != null){
+            updateBrightness();
+            try{
+                mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(), mCaptureCallback, null);
+            }
+            catch(CameraAccessException e) {
+                mBrightness = saved; //Reverts back
+            }
+        }
+    }
+
+    @Override
+    int getBrightness(){
+        return 0;
+    }
+
+    void updateBrightness() {
+        int newBrightness = (int) (MIN_BRIGHTNESS_COMPENSATION_RANGE + (MAX_BRIGHTNESS_COMPENSATION_RANGE - MIN_BRIGHTNESS_COMPENSATION_RANGE) * (mBrightness / 100f));
+        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, newBrightness);
     }
 
     @Override

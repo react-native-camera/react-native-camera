@@ -239,6 +239,7 @@ public class CameraView extends FrameLayout {
         setFlash(ss.flash);
         setFocusDepth(ss.focusDepth);
         setZoom(ss.zoom);
+        setBrightness(ss.brightness);
         setWhiteBalance(ss.whiteBalance);
         setScanning(ss.scanning);
         setPictureSize(ss.pictureSize);
@@ -485,6 +486,22 @@ public class CameraView extends FrameLayout {
 
     public float getZoom() {
       return mImpl.getZoom();
+    }
+
+    /**
+     * Sets desired brightness level.
+     * 
+     * @param brightness The desired brightness level. 
+     */
+    public void setBrightness(int brightness){
+        mImpl.setBrightness(brightness);
+    }
+
+    /**
+     * @return The current brightness level.
+     */
+    public int getBrightness(){
+        return mImpl.getBrightness();
     }
 
     public void setWhiteBalance(int whiteBalance) {

@@ -91,6 +91,7 @@ type PropsType = typeof View.props & {
   googleVisionBarcodeType?: number,
   whiteBalance?: number | string,
   faceDetectionLandmarks?: number,
+  brightness?: number, 
   autoFocus?: string | boolean | number,
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
@@ -129,6 +130,7 @@ const CameraManager: Object = NativeModules.RNCameraManager ||
     },
     WhiteBalance: {},
     BarCodeType: {},
+    Brightness: {},
     FaceDetection: {
       fast: 1,
       Mode: {},
@@ -152,6 +154,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     FlashMode: CameraManager.FlashMode,
     AutoFocus: CameraManager.AutoFocus,
     WhiteBalance: CameraManager.WhiteBalance,
+    Brightness: CameraManager.Brightness,
     VideoQuality: CameraManager.VideoQuality,
     VideoCodec: CameraManager.VideoCodec,
     BarCodeType: CameraManager.BarCodeType,
@@ -167,6 +170,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     flashMode: CameraManager.FlashMode,
     autoFocus: CameraManager.AutoFocus,
     whiteBalance: CameraManager.WhiteBalance,
+    brightness: CameraManager.Brightness,
     faceDetectionMode: (CameraManager.FaceDetection || {}).Mode,
     faceDetectionLandmarks: (CameraManager.FaceDetection || {}).Landmarks,
     faceDetectionClassifications: (CameraManager.FaceDetection || {}).Classifications,
@@ -194,6 +198,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     type: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    brightness: PropTypes.number,
     autoFocus: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
     permissionDialogTitle: PropTypes.string,
     permissionDialogMessage: PropTypes.string,
@@ -215,6 +220,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     autoFocus: CameraManager.AutoFocus.on,
     flashMode: CameraManager.FlashMode.off,
     whiteBalance: CameraManager.WhiteBalance.auto,
+    brightness: 0,
     faceDetectionMode: (CameraManager.FaceDetection || {}).fast,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
     googleVisionBarcodeType: ((CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeType || {})
@@ -254,6 +260,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
       isAuthorized: false,
       isAuthorizationChecked: false,
     };
+  }
+
+  async setBrightnessAsync(brightness) {
+    return await CameraManager.setBrightness(brightness, this._cameraHandle);
+  }
+
+  async getBrightnessAsync() {
+    return await CameraManager.getBrightness(this._cameraHandle);
   }
 
   async takePictureAsync(options?: PictureOptions) {

@@ -215,6 +215,24 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mPlaySoundOnCapture = playSoundOnCapture;
   }
 
+  public void setBrightness(int brightness){
+    try{
+      super.setBrightness(brightness);
+    }
+    catch(Exception e){
+      throw e;
+    }
+  }
+
+  public int getBrightness(int brightness){
+    try{
+      super.getBrightness();
+    }
+    catch(Exception e){
+      throw e;
+    }
+  }
+
   public void takePicture(ReadableMap options, final Promise promise, File cacheDirectory) {
     mPictureTakenPromises.add(promise);
     mPictureTakenOptions.put(promise, options);
