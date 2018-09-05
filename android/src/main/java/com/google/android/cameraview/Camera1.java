@@ -94,6 +94,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private int mFlash;
 
+    private int mBrightness;
+
     private int mDisplayOrientation;
 
     private float mZoom;
@@ -346,6 +348,16 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     @Override
     float getZoom() {
         return mZoom;
+    }
+
+    @Override
+    void setBrightness(int brightness) {
+        Log.e("CAMERA_1:: ", "Adjusting brightness is not currently supported for Camera1");
+    }
+
+    @Override
+    int getBrightness(){
+        return mBrightness;
     }
 
     @Override

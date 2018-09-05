@@ -492,7 +492,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     @Override
     int getBrightness(){
-        return 0;
+        return mBrightness;
     }
 
     void updateBrightness() {
