@@ -15,23 +15,15 @@
 
 @property (nonatomic, strong) RCTPromiseResolveBlock videoRecordedResolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock videoRecordedReject;
-@property (nonatomic, strong) id faceDetectorManager;
-@property (nonatomic, strong) id textDetector;
 
 @property (nonatomic, copy) RCTDirectEventBlock onCameraReady;
 @property (nonatomic, copy) RCTDirectEventBlock onMountError;
 @property (nonatomic, copy) RCTDirectEventBlock onBarCodeRead;
-@property (nonatomic, copy) RCTDirectEventBlock onTextRecognized;
-@property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onPictureSaved;
-@property (nonatomic, assign) BOOL finishedReadingText;
-@property (nonatomic, copy) NSDate *start;
 
 @end
 
 @implementation RNCamera
-
-static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (id)initWithBridge:(RCTBridge *)bridge
 {
@@ -39,10 +31,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.bridge = bridge;
         self.session = [AVCaptureSession new];
         self.sessionQueue = dispatch_queue_create("cameraQueue", DISPATCH_QUEUE_SERIAL);
-        self.textDetector = [self createTextDetector];
-        self.finishedReadingText = true;
-        self.start = [NSDate date];
-        self.faceDetectorManager = [self createFaceDetectorManager];
 #if !(TARGET_IPHONE_SIMULATOR)
         self.previewLayer =
         [AVCaptureVideoPreviewLayer layerWithSession:self.session];
@@ -97,13 +85,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     if (_onPictureSaved) {
         _onPictureSaved(event);
-    }
-}
-
-- (void)onText:(NSDictionary *)event
-{   
-    if (_onTextRecognized && _session) {
-        _onTextRecognized(event);
     }
 }
 
@@ -317,28 +298,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self updateSessionPreset:self.pictureSize];
 }
 
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-- (void)updateFaceDetecting:(id)faceDetecting
-{
-    [_faceDetectorManager setIsEnabled:faceDetecting];
-}
-
-- (void)updateFaceDetectionMode:(id)requestedMode
-{
-    [_faceDetectorManager setMode:requestedMode];
-}
-
-- (void)updateFaceDetectionLandmarks:(id)requestedLandmarks
-{
-    [_faceDetectorManager setLandmarksDetected:requestedLandmarks];
-}
-
-- (void)updateFaceDetectionClassifications:(id)requestedClassifications
-{
-    [_faceDetectorManager setClassificationsDetected:requestedClassifications];
-}
-#endif
-
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
     AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
@@ -385,9 +344,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             float quality = [options[@"quality"] floatValue];
             NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
             NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
-            if (![options[@"doNotSave"] boolValue]) {
-                response[@"uri"] = [RNImageUtils writeImage:takenImageData toPath:path];
-            }
+            response[@"uri"] = [RNImageUtils writeImage:takenImageData toPath:path];
             response[@"width"] = @(takenImage.size.width);
             response[@"height"] = @(takenImage.size.height);
 
@@ -437,10 +394,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // At the time of writing AVCaptureMovieFileOutput and AVCaptureVideoDataOutput (> GMVDataOutput)
         // cannot coexist on the same AVSession (see: https://stackoverflow.com/a/4986032/1123156).
         // We stop face detection here and restart it in when AVCaptureMovieFileOutput finishes recording.
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-        [_faceDetectorManager stopFaceDetection];
-        [self stopTextRecognition];
-#endif
         [self setupMovieFileCapture];
     }
 
@@ -549,18 +502,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             self.stillImageOutput = stillImageOutput;
         }
 
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-        [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
-        if ([self.textDetector isRealDetector]) {
-            [self setupOrDisableTextDetector];
-        }
-#else
         // If AVCaptureVideoDataOutput is not required because of Google Vision
         // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
         // to avoid an exposure rack on some devices that can cause the first few
         // frames of the recorded output to be underexposed.
         [self setupMovieFileCapture];
-#endif
         [self setupOrDisableBarcodeScanner];
 
         __weak RNCamera *weakSelf = self;
@@ -586,12 +532,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     return;
 #endif
     dispatch_async(self.sessionQueue, ^{
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-        [_faceDetectorManager stopFaceDetection];
-#endif
-        if ([self.textDetector isRealDetector]) {
-            [self stopTextRecognition];
-        }
         [self.previewLayer removeFromSuperlayer];
         [self.session commitConfiguration];
         [self.session stopRunning];
@@ -661,10 +601,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         return;
     }
     if (preset) {
-        if (self.isDetectingFaces && [preset isEqual:AVCaptureSessionPresetPhoto]) {
-            RCTLog(@"AVCaptureSessionPresetPhoto not supported during face detection. Falling back to AVCaptureSessionPresetHigh");
-            preset = AVCaptureSessionPresetHigh;
-        }
         dispatch_async(self.sessionQueue, ^{
             [self.session beginConfiguration];
             if ([self.session canSetSessionPreset:preset]) {
@@ -879,18 +815,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     self.videoRecordedReject = nil;
     self.videoCodecType = nil;
 
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
     [self cleanupMovieFileCapture];
-
-    // If face detection has been running prior to recording to file
-    // we reenable it here (see comment in -record).
-    [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
-#endif
-
-    if ([self.textDetector isRealDetector]) {
-        [self cleanupMovieFileCapture];
-        [self setupOrDisableTextDetector];
-    }
 
     if (self.session.sessionPreset != AVCaptureSessionPresetPhoto) {
         [self updateSessionPreset:AVCaptureSessionPresetPhoto];
@@ -939,114 +864,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             NSLog(@"Export failed %@", exportSession.error);
         }
     }];
-}
-
-# pragma mark - Face detector
-
-- (id)createFaceDetectorManager
-{
-    Class faceDetectorManagerClass = NSClassFromString(@"RNFaceDetectorManager");
-    Class faceDetectorManagerStubClass = NSClassFromString(@"RNFaceDetectorManagerStub");
-
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-    if (faceDetectorManagerClass) {
-        return [[faceDetectorManagerClass alloc] initWithSessionQueue:_sessionQueue delegate:self];
-    } else if (faceDetectorManagerStubClass) {
-        return [[faceDetectorManagerStubClass alloc] init];
-    }
-#endif
-
-    return nil;
-}
-
-- (void)onFacesDetected:(NSArray<NSDictionary *> *)faces
-{
-    if (_onFacesDetected) {
-        _onFacesDetected(@{
-                           @"type": @"face",
-                           @"faces": faces
-                           });
-    }
-}
-
-# pragma mark - TextDetector
-
--(id)createTextDetector 
-{
-    Class textDetectorManagerClass = NSClassFromString(@"TextDetectorManager");
-    Class textDetectorManagerStubClass =
-        NSClassFromString(@"TextDetectorManagerStub");
-
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-    if (textDetectorManagerClass) {
-        return [[textDetectorManagerClass alloc] init];
-    } else if (textDetectorManagerStubClass) {
-        return [[textDetectorManagerStubClass alloc] init];
-    }
-#endif
-
-    return nil;
-}
-
-- (void)setupOrDisableTextDetector 
-{
-    if ([self canReadText] && [self.textDetector isRealDetector]){
-        self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
-        if (![self.session canAddOutput:_videoDataOutput]) {
-            NSLog(@"Failed to setup video data output");
-            [self stopTextRecognition];
-            return;
-        }
-        NSDictionary *rgbOutputSettings = [NSDictionary
-            dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
-                            forKey:(id)kCVPixelBufferPixelFormatTypeKey];
-        [self.videoDataOutput setVideoSettings:rgbOutputSettings];
-        [self.videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
-        [self.videoDataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
-        [self.session addOutput:_videoDataOutput];
-    } else {
-        [self stopTextRecognition];
-    }
-}
-
-- (void)captureOutput:(AVCaptureOutput *)captureOutput
-    didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
-           fromConnection:(AVCaptureConnection *)connection 
-{   
-    if (![self.textDetector isRealDetector]) {
-        return;
-    }
-
-    // Do not submit image for text recognition too often: 
-    // 1. we only dispatch events every 500ms anyway
-    // 2. wait until previous recognition is finished
-    // 3. let user disable text recognition, e.g. onTextRecognized={someCondition ? null : this.textRecognized}
-    NSDate *methodFinish = [NSDate date];
-    NSTimeInterval timePassed = [methodFinish timeIntervalSinceDate:self.start];
-    if (timePassed > 0.5 && _finishedReadingText && [self canReadText]) {
-        CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
-        UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize];
-        // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
-        float scaleX = _previewLayer.frame.size.width / image.size.width;
-        float scaleY = _previewLayer.frame.size.height / image.size.height;
-        
-        // find text features
-        _finishedReadingText = false;
-        self.start = [NSDate date];
-        NSArray *textBlocks = [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY];
-        NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
-        [self onText:eventText];
-
-        _finishedReadingText = true;
-    }
-}
-
-- (void)stopTextRecognition
-{
-    if (self.videoDataOutput) {
-    [self.session removeOutput:self.videoDataOutput];
-    }
-    self.videoDataOutput = nil;
 }
 
 @end

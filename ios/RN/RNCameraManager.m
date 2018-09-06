@@ -15,9 +15,7 @@ RCT_EXPORT_MODULE(RNCameraManager);
 RCT_EXPORT_VIEW_PROPERTY(onCameraReady, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onMountError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
-RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
-RCT_EXPORT_VIEW_PROPERTY(onTextRecognized, RCTDirectEventBlock);
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -67,14 +65,13 @@ RCT_EXPORT_VIEW_PROPERTY(onTextRecognized, RCTDirectEventBlock);
                      },
              @"VideoCodec": [[self class] validCodecTypes],
              @"BarCodeType" : [[self class] validBarCodeTypes],
-             @"FaceDetection" : [[self class] faceDetectorConstants],
              @"VideoStabilization": [[self class] validVideoStabilizationModes]
              };
 }
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureSaved", @"onTextRecognized"];
+    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead", @"onPictureSaved"];
 }
 
 + (NSDictionary *)validCodecTypes
@@ -140,19 +137,6 @@ RCT_EXPORT_VIEW_PROPERTY(onTextRecognized, RCTDirectEventBlock);
              };
 }
 
-+ (NSDictionary *)faceDetectorConstants
-{
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-#if __has_include("RNFaceDetectorManager.h")
-    return [RNFaceDetectorManager constants];
-#else
-    return [RNFaceDetectorManagerStub constants];
-#endif
-#else
-    return [NSDictionary new];
-#endif
-}
-
 RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RNCamera)
 {
     if (view.presetCamera != [RCTConvert NSInteger:json]) {
@@ -197,28 +181,6 @@ RCT_CUSTOM_VIEW_PROPERTY(pictureSize, NSString *, RNCamera)
     [view updatePictureSize];
 }
 
-
-RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
-{
-    view.isDetectingFaces = [RCTConvert BOOL:json];
-    [view updateFaceDetecting:json];
-}
-
-RCT_CUSTOM_VIEW_PROPERTY(faceDetectionMode, NSInteger, RNCamera)
-{
-    [view updateFaceDetectionMode:json];
-}
-
-RCT_CUSTOM_VIEW_PROPERTY(faceDetectionLandmarks, NSString, RNCamera)
-{
-    [view updateFaceDetectionLandmarks:json];
-}
-
-RCT_CUSTOM_VIEW_PROPERTY(faceDetectionClassifications, NSString, RNCamera)
-{
-    [view updateFaceDetectionClassifications:json];
-}
-
 RCT_CUSTOM_VIEW_PROPERTY(barCodeScannerEnabled, BOOL, RNCamera)
 {
     
@@ -229,13 +191,6 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeScannerEnabled, BOOL, RNCamera)
 RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RNCamera)
 {
     [view setBarCodeTypes:[RCTConvert NSArray:json]];
-}
-
-RCT_CUSTOM_VIEW_PROPERTY(textRecognizerEnabled, BOOL, RNCamera)
-{
-    
-    view.canReadText = [RCTConvert BOOL:json];
-    [view setupOrDisableTextDetector];
 }
 
 RCT_REMAP_METHOD(takePicture,
@@ -259,9 +214,7 @@ RCT_REMAP_METHOD(takePicture,
                 resolve(nil);
             }
             NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
-            if (![options[@"doNotSave"] boolValue]) {
-                response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
-            }
+            response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
             response[@"width"] = @(generatedPhoto.size.width);
             response[@"height"] = @(generatedPhoto.size.height);
             if ([options[@"base64"] boolValue]) {
