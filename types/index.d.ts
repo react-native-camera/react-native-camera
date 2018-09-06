@@ -68,7 +68,8 @@ export interface RNCameraProps {
     notAuthorizedView?: JSX.Element;
     pendingAuthorizationView?: JSX.Element;
     useCamera2Api?: boolean;
-
+    whiteBalance?: WhiteBalance
+    
     onCameraReady?(): void;
     onMountError?(error: {
         message: string
@@ -170,6 +171,7 @@ interface TrackedTextFeature {
 
 interface TakePictureOptions {
     quality?: number;
+    orientation?: Orientation;
     base64?: boolean;
     exif?: boolean;
     width?: number;
@@ -199,6 +201,7 @@ interface RecordOptions {
     maxFileSize?: number;
     mute?: boolean;
     mirrorVideo?: boolean;
+    path?: string,
 
     /** iOS only */
     codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
