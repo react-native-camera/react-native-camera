@@ -12,6 +12,7 @@
 import { Component, ReactNode } from 'react';
 import { ViewProperties } from "react-native";
 
+type Orientation = Readonly<{ auto:any, landscapeLeft:any ,landscapeRight:any, portrait:any, portraitUpsideDown:any}>
 type AutoFocus = Readonly<{ on: any, off: any }>;
 type FlashMode = Readonly<{ on: any, off: any, torch: any, auto: any }>;
 type CameraType = Readonly<{ front: any, back: any }>;
@@ -171,7 +172,7 @@ interface TrackedTextFeature {
 
 interface TakePictureOptions {
     quality?: number;
-    orientation?: Orientation;
+    orientation?: keyof Orientation;
     base64?: boolean;
     exif?: boolean;
     width?: number;
