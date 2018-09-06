@@ -310,30 +310,6 @@ RNCamera uses the Google Mobile Vision frameworks for Face Detection, you can re
 
 Method to be called when face is detected. Receives a Faces Detected Event object. The interesting value of this object is the `faces` value, which is an array with objects of the [Face](https://developers.google.com/android/reference/com/google/android/gms/vision/face/Face) properties.
 
-#### `onFaceDetectionError`
-
-Method to be called if there was an Face Detection Error, receives an object with the `isOperational` property set to `false` if Face Detector is NOT operational and `true`if it is.
-
-#### `faceDetectionMode`
-
-Values: `RNCamera.Constants.FaceDetection.Mode.fast` (default) or `RNCamera.Constants.FaceDetection.Mode.accurate`
-
-Specifies the face detection mode of the Face Detection API.
-
-Use `RNCamera.Constants.FaceDetection.Mode.accurate` if you want slower but more accurate results.
-
-#### `faceDetectionLandmarks`
-
-Values: `RNCamera.Constants.FaceDetection.Landmarks.all` or `RNCamera.Constants.FaceDetection.Landmarks.none` (default)
-
-A landmark is a point of interest within a face. The left eye, right eye, and nose base are all examples of landmarks. The Face API provides the ability to find landmarks on a detected face.
-
-#### `faceDetectionClassifications`
-
-Values: `RNCamera.Constants.FaceDetection.Classifications.all` or `RNCamera.Constants.FaceDetection.Classifications.none` (default)
-
-Classification is determining whether a certain facial characteristic is present. For example, a face can be classified with regards to whether its eyes are open or closed. Another example is whether the face is smiling or not.
-
 ### Text Recognition Related props
 
 RNCamera uses the Google Mobile Vision frameworks for Text Recognition, you can read more info about it [here](https://developers.google.com/vision/android/text-overview).

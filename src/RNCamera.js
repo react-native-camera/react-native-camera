@@ -45,9 +45,6 @@ type PictureOptions = {
   forceUpOrientation ? : boolean,
 };
 
-type TrackedFaceFeature = FaceFeature & {
-  faceID ? : number,
-};
 
 type TrackedTextFeature = {
   type: string,
@@ -92,9 +89,6 @@ type PropsType = typeof View.props & {
   googleVisionBarcodeType ? : number,
   whiteBalance ? : number | string,
   autoFocus ? : string | boolean | number,
-  onFacesDetected ? : ({
-    faces: Array < TrackedFaceFeature >
-  }) => void,
   onTextRecognized ? : ({
     textBlocks: Array < TrackedTextFeature >
   }) => void,
@@ -173,7 +167,6 @@ export default class Camera extends React.Component < PropsType, StateType > {
     onBarCodeRead: PropTypes.func,
     onPictureSaved: PropTypes.func,
     onGoogleVisionBarcodesDetected: PropTypes.func,
-    onFacesDetected: PropTypes.func,
     onTextRecognized: PropTypes.func,
     barCodeTypes: PropTypes.arrayOf(PropTypes.string),
     googleVisionBarcodeType: PropTypes.number,
@@ -396,9 +389,6 @@ export default class Camera extends React.Component < PropsType, StateType > {
         }
         onBarCodeRead = {
           this._onObjectDetected(this.props.onBarCodeRead)
-        }
-        onFacesDetected = {
-          this._onObjectDetected(this.props.onFacesDetected)
         }
         onTextRecognized = {
           this._onObjectDetected(this.props.onTextRecognized)

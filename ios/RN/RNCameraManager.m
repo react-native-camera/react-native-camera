@@ -15,7 +15,6 @@ RCT_EXPORT_MODULE(RNCameraManager);
 RCT_EXPORT_VIEW_PROPERTY(onCameraReady, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onMountError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
-RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
 
 + (BOOL)requiresMainQueueSetup
@@ -66,14 +65,13 @@ RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
                      },
              @"VideoCodec": [[self class] validCodecTypes],
              @"BarCodeType" : [[self class] validBarCodeTypes],
-             @"FaceDetection" : [[self class] faceDetectorConstants],
              @"VideoStabilization": [[self class] validVideoStabilizationModes]
              };
 }
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureSaved"];
+    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead", @"onPictureSaved"];
 }
 
 + (NSDictionary *)validCodecTypes
@@ -139,19 +137,6 @@ RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
              };
 }
 
-+ (NSDictionary *)faceDetectorConstants
-{
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-#if __has_include("RNFaceDetectorManager.h")
-    return [RNFaceDetectorManager constants];
-#else
-    return [RNFaceDetectorManagerStub constants];
-#endif
-#else
-    return [NSDictionary new];
-#endif
-}
-
 RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RNCamera)
 {
     if (view.presetCamera != [RCTConvert NSInteger:json]) {
@@ -194,28 +179,6 @@ RCT_CUSTOM_VIEW_PROPERTY(pictureSize, NSString *, RNCamera)
 {
     [view setPictureSize:[[self class] pictureSizes][[RCTConvert NSString:json]]];
     [view updatePictureSize];
-}
-
-
-RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
-{
-    view.isDetectingFaces = [RCTConvert BOOL:json];
-    [view updateFaceDetecting:json];
-}
-
-RCT_CUSTOM_VIEW_PROPERTY(faceDetectionMode, NSInteger, RNCamera)
-{
-    [view updateFaceDetectionMode:json];
-}
-
-RCT_CUSTOM_VIEW_PROPERTY(faceDetectionLandmarks, NSString, RNCamera)
-{
-    [view updateFaceDetectionLandmarks:json];
-}
-
-RCT_CUSTOM_VIEW_PROPERTY(faceDetectionClassifications, NSString, RNCamera)
-{
-    [view updateFaceDetectionClassifications:json];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(barCodeScannerEnabled, BOOL, RNCamera)
