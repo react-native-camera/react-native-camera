@@ -68,7 +68,7 @@ export interface RNCameraProps {
     notAuthorizedView?: JSX.Element;
     pendingAuthorizationView?: JSX.Element;
     useCamera2Api?: boolean;
-    whiteBalance?: WhiteBalance
+    whiteBalance?: keyof WhiteBalance
     
     onCameraReady?(): void;
     onMountError?(error: {
