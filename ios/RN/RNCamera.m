@@ -6,11 +6,11 @@
 #import <React/RCTLog.h>
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
-
+#import  "RNSensorOrientationChecker.h"
 @interface RNCamera ()
 
 @property (nonatomic, weak) RCTBridge *bridge;
-
+@property (nonatomic,strong) RNSensorOrientationChecker * sensorOrientationChecker;
 @property (nonatomic, assign, getter=isSessionPaused) BOOL paused;
 
 @property (nonatomic, strong) RCTPromiseResolveBlock videoRecordedResolve;
@@ -39,6 +39,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.bridge = bridge;
         self.session = [AVCaptureSession new];
         self.sessionQueue = dispatch_queue_create("cameraQueue", DISPATCH_QUEUE_SERIAL);
+        self.sensorOrientationChecker = [RNSensorOrientationChecker new];
         self.textDetector = [self createTextDetector];
         self.finishedReadingText = true;
         self.start = [NSDate date];
@@ -339,15 +340,25 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 #endif
 
+
+- (void)takePictureWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
+    [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
+        NSMutableDictionary *tmpOptions = [options mutableCopy];
+        tmpOptions[@"orientation"]=[NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
+        [self takePicture:tmpOptions resolve:resolve reject:reject];
+        
+    }];
+}
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
-    AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     int orientation;
     if ([options[@"orientation"] integerValue]) {
         orientation = [options[@"orientation"] integerValue];
     } else {
-        orientation = [RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]];
+        [self takePictureWithOrientation:options resolve:resolve reject:reject];
+        return;
     }
+    AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [connection setVideoOrientation:orientation];
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
         if (imageSampleBuffer && !error) {
@@ -430,9 +441,23 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
     }];
 }
-
+- (void)recordWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
+    [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
+        NSMutableDictionary *tmpOptions = [options mutableCopy];
+        tmpOptions[@"orientation"]=[NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
+        [self record:tmpOptions resolve:resolve reject:reject];
+        
+    }];
+}
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
+    int orientation;
+    if ([options[@"orientation"] integerValue]) {
+        orientation = [options[@"orientation"] integerValue];
+    } else {
+        [self recordWithOrientation:options resolve:resolve reject:reject];
+        return;
+    }
     if (_movieFileOutput == nil) {
         // At the time of writing AVCaptureMovieFileOutput and AVCaptureVideoDataOutput (> GMVDataOutput)
         // cannot coexist on the same AVSession (see: https://stackoverflow.com/a/4986032/1123156).
@@ -470,12 +495,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         } else {
             [connection setPreferredVideoStabilizationMode:self.videoStabilizationMode];
         }
-    }
-    int orientation;
-    if ([options[@"orientation"] integerValue]) {
-        orientation = [options[@"orientation"] integerValue];
-    } else {
-        orientation = [RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]];
     }
     [connection setVideoOrientation:orientation];
     
