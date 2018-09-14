@@ -1,5 +1,6 @@
 // Type definitions for react-native-camera 1.0
-// Definitions by Felipe Constantino <https://github.com/fconstant>
+// Definitions by: Felipe Constantino <https://github.com/fconstant>
+//                 Trent Jones <https://github.com/FizzBuzz791>
 // If you modify this file, put your GitHub info here as well (for easy contacting purposes)
 
 /*
@@ -221,6 +222,9 @@ export class RNCamera extends Component<RNCameraProps & ViewProperties> {
     takePictureAsync(options?: TakePictureOptions): Promise<TakePictureResponse>;
     recordAsync(options?: RecordOptions): Promise<RecordResponse>;
     stopRecording(): void;
+    pausePreview(): void;
+    resumePreview(): void;
+    getAvailablePictureSizes(): Promise<string[]>;
 
     /** Android only */
     getSupportedRatiosAsync(): Promise<string[]>;
