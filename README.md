@@ -185,7 +185,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
   'TextDetector'
 ]
 ```
-*Note:* Text recognition is available only via CocoaPods Path
+*Note:* Text recognition is available only via CocoaPods Path. If you have issues with duplicate symbols you will need to enable dead code stripping option in your Xcode (Target > Build Settings > search for "Dead code stripping") see: https://github.com/firebase/quickstart-ios/issues/487#issuecomment-415313053.
 
 ###### Non-CocoaPods Path
 1. Download:
