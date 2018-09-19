@@ -102,7 +102,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 - (void)onText:(NSDictionary *)event
-{   
+{
     if (_onTextRecognized && _session) {
         _onTextRecognized(event);
     }
@@ -340,7 +340,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         NSMutableDictionary *tmpOptions = [options mutableCopy];
         tmpOptions[@"orientation"]=[NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
         [self takePicture:tmpOptions resolve:resolve reject:reject];
-        
+
     }];
 }
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
@@ -440,7 +440,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         NSMutableDictionary *tmpOptions = [options mutableCopy];
         tmpOptions[@"orientation"]=[NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
         [self record:tmpOptions resolve:resolve reject:reject];
-        
+
     }];
 }
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
@@ -491,7 +491,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
     }
     [connection setVideoOrientation:orientation];
-    
+
     if (options[@"codec"]) {
       if (@available(iOS 10, *)) {
         AVVideoCodecType videoCodecType = options[@"codec"];
@@ -503,7 +503,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
       }
     }
-    
+
     dispatch_async(self.sessionQueue, ^{
         [self updateFlashMode];
         NSString *path = nil;
@@ -559,7 +559,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
 
         self.session.sessionPreset = AVCaptureSessionPresetPhoto;
-        
+
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
             stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
@@ -890,7 +890,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     } else if (self.videoRecordedReject != nil) {
         self.videoRecordedReject(@"E_RECORDING_FAILED", @"An error occurred while recording a video.", error);
     }
-    
+
+    [self cleanupCamera];
+
 }
 
 - (void)cleanupCamera {
@@ -919,29 +921,29 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)mirrorVideo:(NSURL *)inputURL completion:(void (^)(NSURL* outputUR))completion {
     AVAsset* videoAsset = [AVAsset assetWithURL:inputURL];
     AVAssetTrack* clipVideoTrack = [[videoAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
-    
+
     AVMutableComposition* composition = [[AVMutableComposition alloc] init];
     [composition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
-    
+
     AVMutableVideoComposition* videoComposition = [[AVMutableVideoComposition alloc] init];
     videoComposition.renderSize = CGSizeMake(clipVideoTrack.naturalSize.height, clipVideoTrack.naturalSize.width);
     videoComposition.frameDuration = CMTimeMake(1, 30);
-    
+
     AVMutableVideoCompositionLayerInstruction* transformer = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:clipVideoTrack];
-    
+
     AVMutableVideoCompositionInstruction* instruction = [[AVMutableVideoCompositionInstruction alloc] init];
     instruction.timeRange = CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(60, 30));
-    
+
     CGAffineTransform transform = CGAffineTransformMakeScale(-1.0, 1.0);
     transform = CGAffineTransformTranslate(transform, -clipVideoTrack.naturalSize.width, 0);
     transform = CGAffineTransformRotate(transform, M_PI/2.0);
     transform = CGAffineTransformTranslate(transform, 0.0, -clipVideoTrack.naturalSize.width);
-    
+
     [transformer setTransform:transform atTime:kCMTimeZero];
-    
+
     [instruction setLayerInstructions:@[transformer]];
     [videoComposition setInstructions:@[instruction]];
-    
+
     // Export
     AVAssetExportSession* exportSession = [AVAssetExportSession exportSessionWithAsset:videoAsset presetName:AVAssetExportPreset640x480];
     NSString* filePath = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingString:@"CameraFlip"] withExtension:@".mp4"];
@@ -990,7 +992,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 # pragma mark - TextDetector
 
--(id)createTextDetector 
+-(id)createTextDetector
 {
     Class textDetectorManagerClass = NSClassFromString(@"TextDetectorManager");
     Class textDetectorManagerStubClass =
@@ -1007,7 +1009,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     return nil;
 }
 
-- (void)setupOrDisableTextDetector 
+- (void)setupOrDisableTextDetector
 {
     if ([self canReadText] && [self.textDetector isRealDetector]){
         self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
@@ -1030,13 +1032,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
-           fromConnection:(AVCaptureConnection *)connection 
-{   
+           fromConnection:(AVCaptureConnection *)connection
+{
     if (![self.textDetector isRealDetector]) {
         return;
     }
 
-    // Do not submit image for text recognition too often: 
+    // Do not submit image for text recognition too often:
     // 1. we only dispatch events every 500ms anyway
     // 2. wait until previous recognition is finished
     // 3. let user disable text recognition, e.g. onTextRecognized={someCondition ? null : this.textRecognized}
@@ -1048,7 +1050,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
         float scaleX = _previewLayer.frame.size.width / image.size.width;
         float scaleY = _previewLayer.frame.size.height / image.size.height;
-        
+
         // find text features
         _finishedReadingText = false;
         self.start = [NSDate date];
