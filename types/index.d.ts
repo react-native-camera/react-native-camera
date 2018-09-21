@@ -178,10 +178,10 @@ interface TakePictureOptions {
     exif?: boolean;
     width?: number;
     mirrorImage?: boolean;
+    doNotSave?: boolean;
 
     /** Android only */
     skipProcessing?: boolean;
-    /** Android only */
     fixOrientation?: boolean;
 
     /** iOS only */
