@@ -181,6 +181,7 @@ export default class Camera extends Component {
     this._cameraHandle = null;
   }
 
+  // eslint-disable-next-line
   async componentWillMount() {
     this._addOnBarCodeReadListener();
     this._addOnFocusChanged();
@@ -208,6 +209,7 @@ export default class Camera extends Component {
     }
   }
 
+  // eslint-disable-next-line
   componentWillReceiveProps(newProps) {
     const { onBarCodeRead, onFocusChanged, onZoomChanged } = this.props;
     if (onBarCodeRead !== newProps.onBarCodeRead) {

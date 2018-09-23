@@ -1,5 +1,6 @@
 // Type definitions for react-native-camera 1.0
-// Definitions by Felipe Constantino <https://github.com/fconstant>
+// Definitions by: Felipe Constantino <https://github.com/fconstant>
+//                 Trent Jones <https://github.com/FizzBuzz791>
 // If you modify this file, put your GitHub info here as well (for easy contacting purposes)
 
 /*
@@ -12,6 +13,7 @@
 import { Component, ReactNode } from 'react';
 import { ViewProperties } from "react-native";
 
+type Orientation = Readonly<{ auto:any, landscapeLeft:any ,landscapeRight:any, portrait:any, portraitUpsideDown:any}>
 type AutoFocus = Readonly<{ on: any, off: any }>;
 type FlashMode = Readonly<{ on: any, off: any, torch: any, auto: any }>;
 type CameraType = Readonly<{ front: any, back: any }>;
@@ -68,7 +70,8 @@ export interface RNCameraProps {
     notAuthorizedView?: JSX.Element;
     pendingAuthorizationView?: JSX.Element;
     useCamera2Api?: boolean;
-
+    whiteBalance?: keyof WhiteBalance
+    
     onCameraReady?(): void;
     onMountError?(error: {
         message: string
@@ -170,14 +173,15 @@ interface TrackedTextFeature {
 
 interface TakePictureOptions {
     quality?: number;
+    orientation?: keyof Orientation;
     base64?: boolean;
     exif?: boolean;
     width?: number;
     mirrorImage?: boolean;
+    doNotSave?: boolean;
 
     /** Android only */
     skipProcessing?: boolean;
-    /** Android only */
     fixOrientation?: boolean;
 
     /** iOS only */
@@ -199,6 +203,7 @@ interface RecordOptions {
     maxFileSize?: number;
     mute?: boolean;
     mirrorVideo?: boolean;
+    path?: string,
 
     /** iOS only */
     codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
@@ -217,6 +222,9 @@ export class RNCamera extends Component<RNCameraProps & ViewProperties> {
     takePictureAsync(options?: TakePictureOptions): Promise<TakePictureResponse>;
     recordAsync(options?: RecordOptions): Promise<RecordResponse>;
     stopRecording(): void;
+    pausePreview(): void;
+    resumePreview(): void;
+    getAvailablePictureSizes(): Promise<string[]>;
 
     /** Android only */
     getSupportedRatiosAsync(): Promise<string[]>;

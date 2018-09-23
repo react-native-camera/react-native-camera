@@ -8,7 +8,7 @@ Supports:
 - videos
 - face detection
 - barcode scanning
-- text recognition (Android only)
+- text recognition (optional installation for iOS using CocoaPods)
 
 
 ### Example import
@@ -91,6 +91,39 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 ```
 3. Run `pod install`
 
+*Note:* You might need to adjust your Podfile following the example below:
+
+```ruby
+target 'yourTargetName' do
+  # See http://facebook.github.io/react-native/docs/integration-with-existing-apps.html#configuring-cocoapods-dependencies
+  pod 'React', :path => '../node_modules/react-native', :subspecs => [
+    'Core',
+    'CxxBridge', # Include this for RN >= 0.47
+    'DevSupport', # Include this to enable In-App Devmenu if RN >= 0.43
+    'RCTText',
+    'RCTNetwork',
+    'RCTWebSocket', # Needed for debugging
+    'RCTAnimation', # Needed for FlatList and animations running on native UI thread
+    # Add any other subspecs you want to use in your project
+  ]
+
+  # Explicitly include Yoga if you are using RN >= 0.42.0
+  pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
+
+  # Third party deps podspec link
+  pod 'react-native-camera', path: '../node_modules/react-native-camera'
+
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    if target.name == "React"
+      target.remove_from_project
+    end
+  end
+end
+```
+
 ### Manual install
 #### iOS
 1. `npm install react-native-camera --save`
@@ -102,7 +135,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 
 ### Face Detection or Text Recognition Steps
 
-Face Detection is optional on iOS. If you want it, you are going to need to install Google Mobile Vision frameworks in your project, as mentioned in the next section.
+Face Detection/Text Recognition are optional on iOS. If you want them, you are going to need to install Google Mobile Vision frameworks in your project, as mentioned in the next section.
 
 ##### No Face Detection steps
 
@@ -120,15 +153,15 @@ cp node_modules/react-native-camera/postinstall_project/projectWithoutFaceDetect
 
 And add something like this to the `scripts` section in your `package.json`:
 
-*Note:* The face detection code is excluded by default for the **CocoaPods** installation.
+*Note:* The face detection/text recognition code is excluded by default for the **CocoaPods** installation.
 ```
 "postinstall": "./scripts/post.sh",
 ```
 
 ##### Installing GMV frameworks
-GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RNCamera project.
+GMV (Google Mobile Vision) is used for Face detection/Text recognition by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RNCamera project.
 
-###### CocoaPods Path
+###### CocoaPods Path (The only option for Text Recognition)
 
 Modify the dependency towards `react-native-camera` in your
  `Podfile`, from
@@ -137,13 +170,22 @@ Modify the dependency towards `react-native-camera` in your
  pod 'react-native-camera', path: '../node_modules/react-native-camera'
 ```
 
-to
+to (for Face Detection)
 
 ```
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
   'FaceDetector'
 ]
 ```
+
+or to (for Text Recognition)
+
+```
+pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
+  'TextDetector'
+]
+```
+*Note:* Text recognition is available only via CocoaPods Path. If you have issues with duplicate symbols you will need to enable dead code stripping option in your Xcode (Target > Build Settings > search for "Dead code stripping") see: https://github.com/firebase/quickstart-ios/issues/487#issuecomment-415313053.
 
 ###### Non-CocoaPods Path
 1. Download:

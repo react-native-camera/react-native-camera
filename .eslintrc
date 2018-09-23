@@ -48,7 +48,8 @@
     "import/named": 0,
     "import/namespace": [2, { "allowComputed": true }],
     "no-extra-boolean-cast": 0,
-    "import/no-duplicates": 2
+    "import/no-duplicates": 2,
+    "react/no-deprecated": 0
   },
   "settings": {
     "import/resolver": {
