@@ -274,6 +274,10 @@ Function to be called when native code emit onCameraReady event, when camera is 
 
 Function to be called when native code emit onMountError event, when there is a problem mounting the camera.
 
+#### `Android` `onPictureTaken`
+
+Function to be called when native code emit onPictureTaken event, when camera has taken a picture.
+
 ### Bar Code Related props
 
 #### `onBarCodeRead`
