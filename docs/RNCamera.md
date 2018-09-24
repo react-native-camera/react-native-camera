@@ -31,6 +31,9 @@ class BadInstagramCloneApp extends Component {
             flashMode={RNCamera.Constants.FlashMode.on}
             permissionDialogTitle={'Permission to use camera'}
             permissionDialogMessage={'We need your permission to use your camera phone'}
+            onGoogleVisionBarcodesDetected={({ barcodes }) => {
+              console.log(barcodes)
+            }}
         />
         <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center',}}>
         <TouchableOpacity
@@ -297,10 +300,15 @@ The following barcode types can be recognised:
 
 The barcode type is provided in the `data` object.
 
+
 #### `barCodeTypes`
 
 An array of barcode types to search for. Defaults to all types listed above. No effect if `onBarCodeRead` is undefined.
 Example: `<RNCamera barCodeTypes={[RNCamera.Constants.BarCodeType.qr]} />`
+
+#### `Android` `onGoogleVisionBarcodesDetected`
+
+Like `onBarCodeRead`, but we will use Google Play Service Vision to scan barcodes, which is pretty fast on Android. Note: If you already set `onBarCodeRead`, this will be invalid.
 
 ### Face Detection Related props
 
