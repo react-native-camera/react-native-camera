@@ -83,7 +83,11 @@ function convertNativeProps(props) {
   return newProps;
 }
 
-export default class Camera extends Component {
+var Camera, constants;
+
+if (CameraManager) {
+  
+Camera = class Camera extends Component {
   static constants = {
     Aspect: CameraManager.Aspect,
     BarCodeType: CameraManager.BarCodeType,
@@ -386,8 +390,6 @@ export default class Camera extends Component {
   }
 }
 
-export const constants = Camera.constants;
-
 const RCTCamera = requireNativeComponent('RCTCamera', Camera, {
   nativeOnly: {
     testID: true,
@@ -399,3 +401,9 @@ const RCTCamera = requireNativeComponent('RCTCamera', Camera, {
     onLayout: true,
   },
 });
+
+constants = Camera.constants;
+
+}
+
+export default { Camera, constants };
