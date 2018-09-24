@@ -251,6 +251,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     super(props);
     this._lastEvents = {};
     this._lastEventsTimes = {};
+    this._isMounted = true;
     this.state = {
       isAuthorized: false,
       isAuthorizationChecked: false,
@@ -288,7 +289,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     } else if (typeof options.quality === 'string') {
       options.quality = Camera.Constants.VideoQuality[options.quality];
     }
-    if (typeof options.orientation=== 'string') {
+    if (typeof options.orientation === 'string') {
       options.orientation = CameraManager.Orientation[options.orientation];
     }
     return await CameraManager.record(options, this._cameraHandle);
@@ -353,8 +354,11 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
-  // eslint-disable-next-line
-  async componentWillMount() {
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
+  async componentDidMount() {
     const hasVideoAndAudio = this.props.captureAudio;
     const isAuthorized = await requestPermissions(
       hasVideoAndAudio,
@@ -362,6 +366,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
       this.props.permissionDialogTitle,
       this.props.permissionDialogMessage,
     );
+    if (this._isMounted === false) {
+      return;
+    }
     this.setState({ isAuthorized, isAuthorizationChecked: true });
   }
 
