@@ -132,9 +132,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)removeFromSuperview
 {
-    [self stopSession];
     [super removeFromSuperview];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+    [self stopSession];
 }
 
 -(void)updateType
