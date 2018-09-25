@@ -16,6 +16,8 @@ RCT_EXPORT_VIEW_PROPERTY(onCameraReady, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onMountError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onTextRecognized, RCTDirectEventBlock);
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -65,13 +67,14 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
                      },
              @"VideoCodec": [[self class] validCodecTypes],
              @"BarCodeType" : [[self class] validBarCodeTypes],
-             @"FaceDetection" : [[self  class] faceDetectorConstants]
+             @"FaceDetection" : [[self class] faceDetectorConstants],
+             @"VideoStabilization": [[self class] validVideoStabilizationModes]
              };
 }
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead", @"onFacesDetected"];
+    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureSaved", @"onTextRecognized"];
 }
 
 + (NSDictionary *)validCodecTypes
@@ -92,6 +95,16 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
     }
 }
 
++ (NSDictionary *)validVideoStabilizationModes
+{
+    return @{
+             @"off": @(AVCaptureVideoStabilizationModeOff),
+             @"standard": @(AVCaptureVideoStabilizationModeStandard),
+             @"cinematic": @(AVCaptureVideoStabilizationModeCinematic),
+             @"auto": @(AVCaptureVideoStabilizationModeAuto)
+             };
+}
+
 + (NSDictionary *)validBarCodeTypes
 {
     return @{
@@ -108,6 +121,22 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
              @"interleaved2of5" : AVMetadataObjectTypeInterleaved2of5Code,
              @"itf14" : AVMetadataObjectTypeITF14Code,
              @"datamatrix" : AVMetadataObjectTypeDataMatrixCode
+             };
+}
+
++ (NSDictionary *)pictureSizes
+{
+    return @{
+             @"3840x2160" : AVCaptureSessionPreset3840x2160,
+             @"1920x1080" : AVCaptureSessionPreset1920x1080,
+             @"1280x720" : AVCaptureSessionPreset1280x720,
+             @"640x480" : AVCaptureSessionPreset640x480,
+             @"352x288" : AVCaptureSessionPreset352x288,
+             @"Photo" : AVCaptureSessionPresetPhoto,
+             @"High" : AVCaptureSessionPresetHigh,
+             @"Medium" : AVCaptureSessionPresetMedium,
+             @"Low" : AVCaptureSessionPresetLow,
+             @"None": @(-1),
              };
 }
 
@@ -164,12 +193,20 @@ RCT_CUSTOM_VIEW_PROPERTY(zoom, NSNumber, RNCamera)
 
 RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSInteger, RNCamera)
 {
-    [view setWhiteBalance: [RCTConvert NSInteger:json]];
+    [view setWhiteBalance:[RCTConvert NSInteger:json]];
     [view updateWhiteBalance];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(pictureSize, NSString *, RNCamera)
+{
+    [view setPictureSize:[[self class] pictureSizes][[RCTConvert NSString:json]]];
+    [view updatePictureSize];
+}
+
+
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
 {
+    view.isDetectingFaces = [RCTConvert BOOL:json];
     [view updateFaceDetecting:json];
 }
 
@@ -191,7 +228,7 @@ RCT_CUSTOM_VIEW_PROPERTY(faceDetectionClassifications, NSString, RNCamera)
 RCT_CUSTOM_VIEW_PROPERTY(barCodeScannerEnabled, BOOL, RNCamera)
 {
     
-    view.barCodeReading = [RCTConvert BOOL:json];
+    view.isReadingBarCodes = [RCTConvert BOOL:json];
     [view setupOrDisableBarcodeScanner];
 }
 
@@ -200,35 +237,52 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RNCamera)
     [view setBarCodeTypes:[RCTConvert NSArray:json]];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(textRecognizerEnabled, BOOL, RNCamera)
+{
+    
+    view.canReadText = [RCTConvert BOOL:json];
+    [view setupOrDisableTextDetector];
+}
+
 RCT_REMAP_METHOD(takePicture,
                  options:(NSDictionary *)options
                  reactTag:(nonnull NSNumber *)reactTag
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
-#if TARGET_IPHONE_SIMULATOR
-    NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
-    float quality = [options[@"quality"] floatValue];
-    NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
-    UIImage *generatedPhoto = [RNImageUtils generatePhotoOfSize:CGSizeMake(200, 200)];
-    NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
-    response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
-    response[@"width"] = @(generatedPhoto.size.width);
-    response[@"height"] = @(generatedPhoto.size.height);
-    if ([options[@"base64"] boolValue]) {
-        response[@"base64"] = [photoData base64EncodedStringWithOptions:0];
-    }
-    resolve(response);
-#else
     [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
         RNCamera *view = viewRegistry[reactTag];
         if (![view isKindOfClass:[RNCamera class]]) {
             RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
         } else {
+#if TARGET_IPHONE_SIMULATOR
+            NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
+            float quality = [options[@"quality"] floatValue];
+            NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+            UIImage *generatedPhoto = [RNImageUtils generatePhotoOfSize:CGSizeMake(200, 200)];
+            BOOL useFastMode = options[@"fastMode"] && [options[@"fastMode"] boolValue];
+            if (useFastMode) {
+                resolve(nil);
+            }
+            NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
+            if (![options[@"doNotSave"] boolValue]) {
+                response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
+            }
+            response[@"width"] = @(generatedPhoto.size.width);
+            response[@"height"] = @(generatedPhoto.size.height);
+            if ([options[@"base64"] boolValue]) {
+                response[@"base64"] = [photoData base64EncodedStringWithOptions:0];
+            }
+            if (useFastMode) {
+                [view onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
+            } else {
+                resolve(response);
+            }
+#else
             [view takePicture:options resolve:resolve reject:reject];
+#endif
         }
     }];
-#endif
 }
 
 RCT_REMAP_METHOD(record,
@@ -247,6 +301,36 @@ RCT_REMAP_METHOD(record,
             RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
         } else {
             [view record:options resolve:resolve reject:reject];
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(resumePreview:(nonnull NSNumber *)reactTag)
+{
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
+        RNCamera *view = viewRegistry[reactTag];
+        if (![view isKindOfClass:[RNCamera class]]) {
+            RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
+        } else {
+            [view resumePreview];
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(pausePreview:(nonnull NSNumber *)reactTag)
+{
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
+        RNCamera *view = viewRegistry[reactTag];
+        if (![view isKindOfClass:[RNCamera class]]) {
+            RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
+        } else {
+            [view pausePreview];
         }
     }];
 }
@@ -287,6 +371,15 @@ RCT_EXPORT_METHOD(checkVideoAuthorizationStatus:(RCTPromiseResolveBlock)resolve
     [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
         resolve(@(granted));
     }];
+}
+
+RCT_REMAP_METHOD(getAvailablePictureSizes,
+                 ratio:(NSString *)ratio
+                 reactTag:(nonnull NSNumber *)reactTag
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    resolve([[[self class] pictureSizes] allKeys]);
 }
 
 @end

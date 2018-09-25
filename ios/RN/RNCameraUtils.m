@@ -94,5 +94,49 @@
     }
 }
 
++ (UIImage *)convertBufferToUIImage:(CMSampleBufferRef)sampleBuffer previewSize:(CGSize)previewSize
+{
+    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    CIImage *ciImage = [CIImage imageWithCVPixelBuffer:imageBuffer];
+    // set correct orientation
+    UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+
+    if (curOrientation == UIInterfaceOrientationLandscapeLeft){
+        ciImage = [ciImage imageByApplyingOrientation:3];
+    } else if (curOrientation == UIInterfaceOrientationLandscapeRight){
+        ciImage = [ciImage imageByApplyingOrientation:1];
+    } else if (curOrientation == UIInterfaceOrientationPortrait){
+        ciImage = [ciImage imageByApplyingOrientation:6];
+    } else if (curOrientation == UIInterfaceOrientationPortraitUpsideDown){
+        ciImage = [ciImage imageByApplyingOrientation:8];
+    }
+    float bufferWidth = CVPixelBufferGetWidth(imageBuffer);
+    float bufferHeight = CVPixelBufferGetHeight(imageBuffer);
+    // scale down CIImage
+    float scale = bufferHeight>bufferWidth ? 400 / bufferWidth : 400 / bufferHeight;
+    CIFilter* scaleFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
+    [scaleFilter setValue:ciImage forKey:kCIInputImageKey];
+    [scaleFilter setValue:@(scale) forKey:kCIInputScaleKey];
+    [scaleFilter setValue:@(1) forKey:kCIInputAspectRatioKey];
+    ciImage = scaleFilter.outputImage;
+    // convert to UIImage and crop to preview aspect ratio
+    NSDictionary *contextOptions = @{kCIContextUseSoftwareRenderer : @(false)};
+    CIContext *temporaryContext = [CIContext contextWithOptions:contextOptions];
+    CGImageRef videoImage;
+    CGRect boundingRect;
+    if (curOrientation == UIInterfaceOrientationLandscapeLeft || curOrientation == UIInterfaceOrientationLandscapeRight) {
+        boundingRect = CGRectMake(0, 0, bufferWidth*scale, bufferHeight*scale);
+    } else {
+        boundingRect = CGRectMake(0, 0, bufferHeight*scale, bufferWidth*scale);
+    }
+    videoImage = [temporaryContext createCGImage:ciImage fromRect:boundingRect];
+    CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, boundingRect);
+    CGImageRef croppedCGImage = CGImageCreateWithImageInRect(videoImage, croppedSize);
+    UIImage *image = [[UIImage alloc] initWithCGImage:croppedCGImage];
+    CGImageRelease(videoImage);
+    CGImageRelease(croppedCGImage);
+    return image;
+}
+
 @end
 

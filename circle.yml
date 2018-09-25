@@ -18,7 +18,7 @@ jobs:
             - v1-npm
       - run:
           name: Install Dependencies
-          command: yarn install
+          command: yarn install --ignore-engines
       - run:
           name: Lint
           command: yarn lint

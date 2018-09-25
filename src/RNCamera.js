@@ -66,9 +66,11 @@ type TrackedTextFeature = {
 type RecordingOptions = {
   maxDuration?: number,
   maxFileSize?: number,
+  orientation?: Orientation,
   quality?: number | string,
   codec?: string,
   mute?: boolean,
+  path?: string,
 };
 
 type EventCallbackArgumentsType = {
@@ -82,6 +84,7 @@ type PropsType = typeof View.props & {
   type?: number | string,
   onCameraReady?: Function,
   onBarCodeRead?: Function,
+  onPictureSaved?: Function,
   onGoogleVisionBarcodesDetected?: Function,
   faceDetectionMode?: number,
   flashMode?: number | string,
@@ -97,6 +100,8 @@ type PropsType = typeof View.props & {
   captureAudio?: boolean,
   useCamera2Api?: boolean,
   playSoundOnCapture?: boolean,
+  videoStabilizationMode?: number | string,
+  pictureSize?: string,
 };
 
 type StateType = {
@@ -155,6 +160,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     GoogleVisionBarcodeDetection: CameraManager.GoogleVisionBarcodeDetection,
     FaceDetection: CameraManager.FaceDetection,
     CameraStatus,
+    VideoStabilization: CameraManager.VideoStabilization,
   };
 
   // Values under keys from this object will be transformed to native options
@@ -167,6 +173,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     faceDetectionLandmarks: (CameraManager.FaceDetection || {}).Landmarks,
     faceDetectionClassifications: (CameraManager.FaceDetection || {}).Classifications,
     googleVisionBarcodeType: (CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeType,
+    videoStabilizationMode: CameraManager.VideoStabilization || {},
   };
 
   static propTypes = {
@@ -177,6 +184,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     onMountError: PropTypes.func,
     onCameraReady: PropTypes.func,
     onBarCodeRead: PropTypes.func,
+    onPictureSaved: PropTypes.func,
     onGoogleVisionBarcodesDetected: PropTypes.func,
     onFacesDetected: PropTypes.func,
     onTextRecognized: PropTypes.func,
@@ -197,6 +205,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
     captureAudio: PropTypes.bool,
     useCamera2Api: PropTypes.bool,
     playSoundOnCapture: PropTypes.bool,
+    videoStabilizationMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    pictureSize: PropTypes.string,
+    mirrorVideo: PropTypes.bool,
   };
 
   static defaultProps: Object = {
@@ -228,6 +239,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
     captureAudio: false,
     useCamera2Api: false,
     playSoundOnCapture: false,
+    pictureSize: 'None',
+    videoStabilizationMode: 0,
+    mirrorVideo: false,
   };
 
   _cameraRef: ?Object;
@@ -239,6 +253,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     super(props);
     this._lastEvents = {};
     this._lastEventsTimes = {};
+    this._isMounted = true;
     this.state = {
       isAuthorized: false,
       isAuthorizationChecked: false,
@@ -266,17 +281,32 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   }
 
+  getAvailablePictureSizes = async (): string[] => {
+    return await CameraManager.getAvailablePictureSizes(this.props.ratio, this._cameraHandle);
+  };
+
   async recordAsync(options?: RecordingOptions) {
     if (!options || typeof options !== 'object') {
       options = {};
     } else if (typeof options.quality === 'string') {
       options.quality = Camera.Constants.VideoQuality[options.quality];
     }
+    if (typeof options.orientation === 'string') {
+      options.orientation = CameraManager.Orientation[options.orientation];
+    }
     return await CameraManager.record(options, this._cameraHandle);
   }
 
   stopRecording() {
     CameraManager.stopRecording(this._cameraHandle);
+  }
+
+  pausePreview() {
+    CameraManager.pausePreview(this._cameraHandle);
+  }
+
+  resumePreview() {
+    CameraManager.resumePreview(this._cameraHandle);
   }
 
   _onMountError = ({ nativeEvent }: EventCallbackArgumentsType) => {
@@ -288,6 +318,12 @@ export default class Camera extends React.Component<PropsType, StateType> {
   _onCameraReady = () => {
     if (this.props.onCameraReady) {
       this.props.onCameraReady();
+    }
+  };
+
+  _onPictureSaved = ({ nativeEvent }: EventCallbackArgumentsType) => {
+    if (this.props.onPictureSaved) {
+      this.props.onPictureSaved(nativeEvent);
     }
   };
 
@@ -320,7 +356,11 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
-  async UNSAFE_componentWillMount() {
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
+  async componentDidMount() {
     const hasVideoAndAudio = this.props.captureAudio;
     const isAuthorized = await requestPermissions(
       hasVideoAndAudio,
@@ -328,6 +368,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
       this.props.permissionDialogTitle,
       this.props.permissionDialogMessage,
     );
+    if (this._isMounted === false) {
+      return;
+    }
     this.setState({ isAuthorized, isAuthorizationChecked: true });
   }
 
@@ -365,6 +408,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
           onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
           onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
           onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
+          onPictureSaved={this._onPictureSaved}
         >
           {this.renderChildren()}
         </RNCamera>
@@ -399,7 +443,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
       delete newProps.googleVisionBarcodeType;
       delete newProps.googleVisionBarcodeDetectorEnabled;
       delete newProps.ratio;
-      delete newProps.textRecognizerEnabled;
     }
 
     return newProps;
@@ -429,6 +472,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     onBarCodeRead: true,
     onGoogleVisionBarcodesDetected: true,
     onCameraReady: true,
+    onPictureSaved: true,
     onFaceDetected: true,
     onLayout: true,
     onMountError: true,

@@ -1,8 +1,21 @@
 # React Native Camera [![Backers on Open Collective](https://opencollective.com/react-native-camera/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-camera/sponsors/badge.svg)](#sponsors) [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![npm downloads](https://img.shields.io/npm/dm/react-native-camera.svg)](https://www.npmjs.com/package/react-native-camera)
 
-The comprehensive camera module for React Native. Including photographs, videos, face detection, barcode scanning and text recognition (Android only)!
+The comprehensive camera module for React Native. 
 
-`import { RNCamera, FaceDetector } from 'react-native-camera';`
+Supports:
+
+- photographs.
+- videos
+- face detection
+- barcode scanning
+- text recognition (optional installation for iOS using CocoaPods)
+
+
+### Example import
+
+```jsx
+import { RNCamera, FaceDetector } from 'react-native-camera';
+```
 
 #### How to use master branch?
 Inside your package.json, use this
@@ -78,6 +91,39 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 ```
 3. Run `pod install`
 
+*Note:* You might need to adjust your Podfile following the example below:
+
+```ruby
+target 'yourTargetName' do
+  # See http://facebook.github.io/react-native/docs/integration-with-existing-apps.html#configuring-cocoapods-dependencies
+  pod 'React', :path => '../node_modules/react-native', :subspecs => [
+    'Core',
+    'CxxBridge', # Include this for RN >= 0.47
+    'DevSupport', # Include this to enable In-App Devmenu if RN >= 0.43
+    'RCTText',
+    'RCTNetwork',
+    'RCTWebSocket', # Needed for debugging
+    'RCTAnimation', # Needed for FlatList and animations running on native UI thread
+    # Add any other subspecs you want to use in your project
+  ]
+
+  # Explicitly include Yoga if you are using RN >= 0.42.0
+  pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
+
+  # Third party deps podspec link
+  pod 'react-native-camera', path: '../node_modules/react-native-camera'
+
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    if target.name == "React"
+      target.remove_from_project
+    end
+  end
+end
+```
+
 ### Manual install
 #### iOS
 1. `npm install react-native-camera --save`
@@ -89,7 +135,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera'
 
 ### Face Detection or Text Recognition Steps
 
-Face Detection is optional on iOS. If you want it, you are going to need to install Google Mobile Vision frameworks in your project, as mentioned in the next section.
+Face Detection/Text Recognition are optional on iOS. If you want them, you are going to need to install Google Mobile Vision frameworks in your project, as mentioned in the next section.
 
 ##### No Face Detection steps
 
@@ -107,36 +153,39 @@ cp node_modules/react-native-camera/postinstall_project/projectWithoutFaceDetect
 
 And add something like this to the `scripts` section in your `package.json`:
 
-*Note:* The face detection code is excluded by default for the **CocoaPods** installation.
+*Note:* The face detection/text recognition code is excluded by default for the **CocoaPods** installation.
 ```
 "postinstall": "./scripts/post.sh",
 ```
 
 ##### Installing GMV frameworks
-GMV (Google Mobile Vision) is used for Face detection by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RNCamera project.
+GMV (Google Mobile Vision) is used for Face detection/Text recognition by the iOS RNCamera. You have to link the google frameworks to your project to successfully compile the RNCamera project.
 
-###### CocoaPods Path
-1. Modify the dependency towards `react-native-camera` in your
+###### CocoaPods Path (The only option for Text Recognition)
+
+Modify the dependency towards `react-native-camera` in your
  `Podfile`, from
 
  ```
  pod 'react-native-camera', path: '../node_modules/react-native-camera'
 ```
 
-to
+to (for Face Detection)
 
 ```
-pod 'react-native-camera', subspecs: ['RCT', 'RN', 'FaceDetector'], path: '../node_modules/react-native-camera'
+pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
+  'FaceDetector'
+]
 ```
 
-2. Add the following to your `Podfile`: 
-```
-  pod 'GoogleMobileVision/Detector', '~> 1.1.0'
-  pod 'GoogleMobileVision/MVDataOutput', '~> 1.1.0'
-  pod 'GoogleMobileVision/FaceDetector', '~> 1.1.0'
-```
+or to (for Text Recognition)
 
-3. In XCode, On your target -> Build Phases -> Link Binary with Libraries -> add AddressBook.framework
+```
+pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
+  'TextDetector'
+]
+```
+*Note:* Text recognition is available only via CocoaPods Path. If you have issues with duplicate symbols you will need to enable dead code stripping option in your Xcode (Target > Build Settings > search for "Dead code stripping") see: https://github.com/firebase/quickstart-ios/issues/487#issuecomment-415313053.
 
 ###### Non-CocoaPods Path
 1. Download:

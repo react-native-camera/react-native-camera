@@ -115,6 +115,7 @@ export default class Camera extends Component {
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
+    mirrorVideo: PropTypes.bool,
     fixOrientation: PropTypes.bool,
     barCodeTypes: PropTypes.array,
     orientation: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -142,6 +143,7 @@ export default class Camera extends Component {
     playSoundOnCapture: true,
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
+    mirrorVideo: false,
     cropToPreview: false,
     clearWindowBackground: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
@@ -179,6 +181,7 @@ export default class Camera extends Component {
     this._cameraHandle = null;
   }
 
+  // eslint-disable-next-line
   async componentWillMount() {
     this._addOnBarCodeReadListener();
     this._addOnFocusChanged();
@@ -206,6 +209,7 @@ export default class Camera extends Component {
     }
   }
 
+  // eslint-disable-next-line
   componentWillReceiveProps(newProps) {
     const { onBarCodeRead, onFocusChanged, onZoomChanged } = this.props;
     if (onBarCodeRead !== newProps.onBarCodeRead) {
@@ -305,6 +309,7 @@ export default class Camera extends Component {
       title: '',
       description: '',
       mirrorImage: props.mirrorImage,
+      mirrorVideo: props.mirrorVideo,
       fixOrientation: props.fixOrientation,
       cropToPreview: props.cropToPreview,
       ...options,
