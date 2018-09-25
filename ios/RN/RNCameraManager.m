@@ -173,6 +173,12 @@ RCT_CUSTOM_VIEW_PROPERTY(autoFocus, NSInteger, RNCamera)
     [view updateFocusMode];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(autoFocusPointOfInterest, NSDictionary, RNCamera)
+{
+    [view setAutoFocusPointOfInterest:[RCTConvert NSDictionary:json]];
+    [view updateAutoFocusPointOfInterest];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(focusDepth, NSNumber, RNCamera)
 {
     [view setFocusDepth:[RCTConvert float:json]];

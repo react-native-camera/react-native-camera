@@ -203,6 +203,35 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [device unlockForConfiguration];
 }
 
+- (void)updateAutoFocusPointOfInterest
+{
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    NSError *error = nil;
+
+    if (![device lockForConfiguration:&error]) {
+        if (error) {
+            RCTLogError(@"%s: %@", __func__, error);
+        }
+        return;
+    }
+
+    if ([self.autoFocusPointOfInterest objectForKey:@"x"] && [self.autoFocusPointOfInterest objectForKey:@"y"]) {
+        float xValue = [self.autoFocusPointOfInterest[@"x"] floatValue];
+        float yValue = [self.autoFocusPointOfInterest[@"y"] floatValue];
+        if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
+
+            CGPoint autofocusPoint = CGPointMake(xValue, yValue);
+            [device setFocusPointOfInterest:autofocusPoint];
+            [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+          }
+        else {
+            RCTLogWarn(@"AutoFocusPointOfInterest not supported");
+        }
+    }
+
+    [device unlockForConfiguration];
+}
+
 - (void)updateFocusMode
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
@@ -662,6 +691,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self updateZoom];
             [self updateFocusMode];
             [self updateFocusDepth];
+            [self updateAutoFocusPointOfInterest];
             [self updateWhiteBalance];
             [self.previewLayer.connection setVideoOrientation:orientation];
             [self _updateMetadataObjectsToRecognize];

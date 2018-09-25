@@ -34,6 +34,7 @@
 @property (assign, nonatomic) NSInteger flashMode;
 @property (assign, nonatomic) CGFloat zoom;
 @property (assign, nonatomic) NSInteger autoFocus;
+@property (copy, nonatomic) NSDictionary *autoFocusPointOfInterest;
 @property (assign, nonatomic) float focusDepth;
 @property (assign, nonatomic) NSInteger whiteBalance;
 @property (assign, nonatomic) AVCaptureSessionPreset pictureSize;
@@ -48,6 +49,7 @@
 - (void)updateFlashMode;
 - (void)updateFocusMode;
 - (void)updateFocusDepth;
+- (void)updateAutoFocusPointOfInterest;
 - (void)updateZoom;
 - (void)updateWhiteBalance;
 - (void)updatePictureSize;
