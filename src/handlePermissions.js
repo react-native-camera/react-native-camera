@@ -17,6 +17,8 @@ export const requestPermissions = async (
     if (permissionDialogTitle || permissionDialogMessage)
       params = { title: permissionDialogTitle, message: permissionDialogMessage };
     const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, params);
+    const grantedStorage = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, params);
+        grantedStorage === PermissionsAndroid.RESULTS.GRANTED || grantedStorage === true;
     if (!hasVideoAndAudio)
       return granted === PermissionsAndroid.RESULTS.GRANTED || granted === true;
     const grantedAudio = await PermissionsAndroid.request(
