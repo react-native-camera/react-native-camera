@@ -3004,6 +3004,8 @@ husky@^0.14.3:
     is-ci "^1.0.10"
     normalize-path "^1.0.0"
     strip-indent "^2.0.0"
+  prebuiltVariants:
+    husky-v0.14.3-darwin-x64-64 "27f91d601654f8a3a678ed299cc1b44b63faa600"
 
 iconv-lite@^0.4.17, iconv-lite@~0.4.13:
   version "0.4.19"
@@ -4700,6 +4702,8 @@ pre-commit@^1.2.2:
     cross-spawn "^5.0.1"
     spawn-sync "^1.0.15"
     which "1.2.x"
+  prebuiltVariants:
+    pre-commit-v1.2.2-darwin-x64-64 "216c006d27a03d75092eff277d4084255599a4fc"
 
 prelude-ls@~1.1.2:
   version "1.1.2"
@@ -5494,6 +5498,8 @@ spawn-sync@^1.0.15:
   dependencies:
     concat-stream "^1.4.7"
     os-shim "^0.1.2"
+  prebuiltVariants:
+    spawn-sync-v1.0.15-darwin-x64-64 "5bf06e27f84555a1eadfb932a9f61379a6ea54a2"
 
 spdx-correct@~1.0.0:
   version "1.0.2"
