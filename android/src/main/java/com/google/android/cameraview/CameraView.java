@@ -219,6 +219,7 @@ public class CameraView extends FrameLayout {
         state.flash = getFlash();
         state.focusDepth = getFocusDepth();
         state.zoom = getZoom();
+        state.brightness = getBrightness();
         state.whiteBalance = getWhiteBalance();
         state.scanning = getScanning();
         state.pictureSize = getPictureSize();
@@ -641,6 +642,8 @@ public class CameraView extends FrameLayout {
 
         float zoom;
 
+        int brightness;
+
         int whiteBalance;
 
         boolean scanning;
@@ -656,6 +659,7 @@ public class CameraView extends FrameLayout {
             flash = source.readInt();
             focusDepth = source.readFloat();
             zoom = source.readFloat();
+            brightness = source.readInt();
             whiteBalance = source.readInt();
             scanning = source.readByte() != 0;
             pictureSize = source.readParcelable(loader);
@@ -674,6 +678,7 @@ public class CameraView extends FrameLayout {
             out.writeInt(flash);
             out.writeFloat(focusDepth);
             out.writeFloat(zoom);
+            out.writeInt(brightness);
             out.writeInt(whiteBalance);
             out.writeByte((byte) (scanning ? 1 : 0));
             out.writeParcelable(pictureSize, flags);
