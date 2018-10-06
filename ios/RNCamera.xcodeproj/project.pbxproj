@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0314E39D1B661A460092D183 /* CameraFocusSquare.m in Sources */ = {isa = PBXBuildFile; fileRef = 0314E39C1B661A460092D183 /* CameraFocusSquare.m */; };
+		290707972168DCEE00DD69D0 /* RNAssetWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 290707962168DCEE00DD69D0 /* RNAssetWriter.m */; };
 		4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */; };
 		454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */; };
@@ -41,6 +42,8 @@
 /* Begin PBXFileReference section */
 		0314E39B1B661A0C0092D183 /* CameraFocusSquare.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CameraFocusSquare.h; sourceTree = "<group>"; };
 		0314E39C1B661A460092D183 /* CameraFocusSquare.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraFocusSquare.m; sourceTree = "<group>"; };
+		290707962168DCEE00DD69D0 /* RNAssetWriter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNAssetWriter.m; sourceTree = "<group>"; };
+		290707982168DD0000DD69D0 /* RNAssetWriter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNAssetWriter.h; sourceTree = "<group>"; };
 		4107012F1ACB723B00C6AA39 /* libRNCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		410701471ACB732B00C6AA39 /* RCTCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTCamera.h; sourceTree = "<group>"; };
 		410701481ACB732B00C6AA39 /* RCTCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCamera.m; sourceTree = "<group>"; };
@@ -137,6 +140,8 @@
 				71C7FFCC2013C7BF006EB75A /* RNCamera.m */,
 				7103647920195C53009691D1 /* RNFaceDetectorManagerStub.h */,
 				7103647A20195C53009691D1 /* RNFaceDetectorManagerStub.m */,
+				290707962168DCEE00DD69D0 /* RNAssetWriter.m */,
+				290707982168DD0000DD69D0 /* RNAssetWriter.h */,
 			);
 			path = RN;
 			sourceTree = "<group>";
@@ -216,6 +221,7 @@
 				0314E39D1B661A460092D183 /* CameraFocusSquare.m in Sources */,
 				71D5C728201B8A2A0030A15E /* RNFaceEncoder.m in Sources */,
 				454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */,
+				290707972168DCEE00DD69D0 /* RNAssetWriter.m in Sources */,
 				71C7FFD62013C824006EB75A /* RNFileSystem.m in Sources */,
 				71D5C729201B8A2D0030A15E /* RNFaceDetectorUtils.m in Sources */,
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,
