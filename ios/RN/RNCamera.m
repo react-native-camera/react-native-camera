@@ -43,7 +43,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.textDetector = [self createTextDetector];
         self.finishedReadingText = true;
         self.start = [NSDate date];
-        self.faceDetectorManager = [self createFaceDetectorManager];
+        self.faceDetectorManager = [self createFaceDetectorManager]
+        self.videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                                            AVVideoCodecH264, AVVideoCodecKey,
+                                                            [NSNumber numberWithInt:1280], AVVideoWidthKey,
+                                                            [NSNumber numberWithInt:720], AVVideoHeightKey,
+                                                            nil];
+        
 #if !(TARGET_IPHONE_SIMULATOR)
         self.previewLayer =
         [AVCaptureVideoPreviewLayer layerWithSession:self.session];
@@ -481,37 +487,36 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self recordWithOrientation:options resolve:resolve reject:reject];
         return;
     }
-    if (_movieFileOutput == nil) {
-        // At the time of writing AVCaptureMovieFileOutput and AVCaptureVideoDataOutput (> GMVDataOutput)
-        // cannot coexist on the same AVSession (see: https://stackoverflow.com/a/4986032/1123156).
-        // We stop face detection here and restart it in when AVCaptureMovieFileOutput finishes recording.
+    if (_videoDataOutput == nil || _audioDataOutput == nil) {
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager stopFaceDetection];
         [self stopTextRecognition];
 #endif
-        [self setupMovieFileCapture];
+        [self setupVideoAudioData];
     }
 
-    if (self.movieFileOutput == nil || self.movieFileOutput.isRecording || _videoRecordedResolve != nil || _videoRecordedReject != nil) {
+    if (_isRecording || _videoRecordedResolve != nil || _videoRecordedReject != nil) {
       return;
     }
 
     if (options[@"maxDuration"]) {
         Float64 maxDuration = [options[@"maxDuration"] floatValue];
-        self.movieFileOutput.maxRecordedDuration = CMTimeMakeWithSeconds(maxDuration, 30);
+        [_rnAssetWriter setMaxDuration:maxDuration];
     }
 
     if (options[@"maxFileSize"]) {
-        self.movieFileOutput.maxRecordedFileSize = [options[@"maxFileSize"] integerValue];
+        [_rnAssetWriter setMaxRecordedFileSize:[options[@"maxFileSize"] integerValue]];
     }
 
     if (options[@"quality"]) {
-        [self updateSessionPreset:[RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]]];
+        //TODO [reime005] necessary for video recording quality?
+        [_rnAssetWriter setCaptureSessionPresetQuality:[RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]];
     }
+    
+    [self updateSessionAudioIsMuted:false];
+    [_rnAssetWriter setAudioIsMuted:!!options[@"mute"]];
 
-    [self updateSessionAudioIsMuted:!!options[@"mute"]];
-
-    AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
+    AVCaptureConnection *connection = [self.videoDataOutput connectionWithMediaType:AVMediaTypeVideo];
     if (self.videoStabilizationMode != 0) {
         if (connection.isVideoStabilizationSupported == NO) {
             RCTLogWarn(@"%s: Video Stabilization is not supported on this device.", __func__);
@@ -519,14 +524,17 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [connection setPreferredVideoStabilizationMode:self.videoStabilizationMode];
         }
     }
+    //TODO [reime005] transform then still needed?
     [connection setVideoOrientation:orientation];
 
     if (options[@"codec"]) {
       if (@available(iOS 10, *)) {
         AVVideoCodecType videoCodecType = options[@"codec"];
-        if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
-          [self.movieFileOutput setOutputSettings:@{AVVideoCodecKey:videoCodecType} forConnection:connection];
-          self.videoCodecType = videoCodecType;
+        if ([self.videoDataOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
+            NSDictionary* videoSettings = _videoSettings;
+            videoSettings[AVVideoCodecKey] = videoCodecType;
+            [_rnAssetWriter setVideoSettings:videoSettings];
+            self.videoCodecType = videoCodecType;
         } else {
             RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
         }
@@ -551,15 +559,31 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
 
         NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
-        [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+        [_rnAssetWriter setOutputURL:outputURL];
         self.videoRecordedResolve = resolve;
         self.videoRecordedReject = reject;
+        [_rnAssetWriter initRecording];
+            
+        double delayInSeconds = [_rnAssetWriter maxDuration];
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        _isRecording = true;
+        dispatch_after(popTime, _sessionQueue, ^(void){
+            [self stopRecording];
+            
+            @try {
+                [_rnAssetWriter finishWritingWithCompletionHandler:^{
+                    [self didFinishRecordingToOutputFileAtURL:[_rnAssetWriter outputURL] error:[_rnAssetWriter logAndGetAssetWriterError]]
+                }];
+            } @catch (NSException *exception) {
+                RCTLogWarn(@"%@", exception.reason);
+            }
+        });
     });
 }
 
 - (void)stopRecording
 {
-    [self.movieFileOutput stopRecording];
+    self.isRecording = false;
 }
 
 - (void)resumePreview
@@ -596,18 +620,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [stillImageOutput setHighResolutionStillImageOutputEnabled:YES];
             self.stillImageOutput = stillImageOutput;
         }
+        
+        [self setupVideoAudioData];
 
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
         if ([self.textDetector isRealDetector]) {
             [self setupOrDisableTextDetector];
         }
-#else
-        // If AVCaptureVideoDataOutput is not required because of Google Vision
-        // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
-        // to avoid an exposure rack on some devices that can cause the first few
-        // frames of the recorded output to be underexposed.
-        [self setupMovieFileCapture];
 #endif
         [self setupOrDisableBarcodeScanner];
 
@@ -872,27 +892,47 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 }
 
-# pragma mark - AVCaptureMovieFileOutput
-
-- (void)setupMovieFileCapture
+# pragme mark - AVCaptureVideoAudioDataOutput
+         
+- (void)setupVideoAudioData
 {
-    AVCaptureMovieFileOutput *movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-
-    if ([self.session canAddOutput:movieFileOutput]) {
-        [self.session addOutput:movieFileOutput];
-        self.movieFileOutput = movieFileOutput;
+    if (_videoDataOutput == nil) {
+        self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+        
+        if ([self.session canAddOutput:_videoDataOutput]) {
+            [self.session addOutput:_videoDataOutput];
+            dispatch_queue_t videoQueue = dispatch_queue_create("com.mariusreimer.videoQueue", dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0));
+            [_videoDataOutput setSampleBufferDelegate:self queue:videoQueue];
+            //TODO [reime005] settings needed?
+        } else {
+            NSLog(@"Failed to setup video data output");
+        }
+    }
+    
+    if (_audioDataOutput == nil) {
+        self.audioDataOutput = [[AVCaptureAudioDataOutput alloc] init];
+        
+        if ([self.session canAddOutput:_audioDataOutput]) {
+            [self.session addOutput:_audioDataOutput];
+            dispatch_queue_t audioQueue = dispatch_queue_create("com.mariusreimer.audioQueue", dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0));
+            [_audioDataOutput setSampleBufferDelegate:self queue:audioQueue];
+            //TODO [reime005] settings needed?
+        } else {
+            NSLog(@"Failed to setup audio data output");
+        }
+        
+        self.audioSettings = [_audioDataOutput recommendedAudioSettingsForAssetWriterWithOutputFileType:AVFileTypeMPEG4];
     }
 }
 
-- (void)cleanupMovieFileCapture
+- (void) initAssetWriter
 {
-    if ([_session.outputs containsObject:_movieFileOutput]) {
-        [_session removeOutput:_movieFileOutput];
-        _movieFileOutput = nil;
+    if (self.rnAssetWriter == nil) {
+        self.rnAssetWriter = [[RNAssetWriter alloc] init];
     }
 }
 
-- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
+- (void)didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL error:(NSError *)error
 {
     BOOL success = YES;
     if ([error code] != noErr) {
@@ -905,7 +945,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
       if (@available(iOS 10, *)) {
           AVVideoCodecType videoCodec = self.videoCodecType;
           if (videoCodec == nil) {
-              videoCodec = [self.movieFileOutput.availableVideoCodecTypes firstObject];
+              videoCodec = [self.videoDataOutput.availableVideoCodecTypes firstObject];
           }
           if ([connections[0] isVideoMirrored]) {
             [self mirrorVideo:outputFileURL completion:^(NSURL *mirroredURL) {
@@ -922,7 +962,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     [self cleanupCamera];
-
 }
 
 - (void)cleanupCamera {
@@ -931,20 +970,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     self.videoCodecType = nil;
 
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-    [self cleanupMovieFileCapture];
-
     // If face detection has been running prior to recording to file
     // we reenable it here (see comment in -record).
     [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
 #endif
 
     if ([self.textDetector isRealDetector]) {
-        [self cleanupMovieFileCapture];
         [self setupOrDisableTextDetector];
-    }
-
-    if (self.session.sessionPreset != AVCaptureSessionPresetPhoto) {
-        [self updateSessionPreset:AVCaptureSessionPresetPhoto];
     }
 }
 
@@ -1042,12 +1074,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)setupOrDisableTextDetector
 {
     if ([self canReadText] && [self.textDetector isRealDetector]){
-        self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
-        if (![self.session canAddOutput:_videoDataOutput]) {
-            NSLog(@"Failed to setup video data output");
-            [self stopTextRecognition];
-            return;
+        if (self.videoDataOutput == nil) {
+            self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+            
+            if (![self.session canAddOutput:_videoDataOutput]) {
+                NSLog(@"Failed to setup video data output");
+                [self stopTextRecognition];
+                return;
+            }
         }
+        
         NSDictionary *rgbOutputSettings = [NSDictionary
             dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
                             forKey:(id)kCVPixelBufferPixelFormatTypeKey];
@@ -1064,6 +1100,25 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
            fromConnection:(AVCaptureConnection *)connection
 {
+    if ([_isRecording]) {
+        CFRetain(sampleBuffer);
+        if (captureOutput == _audioDataOutput) {
+            [_rnAssetWriter addAudioData:sampleBuffer];
+        } else {
+            CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+            CVPixelBufferLockBaseAddress(imageBuffer, 0);
+            
+            [_rnAssetWriter addVideoData:imageBuffer];
+            
+            if (_isDetectingFaces) {
+                //TODO detect faces
+            }
+            
+            CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+        }
+        CFRelease(sampleBuffer);
+    }
+    
     if (![self.textDetector isRealDetector]) {
         return;
     }

@@ -15,6 +15,7 @@
     BOOL bWriting;
     
     int64_t frameNumber;
+    size_t bytesWritten;
 
     CMTime startTime; //TODO check this with original code! messed initializing self. !
     CMTime previousFrameTime;
@@ -136,10 +137,18 @@
     return errorDesc;
 }
 
+- (BOOL) maxFileSizeReached {
+    return bytesWritten >= _maxRecordedFileSize;
+}
+
 //TODO [reime005] use of pointers for better performance?
 - (BOOL)addVideoData:(CVImageBufferRef)imageBuffer {
     if (bWriting == NO) {
         return NO;
+    }
+    
+    if ([self maxFileSizeReached]) {
+        bWriting = NO;
     }
     
     //TODO [reime005] improve performance by not using NSDate but CMTime only?
@@ -177,6 +186,7 @@
                 
                 if ([pixelBufferAdaptor appendPixelBuffer:imageBuffer
                                       withPresentationTime:time]) {
+                    CVImageBufferGetEncodedSize(imageBuffer);
                     frameNumber++;
                 } else {
                     RCTLogWarn(@"error writing video buffer");
@@ -202,6 +212,10 @@
 - (BOOL)addAudioData:(CMSampleBufferRef)audioBuffer {
     if (bWriting == NO) {
         return NO;
+    }
+    
+    if ([self maxFileSizeReached]) {
+        bWriting = NO;
     }
     
     if (audioBuffer == nil) {
@@ -246,45 +260,49 @@
     // note: sync since we need to release the buffers afterwards!
     dispatch_sync(writerQueue, ^{
         if (firstAudioBuffer) {
-            CMSampleBufferRef correctedFirstBuffer = [self copySampleBuffer:firstAudioBuffer withNewTime:previousFrameTime];
-            [assetAudioWriterInput appendSampleBuffer:correctedFirstBuffer];
+            if (!_audioIsMuted) {
+                CMSampleBufferRef correctedFirstBuffer = [self copySampleBuffer:firstAudioBuffer withNewTime:previousFrameTime];
+                [assetAudioWriterInput appendSampleBuffer:correctedFirstBuffer];
+                [self appendBufferSize: CMSampleBufferGetTotalSampleSize(correctedFirstBuffer)];
+                CFRelease(correctedFirstBuffer);
+            }
             CFRelease(firstAudioBuffer);
-            CFRelease(correctedFirstBuffer);
             firstAudioBuffer = NULL;
         }
         
-        if (!CMSampleBufferDataIsReady(audioBuffer)) {
-            RCTLogWarn(@"not ready!!!");
-        }
-        
-        if (!CMSampleBufferIsValid(audioBuffer)) {
-            RCTLogWarn(@"not valid!!!");
-        }
-        
-        BOOL bOk = [assetAudioWriterInput appendSampleBuffer:audioBuffer];
-        if (bOk == NO) {
-            [self logAndGetAssetWriterError];
+        if (!_audioIsMuted) {
+            BOOL bOk = [assetAudioWriterInput appendSampleBuffer:audioBuffer];
+            if (bOk == NO) {
+                [self logAndGetAssetWriterError];
+            } else {
+                [self appendBufferSize: CMSampleBufferGetTotalSampleSize(audioBuffer)];
+            }
         }
     });
     
     return YES;
 }
 
+- (void)appendBufferSize:(size_t)bytes {
+    bytesWritten = bytesWritten + bytes;
+}
+
 //TODO [reime005] add callback for when really finished
-- (BOOL)finishWriting {
+- (void)finishWritingWithCompletionHandler:(void (^)(void))handler NS_AVAILABLE(10_9, 6_0) {
     if (assetWriter == nil) {
         RCTLogWarn(@"[RNAssetWriter] - not initialized!");
-        return NO;
+        return;
     }
     
     if ([assetWriter status] != AVAssetWriterStatusUnknown) {
         [assetWriter finishWritingWithCompletionHandler:^{
             bWriting = NO;
             RCTLogWarn(@"finished. fps: %.1f", frameNumber/_maxDuration);
+            handler();
         }];
+    } else {
+        handler();
     }
-    
-    return YES;
 }
 
 #pragma mark Helpers
