@@ -43,7 +43,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.textDetector = [self createTextDetector];
         self.finishedReadingText = true;
         self.start = [NSDate date];
-        self.faceDetectorManager = [self createFaceDetectorManager]
+        self.faceDetectorManager = [self createFaceDetectorManager];
         self.videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:
                                                             AVVideoCodecH264, AVVideoCodecKey,
                                                             [NSNumber numberWithInt:1280], AVVideoWidthKey,
