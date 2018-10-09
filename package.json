@@ -1,13 +1,8 @@
 {
   "name": "react-native-camera",
-  "description": "A Camera component for React Native. Also reads barcodes.",
-  "version": "1.2.0",
-  "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
-  "collective": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/react-native-camera",
-    "logo": "https://opencollective.com/opencollective/logo.txt"
-  },
+  "description": "A Camera component for React Native. Also reads barcodes, sans facedetection.",
+  "version": "1.2.1",
+  "author": "Nathan Beesley<natebeesley@live.com>",
   "dependencies": {
     "lodash": "^4.17.10",
     "prop-types": "^15.6.2"
@@ -32,7 +27,7 @@
     "react-native": "^0.56.0",
     "simple-git": "1.96.0"
   },
-  "homepage": "https://github.com/react-native-community/react-native-camera",
+  "homepage": "https://github.com/NathanBeesley/react-native-camera",
   "keywords": [
     "barcode",
     "camera",
@@ -55,7 +50,7 @@
   "pre-commit": "lint:staged",
   "repository": {
     "type": "git",
-    "url": "https://github.com/react-native-community/react-native-camera.git"
+    "url": "https://github.com/NathanBeesley/react-native-camera"
   },
   "scripts": {
     "commitmsg": "commitlint -e $GIT_PARAMS",
