@@ -7,7 +7,7 @@ export const requestPermissions = async (
   permissionDialogMessage,
 ) => {
   if (Platform.OS === 'ios') {
-    let check = hasVideoAndAudio
+    const check = hasVideoAndAudio
       ? CameraManager.checkDeviceAuthorizationStatus
       : CameraManager.checkVideoAuthorizationStatus;
 
