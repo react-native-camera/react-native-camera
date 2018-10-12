@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
 AppRegistry.registerComponent('BadInstagramCloneApp', () => App);
 ```
 
-#### `camera` 
+#### `camera`
 
 *It's the RNCamera's reference*
 
@@ -252,6 +252,14 @@ Starting on android M individual permissions must be granted for certain service
 #### `Android` `permissionDialogMessage`
 
 Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the content of the dialog prompt requesting permissions.
+
+#### `Android` `permissionButtonPositive`
+
+If `permissionDialogTitle` or `permissionDialogMessage` is set, a dialog prompt requesting permissions is displayed with possibility to have a positive button for acceptance.
+
+#### `Android` `permissionButtonNegative`
+
+If `permissionDialogTitle` or `permissionDialogMessage` is set, a dialog prompt requesting permissions is displayed with possibility to have a negative button for rejection.
 
 #### `notAuthorizedView`
 
@@ -449,7 +457,7 @@ The promise will be fulfilled with an object with some of the following properti
  #### `stopRecording: void`
 
  Should be called after recordAsync() to make the promise be fulfilled and get the video uri.
- 
+
  #### `pausePreview: void`
 
  Pauses the preview. The preview can be resumed again by using resumePreview().

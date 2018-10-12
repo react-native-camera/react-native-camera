@@ -200,6 +200,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
     autoFocusPointOfInterest: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number }),
     permissionDialogTitle: PropTypes.string,
     permissionDialogMessage: PropTypes.string,
+    permissionButtonPositive: PropTypes.string,
+    permissionButtonNegative: PropTypes.string,
     notAuthorizedView: PropTypes.element,
     pendingAuthorizationView: PropTypes.element,
     captureAudio: PropTypes.bool,
@@ -226,6 +228,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
     faceDetectionClassifications: ((CameraManager.FaceDetection || {}).Classifications || {}).none,
     permissionDialogTitle: '',
     permissionDialogMessage: '',
+    permissionButtonPositive: null,
+    permissionButtonNegative: null,
     notAuthorizedView: (
       <View style={styles.authorizationContainer}>
         <Text style={styles.notAuthorizedText}>Camera not authorized</Text>
@@ -361,12 +365,20 @@ export default class Camera extends React.Component<PropsType, StateType> {
   }
 
   async componentDidMount() {
-    const hasVideoAndAudio = this.props.captureAudio;
+    const {
+      captureAudio,
+      permissionDialogTitle,
+      permissionDialogMessage,
+      permissionButtonPositive,
+      permissionButtonNegative,
+    } = this.props;
     const isAuthorized = await requestPermissions(
-      hasVideoAndAudio,
+      captureAudio,
       CameraManager,
-      this.props.permissionDialogTitle,
-      this.props.permissionDialogMessage,
+      permissionDialogTitle,
+      permissionDialogMessage,
+      permissionButtonPositive,
+      permissionButtonNegative,
     );
     if (this._isMounted === false) {
       return;

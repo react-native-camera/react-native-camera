@@ -33,6 +33,8 @@ export const requestPermissions = async (
   CameraManager,
   permissionDialogTitle,
   permissionDialogMessage,
+  permissionButtonPositive,
+  permissionButtonNegative,
 ) => {
   if (Platform.OS === 'ios') {
     const check = hasVideoAndAudio
@@ -46,6 +48,8 @@ export const requestPermissions = async (
         ? {
             title: permissionDialogTitle,
             message: permissionDialogMessage,
+            buttonPositive: permissionButtonPositive,
+            buttonNegative: permissionButtonNegative,
           }
         : undefined;
     const granted = await request(PermissionsAndroid.PERMISSIONS.CAMERA, rationale);
