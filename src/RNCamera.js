@@ -77,6 +77,13 @@ type EventCallbackArgumentsType = {
   nativeEvent: Object,
 };
 
+type Rect = {
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+};
+
 type PropsType = typeof View.props & {
   zoom?: number,
   ratio?: string,
@@ -102,6 +109,7 @@ type PropsType = typeof View.props & {
   playSoundOnCapture?: boolean,
   videoStabilizationMode?: number | string,
   pictureSize?: string,
+  rectOfInterest: Rect,
 };
 
 type StateType = {
@@ -208,6 +216,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
     videoStabilizationMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     pictureSize: PropTypes.string,
     mirrorVideo: PropTypes.bool,
+    rectOfInterest: PropTypes.any,
+    rectOfInterestView: PropTypes.element,
   };
 
   static defaultProps: Object = {
@@ -391,7 +401,21 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
     return this.props.children;
   };
-
+  
+  defaultRectOfInterestView() {
+    let rectOfInterest = this.props.rectOfInterest
+    return (
+      <View style={StyleSheet.absoluteFill}>
+        <View style={{flex: rectOfInterest.y, backgroundColor: '#0008'}}/>
+        <View style={{flex: rectOfInterest.height, flexDirection: 'row'}}>
+          <View style={{flex: rectOfInterest.x, backgroundColor: '#0008'}}/>
+          <View style={{flex: rectOfInterest.width}}/>
+          <View style={{flex: Math.max(1-(rectOfInterest.x+rectOfInterest.width),0), backgroundColor: '#0008'}}/>
+        </View>
+        <View style={{flex: Math.max(1-(rectOfInterest.y+rectOfInterest.height),0), backgroundColor: '#0008'}}/>
+      </View>
+      )
+  }
   render() {
     const nativeProps = this._convertNativeProps(this.props);
 
@@ -411,6 +435,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
           onPictureSaved={this._onPictureSaved}
         >
           {this.renderChildren()}
+          {this.props.rectOfInterest!==undefined&&
+            (this.props.rectOfInterestView||this.defaultRectOfInterestView())}
         </RNCamera>
       );
     } else if (!this.state.isAuthorizationChecked) {

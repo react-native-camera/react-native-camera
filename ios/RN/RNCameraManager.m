@@ -17,7 +17,6 @@ RCT_EXPORT_VIEW_PROPERTY(onMountError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
-RCT_EXPORT_VIEW_PROPERTY(onTextRecognized, RCTDirectEventBlock);
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -242,6 +241,12 @@ RCT_CUSTOM_VIEW_PROPERTY(textRecognizerEnabled, BOOL, RNCamera)
     
     view.canReadText = [RCTConvert BOOL:json];
     [view setupOrDisableTextDetector];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(rectOfInterest, CGRect, RNCamera)
+{
+    [view setRectOfInterest: [RCTConvert CGRect:json]];
+    [view updateRectOfInterest];
 }
 
 RCT_REMAP_METHOD(takePicture,
