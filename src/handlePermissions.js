@@ -1,4 +1,32 @@
-import { PermissionsAndroid, Platform } from 'react-native';
+import { NativeModules, PermissionsAndroid, Platform } from 'react-native';
+
+const request = async (permission, rationale) => {
+  const {
+    PermissionsAndroid: { shouldShowRequestPermissionRationale, requestPermission },
+    DialogManagerAndroid: { buttonClicked, buttonNegative, showAlert },
+  } = NativeModules;
+
+  if (rationale) {
+    const shouldShowRationale = await shouldShowRequestPermissionRationale(permission);
+
+    if (shouldShowRationale) {
+      return new Promise((resolve, reject) => {
+        showAlert(
+          rationale,
+          () => reject(new Error('Error showing rationale')),
+          (action, buttonKey) =>
+            resolve(
+              action === buttonClicked && buttonKey === buttonNegative
+                ? PermissionsAndroid.RESULTS.DENIED
+                : requestPermission(permission),
+            ),
+        );
+      });
+    }
+  }
+
+  return requestPermission(permission);
+};
 
 export const requestPermissions = async (
   hasVideoAndAudio,
@@ -15,18 +43,15 @@ export const requestPermissions = async (
   } else if (Platform.OS === 'android') {
     const rationale =
       permissionDialogTitle || permissionDialogMessage
-        ? { title: permissionDialogTitle, message: permissionDialogMessage }
+        ? {
+            title: permissionDialogTitle,
+            message: permissionDialogMessage,
+          }
         : undefined;
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.CAMERA,
-      rationale,
-    );
+    const granted = await request(PermissionsAndroid.PERMISSIONS.CAMERA, rationale);
     if (!hasVideoAndAudio)
       return granted === PermissionsAndroid.RESULTS.GRANTED || granted === true;
-    const grantedAudio = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      rationale,
-    );
+    const grantedAudio = await request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, rationale);
     return (
       (granted === PermissionsAndroid.RESULTS.GRANTED || granted === true) &&
       (grantedAudio === PermissionsAndroid.RESULTS.GRANTED || grantedAudio === true)
