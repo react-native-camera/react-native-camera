@@ -13,9 +13,10 @@ export const requestPermissions = async (
 
     if (check) return await check();
   } else if (Platform.OS === 'android') {
-    let rationale = undefined;
-    if (permissionDialogTitle || permissionDialogMessage)
-      rationale = { title: permissionDialogTitle, message: permissionDialogMessage };
+    const rationale =
+      permissionDialogTitle || permissionDialogMessage
+        ? { title: permissionDialogTitle, message: permissionDialogMessage }
+        : undefined;
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.CAMERA,
       rationale,
