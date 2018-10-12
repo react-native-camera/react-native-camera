@@ -1,9 +1,9 @@
 import { NativeModules, PermissionsAndroid, Platform } from 'react-native';
 
-const request = async (permission, rationale) => {
+const request = async (permission, rationale, denyOnDismiss) => {
   const {
     PermissionsAndroid: { shouldShowRequestPermissionRationale, requestPermission },
-    DialogManagerAndroid: { buttonClicked, buttonNegative, showAlert },
+    DialogManagerAndroid: { dismissed, buttonClicked, buttonNegative, showAlert },
   } = NativeModules;
 
   if (rationale) {
@@ -16,7 +16,8 @@ const request = async (permission, rationale) => {
           () => reject(new Error('Error showing rationale')),
           (action, buttonKey) =>
             resolve(
-              action === buttonClicked && buttonKey === buttonNegative
+              (action === dismissed && denyOnDismiss) ||
+              (action === buttonClicked && buttonKey === buttonNegative)
                 ? PermissionsAndroid.RESULTS.DENIED
                 : requestPermission(permission),
             ),
@@ -52,10 +53,15 @@ export const requestPermissions = async (
             buttonNegative: permissionButtonNegative,
           }
         : undefined;
-    const granted = await request(PermissionsAndroid.PERMISSIONS.CAMERA, rationale);
+    const denyOnDismiss = !!permissionButtonPositive; // otherwise no possibility to accept rationale
+    const granted = await request(PermissionsAndroid.PERMISSIONS.CAMERA, rationale, denyOnDismiss);
     if (!hasVideoAndAudio)
       return granted === PermissionsAndroid.RESULTS.GRANTED || granted === true;
-    const grantedAudio = await request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, rationale);
+    const grantedAudio = await request(
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      rationale,
+      denyOnDismiss,
+    );
     return (
       (granted === PermissionsAndroid.RESULTS.GRANTED || granted === true) &&
       (grantedAudio === PermissionsAndroid.RESULTS.GRANTED || grantedAudio === true)
