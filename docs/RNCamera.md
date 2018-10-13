@@ -261,6 +261,14 @@ By default a `Camera not authorized` message will be displayed when access to th
 
 By default a <ActivityIndicator> will be displayed while the component is waiting for the user to grant/deny access to the camera, if set displays the passed react element instead of the default one.
 
+#### `iOS` `rectOfInterestView`
+
+By default a <View> obscuring everything outside the rectOfInterest will be shown, if set displays the requested view instead
+
+#### `iOS` `rectOfInterest`
+
+An `{x: , y:, width:, height: }` object which defines the rect of interst as normalized coordinates from `(0,0)` top left corner to `(1,1)` bottom down corner.
+
 ### `iOS` `videoStabilizationMode`
 
 The video stabilization mode used for a video recording. The possible values are:
