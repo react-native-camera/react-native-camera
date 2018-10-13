@@ -39,6 +39,7 @@
 @property (assign, nonatomic) NSInteger whiteBalance;
 @property (assign, nonatomic) AVCaptureSessionPreset pictureSize;
 @property (nonatomic, assign) BOOL isReadingBarCodes;
+@property (nonatomic, assign) CGRect rectOfInterest;
 @property (nonatomic, assign) BOOL isDetectingFaces;
 @property (nonatomic, assign) BOOL canReadText;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
@@ -57,6 +58,7 @@
 - (void)updateFaceDetectionMode:(id)requestedMode;
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks;
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications;
+- (void)updateRectOfInterest;
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)takePictureWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;

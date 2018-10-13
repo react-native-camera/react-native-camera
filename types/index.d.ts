@@ -1,6 +1,7 @@
 // Type definitions for react-native-camera 1.0
 // Definitions by: Felipe Constantino <https://github.com/fconstant>
 //                 Trent Jones <https://github.com/FizzBuzz791>
+//                 Luis Rivera <https://github.com/chubakueno>
 // If you modify this file, put your GitHub info here as well (for easy contacting purposes)
 
 /*
@@ -42,6 +43,13 @@ type FaCC = (params: {
     status: keyof CameraStatus
 }) => JSX.Element;
 
+type Rect = Readonly<{
+    x: any,
+    y: any,
+    width: any,
+    height: any,
+}>
+
 export interface Constants {
     CameraStatus: CameraStatus;
     AutoFocus: AutoFocus;
@@ -71,7 +79,7 @@ export interface RNCameraProps {
     pendingAuthorizationView?: JSX.Element;
     useCamera2Api?: boolean;
     whiteBalance?: keyof WhiteBalance
-    
+
     onCameraReady?(): void;
     onMountError?(error: {
         message: string
@@ -118,6 +126,10 @@ export interface RNCameraProps {
 
     // -- IOS ONLY PROPS
 
+    /** iOS Only */
+    rectOfInterest?: Rect
+    /** iOS Only */
+    rectOfInterestView?: ReJSX.Elementct
     /** iOS Only */
     captureAudio?: boolean;
 }
