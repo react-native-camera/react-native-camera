@@ -18,6 +18,7 @@
 + (NSString *)captureSessionPresetForVideoResolution:(RNCameraVideoResolution)resolution;
 + (AVCaptureVideoOrientation)videoOrientationForDeviceOrientation:(UIDeviceOrientation)orientation;
 + (AVCaptureVideoOrientation)videoOrientationForInterfaceOrientation:(UIInterfaceOrientation)orientation;
++ (CGSize)sizeForSessionPreset:(AVCaptureSessionPreset)preset;
 
 // Text detector utilities
 + (UIImage *)convertBufferToUIImage:(CMSampleBufferRef)sampleBuffer previewSize:(CGSize)previewSize;

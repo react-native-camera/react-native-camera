@@ -102,6 +102,9 @@ type PropsType = typeof View.props & {
   playSoundOnCapture?: boolean,
   videoStabilizationMode?: number | string,
   pictureSize?: string,
+  videoSize?: number,
+  mirrorVideo?: boolean,
+  faceDetectingWhileRecording?: boolean,
 };
 
 type StateType = {
@@ -207,7 +210,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
     playSoundOnCapture: PropTypes.bool,
     videoStabilizationMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     pictureSize: PropTypes.string,
+    videoSize: PropTypes.number,
     mirrorVideo: PropTypes.bool,
+    faceDetectingWhileRecording: PropTypes.bool,
   };
 
   static defaultProps: Object = {
@@ -240,6 +245,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
     useCamera2Api: false,
     playSoundOnCapture: false,
     pictureSize: 'None',
+    videoSize: 2,
+    faceDetectingWhileRecording: false,
     videoStabilizationMode: 0,
     mirrorVideo: false,
   };

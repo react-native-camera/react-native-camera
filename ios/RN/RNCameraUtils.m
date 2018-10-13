@@ -76,6 +76,23 @@
     }
 }
 
++ (CGSize)sizeForSessionPreset:(AVCaptureSessionPreset)preset
+{
+    CGSize size = CGSizeMake(720, 1280);
+    
+    if (preset == AVCaptureSessionPreset352x288) {
+        size = CGSizeMake(288, 352);
+    } else if (preset == AVCaptureSessionPreset640x480) {
+        size = CGSizeMake(480, 640);
+    } else if (preset == AVCaptureSessionPreset1920x1080) {
+        size = CGSizeMake(1080, 1920);
+    } else if (preset == AVCaptureSessionPreset3840x2160) {
+        size = CGSizeMake(2160, 3840);
+    }
+    
+    return size;
+}
+
 + (NSString *)captureSessionPresetForVideoResolution:(RNCameraVideoResolution)resolution
 {
     switch (resolution) {

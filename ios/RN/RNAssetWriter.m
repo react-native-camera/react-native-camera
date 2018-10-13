@@ -16,15 +16,15 @@
     
     int64_t frameNumber;
     size_t bytesWritten;
-
-    CMTime startTime; //TODO check this with original code! messed initializing self. !
+    
+    CMTime startTime;
     CMTime previousFrameTime;
     CMTime previousAudioTime;
     CMTime firstAudioTimeStamp;
     CMTime firstVideoTimestamp;
     
     NSDate* initDate;
-
+    
     CMSampleBufferRef firstAudioBuffer;
     
     AVAssetWriter* assetWriter;
@@ -50,6 +50,9 @@
     previousFrameTime = kCMTimeInvalid;
     previousAudioTime = kCMTimeInvalid;
     firstAudioTimeStamp = kCMTimeInvalid;
+    if (_audioIsMuted == YES) {
+        firstAudioTimeStamp = kCMTimeZero;
+    }
     firstVideoTimestamp = kCMTimeInvalid;
     initDate = [NSDate date];
     
@@ -63,6 +66,10 @@
 - (void)initAssetWriter {
     NSError *error = nil;
     
+    if (_outputFileType == nil) {
+        _outputFileType = AVFileTypeMPEG4;
+    }
+    
     assetWriter = [[AVAssetWriter alloc] initWithURL:_outputURL fileType:_outputFileType error:&error];
     NSParameterAssert(assetWriter);
     
@@ -74,34 +81,34 @@
 - (void)initAssetWriterInputs {
     // Video writer
     assetVideoWriterInput = [AVAssetWriterInput
-                              assetWriterInputWithMediaType:AVMediaTypeVideo
-                              outputSettings:_videoSettings];
+                             assetWriterInputWithMediaType:AVMediaTypeVideo
+                             outputSettings:_videoSettings];
     assetVideoWriterInput.expectsMediaDataInRealTime = YES;
     
-    CGAffineTransform transform = assetVideoWriterInput.transform;
-    // note: degree to radians 'calculation'
-    transform = CGAffineTransformRotate(transform, (M_PI * 90)/180);
-    assetVideoWriterInput.transform = transform;
+//    CGAffineTransform transform = assetVideoWriterInput.transform;
+////     note: degree to radians 'calculation'
+//    transform = CGAffineTransformRotate(transform, (M_PI * 90)/180);
+//    assetVideoWriterInput.transform = transform;
     
     NSParameterAssert(assetVideoWriterInput);
     
     // Pixel adaptor
     
     pixelBufferAdaptor = [[AVAssetWriterInputPixelBufferAdaptor alloc]
-                           initWithAssetWriterInput:assetVideoWriterInput
-                           sourcePixelBufferAttributes:
-                           [NSDictionary dictionaryWithObjectsAndKeys:
-                            [NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarFullRange],
-                            kCVPixelBufferPixelFormatTypeKey,
-                            nil]];
+                          initWithAssetWriterInput:assetVideoWriterInput
+                          sourcePixelBufferAttributes:
+                          [NSDictionary dictionaryWithObjectsAndKeys:
+                           [NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarFullRange],
+                           kCVPixelBufferPixelFormatTypeKey,
+                           nil]];
     
     NSParameterAssert(pixelBufferAdaptor);
     
     // Audio writer
     
     assetAudioWriterInput = [AVAssetWriterInput
-                              assetWriterInputWithMediaType:AVMediaTypeAudio
-                              outputSettings:_audioSettings ];
+                             assetWriterInputWithMediaType:AVMediaTypeAudio
+                             outputSettings:_audioSettings ];
     assetAudioWriterInput.expectsMediaDataInRealTime = YES;
     
     NSParameterAssert(assetAudioWriterInput);
@@ -135,10 +142,6 @@
     RCTLogWarn(@"[RNAssetWriter] - asset writer error: %@", errorDesc);
     
     return errorDesc;
-}
-
-- (BOOL) maxFileSizeReached {
-    return bytesWritten >= _maxRecordedFileSize;
 }
 
 //TODO [reime005] use of pointers for better performance?
@@ -185,7 +188,7 @@
             if (assetVideoWriterInput.readyForMoreMediaData == YES) {
                 
                 if ([pixelBufferAdaptor appendPixelBuffer:imageBuffer
-                                      withPresentationTime:time]) {
+                                     withPresentationTime:time]) {
                     CVImageBufferGetEncodedSize(imageBuffer);
                     frameNumber++;
                 } else {
@@ -294,18 +297,21 @@
         return;
     }
     
+    bWriting = NO;
+    RCTLogWarn(@"finished. fps: %.1f", frameNumber/_maxDuration);
+    
     if ([assetWriter status] != AVAssetWriterStatusUnknown) {
-        [assetWriter finishWritingWithCompletionHandler:^{
-            bWriting = NO;
-            RCTLogWarn(@"finished. fps: %.1f", frameNumber/_maxDuration);
-            handler();
-        }];
+        [assetWriter finishWritingWithCompletionHandler:handler];
     } else {
         handler();
     }
 }
 
 #pragma mark Helpers
+
+- (BOOL) maxFileSizeReached {
+    return _maxRecordedFileSize > 0 && bytesWritten >= _maxRecordedFileSize;
+}
 
 - (CMSampleBufferRef) copySampleBuffer:(CMSampleBufferRef)inBuffer withNewTime:(CMTime)time {
     

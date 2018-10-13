@@ -1,5 +1,6 @@
 #import "RNCamera.h"
 #import "RNCameraManager.h"
+#import "RNCameraUtils.h"
 #import "RNFileSystem.h"
 #import "RNImageUtils.h"
 #import <React/RCTBridge.h>
@@ -203,11 +204,30 @@ RCT_CUSTOM_VIEW_PROPERTY(pictureSize, NSString *, RNCamera)
     [view updatePictureSize];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(videoSize, NSInteger *, RNCamera)
+{
+    [view setVideoSize:[RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[RCTConvert NSInteger:json]]];
+    if (view.videoCodecType != nil) {
+        [view updateType];
+        [view updateVideoSettings:[[UIApplication sharedApplication] statusBarOrientation]];
+    }
+}
 
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
 {
     view.isDetectingFaces = [RCTConvert BOOL:json];
     [view updateFaceDetecting:json];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(faceDetectingWhileRecording, BOOL, RNCamera)
+{
+    view.faceDetectingWhileRecording = [RCTConvert BOOL:json];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(mirrorVideo, BOOL, RNCamera)
+{
+    view.mirrorVideo = [RCTConvert BOOL:json];
+    [view updateType];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectionMode, NSInteger, RNCamera)

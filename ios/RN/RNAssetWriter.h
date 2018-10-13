@@ -8,6 +8,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <React/RCTBridge.h>
 #import <React/RCTBridgeModule.h>
+#import <React/RCTLog.h>
 #import <UIKit/UIKit.h>
 
 @class RNAssetWriter;
