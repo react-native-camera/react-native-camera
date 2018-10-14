@@ -348,8 +348,24 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-- (void)updateFaceDetecting:(id)faceDetecting
+- (void)updateFaceDetecting:(BOOL)faceDetecting
 {
+    if (faceDetecting == YES) {
+        [self.session beginConfiguration];
+        [self.session removeOutput:_videoDataOutput];
+        _videoDataOutput = nil;
+    } else {
+        [_faceDetectorManager stopFaceDetection];
+
+        UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+        [self changePreviewOrientation:orientation];
+        [self updateVideoSettings:orientation];
+        
+        AVCaptureConnection *connection = [_videoDataOutput connectionWithMediaType:AVMediaTypeVideo];
+        [connection setVideoOrientation:[RNCameraUtils videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
+    }
+    
+    [self.session commitConfiguration];
     [_faceDetectorManager setIsEnabled:faceDetecting];
 }
 
@@ -485,6 +501,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
+    @synchronized (self) {
     int orientation;
     if ([options[@"orientation"] integerValue]) {
         orientation = [options[@"orientation"] integerValue];
@@ -563,6 +580,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             RCTLogWarn(@"%@", exception.reason);
         }
     });
+        
+    }
 }
 
 - (void)stopRecording
@@ -601,11 +620,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.stillImageOutput = stillImageOutput;
     }
     
-    [self setupVideoAudioData];
+    if (!_isDetectingFaces && !_canReadText) {
+        [self setupVideoAudioData];
+    }
     [_session commitConfiguration];
 
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-//        [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
+        [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
     if ([self.textDetector isRealDetector]) {
         [self setupOrDisableTextDetector];
     }
@@ -619,8 +640,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         dispatch_async(strongSelf.sessionQueue, ^{
             // Manually restarting the session since it must
             // have been stopped due to an error.
-            [strongSelf.session startRunning];
-            [strongSelf onReady:nil];
+//            [strongSelf.session startRunning];
+//            [strongSelf onReady:nil];
             RCTLogWarn(@"Session interrupted %@", note.userInfo);
         });
     }]];
@@ -807,7 +828,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if (![self.session isRunning] && [self isSessionPaused]) {
         self.paused = NO;
         dispatch_async( self.sessionQueue, ^{
-            [self.session startRunning];
+            if (_videoRecordedResolve != nil || _videoRecordedResolve != nil) {
+                [self didFinishRecordingToOutputFileAtURL:[_rnAssetWriter outputURL] error:nil];
+            }
         });
     }
 }
@@ -817,13 +840,24 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if ([self.session isRunning] && ![self isSessionPaused]) {
         self.paused = YES;
         dispatch_async( self.sessionQueue, ^{
-            [self.session stopRunning];
+            if (_isRecording) {
+                [self stopRecording];
+                
+                [_rnAssetWriter finishWritingWithCompletionHandler:^{
+                    if (!_paused) {
+                        [self didFinishRecordingToOutputFileAtURL:[_rnAssetWriter outputURL] error:nil];
+                    }
+                }];
+            }
         });
     }
 }
 
 - (void)orientationChanged:(NSNotification *)notification
 {
+    if (_isRecording) {
+        return;
+    }
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     [self changePreviewOrientation:orientation];
     [self updateVideoSettings:orientation];
@@ -970,9 +1004,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             }
         }
         
-        [self updateFlashMode];
+       [self updateFlashMode];
         
-        [connection setVideoOrientation:[RNCameraUtils videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
+       [connection setVideoOrientation:[RNCameraUtils videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]]];
     } else {
         RCTLogWarn(@"no video connection!");
     }

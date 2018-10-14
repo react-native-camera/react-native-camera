@@ -26,7 +26,7 @@
 
 - (instancetype)initWithSessionQueue:(dispatch_queue_t)sessionQueue delegate:(id <RNFaceDetectorDelegate>)delegate;
 
-- (void)setIsEnabled:(id)json;
+- (void)setIsEnabled:(BOOL)newFaceDetecting;
 - (void)setLandmarksDetected:(id)json;
 - (void)setClassificationsDetected:(id)json;
 - (void)setMode:(id)json;

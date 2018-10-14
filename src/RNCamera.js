@@ -105,6 +105,7 @@ type PropsType = typeof View.props & {
   videoSize?: number,
   mirrorVideo?: boolean,
   faceDetectingWhileRecording?: boolean,
+  faceDetectorEnabled?: boolean,
 };
 
 type StateType = {
@@ -213,6 +214,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     videoSize: PropTypes.number,
     mirrorVideo: PropTypes.bool,
     faceDetectingWhileRecording: PropTypes.bool,
+    faceDetectorEnabled: PropTypes.bool,
   };
 
   static defaultProps: Object = {
@@ -249,6 +251,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     faceDetectingWhileRecording: false,
     videoStabilizationMode: 0,
     mirrorVideo: false,
+    faceDetectorEnabled: false,
   };
 
   _cameraRef: ?Object;
@@ -436,10 +439,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
     if (props.onGoogleVisionBarcodesDetected) {
       newProps.googleVisionBarcodeDetectorEnabled = true;
-    }
-
-    if (props.onFacesDetected) {
-      newProps.faceDetectorEnabled = true;
     }
 
     if (props.onTextRecognized) {

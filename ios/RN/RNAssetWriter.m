@@ -42,6 +42,7 @@
     [self initAssetWriterInputs];
     [self assignInputsToAssetWriter];
     
+    bytesWritten = 0;
     frameNumber = 0;
     bFirstAudio = YES;
     bWriting = YES;
@@ -151,6 +152,7 @@
     }
     
     if ([self maxFileSizeReached]) {
+        RCTLogWarn(@"maxFileSizeReached");
         bWriting = NO;
     }
     
@@ -218,6 +220,7 @@
     }
     
     if ([self maxFileSizeReached]) {
+        RCTLogWarn(@"maxFileSizeReached");
         bWriting = NO;
     }
     
@@ -287,7 +290,7 @@
 }
 
 - (void)appendBufferSize:(size_t)bytes {
-    bytesWritten = bytesWritten + bytes;
+    bytesWritten = bytesWritten + bytes * 10;
 }
 
 //TODO [reime005] add callback for when really finished

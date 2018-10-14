@@ -61,10 +61,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 # pragma mark - JS properties setters
 
-- (void)setIsEnabled:(id)json
+- (void)setIsEnabled:(BOOL)newFaceDetecting
 {
-    BOOL newFaceDetecting = [RCTConvert BOOL:json];
-    
     if ([self isDetectingFaces] != newFaceDetecting) {
         _faceDetecting = newFaceDetecting;
         [self _runBlockIfQueueIsPresent:^{
@@ -168,6 +166,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     for (AVCaptureConnection *connection in _dataOutput.connections) {
         connection.enabled = enabled;
     }
+    
+    _connected = enabled;
 }
 
 - (void)_resetFaceDetector

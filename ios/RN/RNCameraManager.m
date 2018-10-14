@@ -215,8 +215,9 @@ RCT_CUSTOM_VIEW_PROPERTY(videoSize, NSInteger *, RNCamera)
 
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
 {
-    view.isDetectingFaces = [RCTConvert BOOL:json];
-    [view updateFaceDetecting:json];
+    BOOL newFaceDetectorEnabled = [RCTConvert BOOL:json];
+    view.isDetectingFaces = newFaceDetectorEnabled;
+    [view updateFaceDetecting:newFaceDetectorEnabled];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectingWhileRecording, BOOL, RNCamera)

@@ -63,7 +63,7 @@
 - (void)updateZoom;
 - (void)updateWhiteBalance;
 - (void)updatePictureSize;
-- (void)updateFaceDetecting:(id)isDetectingFaces;
+- (void)updateFaceDetecting:(BOOL)faceDetecting;
 - (void)updateFaceDetectionMode:(id)requestedMode;
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks;
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications;
