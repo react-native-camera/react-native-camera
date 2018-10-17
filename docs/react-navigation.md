@@ -2,7 +2,7 @@
 
 React-navigation does not unmount components when switching between tabs. So when you leave and return back to the screen with the camera component it will just be black view. So a good solution is to use `componentDidMount` and added two listeners `willFocus` and `willBlur` to help you mount and unmount the views.
 
-```
+```jsx
 componentDidMount() {
    const { navigation } = this.props;
    navigation.addListener('willFocus', () =>
