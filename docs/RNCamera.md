@@ -191,7 +191,7 @@ Setting this property causes the auto focus feature of the camera to attempt to 
 
 Coordinates values are measured as floats from `0` to `1.0`.  `{ x: 0, y: 0 }` will focus on the top left of the image, `{ x: 1, y: 1 }` will be the bottom right. Values are based on landscape mode with the home button on the right—this applies even if the device is in portrait mode.
 
-#### `iOS` `captureAudio`
+#### `captureAudio`
 
 Values: `true` (Boolean), `false` (default)
 
