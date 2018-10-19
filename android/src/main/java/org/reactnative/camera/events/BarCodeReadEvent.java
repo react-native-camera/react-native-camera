@@ -18,21 +18,25 @@ public class BarCodeReadEvent extends Event<BarCodeReadEvent> {
       new Pools.SynchronizedPool<>(3);
 
   private Result mBarCode;
+  private int mWidth;
+  private int mHeight;
 
   private BarCodeReadEvent() {}
 
-  public static BarCodeReadEvent obtain(int viewTag, Result barCode) {
+  public static BarCodeReadEvent obtain(int viewTag, Result barCode, int width, int height) {
     BarCodeReadEvent event = EVENTS_POOL.acquire();
     if (event == null) {
       event = new BarCodeReadEvent();
     }
-    event.init(viewTag, barCode);
+    event.init(viewTag, barCode, width, height);
     return event;
   }
 
-  private void init(int viewTag, Result barCode) {
+  private void init(int viewTag, Result barCode, int width, int height) {
     super.init(viewTag);
     mBarCode = barCode;
+    mWidth = width;
+    mHeight = height;
   }
 
   /**
@@ -60,6 +64,7 @@ public class BarCodeReadEvent extends Event<BarCodeReadEvent> {
 
   private WritableMap serializeEventData() {
     WritableMap event = Arguments.createMap();
+    WritableMap eventOrigin = Arguments.createMap();
 
     event.putInt("target", getViewTag());
     event.putString("data", mBarCode.getText());
@@ -74,7 +79,11 @@ public class BarCodeReadEvent extends Event<BarCodeReadEvent> {
         resultPoints.pushMap(newPoint);
       }
     }
-    event.putArray("bounds",resultPoints);
+
+    eventOrigin.putArray("origin", resultPoints);
+    eventOrigin.putInt("height", mHeight);
+    eventOrigin.putInt("width", mWidth);
+    event.putMap("bounds", eventOrigin);
     return event;
   }
 }

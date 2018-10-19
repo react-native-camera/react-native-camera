@@ -244,8 +244,8 @@ public class RNCameraViewHelper {
 
   // Bar code read event
 
-  public static void emitBarCodeReadEvent(ViewGroup view, Result barCode) {
-    BarCodeReadEvent event = BarCodeReadEvent.obtain(view.getId(), barCode);
+  public static void emitBarCodeReadEvent(ViewGroup view, Result barCode, int width, int height) {
+    BarCodeReadEvent event = BarCodeReadEvent.obtain(view.getId(), barCode, width,  height);
     ReactContext reactContext = (ReactContext) view.getContext();
     reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
   }
