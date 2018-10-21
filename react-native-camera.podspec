@@ -27,9 +27,9 @@ Pod::Spec.new do |s|
     ss.dependency 'react-native-camera/RN'
     ss.dependency 'react-native-camera/RCT'
 
-    ss.dependency 'GoogleMobileVision/Detector', '~> 1.1.0'
-    ss.dependency 'GoogleMobileVision/MVDataOutput', '~> 1.1.0'
-    ss.dependency 'GoogleMobileVision/FaceDetector', '~> 1.1.0'
+    ss.dependency 'GoogleMobileVision/Detector', '~> 1.4'
+    ss.dependency 'GoogleMobileVision/MVDataOutput', '~> 1.4'
+    ss.dependency 'GoogleMobileVision/FaceDetector', '~> 1.4'
 
     ss.source_files = "ios/FaceDetector/**/*.{h,m}"
     s.static_framework = true
@@ -38,7 +38,7 @@ Pod::Spec.new do |s|
   s.subspec "TextDetector" do |ss|
     ss.dependency 'react-native-camera/RN'
     ss.dependency 'react-native-camera/RCT'
-    ss.dependency 'GoogleMobileVision/TextDetector'
+    ss.dependency 'GoogleMobileVision/TextDetector', '~> 1.4'
 
     ss.source_files = "ios/TextDetector/**/*.{h,m}"
   end
