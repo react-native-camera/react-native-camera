@@ -43,6 +43,7 @@
 @property (nonatomic, assign) BOOL canReadText;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property (assign, nonatomic) AVCaptureVideoStabilizationMode videoStabilizationMode;
+@property(assign, nonatomic) NSInteger defaultVideoQuality;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;

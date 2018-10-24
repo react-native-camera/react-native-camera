@@ -593,7 +593,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             return;
         }
 
-        self.session.sessionPreset = AVCaptureSessionPresetPhoto;
+        AVCaptureSessionPreset preset = [RNCameraUtils captureSessionPresetForVideoResolution:[self defaultVideoQuality]];
+        self.session.sessionPreset = preset == AVCaptureSessionPresetHigh ? AVCaptureSessionPresetPhoto: preset;
 
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
