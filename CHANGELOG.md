@@ -1,3 +1,24 @@
+#### 1.3.1-9 (2018-10-24)
+
+##### Chores
+
+* **package:**  bump to 1.3.0 ([501d4ad8](https://github.com/react-native-community/react-native-camera/commit/501d4ad8deb013f36abda18794fbf58c04bd190b))
+* **yarn:**  update yarn.lock ([fafe4c11](https://github.com/react-native-community/react-native-camera/commit/fafe4c119230a7378ab18ea1dd0634d8eb55a538))
+
+##### Documentation Changes
+
+*  add slide-up zoom recipe ([737a5a2e](https://github.com/react-native-community/react-native-camera/commit/737a5a2ef51d52b5a82b2b16972ebe0df40a2fd4))
+
+##### Bug Fixes
+
+*  Do not rely in to jcenter but google ([#1874](https://github.com/react-native-community/react-native-camera/pull/1874)) ([92615246](https://github.com/react-native-community/react-native-camera/commit/9261524609ac4d9f29a33fb94847ef78a50b38f3))
+*  Error retrieving camcorder profile params ([#1835](https://github.com/react-native-community/react-native-camera/pull/1835)) ([8de827e6](https://github.com/react-native-community/react-native-camera/commit/8de827e6c2a027b30668c108b147fb02affb8a35))
+* **build:**  fix no face detection project ([a7a7abf6](https://github.com/react-native-community/react-native-camera/commit/a7a7abf648e5f2c2f4b6f7e11bc3ed9669916a24))
+
+##### Reverts
+
+*  check if face or text detector libraries are included independently ([#1882](https://github.com/react-native-community/react-native-camera/pull/1882)) ([9efd7554](https://github.com/react-native-community/react-native-camera/commit/9efd7554586deed6d8e59cce579b21479365f984))
+
 ### 1.3.0-8 (2018-09-26)
 
 ##### Build System / Dependencies
