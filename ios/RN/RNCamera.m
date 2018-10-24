@@ -343,28 +343,28 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)updateFaceDetecting:(id)faceDetecting
 {
-    #if __has_include("RNFaceDetectorManager.h")
+    #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager setIsEnabled:faceDetecting];
     #endif
 }
 
 - (void)updateFaceDetectionMode:(id)requestedMode
 {
-    #if __has_include("RNFaceDetectorManager.h")
+    #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager setMode:requestedMode];
     #endif
 }
 
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks
 {
-    #if __has_include("RNFaceDetectorManager.h")
+    #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager setLandmarksDetected:requestedLandmarks];
     #endif
 }
 
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications
 {
-    #if __has_include("RNFaceDetectorManager.h")
+    #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager setClassificationsDetected:requestedClassifications];
     #endif
 }
@@ -491,10 +491,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // At the time of writing AVCaptureMovieFileOutput and AVCaptureVideoDataOutput (> GMVDataOutput)
         // cannot coexist on the same AVSession (see: https://stackoverflow.com/a/4986032/1123156).
         // We stop face detection here and restart it in when AVCaptureMovieFileOutput finishes recording.
-#if __has_include("RNFaceDetectorManager.h")
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager stopFaceDetection];
-#endif
-#if __has_include("TextDetectorManager.h")
         [self stopTextRecognition];
 #endif
         [self setupMovieFileCapture];
@@ -605,10 +603,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             self.stillImageOutput = stillImageOutput;
         }
 
-#if __has_include("RNFaceDetectorManager.h")
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
-#elif __has_include("TextDetectorManager.h")
-        [self setupOrDisableTextDetector];
+        if ([self.textDetector isRealDetector]) {
+            [self setupOrDisableTextDetector];
+        }
 #else
         // If AVCaptureVideoDataOutput is not required because of Google Vision
         // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
@@ -641,7 +640,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     return;
 #endif
     dispatch_async(self.sessionQueue, ^{
-#if __has_include("RNFaceDetectorManager.h")
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager stopFaceDetection];
 #endif
         if ([self.textDetector isRealDetector]) {
@@ -937,7 +936,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     self.videoRecordedReject = nil;
     self.videoCodecType = nil;
 
-#if __has_include("RNFaceDetectorManager.h")
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
     [self cleanupMovieFileCapture];
 
     // If face detection has been running prior to recording to file
@@ -1006,7 +1005,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     Class faceDetectorManagerClass = NSClassFromString(@"RNFaceDetectorManager");
     Class faceDetectorManagerStubClass = NSClassFromString(@"RNFaceDetectorManagerStub");
 
-#if __has_include("RNFaceDetectorManager.h")
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
     if (faceDetectorManagerClass) {
         return [[faceDetectorManagerClass alloc] initWithSessionQueue:_sessionQueue delegate:self];
     } else if (faceDetectorManagerStubClass) {
@@ -1035,7 +1034,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     Class textDetectorManagerStubClass =
         NSClassFromString(@"TextDetectorManagerStub");
 
-#if __has_include("TextDetectorManager.h")
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
     if (textDetectorManagerClass) {
         return [[textDetectorManagerClass alloc] init];
     } else if (textDetectorManagerStubClass) {
