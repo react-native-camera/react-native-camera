@@ -565,7 +565,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)stopRecording
 {
-    [self.movieFileOutput stopRecording];
+    if ([self.movieFileOutput isRecording]) {
+        [self.movieFileOutput stopRecording];
+    } else {
+        RCTLogWarn(@"Video is not recording.");
+    }
 }
 
 - (void)resumePreview
