@@ -26,14 +26,12 @@
     "eslint-plugin-react-native": "^3.2.1",
     "generate-changelog": "1.7.1",
     "husky": "^0.14.3",
-    "idx": "2.4.0",
     "lint-staged": "^7.2.0",
-    "minimist": "1.2.0",
     "pre-commit": "^1.2.2",
     "prettier": "^1.12.0",
     "react": "16.4.2",
     "react-native": "^0.56.0",
-    "simple-git": "1.96.0"
+    "release-it": "^7.6.2"
   },
   "homepage": "https://github.com/react-native-community/react-native-camera",
   "keywords": [
@@ -64,11 +62,7 @@
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "lint": "eslint src --max-warnings=0",
     "lint:staged": "lint-staged",
-    "prettier": "prettier --write --single-quote true --trailing-comma all --print-width 100",
-    "release:major": "node ./changelog --major && npm version major && git push origin && git push origin --follow-tags",
-    "release:minor": "node ./changelog --minor && npm version minor && git push origin && git push origin --follow-tags",
-    "release:patch": "node ./changelog --patch && npm version patch && git push origin && git push origin --follow-tags",
-    "release:version": "node ./changelog --version $VERSION && git push origin && git push origin --follow-tags"
+    "prettier": "prettier --write --single-quote true --trailing-comma all --print-width 100"
   },
   "types": "types"
 }

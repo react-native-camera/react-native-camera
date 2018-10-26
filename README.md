@@ -341,6 +341,16 @@ Take a look into this [documentation](./docs/RNCamera.md).
 
 Since `1.0.0`, RCTCamera is deprecated, but if you want to use it, you can see its [documentation](./docs/RCTCamera.md).
 
+### Releasing a new Version
+
+Release management is backed by [`release-it`](https://www.npmjs.com/package/release-it), which automatically handles creating git tags, github releases, changelogs and npm publishing.
+
+A new release is generated using the following command:
+
+```bash
+yarn release-it <version> # patch minor major x.x.x
+```
+
 ## Open Collective
 We are just beginning a funding campaign for react-native-camera. Contributions are greatly appreciated. When we gain more than $250 we will begin distributing funds to core maintainers in a fully transparent manner. Feedback for this process is welcomed, we will continue to evolve the strategy as we grow and learn more.
 

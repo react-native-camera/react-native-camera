@@ -1,0 +1,15 @@
+{
+  "src": {
+    "tagName": "v%s",
+    "commitMessage": "%s"
+  },
+  "github": {
+    "release": false,
+    "releaseName": "v%s"
+  },
+  "npm": {
+    "publish": true
+  },
+  "changelogCommand": "yarn changelog",
+  "safeBump": false
+}
