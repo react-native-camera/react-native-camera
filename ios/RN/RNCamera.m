@@ -512,7 +512,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     if (options[@"quality"]) {
-        [self updateSessionPreset:[RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]]];
+        AVCaptureSessionPreset newQuality = [RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]];
+        if (self.session.sessionPreset != newQuality) {
+            [self updateSessionPreset:newQuality];
+        }
     }
 
     [self updateSessionAudioIsMuted:!!options[@"mute"]];
@@ -565,7 +568,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)stopRecording
 {
-    [self.movieFileOutput stopRecording];
+    if ([self.movieFileOutput isRecording]) {
+        [self.movieFileOutput stopRecording];
+    } else {
+        RCTLogWarn(@"Video is not recording.");
+    }
 }
 
 - (void)resumePreview
@@ -593,7 +600,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             return;
         }
 
-        self.session.sessionPreset = AVCaptureSessionPresetPhoto;
+        AVCaptureSessionPreset preset = [RNCameraUtils captureSessionPresetForVideoResolution:[self defaultVideoQuality]];
+        self.session.sessionPreset = preset == AVCaptureSessionPresetHigh ? AVCaptureSessionPresetPhoto: preset;
 
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
@@ -949,8 +957,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self setupOrDisableTextDetector];
     }
 
-    if (self.session.sessionPreset != AVCaptureSessionPresetPhoto) {
-        [self updateSessionPreset:AVCaptureSessionPresetPhoto];
+    AVCaptureSessionPreset preset = [RNCameraUtils captureSessionPresetForVideoResolution:[self defaultVideoQuality]];
+    if (self.session.sessionPreset != preset) {
+        [self updateSessionPreset: preset == AVCaptureSessionPresetHigh ? AVCaptureSessionPresetPhoto: preset];
     }
 }
 

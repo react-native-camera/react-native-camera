@@ -208,6 +208,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     videoStabilizationMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     pictureSize: PropTypes.string,
     mirrorVideo: PropTypes.bool,
+    defaultVideoQuality: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   };
 
   static defaultProps: Object = {
