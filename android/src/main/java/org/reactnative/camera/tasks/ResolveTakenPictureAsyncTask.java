@@ -76,7 +76,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
         // we need the stream only for photos from a device
         if (mBitmap == null) {
-            mBitmap = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
+            mBitmap = byteToBitmap(mImageData);
             inputStream = new ByteArrayInputStream(mImageData);
         }
 
@@ -154,6 +154,28 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
         // An exception had to occur, promise has already been rejected. Do not try to resolve it again.
         return null;
+    }
+
+    private Bitmap byteToBitmap(byte[] imgByte) {
+        InputStream input = null;
+        Bitmap bitmap = null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 8;
+        input = new ByteArrayInputStream(imgByte);
+        SoftReference softRef = new SoftReference(BitmapFactory.decodeStream(input, null, options));
+        bitmap = (Bitmap) softRef.get();
+        if (imgByte != null) {
+            imgByte = null;
+        }
+
+        try {
+            if (input != null) {
+                input.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bitmap;
     }
 
     private Bitmap rotateBitmap(Bitmap source, int angle) {
