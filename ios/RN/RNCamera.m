@@ -512,7 +512,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     if (options[@"quality"]) {
-        NSString *newQuality = [RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]];
+        AVCaptureSessionPreset newQuality = [RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]];
         if (self.session.sessionPreset != newQuality) {
             [self updateSessionPreset:newQuality];
         }
