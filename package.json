@@ -15,16 +15,19 @@
   "devDependencies": {
     "@commitlint/cli": "^7.0.0",
     "@commitlint/config-conventional": "^7.0.1",
+    "@commitlint/prompt": "7.2.1",
     "@types/lodash": "^4.14.116",
     "@types/react": "^16.4.14",
     "@types/react-native": "^0.56.18",
     "babel-eslint": "^8.2.6",
+    "commitizen": "^3.0.4",
+    "conventional-changelog-cli": "^2.0.5",
+    "cz-conventional-changelog": "2.1.0",
     "eslint": "^5.3.0",
     "eslint-plugin-flowtype": "^2.50.0",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-react": "^7.10.0",
     "eslint-plugin-react-native": "^3.2.1",
-    "generate-changelog": "1.7.1",
     "husky": "^0.14.3",
     "lint-staged": "^7.2.0",
     "pre-commit": "^1.2.2",
@@ -59,10 +62,19 @@
     "url": "https://github.com/react-native-community/react-native-camera.git"
   },
   "scripts": {
+    "commit": "git-cz",
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "lint": "eslint src --max-warnings=0",
     "lint:staged": "lint-staged",
     "prettier": "prettier --write --single-quote true --trailing-comma all --print-width 100"
   },
-  "types": "types"
+  "types": "types",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/prompt"
+    }
+  }
 }

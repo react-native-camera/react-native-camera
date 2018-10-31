@@ -1,15 +1,16 @@
 {
+  "increment": "conventional:angular",
+  "changelogCommand": "conventional-changelog -p angular",
+  "safeBump": false,
   "src": {
-    "tagName": "v%s",
-    "commitMessage": "%s"
-  },
-  "github": {
-    "release": false,
-    "releaseName": "v%s"
+    "commitMessage": "chore: release %s",
+    "tagName": "v%s"
   },
   "npm": {
     "publish": true
   },
-  "changelogCommand": "yarn changelog",
-  "safeBump": false
+  "github": {
+    "release": true,
+    "releaseName": "v%s"
+  }
 }
