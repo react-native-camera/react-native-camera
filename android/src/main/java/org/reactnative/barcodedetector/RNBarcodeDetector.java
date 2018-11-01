@@ -9,6 +9,10 @@ import org.reactnative.frame.RNFrame;
 
 public class RNBarcodeDetector {
 
+    public static int NORMAL_MODE = 0;
+    public static int ALTERNATE_MODE = 1;
+    public static int INVERTED_MODE = 2;
+
     private BarcodeDetector mBarcodeDetector = null;
     private ImageDimensions mPreviousDimensions;
     private BarcodeDetector.Builder mBuilder;

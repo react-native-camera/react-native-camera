@@ -33,6 +33,7 @@ type GoogleVisionBarcodeType = Readonly<{
     CODE_128: any, CODE_39: any, CODABAR: any, DATA_MATRIX: any, EAN_13: any, EAN_8: any,
     ITF: any, QR_CODE: any, UPC_A: any, UPC_E: any, PDF417: any, AZTEC: any
 }>;
+type GoogleVisionBarcodeMode = Readonly<{ NORMAL: any, ALTERNATE: any, INVERTED: any }>
 
 // FaCC (Function as Child Components)
 type Self<T> = { [P in keyof T]: P }
@@ -57,7 +58,8 @@ export interface Constants {
         Mode: FaceDetectionMode;
     },
     GoogleVisionBarcodeDetection: {
-        BarcodeType: GoogleVisionBarcodeType
+        BarcodeType: GoogleVisionBarcodeType;
+        BarcodeMode: GoogleVisionBarcodeMode;
     }
 }
 
