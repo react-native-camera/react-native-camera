@@ -90,6 +90,7 @@ type PropsType = typeof View.props & {
   flashMode?: number | string,
   barCodeTypes?: Array<string>,
   googleVisionBarcodeType?: number,
+  googleVisionBarcodeMode?: number,
   whiteBalance?: number | string,
   faceDetectionLandmarks?: number,
   autoFocus?: string | boolean | number,
@@ -143,6 +144,7 @@ const CameraManager: Object = NativeModules.RNCameraManager ||
     },
     GoogleVisionBarcodeDetection: {
       BarcodeType: 0,
+      BarcodeMode: 0,
     },
   };
 
@@ -193,6 +195,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     faceDetectionClassifications: PropTypes.number,
     barCodeTypes: PropTypes.arrayOf(PropTypes.string),
     googleVisionBarcodeType: PropTypes.number,
+    googleVisionBarcodeMode: PropTypes.number,
     type: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -223,6 +226,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
     barCodeTypes: Object.values(CameraManager.BarCodeType),
     googleVisionBarcodeType: ((CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeType || {})
       .None,
+    googleVisionBarcodeMode: ((CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeMode || {})
+      .NORMAL,
     faceDetectionLandmarks: ((CameraManager.FaceDetection || {}).Landmarks || {}).none,
     faceDetectionClassifications: ((CameraManager.FaceDetection || {}).Classifications || {}).none,
     permissionDialogTitle: '',
@@ -442,6 +447,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
     if (Platform.OS === 'ios') {
       delete newProps.googleVisionBarcodeType;
+      delete newProps.googleVisionBarcodeMode;
       delete newProps.googleVisionBarcodeDetectorEnabled;
       delete newProps.ratio;
     }

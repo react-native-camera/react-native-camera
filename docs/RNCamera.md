@@ -349,6 +349,16 @@ Example: `<RNCamera barCodeTypes={[RNCamera.Constants.BarCodeType.qr]} />`
 
 Like `onBarCodeRead`, but we will use Google Play Service Vision to scan barcodes, which is pretty fast on Android. Note: If you already set `onBarCodeRead`, this will be invalid.
 
+#### `Android` `googleVisionBarcodeType`
+
+Like `barCodeTypes`, but applies to the Google Play Service Vision barcode detector.
+Example: `<RNCamera googleVisionBarcodeType={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeType.DATA_MATRIX} />`
+
+#### `Android` `googleVisionBarcodeMode`
+
+Change the mode in order to scan "inverted" barcodes. You can either change it to `alternate`, which will inverted the image data every second screen and be able to read both normal and inverted barcodes, or `inverted`, which will only read inverted barcodes.  Default is `normal`, which only reads "normal" barcodes. Note: this property only applies to the Google Vision barcode detector.
+Example: `<RNCamera googleVisionBarcodeMode={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeMode.ALTERNATE} />`
+
 ### Face Detection Related props
 
 RNCamera uses the Google Mobile Vision frameworks for Face Detection, you can read more info about it [here](https://developers.google.com/android/reference/com/google/android/gms/vision/face/FaceDetector).
