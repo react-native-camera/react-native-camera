@@ -146,7 +146,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
         if (willCallGoogleBarcodeTask) {
           googleBarcodeDetectorTaskLock = true;
-          if (mGoogleVisionBarCodeMode == RNBarcodeDetector.ALTERNATE_MODE) {
+          if (mGoogleVisionBarCodeMode == RNBarcodeDetector.NORMAL_MODE) {
+            invertImageData = false;
+          } else if (mGoogleVisionBarCodeMode == RNBarcodeDetector.ALTERNATE_MODE) {
             invertImageData = !invertImageData;
           } else if (mGoogleVisionBarCodeMode == RNBarcodeDetector.INVERTED_MODE) {
             invertImageData = true;
