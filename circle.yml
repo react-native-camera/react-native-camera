@@ -27,6 +27,11 @@ jobs:
           command: |
             cd android
             chmod +x ./gradlew && ./gradlew check
+      - deploy:
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              yarn ci:publish
+            fi
       - save_cache:
           key: v1-npm
           paths:
