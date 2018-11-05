@@ -588,6 +588,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)startSession
 {
 #if TARGET_IPHONE_SIMULATOR
+    [self onReady:nil];
     return;
 #endif
     //    NSDictionary *cameraPermissions = [EXCameraPermissionRequester permissions];
