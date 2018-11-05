@@ -319,7 +319,10 @@ Function to be called when native code emit onPictureTaken event, when camera ha
 
 Will call the specified method when a barcode is detected in the camera's view.
 
-Event contains `data` (the data in the barcode) and `type` (the type of the barcode detected).
+Event contains the following fields
+- `data` - a textual representation of the barcode, if available
+- `rawData` - The raw data encoded in the barcode, if available
+- `type` - the type of the barcode detected
 
 The following barcode types can be recognised:
 
@@ -336,8 +339,6 @@ The following barcode types can be recognised:
 - `interleaved2of5` (when available)
 - `itf14` (when available)
 - `datamatrix` (when available)
-
-The barcode type is provided in the `data` object.
 
 
 #### `barCodeTypes`
