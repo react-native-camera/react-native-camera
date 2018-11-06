@@ -89,6 +89,7 @@ export interface RNCameraProps {
     googleVisionBarcodeType?: keyof GoogleVisionBarcodeType;
     onBarCodeRead?(event: {
         data: string,
+        rawData?: string,
         type: keyof BarCodeType,
         /**
          * @description For Android use `[Point<string>, Point<string>]`
