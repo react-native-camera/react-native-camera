@@ -391,6 +391,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [connection setVideoOrientation:orientation];
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
         if (imageSampleBuffer && !error) {
+            if ([options[@"pauseAfterCapture"] boolValue]) {
+                [[self.previewLayer connection] setEnabled:NO];
+            }
+
             BOOL useFastMode = options[@"fastMode"] && [options[@"fastMode"] boolValue];
             if (useFastMode) {
                 resolve(nil);

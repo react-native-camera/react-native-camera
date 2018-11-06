@@ -426,6 +426,8 @@ Supported options:
 - `doNotSave` (boolean true or false). Use this with `true` if you do not want the picture to be saved as a file to cache. If no value is specified `doNotSave:false` is used. If you only need the base64 for the image, you can use this with `base64:true` and avoid having to save the file.
 
 
+ - `pauseAfterCapture` (boolean true or false).  If true, pause the preview layer immediately after capturing the image.  You will need to call `cameraRef.resumePreview()` before using the camera again. If no value is specified `pauseAfterCapture:false` is used.
+
 The promise will be fulfilled with an object with some of the following properties:
 
  - `width`: returns the image's width (taking image orientation into account)

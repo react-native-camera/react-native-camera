@@ -239,7 +239,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       sound.play(MediaActionSound.SHUTTER_CLICK);
     }
     try {
-      super.takePicture();
+      super.takePicture(options);
     } catch (Exception e) {
       mPictureTakenPromises.remove(promise);
       mPictureTakenOptions.remove(promise);
