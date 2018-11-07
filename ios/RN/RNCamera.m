@@ -869,22 +869,58 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             for (id barcodeType in self.barCodeTypes) {
                 if ([metadata.type isEqualToString:barcodeType]) {
                     AVMetadataMachineReadableCodeObject *transformed = (AVMetadataMachineReadableCodeObject *)[_previewLayer transformedMetadataObjectForMetadataObject:metadata];
-                    NSDictionary *event = @{
-                                            @"type" : codeMetadata.type,
-                                            @"data" : codeMetadata.stringValue,
-                                            @"bounds": @{
-                                                @"origin": @{
-                                                    @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
-                                                    @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y]
-                                                },
-                                                @"size": @{
-                                                    @"height": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
-                                                    @"width": [NSString stringWithFormat:@"%f", transformed.bounds.size.width]
-                                                }
-                                            }
-                                            };
+                    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
+                        @"type" : codeMetadata.type,
+                        @"data" : [NSNull null],
+                        @"rawData" : [NSNull null],
+                        @"bounds": @{
+                            @"origin": @{
+                                    @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
+                                    @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y]
+                                    },
+                            @"size": @{
+                                    @"height": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
+                                    @"width": [NSString stringWithFormat:@"%f", transformed.bounds.size.width]
+                                    }
+                            }
+                        }
+                    ];
 
-                    [self onCodeRead:event];
+                    NSData *rawData;
+                    // If we're on ios11 then we can use `descriptor` to access the raw data of the barcode.
+                    // If we're on an older version of iOS we're stuck using valueForKeyPath to peak at the
+                    // data.
+                    if (@available(iOS 11, *)) {
+                        // descriptor is a CIBarcodeDescriptor which is an abstract base class with no useful fields.
+                        // in practice it's a subclass, many of which contain errorCorrectedPayload which is the data we
+                        // want. Instead of individually checking the class types, just duck type errorCorrectedPayload
+                        if ([codeMetadata.descriptor respondsToSelector:@selector(errorCorrectedPayload)]) {
+                            rawData = [codeMetadata.descriptor performSelector:@selector(errorCorrectedPayload)];
+                        }
+                    } else {
+                        rawData = [codeMetadata valueForKeyPath:@"_internal.basicDescriptor.BarcodeRawData"];
+                    }
+
+                    // Now that we have the raw data of the barcode translate it into a hex string to pass to the JS
+                    const unsigned char *dataBuffer = (const unsigned char *)[rawData bytes];
+                    if (dataBuffer) {
+                        NSMutableString     *rawDataHexString  = [NSMutableString stringWithCapacity:([rawData length] * 2)];
+                        for (int i = 0; i < [rawData length]; ++i) {
+                            [rawDataHexString appendString:[NSString stringWithFormat:@"%02lx", (unsigned long)dataBuffer[i]]];
+                        }
+                        [event setObject:[NSString stringWithString:rawDataHexString] forKey:@"rawData"];
+                    }
+
+                    // If we were able to extract a string representation of the barcode, attach it to the event as well
+                    // else just send null along.
+                    if (codeMetadata.stringValue) {
+                        [event setObject:codeMetadata.stringValue forKey:@"data"];
+                    }
+
+                    // Only send the event if we were able to pull out a binary or string representation
+                    if ([event objectForKey:@"data"] != [NSNull null] || [event objectForKey:@"rawData"] != [NSNull null]) {
+                        [self onCodeRead:event];
+                    }
                 }
             }
         }
