@@ -246,7 +246,7 @@ RCT_CUSTOM_VIEW_PROPERTY(textRecognizerEnabled, BOOL, RNCamera)
 
 RCT_CUSTOM_VIEW_PROPERTY(defaultVideoQuality, NSInteger, RNCamera)
 {
-    [view setDefaultVideoQuality:(NSInteger) [RCTConvert NSInteger:json]];
+    [view setDefaultVideoQuality: [NSNumber numberWithInteger:[RCTConvert NSInteger:json]]];
 }
 
 RCT_REMAP_METHOD(takePicture,
