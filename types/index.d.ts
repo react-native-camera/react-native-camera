@@ -123,6 +123,7 @@ export interface RNCameraProps {
 
     /** iOS Only */
     captureAudio?: boolean;
+    defaultVideoQuality?: keyof VideoQuality;
 }
 
 interface Point<T = number> {
