@@ -143,22 +143,25 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     @Override
     void stop() {
-        if (mCamera != null) {
-            mCamera.stopPreview();
-            mCamera.setPreviewCallback(null);
-        }
-        mShowingPreview = false;
-        if (mMediaRecorder != null) {
-            mMediaRecorder.stop();
-            mMediaRecorder.release();
-            mMediaRecorder = null;
-
-            if (mIsRecording) {
-                mCallback.onVideoRecorded(mVideoPath);
-                mIsRecording = false;
+        try {
+            if (mCamera != null) {
+                mCamera.stopPreview();
+                mCamera.setPreviewCallback(null);
             }
-        }
-        releaseCamera();
+            mShowingPreview = false;
+            if (mMediaRecorder != null) {
+                mMediaRecorder.stop();
+                mMediaRecorder.release();
+                mMediaRecorder = null;
+
+                if (mIsRecording) {
+                    mCallback.onVideoRecorded(mVideoPath);
+                    mIsRecording = false;
+                }
+            }
+            releaseCamera();
+        } catch (Exception e) {
+        } 
     }
 
     // Suppresses Camera#setPreviewTexture
