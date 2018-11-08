@@ -318,7 +318,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   public void onBarCodeScanningTaskCompleted() {
     barCodeScannerTaskLock = false;
-    mMultiFormatReader.reset();
+    if(mMultiFormatReader != null) {
+      mMultiFormatReader.reset();
+    }
   }
 
   /**
