@@ -20,6 +20,11 @@
 
 @implementation RCTCameraManager
 
++ (BOOL)requiresMainQueueSetup
+{
+    return YES;
+}
+
 RCT_EXPORT_MODULE();
 
 - (UIView *)viewWithProps:(__unused NSDictionary *)props
