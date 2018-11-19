@@ -1053,8 +1053,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                         public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                 @NonNull CaptureRequest request,
                                 @NonNull TotalCaptureResult result) {
-                            if (mCaptureCallback.getOptions().hasKey("stopPreviewAfterCapture")
-                              && !mCaptureCallback.getOptions().getBoolean("stopPreviewAfterCapture")) {
+                            if (mCaptureCallback.getOptions().hasKey("pauseAfterCapture")
+                              && !mCaptureCallback.getOptions().getBoolean("pauseAfterCapture")) {
                                 unlockFocus();
                             }
                         }
