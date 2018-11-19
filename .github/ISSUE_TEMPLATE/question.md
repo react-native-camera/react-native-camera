@@ -18,3 +18,4 @@ about: Ask your question
 <!--add some related tags to your question-->
 
 > Love react-native-camera? Please consider supporting our collective: 👉  https://opencollective.com/react-native-camera/donate
+> Want this issue to be resolved faster? Please consider adding a bounty to it https://issuehunt.io/repos/33218414
