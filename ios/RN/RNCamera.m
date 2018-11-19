@@ -522,7 +522,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
     }
 
-    [self updateSessionAudioIsMuted:!!options[@"mute"]];
+    [self updateSessionAudioIsMuted:[options[@"muted"] boolValue]];
 
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
     if (self.videoStabilizationMode != 0) {
