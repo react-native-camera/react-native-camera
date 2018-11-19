@@ -47,3 +47,4 @@ You should open an issue there as well, so we can cooperate in a solution.-->
 <!--place screenshots/suggestions and other additional infos below-->
 
 > Love react-native-camera? Please consider supporting our collective: 👉  https://opencollective.com/react-native-camera/donate
+> Want this issue to be resolved faster? Please consider adding a bounty to it https://issuehunt.io/repos/33218414
