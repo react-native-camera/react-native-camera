@@ -273,10 +273,7 @@ public class CameraView extends FrameLayout {
             }
             mImpl = new Camera1(mCallbacks, mImpl.mPreview);
         }
-        onRestoreInstanceState(state);
-        if (wasOpened) {
-            start();
-        }
+        start();
     }
 
     /**
