@@ -323,6 +323,31 @@ Event contains the following fields
 - `data` - a textual representation of the barcode, if available
 - `rawData` - The raw data encoded in the barcode, if available
 - `type` - the type of the barcode detected
+- `bounds` -
+  - on iOS:
+
+        bounds:{
+          size:{
+            width:string,
+            height:string
+          }
+          origin:{
+            x:string,
+            y:string
+          }
+        }
+  - onAndroid:
+
+        bounds:[{x:string,y:string}]
+  	- on Android it just returns resultPoints:
+        - for barcodes:
+
+              bounds[0].x : left side of barcode.
+              bounds[1].x : right side of barcode
+        - counting for QRcodes:
+
+              1 2
+              0
 
 The following barcode types can be recognised:
 
