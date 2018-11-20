@@ -410,10 +410,15 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                     if (options.hasKey("pauseAfterCapture") && !options.getBoolean("pauseAfterCapture")) {
                         camera.startPreview();
                         mIsPreviewActive = true;
+                        if (mIsScanning) {
+                            camera.setPreviewCallback(Camera1.this);
+                        }
+                    }else{
+                        camera.stopPreview();
+                        mIsPreviewActive = false;
+                        camera.setPreviewCallback(null);
                     }
-                    if (mIsScanning) {
-                        camera.setPreviewCallback(Camera1.this);
-                    }
+
                     mCallback.onPictureTaken(data);
                 }
             });
