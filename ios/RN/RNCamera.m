@@ -937,6 +937,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
     if ([self.session canAddOutput:movieFileOutput]) {
         [self.session addOutput:movieFileOutput];
+        [self updateSessionAudioIsMuted:self.defaultMuted];
         self.movieFileOutput = movieFileOutput;
     }
 }

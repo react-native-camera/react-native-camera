@@ -44,6 +44,7 @@
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property (assign, nonatomic) AVCaptureVideoStabilizationMode videoStabilizationMode;
 @property(assign, nonatomic, nullable) NSNumber *defaultVideoQuality;
+@property(assign, nonatomic) BOOL defaultMuted;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;

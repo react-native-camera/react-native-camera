@@ -249,6 +249,11 @@ RCT_CUSTOM_VIEW_PROPERTY(defaultVideoQuality, NSInteger, RNCamera)
     [view setDefaultVideoQuality: [NSNumber numberWithInteger:[RCTConvert NSInteger:json]]];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(defaultMuted, BOOL, RNCamera)
+{
+    view.defaultMuted = [RCTConvert BOOL:json];
+}
+
 RCT_REMAP_METHOD(takePicture,
                  options:(NSDictionary *)options
                  reactTag:(nonnull NSNumber *)reactTag
