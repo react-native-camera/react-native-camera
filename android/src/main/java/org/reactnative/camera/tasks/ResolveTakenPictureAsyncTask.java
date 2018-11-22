@@ -31,13 +31,15 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private File mCacheDirectory;
     private Bitmap mBitmap;
     private PictureSavedDelegate mPictureSavedDelegate;
+    private int mDeviceOrientation;
 
-    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, PictureSavedDelegate delegate) {
+    public ResolveTakenPictureAsyncTask(byte[] imageData, int deviceOrientation, Promise promise, ReadableMap options, File cacheDirectory, PictureSavedDelegate delegate) {
         mPromise = promise;
         mOptions = options;
         mImageData = imageData;
         mCacheDirectory = cacheDirectory;
         mPictureSavedDelegate = delegate;
+        mDeviceOrientation= deviceOrientation;
     }
 
     private int getQuality() {
@@ -83,13 +85,10 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         try {
             if (inputStream != null) {
                 ExifInterface exifInterface = new ExifInterface(inputStream);
-                // Get orientation of the image from mImageData via inputStream
-                int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                        ExifInterface.ORIENTATION_UNDEFINED);
 
                 // Rotate the bitmap to the proper orientation if needed
-                if (mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation") && orientation != ExifInterface.ORIENTATION_UNDEFINED) {
-                    mBitmap = rotateBitmap(mBitmap, getImageRotation(orientation));
+                if (mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation")) {
+                    mBitmap = rotateBitmap(mBitmap, getImageRotation(mDeviceOrientation));
                 }
 
                 if (mOptions.hasKey("width")) {
@@ -176,20 +175,19 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
-    // Get rotation degrees from Exif orientation enum
-
+    // Get rotation degrees from orientation enum
     private int getImageRotation(int orientation) {
         int rotationDegrees = 0;
         switch (orientation) {
-        case ExifInterface.ORIENTATION_ROTATE_90:
-            rotationDegrees = 90;
-            break;
-        case ExifInterface.ORIENTATION_ROTATE_180:
-            rotationDegrees = 180;
-            break;
-        case ExifInterface.ORIENTATION_ROTATE_270:
-            rotationDegrees = 270;
-            break;
+            case 1:
+                rotationDegrees = 270;
+                break;
+            case 2:
+                rotationDegrees = 180;
+                break;
+            case 3:
+                rotationDegrees = 90;
+                break;
         }
         return rotationDegrees;
     }

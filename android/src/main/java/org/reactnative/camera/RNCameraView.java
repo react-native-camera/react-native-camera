@@ -43,6 +43,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private Promise mVideoRecordedPromise;
   private List<String> mBarCodeTypes = null;
   private Boolean mPlaySoundOnCapture = false;
+  private SensorOrientationChecker mSensorOrientationChecker;
 
   private boolean mIsPaused = false;
   private boolean mIsNew = true;
@@ -73,6 +74,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     super(themedReactContext, true);
     mThemedReactContext = themedReactContext;
     themedReactContext.addLifecycleEventListener(this);
+    mSensorOrientationChecker = new SensorOrientationChecker(themedReactContext);
 
     addCallback(new Callback() {
       @Override
@@ -87,19 +89,28 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
       @Override
       public void onPictureTaken(CameraView cameraView, final byte[] data) {
-        Promise promise = mPictureTakenPromises.poll();
-        ReadableMap options = mPictureTakenOptions.remove(promise);
+        final Promise promise = mPictureTakenPromises.poll();
+        final ReadableMap options = mPictureTakenOptions.remove(promise);
         if (options.hasKey("fastMode") && options.getBoolean("fastMode")) {
-            promise.resolve(null);
+          promise.resolve(null);
         }
         final File cacheDirectory = mPictureTakenDirectories.remove(promise);
-        if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this)
-                  .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this)
-                  .execute();
-        }
+        mSensorOrientationChecker.onResume();
+        mSensorOrientationChecker.registerOrientationListener(new SensorOrientationListener() {
+          @Override
+          public void orientationEvent() {
+            int deviceOrientation = mSensorOrientationChecker.getOrientation();
+            mSensorOrientationChecker.unregisterOrientationListener();
+            mSensorOrientationChecker.onPause();
+            if (Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
+              new ResolveTakenPictureAsyncTask(data, deviceOrientation, promise, options, cacheDirectory, RNCameraView.this)
+                      .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            } else {
+              new ResolveTakenPictureAsyncTask(data, deviceOrientation, promise, options, cacheDirectory, RNCameraView.this)
+                      .execute();
+            }
+          }
+        });
         RNCameraViewHelper.emitPictureTakenEvent(cameraView);
       }
 
