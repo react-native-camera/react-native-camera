@@ -296,8 +296,18 @@ This option specifies the quality of the video to be taken. The possible values 
     - `android` Not supported.
 
 If nothing is passed the device's highest camera quality will be used as default.
-Note: This solve the flicker video recording issue for iOS
 
+Note: This can help with flickering when calling `recordAsync`.
+
+### `iOS` `defaultMuted`
+
+This option is a hint to the component about whether or not it will be used to capture audio.
+
+Values: `true` (default) or `false`
+
+If `true`, the audio input will not be added to the `AVCaptureSession`. If `false`, the audio input will be preemptively added to the `AVCaptureSession`.
+
+Note: This can help with flickering when calling `recordAsync`.
 
 ### Native Event callbacks props
 
