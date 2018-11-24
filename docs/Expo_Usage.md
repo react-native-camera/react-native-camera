@@ -1,6 +1,6 @@
 # [Expo](https://expo.io/) Usage
 
-RNCamera of react-native-camera is heavyly based on Expo camera module. Thanks @aalices and Expo for the great work.
+RNCamera of react-native-camera is heavily based on Expo camera module. Thanks @aalices and Expo for the great work.
 
 So you don't need to use **react-native-camera** if you have the following config:
 
