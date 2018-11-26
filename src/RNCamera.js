@@ -113,7 +113,7 @@ type StateType = {
 
 type Status = 'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED';
 
-const CameraStatus = {
+const CameraStatus: : { [key: Status]: Status } = {
   READY: 'READY',
   PENDING_AUTHORIZATION: 'PENDING_AUTHORIZATION',
   NOT_AUTHORIZED: 'NOT_AUTHORIZED',
