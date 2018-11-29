@@ -10,7 +10,6 @@ All you need is to `import` `{ RNCamera }` from the `react-native-camera` module
 import React, { Component } from 'react';
 import {
   AppRegistry,
-  Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
