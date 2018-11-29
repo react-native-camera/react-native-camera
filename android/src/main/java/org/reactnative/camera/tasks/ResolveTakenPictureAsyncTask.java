@@ -88,7 +88,9 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
                 // Rotate the bitmap to the proper orientation if needed
                 if (mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation")) {
-                    mBitmap = rotateBitmap(mBitmap, getImageRotation(mDeviceOrientation));
+                    int deviceRotation = getDeviceOrientationRotation(mDeviceOrientation);
+                    int exifRotation = getExifOrientationRotation(exifInterface);
+                    mBitmap = rotateBitmap(mBitmap, exifRotation + deviceRotation);
                 }
 
                 if (mOptions.hasKey("width")) {
@@ -176,7 +178,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     }
 
     // Get rotation degrees from orientation enum
-    private int getImageRotation(int orientation) {
+    private int getDeviceOrientationRotation(int orientation) {
         int rotationDegrees = 0;
         switch (orientation) {
             case 1:
@@ -190,6 +192,23 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 break;
         }
         return rotationDegrees;
+    }
+
+    private int getExifOrientationRotation(ExifInterface exifInterface) {
+        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_UNDEFINED);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return 90;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return 180;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return 270;
+            case ExifInterface.ORIENTATION_UNDEFINED:
+            default:
+                return 0;
+        }
     }
 
     private String writeStreamToFile(ByteArrayOutputStream inputStream) throws IOException {
