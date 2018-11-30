@@ -111,7 +111,7 @@ type StateType = {
   isAuthorizationChecked: boolean,
 };
 
-type Status = 'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED';
+export type Status = 'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED';
 
 const CameraStatus: { [key: Status]: Status } = {
   READY: 'READY',
