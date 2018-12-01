@@ -17,6 +17,7 @@ RCT_EXPORT_VIEW_PROPERTY(onMountError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onTextRecognized, RCTDirectEventBlock);
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -73,7 +74,7 @@ RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureSaved"];
+    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureSaved", @"onTextRecognized"];
 }
 
 + (NSDictionary *)validCodecTypes
@@ -172,6 +173,12 @@ RCT_CUSTOM_VIEW_PROPERTY(autoFocus, NSInteger, RNCamera)
     [view updateFocusMode];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(autoFocusPointOfInterest, NSDictionary, RNCamera)
+{
+    [view setAutoFocusPointOfInterest:[RCTConvert NSDictionary:json]];
+    [view updateAutoFocusPointOfInterest];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(focusDepth, NSNumber, RNCamera)
 {
     [view setFocusDepth:[RCTConvert float:json]];
@@ -230,6 +237,18 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RNCamera)
     [view setBarCodeTypes:[RCTConvert NSArray:json]];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(textRecognizerEnabled, BOOL, RNCamera)
+{
+    
+    view.canReadText = [RCTConvert BOOL:json];
+    [view setupOrDisableTextDetector];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(defaultVideoQuality, NSInteger, RNCamera)
+{
+    [view setDefaultVideoQuality: [NSNumber numberWithInteger:[RCTConvert NSInteger:json]]];
+}
+
 RCT_REMAP_METHOD(takePicture,
                  options:(NSDictionary *)options
                  reactTag:(nonnull NSNumber *)reactTag
@@ -251,7 +270,9 @@ RCT_REMAP_METHOD(takePicture,
                 resolve(nil);
             }
             NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
-            response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
+            if (![options[@"doNotSave"] boolValue]) {
+                response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
+            }
             response[@"width"] = @(generatedPhoto.size.width);
             response[@"height"] = @(generatedPhoto.size.height);
             if ([options[@"base64"] boolValue]) {

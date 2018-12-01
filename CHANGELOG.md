@@ -1,3 +1,52 @@
+[**THE CHANGELOG OF FURTHER VERSIONS (STARTING WITH 1.4.0) IS MAINTAINED WITH GITHUB RELEASES AND CAN BE FOUND HERE**](https://github.com/react-native-community/react-native-camera/releases)
+
+
+#### 1.3.1-9 (2018-10-24)
+
+##### Chores
+
+* **package:**  bump to 1.3.0 ([501d4ad8](https://github.com/react-native-community/react-native-camera/commit/501d4ad8deb013f36abda18794fbf58c04bd190b))
+* **yarn:**  update yarn.lock ([fafe4c11](https://github.com/react-native-community/react-native-camera/commit/fafe4c119230a7378ab18ea1dd0634d8eb55a538))
+
+##### Documentation Changes
+
+*  add slide-up zoom recipe ([737a5a2e](https://github.com/react-native-community/react-native-camera/commit/737a5a2ef51d52b5a82b2b16972ebe0df40a2fd4))
+
+##### Bug Fixes
+
+*  Do not rely in to jcenter but google ([#1874](https://github.com/react-native-community/react-native-camera/pull/1874)) ([92615246](https://github.com/react-native-community/react-native-camera/commit/9261524609ac4d9f29a33fb94847ef78a50b38f3))
+*  Error retrieving camcorder profile params ([#1835](https://github.com/react-native-community/react-native-camera/pull/1835)) ([8de827e6](https://github.com/react-native-community/react-native-camera/commit/8de827e6c2a027b30668c108b147fb02affb8a35))
+* **build:**  fix no face detection project ([a7a7abf6](https://github.com/react-native-community/react-native-camera/commit/a7a7abf648e5f2c2f4b6f7e11bc3ed9669916a24))
+
+##### Reverts
+
+*  check if face or text detector libraries are included independently ([#1882](https://github.com/react-native-community/react-native-camera/pull/1882)) ([9efd7554](https://github.com/react-native-community/react-native-camera/commit/9efd7554586deed6d8e59cce579b21479365f984))
+
+### 1.3.0-8 (2018-09-26)
+
+##### Build System / Dependencies
+
+* **package:**  1.2.0 ([da8e79cd](https://github.com/react-native-community/react-native-camera/commit/da8e79cd7aa2d62fb1209892c83c440b8f80e0b6))
+* **change-log:**  1.2.0 ([1da60b2f](https://github.com/react-native-community/react-native-camera/commit/1da60b2feb260748a3da268486717d854193e7b6))
+
+##### Chores
+
+* **ts:**  add doNotSave to ts type definitions ([f0c18b7c](https://github.com/react-native-community/react-native-camera/commit/f0c18b7c2074bb88a92df526525dcf8845afd854))
+* **update:**  update package.json packages ([#1739](https://github.com/react-native-community/react-native-camera/pull/1739)) ([843cbf4f](https://github.com/react-native-community/react-native-camera/commit/843cbf4ff685a3f211f3b5c31613943d1672bb88))
+
+##### New Features
+
+*  adds autoFocusPointOfInterest to iOS ([39cc29de](https://github.com/react-native-community/react-native-camera/commit/39cc29deca9c1de9bb4b1e3a9f31f07b32f7ddc6))
+
+##### Bug Fixes
+
+* **rn-camera:**
+  *  bump platform version to 9.0. closes [#1806](https://github.com/react-native-community/react-native-camera/pull/1806) ([bdbc2564](https://github.com/react-native-community/react-native-camera/commit/bdbc2564ba113e1316306333febb1763b1003aaf))
+  *  use `componentDidMount` instead of `componentWillMount`. closes [#1809](https://github.com/react-native-community/react-native-camera/pull/1809) closes [#1760](https://github.com/react-native-community/react-native-camera/pull/1760) ([2d311ff1](https://github.com/react-native-community/react-native-camera/commit/2d311ff1866977d77d6b0018dbc2a7a2ee511040))
+*  added some missing typescript declarations ([#1792](https://github.com/react-native-community/react-native-camera/pull/1792)) ([a5c67376](https://github.com/react-native-community/react-native-camera/commit/a5c67376af4bdddef163480441cc773004b86471))
+*  android base64 string format for consistency with ios ([#1776](https://github.com/react-native-community/react-native-camera/pull/1776)) ([d4b4ee11](https://github.com/react-native-community/react-native-camera/commit/d4b4ee116861919d0ba70f3edea774d1ab252182))
+*  update docs and add check for focus mode support ([ca5a12b4](https://github.com/react-native-community/react-native-camera/commit/ca5a12b400c599e6ec76d60214c3b479891f4d02))
+
 ### 1.2.0-7 (2018-08-09)
 
 ##### Build System / Dependencies

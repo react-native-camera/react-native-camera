@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.source         = { :git => 'https://github.com/react-native-community/react-native-camera', :tag => s.version }
 
   s.requires_arc   = true
-  s.platform       = :ios, '8.0'
+  s.platform       = :ios, '9.0'
 
   s.subspec "RCT" do |ss|
     ss.source_files = "ios/RCT/**/*.{h,m}"
@@ -27,12 +27,20 @@ Pod::Spec.new do |s|
     ss.dependency 'react-native-camera/RN'
     ss.dependency 'react-native-camera/RCT'
 
-    ss.dependency 'GoogleMobileVision/Detector', '~> 1.1.0'
-    ss.dependency 'GoogleMobileVision/MVDataOutput', '~> 1.1.0'
-    ss.dependency 'GoogleMobileVision/FaceDetector', '~> 1.1.0'
+    ss.dependency 'GoogleMobileVision/Detector', '~> 1.4'
+    ss.dependency 'GoogleMobileVision/MVDataOutput', '~> 1.4'
+    ss.dependency 'GoogleMobileVision/FaceDetector', '~> 1.4'
 
     ss.source_files = "ios/FaceDetector/**/*.{h,m}"
     s.static_framework = true
+  end
+
+  s.subspec "TextDetector" do |ss|
+    ss.dependency 'react-native-camera/RN'
+    ss.dependency 'react-native-camera/RCT'
+    ss.dependency 'GoogleMobileVision/TextDetector', '~> 1.4'
+
+    ss.source_files = "ios/TextDetector/**/*.{h,m}"
   end
 
   s.default_subspecs = "RN", "RCT"

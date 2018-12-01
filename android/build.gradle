@@ -4,11 +4,11 @@ def safeExtGet(prop, fallback) {
 
 buildscript {
   repositories {
-    jcenter()
     google()
     maven {
       url 'https://maven.google.com'
     }
+    jcenter()
   }
 
   dependencies {
@@ -33,6 +33,7 @@ android {
 }
 
 repositories {
+  google()
   mavenCentral()
   maven {
    url 'https://maven.google.com'
@@ -49,7 +50,7 @@ dependencies {
   compileOnly 'com.facebook.infer.annotation:infer-annotation:+'
   implementation "com.google.zxing:core:3.3.0"
   implementation "com.drewnoakes:metadata-extractor:2.9.1"
-  implementation "com.google.android.gms:play-services-vision:${safeExtGet('googlePlayServicesVersion', '12.0.1')}"
+  implementation "com.google.android.gms:play-services-vision:${safeExtGet('googlePlayServicesVersion', '15.0.2')}"
   implementation "com.android.support:exifinterface:${safeExtGet('supportLibVersion', '27.1.0')}"
   implementation "com.android.support:support-annotations:${safeExtGet('supportLibVersion', '27.1.0')}"
   implementation "com.android.support:support-v4:${safeExtGet('supportLibVersion', '27.1.0')}"
