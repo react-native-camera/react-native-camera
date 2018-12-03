@@ -177,7 +177,7 @@ namespace RNCamera
             var eventData = new JObject
             {
                 { "bounds", resultPoints },
-                { "text", result.Text },
+                { "data", result.Text },
                 { "type", result.BarcodeFormat.GetName() },
             };
 
