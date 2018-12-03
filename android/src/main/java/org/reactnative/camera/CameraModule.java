@@ -33,6 +33,10 @@ public class CameraModule extends ReactContextBaseJavaModule {
   static final int VIDEO_480P = 3;
   static final int VIDEO_4x3 = 4;
 
+  static final int GOOGLE_VISION_BARCODE_MODE_NORMAL = 0;
+  static final int GOOGLE_VISION_BARCODE_MODE_ALTERNATE = 1;
+  static final int GOOGLE_VISION_BARCODE_MODE_INVERTED = 2;
+
   public static final Map<String, Object> VALID_BARCODE_TYPES =
       Collections.unmodifiableMap(new HashMap<String, Object>() {
         {
@@ -118,6 +122,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
         put("GoogleVisionBarcodeDetection", Collections.unmodifiableMap(new HashMap<String, Object>() {
           {
             put("BarcodeType", BarcodeFormatUtils.REVERSE_FORMATS);
+            put("BarcodeMode", getGoogleVisionBarcodeModeConstants());
           }
         }));
       }
@@ -172,6 +177,16 @@ public class CameraModule extends ReactContextBaseJavaModule {
             put("720p", VIDEO_720P);
             put("480p", VIDEO_480P);
             put("4:3", VIDEO_4x3);
+          }
+        });
+      }
+
+      private Map<String, Object> getGoogleVisionBarcodeModeConstants() {
+        return Collections.unmodifiableMap(new HashMap<String, Object>() {
+          {
+            put("NORMAL", GOOGLE_VISION_BARCODE_MODE_NORMAL);
+            put("ALTERNATE", GOOGLE_VISION_BARCODE_MODE_ALTERNATE);
+            put("INVERTED", GOOGLE_VISION_BARCODE_MODE_INVERTED);
           }
         });
       }

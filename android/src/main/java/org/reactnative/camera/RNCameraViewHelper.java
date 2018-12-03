@@ -182,7 +182,15 @@ public class RNCameraViewHelper {
     ReactContext reactContext = (ReactContext) view.getContext();
     reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
   }
-    
+
+  // Picture taken event
+
+  public static void emitPictureTakenEvent(ViewGroup view) {
+    PictureTakenEvent event = PictureTakenEvent.obtain(view.getId());
+    ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  }
+
   // Face detection events
 
   public static void emitFacesDetectedEvent(
@@ -236,8 +244,8 @@ public class RNCameraViewHelper {
 
   // Bar code read event
 
-  public static void emitBarCodeReadEvent(ViewGroup view, Result barCode) {
-    BarCodeReadEvent event = BarCodeReadEvent.obtain(view.getId(), barCode);
+  public static void emitBarCodeReadEvent(ViewGroup view, Result barCode, int width, int height) {
+    BarCodeReadEvent event = BarCodeReadEvent.obtain(view.getId(), barCode, width,  height);
     ReactContext reactContext = (ReactContext) view.getContext();
     reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
   }
@@ -275,27 +283,32 @@ public class RNCameraViewHelper {
     }
   }
 
-  public static CamcorderProfile getCamcorderProfile(int quality) {
-    CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+  private static int getCamcorderProfileQualityFromCameraModuleConstant(int quality) {
     switch (quality) {
       case CameraModule.VIDEO_2160P:
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-          profile = CamcorderProfile.get(CamcorderProfile.QUALITY_2160P);
+          return CamcorderProfile.QUALITY_2160P;
         }
-        break;
       case CameraModule.VIDEO_1080P:
-        profile = CamcorderProfile.get(CamcorderProfile.QUALITY_1080P);
-        break;
+        return CamcorderProfile.QUALITY_1080P;
       case CameraModule.VIDEO_720P:
-        profile = CamcorderProfile.get(CamcorderProfile.QUALITY_720P);
-        break;
+        return CamcorderProfile.QUALITY_720P;
       case CameraModule.VIDEO_480P:
-        profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
-        break;
+        return CamcorderProfile.QUALITY_480P;
       case CameraModule.VIDEO_4x3:
-        profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
+        return CamcorderProfile.QUALITY_480P;
+    }
+    return CamcorderProfile.QUALITY_HIGH;
+  }
+  
+  public static CamcorderProfile getCamcorderProfile(int quality) {
+    CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+    int camcorderQuality = getCamcorderProfileQualityFromCameraModuleConstant(quality);
+    if (CamcorderProfile.hasProfile(camcorderQuality)) {
+      profile = CamcorderProfile.get(camcorderQuality);
+      if (quality == CameraModule.VIDEO_4x3) {
         profile.videoFrameWidth = 640;
-        break;
+      }
     }
     return profile;
   }
