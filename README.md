@@ -394,11 +394,11 @@ dependencies {
 
 #### Windows
 1. `npm install react-native-camera --save`
-2. Link the library as described here: https://github.com/Microsoft/react-native-windows/blob/master/docs/LinkingLibrariesWindows.md
+2. Link the library as described here: [react-native-windows / LinkingLibrariesWindows.md](https://github.com/Microsoft/react-native-windows/blob/master/docs/LinkingLibrariesWindows.md)
 For the last step of this guide, you have to add the following things to your `MainReactNativeHost.cs`:
 - in the import section at the very top: `using RNCamera;`
 - in `protected override List<IReactPackage> Packages => new List<IReactPackage>` add a new line with `new RNCameraPackage()`
-3. Add the capabilities (permissions) for the webcam and microphone as described here: https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/simple-camera-preview-access#add-capability-declarations-to-the-app-manifest
+3. Add the capabilities (permissions) for the webcam and microphone as described here: [docs.microsoft / audio-video-camera](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/simple-camera-preview-access#add-capability-declarations-to-the-app-manifest)
 4. Use `RCTCamera` (RNCamera is not supported yet) like described above
 
 Follow the [Q & A](./docs/QA.md) section if you are having compilation issues.
