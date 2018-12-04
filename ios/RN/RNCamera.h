@@ -73,6 +73,7 @@
 - (void)onFacesDetected:(NSDictionary *)event;
 - (void)onPictureSaved:(NSDictionary *)event;
 - (void)onText:(NSDictionary *)event;
+- (bool)isRecording;
 
 @end
 
