@@ -526,6 +526,10 @@ The promise will be fulfilled with an object with some of the following properti
 
  Android only. Returns a promise. The promise will be fulfilled with an object with an array containing strings with all camera aspect ratios supported by the device.
 
+ #### `iOS` `isRecording(): Promise<boolean>`
+
+ iOS only. Returns a promise. The promise will be fulfilled with a boolean indicating if currently recording is started or stopped.
+
 ## Subviews
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
 
