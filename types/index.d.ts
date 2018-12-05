@@ -13,7 +13,7 @@
 import { Component, ReactNode } from 'react';
 import { ViewProperties } from "react-native";
 
-type Orientation = Readonly<{ auto:any, landscapeLeft:any ,landscapeRight:any, portrait:any, portraitUpsideDown:any}>
+type Orientation = Readonly<{ auto: any, landscapeLeft: any, landscapeRight: any, portrait: any, portraitUpsideDown: any }>
 type AutoFocus = Readonly<{ on: any, off: any }>;
 type FlashMode = Readonly<{ on: any, off: any, torch: any, auto: any }>;
 type CameraType = Readonly<{ front: any, back: any }>;
@@ -73,7 +73,7 @@ export interface RNCameraProps {
     pendingAuthorizationView?: JSX.Element;
     useCamera2Api?: boolean;
     whiteBalance?: keyof WhiteBalance
-    
+
     onCameraReady?(): void;
     onMountError?(error: {
         message: string
@@ -232,6 +232,9 @@ export class RNCamera extends Component<RNCameraProps & ViewProperties> {
 
     /** Android only */
     getSupportedRatiosAsync(): Promise<string[]>;
+
+    /** iOS only */
+    isRecording(): Promise<boolean>;
 }
 
 interface DetectionOptions {
