@@ -179,13 +179,16 @@ Most cameras have a Auto Focus feature. It adjusts your camera lens position aut
 
 Use the `autoFocus` property to specify the auto focus setting of your camera. `RNCamera.Constants.AutoFocus.on` turns it ON, `RNCamera.Constants.AutoFocus.off` turns it OFF.
 
-#### `iOS` `autoFocusPointOfInterest`
+#### `autoFocusPointOfInterest`
 
 Values: Object `{ x: 0.5, y: 0.5 }`.
 
 Setting this property causes the auto focus feature of the camera to attempt to focus on the part of the image at this coordiate.
 
 Coordinates values are measured as floats from `0` to `1.0`. `{ x: 0, y: 0 }` will focus on the top left of the image, `{ x: 1, y: 1 }` will be the bottom right. Values are based on landscape mode with the home button on the right—this applies even if the device is in portrait mode.
+
+Hint:
+for portrait orientation, apply 90° clockwise rotation + translation: [Example](https://gist.github.com/Craigtut/6632a9ac7cfff55e74fb561862bc4edb)
 
 #### `captureAudio`
 

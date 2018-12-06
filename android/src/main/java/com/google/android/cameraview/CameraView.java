@@ -18,6 +18,8 @@ package com.google.android.cameraview;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Rect;
+import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import android.os.Parcel;
@@ -29,6 +31,7 @@ import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.graphics.SurfaceTexture;
@@ -491,6 +494,16 @@ public class CameraView extends FrameLayout {
      */
     public int getCameraOrientation() {
         return mImpl.getCameraOrientation();
+    }
+    
+    /**
+     * Sets the auto focus point.
+     *
+     * @param x sets the x coordinate for camera auto focus
+     * @param y sets the y coordinate for camera auto focus
+     */
+    public void setAutoFocusPointOfInterest(float x, float y) {
+        mImpl.setFocusArea(x, y);
     }
 
     public void setFocusDepth(float value) {

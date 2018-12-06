@@ -2,6 +2,7 @@ package org.reactnative.camera;
 
 import android.support.annotation.Nullable;
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
@@ -95,6 +96,13 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "focusDepth")
   public void setFocusDepth(RNCameraView view, float depth) {
     view.setFocusDepth(depth);
+  }
+
+  @ReactProp(name = "autoFocusPointOfInterest")
+  public void setAutoFocusPointOfInterest(RNCameraView view, ReadableMap coordinates) {
+    float x = (float) coordinates.getDouble("x");
+    float y = (float) coordinates.getDouble("y");
+    view.setAutoFocusPointOfInterest(x, y);
   }
 
   @ReactProp(name = "zoom")
