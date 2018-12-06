@@ -242,7 +242,11 @@ public class CameraModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void takePicture(final ReadableMap options, final int viewTag, final Promise promise) {
     final ReactApplicationContext context = getReactApplicationContext();
-    final File cacheDirectory = mScopedContext.getCacheDirectory();
+    final File cacheDirectory =
+      options.hasKey("usePersistentStorage") && options.getBoolean("usePersistentStorage")
+        ? mScopedContext.getFilesDirectory()
+        : mScopedContext.getCacheDirectory();
+
     UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
     uiManager.addUIBlock(new UIBlock() {
       @Override

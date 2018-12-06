@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
 AppRegistry.registerComponent('BadInstagramCloneApp', () => App);
 ```
 
-#### `camera` 
+#### `camera`
 
 *It's the RNCamera's reference*
 
@@ -450,6 +450,7 @@ Supported options:
 
 - `doNotSave` (boolean true or false). Use this with `true` if you do not want the picture to be saved as a file to cache. If no value is specified `doNotSave:false` is used. If you only need the base64 for the image, you can use this with `base64:true` and avoid having to save the file.
 
+- `usePersistentStorage` (android only, boolean). Use this with `true` if you want the picture to be saved to the files directory instead of the cache directory, it is going to be saved. If no value is specified `usePersistentStorage:false` is used.
 
  - `pauseAfterCapture` (boolean true or false).  If true, pause the preview layer immediately after capturing the image.  You will need to call `cameraRef.resumePreview()` before using the camera again. If no value is specified `pauseAfterCapture:false` is used.
 
@@ -513,7 +514,7 @@ The promise will be fulfilled with an object with some of the following properti
  #### `stopRecording: void`
 
  Should be called after recordAsync() to make the promise be fulfilled and get the video uri.
- 
+
  #### `pausePreview: void`
 
  Pauses the preview. The preview can be resumed again by using resumePreview().

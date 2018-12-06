@@ -92,12 +92,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         if (options.hasKey("fastMode") && options.getBoolean("fastMode")) {
             promise.resolve(null);
         }
-        final File cacheDirectory = mPictureTakenDirectories.remove(promise);
+        final File directory = mPictureTakenDirectories.remove(promise);
         if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this)
+          new ResolveTakenPictureAsyncTask(data, promise, options, directory, RNCameraView.this)
                   .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this)
+          new ResolveTakenPictureAsyncTask(data, promise, options, directory, RNCameraView.this)
                   .execute();
         }
         RNCameraViewHelper.emitPictureTakenEvent(cameraView);
@@ -230,10 +230,10 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mPlaySoundOnCapture = playSoundOnCapture;
   }
 
-  public void takePicture(ReadableMap options, final Promise promise, File cacheDirectory) {
+  public void takePicture(ReadableMap options, final Promise promise, File directory) {
     mPictureTakenPromises.add(promise);
     mPictureTakenOptions.put(promise, options);
-    mPictureTakenDirectories.put(promise, cacheDirectory);
+    mPictureTakenDirectories.put(promise, directory);
     if (mPlaySoundOnCapture) {
       MediaActionSound sound = new MediaActionSound();
       sound.play(MediaActionSound.SHUTTER_CLICK);
