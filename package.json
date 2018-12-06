@@ -40,22 +40,10 @@
     "semantic-release": "^15.10.6"
   },
   "homepage": "https://github.com/react-native-community/react-native-camera",
-  "keywords": [
-    "barcode",
-    "camera",
-    "code",
-    "native",
-    "qr",
-    "react",
-    "react-native"
-  ],
+  "keywords": ["barcode", "camera", "code", "native", "qr", "react", "react-native"],
   "license": "MIT",
   "lint-staged": {
-    "*.js": [
-      "yarn prettier",
-      "eslint --fix",
-      "git add"
-    ]
+    "*.js": ["yarn prettier", "eslint --fix", "git add"]
   },
   "main": "src/index.js",
   "nativePackage": true,
@@ -81,9 +69,7 @@
       [
         "@semantic-release/github",
         {
-          "assets": [
-            "package.json"
-          ],
+          "assets": ["package.json"],
           "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
         }
       ],

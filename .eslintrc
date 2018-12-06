@@ -4,14 +4,9 @@
     "browser": true,
     "node": true,
     "jest": true,
-    "es6": true,
+    "es6": true
   },
-  "plugins": [
-    "react",
-    "react-native",
-    "flowtype",
-    "import"
-  ],
+  "plugins": ["react", "react-native", "flowtype", "import"],
   "parserOptions": {
     "ecmaVersion": 6,
     "sourceType": "module",
@@ -54,12 +49,7 @@
   "settings": {
     "import/resolver": {
       "node": {
-        "extensions":[
-          ".js",
-          ".android.js",
-          ".ios.js",
-          ".json"
-        ]
+        "extensions": [".js", ".android.js", ".ios.js", ".json"]
       }
     }
   },
