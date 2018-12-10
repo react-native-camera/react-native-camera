@@ -13,7 +13,7 @@
 import { Component, ReactNode } from 'react';
 import { ViewProperties } from "react-native";
 
-type Orientation = Readonly<{ auto:any, landscapeLeft:any ,landscapeRight:any, portrait:any, portraitUpsideDown:any}>
+type Orientation = Readonly<{ auto: any, landscapeLeft: any, landscapeRight: any, portrait: any, portraitUpsideDown: any }>
 type AutoFocus = Readonly<{ on: any, off: any }>;
 type FlashMode = Readonly<{ on: any, off: any, torch: any, auto: any }>;
 type CameraType = Readonly<{ front: any, back: any }>;
@@ -33,6 +33,7 @@ type GoogleVisionBarcodeType = Readonly<{
     CODE_128: any, CODE_39: any, CODABAR: any, DATA_MATRIX: any, EAN_13: any, EAN_8: any,
     ITF: any, QR_CODE: any, UPC_A: any, UPC_E: any, PDF417: any, AZTEC: any
 }>;
+type GoogleVisionBarcodeMode = Readonly<{ NORMAL: any, ALTERNATE: any, INVERTED: any }>
 
 // FaCC (Function as Child Components)
 type Self<T> = { [P in keyof T]: P }
@@ -57,7 +58,8 @@ export interface Constants {
         Mode: FaceDetectionMode;
     },
     GoogleVisionBarcodeDetection: {
-        BarcodeType: GoogleVisionBarcodeType
+        BarcodeType: GoogleVisionBarcodeType;
+        BarcodeMode: GoogleVisionBarcodeMode;
     }
 }
 
@@ -71,7 +73,7 @@ export interface RNCameraProps {
     pendingAuthorizationView?: JSX.Element;
     useCamera2Api?: boolean;
     whiteBalance?: keyof WhiteBalance
-    
+
     onCameraReady?(): void;
     onMountError?(error: {
         message: string
@@ -87,6 +89,7 @@ export interface RNCameraProps {
     googleVisionBarcodeType?: keyof GoogleVisionBarcodeType;
     onBarCodeRead?(event: {
         data: string,
+        rawData?: string,
         type: keyof BarCodeType,
         /**
          * @description For Android use `[Point<string>, Point<string>]`
@@ -120,6 +123,7 @@ export interface RNCameraProps {
 
     /** iOS Only */
     captureAudio?: boolean;
+    defaultVideoQuality?: keyof VideoQuality;
 }
 
 interface Point<T = number> {
@@ -228,6 +232,9 @@ export class RNCamera extends Component<RNCameraProps & ViewProperties> {
 
     /** Android only */
     getSupportedRatiosAsync(): Promise<string[]>;
+
+    /** iOS only */
+    isRecording(): Promise<boolean>;
 }
 
 interface DetectionOptions {

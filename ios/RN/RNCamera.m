@@ -341,27 +341,33 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self updateSessionPreset:self.pictureSize];
 }
 
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 - (void)updateFaceDetecting:(id)faceDetecting
 {
-    [_faceDetectorManager setIsEnabled:faceDetecting];
+    #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
+        [_faceDetectorManager setIsEnabled:faceDetecting];
+    #endif
 }
 
 - (void)updateFaceDetectionMode:(id)requestedMode
 {
-    [_faceDetectorManager setMode:requestedMode];
+    #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
+        [_faceDetectorManager setMode:requestedMode];
+    #endif
 }
 
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks
 {
-    [_faceDetectorManager setLandmarksDetected:requestedLandmarks];
+    #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
+        [_faceDetectorManager setLandmarksDetected:requestedLandmarks];
+    #endif
 }
 
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications
 {
-    [_faceDetectorManager setClassificationsDetected:requestedClassifications];
+    #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
+        [_faceDetectorManager setClassificationsDetected:requestedClassifications];
+    #endif
 }
-#endif
 
 
 - (void)takePictureWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
@@ -385,6 +391,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [connection setVideoOrientation:orientation];
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
         if (imageSampleBuffer && !error) {
+            if ([options[@"pauseAfterCapture"] boolValue]) {
+                [[self.previewLayer connection] setEnabled:NO];
+            }
+
             BOOL useFastMode = options[@"fastMode"] && [options[@"fastMode"] boolValue];
             if (useFastMode) {
                 resolve(nil);
@@ -506,10 +516,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     if (options[@"quality"]) {
-        [self updateSessionPreset:[RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]]];
+        AVCaptureSessionPreset newQuality = [RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]];
+        if (self.session.sessionPreset != newQuality) {
+            [self updateSessionPreset:newQuality];
+        }
     }
 
-    [self updateSessionAudioIsMuted:!!options[@"mute"]];
+    [self updateSessionAudioIsMuted:[options[@"mute"] boolValue]];
 
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
     if (self.videoStabilizationMode != 0) {
@@ -559,7 +572,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)stopRecording
 {
-    [self.movieFileOutput stopRecording];
+    if ([self.movieFileOutput isRecording]) {
+        [self.movieFileOutput stopRecording];
+    } else {
+        RCTLogWarn(@"Video is not recording.");
+    }
 }
 
 - (void)resumePreview
@@ -575,6 +592,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)startSession
 {
 #if TARGET_IPHONE_SIMULATOR
+    [self onReady:nil];
     return;
 #endif
     //    NSDictionary *cameraPermissions = [EXCameraPermissionRequester permissions];
@@ -587,7 +605,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             return;
         }
 
-        self.session.sessionPreset = AVCaptureSessionPresetPhoto;
+        // Default video quality AVCaptureSessionPresetHigh if non is provided
+        AVCaptureSessionPreset preset = ([self defaultVideoQuality]) ? [RNCameraUtils captureSessionPresetForVideoResolution:[[self defaultVideoQuality] integerValue]] : AVCaptureSessionPresetHigh;
+
+        self.session.sessionPreset = preset == AVCaptureSessionPresetHigh ? AVCaptureSessionPresetPhoto: preset;
 
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
@@ -850,22 +871,58 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             for (id barcodeType in self.barCodeTypes) {
                 if ([metadata.type isEqualToString:barcodeType]) {
                     AVMetadataMachineReadableCodeObject *transformed = (AVMetadataMachineReadableCodeObject *)[_previewLayer transformedMetadataObjectForMetadataObject:metadata];
-                    NSDictionary *event = @{
-                                            @"type" : codeMetadata.type,
-                                            @"data" : codeMetadata.stringValue,
-                                            @"bounds": @{
-                                                @"origin": @{
-                                                    @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
-                                                    @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y]
-                                                },
-                                                @"size": @{
-                                                    @"height": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
-                                                    @"width": [NSString stringWithFormat:@"%f", transformed.bounds.size.width]
-                                                }
-                                            }
-                                            };
+                    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
+                        @"type" : codeMetadata.type,
+                        @"data" : [NSNull null],
+                        @"rawData" : [NSNull null],
+                        @"bounds": @{
+                            @"origin": @{
+                                    @"x": [NSString stringWithFormat:@"%f", transformed.bounds.origin.x],
+                                    @"y": [NSString stringWithFormat:@"%f", transformed.bounds.origin.y]
+                                    },
+                            @"size": @{
+                                    @"height": [NSString stringWithFormat:@"%f", transformed.bounds.size.height],
+                                    @"width": [NSString stringWithFormat:@"%f", transformed.bounds.size.width]
+                                    }
+                            }
+                        }
+                    ];
 
-                    [self onCodeRead:event];
+                    NSData *rawData;
+                    // If we're on ios11 then we can use `descriptor` to access the raw data of the barcode.
+                    // If we're on an older version of iOS we're stuck using valueForKeyPath to peak at the
+                    // data.
+                    if (@available(iOS 11, *)) {
+                        // descriptor is a CIBarcodeDescriptor which is an abstract base class with no useful fields.
+                        // in practice it's a subclass, many of which contain errorCorrectedPayload which is the data we
+                        // want. Instead of individually checking the class types, just duck type errorCorrectedPayload
+                        if ([codeMetadata.descriptor respondsToSelector:@selector(errorCorrectedPayload)]) {
+                            rawData = [codeMetadata.descriptor performSelector:@selector(errorCorrectedPayload)];
+                        }
+                    } else {
+                        rawData = [codeMetadata valueForKeyPath:@"_internal.basicDescriptor.BarcodeRawData"];
+                    }
+
+                    // Now that we have the raw data of the barcode translate it into a hex string to pass to the JS
+                    const unsigned char *dataBuffer = (const unsigned char *)[rawData bytes];
+                    if (dataBuffer) {
+                        NSMutableString     *rawDataHexString  = [NSMutableString stringWithCapacity:([rawData length] * 2)];
+                        for (int i = 0; i < [rawData length]; ++i) {
+                            [rawDataHexString appendString:[NSString stringWithFormat:@"%02lx", (unsigned long)dataBuffer[i]]];
+                        }
+                        [event setObject:[NSString stringWithString:rawDataHexString] forKey:@"rawData"];
+                    }
+
+                    // If we were able to extract a string representation of the barcode, attach it to the event as well
+                    // else just send null along.
+                    if (codeMetadata.stringValue) {
+                        [event setObject:codeMetadata.stringValue forKey:@"data"];
+                    }
+
+                    // Only send the event if we were able to pull out a binary or string representation
+                    if ([event objectForKey:@"data"] != [NSNull null] || [event objectForKey:@"rawData"] != [NSNull null]) {
+                        [self onCodeRead:event];
+                    }
                 }
             }
         }
@@ -943,8 +1000,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self setupOrDisableTextDetector];
     }
 
-    if (self.session.sessionPreset != AVCaptureSessionPresetPhoto) {
-        [self updateSessionPreset:AVCaptureSessionPresetPhoto];
+    AVCaptureSessionPreset preset = [RNCameraUtils captureSessionPresetForVideoResolution:[self defaultVideoQuality]];
+    if (self.session.sessionPreset != preset) {
+        [self updateSessionPreset: preset == AVCaptureSessionPresetHigh ? AVCaptureSessionPresetPhoto: preset];
     }
 }
 
@@ -1098,6 +1156,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self.session removeOutput:self.videoDataOutput];
     }
     self.videoDataOutput = nil;
+}
+
+- (bool)isRecording {
+    return self.movieFileOutput.isRecording;
 }
 
 @end

@@ -244,6 +244,11 @@ RCT_CUSTOM_VIEW_PROPERTY(textRecognizerEnabled, BOOL, RNCamera)
     [view setupOrDisableTextDetector];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(defaultVideoQuality, NSInteger, RNCamera)
+{
+    [view setDefaultVideoQuality: [NSNumber numberWithInteger:[RCTConvert NSInteger:json]]];
+}
+
 RCT_REMAP_METHOD(takePicture,
                  options:(NSDictionary *)options
                  reactTag:(nonnull NSNumber *)reactTag
@@ -382,5 +387,21 @@ RCT_REMAP_METHOD(getAvailablePictureSizes,
     resolve([[[self class] pictureSizes] allKeys]);
 }
 
-@end
+RCT_EXPORT_METHOD(isRecording:(nonnull NSNumber *)reactTag
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+    #if TARGET_IPHONE_SIMULATOR
+        reject(@"E_IS_RECORDING_FAILED", @"Video recording is not supported on a simulator.", nil);
+        return;
+    #endif
+        [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
+            RNCamera *view = viewRegistry[reactTag];
+            if (![view isKindOfClass:[RNCamera class]]) {
+                RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
+            } else {
+                resolve(@([view isRecording]));
+            }
+        }];
+}
 
+@end
