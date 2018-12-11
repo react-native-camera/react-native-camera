@@ -20,6 +20,7 @@ type Orientation = Readonly<{
   portrait: any;
   portraitUpsideDown: any;
 }>;
+type OrientationNumber = 1 | 2 | 3 | 4;
 type AutoFocus = Readonly<{ on: any; off: any }>;
 type FlashMode = Readonly<{ on: any; off: any; torch: any; auto: any }>;
 type CameraType = Readonly<{ front: any; back: any }>;
@@ -224,7 +225,7 @@ interface TrackedTextFeature {
 
 interface TakePictureOptions {
   quality?: number;
-  orientation?: keyof Orientation;
+  orientation?: keyof Orientation | OrientationNumber;
   base64?: boolean;
   exif?: boolean;
   width?: number;
@@ -245,10 +246,13 @@ interface TakePictureResponse {
   uri: string;
   base64?: string;
   exif?: { [name: string]: any };
+  pictureOrientation: number;
+  deviceOrientation: number;
 }
 
 interface RecordOptions {
   quality?: keyof VideoQuality;
+  orientation?: keyof Orientation | OrientationNumber;
   maxDuration?: number;
   maxFileSize?: number;
   mute?: boolean;
@@ -262,6 +266,8 @@ interface RecordOptions {
 interface RecordResponse {
   /** Path to the video saved on your app's cache directory. */
   uri: string;
+  videoOrientation: number;
+  deviceOrientation: number;
   /** iOS only */
   codec: VideoCodec[keyof VideoCodec];
 }
