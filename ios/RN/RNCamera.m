@@ -373,20 +373,23 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)takePictureWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
     [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
         NSMutableDictionary *tmpOptions = [options mutableCopy];
-        tmpOptions[@"orientation"]=[NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
+        if ([tmpOptions valueForKey:@"orientation"] == nil) {
+            tmpOptions[@"orientation"] = [NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation:orientation]];
+        }
+        self.deviceOrientation = [NSNumber numberWithInteger:orientation];
+        self.orientation = [NSNumber numberWithInteger:[tmpOptions[@"orientation"] integerValue]];
         [self takePicture:tmpOptions resolve:resolve reject:reject];
-
     }];
 }
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
-    int orientation;
-    if ([options[@"orientation"] integerValue]) {
-        orientation = [options[@"orientation"] integerValue];
-    } else {
+    if (!self.deviceOrientation) {
         [self takePictureWithOrientation:options resolve:resolve reject:reject];
         return;
     }
+
+    NSInteger orientation = [options[@"orientation"] integerValue];
+
     AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [connection setVideoOrientation:orientation];
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
@@ -395,7 +398,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [[self.previewLayer connection] setEnabled:NO];
             }
 
-            BOOL useFastMode = options[@"fastMode"] && [options[@"fastMode"] boolValue];
+            BOOL useFastMode = [options valueForKey:@"fastMode"] != nil && [options[@"fastMode"] boolValue];
             if (useFastMode) {
                 resolve(nil);
             }
@@ -439,8 +442,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
             }
 
-
-
             if ([options[@"exif"] boolValue]) {
                 int imageRotation;
                 switch (takenImage.imageOrientation) {
@@ -463,6 +464,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 }
                 [RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
             }
+
+            response[@"pictureOrientation"] = @([self.orientation integerValue]);
+            response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
+            self.orientation = nil;
+            self.deviceOrientation = nil;
 
             if (useFastMode) {
                 [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
@@ -525,7 +531,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
     }
 
-    [self updateSessionAudioIsMuted:[options[@"mute"] boolValue]];
+    if ([options valueForKey:@"mute"] != nil) {
+        [self updateSessionAudioIsMuted:[options[@"mute"] boolValue]];
+    }
 
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
     if (self.videoStabilizationMode != 0) {
