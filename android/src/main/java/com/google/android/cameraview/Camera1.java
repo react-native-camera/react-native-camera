@@ -405,31 +405,31 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     int orientationEnumToRotation(int orientation) {
         switch(orientation) {
-            case 1:
+            case Constants.ORIENTATION_UP:
                 return 0;
-            case 2:
+            case Constants.ORIENTATION_DOWN:
                 return 180;
-            case 3:
+            case Constants.ORIENTATION_LEFT:
                 return 270;
-            case 4:
+            case Constants.ORIENTATION_RIGHT:
                 return 90;
             default:
-                return 0;
+                return Constants.ORIENTATION_UP;
         }
     }
 
     int displayOrientationToOrientationEnum(int rotation) {
         switch (rotation) {
             case 0:
-                return 1;
+                return Constants.ORIENTATION_UP;
             case 90:
-                return 4;
+                return Constants.ORIENTATION_RIGHT;
             case 180:
-                return 2;
+                return Constants.ORIENTATION_DOWN;
             case 270:
-                return 3;
+                return Constants.ORIENTATION_LEFT;
             default:
-                return 0;
+                return 1;
         }
     }
 
