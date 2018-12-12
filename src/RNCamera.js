@@ -165,6 +165,13 @@ export default class Camera extends React.Component<PropsType, StateType> {
     FaceDetection: CameraManager.FaceDetection,
     CameraStatus,
     VideoStabilization: CameraManager.VideoStabilization,
+    Orientation: {
+      auto: 'auto',
+      landscapeLeft: 'landscapeLeft',
+      landscapeRight: 'landscapeRight',
+      portrait: 'portrait',
+      portraitUpsideDown: 'portraitUpsideDown',
+    },
   };
 
   // Values under keys from this object will be transformed to native options
@@ -276,13 +283,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (!options.quality) {
       options.quality = 1;
     }
+
     if (options.orientation) {
       if (typeof options.orientation !== 'number') {
         const { orientation } = options;
         options.orientation = CameraManager.Orientation[orientation];
         if (typeof options.orientation !== 'number') {
           // eslint-disable-next-line no-console
-          console.warn(`Orientation '${orientation}' is invalid.`)
+          console.warn(`Orientation '${orientation}' is invalid.`);
         }
       }
     }
@@ -319,7 +327,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
         options.orientation = CameraManager.Orientation[orientation];
         if (typeof options.orientation !== 'number') {
           // eslint-disable-next-line no-console
-          console.warn(`Orientation '${orientation}' is invalid.`)
+          console.warn(`Orientation '${orientation}' is invalid.`);
         }
       }
     }

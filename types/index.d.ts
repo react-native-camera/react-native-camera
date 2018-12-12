@@ -111,6 +111,13 @@ export interface Constants {
     BarcodeType: GoogleVisionBarcodeType;
     BarcodeMode: GoogleVisionBarcodeMode;
   };
+  Orientation: {
+    auto: 'auto';
+    landscapeLeft: 'landscapeLeft';
+    landscapeRight: 'landscapeRight';
+    portrait: 'portrait';
+    portraitUpsideDown: 'portraitUpsideDown';
+  };
 }
 
 export interface RNCameraProps {
@@ -266,7 +273,6 @@ interface RecordOptions {
 interface RecordResponse {
   /** Path to the video saved on your app's cache directory. */
   uri: string;
-
   videoOrientation: number;
   deviceOrientation: number;
   /** iOS only */
