@@ -11,242 +11,288 @@
  * If you are seeing this from the future, please, send us your cutting-edge technology :) (if it exists)
  */
 import { Component, ReactNode } from 'react';
-import { ViewProperties } from "react-native";
+import { ViewProperties } from 'react-native';
 
-type Orientation = Readonly<{ auto: any, landscapeLeft: any, landscapeRight: any, portrait: any, portraitUpsideDown: any }>
-type AutoFocus = Readonly<{ on: any, off: any }>;
-type FlashMode = Readonly<{ on: any, off: any, torch: any, auto: any }>;
-type CameraType = Readonly<{ front: any, back: any }>;
-type WhiteBalance = Readonly<{ sunny: any, cloudy: any, shadow: any, incandescent: any, fluorescent: any, auto: any }>;
-type BarCodeType = Readonly<{ aztec: any, code128: any, code39: any, code39mod43: any, code93: any, ean13: any, ean8: any, pdf417: any, qr: any, upce: any, interleaved2of5: any, itf14: any, datamatrix: any }>;
+type Orientation = Readonly<{
+  auto: any;
+  landscapeLeft: any;
+  landscapeRight: any;
+  portrait: any;
+  portraitUpsideDown: any;
+}>;
+type AutoFocus = Readonly<{ on: any; off: any }>;
+type FlashMode = Readonly<{ on: any; off: any; torch: any; auto: any }>;
+type CameraType = Readonly<{ front: any; back: any }>;
+type WhiteBalance = Readonly<{
+  sunny: any;
+  cloudy: any;
+  shadow: any;
+  incandescent: any;
+  fluorescent: any;
+  auto: any;
+}>;
+type BarCodeType = Readonly<{
+  aztec: any;
+  code128: any;
+  code39: any;
+  code39mod43: any;
+  code93: any;
+  ean13: any;
+  ean8: any;
+  pdf417: any;
+  qr: any;
+  upce: any;
+  interleaved2of5: any;
+  itf14: any;
+  datamatrix: any;
+}>;
 type VideoQuality = Readonly<{
-    '2160p': any, '1080p': any, '720p': any, '480p': any, '4:3': any;
-    /** iOS Only. Android not supported. */
-    '288p': any;
+  '2160p': any;
+  '1080p': any;
+  '720p': any;
+  '480p': any;
+  '4:3': any;
+  /** iOS Only. Android not supported. */
+  '288p': any;
 }>;
-type VideoCodec = Readonly<{ 'H264': symbol, 'JPEG': symbol, 'HVEC': symbol, 'AppleProRes422': symbol, 'AppleProRes4444': symbol }>;
+type VideoCodec = Readonly<{
+  H264: symbol;
+  JPEG: symbol;
+  HVEC: symbol;
+  AppleProRes422: symbol;
+  AppleProRes4444: symbol;
+}>;
 
-type FaceDetectionClassifications = Readonly<{ all: any, none: any }>;
-type FaceDetectionLandmarks = Readonly<{ all: any, none: any }>;
-type FaceDetectionMode = Readonly<{ fast: any, accurate: any }>;
+type FaceDetectionClassifications = Readonly<{ all: any; none: any }>;
+type FaceDetectionLandmarks = Readonly<{ all: any; none: any }>;
+type FaceDetectionMode = Readonly<{ fast: any; accurate: any }>;
 type GoogleVisionBarcodeType = Readonly<{
-    CODE_128: any, CODE_39: any, CODABAR: any, DATA_MATRIX: any, EAN_13: any, EAN_8: any,
-    ITF: any, QR_CODE: any, UPC_A: any, UPC_E: any, PDF417: any, AZTEC: any
+  CODE_128: any;
+  CODE_39: any;
+  CODABAR: any;
+  DATA_MATRIX: any;
+  EAN_13: any;
+  EAN_8: any;
+  ITF: any;
+  QR_CODE: any;
+  UPC_A: any;
+  UPC_E: any;
+  PDF417: any;
+  AZTEC: any;
 }>;
-type GoogleVisionBarcodeMode = Readonly<{ NORMAL: any, ALTERNATE: any, INVERTED: any }>
+type GoogleVisionBarcodeMode = Readonly<{ NORMAL: any; ALTERNATE: any; INVERTED: any }>;
 
 // FaCC (Function as Child Components)
-type Self<T> = { [P in keyof T]: P }
-type CameraStatus = Readonly<Self<{ READY: any, PENDING_AUTHORIZATION: any, NOT_AUTHORIZED: any }>>;
-type FaCC = (params: {
-    camera: RNCamera,
-    status: keyof CameraStatus
-}) => JSX.Element;
+type Self<T> = { [P in keyof T]: P };
+type CameraStatus = Readonly<Self<{ READY: any; PENDING_AUTHORIZATION: any; NOT_AUTHORIZED: any }>>;
+type FaCC = (
+  params: {
+    camera: RNCamera;
+    status: keyof CameraStatus;
+  },
+) => JSX.Element;
 
 export interface Constants {
-    CameraStatus: CameraStatus;
-    AutoFocus: AutoFocus;
-    FlashMode: FlashMode;
-    VideoCodec: VideoCodec;
-    Type: CameraType;
-    WhiteBalance: WhiteBalance;
-    VideoQuality: VideoQuality;
-    BarCodeType: BarCodeType;
-    FaceDetection: {
-        Classifications: FaceDetectionClassifications;
-        Landmarks: FaceDetectionLandmarks;
-        Mode: FaceDetectionMode;
-    },
-    GoogleVisionBarcodeDetection: {
-        BarcodeType: GoogleVisionBarcodeType;
-        BarcodeMode: GoogleVisionBarcodeMode;
-    }
+  CameraStatus: CameraStatus;
+  AutoFocus: AutoFocus;
+  FlashMode: FlashMode;
+  VideoCodec: VideoCodec;
+  Type: CameraType;
+  WhiteBalance: WhiteBalance;
+  VideoQuality: VideoQuality;
+  BarCodeType: BarCodeType;
+  FaceDetection: {
+    Classifications: FaceDetectionClassifications;
+    Landmarks: FaceDetectionLandmarks;
+    Mode: FaceDetectionMode;
+  };
+  GoogleVisionBarcodeDetection: {
+    BarcodeType: GoogleVisionBarcodeType;
+    BarcodeMode: GoogleVisionBarcodeMode;
+  };
 }
 
 export interface RNCameraProps {
-    children?: ReactNode | FaCC;
+  children?: ReactNode | FaCC;
 
-    autoFocus?: keyof AutoFocus;
-    type?: keyof CameraType;
-    flashMode?: keyof FlashMode;
-    notAuthorizedView?: JSX.Element;
-    pendingAuthorizationView?: JSX.Element;
-    useCamera2Api?: boolean;
-    whiteBalance?: keyof WhiteBalance
+  autoFocus?: keyof AutoFocus;
+  type?: keyof CameraType;
+  flashMode?: keyof FlashMode;
+  notAuthorizedView?: JSX.Element;
+  pendingAuthorizationView?: JSX.Element;
+  useCamera2Api?: boolean;
+  whiteBalance?: keyof WhiteBalance;
 
-    onCameraReady?(): void;
-    onMountError?(error: {
-        message: string
-    }): void;
+  onCameraReady?(): void;
+  onMountError?(error: { message: string }): void;
 
-    /** Value: float from 0 to 1.0 */
-    zoom?: number;
-    /** Value: float from 0 to 1.0 */
-    focusDepth?: number;
+  /** Value: float from 0 to 1.0 */
+  zoom?: number;
+  /** Value: float from 0 to 1.0 */
+  focusDepth?: number;
 
-    // -- BARCODE PROPS
-    barCodeTypes?: Array<keyof BarCodeType>;
-    googleVisionBarcodeType?: keyof GoogleVisionBarcodeType;
-    onBarCodeRead?(event: {
-        data: string,
-        rawData?: string,
-        type: keyof BarCodeType,
-        /**
-         * @description For Android use `[Point<string>, Point<string>]`
-         * @description For iOS use `{ origin: Point<string>, size: Size<string> }`
-         */
-        bounds: [Point<string>, Point<string>] | { origin: Point<string>, size: Size<string> }
-    }): void;
+  // -- BARCODE PROPS
+  barCodeTypes?: Array<keyof BarCodeType>;
+  googleVisionBarcodeType?: keyof GoogleVisionBarcodeType;
+  onBarCodeRead?(event: {
+    data: string;
+    rawData?: string;
+    type: keyof BarCodeType;
+    /**
+     * @description For Android use `[Point<string>, Point<string>]`
+     * @description For iOS use `{ origin: Point<string>, size: Size<string> }`
+     */
+    bounds: [Point<string>, Point<string>] | { origin: Point<string>; size: Size<string> };
+  }): void;
 
-    // -- FACE DETECTION PROPS
+  // -- FACE DETECTION PROPS
 
-    onGoogleVisionBarcodesDetected?(response: { barcodes: Barcode[] }): void;
-    onFacesDetected?(response: { faces: Face[] }): void;
-    onFaceDetectionError?(response: { isOperational: boolean }): void;
-    faceDetectionMode?: keyof FaceDetectionMode;
-    faceDetectionLandmarks?: keyof FaceDetectionLandmarks;
-    faceDetectionClassifications?: keyof FaceDetectionClassifications;
+  onGoogleVisionBarcodesDetected?(response: { barcodes: Barcode[] }): void;
+  onFacesDetected?(response: { faces: Face[] }): void;
+  onFaceDetectionError?(response: { isOperational: boolean }): void;
+  faceDetectionMode?: keyof FaceDetectionMode;
+  faceDetectionLandmarks?: keyof FaceDetectionLandmarks;
+  faceDetectionClassifications?: keyof FaceDetectionClassifications;
 
-    // -- ANDROID ONLY PROPS
-    /** Android only */
-    onTextRecognized?(response: { textBlocks: TrackedTextFeature[] }): void;
-    /** Android only */
-    ratio?: string;
-    /** Android only */
-    permissionDialogTitle?: string;
-    /** Android only */
-    permissionDialogMessage?: string;
-    /** Android only */
-    playSoundOnCapture?: boolean;
+  // -- ANDROID ONLY PROPS
+  /** Android only */
+  onTextRecognized?(response: { textBlocks: TrackedTextFeature[] }): void;
+  /** Android only */
+  ratio?: string;
+  /** Android only */
+  permissionDialogTitle?: string;
+  /** Android only */
+  permissionDialogMessage?: string;
+  /** Android only */
+  playSoundOnCapture?: boolean;
 
-    // -- IOS ONLY PROPS
+  // -- IOS ONLY PROPS
 
-    /** iOS Only */
-    captureAudio?: boolean;
-    defaultVideoQuality?: keyof VideoQuality;
+  /** iOS Only */
+  captureAudio?: boolean;
+  defaultVideoQuality?: keyof VideoQuality;
 }
 
 interface Point<T = number> {
-    x: T,
-    y: T
+  x: T;
+  y: T;
 }
 
 interface Size<T = number> {
-    width: T;
-    height: T;
+  width: T;
+  height: T;
 }
 
 interface Barcode {
-    data: string;
-    type: string;
+  data: string;
+  type: string;
 }
 
 interface Face {
-    faceID?: number,
-    bounds: {
-        size: Size;
-        origin: Point;
-    };
-    smilingProbability?: number;
-    leftEarPosition?: Point;
-    rightEarPosition?: Point;
-    leftEyePosition?: Point;
-    leftEyeOpenProbability?: number;
-    rightEyePosition?: Point;
-    rightEyeOpenProbability?: number;
-    leftCheekPosition?: Point;
-    rightCheekPosition?: Point;
-    leftMouthPosition?: Point;
-    mouthPosition?: Point;
-    rightMouthPosition?: Point;
-    bottomMouthPosition?: Point;
-    noseBasePosition?: Point;
-    yawAngle?: number;
-    rollAngle?: number;
+  faceID?: number;
+  bounds: {
+    size: Size;
+    origin: Point;
+  };
+  smilingProbability?: number;
+  leftEarPosition?: Point;
+  rightEarPosition?: Point;
+  leftEyePosition?: Point;
+  leftEyeOpenProbability?: number;
+  rightEyePosition?: Point;
+  rightEyeOpenProbability?: number;
+  leftCheekPosition?: Point;
+  rightCheekPosition?: Point;
+  leftMouthPosition?: Point;
+  mouthPosition?: Point;
+  rightMouthPosition?: Point;
+  bottomMouthPosition?: Point;
+  noseBasePosition?: Point;
+  yawAngle?: number;
+  rollAngle?: number;
 }
 
 interface TrackedTextFeature {
-    type: 'block' | 'line' | 'element';
-    bounds: {
-        size: Size;
-        origin: Point;
-    },
-    value: string;
-    components: TrackedTextFeature[];
+  type: 'block' | 'line' | 'element';
+  bounds: {
+    size: Size;
+    origin: Point;
+  };
+  value: string;
+  components: TrackedTextFeature[];
 }
 
 interface TakePictureOptions {
-    quality?: number;
-    orientation?: keyof Orientation;
-    base64?: boolean;
-    exif?: boolean;
-    width?: number;
-    mirrorImage?: boolean;
-    doNotSave?: boolean;
+  quality?: number;
+  orientation?: keyof Orientation;
+  base64?: boolean;
+  exif?: boolean;
+  width?: number;
+  mirrorImage?: boolean;
+  doNotSave?: boolean;
 
-    /** Android only */
-    skipProcessing?: boolean;
-    fixOrientation?: boolean;
+  /** Android only */
+  skipProcessing?: boolean;
+  fixOrientation?: boolean;
 
-    /** iOS only */
-    forceUpOrientation?: boolean;
+  /** iOS only */
+  forceUpOrientation?: boolean;
 }
 
 interface TakePictureResponse {
-    width: number;
-    height: number;
-    uri: string;
-    base64?: string;
-    exif?: { [name: string]: any };
+  width: number;
+  height: number;
+  uri: string;
+  base64?: string;
+  exif?: { [name: string]: any };
 }
 
-
 interface RecordOptions {
-    quality?: keyof VideoQuality;
-    maxDuration?: number;
-    maxFileSize?: number;
-    mute?: boolean;
-    mirrorVideo?: boolean;
-    path?: string,
+  quality?: keyof VideoQuality;
+  maxDuration?: number;
+  maxFileSize?: number;
+  mute?: boolean;
+  mirrorVideo?: boolean;
+  path?: string;
 
-    /** iOS only */
-    codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
+  /** iOS only */
+  codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
 }
 
 interface RecordResponse {
-    /** Path to the video saved on your app's cache directory. */
-    uri: string;
-    /** iOS only */
-    codec: VideoCodec[keyof VideoCodec];
+  /** Path to the video saved on your app's cache directory. */
+  uri: string;
+  /** iOS only */
+  codec: VideoCodec[keyof VideoCodec];
 }
 
 export class RNCamera extends Component<RNCameraProps & ViewProperties> {
-    static Constants: Constants;
+  static Constants: Constants;
 
-    takePictureAsync(options?: TakePictureOptions): Promise<TakePictureResponse>;
-    recordAsync(options?: RecordOptions): Promise<RecordResponse>;
-    stopRecording(): void;
-    pausePreview(): void;
-    resumePreview(): void;
-    getAvailablePictureSizes(): Promise<string[]>;
+  takePictureAsync(options?: TakePictureOptions): Promise<TakePictureResponse>;
+  recordAsync(options?: RecordOptions): Promise<RecordResponse>;
+  stopRecording(): void;
+  pausePreview(): void;
+  resumePreview(): void;
+  getAvailablePictureSizes(): Promise<string[]>;
 
-    /** Android only */
-    getSupportedRatiosAsync(): Promise<string[]>;
+  /** Android only */
+  getSupportedRatiosAsync(): Promise<string[]>;
 
-    /** iOS only */
-    isRecording(): Promise<boolean>;
+  /** iOS only */
+  isRecording(): Promise<boolean>;
 }
 
 interface DetectionOptions {
-    mode?: keyof FaceDetectionMode,
-    detectLandmarks?: keyof FaceDetectionLandmarks,
-    runClassifications?: keyof FaceDetectionClassifications
+  mode?: keyof FaceDetectionMode;
+  detectLandmarks?: keyof FaceDetectionLandmarks;
+  runClassifications?: keyof FaceDetectionClassifications;
 }
 
 export class FaceDetector {
-    private constructor();
-    static Constants: Constants['FaceDetection'];
-    static detectFacesAsync(uri: string, options?: DetectionOptions): Promise<Face[]>;
+  private constructor();
+  static Constants: Constants['FaceDetection'];
+  static detectFacesAsync(uri: string, options?: DetectionOptions): Promise<Face[]>;
 }
 
 // -- DEPRECATED CONTENT BELOW
@@ -255,5 +301,5 @@ export class FaceDetector {
  * @deprecated As of 1.0.0 release, RCTCamera is deprecated. Please use RNCamera for the latest fixes and improvements.
  */
 export default class RCTCamera extends Component<any> {
-    static constants: any;
+  static constants: any;
 }
