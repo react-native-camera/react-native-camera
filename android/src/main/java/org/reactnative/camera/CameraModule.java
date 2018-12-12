@@ -125,6 +125,14 @@ public class CameraModule extends ReactContextBaseJavaModule {
             put("BarcodeMode", getGoogleVisionBarcodeModeConstants());
           }
         }));
+        put("Orientation", Collections.unmodifiableMap(new HashMap<String, Object>() {
+            {
+              put("portrait", 1);
+              put("portraitUpsideDown", 2);
+              put("landscapeLeft", 3);
+              put("landscapeRight", 4);
+            }
+        }));
       }
 
       private Map<String, Object> getTypeConstants() {
