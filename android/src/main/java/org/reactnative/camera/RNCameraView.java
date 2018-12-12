@@ -86,7 +86,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       }
 
       @Override
-      public void onPictureTaken(CameraView cameraView, final byte[] data) {
+      public void onPictureTaken(CameraView cameraView, final byte[] data, int deviceOrientation) {
         Promise promise = mPictureTakenPromises.poll();
         ReadableMap options = mPictureTakenOptions.remove(promise);
         if (options.hasKey("fastMode") && options.getBoolean("fastMode")) {
@@ -94,20 +94,22 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
         final File cacheDirectory = mPictureTakenDirectories.remove(promise);
         if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this)
+          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
                   .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, RNCameraView.this)
+          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
                   .execute();
         }
         RNCameraViewHelper.emitPictureTakenEvent(cameraView);
       }
 
       @Override
-      public void onVideoRecorded(CameraView cameraView, String path) {
+      public void onVideoRecorded(CameraView cameraView, String path, int videoOrientation, int deviceOrientation) {
         if (mVideoRecordedPromise != null) {
           if (path != null) {
             WritableMap result = Arguments.createMap();
+            result.putInt("videoOrientation", videoOrientation);
+            result.putInt("deviceOrientation", deviceOrientation);
             result.putString("uri", RNFileUtils.uriFromFile(new File(path)).toString());
             mVideoRecordedPromise.resolve(result);
           } else {
@@ -264,9 +266,17 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         profile = RNCameraViewHelper.getCamcorderProfile(options.getInt("quality"));
       }
 
-      boolean recordAudio = !options.hasKey("mute");
+      boolean recordAudio = true;
+      if (options.hasKey("mute")) {
+        recordAudio = !options.getBoolean("mute");
+      }
 
-      if (super.record(path, maxDuration * 1000, maxFileSize, recordAudio, profile)) {
+      int orientation = Constants.ORIENTATION_AUTO;
+      if (options.hasKey("orientation")) {
+        orientation = options.getInt("orientation");
+      }
+
+      if (super.record(path, maxDuration * 1000, maxFileSize, recordAudio, profile, orientation)) {
         mVideoRecordedPromise = promise;
       } else {
         promise.reject("E_RECORDING_FAILED", "Starting video recording failed. Another recording might be in progress.");

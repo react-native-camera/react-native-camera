@@ -178,7 +178,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                     byte[] data = new byte[buffer.remaining()];
                     buffer.get(data);
                     if (image.getFormat() == ImageFormat.JPEG) {
-                        mCallback.onPictureTaken(data);
+                        // @TODO: implement deviceOrientation
+                        mCallback.onPictureTaken(data, 0);
                     } else {
                         mCallback.onFramePreview(data, image.getWidth(), image.getHeight(), mDisplayOrientation);
                     }
@@ -316,7 +317,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             mMediaRecorder = null;
 
             if (mIsRecording) {
-                mCallback.onVideoRecorded(mVideoPath);
+                // @TODO: implement videoOrientation and deviceOrientation calculation
+                mCallback.onVideoRecorded(mVideoPath, 0, 0);
                 mIsRecording = false;
             }
         }
@@ -473,7 +475,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     }
 
     @Override
-    boolean record(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile) {
+    boolean record(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int orientation) {
         if (!mIsRecording) {
             setUpMediaRecorder(path, maxDuration, maxFileSize, recordAudio, profile);
             try {
@@ -1130,10 +1132,12 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         mMediaRecorder = null;
 
         if (mVideoPath == null || !new File(mVideoPath).exists()) {
-            mCallback.onVideoRecorded(null);
+            // @TODO: implement videoOrientation and deviceOrientation calculation
+            mCallback.onVideoRecorded(null, 0 , 0);
             return;
         }
-        mCallback.onVideoRecorded(mVideoPath);
+        // @TODO: implement videoOrientation and deviceOrientation calculation
+        mCallback.onVideoRecorded(mVideoPath, 0, 0);
         mVideoPath = null;
     }
 

@@ -373,20 +373,23 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)takePictureWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
     [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
         NSMutableDictionary *tmpOptions = [options mutableCopy];
-        tmpOptions[@"orientation"]=[NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
+        if ([tmpOptions valueForKey:@"orientation"] == nil) {
+            tmpOptions[@"orientation"] = [NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation:orientation]];
+        }
+        self.deviceOrientation = [NSNumber numberWithInteger:orientation];
+        self.orientation = [NSNumber numberWithInteger:[tmpOptions[@"orientation"] integerValue]];
         [self takePicture:tmpOptions resolve:resolve reject:reject];
-
     }];
 }
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
-    int orientation;
-    if ([options[@"orientation"] integerValue]) {
-        orientation = [options[@"orientation"] integerValue];
-    } else {
+    if (!self.deviceOrientation) {
         [self takePictureWithOrientation:options resolve:resolve reject:reject];
         return;
     }
+
+    NSInteger orientation = [options[@"orientation"] integerValue];
+
     AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [connection setVideoOrientation:orientation];
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
@@ -395,7 +398,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [[self.previewLayer connection] setEnabled:NO];
             }
 
-            BOOL useFastMode = options[@"fastMode"] && [options[@"fastMode"] boolValue];
+            BOOL useFastMode = [options valueForKey:@"fastMode"] != nil && [options[@"fastMode"] boolValue];
             if (useFastMode) {
                 resolve(nil);
             }
@@ -439,8 +442,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
             }
 
-
-
             if ([options[@"exif"] boolValue]) {
                 int imageRotation;
                 switch (takenImage.imageOrientation) {
@@ -464,6 +465,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
             }
 
+            response[@"pictureOrientation"] = @([self.orientation integerValue]);
+            response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
+            self.orientation = nil;
+            self.deviceOrientation = nil;
+
             if (useFastMode) {
                 [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
             } else {
@@ -477,20 +483,23 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)recordWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
     [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
         NSMutableDictionary *tmpOptions = [options mutableCopy];
-        tmpOptions[@"orientation"]=[NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
+        if ([tmpOptions valueForKey:@"orientation"] == nil) {
+            tmpOptions[@"orientation"] = [NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
+        }
+        self.deviceOrientation = [NSNumber numberWithInteger:orientation];
+        self.orientation = [NSNumber numberWithInteger:[tmpOptions[@"orientation"] integerValue]];
         [self record:tmpOptions resolve:resolve reject:reject];
-
     }];
 }
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
-    int orientation;
-    if ([options[@"orientation"] integerValue]) {
-        orientation = [options[@"orientation"] integerValue];
-    } else {
+    if (!self.deviceOrientation) {
         [self recordWithOrientation:options resolve:resolve reject:reject];
         return;
     }
+
+    NSInteger orientation = [options[@"orientation"] integerValue];
+
     if (_movieFileOutput == nil) {
         // At the time of writing AVCaptureMovieFileOutput and AVCaptureVideoDataOutput (> GMVDataOutput)
         // cannot coexist on the same AVSession (see: https://stackoverflow.com/a/4986032/1123156).
@@ -522,7 +531,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
     }
 
-    [self updateSessionAudioIsMuted:[options[@"mute"] boolValue]];
+    if ([options valueForKey:@"mute"] != nil) {
+        [self updateSessionAudioIsMuted:[options[@"mute"] boolValue]];
+    }
 
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
     if (self.videoStabilizationMode != 0) {
@@ -959,21 +970,34 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
     }
     if (success && self.videoRecordedResolve != nil) {
-      if (@available(iOS 10, *)) {
-          AVVideoCodecType videoCodec = self.videoCodecType;
-          if (videoCodec == nil) {
-              videoCodec = [self.movieFileOutput.availableVideoCodecTypes firstObject];
-          }
-          if ([connections[0] isVideoMirrored]) {
-            [self mirrorVideo:outputFileURL completion:^(NSURL *mirroredURL) {
-                self.videoRecordedResolve(@{ @"uri": mirroredURL.absoluteString, @"codec":videoCodec });
-            }];
-          } else {
-            self.videoRecordedResolve(@{ @"uri": outputFileURL.absoluteString, @"codec":videoCodec });
-          }
-      } else {
-          self.videoRecordedResolve(@{ @"uri": outputFileURL.absoluteString });
-      }
+        NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+
+        void (^resolveBlock)(void) = ^() {
+            self.videoRecordedResolve(result);
+        };
+        
+        result[@"uri"] = outputFileURL.absoluteString;
+        result[@"videoOrientation"] = @([self.orientation integerValue]);
+        result[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
+
+
+        if (@available(iOS 10, *)) {
+            AVVideoCodecType videoCodec = self.videoCodecType;
+            if (videoCodec == nil) {
+                videoCodec = [self.movieFileOutput.availableVideoCodecTypes firstObject];
+            }
+            result[@"codec"] = videoCodec;
+
+            if ([connections[0] isVideoMirrored]) {
+                [self mirrorVideo:outputFileURL completion:^(NSURL *mirroredURL) {
+                    result[@"uri"] = mirroredURL.absoluteString;
+                    resolveBlock();
+                }];
+                return;
+            }
+        }
+
+        resolveBlock();
     } else if (self.videoRecordedReject != nil) {
         self.videoRecordedReject(@"E_RECORDING_FAILED", @"An error occurred while recording a video.", error);
     }
@@ -986,6 +1010,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     self.videoRecordedResolve = nil;
     self.videoRecordedReject = nil;
     self.videoCodecType = nil;
+    self.deviceOrientation = nil;
+    self.orientation = nil;
 
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
     [self cleanupMovieFileCapture];

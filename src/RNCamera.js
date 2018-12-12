@@ -31,10 +31,11 @@ const styles = StyleSheet.create({
 });
 
 type Orientation = 'auto' | 'landscapeLeft' | 'landscapeRight' | 'portrait' | 'portraitUpsideDown';
+type OrientationNumber = 1 | 2 | 3 | 4;
 
 type PictureOptions = {
   quality?: number,
-  orientation?: Orientation,
+  orientation?: Orientation | OrientationNumber,
   base64?: boolean,
   mirrorImage?: boolean,
   exif?: boolean,
@@ -164,6 +165,13 @@ export default class Camera extends React.Component<PropsType, StateType> {
     FaceDetection: CameraManager.FaceDetection,
     CameraStatus,
     VideoStabilization: CameraManager.VideoStabilization,
+    Orientation: {
+      auto: 'auto',
+      landscapeLeft: 'landscapeLeft',
+      landscapeRight: 'landscapeRight',
+      portrait: 'portrait',
+      portraitUpsideDown: 'portraitUpsideDown',
+    },
   };
 
   // Values under keys from this object will be transformed to native options
@@ -255,6 +263,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
   _cameraHandle: ?number;
   _lastEvents: { [string]: string };
   _lastEventsTimes: { [string]: Date };
+  _isMounted: boolean;
 
   constructor(props: PropsType) {
     super(props);
@@ -274,8 +283,16 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (!options.quality) {
       options.quality = 1;
     }
+
     if (options.orientation) {
-      options.orientation = CameraManager.Orientation[options.orientation];
+      if (typeof options.orientation !== 'number') {
+        const { orientation } = options;
+        options.orientation = CameraManager.Orientation[orientation];
+        if (typeof options.orientation !== 'number') {
+          // eslint-disable-next-line no-console
+          console.warn(`Orientation '${orientation}' is invalid.`);
+        }
+      }
     }
 
     if (options.pauseAfterCapture === undefined) {
@@ -294,6 +311,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
   }
 
   getAvailablePictureSizes = async (): string[] => {
+    //$FlowFixMe
     return await CameraManager.getAvailablePictureSizes(this.props.ratio, this._cameraHandle);
   };
 
@@ -303,8 +321,15 @@ export default class Camera extends React.Component<PropsType, StateType> {
     } else if (typeof options.quality === 'string') {
       options.quality = Camera.Constants.VideoQuality[options.quality];
     }
-    if (typeof options.orientation === 'string') {
-      options.orientation = CameraManager.Orientation[options.orientation];
+    if (options.orientation) {
+      if (typeof options.orientation !== 'number') {
+        const { orientation } = options;
+        options.orientation = CameraManager.Orientation[orientation];
+        if (typeof options.orientation !== 'number') {
+          // eslint-disable-next-line no-console
+          console.warn(`Orientation '${orientation}' is invalid.`);
+        }
+      }
     }
     return await CameraManager.record(options, this._cameraHandle);
   }

@@ -444,16 +444,19 @@ Supported options:
 
 - `doNotSave` (boolean true or false). Use this with `true` if you do not want the picture to be saved as a file to cache. If no value is specified `doNotSave:false` is used. If you only need the base64 for the image, you can use this with `base64:true` and avoid having to save the file.
 
-
  - `pauseAfterCapture` (boolean true or false).  If true, pause the preview layer immediately after capturing the image.  You will need to call `cameraRef.resumePreview()` before using the camera again. If no value is specified `pauseAfterCapture:false` is used.
+
+ - `orientation` (string or number). Specifies the orientation that us used for taking the picture. Possible values: `"portrait"`, `"portraitUpsideDown"`, `"landscapeLeft"` or `"landscapeRight"`.
 
 The promise will be fulfilled with an object with some of the following properties:
 
  - `width`: returns the image's width (taking image orientation into account)
  - `height`: returns the image's height (taking image orientation into account)
- - `uri`: returns the path to the image saved on your app's cache directory.
- - `base64`: returns the base64 representation of the image if required.
+ - `uri`: (string) the path to the image saved on your app's cache directory.
+ - `base64`: (string?) the base64 representation of the image if required.
  - `exif`: returns an exif map of the image if required.
+ - `pictureOrientation`: (number) the orientation of the picture
+ - `deviceOrientation`: (number) the orientation of the device
 
  #### `recordAsync([options]): Promise`
 
@@ -481,6 +484,8 @@ The promise will be fulfilled with an object with some of the following properti
      - `ios` Specifies capture settings suitable for CIF quality (352x288 pixel) video output.
      - `android` Not supported.
 
+ - `orientation` (string or number). Specifies the orientation that us used for recording the video. Possible values: `"portrait"`, `"portraitUpsideDown"`, `"landscapeLeft"` or `"landscapeRight"`.
+
     If nothing is passed the device's highest camera quality will be used as default.
  - `iOS` `codec`. This option specifies the codec of the output video. Setting the codec is only supported on `iOS >= 10`. The possible values are:
    - `RNCamera.Constants.VideoCodec['H264']`
@@ -500,7 +505,11 @@ The promise will be fulfilled with an object with some of the following properti
 
  The promise will be fulfilled with an object with some of the following properties:
 
- - `uri`: returns the path to the video saved on your app's cache directory.
+ - `uri`: (string) the path to the video saved on your app's cache directory.
+
+- `videoOrientation`: (number) orientation of the video
+
+ - `deviceOrientation`: (number) orientation of the device
 
  - `iOS` `codec`: the codec of the recorded video. One of `RNCamera.Constants.VideoCodec`
 
