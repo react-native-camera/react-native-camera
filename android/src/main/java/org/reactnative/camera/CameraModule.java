@@ -127,10 +127,11 @@ public class CameraModule extends ReactContextBaseJavaModule {
         }));
         put("Orientation", Collections.unmodifiableMap(new HashMap<String, Object>() {
             {
-              put("portrait", 1);
-              put("portraitUpsideDown", 2);
-              put("landscapeLeft", 3);
-              put("landscapeRight", 4);
+              put("auto", Constants.ORIENTATION_AUTO);
+              put("portrait", Constants.ORIENTATION_UP);
+              put("portraitUpsideDown", Constants.ORIENTATION_DOWN);
+              put("landscapeLeft", Constants.ORIENTATION_LEFT);
+              put("landscapeRight", Constants.ORIENTATION_RIGHT);
             }
         }));
       }

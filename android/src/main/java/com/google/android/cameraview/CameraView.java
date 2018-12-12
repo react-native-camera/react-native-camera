@@ -508,15 +508,15 @@ public class CameraView extends FrameLayout {
 
     /**
      * Record a video and save it to file. The result will be returned to
-     * {@link Callback#onVideoRecorded(CameraView, String)}.
+     * {@link Callback#onVideoRecorded(CameraView, String, int, int)}.
      * @param path Path to file that video will be saved to.
      * @param maxDuration Maximum duration of the recording, in seconds.
      * @param maxFileSize Maximum recording file size, in bytes.
      * @param profile Quality profile of the recording.
      */
     public boolean record(String path, int maxDuration, int maxFileSize,
-                          boolean recordAudio, CamcorderProfile profile) {
-        return mImpl.record(path, maxDuration, maxFileSize, recordAudio, profile);
+                          boolean recordAudio, CamcorderProfile profile, int orientation) {
+        return mImpl.record(path, maxDuration, maxFileSize, recordAudio, profile, orientation);
     }
 
     public void stopRecording() {
@@ -582,9 +582,9 @@ public class CameraView extends FrameLayout {
         }
 
         @Override
-        public void onVideoRecorded(String path) {
+        public void onVideoRecorded(String path, int videoOrientation, int deviceOrientation) {
             for (Callback callback : mCallbacks) {
-                callback.onVideoRecorded(CameraView.this, path);
+                callback.onVideoRecorded(CameraView.this, path, videoOrientation, deviceOrientation);
             }
         }
 
@@ -715,7 +715,7 @@ public class CameraView extends FrameLayout {
          * @param cameraView The associated {@link CameraView}.
          * @param path       Path to recoredd video file.
          */
-        public void onVideoRecorded(CameraView cameraView, String path) {
+        public void onVideoRecorded(CameraView cameraView, String path, int videoOrientation, int deviceOrientation) {
         }
 
         public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int orientation) {

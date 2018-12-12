@@ -104,10 +104,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       }
 
       @Override
-      public void onVideoRecorded(CameraView cameraView, String path) {
+      public void onVideoRecorded(CameraView cameraView, String path, int videoOrientation, int deviceOrientation) {
         if (mVideoRecordedPromise != null) {
           if (path != null) {
             WritableMap result = Arguments.createMap();
+            result.putInt("videoOrientation", videoOrientation);
+            result.putInt("deviceOrientation", deviceOrientation);
             result.putString("uri", RNFileUtils.uriFromFile(new File(path)).toString());
             mVideoRecordedPromise.resolve(result);
           } else {
@@ -269,7 +271,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         recordAudio = !options.getBoolean("mute");
       }
 
-      if (super.record(path, maxDuration * 1000, maxFileSize, recordAudio, profile)) {
+      int orientation = Constants.ORIENTATION_AUTO;
+      if (options.hasKey("orientation")) {
+        orientation = options.getInt("orientation");
+      }
+
+      if (super.record(path, maxDuration * 1000, maxFileSize, recordAudio, profile, orientation)) {
         mVideoRecordedPromise = promise;
       } else {
         promise.reject("E_RECORDING_FAILED", "Starting video recording failed. Another recording might be in progress.");
