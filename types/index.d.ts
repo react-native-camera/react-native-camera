@@ -266,6 +266,7 @@ interface RecordOptions {
 interface RecordResponse {
   /** Path to the video saved on your app's cache directory. */
   uri: string;
+
   videoOrientation: number;
   deviceOrientation: number;
   /** iOS only */
