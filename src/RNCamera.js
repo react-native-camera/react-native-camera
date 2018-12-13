@@ -28,6 +28,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
   },
+  cameraStopPreviewTempFix: {
+    backgroundColor: 'transparent',
+  },
 });
 
 type Orientation = 'auto' | 'landscapeLeft' | 'landscapeRight' | 'portrait' | 'portraitUpsideDown';
@@ -451,7 +454,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
           onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
           onPictureSaved={this._onPictureSaved}
         >
-          {this.renderChildren()}
+          {/* FIXME:
+           * Re-mounting direct children of RNCamera on Android results in camera shutdown.
+           * As a temporary workaround we wrap children in a View with transparent background.
+           * Reference: https://github.com/react-native-community/react-native-camera/issues/1311
+           */}
+          <View style={[this.props.style, styles.cameraStopPreviewTempFix]}>
+            {this.renderChildren()}
+          </View>
         </RNCamera>
       );
     } else if (!this.state.isAuthorizationChecked) {

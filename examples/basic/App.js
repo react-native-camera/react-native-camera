@@ -203,6 +203,9 @@ export default class CameraScreen extends React.Component {
             )}
           </TouchableOpacity>
         </View>
+        {this.state.zoom !== 0 && (
+          <Text style={[styles.flipText, styles.zoomText]}>Zoom: {this.state.zoom}</Text>
+        )}
         <View
           style={{
             flex: 0.1,
@@ -273,6 +276,12 @@ const styles = StyleSheet.create({
   flipText: {
     color: 'white',
     fontSize: 15,
+  },
+  zoomText: {
+    position: 'absolute',
+    bottom: 70,
+    zIndex: 2,
+    left: 2,
   },
   picButton: {
     backgroundColor: 'darkseagreen',
