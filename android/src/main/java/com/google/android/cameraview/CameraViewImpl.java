@@ -85,6 +85,8 @@ abstract class CameraViewImpl {
 
     abstract void setDisplayOrientation(int displayOrientation);
 
+    abstract void setDeviceOrientation(int deviceOrientation);
+
     abstract void setFocusDepth(float value);
 
     abstract float getFocusDepth();

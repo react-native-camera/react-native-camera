@@ -98,6 +98,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private int mDisplayOrientation;
 
+    private int mDeviceOrientation;
+
     private int mOrientation = Constants.ORIENTATION_AUTO;
 
     private float mZoom;
@@ -156,7 +158,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             mMediaRecorder = null;
 
             if (mIsRecording) {
-                int deviceOrientation = displayOrientationToOrientationEnum(mDisplayOrientation);
+                int deviceOrientation = displayOrientationToOrientationEnum(mDeviceOrientation);
                 mCallback.onVideoRecorded(mVideoPath, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
                 mIsRecording = false;
             }
@@ -436,7 +438,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     void takePictureInternal(final ReadableMap options) {
         if (!isPictureCaptureInProgress.getAndSet(true)) {
 
-            if (options.hasKey("orientation")) {
+            if (options.hasKey("orientation") && options.getInt("orientation") != Constants.ORIENTATION_AUTO) {
                 mOrientation = options.getInt("orientation");
                 int rotation = orientationEnumToRotation(mOrientation);
                 mCameraParameters.setRotation(calcCameraRotation(rotation));
@@ -461,7 +463,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                     }
 
                     mOrientation = Constants.ORIENTATION_AUTO;
-                    mCallback.onPictureTaken(data, displayOrientationToOrientationEnum(mDisplayOrientation));
+                    mCallback.onPictureTaken(data, displayOrientationToOrientationEnum(mDeviceOrientation));
                 }
             });
         }
@@ -503,9 +505,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             return;
         }
         mDisplayOrientation = displayOrientation;
-        if (isCameraOpened() && mOrientation == Constants.ORIENTATION_AUTO) {
-            mCameraParameters.setRotation(calcCameraRotation(displayOrientation));
-            mCamera.setParameters(mCameraParameters);
+        if (isCameraOpened()) {
             final boolean needsToStopPreview = mShowingPreview && Build.VERSION.SDK_INT < 14;
             if (needsToStopPreview) {
                 mCamera.stopPreview();
@@ -516,6 +516,18 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 startCameraPreview();
             }
         }
+    }
+
+    @Override
+    void setDeviceOrientation(int deviceOrientation) {
+        if (mDeviceOrientation == deviceOrientation) {
+            return;
+        }
+        mDeviceOrientation = deviceOrientation;
+        if (isCameraOpened() && mOrientation == Constants.ORIENTATION_AUTO) {
+            mCameraParameters.setRotation(calcCameraRotation(deviceOrientation));
+            mCamera.setParameters(mCameraParameters);
+         }
     }
 
     @Override
@@ -624,7 +636,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         if (mOrientation != Constants.ORIENTATION_AUTO) {
             mCameraParameters.setRotation(calcCameraRotation(orientationEnumToRotation(mOrientation)));
         } else {
-            mCameraParameters.setRotation(calcCameraRotation(mDisplayOrientation));
+            mCameraParameters.setRotation(calcCameraRotation(mDeviceOrientation));
         }
 
         setAutoFocusInternal(mAutoFocus);
@@ -706,12 +718,12 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      * @return Number of degrees to rotate image in order for it to view correctly.
      */
     private int calcCameraRotation(int screenOrientationDegrees) {
-        if (mCameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            return (mCameraInfo.orientation + screenOrientationDegrees) % 360;
-        } else {  // back-facing
-            final int landscapeFlip = isLandscape(screenOrientationDegrees) ? 180 : 0;
-            return (mCameraInfo.orientation + screenOrientationDegrees + landscapeFlip) % 360;
-        }
+       if (mCameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+           return (mCameraInfo.orientation + screenOrientationDegrees) % 360;
+       }
+       // back-facing
+       final int landscapeFlip = isLandscape(screenOrientationDegrees) ? 180 : 0;
+       return (mCameraInfo.orientation + screenOrientationDegrees + landscapeFlip) % 360;
     }
 
     /**
@@ -824,7 +836,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         Camera.Size previewSize = mCameraParameters.getPreviewSize();
-        mCallback.onFramePreview(data, previewSize.width, previewSize.height, mDisplayOrientation);
+        mCallback.onFramePreview(data, previewSize.width, previewSize.height, mDeviceOrientation);
     }
 
     private void setUpMediaRecorder(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile) {
@@ -847,7 +859,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             setCamcorderProfile(CamcorderProfile.get(mCameraId, CamcorderProfile.QUALITY_HIGH), recordAudio);
         }
 
-        mMediaRecorder.setOrientationHint(calcCameraRotation(mOrientation != Constants.ORIENTATION_AUTO ? orientationEnumToRotation(mOrientation) : mDisplayOrientation));
+        mMediaRecorder.setOrientationHint(calcCameraRotation(mOrientation != Constants.ORIENTATION_AUTO ? orientationEnumToRotation(mOrientation) : mDeviceOrientation));
 
         if (maxDuration != -1) {
             mMediaRecorder.setMaxDuration(maxDuration);
@@ -873,7 +885,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             mMediaRecorder = null;
         }
 
-        int deviceOrientation = displayOrientationToOrientationEnum(mDisplayOrientation);
+        int deviceOrientation = displayOrientationToOrientationEnum(mDeviceOrientation);
         if (mVideoPath == null || !new File(mVideoPath).exists()) {
             mCallback.onVideoRecorded(null, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
             return;

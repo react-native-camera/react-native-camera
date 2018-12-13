@@ -233,6 +233,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     private int mDisplayOrientation;
 
+    private int mDeviceOrientation;
+
     private float mFocusDepth;
 
     private float mZoom;
@@ -616,6 +618,13 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     void setDisplayOrientation(int displayOrientation) {
         mDisplayOrientation = displayOrientation;
         mPreview.setDisplayOrientation(mDisplayOrientation);
+    }
+
+
+    @Override
+    void setDeviceOrientation(int deviceOrientation) {
+        mDeviceOrientation = deviceOrientation;
+        mPreview.setDisplayOrientation(mDeviceOrientation);
     }
 
     /**
