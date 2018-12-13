@@ -99,7 +99,11 @@
     CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     CIImage *ciImage = [CIImage imageWithCVPixelBuffer:imageBuffer];
     // set correct orientation
-    UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    __block UIInterfaceOrientation orientation;
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    });
+    UIInterfaceOrientation curOrientation = orientation;
 
     if (curOrientation == UIInterfaceOrientationLandscapeLeft){
         ciImage = [ciImage imageByApplyingOrientation:3];
