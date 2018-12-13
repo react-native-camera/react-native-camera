@@ -718,7 +718,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      * @return Number of degrees to rotate image in order for it to view correctly.
      */
     private int calcCameraRotation(int screenOrientationDegrees) {
-       if (mCameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+       if (mCameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
            return (mCameraInfo.orientation + screenOrientationDegrees) % 360;
        }
        // back-facing
