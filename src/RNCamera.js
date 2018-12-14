@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
 import PropTypes from 'prop-types';
-import { mapValues } from 'lodash';
 import {
   findNodeHandle,
   Platform,
@@ -151,6 +150,14 @@ const CameraManager: Object = NativeModules.RNCameraManager ||
   };
 
 const EventThrottleMs = 500;
+
+const mapValues = (input, mapper) => {
+  const result = {};
+  Object.entries(input).map(([key, value]) => {
+    result[key] = mapper(value, key);
+  });
+  return result;
+};
 
 export default class Camera extends React.Component<PropsType, StateType> {
   static Constants = {
@@ -461,7 +468,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   }
 
-  _convertNativeProps(props: PropsType) {
+  _convertNativeProps({ children, ...props }: PropsType) {
     const newProps = mapValues(props, this._convertProp);
 
     if (props.onBarCodeRead) {
