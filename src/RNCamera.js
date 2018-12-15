@@ -135,6 +135,7 @@ type PropsType = typeof View.props & {
   focusDepth?: number,
   type?: number | string,
   onCameraReady?: Function,
+  onStatusChange?: Function,
   onBarCodeRead?: Function,
   onPictureSaved?: Function,
   onGoogleVisionBarcodesDetected?: Function,
@@ -264,6 +265,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     focusDepth: PropTypes.number,
     onMountError: PropTypes.func,
     onCameraReady: PropTypes.func,
+    onStatusChange: PropTypes.func,
     onBarCodeRead: PropTypes.func,
     onPictureSaved: PropTypes.func,
     onGoogleVisionBarcodesDetected: PropTypes.func,
@@ -465,6 +467,12 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
+  _onStatusChange = () => {
+    if (this.props.onStatusChange) {
+      this.props.onStatusChange({ status: this.getStatus() });
+    }
+  };
+
   _onPictureSaved = ({ nativeEvent }: EventCallbackArgumentsType) => {
     if (this.props.onPictureSaved) {
       this.props.onPictureSaved(nativeEvent);
@@ -523,7 +531,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
       isAuthorized: hasCameraPermissions,
       isAuthorizationChecked: true,
       recordAudioPermissionStatus,
-    });
+    }, this._onStatusChange);
   }
 
   getStatus = (): Status => {
