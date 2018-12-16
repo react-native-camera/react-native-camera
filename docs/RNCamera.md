@@ -513,6 +513,8 @@ The promise will be fulfilled with an object with some of the following properti
 
  - `iOS` `codec`: the codec of the recorded video. One of `RNCamera.Constants.VideoCodec`
 
+ - `isRecordingInterrupted`: (boolean) whether the app has been minimized while recording
+
  #### `stopRecording: void`
 
  Should be called after recordAsync() to make the promise be fulfilled and get the video uri.
