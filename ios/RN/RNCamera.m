@@ -58,6 +58,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                  selector:@selector(orientationChanged:)
                                                      name:UIDeviceOrientationDidChangeNotification
                                                    object:nil];
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(bridgeDidBackground:)
+                                                     name:UIApplicationDidEnterBackgroundNotification
+                                                   object:nil];
         self.autoFocus = -1;
         //        [[NSNotificationCenter defaultCenter] addObserver:self
         //                                                 selector:@selector(bridgeDidForeground:)
@@ -576,6 +581,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
         NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
         [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+        self.isRecording = YES;
         self.videoRecordedResolve = resolve;
         self.videoRecordedReject = reject;
     });
@@ -819,6 +825,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self changePreviewOrientation:orientation];
 }
 
+- (void)bridgeDidBackground:(NSNotification *)notification
+{
+    if (self.isRecording) {
+        self.isRecordingInterrupted = YES;
+    }
+}
+
 - (void)changePreviewOrientation:(UIInterfaceOrientation)orientation
 {
     __weak typeof(self) weakSelf = self;
@@ -979,6 +992,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         result[@"uri"] = outputFileURL.absoluteString;
         result[@"videoOrientation"] = @([self.orientation integerValue]);
         result[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
+        result[@"isRecordingInterrupted"] = @(self.isRecordingInterrupted);
 
 
         if (@available(iOS 10, *)) {
@@ -1012,6 +1026,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     self.videoCodecType = nil;
     self.deviceOrientation = nil;
     self.orientation = nil;
+    self.isRecording = NO;
+    self.isRecordingInterrupted = NO;
 
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
     [self cleanupMovieFileCapture];

@@ -47,6 +47,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private boolean mIsPaused = false;
   private boolean mIsNew = true;
   private boolean invertImageData = false;
+  private Boolean mIsRecording = false;
+  private Boolean mIsRecordingInterrupted = false;
 
   // Concurrency lock for scanners to avoid flooding the runtime
   public volatile boolean barCodeScannerTaskLock = false;
@@ -108,6 +110,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         if (mVideoRecordedPromise != null) {
           if (path != null) {
             WritableMap result = Arguments.createMap();
+            result.putBoolean("isRecordingInterrupted", mIsRecordingInterrupted);
             result.putInt("videoOrientation", videoOrientation);
             result.putInt("deviceOrientation", deviceOrientation);
             result.putString("uri", RNFileUtils.uriFromFile(new File(path)).toString());
@@ -115,6 +118,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           } else {
             mVideoRecordedPromise.reject("E_RECORDING", "Couldn't stop recording - there is none in progress");
           }
+          mIsRecording = false;
+          mIsRecordingInterrupted = false;
           mVideoRecordedPromise = null;
         }
       }
@@ -277,6 +282,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       }
 
       if (super.record(path, maxDuration * 1000, maxFileSize, recordAudio, profile, orientation)) {
+        mIsRecording = true;
         mVideoRecordedPromise = promise;
       } else {
         promise.reject("E_RECORDING_FAILED", "Starting video recording failed. Another recording might be in progress.");
@@ -494,6 +500,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   @Override
   public void onHostPause() {
+    if (mIsRecording) {
+      mIsRecordingInterrupted = true;
+    }
     if (!mIsPaused && isCameraOpened()) {
       mIsPaused = true;
       stop();
