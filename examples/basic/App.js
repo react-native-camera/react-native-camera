@@ -42,7 +42,7 @@ export default class CameraScreen extends React.Component {
   };
 
   getRatios = async function() {
-    const ratios = await this.camera.getSupportedRatios();
+    const ratios = await this.camera.getSupportedRatiosAsync();
     return ratios;
   };
 
