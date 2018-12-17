@@ -1,3 +1,5 @@
-/Example
-issue_template.md
-/RNCameraExample
+/.github
+/examples
+circle.yml
+commitlint.config.js
+/android/build
