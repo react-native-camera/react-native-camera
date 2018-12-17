@@ -29,10 +29,6 @@ export default class CameraScreen extends React.Component {
     type: 'back',
     whiteBalance: 'auto',
     ratio: '16:9',
-    ratios: [],
-    photoId: 1,
-    showGallery: false,
-    photos: [],
     recordOptions: {
       mute: false,
       maxDuration: 5,
@@ -40,17 +36,6 @@ export default class CameraScreen extends React.Component {
     },
     isRecording: false,
   };
-
-  getRatios = async function() {
-    const ratios = await this.camera.getSupportedRatios();
-    return ratios;
-  };
-
-  toggleView() {
-    this.setState({
-      showGallery: !this.state.showGallery,
-    });
-  }
 
   toggleFacing() {
     this.setState({
@@ -61,12 +46,6 @@ export default class CameraScreen extends React.Component {
   toggleFlash() {
     this.setState({
       flash: flashModeOrder[this.state.flash],
-    });
-  }
-
-  setRatio(ratio) {
-    this.setState({
-      ratio,
     });
   }
 
@@ -235,12 +214,6 @@ export default class CameraScreen extends React.Component {
           >
             <Text style={styles.flipText}> SNAP </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.flipButton, styles.galleryButton, { flex: 0.25, alignSelf: 'flex-end' }]}
-            onPress={this.toggleView.bind(this)}
-          >
-            <Text style={styles.flipText}> Gallery </Text>
-          </TouchableOpacity>
         </View>
       </RNCamera>
     );
@@ -276,8 +249,5 @@ const styles = StyleSheet.create({
   },
   picButton: {
     backgroundColor: 'darkseagreen',
-  },
-  galleryButton: {
-    backgroundColor: 'indianred',
   },
 });
