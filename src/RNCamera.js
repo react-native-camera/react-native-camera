@@ -338,6 +338,12 @@ export default class Camera extends React.Component<PropsType, StateType> {
         }
       }
     }
+
+    const { captureAudio } = this.props
+
+    if (!captureAudio) {
+      options.mute = true
+    }
     return await CameraManager.record(options, this._cameraHandle);
   }
 

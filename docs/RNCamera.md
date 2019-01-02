@@ -500,7 +500,7 @@ The promise will be fulfilled with an object with some of the following properti
 
  - `maxFileSize` (int greater than 0). Specifies the maximum file size, in bytes, of the video to be recorded. For 1mb, for example, use 1\*1024\*1024. If nothing is specified, no size limit will be used.
 
- - `mute` (any value). If this flag is given in the option with any value, the video to be recorded will be mute. If nothing is specified, video will NOT be muted.
+ - `mute` (any value). (*This value will automatically be set to true if the `captureAudio` has not been passed to the Camera component*) If this flag is given in the option with any value, the video to be recorded will be mute. If nothing is specified, video will NOT be muted.  
  - `path` (file path on disk). Specifies the path on disk to record the video to. You can use the same `uri` returned to continue recording across start/stops
 
  The promise will be fulfilled with an object with some of the following properties:
