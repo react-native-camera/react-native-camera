@@ -258,7 +258,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
         <ActivityIndicator size="small" />
       </View>
     ),
-    captureAudio: false,
+    captureAudio: true,
     useCamera2Api: false,
     playSoundOnCapture: false,
     pictureSize: 'None',
@@ -337,6 +337,12 @@ export default class Camera extends React.Component<PropsType, StateType> {
           console.warn(`Orientation '${orientation}' is invalid.`);
         }
       }
+    }
+
+    const { captureAudio } = this.props
+
+    if (!captureAudio) {
+      options.mute = true
     }
     return await CameraManager.record(options, this._cameraHandle);
   }

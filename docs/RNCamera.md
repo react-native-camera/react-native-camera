@@ -190,6 +190,13 @@ Setting this property causes the auto focus feature of the camera to attempt to 
 
 Coordinates values are measured as floats from `0` to `1.0`.  `{ x: 0, y: 0 }` will focus on the top left of the image, `{ x: 1, y: 1 }` will be the bottom right. Values are based on landscape mode with the home button on the right—this applies even if the device is in portrait mode.
 
+#### `captureAudio`
+
+Values: boolean `true` (default) | `false`
+
+Specifies if audio recording permissions should be requested.
+Make sure to follow README instructions for audio recording permissions [here](../README.md).
+
 #### `flashMode`
 
 Values: `RNCamera.Constants.FlashMode.off` (default), `RNCamera.Constants.FlashMode.on`, `RNCamera.Constants.FlashMode.auto` or `RNCamera.Constants.FlashMode.torch`.
@@ -500,7 +507,10 @@ The promise will be fulfilled with an object with some of the following properti
 
  - `maxFileSize` (int greater than 0). Specifies the maximum file size, in bytes, of the video to be recorded. For 1mb, for example, use 1\*1024\*1024. If nothing is specified, no size limit will be used.
 
- - `mute` (any value). If this flag is given in the option with any value, the video to be recorded will be mute. If nothing is specified, video will NOT be muted.
+ - `mute` (any value). (*This value will automatically be set to true if the `captureAudio` has not been passed to the Camera component*) If this flag is given in the option with any value, the video to be recorded will be mute. If nothing is specified, video will NOT be muted.  
+ **Note:** The recommended way of recording audio without sound passing captureAudio: false to the Camera component.
+ The `mute` parameter is likely to become deprecated in the near future.
+ 
  - `path` (file path on disk). Specifies the path on disk to record the video to. You can use the same `uri` returned to continue recording across start/stops
 
  The promise will be fulfilled with an object with some of the following properties:
