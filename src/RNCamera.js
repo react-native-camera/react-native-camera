@@ -447,25 +447,27 @@ export default class Camera extends React.Component<PropsType, StateType> {
   };
 
   render() {
-    const nativeProps = this._convertNativeProps(this.props);
+    const { style, ...nativeProps } = this._convertNativeProps(this.props);
 
     if (this.state.isAuthorized || this.hasFaCC()) {
       return (
-        <RNCamera
-          {...nativeProps}
-          ref={this._setReference}
-          onMountError={this._onMountError}
-          onCameraReady={this._onCameraReady}
-          onGoogleVisionBarcodesDetected={this._onObjectDetected(
-            this.props.onGoogleVisionBarcodesDetected,
-          )}
-          onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
-          onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
-          onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
-          onPictureSaved={this._onPictureSaved}
-        >
+        <View style={style}>
+          <RNCamera
+            {...nativeProps}
+            style={StyleSheet.absoluteFill}
+            ref={this._setReference}
+            onMountError={this._onMountError}
+            onCameraReady={this._onCameraReady}
+            onGoogleVisionBarcodesDetected={this._onObjectDetected(
+              this.props.onGoogleVisionBarcodesDetected,
+            )}
+            onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
+            onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
+            onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
+            onPictureSaved={this._onPictureSaved}
+          />
           {this.renderChildren()}
-        </RNCamera>
+        </View>
       );
     } else if (!this.state.isAuthorizationChecked) {
       return this.props.pendingAuthorizationView;
