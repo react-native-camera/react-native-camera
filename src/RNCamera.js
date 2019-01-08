@@ -258,7 +258,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
         <ActivityIndicator size="small" />
       </View>
     ),
-    captureAudio: false,
+    captureAudio: true,
     useCamera2Api: false,
     playSoundOnCapture: false,
     pictureSize: 'None',

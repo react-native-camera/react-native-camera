@@ -190,6 +190,13 @@ Setting this property causes the auto focus feature of the camera to attempt to 
 
 Coordinates values are measured as floats from `0` to `1.0`.  `{ x: 0, y: 0 }` will focus on the top left of the image, `{ x: 1, y: 1 }` will be the bottom right. Values are based on landscape mode with the home button on the right—this applies even if the device is in portrait mode.
 
+#### `captureAudio`
+
+Values: boolean `true` (default) | `false`
+
+Specifies if audio recording permissions should be requested.
+Make sure to follow README instructions for audio recording permissions [here](../README.md).
+
 #### `flashMode`
 
 Values: `RNCamera.Constants.FlashMode.off` (default), `RNCamera.Constants.FlashMode.on`, `RNCamera.Constants.FlashMode.auto` or `RNCamera.Constants.FlashMode.torch`.
