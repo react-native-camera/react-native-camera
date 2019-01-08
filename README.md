@@ -62,7 +62,7 @@ Become a sponsor and get your logo on our README on Github with a link to your s
 <a href="https://opencollective.com/react-native-camera/sponsor/9/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/9/avatar.svg"></a>
 
 
-The comprehensive camera module for React Native. 
+The comprehensive camera module for React Native.
 
 Supports:
 
@@ -72,6 +72,8 @@ Supports:
 - barcode scanning
 - text recognition (optional installation for iOS using CocoaPods)
 
+## Tidelift
+[Get supported react-native-camera with the Tidelift Subscription](https://tidelift.com/subscription/pkg/npm-react-native-camera?utm_source=npm-react-native-camera&utm_medium=referral&utm_campaign=readme)
 
 ### Example import
 
