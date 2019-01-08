@@ -531,8 +531,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
     }
 
-    if ([options valueForKey:@"mute"] != nil) {
-        [self updateSessionAudioIsMuted:[options[@"mute"] boolValue]];
+    // only update audio session when mute is not set or set to false, because otherwise there will be a flickering
+    if ([options valueForKey:@"mute"] == nil || ([options valueForKey:@"mute"] != nil && ![options[@"mute"] boolValue])) {
+        [self updateSessionAudioIsMuted:NO];
     }
 
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
