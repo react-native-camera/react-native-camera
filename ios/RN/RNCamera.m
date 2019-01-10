@@ -620,7 +620,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // Default video quality AVCaptureSessionPresetHigh if non is provided
         AVCaptureSessionPreset preset = ([self defaultVideoQuality]) ? [RNCameraUtils captureSessionPresetForVideoResolution:[[self defaultVideoQuality] integerValue]] : AVCaptureSessionPresetHigh;
 
-        self.session.sessionPreset = preset == AVCaptureSessionPresetHigh ? AVCaptureSessionPresetPhoto: preset;
+        self.session.sessionPreset = preset;
 
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
