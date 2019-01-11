@@ -11,11 +11,48 @@ import {
   ActivityIndicator,
   Text,
   StyleSheet,
+  PermissionsAndroid,
 } from 'react-native';
 
 import type { FaceFeature } from './FaceDetector';
 
-import { requestPermissions } from './handlePermissions';
+const requestPermissions = async (
+  captureAudio: boolean,
+  CameraManager: any,
+  permissionDialogTitle?: string,
+  permissionDialogMessage?: string,
+): Promise<{ hasCameraPermissions: boolean, hasRecordAudioPermissions: boolean }> => {
+  let hasCameraPermissions = false;
+  let hasRecordAudioPermissions = false;
+  if (Platform.OS === 'ios') {
+    hasCameraPermissions = true;
+    hasRecordAudioPermissions = true;
+  } else if (Platform.OS === 'android') {
+    let params = undefined;
+    if (permissionDialogTitle || permissionDialogMessage) {
+      params = { title: permissionDialogTitle, message: permissionDialogMessage };
+    }
+    const cameraPermissionResult = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+      params,
+    );
+    hasCameraPermissions = cameraPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
+
+    if (captureAudio) {
+      const audioPermissionResult = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        params,
+      );
+      hasRecordAudioPermissions =
+        audioPermissionResult === PermissionsAndroid.PERMISSIONS.RECORD_AUDIO;
+    }
+  }
+
+  return {
+    hasCameraPermissions,
+    hasRecordAudioPermissions,
+  };
+};
 
 const styles = StyleSheet.create({
   authorizationContainer: {
@@ -110,12 +147,23 @@ type PropsType = typeof View.props & {
 type StateType = {
   isAuthorized: boolean,
   isAuthorizationChecked: boolean,
+  recordAudioPermissionStatus: RecordAudioPermissionStatus,
 };
 
 export type Status = 'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED';
 
 const CameraStatus: { [key: Status]: Status } = {
   READY: 'READY',
+  PENDING_AUTHORIZATION: 'PENDING_AUTHORIZATION',
+  NOT_AUTHORIZED: 'NOT_AUTHORIZED',
+};
+
+export type RecordAudioPermissionStatus = 'AUTHORIZED' | 'NOT_AUTHORIZED' | 'PENDING_AUTHORIZATION';
+
+const RecordAudioPermissionStatusEnum: {
+  [key: RecordAudioPermissionStatus]: RecordAudioPermissionStatus,
+} = {
+  AUTHORIZED: 'AUTHORIZED',
   PENDING_AUTHORIZATION: 'PENDING_AUTHORIZATION',
   NOT_AUTHORIZED: 'NOT_AUTHORIZED',
 };
@@ -172,6 +220,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     GoogleVisionBarcodeDetection: CameraManager.GoogleVisionBarcodeDetection,
     FaceDetection: CameraManager.FaceDetection,
     CameraStatus,
+    RecordAudioPermissionStatus: RecordAudioPermissionStatusEnum,
     VideoStabilization: CameraManager.VideoStabilization,
     Orientation: {
       auto: 'auto',
@@ -281,6 +330,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     this.state = {
       isAuthorized: false,
       isAuthorizationChecked: false,
+      recordAudioPermissionStatus: RecordAudioPermissionStatusEnum.PENDING_AUTHORIZATION,
     };
   }
 
@@ -347,11 +397,16 @@ export default class Camera extends React.Component<PropsType, StateType> {
       }
     }
 
-    const { captureAudio } = this.props
+    const { recordAudioPermissionStatus } = this.state;
+    const { captureAudio } = this.props;
 
-    if (!captureAudio) {
-      options.mute = true
+    if (
+      !captureAudio ||
+      recordAudioPermissionStatus !== RecordAudioPermissionStatusEnum.AUTHORIZED
+    ) {
+      options.mute = true;
     }
+
     return await CameraManager.record(options, this._cameraHandle);
   }
 
@@ -423,9 +478,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
   }
 
   async componentDidMount() {
-    const hasVideoAndAudio = this.props.captureAudio;
-    const isAuthorized = await requestPermissions(
-      hasVideoAndAudio,
+    const { hasCameraPermissions, hasRecordAudioPermissions } = await requestPermissions(
+      this.props.captureAudio,
       CameraManager,
       this.props.permissionDialogTitle,
       this.props.permissionDialogMessage,
@@ -433,7 +487,13 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (this._isMounted === false) {
       return;
     }
-    this.setState({ isAuthorized, isAuthorizationChecked: true });
+    this.setState({
+      isAuthorized: hasCameraPermissions,
+      isAuthorizationChecked: true,
+      recordAudioPermissionStatus: hasRecordAudioPermissions
+        ? RecordAudioPermissionStatus.AUTHORIZED
+        : RecordAudioPermissionStatus.NOT_AUTHORIZED,
+    });
   }
 
   getStatus = (): Status => {
@@ -449,7 +509,11 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
   renderChildren = (): * => {
     if (this.hasFaCC()) {
-      return this.props.children({ camera: this, status: this.getStatus() });
+      return this.props.children({
+        camera: this,
+        status: this.getStatus(),
+        recordAudioPermissionStatus: this.state.recordAudioPermissionStatus,
+      });
     }
     return this.props.children;
   };

@@ -86,10 +86,18 @@ type GoogleVisionBarcodeMode = Readonly<{ NORMAL: any; ALTERNATE: any; INVERTED:
 // FaCC (Function as Child Components)
 type Self<T> = { [P in keyof T]: P };
 type CameraStatus = Readonly<Self<{ READY: any; PENDING_AUTHORIZATION: any; NOT_AUTHORIZED: any }>>;
+type RecordAudioPermissionStatus = Readonly<
+  Self<{
+    AUTHORIZED: 'AUTHORIZED';
+    PENDING_AUTHORIZATION: 'PENDING_AUTHORIZATION';
+    NOT_AUTHORIZED: 'NOT_AUTHORIZED';
+  }>
+>;
 type FaCC = (
   params: {
     camera: RNCamera;
     status: keyof CameraStatus;
+    recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
   },
 ) => JSX.Element;
 
