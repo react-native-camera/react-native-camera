@@ -25,4 +25,4 @@ componentDidMount() {
      return <View />;
    }
  }
- ```
+```
