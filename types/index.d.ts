@@ -138,6 +138,7 @@ export interface RNCameraProps {
   pendingAuthorizationView?: JSX.Element;
   useCamera2Api?: boolean;
   whiteBalance?: keyof WhiteBalance;
+  captureAudio?: boolean;
 
   onCameraReady?(): void;
   onMountError?(error: { message: string }): void;
@@ -183,9 +184,6 @@ export interface RNCameraProps {
   playSoundOnCapture?: boolean;
 
   // -- IOS ONLY PROPS
-
-  /** iOS Only */
-  captureAudio?: boolean;
   defaultVideoQuality?: keyof VideoQuality;
 }
 

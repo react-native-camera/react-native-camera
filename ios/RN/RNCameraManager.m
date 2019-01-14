@@ -378,6 +378,13 @@ RCT_EXPORT_METHOD(checkVideoAuthorizationStatus:(RCTPromiseResolveBlock)resolve
     }];
 }
 
+RCT_EXPORT_METHOD(checkRecordAuthorizationStatus:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
+        resolve(@(granted));
+    }];
+}
+
 RCT_REMAP_METHOD(getAvailablePictureSizes,
                  ratio:(NSString *)ratio
                  reactTag:(nonnull NSNumber *)reactTag

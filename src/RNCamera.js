@@ -24,21 +24,26 @@ const requestPermissions = async (
 ): Promise<{ hasCameraPermissions: boolean, hasRecordAudioPermissions: boolean }> => {
   let hasCameraPermissions = false;
   let hasRecordAudioPermissions = false;
+
+  let params = undefined;
+  if (permissionDialogTitle || permissionDialogMessage) {
+    params = { title: permissionDialogTitle, message: permissionDialogMessage };
+  }
+
   if (Platform.OS === 'ios') {
-    hasCameraPermissions = true;
-    hasRecordAudioPermissions = true;
+    hasCameraPermissions = await CameraManager.checkVideoAuthorizationStatus();
   } else if (Platform.OS === 'android') {
-    let params = undefined;
-    if (permissionDialogTitle || permissionDialogMessage) {
-      params = { title: permissionDialogTitle, message: permissionDialogMessage };
-    }
     const cameraPermissionResult = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.CAMERA,
       params,
     );
     hasCameraPermissions = cameraPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
+  }
 
-    if (captureAudio) {
+  if (captureAudio) {
+    if (Platform.OS === 'ios') {
+      hasRecordAudioPermissions = await CameraManager.checkRecordAuthorizationStatus();
+    } else if (Platform.OS === 'android') {
       const audioPermissionResult = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
         params,
@@ -405,6 +410,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
       recordAudioPermissionStatus !== RecordAudioPermissionStatusEnum.AUTHORIZED
     ) {
       options.mute = true;
+    }
+
+    if (
+      (options.mute || captureAudio) &&
+      recordAudioPermissionStatus !== RecordAudioPermissionStatusEnum.AUTHORIZED
+    ) {
+      // eslint-disable-next-line no-console
+      console.warn('Recording with audio not possible. Permissions are missing.');
     }
 
     return await CameraManager.record(options, this._cameraHandle);
