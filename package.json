@@ -57,6 +57,10 @@
     "*.d.ts": [
       "yarn prettier",
       "git add"
+    ],
+    "*.md": [
+      "yarn prettier",
+      "git add"
     ]
   },
   "main": "src/index.js",
@@ -71,7 +75,7 @@
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "lint": "eslint src --max-warnings=0",
     "lint:staged": "lint-staged",
-    "prettier": "prettier --write --single-quote true --trailing-comma all --print-width 100",
+    "prettier": "prettier --write",
     "ci:publish": "semantic-release"
   },
   "types": "types",
