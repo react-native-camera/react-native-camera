@@ -22,6 +22,7 @@ class BadInstagramCloneApp extends Component {
           style={styles.preview}
           type={RNCamera.Constants.Type.back}
           flashMode={RNCamera.Constants.FlashMode.on}
+          captureAudio={false}
           permissionDialogTitle={'Permission to use camera'}
           permissionDialogMessage={'We need your permission to use your camera phone'}
           onGoogleVisionBarcodesDetected={({ barcodes }) => {
@@ -160,6 +161,10 @@ _It's the RNCamera's reference_
 #### `status`
 
 'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED'
+
+If you're using version 1.8.0 or above and getting 'NOT_AUTHORIZED' status after give system authorization,
+set props captureAudio={false} (if you don't need audio capture).
+
 
 ## Properties
 
