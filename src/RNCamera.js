@@ -500,12 +500,13 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (this._isMounted === false) {
       return;
     }
+
     this.setState({
       isAuthorized: hasCameraPermissions,
       isAuthorizationChecked: true,
       recordAudioPermissionStatus: hasRecordAudioPermissions
-        ? RecordAudioPermissionStatus.AUTHORIZED
-        : RecordAudioPermissionStatus.NOT_AUTHORIZED,
+        ? RecordAudioPermissionStatusEnum.AUTHORIZED
+        : RecordAudioPermissionStatusEnum.NOT_AUTHORIZED,
     });
   }
 
