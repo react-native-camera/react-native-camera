@@ -351,9 +351,11 @@ export default class Camera extends React.Component<PropsType, StateType> {
       if (typeof options.orientation !== 'number') {
         const { orientation } = options;
         options.orientation = CameraManager.Orientation[orientation];
-        if (typeof options.orientation !== 'number') {
-          // eslint-disable-next-line no-console
-          console.warn(`Orientation '${orientation}' is invalid.`);
+        if (__DEV__) {
+          if (typeof options.orientation !== 'number') {
+            // eslint-disable-next-line no-console
+            console.warn(`Orientation '${orientation}' is invalid.`);
+          }
         }
       }
     }
@@ -388,9 +390,11 @@ export default class Camera extends React.Component<PropsType, StateType> {
       if (typeof options.orientation !== 'number') {
         const { orientation } = options;
         options.orientation = CameraManager.Orientation[orientation];
-        if (typeof options.orientation !== 'number') {
-          // eslint-disable-next-line no-console
-          console.warn(`Orientation '${orientation}' is invalid.`);
+        if (__DEV__) {
+          if (typeof options.orientation !== 'number') {
+            // eslint-disable-next-line no-console
+            console.warn(`Orientation '${orientation}' is invalid.`);
+          }
         }
       }
     }
@@ -412,12 +416,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
       options.mute = true;
     }
 
-    if (
-      (options.mute || captureAudio) &&
-      recordAudioPermissionStatus !== RecordAudioPermissionStatusEnum.AUTHORIZED
-    ) {
-      // eslint-disable-next-line no-console
-      console.warn('Recording with audio not possible. Permissions are missing.');
+    if (__DEV__) {
+      if (
+        (options.mute || captureAudio) &&
+        recordAudioPermissionStatus !== RecordAudioPermissionStatusEnum.AUTHORIZED
+      ) {
+        // eslint-disable-next-line no-console
+        console.warn('Recording with audio not possible. Permissions are missing.');
+      }
     }
 
     return await CameraManager.record(options, this._cameraHandle);
