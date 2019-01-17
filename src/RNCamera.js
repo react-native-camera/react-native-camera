@@ -341,6 +341,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
     if (options.targetBitrate) {
       if (typeof options.targetBitrate !== 'number') {
+        // eslint-disable-next-line no-console
         console.warn('Target Bitrate should be a positive integer');
       }
     }
