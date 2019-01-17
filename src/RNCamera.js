@@ -48,8 +48,7 @@ const requestPermissions = async (
         PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
         params,
       );
-      hasRecordAudioPermissions =
-        audioPermissionResult === PermissionsAndroid.PERMISSIONS.RECORD_AUDIO;
+      hasRecordAudioPermissions = audioPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
     }
   }
 
@@ -507,12 +506,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
       return;
     }
 
+    const recordAudioPermissionStatus = hasRecordAudioPermissions
+      ? RecordAudioPermissionStatusEnum.AUTHORIZED
+      : RecordAudioPermissionStatusEnum.NOT_AUTHORIZED;
+
     this.setState({
       isAuthorized: hasCameraPermissions,
       isAuthorizationChecked: true,
-      recordAudioPermissionStatus: hasRecordAudioPermissions
-        ? RecordAudioPermissionStatusEnum.AUTHORIZED
-        : RecordAudioPermissionStatusEnum.NOT_AUTHORIZED,
+      recordAudioPermissionStatus,
     });
   }
 
