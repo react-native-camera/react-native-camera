@@ -482,6 +482,10 @@ Supported options:
     - `ios` Specifies capture settings suitable for CIF quality (352x288 pixel) video output.
     - `android` Not supported.
 
+- `targetBitrate`. (int greater than 0) This option specifies a desired video bitrate.  For example, 5\*1000\*1000 would be 5Mbps.
+  - `ios` Not supported.
+  - `android` Supported.
+
 - `orientation` (string or number). Specifies the orientation that us used for recording the video. Possible values: `"portrait"`, `"portraitUpsideDown"`, `"landscapeLeft"` or `"landscapeRight"`.
 
   If nothing is passed the device's highest camera quality will be used as default.
