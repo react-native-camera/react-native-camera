@@ -607,11 +607,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self onReady:nil];
     return;
 #endif
-    //    NSDictionary *cameraPermissions = [EXCameraPermissionRequester permissions];
-    //    if (![cameraPermissions[@"status"] isEqualToString:@"granted"]) {
-    //        [self onMountingError:@{@"message": @"Camera permissions not granted - component could not be rendered."}];
-    //        return;
-    //    }
     dispatch_async(self.sessionQueue, ^{
         if (self.presetCamera == AVCaptureDevicePositionUnspecified) {
             return;

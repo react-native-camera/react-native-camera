@@ -371,11 +371,31 @@ RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve
 
 RCT_EXPORT_METHOD(checkVideoAuthorizationStatus:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
-    __block NSString *mediaType = AVMediaTypeVideo;
-    
-    [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
-        resolve(@(granted));
-    }];
+    if ([[NSBundle mainBundle].infoDictionary objectForKey:@"NSCameraUsageDescription"] != nil) {
+        __block NSString *mediaType = AVMediaTypeVideo;
+        [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+            resolve(@(granted));
+        }];
+    } else {
+#ifdef DEBUG
+        RCTLogWarn(@"Checking video permissions without having key 'NSCameraUsageDescription' defined in your Info.plist. You will have to add it to your Info.plist file, otherwise RNCamera is not allowed to use the camera. You can learn more about adding permissions here: https://stackoverflow.com/a/38498347/4202031");
+#endif
+        resolve(@(NO));
+    }
+}
+
+RCT_EXPORT_METHOD(checkRecordAudioAuthorizationStatus:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    if ([[NSBundle mainBundle].infoDictionary objectForKey:@"NSMicrophoneUsageDescription"] != nil) {
+        [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
+            resolve(@(granted));
+        }];
+    } else {
+#ifdef DEBUG
+        RCTLogWarn(@"Checking audio permissions without having key 'NSMicrophoneUsageDescription' defined in your Info.plist. Audio Recording for your video files is therefore disabled. If you do not need audio on your videos is is recommended to set the 'captureAudio' property on your component instance to 'false', otherwise you will have to add the key 'NSMicrophoneUsageDescription' to your Info.plist. You can learn more about adding permissions here: https://stackoverflow.com/a/38498347/4202031");
+#endif
+        resolve(@(NO));
+    }
 }
 
 RCT_REMAP_METHOD(getAvailablePictureSizes,

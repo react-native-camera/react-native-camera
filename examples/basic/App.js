@@ -81,9 +81,8 @@ export default class CameraScreen extends React.Component {
 
   takePicture = async function() {
     if (this.camera) {
-      this.camera.takePictureAsync().then(data => {
-        console.log('data: ', data);
-      });
+      const data = await this.camera.takePictureAsync();
+      console.warn('takePicture ', data);
     }
   };
 
@@ -96,10 +95,10 @@ export default class CameraScreen extends React.Component {
           this.setState({ isRecording: true });
           const data = await promise;
           this.setState({ isRecording: false });
-          console.warn(data);
+          console.warn('takeVideo', data);
         }
       } catch (e) {
-        console.warn(e);
+        console.error(e);
       }
     }
   };

@@ -86,10 +86,18 @@ type GoogleVisionBarcodeMode = Readonly<{ NORMAL: any; ALTERNATE: any; INVERTED:
 // FaCC (Function as Child Components)
 type Self<T> = { [P in keyof T]: P };
 type CameraStatus = Readonly<Self<{ READY: any; PENDING_AUTHORIZATION: any; NOT_AUTHORIZED: any }>>;
+type RecordAudioPermissionStatus = Readonly<
+  Self<{
+    AUTHORIZED: 'AUTHORIZED';
+    PENDING_AUTHORIZATION: 'PENDING_AUTHORIZATION';
+    NOT_AUTHORIZED: 'NOT_AUTHORIZED';
+  }>
+>;
 type FaCC = (
   params: {
     camera: RNCamera;
     status: keyof CameraStatus;
+    recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
   },
 ) => JSX.Element;
 
@@ -130,6 +138,7 @@ export interface RNCameraProps {
   pendingAuthorizationView?: JSX.Element;
   useCamera2Api?: boolean;
   whiteBalance?: keyof WhiteBalance;
+  captureAudio?: boolean;
 
   onCameraReady?(): void;
   onMountError?(error: { message: string }): void;
@@ -175,9 +184,6 @@ export interface RNCameraProps {
   playSoundOnCapture?: boolean;
 
   // -- IOS ONLY PROPS
-
-  /** iOS Only */
-  captureAudio?: boolean;
   defaultVideoQuality?: keyof VideoQuality;
 }
 
