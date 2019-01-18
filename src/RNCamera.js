@@ -72,6 +72,7 @@ type RecordingOptions = {
   codec?: string,
   mute?: boolean,
   path?: string,
+  videoBitrate?: number,
 };
 
 type EventCallbackArgumentsType = {
@@ -336,6 +337,13 @@ export default class Camera extends React.Component<PropsType, StateType> {
           // eslint-disable-next-line no-console
           console.warn(`Orientation '${orientation}' is invalid.`);
         }
+      }
+    }
+
+    if (__DEV__) {
+      if (options.videoBitrate && typeof options.videoBitrate !== 'number') {
+        // eslint-disable-next-line no-console
+        console.warn('Video Bitrate should be a positive integer');
       }
     }
 

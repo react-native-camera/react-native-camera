@@ -266,6 +266,9 @@ interface RecordOptions {
   mirrorVideo?: boolean;
   path?: string;
 
+  /** Android only */
+  videoBitrate?: number;
+
   /** iOS only */
   codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
 }
