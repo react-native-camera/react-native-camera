@@ -482,7 +482,7 @@ Supported options:
     - `ios` Specifies capture settings suitable for CIF quality (352x288 pixel) video output.
     - `android` Not supported.
 
-- `targetBitrate`. (int greater than 0) This option specifies a desired video bitrate.  For example, 5\*1000\*1000 would be 5Mbps.
+- `videoBitrate`. (int greater than 0) This option specifies a desired video bitrate.  For example, 5\*1000\*1000 would be 5Mbps.
   - `ios` Not supported.
   - `android` Supported.
 
