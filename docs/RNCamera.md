@@ -159,7 +159,15 @@ _It's the RNCamera's reference_
 
 #### `status`
 
+One of `RNCamera.Constants.CameraStatus`
+
 'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED'
+
+#### `recordAudioPermissionStatus`
+
+One of `RNCamera.Constants.RecordAudioPermissionStatus`.
+
+`'AUTHORIZED'` | `'NOT_AUTHORIZED'` | `'PENDING_AUTHORIZATION'`
 
 ## Properties
 
