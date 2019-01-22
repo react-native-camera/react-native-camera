@@ -426,7 +426,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
     if (__DEV__) {
       if (
-        (options.mute || captureAudio) &&
+        (!options.mute || captureAudio) &&
         recordAudioPermissionStatus !== RecordAudioPermissionStatusEnum.AUTHORIZED
       ) {
         // eslint-disable-next-line no-console
