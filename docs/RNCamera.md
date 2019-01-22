@@ -307,7 +307,12 @@ Function to be called when native code emit onMountError event, when there is a 
 
 #### `onStatusChange`
 
-Function to be called when native code emits [CameraStatus](#status) events.
+Function to be called when native code emits status changes in relation to authorization changes.
+
+Event contains the following fields:
+
+- `cameraStatus` - one of the [CameraStatus](#status) values
+- `recordAudioPermissionStatus` - one of the [RecordAudioPermissionStatus](#recordAudioPermissionStatus) values
 
 #### `Android` `onPictureTaken`
 
