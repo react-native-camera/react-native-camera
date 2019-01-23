@@ -85,7 +85,7 @@ import { RNCamera, FaceDetector } from 'react-native-camera';
 
 #### How to use master branch?
 
-We recommend using the releases from npm, however if you need some features that are not published on npm yet you can install that version from git directly.
+We recommend using the releases from npm, however if you need some features that are not published on npm yet you can install react-native-camera from git.
 
 **yarn**: `yarn add react-native-camera@git+https://git@github.com/react-native-community/react-native-camera.git`
 
