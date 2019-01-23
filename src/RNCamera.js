@@ -469,7 +469,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
   _onStatusChange = () => {
     if (this.props.onStatusChange) {
-      this.props.onStatusChange({ cameraStatus: this.getStatus(), recordAudioPermissionStatus: this.getRecordAudioPermissionStatus() });
+      this.props.onStatusChange({ cameraStatus: this.getStatus(), recordAudioPermissionStatus: this.state.recordAudioPermissionStatus });
     }
   };
 
@@ -541,14 +541,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
     return isAuthorized ? CameraStatus.READY : CameraStatus.NOT_AUTHORIZED;
   };
-
-  getRecordAudioPermissionStatus = (): RecordAudioPermissionStatus => {
-    const { isAuthorizationChecked, recordAudioPermissionStatus } = this.state;
-    if (isAuthorizationChecked === false) {
-      return RecordAudioPermissionStatus.PENDING_AUTHORIZATION;
-    }
-    return recordAudioPermissionStatus;
-  }
 
   // FaCC = Function as Child Component;
   hasFaCC = (): * => typeof this.props.children === 'function';
