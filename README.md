@@ -84,9 +84,13 @@ import { RNCamera, FaceDetector } from 'react-native-camera';
 ```
 
 #### How to use master branch?
-Inside your package.json, use this
-`"react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera"`
-instead of `"react-native-camera": "^1.0.0"`.
+
+We recommend using the releases from npm, however if you need some features that are not published on npm yet you can install that version from git directly.
+
+**yarn**: `yarn add react-native-camera@git+https://git@github.com/react-native-community/react-native-camera.git`
+
+**npm**: `npm install --save react-native-camera@git+https://git@github.com/react-native-community/react-native-camera.git`
+
 
 ### Contributing
 - Pull Requests are welcome, if you open a pull request we will do our best to get to it in a timely manner
