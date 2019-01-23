@@ -528,6 +528,11 @@ The promise will be fulfilled with an object with some of the following properti
 
 - `iOS` `codec`: the codec of the recorded video. One of `RNCamera.Constants.VideoCodec`
 
+#### `refreshAuthorizationStatus: Promise<void>`
+
+Allows to make RNCamera check Permissions again and set status accordingly.  
+Making it possible to refresh status of RNCamera after user initially rejected the permissions.
+
 #### `stopRecording: void`
 
 Should be called after recordAsync() to make the promise be fulfilled and get the video uri.
