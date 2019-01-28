@@ -256,7 +256,31 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
   'TextDetector'
 ]
 ```
-*Note:* Text recognition is available only via CocoaPods Path. If you have issues with duplicate symbols you will need to enable dead code stripping option in your Xcode (Target > Build Settings > search for "Dead code stripping") see: https://github.com/firebase/quickstart-ios/issues/487#issuecomment-415313053.
+
+###### Additional steps for Text Recognition
+Text recognition for iOS uses Firebase MLKit which requires seting up Firebase project for your app.
+If you have not already added Firebase to your app, please follow the steps described in [getting started guide](https://firebase.google.com/docs/ios/setup).
+In short, you would need to
+1. Register your app in Firebase console.
+2. Download `GoogleService-Info.plist` and add it to your project
+3. Add `pod 'Firebase/Core'` to your podfile
+4. In your `AppDelegate.m` file add the following lines:
+```objective-c
+#import <Firebase.h> // <--- add this
+...
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+  [FIRApp configure]; // <--- add this
+  ...
+}
+```
+
+Add pods `Firebase/MLVision` and `Firebase/MLVisionTextModel`
+
+*Note:* Text recognition is currently available only via CocoaPods Path. 
+- If you have issues with duplicate symbols you will need to enable dead code stripping option in your Xcode (Target > Build Settings > search for "Dead code stripping") [see here](https://github.com/firebase/quickstart-ios/issues/487#issuecomment-415313053).
+- If you are using `pod Firebase/Core` with a version set below 5.13 you might want to add `pod 'GoogleAppMeasurement', '~> 5.3.0'` to your podfile
 
 ###### Non-CocoaPods Path
 1. Download:

@@ -38,9 +38,8 @@ Pod::Spec.new do |s|
   s.subspec "TextDetector" do |ss|
     ss.dependency 'react-native-camera/RN'
     ss.dependency 'react-native-camera/RCT'
-    ss.dependency 'GoogleMobileVision/TextDetector', '~> 1.4'
-
-    ss.source_files = "ios/TextDetector/**/*.{h,m}"
+    ss.dependency 'Firebase/MLVision'
+    ss.dependency 'Firebase/MLVisionTextModel'
   end
 
   s.default_subspecs = "RN", "RCT"

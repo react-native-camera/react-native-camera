@@ -9,11 +9,7 @@
 #import "RNFaceDetectorManagerStub.h"
 #endif
 
-#if __has_include("TextDetectorManager.h")
 #import "TextDetectorManager.h"
-#else
-#import "TextDetectorManagerStub.h"
-#endif
 
 @class RNCamera;
 

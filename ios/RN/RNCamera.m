@@ -511,8 +511,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // We stop face detection here and restart it in when AVCaptureMovieFileOutput finishes recording.
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager stopFaceDetection];
-        [self stopTextRecognition];
 #endif
+    if ([self.textDetector isRealDetector]) {
+        [self setupOrDisableTextDetector];
+    }
         [self setupMovieFileCapture];
     }
 
@@ -633,10 +635,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
         [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
+#else
         if ([self.textDetector isRealDetector]) {
             [self setupOrDisableTextDetector];
         }
-#else
         // If AVCaptureVideoDataOutput is not required because of Google Vision
         // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
         // to avoid an exposure rack on some devices that can cause the first few
@@ -1121,18 +1123,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 -(id)createTextDetector
 {
     Class textDetectorManagerClass = NSClassFromString(@"TextDetectorManager");
-    Class textDetectorManagerStubClass =
-        NSClassFromString(@"TextDetectorManagerStub");
-
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-    if (textDetectorManagerClass) {
-        return [[textDetectorManagerClass alloc] init];
-    } else if (textDetectorManagerStubClass) {
-        return [[textDetectorManagerStubClass alloc] init];
-    }
-#endif
-
-    return nil;
+    return [[textDetectorManagerClass alloc] init];
 }
 
 - (void)setupOrDisableTextDetector
@@ -1180,11 +1171,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // find text features
         _finishedReadingText = false;
         self.start = [NSDate date];
-        NSArray *textBlocks = [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY];
-        NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
-        [self onText:eventText];
-
-        _finishedReadingText = true;
+        [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks) {
+            NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
+            [self onText:eventText];
+            self.finishedReadingText = true;
+        }];
     }
 }
 
