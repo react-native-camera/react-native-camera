@@ -189,7 +189,7 @@ Coordinates values are measured as floats from `0` to `1.0`. `{ x: 0, y: 0 }` wi
 
 #### `captureAudio`
 
-Values: boolean `true` (default) | `false`
+Values: boolean `true` | `false` (default)
 
 Specifies if audio recording permissions should be requested.
 Make sure to follow README instructions for audio recording permissions [here](../README.md).
