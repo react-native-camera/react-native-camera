@@ -305,6 +305,15 @@ Function to be called when native code emit onCameraReady event, when camera is 
 
 Function to be called when native code emit onMountError event, when there is a problem mounting the camera.
 
+#### `onStatusChange`
+
+Function to be called when native code emits status changes in relation to authorization changes.
+
+Event contains the following fields:
+
+- `cameraStatus` - one of the [CameraStatus](#status) values
+- `recordAudioPermissionStatus` - one of the [RecordAudioPermissionStatus](#recordAudioPermissionStatus) values
+
 #### `Android` `onPictureTaken`
 
 Function to be called when native code emit onPictureTaken event, when camera has taken a picture.
@@ -512,7 +521,7 @@ Supported options:
 
 - `maxFileSize` (int greater than 0). Specifies the maximum file size, in bytes, of the video to be recorded. For 1mb, for example, use 1\*1024\*1024. If nothing is specified, no size limit will be used.
 
-- `mute` (any value). (_This value will automatically be set to true if the `captureAudio` has not been passed to the Camera component_) If this flag is given in the option with any value, the video to be recorded will be mute. If nothing is specified, video will NOT be muted.  
+- `mute` (any value). (_This value will automatically be set to true if the `captureAudio` has not been passed to the Camera component_) If this flag is given in the option with any value, the video to be recorded will be mute. If nothing is specified, video will NOT be muted.
   **Note:** The recommended way of recording audio without sound passing captureAudio: false to the Camera component.
   The `mute` parameter is likely to become deprecated in the near future.
 
