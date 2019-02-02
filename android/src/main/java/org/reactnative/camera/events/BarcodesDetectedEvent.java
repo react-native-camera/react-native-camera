@@ -72,6 +72,7 @@ public class BarcodesDetectedEvent extends Event<BarcodesDetectedEvent> {
       Barcode barcode = mBarcodes.valueAt(i);
       WritableMap serializedBarcode = Arguments.createMap();
       serializedBarcode.putString("data", barcode.displayValue);
+      serializedBarcode.putString("rawValue", barcode.rawValue);
       serializedBarcode.putString("type", BarcodeFormatUtils.get(barcode.format));
       barcodesList.pushMap(serializedBarcode);
     }
