@@ -225,11 +225,17 @@ public class RNCameraViewHelper {
 
   public static void emitBarcodesDetectedEvent(
       ViewGroup view,
-      SparseArray<Barcode> barcodes
+      SparseArray<Barcode> barcodes,
+      int sourceWidth,
+      int sourceHeight,
+      int sourceRotation
   ) {
     BarcodesDetectedEvent event = BarcodesDetectedEvent.obtain(
         view.getId(),
-        barcodes
+        barcodes,
+        sourceWidth,
+        sourceHeight,
+        sourceRotation
     );
 
     ReactContext reactContext = (ReactContext) view.getContext();
@@ -283,7 +289,7 @@ public class RNCameraViewHelper {
       return (cameraOrientation - rotation + landscapeFlip) % 360;
     }
   }
-  
+
   private static boolean rotationIsLandscape(int rotation) {
     return (rotation == Constants.LANDSCAPE_90 ||
             rotation == Constants.LANDSCAPE_270);
@@ -306,7 +312,7 @@ public class RNCameraViewHelper {
     }
     return CamcorderProfile.QUALITY_HIGH;
   }
-  
+
   public static CamcorderProfile getCamcorderProfile(int quality) {
     CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
     int camcorderQuality = getCamcorderProfileQualityFromCameraModuleConstant(quality);
