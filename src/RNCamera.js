@@ -492,6 +492,10 @@ export default class Camera extends React.Component<PropsType, StateType> {
       options.pauseAfterCapture = false;
     }
 
+    if (!this._cameraHandle) {
+      throw 'Camera handle cannot be null';
+    }
+
     return await CameraManager.takePicture(options, this._cameraHandle);
   }
 
