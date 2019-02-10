@@ -37,7 +37,11 @@ const requestPermissions = async (
       PermissionsAndroid.PERMISSIONS.CAMERA,
       params,
     );
-    hasCameraPermissions = cameraPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
+    if (typeof cameraPermissionResult === 'boolean') {
+      hasCameraPermissions = cameraPermissionResult;
+    } else {
+      hasCameraPermissions = cameraPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
+    }
   }
 
   if (captureAudio) {
