@@ -37,7 +37,11 @@ const requestPermissions = async (
       PermissionsAndroid.PERMISSIONS.CAMERA,
       params,
     );
-    hasCameraPermissions = cameraPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
+    if (typeof cameraPermissionResult === 'boolean') {
+      hasCameraPermissions = cameraPermissionResult;
+    } else {
+      hasCameraPermissions = cameraPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
+    }
   }
 
   if (captureAudio) {
@@ -49,7 +53,11 @@ const requestPermissions = async (
           PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
           params,
         );
-        hasRecordAudioPermissions = audioPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
+        if (typeof audioPermissionResult === 'boolean') {
+          hasRecordAudioPermissions = audioPermissionResult
+        } else {
+          hasRecordAudioPermissions = audioPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
+        }
       } else if (__DEV__) {
         // eslint-disable-next-line no-console
         console.warn(
