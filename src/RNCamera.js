@@ -53,7 +53,11 @@ const requestPermissions = async (
           PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
           params,
         );
-        hasRecordAudioPermissions = audioPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
+        if (typeof audioPermissionResult === 'boolean') {
+          hasRecordAudioPermissions = audioPermissionResult
+        } else {
+          hasRecordAudioPermissions = audioPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
+        }
       } else if (__DEV__) {
         // eslint-disable-next-line no-console
         console.warn(
