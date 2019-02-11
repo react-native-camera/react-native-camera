@@ -1,10 +1,8 @@
 package org.reactnative.camera.tasks;
 
-import android.util.SparseArray;
-
-import com.google.android.gms.vision.text.TextBlock;
+import com.facebook.react.bridge.WritableArray;
 
 public interface TextRecognizerAsyncTaskDelegate {
-  void onTextRecognized(SparseArray<TextBlock> textBlocks, int sourceWidth, int sourceHeight, int sourceRotation);
+  void onTextRecognized(WritableArray serializedData);
   void onTextRecognizerTaskCompleted();
 }

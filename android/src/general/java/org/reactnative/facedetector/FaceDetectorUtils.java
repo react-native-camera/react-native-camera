@@ -18,10 +18,10 @@ public class FaceDetectorUtils {
   };
 
   public static WritableMap serializeFace(Face face) {
-    return serializeFace(face, 1, 1);
+    return serializeFace(face, 1, 1, 0, 0, 0, 0);
   }
 
-  public static WritableMap serializeFace(Face face, double scaleX, double scaleY) {
+  public static WritableMap serializeFace(Face face, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
     WritableMap encodedFace = Arguments.createMap();
 
     encodedFace.putInt("faceID", face.getId());
@@ -39,12 +39,25 @@ public class FaceDetectorUtils {
     }
 
     for(Landmark landmark : face.getLandmarks()) {
-      encodedFace.putMap(landmarkNames[landmark.getType()], mapFromPoint(landmark.getPosition(), scaleX, scaleY));
+      encodedFace.putMap(landmarkNames[landmark.getType()], mapFromPoint(landmark.getPosition(), scaleX, scaleY, width, height, paddingLeft, paddingTop));
     }
 
     WritableMap origin = Arguments.createMap();
-    origin.putDouble("x", face.getPosition().x * scaleX);
-    origin.putDouble("y", face.getPosition().y * scaleY);
+    Float x = face.getPosition().x;
+    Float y = face.getPosition().y;
+    if (face.getPosition().x < width / 2) {
+      x = x + paddingLeft / 2;
+    } else if (face.getPosition().x > width / 2) {
+      x = x - paddingLeft / 2;
+    }
+
+    if (face.getPosition().y < height / 2) {
+      y = y + paddingTop / 2;
+    } else if (face.getPosition().y > height / 2) {
+      y = y - paddingTop / 2;
+    }
+    origin.putDouble("x", x * scaleX);
+    origin.putDouble("y", y * scaleY);
 
     WritableMap size = Arguments.createMap();
     size.putDouble("width", face.getWidth() * scaleX);
@@ -91,8 +104,21 @@ public class FaceDetectorUtils {
     return face;
   }
 
-  public static WritableMap mapFromPoint(PointF point, double scaleX, double scaleY) {
+  public static WritableMap mapFromPoint(PointF point, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
     WritableMap map = Arguments.createMap();
+    Float x = point.x;
+    Float y = point.y;
+    if (point.x < width / 2) {
+      x = (x + paddingLeft / 2);
+    } else if (point.x > width / 2) {
+      x = (x - paddingLeft / 2);
+    }
+
+    if (point.y < height / 2) {
+      y = (y + paddingTop / 2);
+    } else if (point.y > height / 2) {
+      y = (y - paddingTop / 2);
+    }
     map.putDouble("x", point.x * scaleX);
     map.putDouble("y", point.y * scaleY);
     return map;

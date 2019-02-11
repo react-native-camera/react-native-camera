@@ -315,23 +315,42 @@ Google Symbol Utilities: https://www.gstatic.com/cpdc/dbffca986f6337f8-GoogleSym
 	project(':react-native-camera').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-camera/android')
 	```
 
-4. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
+4. Insert the following lines in `android/app/build.gradle`:
+
+  inside the dependencies block:
 
 	```gradle
-    compile (project(':react-native-camera')) {
-        exclude group: "com.google.android.gms"
-        compile 'com.android.support:exifinterface:25.+'
-        compile ('com.google.android.gms:play-services-vision:12.0.1') {
-            force = true
-        }
-    }
+    implementation project(':react-native-camera')
 	```
 
-  > You may need to use different exifinterface versions, e.g. `27.+` instead of `25.+`.
+  inside defaultConfig block insert either:
+
+  ```gradle
+  android {
+    ...
+    defaultConfig {
+      ...
+      missingDimensionStrategy 'react-native-camera', 'general' <-- insert this line
+    }
+  }
+  ```
+
+  or, if using MLKit for text/face/barcode recognition:
+
+  ```gradle
+  android {
+    ...
+    defaultConfig {
+      ...
+      missingDimensionStrategy 'react-native-camera', 'mlkit' <-- insert this line
+    }
+  }
+  ```
+
 
 5. Declare the permissions in your Android Manifest (required for `video recording` feature)
 
-  ```java
+  ```xml
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -346,6 +365,38 @@ allprojects {
     }
 }
 ```
+
+7. Additional steps for using MLKit for text/face/barcode recognition
+
+    7.1. Using Firebase MLKit requires seting up Firebase project for your app. If you have not already added Firebase to your app, please follow the steps described in [getting started guide](https://firebase.google.com/docs/android/setup).
+    In short, you would need to
+    - Register your app in Firebase console.
+    - Download google-services.json and place it in `android/app/`
+    - add the folowing to project level build.gradle:
+    ```gradle
+        buildscript {
+          dependencies {
+          // Add this line
+          classpath 'com.google.gms:google-services:4.0.1' <-- you might want to use different version
+          }
+        }
+    ```
+    - add to the bottom of `android/app/build.gradle` file
+    ```gradle 
+    apply plugin: com.google.gms.google-services'
+    ```
+
+    7.2. Configure your app to automatically download the ML model to the device after your app is installed from the Play Store. If you do not enable install-time model downloads, the model will be downloaded the first time you run the on-device detector. Requests you make before the download has completed will produce no results. 
+
+    ```xml
+    <application ...>
+    ...
+      <meta-data
+          android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+          android:value="ocr" />
+      <!-- To use multiple models, list all needed models: android:value="ocr, face, barcode" -->
+    </application>
+    ```
 
 The current Android library defaults to the below values for the Google SDK and Libraries,
 
@@ -383,45 +434,88 @@ The above settings in the ReactNative project over-rides the values present in t
 module. For your reference below is the `android/build.gradle` file of the module.
 
 ```gradle
-buildscript {
-...
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
 
-def DEFAULT_COMPILE_SDK_VERSION             = 26
-def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
-def DEFAULT_TARGET_SDK_VERSION              = 26
-def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
-def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
+buildscript {
+  repositories {
+    google()
+    maven {
+      url 'https://maven.google.com'
+    }
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.0.1'
+  }
+}
+
+apply plugin: 'com.android.library'
 
 android {
-  compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
-  buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
+  compileSdkVersion safeExtGet('compileSdkVersion', 26)
+  buildToolsVersion safeExtGet('buildToolsVersion', '26.0.2')
 
   defaultConfig {
-    minSdkVersion 16
-    targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
-
-    versionCode 1
-    versionName "1.0.0"
+    minSdkVersion safeExtGet('minSdkVersion', 16)
+    targetSdkVersion safeExtGet('targetSdkVersion', 26)
   }
+
+  flavorDimensions "react-native-camera"
+
+  productFlavors {
+    general {
+      dimension "react-native-camera"
+    }
+    mlkit {
+      dimension "react-native-camera"
+    }
+  }
+
+  sourceSets {
+    main {
+      java.srcDirs = ['src/main/java']
+    }
+    general {
+      java.srcDirs = ['src/general/java']
+    }
+    mlkit {
+      java.srcDirs = ['src/mlkit/java']
+    }
+  }
+
   lintOptions {
     abortOnError false
     warning 'InvalidPackage'
   }
 }
 
-...
+repositories {
+  google()
+  mavenCentral()
+  maven {
+   url 'https://maven.google.com'
+  }
+  maven { url "https://jitpack.io" }
+  maven {
+    // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+    url "$rootDir/../node_modules/react-native/android"
+  }
+}
 
 dependencies {
-  def googlePlayServicesVersion = rootProject.hasProperty('googlePlayServicesVersion')  ? rootProject.googlePlayServicesVersion : DEFAULT_GOOGLE_PLAY_SERVICES_VERSION
-  def supportLibVersion = rootProject.hasProperty('supportLibVersion')  ? rootProject.supportLibVersion : DEFAULT_SUPPORT_LIBRARY_VERSION
-
-  compile 'com.facebook.react:react-native:+'
-  compile "com.google.zxing:core:3.2.1"
-  compile "com.drewnoakes:metadata-extractor:2.9.1"
-  compile 'com.google.android.gms:play-services-vision:$googlePlayServicesVersion'
-  compile 'com.android.support:exifinterface:$supportLibVersion'
-
-  compile 'com.github.react-native-community:cameraview:cc47bb28ed2fc54a8c56a4ce9ce53edd1f0af3a5'
+  compileOnly 'com.facebook.react:react-native:+'
+  compileOnly 'com.facebook.infer.annotation:infer-annotation:+'
+  implementation "com.google.zxing:core:3.3.0"
+  implementation "com.drewnoakes:metadata-extractor:2.9.1"
+  generalImplementation "com.google.android.gms:play-services-vision:${safeExtGet('google-services', '17.0.2')}"
+  implementation "com.android.support:exifinterface:${safeExtGet('supportLibVersion', '27.1.0')}"
+  implementation "com.android.support:support-annotations:${safeExtGet('supportLibVersion', '27.1.0')}"
+  implementation "com.android.support:support-v4:${safeExtGet('supportLibVersion', '27.1.0')}"
+  mlkitImplementation "com.google.firebase:firebase-ml-vision:${safeExtGet('firebase-ml-vision', '18.0.2')}"
+  mlkitImplementation "com.google.firebase:firebase-ml-vision-face-model:17.0.2"
 }
 ```
 
