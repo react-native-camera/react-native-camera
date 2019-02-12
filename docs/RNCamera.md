@@ -567,7 +567,8 @@ To learn about how to test components which uses `RNCamera` check its [documenta
 
 ## Example
 
-To see more of the `RNCamera` in action, with Face Detection, you can check out the source in [RNCamera Example](https://github.com/react-native-community/rncamera-example) repository.
+To see more of the `RNCamera` in action you can check out the [RNCamera examples directory](https://github.com/react-native-community/react-native-camera/tree/master/examples).
+
 
 ## Open Collective
 
