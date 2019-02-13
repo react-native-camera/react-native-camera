@@ -34,6 +34,26 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+//DivX Additional imports
+import java.lang.Long;
+import java.lang.Integer;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.DataOutputStream;
+
+import java.util.Date;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
+
+import java.net.URL;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+
+import android.os.Handler;
+import android.os.HandlerThread;
+
 public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate,
     BarcodeDetectorAsyncTaskDelegate, TextRecognizerAsyncTaskDelegate, PictureSavedDelegate {
   private ThemedReactContext mThemedReactContext;
@@ -68,6 +88,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
   private int mGoogleVisionBarCodeType = Barcode.ALL_FORMATS;
   private int mGoogleVisionBarCodeMode = RNBarcodeDetector.NORMAL_MODE;
+
+
+  //DivX Additional variables
+  private Handler mBackgroundHandler;
+  private Date mlastDate = new Date();
+  private Callback mDivXCallback;
 
   public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext, true);
@@ -105,6 +131,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
       @Override
       public void onVideoRecorded(CameraView cameraView, String path, int videoOrientation, int deviceOrientation) {
+        //Added by DivX employee, AR
+        if (mDivXCallback != null) removeCallback(mDivXCallback);
+
         if (mVideoRecordedPromise != null) {
           if (path != null) {
             WritableMap result = Arguments.createMap();
@@ -126,6 +155,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         boolean willCallFaceTask = mShouldDetectFaces && !faceDetectorTaskLock && cameraView instanceof FaceDetectorAsyncTaskDelegate;
         boolean willCallGoogleBarcodeTask = mShouldGoogleDetectBarcodes && !googleBarcodeDetectorTaskLock && cameraView instanceof BarcodeDetectorAsyncTaskDelegate;
         boolean willCallTextTask = mShouldRecognizeText && !textRecognizerTaskLock && cameraView instanceof TextRecognizerAsyncTaskDelegate;
+
         if (!willCallBarCodeTask && !willCallFaceTask && !willCallGoogleBarcodeTask && !willCallTextTask) {
           return;
         }
@@ -246,7 +276,54 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     RNCameraViewHelper.emitPictureSavedEvent(this, response);
   }
 
-  public void record(ReadableMap options, final Promise promise, File cacheDirectory) {
+  //Added by DivX employee, AR  
+  public Date getLastDate() {
+    return mlastDate;
+  }
+
+  //Added by DivX employee, AR 
+  public void setLastDate(Date date) {
+    mlastDate = date;
+  }
+
+  //Added by DivX employee, AR
+  private Handler getBackgroundHandler() {
+    if (mBackgroundHandler == null) {
+        HandlerThread thread = new HandlerThread("background");
+        thread.start();
+        mBackgroundHandler = new Handler(thread.getLooper());
+    }
+    return mBackgroundHandler;
+  }
+
+  //Added by DivX employee, AR
+  private boolean isIntervalMet( long timeInterval) {
+    Date date = new Date();
+    Date last = getLastDate();
+    Calendar currCal = Calendar.getInstance();
+    Calendar lastCal = Calendar.getInstance();
+    currCal.setTime(date);
+    lastCal.setTime(last);
+
+      /*SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+      System.out.println(sdf.format(date));
+      System.out.println(sdf.format(last));*/
+
+    long milisCurr = currCal.getTimeInMillis();
+    long milisLast = lastCal.getTimeInMillis();
+
+    long diffSecs = (milisCurr - milisLast) / 1000;
+          // System.out.println(diffSecs);
+
+    if( diffSecs >= timeInterval) {
+        setLastDate(date);
+        return true;
+    }
+
+    return false;//(diffSecs >= timeInterval);
+  }
+
+  public void record(ReadableMap options, final Promise promise, File cacheDirectory) { //can add url for s3 here
     try {
       String path = options.hasKey("path") ? options.getString("path") : RNFileUtils.getOutputFilePath(cacheDirectory, ".mp4");
       int maxDuration = options.hasKey("maxDuration") ? options.getInt("maxDuration") : -1;
@@ -270,12 +347,74 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         orientation = options.getInt("orientation");
       }
 
+      //Added by DivX employee, AR
+      mDivXCallback = new Callback() {
+        @Override
+        public void onFramePreview(CameraView cameraView, final byte[] data, int width, int height, int rotation) {
+            
+          boolean hasEnoughSeconds = isIntervalMet(2);
+          if(hasEnoughSeconds){
+            getBackgroundHandler().post(  new Runnable() {
+                @Override
+                public void run() {
+                  try{
+                    String currTime = Long.toString(System.currentTimeMillis()%100);
+                    String imageName = "/swarm/my_image"+currTime+".jpg";
+                    System.out.println("BACKGROUND HANDLER RUNNING FOR DATA "+data);
+                    URL url = new URL("http://divx-public.divxllc.com.s3.amazonaws.com"+imageName);
+                    // Create the connection and use it to upload the new object using the pre-signed URL.
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoOutput(true);
+                    connection.setRequestMethod("PUT");
+                    connection.setRequestProperty("Content-Type","multipart/form-data");
+
+                    connection.setRequestProperty("Content-Length", Integer.toString(data.length));
+                    DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                    out.write(data);
+    
+                    out.close();
+
+                    System.out.println("HTTP response code: " + connection.getResponseCode());
+                    System.out.println(connection.getResponseMessage());
+                    if(connection.getErrorStream() != null) {
+                      BufferedReader in = new BufferedReader( new InputStreamReader(connection.getErrorStream()));
+                      String inputLine;
+                      StringBuffer response = new StringBuffer();
+
+                      while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                      }
+                      in.close();
+                      System.out.println(response.toString());
+                    }
+                  } catch(MalformedURLException e) {
+                        e.printStackTrace();
+                        System.out.println(e);
+                  } catch(ProtocolException e) {
+                        e.printStackTrace();
+                        System.out.println(e);
+                  } catch(IOException e) {
+                        e.printStackTrace();
+                        System.out.println(e);
+                  }
+                }
+            });
+          }
+        }
+      };
+
+      addCallback(mDivXCallback);
+
       if (super.record(path, maxDuration * 1000, maxFileSize, recordAudio, profile, orientation)) {
         mVideoRecordedPromise = promise;
       } else {
+
+        if (mDivXCallback != null) removeCallback(mDivXCallback);
         promise.reject("E_RECORDING_FAILED", "Starting video recording failed. Another recording might be in progress.");
       }
     } catch (IOException e) {
+
+      if (mDivXCallback != null) removeCallback(mDivXCallback);
       promise.reject("E_RECORDING_FAILED", "Starting video recording failed - could not create video file.");
     }
   }
