@@ -220,6 +220,7 @@ public class CameraView extends FrameLayout {
         state.ratio = getAspectRatio();
         state.autoFocus = getAutoFocus();
         state.flash = getFlash();
+        state.exposure = getExposureCompensation();
         state.focusDepth = getFocusDepth();
         state.zoom = getZoom();
         state.whiteBalance = getWhiteBalance();
@@ -240,6 +241,7 @@ public class CameraView extends FrameLayout {
         setAspectRatio(ss.ratio);
         setAutoFocus(ss.autoFocus);
         setFlash(ss.flash);
+        setExposureCompensation(ss.exposure);
         setFocusDepth(ss.focusDepth);
         setZoom(ss.zoom);
         setWhiteBalance(ss.whiteBalance);
@@ -473,6 +475,15 @@ public class CameraView extends FrameLayout {
         return mImpl.getFlash();
     }
 
+    public void setExposureCompensation(int exposure) {
+        mImpl.setExposureCompensation(exposure);
+    }
+
+    public int getExposureCompensation() {
+        return mImpl.getExposureCompensation();
+    }
+
+
     /**
      * Gets the camera orientation relative to the devices native orientation.
      *
@@ -629,6 +640,8 @@ public class CameraView extends FrameLayout {
         @Flash
         int flash;
 
+        int exposure;
+
         float focusDepth;
 
         float zoom;
@@ -646,6 +659,7 @@ public class CameraView extends FrameLayout {
             ratio = source.readParcelable(loader);
             autoFocus = source.readByte() != 0;
             flash = source.readInt();
+            exposure = source.readInt();
             focusDepth = source.readFloat();
             zoom = source.readFloat();
             whiteBalance = source.readInt();
@@ -664,6 +678,7 @@ public class CameraView extends FrameLayout {
             out.writeParcelable(ratio, 0);
             out.writeByte((byte) (autoFocus ? 1 : 0));
             out.writeInt(flash);
+            out.writeInt(exposure);
             out.writeFloat(focusDepth);
             out.writeFloat(zoom);
             out.writeInt(whiteBalance);

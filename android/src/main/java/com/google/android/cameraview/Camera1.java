@@ -23,6 +23,7 @@ import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.support.v4.util.SparseArrayCompat;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.facebook.react.bridge.ReadableMap;
@@ -95,6 +96,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     private int mFacing;
 
     private int mFlash;
+
+    private int mExposure;
 
     private int mDisplayOrientation;
 
@@ -328,6 +331,22 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     @Override
     int getFlash() {
         return mFlash;
+    }
+
+    @Override
+    int getExposureCompensation() {
+        return mExposure;
+    }
+
+    @Override
+    void setExposureCompensation(int exposure) {
+
+        if (exposure == mExposure) {
+            return;
+        }
+        if (setExposureInternal(exposure)) {
+            mCamera.setParameters(mCameraParameters);
+        }
     }
 
     @Override
@@ -646,6 +665,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
         setAutoFocusInternal(mAutoFocus);
         setFlashInternal(mFlash);
+        setExposureInternal(mExposure);
         setAspectRatio(mAspectRatio);
         setZoomInternal(mZoom);
         setWhiteBalanceInternal(mWhiteBalance);
@@ -787,6 +807,24 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             return false;
         }
     }
+
+    private boolean setExposureInternal(int exposure) {
+        Log.e("CAMERA_1::", ""+isCameraOpened()+"; Exposure: "+exposure);
+        if (isCameraOpened()){
+            mExposure = exposure;
+            int minExposure = mCameraParameters.getMinExposureCompensation();
+            int maxExposure = mCameraParameters.getMaxExposureCompensation();
+            Log.e("CAMERA_1::", ""+minExposure);
+            Log.e("CAMERA_1::", ""+maxExposure);
+
+            if (minExposure != maxExposure) {
+                mCameraParameters.setExposureCompensation(mExposure);
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * @return {@code true} if {@link #mCameraParameters} was modified.
