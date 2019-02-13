@@ -1,8 +1,8 @@
 {
-  "name": "react-native-camera",
-  "description": "A Camera component for React Native. Also reads barcodes.",
+  "name": "@divx/react-native-camera",
+  "description": "A Camera component for React Native. Also reads barcodes. (DivX Fork)",
   "version": "1.10.2",
-  "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
+  "author": "DivX Developers, Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
   "collective": {
     "type": "opencollective",
     "url": "https://opencollective.com/react-native-camera",
@@ -68,7 +68,10 @@
   "pre-commit": "lint:staged",
   "repository": {
     "type": "git",
-    "url": "https://github.com/react-native-community/react-native-camera.git"
+    "url": "https://github.com/divx/react-native-camera.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.divx.com:4873"
   },
   "scripts": {
     "commit": "git-cz",
