@@ -781,8 +781,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             }
             String currentMode = FLASH_MODES.get(mFlash);
             if (!modes.contains(currentMode)) {
-                 mCameraParameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-                 return true;
+                mCameraParameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                return true;
             }
             return false;
         } else {
