@@ -42,7 +42,7 @@ type BarCodeType = Readonly<{
   ean8: any;
   pdf417: any;
   qr: any;
-  upce: any;
+  upc_e: any;
   interleaved2of5: any;
   itf14: any;
   datamatrix: any;
