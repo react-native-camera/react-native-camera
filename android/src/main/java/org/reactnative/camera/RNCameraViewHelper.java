@@ -275,12 +275,18 @@ public class RNCameraViewHelper {
 
   // Utilities
 
-  public static int getCorrectCameraRotation(int rotation, int facing) {
+  public static int getCorrectCameraRotation(int rotation, int facing, int cameraOrientation) {
     if (facing == CameraView.FACING_FRONT) {
-      return (rotation - 90 + 360) % 360;
+      return (360 - (cameraOrientation + rotation) % 360) % 360;
     } else {
-      return (-rotation + 90 + 360) % 360;
+      final int landscapeFlip = rotationIsLandscape(rotation) ? 180 : 0;
+      return (cameraOrientation - rotation + landscapeFlip) % 360;
     }
+  }
+  
+  private static boolean rotationIsLandscape(int rotation) {
+    return (rotation == Constants.LANDSCAPE_90 ||
+            rotation == Constants.LANDSCAPE_270);
   }
 
   private static int getCamcorderProfileQualityFromCameraModuleConstant(int quality) {

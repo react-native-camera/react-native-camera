@@ -44,6 +44,8 @@ abstract class DisplayOrientationDetector {
 
     private int mLastKnownDisplayOrientation = 0;
 
+    private int mLastKnownDeviceOrientation = 0;
+
     public DisplayOrientationDetector(Context context) {
         mOrientationEventListener = new OrientationEventListener(context) {
 
@@ -56,9 +58,35 @@ abstract class DisplayOrientationDetector {
                         mDisplay == null) {
                     return;
                 }
+                boolean hasChanged = false;
+
+                /** set device orientation */
+                final int deviceOrientation;
+                if (orientation > 315 || orientation < 45) {
+                    deviceOrientation = 0;
+                } else if (orientation > 45 && orientation < 135) {
+                    deviceOrientation = 90;
+                } else if (orientation > 135 && orientation < 225) {
+                    deviceOrientation = 180;
+                } else if (orientation > 225 && orientation < 315) {
+                    deviceOrientation = 270;
+                } else {
+                    deviceOrientation = 0;
+                }
+
+                 if (mLastKnownDeviceOrientation != deviceOrientation) {
+                    mLastKnownDeviceOrientation = deviceOrientation;
+                    hasChanged = true;
+                }
+
+                 /** set screen orientation */
                 final int rotation = mDisplay.getRotation();
                 if (mLastKnownRotation != rotation) {
                     mLastKnownRotation = rotation;
+                    hasChanged = true;
+                }
+
+                if (hasChanged) {
                     dispatchOnDisplayOrientationChanged(DISPLAY_ORIENTATIONS.get(rotation));
                 }
             }
@@ -83,14 +111,15 @@ abstract class DisplayOrientationDetector {
 
     void dispatchOnDisplayOrientationChanged(int displayOrientation) {
         mLastKnownDisplayOrientation = displayOrientation;
-        onDisplayOrientationChanged(displayOrientation);
+        onDisplayOrientationChanged(displayOrientation, mLastKnownDeviceOrientation);
     }
 
     /**
      * Called when display orientation is changed.
      *
      * @param displayOrientation One of 0, 90, 180, and 270.
+     * @param deviceOrientation One of 0, 90, 180, and 270.
      */
-    public abstract void onDisplayOrientationChanged(int displayOrientation);
+    public abstract void onDisplayOrientationChanged(int displayOrientation, int deviceOrientation);
 
 }

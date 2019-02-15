@@ -79,11 +79,15 @@ abstract class CameraViewImpl {
     abstract void takePicture(ReadableMap options);
 
     abstract boolean record(String path, int maxDuration, int maxFileSize,
-                            boolean recordAudio, CamcorderProfile profile);
+                            boolean recordAudio, CamcorderProfile profile, int orientation);
 
     abstract void stopRecording();
 
+    abstract int getCameraOrientation();
+
     abstract void setDisplayOrientation(int displayOrientation);
+
+    abstract void setDeviceOrientation(int deviceOrientation);
 
     abstract void setFocusDepth(float value);
 
@@ -115,9 +119,9 @@ abstract class CameraViewImpl {
 
         void onCameraClosed();
 
-        void onPictureTaken(byte[] data);
+        void onPictureTaken(byte[] data, int deviceOrientation);
 
-        void onVideoRecorded(String path);
+        void onVideoRecorded(String path, int videoOrientation, int deviceOrientation);
 
         void onFramePreview(byte[] data, int width, int height, int orientation);
 

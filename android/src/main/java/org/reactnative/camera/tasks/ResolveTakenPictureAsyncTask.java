@@ -30,13 +30,15 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private ReadableMap mOptions;
     private File mCacheDirectory;
     private Bitmap mBitmap;
+    private int mDeviceOrientation;
     private PictureSavedDelegate mPictureSavedDelegate;
 
-    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, PictureSavedDelegate delegate) {
+    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate) {
         mPromise = promise;
         mOptions = options;
         mImageData = imageData;
         mCacheDirectory = cacheDirectory;
+        mDeviceOrientation = deviceOrientation;
         mPictureSavedDelegate = delegate;
     }
 
@@ -48,6 +50,9 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     protected WritableMap doInBackground(Void... voids) {
         WritableMap response = Arguments.createMap();
         ByteArrayInputStream inputStream = null;
+
+        response.putInt("deviceOrientation", mDeviceOrientation);
+        response.putInt("pictureOrientation", mOptions.hasKey("orientation") ? mOptions.getInt("orientation") : mDeviceOrientation);
 
         if (mOptions.hasKey("skipProcessing")) {
             try {

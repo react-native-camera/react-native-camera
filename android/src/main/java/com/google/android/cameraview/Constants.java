@@ -39,4 +39,9 @@ public interface Constants {
     int WB_FLUORESCENT = 4;
     int WB_INCANDESCENT = 5;
 
+    int ORIENTATION_AUTO = 0;
+    int ORIENTATION_UP = 1;
+    int ORIENTATION_DOWN = 2;
+    int ORIENTATION_LEFT = 3;
+    int ORIENTATION_RIGHT = 4;
 }

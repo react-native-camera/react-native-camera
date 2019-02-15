@@ -44,6 +44,8 @@
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property (assign, nonatomic) AVCaptureVideoStabilizationMode videoStabilizationMode;
 @property(assign, nonatomic, nullable) NSNumber *defaultVideoQuality;
+@property(assign, nonatomic, nullable) NSNumber *deviceOrientation;
+@property(assign, nonatomic, nullable) NSNumber *orientation;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;

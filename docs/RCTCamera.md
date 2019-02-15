@@ -15,7 +15,7 @@ import Camera from 'react-native-camera';
 
 class BadInstagramCloneApp extends Component {
   _requestPermissions = async () => {
-    if (Platform.OS === 'android') { 
+    if (Platform.OS === 'android') {
       const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA)
       return result === PermissionsAndroid.RESULTS.GRANTED || result === true
     }
@@ -29,7 +29,7 @@ class BadInstagramCloneApp extends Component {
       console.log(data.uri)
     }
   }
-  
+
   _onBarCodeRead = (e) => {
     console.log(`Barcode Found! Type: ${e.type}\nData: ${e.data}`)
   }
@@ -100,8 +100,7 @@ Will crop the captured image to match the content that is displayed in the previ
 
 Values: `true` (Boolean), `false` (default)
 
-*Applies to video capture mode only.* Specifies whether or not audio should be captured with the video.
-
+_Applies to video capture mode only._ Specifies whether or not audio should be captured with the video.
 
 #### `captureMode`
 
@@ -121,14 +120,13 @@ Values: `Camera.constants.CaptureQuality.high` or `"high"` (default), `Camera.co
 
 This property allows you to specify the quality output of the captured image or video. By default the quality is set to high.
 
-When choosing more-specific quality settings (1080p, 720p, 480p), note that each platform and device supports different valid picture/video sizes, and actual resolution within each of these quality settings might differ. There should not be too much variance (if any) for iOS; 1080p should give 1920x1080, 720p should give 1280x720, and 480p should give 640x480 (note that iOS 480p therefore is NOT the typical 16:9 HD aspect ratio, and the typically-HD camera preview screen may differ greatly in aspect from what you actually record!!). For Android, expect more variance: on most Androids, 1080p *should* give 1920x1080 and 720p *should* give 1280x720; however, 480p will at "best" be 853x480 (16:9 HD aspect ratio), but falls back/down to 800x480, 720x480, or "worse", depending on what is closest-but-less-than 853x480 and available on the actual device. If your application requires knowledge of the precise resolution of the output image/video, you might consider manually determine the actual resolution itself after capture has completed (particularly for 480p on Android).
+When choosing more-specific quality settings (1080p, 720p, 480p), note that each platform and device supports different valid picture/video sizes, and actual resolution within each of these quality settings might differ. There should not be too much variance (if any) for iOS; 1080p should give 1920x1080, 720p should give 1280x720, and 480p should give 640x480 (note that iOS 480p therefore is NOT the typical 16:9 HD aspect ratio, and the typically-HD camera preview screen may differ greatly in aspect from what you actually record!!). For Android, expect more variance: on most Androids, 1080p _should_ give 1920x1080 and 720p _should_ give 1280x720; however, 480p will at "best" be 853x480 (16:9 HD aspect ratio), but falls back/down to 800x480, 720x480, or "worse", depending on what is closest-but-less-than 853x480 and available on the actual device. If your application requires knowledge of the precise resolution of the output image/video, you might consider manually determine the actual resolution itself after capture has completed (particularly for 480p on Android).
 
 #### `type`
 
 Values: `Camera.constants.Type.front` or `"front"`, `Camera.constants.Type.back` or `"back"` (default)
 
 Use the `type` property to specify which camera to use.
-
 
 #### `orientation`
 
@@ -202,12 +200,11 @@ currently no way to manage this from javascript.
 
 To get autofocus/tap to focus functionalities working correctly in android
 make sure that the proper permissions are set in your `AndroidManifest.xml`:
+
 ```java
 <uses-feature android:name="android.hardware.camera" />
 <uses-feature android:name="android.hardware.camera.autofocus" />
 ```
-
-
 
 #### `iOS` `defaultOnFocusComponent`
 
@@ -256,8 +253,6 @@ By default a <ActivityIndicator> will be displayed while the component is waitin
 
 #### `pendingAuthorizationView`
 
-
-
 #### `mirrorImage`
 
 If set to `true`, the image returned will be mirrored.
@@ -268,10 +263,10 @@ If set to `true`, the video returned will be mirrored.
 
 #### `fixOrientation` (_deprecated_)
 
-If set to `true`, the image returned will be rotated to the _right way up_.  WARNING: It uses a significant amount of memory and my cause your application to crash if the device cannot provide enough RAM to perform the rotation.
+If set to `true`, the image returned will be rotated to the _right way up_. WARNING: It uses a significant amount of memory and my cause your application to crash if the device cannot provide enough RAM to perform the rotation.
 
 (_If you find that you need to use this option because your images are incorrectly oriented by default,
-could please submit a PR and include the make model of the device.  We believe that it's not
+could please submit a PR and include the make model of the device. We believe that it's not
 required functionality any more and would like to remove it._)
 
 ## Component instance methods
@@ -285,7 +280,7 @@ Captures data from the camera. What is captured is based on the `captureMode` an
 Supported options:
 
 - `audio` (See `captureAudio` under Properties)
-- `mode` (See  `captureMode` under Properties)
+- `mode` (See `captureMode` under Properties)
 - `target` (See `captureTarget` under Properties)
 - `metadata` This is metadata to be added to the captured image.
 - `metadata.location` This is the object returned from `navigator.geolocation.getCurrentPosition()` (React Native's geolocation polyfill). It will add GPS metadata to the image.
@@ -337,6 +332,7 @@ The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the camera
 The same as `Camera.checkDeviceAuthorizationStatus()` but only checks the microphone permission. Note, as of iOS 10, you will need to add `NSMicrophoneUsageDescription` to your XCode project's Info.plist file or you might experience a crash.
 
 ## Subviews
+
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
 
 ## Example
@@ -344,7 +340,8 @@ This component supports subviews, so if you wish to use the camera view as a bac
 To see more of the `RCTCamera` in action, you can check out the source in [Example](https://github.com/lwansbrough/react-native-camera/tree/master/Example) folder.
 
 ## Open Collective
-We are just beginning a funding campaign for react-native-camera. Contributions are greatly appreciated. When we gain more than $250 we will begin distributing funds to core maintainers in a fully transparent manner. Feedback for this process is welcomed, we will continue to evolve the strategy as we grow and learn more.
+
+We are just beginning a funding campaign for react-native-camera. Contributions are greatly appreciated. When we gain more than \$250 we will begin distributing funds to core maintainers in a fully transparent manner. Feedback for this process is welcomed, we will continue to evolve the strategy as we grow and learn more.
 
 ### Backers
 
@@ -381,7 +378,6 @@ Support us with a monthly donation and help us continue our activities. [[Become
 <a href="https://opencollective.com/react-native-camera/backer/28/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/28/avatar.svg"></a>
 <a href="https://opencollective.com/react-native-camera/backer/29/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/29/avatar.svg"></a>
 
-
 ### Sponsors
 
 Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/react-native-camera#sponsor)]
@@ -397,7 +393,6 @@ Become a sponsor and get your logo on our README on Github with a link to your s
 <a href="https://opencollective.com/react-native-camera/sponsor/8/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/8/avatar.svg"></a>
 <a href="https://opencollective.com/react-native-camera/sponsor/9/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/9/avatar.svg"></a>
 
-
-------------
+---
 
 Thanks to Brent Vatne (@brentvatne) for the `react-native-video` module which provided me with a great example of how to set up this module.

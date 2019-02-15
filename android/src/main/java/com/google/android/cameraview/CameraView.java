@@ -119,8 +119,9 @@ public class CameraView extends FrameLayout {
         // Display orientation detector
         mDisplayOrientationDetector = new DisplayOrientationDetector(context) {
             @Override
-            public void onDisplayOrientationChanged(int displayOrientation) {
+            public void onDisplayOrientationChanged(int displayOrientation, int deviceOrientation) {
                 mImpl.setDisplayOrientation(displayOrientation);
+                mImpl.setDeviceOrientation(deviceOrientation);
             }
         };
     }
@@ -472,6 +473,15 @@ public class CameraView extends FrameLayout {
         return mImpl.getFlash();
     }
 
+    /**
+     * Gets the camera orientation relative to the devices native orientation.
+     *
+     * @return The orientation of the camera.
+     */
+    public int getCameraOrientation() {
+        return mImpl.getCameraOrientation();
+    }
+
     public void setFocusDepth(float value) {
         mImpl.setFocusDepth(value);
     }
@@ -500,7 +510,7 @@ public class CameraView extends FrameLayout {
 
     /**
      * Take a picture. The result will be returned to
-     * {@link Callback#onPictureTaken(CameraView, byte[])}.
+     * {@link Callback#onPictureTaken(CameraView, byte[], int)}.
      */
     public void takePicture(ReadableMap options) {
         mImpl.takePicture(options);
@@ -508,15 +518,15 @@ public class CameraView extends FrameLayout {
 
     /**
      * Record a video and save it to file. The result will be returned to
-     * {@link Callback#onVideoRecorded(CameraView, String)}.
+     * {@link Callback#onVideoRecorded(CameraView, String, int, int)}.
      * @param path Path to file that video will be saved to.
      * @param maxDuration Maximum duration of the recording, in seconds.
      * @param maxFileSize Maximum recording file size, in bytes.
      * @param profile Quality profile of the recording.
      */
     public boolean record(String path, int maxDuration, int maxFileSize,
-                          boolean recordAudio, CamcorderProfile profile) {
-        return mImpl.record(path, maxDuration, maxFileSize, recordAudio, profile);
+                          boolean recordAudio, CamcorderProfile profile, int orientation) {
+        return mImpl.record(path, maxDuration, maxFileSize, recordAudio, profile, orientation);
     }
 
     public void stopRecording() {
@@ -575,16 +585,16 @@ public class CameraView extends FrameLayout {
         }
 
         @Override
-        public void onPictureTaken(byte[] data) {
+        public void onPictureTaken(byte[] data, int deviceOrientation) {
             for (Callback callback : mCallbacks) {
-                callback.onPictureTaken(CameraView.this, data);
+                callback.onPictureTaken(CameraView.this, data, deviceOrientation);
             }
         }
 
         @Override
-        public void onVideoRecorded(String path) {
+        public void onVideoRecorded(String path, int videoOrientation, int deviceOrientation) {
             for (Callback callback : mCallbacks) {
-                callback.onVideoRecorded(CameraView.this, path);
+                callback.onVideoRecorded(CameraView.this, path, videoOrientation, deviceOrientation);
             }
         }
 
@@ -706,7 +716,7 @@ public class CameraView extends FrameLayout {
          * @param cameraView The associated {@link CameraView}.
          * @param data       JPEG data.
          */
-        public void onPictureTaken(CameraView cameraView, byte[] data) {
+        public void onPictureTaken(CameraView cameraView, byte[] data, int deviceOrientation) {
         }
 
         /**
@@ -715,7 +725,7 @@ public class CameraView extends FrameLayout {
          * @param cameraView The associated {@link CameraView}.
          * @param path       Path to recoredd video file.
          */
-        public void onVideoRecorded(CameraView cameraView, String path) {
+        public void onVideoRecorded(CameraView cameraView, String path, int videoOrientation, int deviceOrientation) {
         }
 
         public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int orientation) {
