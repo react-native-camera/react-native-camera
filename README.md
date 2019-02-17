@@ -350,6 +350,7 @@ ext {
     targetSdkVersion            = 26
     buildToolsVersion           = "26.0.2"
     googlePlayServicesVersion   = "12.0.1"
+    googlePlayServicesVisionVersion = "15.0.2"
     supportLibVersion           = "27.1.0"
 }
 ```
