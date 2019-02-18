@@ -3,6 +3,7 @@
 - [meta-data android 26](#meta-data-android-26)
 - [Manifest merger failed](#when-i-try-to-build-my-project-i-get-following-error)
 - [How can I resize captured images?](#how-can-i-resize-captured-images)
+- [How can I get thumbnails for my video?](#how-can-i-get-thumbnails-for-my-video)
 
 #### meta-data android 26
 
@@ -135,3 +136,7 @@ class CameraComponent extends Component {
 }
 
 ```
+
+#### How can I get thumbnails for my video
+
+We recommend using the library [`react-native-thumbnail`](https://github.com/phuochau/react-native-thumbnail) for generating thumbnails of your video files.
