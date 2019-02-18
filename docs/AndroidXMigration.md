@@ -17,7 +17,7 @@ project.
 
 #### Update the android section `android/app/build.gradle` to
 
-```javascript
+```
 android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
@@ -37,13 +37,13 @@ to use the androidx version. Can check the full migration list [here](https://de
 
 remove
 
-```javascript
+```xml
 <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="26" />
 ```
 
 #### Update `android/build.gradle`
 
-```javascript
+```
 buildscript {
     repositories {
         google()
@@ -91,7 +91,7 @@ subprojects { subproject ->
 
 add
 
-```javascript
+```
 android.enableJetifier = true;
 android.useAndroidX = true;
 ```
