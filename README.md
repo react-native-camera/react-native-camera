@@ -5,7 +5,7 @@ If you use this library on your commercial/personal projects, you can help us by
 
 This gives you the power to prioritize our work and support the project contributors. Moreover it'll guarantee the project will be updated and maintained in the long run.
 
-[![issuehunt-image](https://github.com/BoostIO/issuehunt-materials/blob/master/issuehunt-badge@1x.png?raw=true)](https://issuehunt.io/repos/33218414)
+[![issuehunt-image](https://issuehunt.io/static/embed/issuehunt-button-v1.svg)](https://issuehunt.io/repos/33218414)
 
 ## Open Collective
 You can also fund this project using open collective
