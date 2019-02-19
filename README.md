@@ -401,6 +401,18 @@ dependencies {
 }
 ```
 
+If you are using a version of `googlePlayServicesVersion` that does not have `play-services-vision`, you can specify a different version of `play-services-vision` by adding `googlePlayServicesVisionVersion` to the project-wide properties
+```
+ext {
+    compileSdkVersion           = 26
+    targetSdkVersion            = 26
+    buildToolsVersion           = "26.0.2"
+    googlePlayServicesVersion   = "16.0.1"
+    googlePlayServicesVisionVersion = "15.0.2"
+    supportLibVersion           = "27.1.0"
+}
+```
+
 #### Windows
 1. `npm install react-native-camera --save`
 2. Link the library as described here: [react-native-windows / LinkingLibrariesWindows.md](https://github.com/Microsoft/react-native-windows/blob/master/docs/LinkingLibrariesWindows.md)
