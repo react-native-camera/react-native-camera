@@ -46,11 +46,13 @@ repositories {
 }
 
 dependencies {
+  def googlePlayServicesVisionVersion = safeExtGet('googlePlayServicesVisionVersion', safeExtGet('googlePlayServicesVersion', '15.0.2'))
+
   compileOnly 'com.facebook.react:react-native:+'
   compileOnly 'com.facebook.infer.annotation:infer-annotation:+'
   implementation "com.google.zxing:core:3.3.0"
   implementation "com.drewnoakes:metadata-extractor:2.9.1"
-  implementation "com.google.android.gms:play-services-vision:${safeExtGet('googlePlayServicesVersion', '15.0.2')}"
+  implementation "com.google.android.gms:play-services-vision:$googlePlayServicesVisionVersion"
   implementation "com.android.support:exifinterface:${safeExtGet('supportLibVersion', '27.1.0')}"
   implementation "com.android.support:support-annotations:${safeExtGet('supportLibVersion', '27.1.0')}"
   implementation "com.android.support:support-v4:${safeExtGet('supportLibVersion', '27.1.0')}"

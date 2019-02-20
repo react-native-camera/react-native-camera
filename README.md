@@ -350,6 +350,7 @@ ext {
     targetSdkVersion            = 26
     buildToolsVersion           = "26.0.2"
     googlePlayServicesVersion   = "12.0.1"
+    googlePlayServicesVisionVersion = "15.0.2"
     supportLibVersion           = "27.1.0"
 }
 ```
@@ -397,6 +398,18 @@ dependencies {
   compile 'com.android.support:exifinterface:$supportLibVersion'
 
   compile 'com.github.react-native-community:cameraview:cc47bb28ed2fc54a8c56a4ce9ce53edd1f0af3a5'
+}
+```
+
+If you are using a version of `googlePlayServicesVersion` that does not have `play-services-vision`, you can specify a different version of `play-services-vision` by adding `googlePlayServicesVisionVersion` to the project-wide properties
+```
+ext {
+    compileSdkVersion           = 26
+    targetSdkVersion            = 26
+    buildToolsVersion           = "26.0.2"
+    googlePlayServicesVersion   = "16.0.1"
+    googlePlayServicesVisionVersion = "15.0.2"
+    supportLibVersion           = "27.1.0"
 }
 ```
 
