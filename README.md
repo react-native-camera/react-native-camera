@@ -258,7 +258,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 ```
 
 ###### Additional steps for Text Recognition
-Text recognition for iOS uses Firebase MLKit which requires seting up Firebase project for your app.
+Text recognition for iOS uses Firebase MLKit which requires setting up Firebase project for your app.
 If you have not already added Firebase to your app, please follow the steps described in [getting started guide](https://firebase.google.com/docs/ios/setup).
 In short, you would need to
 1. Register your app in Firebase console.

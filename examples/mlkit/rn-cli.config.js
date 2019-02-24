@@ -11,6 +11,6 @@ const reactNativeCameraRoot = path.resolve(__dirname, '..', '..');
 module.exports = {
   watchFolders: [path.resolve(__dirname, 'node_modules'), reactNativeCameraRoot],
   resolver: {
-    blacklistRE: blacklist([new RegExp(`${reactNativeCameraRoot}/examples/mlkit/.*`), new RegExp(`${reactNativeCameraRoot}/node_modules/react-native/.*`)]),
+    blacklistRE: blacklist([new RegExp(`${reactNativeCameraRoot}/examples/basic/.*`),new RegExp(`${reactNativeCameraRoot}/node_modules/react-native/.*`)]),
   },
 };
