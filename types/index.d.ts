@@ -1,6 +1,7 @@
 // Type definitions for react-native-camera 1.0
 // Definitions by: Felipe Constantino <https://github.com/fconstant>
 //                 Trent Jones <https://github.com/FizzBuzz791>
+//                 Shahnawaz Ali <https://github.com/shahnawaz>
 // If you modify this file, put your GitHub info here as well (for easy contacting purposes)
 
 /*
@@ -93,13 +94,11 @@ type RecordAudioPermissionStatus = Readonly<
     NOT_AUTHORIZED: 'NOT_AUTHORIZED';
   }>
 >;
-type FaCC = (
-  params: {
-    camera: RNCamera;
-    status: keyof CameraStatus;
-    recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
-  },
-) => JSX.Element;
+type FaCC = (params: {
+  camera: RNCamera;
+  status: keyof CameraStatus;
+  recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
+}) => JSX.Element;
 
 export interface Constants {
   CameraStatus: CameraStatus;
@@ -141,7 +140,10 @@ export interface RNCameraProps {
   captureAudio?: boolean;
 
   onCameraReady?(): void;
-  onStatusChange?(event: { cameraStatus: CameraStatus, recordAudioPermissionStatus: keyof RecordAudioPermissionStatus }): void;
+  onStatusChange?(event: {
+    cameraStatus: CameraStatus;
+    recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
+  }): void;
   onMountError?(error: { message: string }): void;
 
   /** Value: float from 0 to 1.0 */
@@ -318,6 +320,22 @@ export class FaceDetector {
   static Constants: Constants['FaceDetection'];
   static detectFacesAsync(uri: string, options?: DetectionOptions): Promise<Face[]>;
 }
+
+export interface BarcodeFinderMaskProps {
+  width?: number | string;
+  height?: number | string;
+  edgeWidth?: number | string;
+  edgeHeight?: number | string;
+  edgeColor?: string;
+  edgeBorderWidth?: number | string;
+  transparency?: number;
+  showAnimatedLine?: boolean;
+  animatedLineColor?: string;
+  animatedLineHeight?: number | string;
+  lineAnimationDuration?: number;
+}
+
+export class BarcodeFinderMask extends Component<BarcodeFinderMaskProps> {}
 
 // -- DEPRECATED CONTENT BELOW
 

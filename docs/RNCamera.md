@@ -499,7 +499,8 @@ Supported options:
     - `ios` Specifies capture settings suitable for CIF quality (352x288 pixel) video output.
     - `android` Not supported.
 
-- `videoBitrate`. (int greater than 0) This option specifies a desired video bitrate.  For example, 5\*1000\*1000 would be 5Mbps.
+- `videoBitrate`. (int greater than 0) This option specifies a desired video bitrate. For example, 5\*1000\*1000 would be 5Mbps.
+
   - `ios` Not supported.
   - `android` Supported.
 
@@ -561,6 +562,16 @@ iOS only. Returns a promise. The promise will be fulfilled with a boolean indica
 
 This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.
 
+### BarcodeFinderMask
+
+[BarcodeFinderMask](./BarcodeFinderMask.md) gives a nice barcode scanning style look to your camera.
+
+##### Quick and Easy:
+
+Import `BarcodeFinderMask` and use it as a child component of `RNCamera`.
+
+Check out ways to modify [BarcodeFinderMask](./BarcodeFinderMask.md).
+
 ## Testing
 
 To learn about how to test components which uses `RNCamera` check its [documentation about testing](./tests.md).
@@ -568,7 +579,6 @@ To learn about how to test components which uses `RNCamera` check its [documenta
 ## Example
 
 To see more of the `RNCamera` in action you can check out the [RNCamera examples directory](https://github.com/react-native-community/react-native-camera/tree/master/examples).
-
 
 ## Open Collective
 
