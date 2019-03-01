@@ -75,7 +75,7 @@ Supports:
 ## Tidelift
 [Get supported react-native-camera with the Tidelift Subscription](https://tidelift.com/subscription/pkg/npm-react-native-camera?utm_source=npm-react-native-camera&utm_medium=referral&utm_campaign=readme)
 
-[![tidelift](https://tidelift.com/badges/github/react-native-community/react-native-camera)
+![tidelift](https://tidelift.com/badges/github/react-native-community/react-native-camera)
 
 ### Example import
 
