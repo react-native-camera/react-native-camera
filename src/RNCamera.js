@@ -520,20 +520,43 @@ export default class Camera extends React.Component<PropsType, StateType> {
     this._isMounted = false;
   }
 
-  async componentDidMount() {
+  async arePermissionsGranted() {
     const { hasCameraPermissions, hasRecordAudioPermissions } = await requestPermissions(
       this.props.captureAudio,
       CameraManager,
       this.props.permissionDialogTitle,
       this.props.permissionDialogMessage,
     );
+    const recordAudioPermissionStatus = hasRecordAudioPermissions
+      ? RecordAudioPermissionStatusEnum.AUTHORIZED
+      : RecordAudioPermissionStatusEnum.NOT_AUTHORIZED;
+    return { hasCameraPermissions, recordAudioPermissionStatus };
+  }
+
+  async refreshAuthorizationStatus() {
+    const {
+      hasCameraPermissions,
+      recordAudioPermissionStatus,
+    } = await this.arePermissionsGranted();
     if (this._isMounted === false) {
       return;
     }
 
-    const recordAudioPermissionStatus = hasRecordAudioPermissions
-      ? RecordAudioPermissionStatusEnum.AUTHORIZED
-      : RecordAudioPermissionStatusEnum.NOT_AUTHORIZED;
+    this.setState({
+      isAuthorized: hasCameraPermissions,
+      isAuthorizationChecked: true,
+      recordAudioPermissionStatus,
+    });
+  }
+
+  async componentDidMount() {
+    const {
+      hasCameraPermissions,
+      recordAudioPermissionStatus,
+    } = await this.arePermissionsGranted();
+    if (this._isMounted === false) {
+      return;
+    }
 
     this.setState({
       isAuthorized: hasCameraPermissions,
