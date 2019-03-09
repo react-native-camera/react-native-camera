@@ -163,9 +163,16 @@ export interface RNCameraProps {
     bounds: [Point<string>, Point<string>] | { origin: Point<string>; size: Size<string> };
   }): void;
 
+  onGoogleVisionBarcodesDetected?(event: {
+    barcodes: Barcode[];
+    sourceRotation: number;
+    sourceHeight: number;
+    sourceWidth: number;
+    type: keyof GoogleVisionBarcodeType;
+  }): void;
+
   // -- FACE DETECTION PROPS
 
-  onGoogleVisionBarcodesDetected?(response: { barcodes: Barcode[] }): void;
   onFacesDetected?(response: { faces: Face[] }): void;
   onFaceDetectionError?(response: { isOperational: boolean }): void;
   faceDetectionMode?: keyof FaceDetectionMode;
@@ -199,6 +206,10 @@ interface Size<T = number> {
 }
 
 interface Barcode {
+  bounds: {
+    size: Size;
+    origin: Point;
+  };
   data: string;
   type: string;
 }
