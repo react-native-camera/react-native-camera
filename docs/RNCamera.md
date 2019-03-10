@@ -542,9 +542,12 @@ The promise will be fulfilled with an object with some of the following properti
 
 #### `refreshAuthorizationStatus: Promise<void>`
 
-#### `stopRecording: void`
 Allows to make RNCamera check Permissions again and set status accordingly.  
 Making it possible to refresh status of RNCamera after user initially rejected the permissions.
+
+#### `stopRecording: void`
+
+Should be called after recordAsync() to make the promise be fulfilled and get the video uri.
 
 #### `pausePreview: void`
 
