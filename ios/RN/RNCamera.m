@@ -809,6 +809,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)bridgeDidBackground:(NSNotification *)notification
 {
+    if (self.isRecording) {
+        self.isRecordingInterrupted = YES;
+    }
     if ([self.session isRunning] && ![self isSessionPaused]) {
         self.paused = YES;
         dispatch_async( self.sessionQueue, ^{
@@ -821,13 +824,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     [self changePreviewOrientation:orientation];
-}
-
-- (void)bridgeDidBackground:(NSNotification *)notification
-{
-    if (self.isRecording) {
-        self.isRecordingInterrupted = YES;
-    }
 }
 
 - (void)changePreviewOrientation:(UIInterfaceOrientation)orientation
