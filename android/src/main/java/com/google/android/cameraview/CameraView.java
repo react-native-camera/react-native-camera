@@ -473,6 +473,15 @@ public class CameraView extends FrameLayout {
         return mImpl.getFlash();
     }
 
+    /**
+     * Gets the camera orientation relative to the devices native orientation.
+     *
+     * @return The orientation of the camera.
+     */
+    public int getCameraOrientation() {
+        return mImpl.getCameraOrientation();
+    }
+
     public void setFocusDepth(float value) {
         mImpl.setFocusDepth(value);
     }

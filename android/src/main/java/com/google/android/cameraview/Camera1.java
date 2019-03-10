@@ -500,6 +500,11 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     @Override
+    int getCameraOrientation() {
+        return mCameraInfo.orientation;
+    }
+
+    @Override
     void setDisplayOrientation(int displayOrientation) {
         if (mDisplayOrientation == displayOrientation) {
             return;
@@ -766,13 +771,16 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         if (isCameraOpened()) {
             List<String> modes = mCameraParameters.getSupportedFlashModes();
             String mode = FLASH_MODES.get(flash);
-            if (modes != null && modes.contains(mode)) {
+            if(modes == null) {
+                return false;
+            }
+            if (modes.contains(mode)) {
                 mCameraParameters.setFlashMode(mode);
                 mFlash = flash;
                 return true;
             }
             String currentMode = FLASH_MODES.get(mFlash);
-            if (modes == null || !modes.contains(currentMode)) {
+            if (!modes.contains(currentMode)) {
                 mCameraParameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
                 return true;
             }
@@ -853,11 +861,14 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         mMediaRecorder.setOutputFile(path);
         mVideoPath = path;
 
+        CamcorderProfile camProfile;
         if (CamcorderProfile.hasProfile(mCameraId, profile.quality)) {
-            setCamcorderProfile(CamcorderProfile.get(mCameraId, profile.quality), recordAudio);
+            camProfile = CamcorderProfile.get(mCameraId, profile.quality);
         } else {
-            setCamcorderProfile(CamcorderProfile.get(mCameraId, CamcorderProfile.QUALITY_HIGH), recordAudio);
+            camProfile = CamcorderProfile.get(mCameraId, CamcorderProfile.QUALITY_HIGH);
         }
+        camProfile.videoBitRate = profile.videoBitRate;
+        setCamcorderProfile(camProfile, recordAudio);
 
         mMediaRecorder.setOrientationHint(calcCameraRotation(mOrientation != Constants.ORIENTATION_AUTO ? orientationEnumToRotation(mOrientation) : mDeviceOrientation));
 

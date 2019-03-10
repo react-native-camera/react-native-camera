@@ -21,6 +21,7 @@ If you decide to eject without using ExpoKit, you can follow react-native-camera
 ```
 
 ## How to migrate from react-native-camera to Expo Camera Module
+
 ```diff
 - import { RNCamera } from 'react-native-camera';
 + import { Camera } from 'expo';
@@ -28,4 +29,3 @@ If you decide to eject without using ExpoKit, you can follow react-native-camera
 - <RNCamera
 + <Camera
 ```
-

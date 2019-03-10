@@ -42,7 +42,7 @@ type BarCodeType = Readonly<{
   ean8: any;
   pdf417: any;
   qr: any;
-  upce: any;
+  upc_e: any;
   interleaved2of5: any;
   itf14: any;
   datamatrix: any;
@@ -86,10 +86,18 @@ type GoogleVisionBarcodeMode = Readonly<{ NORMAL: any; ALTERNATE: any; INVERTED:
 // FaCC (Function as Child Components)
 type Self<T> = { [P in keyof T]: P };
 type CameraStatus = Readonly<Self<{ READY: any; PENDING_AUTHORIZATION: any; NOT_AUTHORIZED: any }>>;
+type RecordAudioPermissionStatus = Readonly<
+  Self<{
+    AUTHORIZED: 'AUTHORIZED';
+    PENDING_AUTHORIZATION: 'PENDING_AUTHORIZATION';
+    NOT_AUTHORIZED: 'NOT_AUTHORIZED';
+  }>
+>;
 type FaCC = (
   params: {
     camera: RNCamera;
     status: keyof CameraStatus;
+    recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
   },
 ) => JSX.Element;
 
@@ -130,8 +138,10 @@ export interface RNCameraProps {
   pendingAuthorizationView?: JSX.Element;
   useCamera2Api?: boolean;
   whiteBalance?: keyof WhiteBalance;
+  captureAudio?: boolean;
 
   onCameraReady?(): void;
+  onStatusChange?(event: { cameraStatus: CameraStatus, recordAudioPermissionStatus: keyof RecordAudioPermissionStatus }): void;
   onMountError?(error: { message: string }): void;
 
   /** Value: float from 0 to 1.0 */
@@ -153,9 +163,16 @@ export interface RNCameraProps {
     bounds: [Point<string>, Point<string>] | { origin: Point<string>; size: Size<string> };
   }): void;
 
+  onGoogleVisionBarcodesDetected?(event: {
+    barcodes: Barcode[];
+    sourceRotation: number;
+    sourceHeight: number;
+    sourceWidth: number;
+    type: keyof GoogleVisionBarcodeType;
+  }): void;
+
   // -- FACE DETECTION PROPS
 
-  onGoogleVisionBarcodesDetected?(response: { barcodes: Barcode[] }): void;
   onFacesDetected?(response: { faces: Face[] }): void;
   onFaceDetectionError?(response: { isOperational: boolean }): void;
   faceDetectionMode?: keyof FaceDetectionMode;
@@ -175,9 +192,6 @@ export interface RNCameraProps {
   playSoundOnCapture?: boolean;
 
   // -- IOS ONLY PROPS
-
-  /** iOS Only */
-  captureAudio?: boolean;
   defaultVideoQuality?: keyof VideoQuality;
 }
 
@@ -192,6 +206,10 @@ interface Size<T = number> {
 }
 
 interface Barcode {
+  bounds: {
+    size: Size;
+    origin: Point;
+  };
   data: string;
   type: string;
 }
@@ -238,6 +256,7 @@ interface TakePictureOptions {
   width?: number;
   mirrorImage?: boolean;
   doNotSave?: boolean;
+  pauseAfterCapture?: boolean;
 
   /** Android only */
   skipProcessing?: boolean;
@@ -266,6 +285,9 @@ interface RecordOptions {
   mirrorVideo?: boolean;
   path?: string;
 
+  /** Android only */
+  videoBitrate?: number;
+
   /** iOS only */
   codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
 }
@@ -284,6 +306,7 @@ export class RNCamera extends Component<RNCameraProps & ViewProperties> {
 
   takePictureAsync(options?: TakePictureOptions): Promise<TakePictureResponse>;
   recordAsync(options?: RecordOptions): Promise<RecordResponse>;
+  refreshAuthorizationStatus(): Promise<void>;
   stopRecording(): void;
   pausePreview(): void;
   resumePreview(): void;

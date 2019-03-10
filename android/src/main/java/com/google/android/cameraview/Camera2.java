@@ -231,6 +231,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     private int mFlash;
 
+    private int mCameraOrientation;
+
     private int mDisplayOrientation;
 
     private int mDeviceOrientation;
@@ -615,6 +617,11 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     }
 
     @Override
+    int getCameraOrientation() {
+        return mCameraOrientation;
+    }
+
+    @Override
     void setDisplayOrientation(int displayOrientation) {
         mDisplayOrientation = displayOrientation;
         mPreview.setDisplayOrientation(mDisplayOrientation);
@@ -687,8 +694,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     /**
      * <p>Collects some information from {@link #mCameraCharacteristics}.</p>
-     * <p>This rewrites {@link #mPreviewSizes}, {@link #mPictureSizes}, and optionally,
-     * {@link #mAspectRatio}.</p>
+     * <p>This rewrites {@link #mPreviewSizes}, {@link #mPictureSizes},
+     * {@link #mCameraOrientation}, and optionally, {@link #mAspectRatio}.</p>
      */
     private void collectCameraInfo() {
         StreamConfigurationMap map = mCameraCharacteristics.get(
@@ -718,6 +725,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         if (!mPreviewSizes.ratios().contains(mAspectRatio)) {
             mAspectRatio = mPreviewSizes.ratios().iterator().next();
         }
+
+        mCameraOrientation = mCameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
     }
 
     protected void collectPictureSizes(SizeMap sizes, StreamConfigurationMap map) {
@@ -1094,11 +1103,12 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         mMediaRecorder.setOutputFile(path);
         mVideoPath = path;
 
-        if (CamcorderProfile.hasProfile(Integer.parseInt(mCameraId), profile.quality)) {
-            setCamcorderProfile(profile, recordAudio);
-        } else {
-            setCamcorderProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH), recordAudio);
+        CamcorderProfile camProfile = profile;
+        if (!CamcorderProfile.hasProfile(Integer.parseInt(mCameraId), profile.quality)) {
+            camProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
         }
+        camProfile.videoBitRate = profile.videoBitRate;
+        setCamcorderProfile(camProfile, recordAudio);
 
         mMediaRecorder.setOrientationHint(getOutputRotation());
 

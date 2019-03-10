@@ -5,7 +5,7 @@ If you use this library on your commercial/personal projects, you can help us by
 
 This gives you the power to prioritize our work and support the project contributors. Moreover it'll guarantee the project will be updated and maintained in the long run.
 
-[![issuehunt-image](https://github.com/BoostIO/issuehunt-materials/blob/master/issuehunt-badge@1x.png?raw=true)](https://issuehunt.io/repos/33218414)
+[![issuehunt-image](https://issuehunt.io/static/embed/issuehunt-button-v1.svg)](https://issuehunt.io/repos/33218414)
 
 ## Open Collective
 You can also fund this project using open collective
@@ -62,7 +62,7 @@ Become a sponsor and get your logo on our README on Github with a link to your s
 <a href="https://opencollective.com/react-native-camera/sponsor/9/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/9/avatar.svg"></a>
 
 
-The comprehensive camera module for React Native. 
+The comprehensive camera module for React Native.
 
 Supports:
 
@@ -72,6 +72,10 @@ Supports:
 - barcode scanning
 - text recognition (optional installation for iOS using CocoaPods)
 
+## Tidelift
+[Get supported react-native-camera with the Tidelift Subscription](https://tidelift.com/subscription/pkg/npm-react-native-camera?utm_source=npm-react-native-camera&utm_medium=referral&utm_campaign=readme)
+
+![tidelift](https://tidelift.com/badges/github/react-native-community/react-native-camera)
 
 ### Example import
 
@@ -80,13 +84,17 @@ import { RNCamera, FaceDetector } from 'react-native-camera';
 ```
 
 #### How to use master branch?
-Inside your package.json, use this
-`"react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera"`
-instead of `"react-native-camera": "^1.0.0"`.
+
+We recommend using the releases from npm, however if you need some features that are not published on npm yet you can install react-native-camera from git.
+
+**yarn**: `yarn add react-native-camera@git+https://git@github.com/react-native-community/react-native-camera.git`
+
+**npm**: `npm install --save react-native-camera@git+https://git@github.com/react-native-community/react-native-camera.git`
+
 
 ### Contributing
 - Pull Requests are welcome, if you open a pull request we will do our best to get to it in a timely manner
-- Pull Request Reviews and even more welcome! we need help testing, reviewing, and updating open PRs
+- Pull Request Reviews are even more welcome! we need help testing, reviewing, and updating open PRs
 - If you are interested in contributing more actively, please contact me (same username on Twitter, Facebook, etc.) Thanks!
 - We are now on [Open Collective](https://opencollective.com/react-native-camera#sponsor)! Contributions are appreciated and will be used to fund core contributors. [more details](#open-collective)
 - If you want to help us coding, join Expo slack https://slack.expo.io/, so we can chat over there. (#react-native-camera)
@@ -342,6 +350,7 @@ ext {
     targetSdkVersion            = 26
     buildToolsVersion           = "26.0.2"
     googlePlayServicesVersion   = "12.0.1"
+    googlePlayServicesVisionVersion = "15.0.2"
     supportLibVersion           = "27.1.0"
 }
 ```
@@ -389,6 +398,18 @@ dependencies {
   compile 'com.android.support:exifinterface:$supportLibVersion'
 
   compile 'com.github.react-native-community:cameraview:cc47bb28ed2fc54a8c56a4ce9ce53edd1f0af3a5'
+}
+```
+
+If you are using a version of `googlePlayServicesVersion` that does not have `play-services-vision`, you can specify a different version of `play-services-vision` by adding `googlePlayServicesVisionVersion` to the project-wide properties
+```
+ext {
+    compileSdkVersion           = 26
+    targetSdkVersion            = 26
+    buildToolsVersion           = "26.0.2"
+    googlePlayServicesVersion   = "16.0.1"
+    googlePlayServicesVisionVersion = "15.0.2"
+    supportLibVersion           = "27.1.0"
 }
 ```
 

@@ -6,7 +6,7 @@ jobs:
     environment:
       - GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
       - REACT_NATIVE_MAX_WORKERS: 2
-      - ANDROID_BUILD_TOOLS_VERSION: "26.0.2"
+      - ANDROID_BUILD_TOOLS_VERSION: '26.0.2'
     working_directory: ~/app
     docker:
       - image: entria/react-native-android:0.1.82
@@ -27,6 +27,12 @@ jobs:
           command: |
             cd android
             chmod +x ./gradlew && ./gradlew check
+      - run:
+          name: Build Sample App
+          command: |
+            cd examples/basic/android
+            yarn
+            chmod +x ./gradlew && ./gradlew build
       - deploy:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
