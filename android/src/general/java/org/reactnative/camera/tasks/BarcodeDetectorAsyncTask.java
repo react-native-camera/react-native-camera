@@ -87,6 +87,7 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, S
       WritableMap serializedBarcode = Arguments.createMap();
 
       serializedBarcode.putString("data", barcode.displayValue);
+      serializedBarcode.putString("rawData", barcode.rawValue);
       serializedBarcode.putString("type", BarcodeFormatUtils.get(barcode.format));
       serializedBarcode.putMap("bounds", processBounds(barcode.getBoundingBox()));
       barcodesList.pushMap(serializedBarcode);

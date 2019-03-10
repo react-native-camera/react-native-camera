@@ -39,8 +39,10 @@ export default class CameraScreen extends React.Component {
     isRecording: false,
     canDetectFaces: false,
     canDetectText: false,
+    canDetectBarcode: false,
     faces: [],
     textBlocks: [],
+    barcodes: [],
   };
 
   toggleFacing() {
@@ -207,8 +209,33 @@ export default class CameraScreen extends React.Component {
     this.setState({ textBlocks });
   };
 
+  barcodeRecognized = ({ barcodes }) => this.setState({ barcodes });
+
+  renderBarcodes = () => (
+    <View style={styles.facesContainer} pointerEvents="none">
+      {this.state.barcodes.map(this.renderBarcode)}
+    </View>
+  );
+
+  renderBarcode = ({ bounds, data, type }) => (
+    <React.Fragment key={data + bounds.origin.x}>
+      <View
+        style={[
+          styles.text,
+          {
+            ...bounds.size,
+            left: bounds.origin.x,
+            top: bounds.origin.y,
+          },
+        ]}
+      >
+        <Text style={[styles.textBlock]}>{`${data} ${type}`}</Text>
+      </View>
+    </React.Fragment>
+  );
+
   renderCamera() {
-    const { canDetectFaces, canDetectText } = this.state;
+    const { canDetectFaces, canDetectText, canDetectBarcode } = this.state;
     return (
       <RNCamera
         ref={ref => {
@@ -233,6 +260,7 @@ export default class CameraScreen extends React.Component {
         }
         onFacesDetected={canDetectFaces ? this.facesDetected : null}
         onTextRecognized={canDetectText ? this.textRecognized : null}
+        onGoogleVisionBarcodesDetected={canDetectBarcode ? this.barcodeRecognized : null}
       >
         <View
           style={{
@@ -271,6 +299,11 @@ export default class CameraScreen extends React.Component {
             <TouchableOpacity onPress={this.toggle('canDetectText')} style={styles.flipButton}>
               <Text style={styles.flipText}>
                 {!canDetectText ? 'Detect Text' : 'Detecting Text'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={this.toggle('canDetectBarcode')} style={styles.flipButton}>
+              <Text style={styles.flipText}>
+                {!canDetectBarcode ? 'Detect Barcode' : 'Detecting Barcode'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -355,6 +388,7 @@ export default class CameraScreen extends React.Component {
         {!!canDetectFaces && this.renderFaces()}
         {!!canDetectFaces && this.renderLandmarks()}
         {!!canDetectText && this.renderTextBlocks()}
+        {!!canDetectBarcode && this.renderBarcodes()}
       </RNCamera>
     );
   }

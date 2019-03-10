@@ -1,6 +1,5 @@
 package org.reactnative.camera.events;
 
-import android.graphics.Rect;
 import android.support.v4.util.Pools;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableArray;
@@ -27,7 +26,7 @@ public class BarcodesDetectedEvent extends Event<BarcodesDetectedEvent> {
     if (event == null) {
       event = new BarcodesDetectedEvent();
     }
-    event.init(viewTag, barcodes, sourceWidth, sourceHeight, sourceRotation);
+    event.init(viewTag, barcodes);
     return event;
   }
 
@@ -37,9 +36,6 @@ public class BarcodesDetectedEvent extends Event<BarcodesDetectedEvent> {
   ) {
     super.init(viewTag);
     mBarcodes = barcodes;
-    mSourceWidth = sourceWidth;
-    mSourceHeight= sourceHeight;
-    mSourceRotation = sourceRotation;
   }
 
   /**

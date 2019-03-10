@@ -203,18 +203,8 @@ public class RNCameraViewHelper {
 
   // Barcode detection events
 
-  public static void emitBarcodesDetectedEvent(
-      ViewGroup view,
-      WritableArray barcodes
-  ) {
-    BarcodesDetectedEvent event = BarcodesDetectedEvent.obtain(
-        view.getId(),
-        barcodes,
-        sourceWidth,
-        sourceHeight,
-        sourceRotation
-    );
-
+  public static void emitBarcodesDetectedEvent(ViewGroup view, WritableArray barcodes) {
+    BarcodesDetectedEvent event = BarcodesDetectedEvent.obtain(view.getId(), barcodes);
     ReactContext reactContext = (ReactContext) view.getContext();
     reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
   }

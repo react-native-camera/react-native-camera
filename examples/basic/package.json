@@ -5,9 +5,7 @@
     "@babel/runtime": "^7.1.2",
     "babel": "^6.23.0",
     "react": "16.5.0",
-    "react-native": "0.57.1",
-    "react-native-gesture-handler": "^1.0.15",
-    "react-navigation": "^3.1.4"
+    "react-native": "0.57.1"
   },
   "devDependencies": {
     "babel-jest": "23.6.0",
