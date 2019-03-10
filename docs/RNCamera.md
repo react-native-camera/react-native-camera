@@ -538,6 +538,8 @@ The promise will be fulfilled with an object with some of the following properti
 
 - `iOS` `codec`: the codec of the recorded video. One of `RNCamera.Constants.VideoCodec`
 
+- `isRecordingInterrupted`: (boolean) whether the app has been minimized while recording
+
 #### `refreshAuthorizationStatus: Promise<void>`
 
 Allows to make RNCamera check Permissions again and set status accordingly.  
