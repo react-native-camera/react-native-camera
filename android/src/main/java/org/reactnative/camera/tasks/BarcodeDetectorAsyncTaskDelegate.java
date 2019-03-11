@@ -1,12 +1,11 @@
 package org.reactnative.camera.tasks;
 
-import android.util.SparseArray;
-import com.google.android.gms.vision.barcode.Barcode;
+import com.facebook.react.bridge.WritableArray;
 import org.reactnative.barcodedetector.RNBarcodeDetector;
 
 public interface BarcodeDetectorAsyncTaskDelegate {
 
-    void onBarcodesDetected(SparseArray<Barcode> barcodes, int sourceWidth, int sourceHeight, int sourceRotation);
+    void onBarcodesDetected(WritableArray barcodes);
 
     void onBarcodeDetectionError(RNBarcodeDetector barcodeDetector);
 

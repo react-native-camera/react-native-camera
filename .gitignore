@@ -46,3 +46,6 @@ package-json.lock
 
 # vscode
 .vscode
+examples/mlkit/android/app/google-services.json
+examples/mlkit/ios/Pods
+examples/mlkit/ios/mlkit/GoogleService-Info.plist

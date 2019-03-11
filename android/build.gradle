@@ -26,6 +26,30 @@ android {
     minSdkVersion safeExtGet('minSdkVersion', 16)
     targetSdkVersion safeExtGet('targetSdkVersion', 26)
   }
+
+  flavorDimensions "react-native-camera"
+
+  productFlavors {
+    general {
+      dimension "react-native-camera"
+    }
+    mlkit {
+      dimension "react-native-camera"
+    }
+  }
+
+  sourceSets {
+    main {
+      java.srcDirs = ['src/main/java']
+    }
+    general {
+      java.srcDirs = ['src/general/java']
+    }
+    mlkit {
+      java.srcDirs = ['src/mlkit/java']
+    }
+  }
+
   lintOptions {
     abortOnError false
     warning 'InvalidPackage'
@@ -46,14 +70,16 @@ repositories {
 }
 
 dependencies {
-  def googlePlayServicesVisionVersion = safeExtGet('googlePlayServicesVisionVersion', safeExtGet('googlePlayServicesVersion', '15.0.2'))
+  def googlePlayServicesVisionVersion = safeExtGet('googlePlayServicesVisionVersion', safeExtGet('googlePlayServicesVersion', '17.0.2'))
 
   compileOnly 'com.facebook.react:react-native:+'
   compileOnly 'com.facebook.infer.annotation:infer-annotation:+'
   implementation "com.google.zxing:core:3.3.0"
   implementation "com.drewnoakes:metadata-extractor:2.9.1"
-  implementation "com.google.android.gms:play-services-vision:$googlePlayServicesVisionVersion"
+  generalImplementation "com.google.android.gms:play-services-vision:$googlePlayServicesVisionVersion"
   implementation "com.android.support:exifinterface:${safeExtGet('supportLibVersion', '27.1.0')}"
   implementation "com.android.support:support-annotations:${safeExtGet('supportLibVersion', '27.1.0')}"
   implementation "com.android.support:support-v4:${safeExtGet('supportLibVersion', '27.1.0')}"
+  mlkitImplementation "com.google.firebase:firebase-ml-vision:${safeExtGet('firebase-ml-vision', '18.0.2')}"
+  mlkitImplementation "com.google.firebase:firebase-ml-vision-face-model:${safeExtGet('firebase-ml-vision-face-model', '17.0.2')}"
 }
