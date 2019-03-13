@@ -225,8 +225,8 @@ public class RNCameraViewHelper {
 
   // Text recognition event
 
-  public static void emitTextRecognizedEvent(ViewGroup view, WritableArray data) {
-    TextRecognizedEvent event = TextRecognizedEvent.obtain(view.getId(), data);
+  public static void emitTextRecognizedEvent(ViewGroup view, WritableArray textBlocks, String text) {
+    TextRecognizedEvent event = TextRecognizedEvent.obtain(view.getId(), textBlocks, text);
     ReactContext reactContext = (ReactContext) view.getContext();
     reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
   }

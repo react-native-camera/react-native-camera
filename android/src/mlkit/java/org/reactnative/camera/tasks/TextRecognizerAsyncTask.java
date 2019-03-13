@@ -84,9 +84,10 @@ public class TextRecognizerAsyncTask extends android.os.AsyncTask<Void, Void, Vo
             .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
               @Override
               public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                String text = firebaseVisionText.getText();
                 List<FirebaseVisionText.TextBlock> textBlocks = firebaseVisionText.getTextBlocks();
-                WritableArray serializedData = serializeEventData(textBlocks);
-                mDelegate.onTextRecognized(serializedData);
+                WritableArray serializedTextBlocks = serializeEventData(textBlocks);
+                mDelegate.onTextRecognized(serializedTextBlocks, text);
                 mDelegate.onTextRecognizerTaskCompleted();
                 }
             })

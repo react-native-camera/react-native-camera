@@ -88,7 +88,7 @@ public class TextRecognizerAsyncTask extends android.os.AsyncTask<Void, Void, Sp
         }
         textBlocksList.pushMap(serializedTextBlock);
       }
-      mDelegate.onTextRecognized(textBlocksList);
+      mDelegate.onTextRecognized(textBlocksList, null);
     }
     mDelegate.onTextRecognizerTaskCompleted();
   }

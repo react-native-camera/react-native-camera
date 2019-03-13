@@ -449,12 +449,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
   }
 
-  public void onTextRecognized(WritableArray serializedData) {
+  public void onTextRecognized(WritableArray serializedTextBlocks, String text) {
     if (!mShouldRecognizeText) {
       return;
     }
 
-    RNCameraViewHelper.emitTextRecognizedEvent(this, serializedData);
+    RNCameraViewHelper.emitTextRecognizedEvent(this, serializedTextBlocks, text);
   }
 
   @Override
