@@ -42,6 +42,7 @@ export default class CameraScreen extends React.Component {
     canDetectBarcode: false,
     faces: [],
     textBlocks: [],
+    text: "",
     barcodes: [],
   };
 
@@ -205,8 +206,8 @@ export default class CameraScreen extends React.Component {
   );
 
   textRecognized = object => {
-    const { textBlocks } = object;
-    this.setState({ textBlocks });
+    const { text, textBlocks } = object;
+    this.setState({ text, textBlocks });
   };
 
   barcodeRecognized = ({ barcodes }) => this.setState({ barcodes });
@@ -307,6 +308,15 @@ export default class CameraScreen extends React.Component {
               </Text>
             </TouchableOpacity>
           </View>
+          {canDetectText && <View
+            style={{
+              backgroundColor: 'transparent',
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+            }}
+          >
+            <Text style={{ color: '#00F' }}>{this.state.text}</Text>
+          </View>}
         </View>
         <View
           style={{
