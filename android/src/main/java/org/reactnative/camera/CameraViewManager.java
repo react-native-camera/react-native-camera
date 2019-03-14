@@ -8,6 +8,7 @@ import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.google.android.cameraview.AspectRatio;
 import com.google.android.cameraview.Size;
+import org.reactnative.camera.CameraModule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +115,10 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     }
     List<String> result = new ArrayList<>(barCodeTypes.size());
     for (int i = 0; i < barCodeTypes.size(); i++) {
-      result.add(barCodeTypes.getString(i));
+      String formatString = (String) CameraModule.VALID_BARCODE_TYPES.get(barCodeTypes.getString(i));
+      if (formatString != null) {
+        result.add(formatString);
+      }
     }
     view.setBarCodeTypes(result);
   }
