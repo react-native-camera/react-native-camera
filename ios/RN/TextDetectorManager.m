@@ -24,7 +24,7 @@
   return true;
 }
 
-- (void)findTextBlocksInFrame:(UIImage *)uiImage scaleX:(float)scaleX scaleY:(float) scaleY completed: (void (^)(NSArray * result)) completed
+- (void)findTextBlocksInFrame:(UIImage *)uiImage scaleX:(float)scaleX scaleY:(float) scaleY completed: (void (^)(NSArray * result, NSString * text)) completed
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
@@ -34,9 +34,9 @@
                        completion:^(FIRVisionText *_Nullable result,
                                     NSError *_Nullable error) {
                            if (error != nil || result == nil) {
-                               completed(textBlocks);
+                               completed(textBlocks, nil);
                            } else {
-                           completed([self processBlocks:result.blocks]);
+                           completed([self processBlocks:result.blocks], result.text);
                            }
                        }];
 }

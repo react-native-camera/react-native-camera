@@ -2,7 +2,7 @@
   #import <FirebaseMLVision/FirebaseMLVision.h>
 
   @interface TextDetectorManager : NSObject
-  typedef void(^postRecognitionBlock)(NSArray *textBlocks);
+  typedef void(^postRecognitionBlock)(NSArray *textBlocks, NSString *text);
 
   - (instancetype)init;
 
@@ -12,7 +12,7 @@
   @end
 #else
   @interface TextDetectorManager : NSObject
-  typedef void(^postRecognitionBlock)(NSArray *textBlocks);
+  typedef void(^postRecognitionBlock)(NSArray *textBlocks, NSString *text);
 
   - (instancetype)init;
 

@@ -1167,8 +1167,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // find text features
         _finishedReadingText = false;
         self.start = [NSDate date];
-        [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks) {
-            NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
+        [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks, NSString * text) {
+            NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks, @"text": text};
             [self onText:eventText];
             self.finishedReadingText = true;
         }];
