@@ -122,6 +122,10 @@ To enable `video recording` feature you have to add the following code to the `A
 
 See this [doc](./docs/migration.md)
 
+## Migrating from version 1.x to 2.x
+
+See this [doc](./docs/migrationV2.md)
+
 ### RNCamera Docs
 
 [RNCamera](./docs/RNCamera.md)
