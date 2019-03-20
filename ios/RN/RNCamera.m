@@ -63,6 +63,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                  selector:@selector(bridgeDidBackground:)
                                                      name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                selector:@selector(bridgeDidForeground:)
+                                                    name:UIApplicationWillEnterForegroundNotification
+                                                object:nil];
         self.autoFocus = -1;
         //        [[NSNotificationCenter defaultCenter] addObserver:self
         //                                                 selector:@selector(bridgeDidForeground:)
