@@ -59,7 +59,7 @@ android {
 - add to the bottom of `android/app/build.gradle` file the following:
 
 ```gradle
-  apply plugin: com.google.gms.google-services'
+  apply plugin: 'com.google.gms.google-services'
 ```
 
 3. Configure your app to automatically download the ML model to the device after your app is installed from the Play Store. If you do not enable install-time model downloads, the model will be downloaded the first time you run the on-device detector. Requests you make before the download has completed will produce no results.
