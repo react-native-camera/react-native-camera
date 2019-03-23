@@ -4,14 +4,14 @@
   "dependencies": {
     "@babel/runtime": "^7.1.2",
     "babel": "^6.23.0",
-    "react": "16.5.0",
-    "react-native": "0.57.1"
+    "react": "16.8.3",
+    "react-native": "0.59.1"
   },
   "devDependencies": {
     "babel-jest": "23.6.0",
     "jest": "23.6.0",
-    "metro-react-native-babel-preset": "0.47.0",
-    "react-test-renderer": "16.5.0"
+    "metro-react-native-babel-preset": "0.53.1",
+    "react-test-renderer": "16.8.3"
   },
   "jest": {
     "preset": "react-native"
