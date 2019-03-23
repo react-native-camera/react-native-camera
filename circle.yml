@@ -6,10 +6,10 @@ jobs:
     environment:
       - GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
       - REACT_NATIVE_MAX_WORKERS: 2
-      - ANDROID_BUILD_TOOLS_VERSION: '26.0.2'
+      - ANDROID_BUILD_TOOLS_VERSION: '28.0.3'
     working_directory: ~/app
     docker:
-      - image: entria/react-native-android:0.1.82
+      - image: entria/react-native-android:0.1.86
     steps:
       - checkout
       - restore_cache:
