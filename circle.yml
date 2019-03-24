@@ -23,6 +23,9 @@ jobs:
           name: Lint
           command: yarn lint
       - run:
+          name: Accept the SDK license agreements
+          command: yes | sdkmanager --licenses && yes | sdkmanager --update
+      - run:
           name: Run Checks
           command: |
             cd android
