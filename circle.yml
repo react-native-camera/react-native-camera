@@ -9,7 +9,7 @@ jobs:
       - ANDROID_BUILD_TOOLS_VERSION: '28.0.3'
     working_directory: ~/app
     docker:
-      - image: entria/react-native-android:0.1.82
+      - image: reactnativecommunity/react-native-android
     steps:
       - checkout
       - restore_cache:
@@ -22,9 +22,6 @@ jobs:
       - run:
           name: Lint
           command: yarn lint
-      - run:
-          name: Accept the SDK license agreements
-          command: yes | sdkmanager --licenses && yes | sdkmanager --update || exit 0
       - run:
           name: Run Checks
           command: |
