@@ -9,7 +9,7 @@ jobs:
       - ANDROID_BUILD_TOOLS_VERSION: '28.0.3'
     working_directory: ~/app
     docker:
-      - image: entria/react-native-android:0.1.86
+      - image: entria/react-native-android:0.1.82
     steps:
       - checkout
       - restore_cache:
