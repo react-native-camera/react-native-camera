@@ -24,7 +24,7 @@ jobs:
           command: yarn lint
       - run:
           name: Accept the SDK license agreements
-          command: yes | sdkmanager --licenses && yes | sdkmanager --update
+          command: yes | sdkmanager --licenses && yes | sdkmanager --update || exit 0
       - run:
           name: Run Checks
           command: |
