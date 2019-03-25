@@ -231,6 +231,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     private int mFlash;
 
+    private int mExposure;
+
     private int mCameraOrientation;
 
     private int mDisplayOrientation;
@@ -466,6 +468,17 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     int getFlash() {
         return mFlash;
     }
+
+    @Override
+    int getExposureCompensation() {
+        return mExposure;
+    }
+
+    @Override
+    void setExposureCompensation(int exposure) {
+        Log.e("CAMERA_2:: ", "Adjusting exposure is not currently supported for Camera2");
+    }
+
 
     @Override
     void takePicture(ReadableMap options) {
