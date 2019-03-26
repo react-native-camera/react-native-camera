@@ -133,7 +133,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     public void setZoom(int zoom) {
         RCTCamera.getInstance().setZoom(_cameraType, zoom);
-   }
+    }
 
     public void startPreview() {
         if (_surfaceTexture != null) {
@@ -332,11 +332,16 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             this.imageData = imageData;
         }
 
-        private Result getBarcode(int width, int height) {
+        private Result getBarcode(int width, int height, boolean inverse) {
             try{
-              PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
-              BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-              return _multiFormatReader.decodeWithState(bitmap);
+                PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
+                BinaryBitmap bitmap;
+                if (inverse) {
+                    bitmap = new BinaryBitmap(new HybridBinarizer(source.invert()));
+                } else {
+                    bitmap = new BinaryBitmap(new HybridBinarizer(source));
+                }
+                return _multiFormatReader.decodeWithState(bitmap);
             } catch (Throwable t) {
                 // meh
             } finally {
@@ -350,15 +355,25 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
             int width = size.width;
             int height = size.height;
-            Result result = getBarcode(width, height);
-            if (result != null)
-              return result;
-
+            Result result = getBarcode(width, height, false);
+            if (result != null) {
+                return result;
+            }
+            // inverse
+            result = getBarcode(width, height, true);
+            if (result != null) {
+                return result;
+            }
+            // rotate
             rotateImage(width, height);
             width = size.height;
             height = size.width;
+            result = getBarcode(width, height, false);
+            if (result != null) {
+                return result;
+            }
+            return getBarcode(width, height, true);
 
-            return getBarcode(width, height);
         }
 
         private void rotateImage(int width, int height) {
@@ -401,7 +416,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                         resultPoints.pushMap(newPoint);
                     }
                 }
-                
+
                 event.putArray("bounds", resultPoints);
                 event.putString("data", result.getText());
                 event.putString("type", result.getBarcodeFormat().toString());
