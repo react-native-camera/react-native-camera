@@ -4,7 +4,7 @@ jobs:
   build:
     resource_class: large
     environment:
-      - GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -Dorg.gradle.daemon=false -XX:+HeapDumpOnOutOfMemoryError"'
+      - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
       - REACT_NATIVE_MAX_WORKERS: 2
       - ANDROID_BUILD_TOOLS_VERSION: '28.0.3'
     working_directory: ~/app
@@ -32,7 +32,7 @@ jobs:
           command: |
             cd examples/basic/android
             yarn
-            chmod +x ./gradlew && ./gradlew build --no-daemon --max-workers 2
+            chmod +x ./gradlew && ./gradlew build
       - deploy:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
