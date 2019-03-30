@@ -1,6 +1,14 @@
 /* eslint-disable no-console */
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Slider } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Slider,
+  TouchableWithoutFeedback,
+  Dimensions,
+} from 'react-native';
 // eslint-disable-next-line import/no-unresolved
 import { RNCamera } from 'react-native-camera';
 
@@ -27,6 +35,13 @@ export default class CameraScreen extends React.Component {
     flash: 'off',
     zoom: 0,
     autoFocus: 'on',
+    autoFocusPoint: {
+      normalized: { x: 0.5, y: 0.5 }, // normalized values required for autoFocusPointOfInterest
+      drawRectPosition: {
+        x: Dimensions.get('window').width * 0.5 - 32,
+        y: Dimensions.get('window').height * 0.5 - 32,
+      },
+    },
     depth: 0,
     type: 'back',
     whiteBalance: 'auto',
@@ -66,6 +81,28 @@ export default class CameraScreen extends React.Component {
   toggleFocus() {
     this.setState({
       autoFocus: this.state.autoFocus === 'on' ? 'off' : 'on',
+    });
+  }
+
+  touchToFocus(event) {
+    const { pageX, pageY } = event.nativeEvent;
+    const screenWidth = Dimensions.get('window').width;
+    const screenHeight = Dimensions.get('window').height;
+    const isPortrait = screenHeight > screenWidth;
+
+    let x = pageX / screenWidth;
+    let y = pageY / screenHeight;
+    // Coordinate transform for portrait. See autoFocusPointOfInterest in docs for more info
+    if (isPortrait) {
+      x = pageY / screenHeight;
+      y = -(pageX / screenWidth) + 1;
+    }
+
+    this.setState({
+      autoFocusPoint: {
+        normalized: { x, y },
+        drawRectPosition: { x: pageX, y: pageY },
+      },
     });
   }
 
@@ -236,6 +273,11 @@ export default class CameraScreen extends React.Component {
 
   renderCamera() {
     const { canDetectFaces, canDetectText, canDetectBarcode } = this.state;
+    
+    const drawFocusRingPosition = {
+      top: this.state.autoFocusPoint.drawRectPosition.y - 32,
+      left: this.state.autoFocusPoint.drawRectPosition.x - 32,
+    };
     return (
       <RNCamera
         ref={ref => {
@@ -243,10 +285,12 @@ export default class CameraScreen extends React.Component {
         }}
         style={{
           flex: 1,
+          justifyContent: 'space-between',
         }}
         type={this.state.type}
         flashMode={this.state.flash}
         autoFocus={this.state.autoFocus}
+        autoFocusPointOfInterest={this.state.autoFocusPoint.normalized}
         zoom={this.state.zoom}
         whiteBalance={this.state.whiteBalance}
         ratio={this.state.ratio}
@@ -262,9 +306,19 @@ export default class CameraScreen extends React.Component {
         onTextRecognized={canDetectText ? this.textRecognized : null}
         onGoogleVisionBarcodesDetected={canDetectBarcode ? this.barcodeRecognized : null}
       >
+        <View style={StyleSheet.absoluteFill}>
+          <View style={[styles.autoFocusBox, drawFocusRingPosition]} />
+          <TouchableWithoutFeedback onPress={this.touchToFocus.bind(this)}>
+            <View style={{ flex: 1 }} />
+          </TouchableWithoutFeedback>
+        </View>
         <View
           style={{
             flex: 0.5,
+            height: 72,
+            backgroundColor: 'transparent',
+            flexDirection: 'row',
+            justifyContent: 'space-around',
           }}
         >
           <View
@@ -308,82 +362,84 @@ export default class CameraScreen extends React.Component {
             </TouchableOpacity>
           </View>
         </View>
-        <View
-          style={{
-            flex: 0.4,
-            backgroundColor: 'transparent',
-            flexDirection: 'row',
-            alignSelf: 'flex-end',
-          }}
-        >
-          <Slider
-            style={{ width: 150, marginTop: 15, alignSelf: 'flex-end' }}
-            onValueChange={this.setFocusDepth.bind(this)}
-            step={0.1}
-            disabled={this.state.autoFocus === 'on'}
-          />
-        </View>
-        <View
-          style={{
-            flex: 0.1,
-            backgroundColor: 'transparent',
-            flexDirection: 'row',
-            alignSelf: 'flex-end',
-          }}
-        >
-          <TouchableOpacity
-            style={[
-              styles.flipButton,
-              {
-                flex: 0.3,
-                alignSelf: 'flex-end',
-                backgroundColor: this.state.isRecording ? 'white' : 'darkred',
-              },
-            ]}
-            onPress={this.state.isRecording ? () => {} : this.takeVideo.bind(this)}
+        <View style={{ bottom: 0 }}>
+          <View
+            style={{
+              height: 20,
+              backgroundColor: 'transparent',
+              flexDirection: 'row',
+              alignSelf: 'flex-end',
+            }}
           >
-            {this.state.isRecording ? (
-              <Text style={styles.flipText}> ☕ </Text>
-            ) : (
-              <Text style={styles.flipText}> REC </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-        {this.state.zoom !== 0 && (
-          <Text style={[styles.flipText, styles.zoomText]}>Zoom: {this.state.zoom}</Text>
-        )}
-        <View
-          style={{
-            flex: 0.1,
-            backgroundColor: 'transparent',
-            flexDirection: 'row',
-            alignSelf: 'flex-end',
-          }}
-        >
-          <TouchableOpacity
-            style={[styles.flipButton, { flex: 0.1, alignSelf: 'flex-end' }]}
-            onPress={this.zoomIn.bind(this)}
+            <Slider
+              style={{ width: 150, marginTop: 15, alignSelf: 'flex-end' }}
+              onValueChange={this.setFocusDepth.bind(this)}
+              step={0.1}
+              disabled={this.state.autoFocus === 'on'}
+            />
+          </View>
+          <View
+            style={{
+              height: 56,
+              backgroundColor: 'transparent',
+              flexDirection: 'row',
+              alignSelf: 'flex-end',
+            }}
           >
-            <Text style={styles.flipText}> + </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.flipButton, { flex: 0.1, alignSelf: 'flex-end' }]}
-            onPress={this.zoomOut.bind(this)}
+            <TouchableOpacity
+              style={[
+                styles.flipButton,
+                {
+                  flex: 0.3,
+                  alignSelf: 'flex-end',
+                  backgroundColor: this.state.isRecording ? 'white' : 'darkred',
+                },
+              ]}
+              onPress={this.state.isRecording ? () => {} : this.takeVideo.bind(this)}
+            >
+              {this.state.isRecording ? (
+                <Text style={styles.flipText}> ☕ </Text>
+              ) : (
+                <Text style={styles.flipText}> REC </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+          {this.state.zoom !== 0 && (
+            <Text style={[styles.flipText, styles.zoomText]}>Zoom: {this.state.zoom}</Text>
+          )}
+          <View
+            style={{
+              height: 56,
+              backgroundColor: 'transparent',
+              flexDirection: 'row',
+              alignSelf: 'flex-end',
+            }}
           >
-            <Text style={styles.flipText}> - </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.flipButton, { flex: 0.25, alignSelf: 'flex-end' }]}
-            onPress={this.toggleFocus.bind(this)}
-          >
-            <Text style={styles.flipText}> AF : {this.state.autoFocus} </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.flipButton, styles.picButton, { flex: 0.3, alignSelf: 'flex-end' }]}
-            onPress={this.takePicture.bind(this)}
-          >
-            <Text style={styles.flipText}> SNAP </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.flipButton, { flex: 0.1, alignSelf: 'flex-end' }]}
+              onPress={this.zoomIn.bind(this)}
+            >
+              <Text style={styles.flipText}> + </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.flipButton, { flex: 0.1, alignSelf: 'flex-end' }]}
+              onPress={this.zoomOut.bind(this)}
+            >
+              <Text style={styles.flipText}> - </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.flipButton, { flex: 0.25, alignSelf: 'flex-end' }]}
+              onPress={this.toggleFocus.bind(this)}
+            >
+              <Text style={styles.flipText}> AF : {this.state.autoFocus} </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.flipButton, styles.picButton, { flex: 0.3, alignSelf: 'flex-end' }]}
+              onPress={this.takePicture.bind(this)}
+            >
+              <Text style={styles.flipText}> SNAP </Text>
+            </TouchableOpacity>
+          </View>
         </View>
         {!!canDetectFaces && this.renderFaces()}
         {!!canDetectFaces && this.renderLandmarks()}
@@ -416,6 +472,15 @@ const styles = StyleSheet.create({
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  autoFocusBox: {
+    position: 'absolute',
+    height: 64,
+    width: 64,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'white',
+    opacity: 0.4,
   },
   flipText: {
     color: 'white',
