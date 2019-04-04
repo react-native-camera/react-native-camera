@@ -225,7 +225,7 @@ end
 5. In XCode, in the project navigator, select your project. Add `libRNCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
 6. Click `RNCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
 
-### Face Detection or Text Recognition Steps
+##### Face Detection or Text Recognition Steps
 
 Face Detection/Text Recognition are optional on iOS. If you want them, you are going to need to install Google Mobile Vision frameworks in your project, as mentioned in the next section.
 
