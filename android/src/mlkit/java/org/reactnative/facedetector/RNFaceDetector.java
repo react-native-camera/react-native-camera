@@ -48,13 +48,6 @@ public class RNFaceDetector {
     return mFaceDetector;
   }
 
-  public void setTracking(boolean trackingEnabled) {
-    release();
-    if (trackingEnabled) {
-      mBuilder.enableTracking();
-    }
-  }
-
   public void setClassificationType(int classificationType) {
     if (classificationType != mClassificationType) {
       release();
@@ -79,7 +72,7 @@ public class RNFaceDetector {
     }
   }
 
-  public void setTrackingEnabled(boolean tracking) {
+  public void setTracking(boolean tracking) {
     release();
     if (tracking) {
       mBuilder.enableTracking();

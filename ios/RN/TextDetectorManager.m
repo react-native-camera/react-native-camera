@@ -12,7 +12,6 @@
 - (instancetype)init
 {
   if (self = [super init]) {
-    NSLog(@"init text detector");
     FIRVision *vision = [FIRVision vision];
     self.textRecognizer = [vision onDeviceTextRecognizer];
   }
@@ -36,7 +35,7 @@
                            if (error != nil || result == nil) {
                                completed(textBlocks);
                            } else {
-                           completed([self processBlocks:result.blocks]);
+                               completed([self processBlocks:result.blocks]);
                            }
                        }];
 }
@@ -98,7 +97,6 @@
 
 @end
 #else
-#import <React/RCTLog.h>
 
 @interface TextDetectorManager ()
 @end
@@ -116,11 +114,11 @@
   return false;
 }
 
--(NSArray *)findTextBlocksInFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float) scaleY;
+-(void)findTextBlocksInFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float) scaleY completed:(postRecognitionBlock)completed;
 {
-  RCTLogWarn(@"TextDetector not installed, stub used!");
+  NSLog(@"TextDetector not installed, stub used!");
   NSArray *features = @[@"Error, Text Detector not installed"];
-  return features;
+  completed(features);
 }
 
 @end

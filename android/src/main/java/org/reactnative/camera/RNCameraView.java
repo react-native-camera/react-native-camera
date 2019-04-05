@@ -64,6 +64,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
   private int mGoogleVisionBarCodeType = Barcode.ALL_FORMATS;
   private int mGoogleVisionBarCodeMode = RNBarcodeDetector.NORMAL_MODE;
+  private boolean mTrackingEnabled = true;
   private int mPaddingX;
   private int mPaddingY;
 
@@ -339,7 +340,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mFaceDetector.setMode(mFaceDetectorMode);
     mFaceDetector.setLandmarkType(mFaceDetectionLandmarks);
     mFaceDetector.setClassificationType(mFaceDetectionClassifications);
-    mFaceDetector.setTracking(true);
+    mFaceDetector.setTracking(mTrackingEnabled);
   }
 
   public void setFaceDetectionLandmarks(int landmarks) {
@@ -360,6 +361,13 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mFaceDetectorMode = mode;
     if (mFaceDetector != null) {
       mFaceDetector.setMode(mode);
+    }
+  }
+
+  public void setTracking(boolean trackingEnabled) {
+    mTrackingEnabled = trackingEnabled;
+    if (mFaceDetector != null) {
+      mFaceDetector.setTracking(trackingEnabled);
     }
   }
 

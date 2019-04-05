@@ -167,6 +167,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setFaceDetectionClassifications(classifications);
   }
 
+  @ReactProp(name = "trackingEnabled")
+  public void setTracking(RNCameraView view, boolean trackingEnabled) {
+    view.setTracking(trackingEnabled);
+  }
+  
   @ReactProp(name = "googleVisionBarcodeDetectorEnabled")
   public void setGoogleVisionBarcodeDetecting(RNCameraView view, boolean googleBarcodeDetectorEnabled) {
     view.setShouldGoogleDetectBarcodes(googleBarcodeDetectorEnabled);

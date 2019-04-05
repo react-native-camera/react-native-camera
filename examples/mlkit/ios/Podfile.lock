@@ -9,6 +9,9 @@ PODS:
   - Firebase/MLVision (5.16.0):
     - Firebase/CoreOnly
     - FirebaseMLVision (= 0.14.0)
+  - Firebase/MLVisionFaceModel (5.16.0):
+    - Firebase/CoreOnly
+    - FirebaseMLVisionFaceModel (= 0.14.0)
   - Firebase/MLVisionTextModel (5.16.0):
     - Firebase/CoreOnly
     - FirebaseMLVisionTextModel (= 0.14.0)
@@ -38,6 +41,8 @@ PODS:
     - GoogleAPIClientForREST/Core (~> 1.3)
     - GoogleAPIClientForREST/Vision (~> 1.3)
     - GoogleMobileVision/Detector (~> 1.4)
+  - FirebaseMLVisionFaceModel (0.14.0):
+    - GoogleMobileVision/FaceDetector (~> 1.4)
   - FirebaseMLVisionTextModel (0.14.0):
     - GoogleMobileVision/TextDetector (~> 1.4)
   - Folly (2018.10.22.00):
@@ -61,6 +66,8 @@ PODS:
     - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
     - GTMSessionFetcher/Core (~> 1.1)
     - Protobuf (~> 3.1)
+  - GoogleMobileVision/FaceDetector (1.5.0):
+    - GoogleMobileVision/Detector (~> 1.5)
   - GoogleMobileVision/TextDetector (1.5.0):
     - GoogleMobileVision/Detector (~> 1.5)
   - GoogleToolboxForMac/Defines (2.2.0)
@@ -96,60 +103,73 @@ PODS:
     - nanopb/encode (= 0.3.901)
   - nanopb/decode (0.3.901)
   - nanopb/encode (0.3.901)
-  - Protobuf (3.6.1)
-  - React (0.58.5):
-    - React/Core (= 0.58.5)
-  - react-native-camera/RCT (1.10.2):
+  - Protobuf (3.7.0)
+  - React (0.59.1):
+    - React/Core (= 0.59.1)
+  - react-native-camera/FaceDetectorMLKit (2.2.1):
+    - Firebase/MLVision
+    - Firebase/MLVisionFaceModel
     - React
-  - react-native-camera/RN (1.10.2):
+    - react-native-camera/RCT
+    - react-native-camera/RN
+  - react-native-camera/RCT (2.2.1):
     - React
-  - react-native-camera/TextDetector (1.10.2):
+  - react-native-camera/RN (2.2.1):
+    - React
+  - react-native-camera/TextDetector (2.2.1):
     - Firebase/MLVision
     - Firebase/MLVisionTextModel
     - React
     - react-native-camera/RCT
     - react-native-camera/RN
-  - React/Core (0.58.5):
-    - yoga (= 0.58.5.React)
-  - React/CxxBridge (0.58.5):
+  - React/Core (0.59.1):
+    - yoga (= 0.59.1.React)
+  - React/CxxBridge (0.59.1):
     - Folly (= 2018.10.22.00)
     - React/Core
     - React/cxxreact
     - React/jsiexecutor
-  - React/cxxreact (0.58.5):
+  - React/cxxreact (0.59.1):
     - boost-for-react-native (= 1.63.0)
+    - DoubleConversion
     - Folly (= 2018.10.22.00)
+    - glog
     - React/jsinspector
-  - React/DevSupport (0.58.5):
+  - React/DevSupport (0.59.1):
     - React/Core
     - React/RCTWebSocket
-  - React/fishhook (0.58.5)
-  - React/jsi (0.58.5):
+  - React/fishhook (0.59.1)
+  - React/jsi (0.59.1):
+    - DoubleConversion
     - Folly (= 2018.10.22.00)
-  - React/jsiexecutor (0.58.5):
+    - glog
+  - React/jsiexecutor (0.59.1):
+    - DoubleConversion
     - Folly (= 2018.10.22.00)
+    - glog
     - React/cxxreact
     - React/jsi
-  - React/jsinspector (0.58.5)
-  - React/RCTAnimation (0.58.5):
+  - React/jsinspector (0.59.1)
+  - React/RCTAnimation (0.59.1):
     - React/Core
-  - React/RCTBlob (0.58.5):
+  - React/RCTBlob (0.59.1):
     - React/Core
-  - React/RCTNetwork (0.58.5):
+  - React/RCTNetwork (0.59.1):
     - React/Core
-  - React/RCTText (0.58.5):
+  - React/RCTText (0.59.1):
     - React/Core
-  - React/RCTWebSocket (0.58.5):
+  - React/RCTWebSocket (0.59.1):
     - React/Core
     - React/fishhook
     - React/RCTBlob
-  - yoga (0.58.5.React)
+  - yoga (0.59.1.React)
 
 DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - Firebase/Core
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - react-native-camera/FaceDetectorMLKit (from `../../../`)
   - react-native-camera/TextDetector (from `../../../`)
   - React/Core (from `../node_modules/react-native`)
   - React/CxxBridge (from `../node_modules/react-native`)
@@ -169,6 +189,7 @@ SPEC REPOS:
     - FirebaseInstanceID
     - FirebaseMLCommon
     - FirebaseMLVision
+    - FirebaseMLVisionFaceModel
     - FirebaseMLVisionTextModel
     - GoogleAPIClientForREST
     - GoogleAppMeasurement
@@ -202,6 +223,7 @@ SPEC CHECKSUMS:
   FirebaseInstanceID: 97ea7a5dca9afd72c79bfcdddb7a44aa1cbb42a1
   FirebaseMLCommon: d8a789e36a7faa175b1a5d1139e7fc7323c8db7b
   FirebaseMLVision: 07c0da3ceaa5ecde621528a985748d6098a84388
+  FirebaseMLVisionFaceModel: 8c80355e22cfcf100ad2ac9c618536d19daf266b
   FirebaseMLVisionTextModel: c6b3bf6129cb97cba51f8f90e80b40a66228dfa1
   Folly: de497beb10f102453a1afa9edbf8cf8a251890de
   glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
@@ -212,11 +234,11 @@ SPEC CHECKSUMS:
   GoogleUtilities: 111a012f4c3a29c9e7c954c082fafd6ee3c999c0
   GTMSessionFetcher: 32aeca0aa144acea523e1c8e053089dec2cb98ca
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
-  Protobuf: 1eb9700044745f00181c136ef21b8ff3ad5a0fd5
-  React: 16c4fb7ce3fc30c041bce809ceae33bf57e7c142
-  react-native-camera: 25e0f493dde6e15c814e734685934d55f46e45b2
-  yoga: 0885622311729a02c2bc02dca97167787a51488b
+  Protobuf: 7a877b7f3e5964e3fce995e2eb323dbc6831bb5a
+  React: 1d605e098d69bdf08960787f3446f0a9dc2e2ccf
+  react-native-camera: d13de9a2dfb5bec5ab2ee0a87a0188fbe9f91937
+  yoga: 128daf064cacaede0c3bb27424b6b4c71052e6cd
 
-PODFILE CHECKSUM: 98276cee1420f380535215fe9e3a913b4f50e9a0
+PODFILE CHECKSUM: ac79060dabdb42d0c1880375ab074e4a801d9223
 
 COCOAPODS: 1.5.3
