@@ -2,7 +2,6 @@ package com.lwansbrough.RCTCamera;
 
 import android.support.annotation.Nullable;
 
-import com.facebook.infer.annotation.Assertions;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.*;
@@ -39,7 +38,9 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
 
     @Override
     public void receiveCommand(RCTCameraView view, int commandType, @Nullable ReadableArray args) {
-        Assertions.assertNotNull(view);
+        if (view == null) {
+            throw new AssertionError();
+        }
         switch (commandType) {
             case COMMAND_STOP_PREVIEW: {
                 view.stopPreview();
