@@ -135,6 +135,7 @@ android {
 }
 
 dependencies {
+    implementation project(':@react-native-community_slider')
     implementation project(':react-native-camera')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"

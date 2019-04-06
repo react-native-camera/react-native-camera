@@ -7,8 +7,9 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-community/slider": "^1.0.4",
     "react": "16.8.3",
-    "react-native": "0.59.1"
+    "react-native": "0.59.3"
   },
   "devDependencies": {
     "babel-core": "^7.0.0-bridge.0",

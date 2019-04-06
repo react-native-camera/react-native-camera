@@ -31,4 +31,6 @@ target 'mlkit' do
 
   pod 'Firebase/Core'
 
+  pod 'react-native-slider', :path => '../node_modules/@react-native-community/slider'
+
 end
