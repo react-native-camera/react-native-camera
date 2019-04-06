@@ -9,7 +9,7 @@ jobs:
       - ANDROID_BUILD_TOOLS_VERSION: '28.0.3'
     working_directory: ~/app
     docker:
-      - image: reactnativecommunity/react-native-android
+      - image: entria/react-native-android:0.1.86
     steps:
       - checkout
       - restore_cache:
@@ -32,7 +32,7 @@ jobs:
           command: |
             cd examples/basic/android
             yarn
-            chmod +x ./gradlew && ./gradlew build
+            chmod +x ./gradlew && ./gradlew assembleDebug
       - deploy:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
