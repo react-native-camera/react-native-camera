@@ -88,11 +88,6 @@ public class RNFaceDetector {
     }
   }
 
-  public void setTrackingEnabled(boolean tracking) {
-    release();
-    mBuilder.setTrackingEnabled(tracking);
-  }
-
   public void release() {
     releaseFaceDetector();
     mPreviousDimensions = null;

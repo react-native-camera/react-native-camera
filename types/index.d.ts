@@ -178,10 +178,10 @@ export interface RNCameraProps {
   faceDetectionMode?: keyof FaceDetectionMode;
   faceDetectionLandmarks?: keyof FaceDetectionLandmarks;
   faceDetectionClassifications?: keyof FaceDetectionClassifications;
+  trackingEnabled?: boolean,
 
-  // -- ANDROID ONLY PROPS
-  /** Android only */
   onTextRecognized?(response: { textBlocks: TrackedTextFeature[] }): void;
+  // -- ANDROID ONLY PROPS
   /** Android only */
   ratio?: string;
   /** Android only */

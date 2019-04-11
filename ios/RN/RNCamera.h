@@ -3,17 +3,12 @@
 #import <React/RCTBridgeModule.h>
 #import <UIKit/UIKit.h>
 
-#if __has_include("RNFaceDetectorManager.h")
-#import "RNFaceDetectorManager.h"
-#else
-#import "RNFaceDetectorManagerStub.h"
-#endif
-
 #import "TextDetectorManager.h"
+#import "FaceDetectorManagerMlkit.h"
 
 @class RNCamera;
 
-@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
+@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
 
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
 @property(nonatomic, strong) AVCaptureSession *session;
@@ -39,6 +34,7 @@
 @property (nonatomic, assign) BOOL isRecordingInterrupted;
 @property (nonatomic, assign) BOOL isDetectingFaces;
 @property (nonatomic, assign) BOOL canReadText;
+@property (nonatomic, assign) BOOL canDetectFaces;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property (assign, nonatomic) AVCaptureVideoStabilizationMode videoStabilizationMode;
 @property(assign, nonatomic, nullable) NSNumber *defaultVideoQuality;
@@ -54,10 +50,12 @@
 - (void)updateZoom;
 - (void)updateWhiteBalance;
 - (void)updatePictureSize;
-- (void)updateFaceDetecting:(id)isDetectingFaces;
+// Face Detection props
+- (void)updateTrackingEnabled:(id)requestedTracking;
 - (void)updateFaceDetectionMode:(id)requestedMode;
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks;
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications;
+
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)takePictureWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
@@ -67,6 +65,7 @@
 - (void)pausePreview;
 - (void)setupOrDisableBarcodeScanner;
 - (void)setupOrDisableTextDetector;
+- (void)setupOrDisableFaceDetector;
 - (void)onReady:(NSDictionary *)event;
 - (void)onMountingError:(NSDictionary *)event;
 - (void)onCodeRead:(NSDictionary *)event;

@@ -142,12 +142,8 @@ RCT_EXPORT_VIEW_PROPERTY(onTextRecognized, RCTDirectEventBlock);
 
 + (NSDictionary *)faceDetectorConstants
 {
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-#if __has_include("RNFaceDetectorManager.h")
-    return [RNFaceDetectorManager constants];
-#else
-    return [RNFaceDetectorManagerStub constants];
-#endif
+#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+    return [FaceDetectorManagerMlkit constants];
 #else
     return [NSDictionary new];
 #endif
@@ -206,8 +202,13 @@ RCT_CUSTOM_VIEW_PROPERTY(pictureSize, NSString *, RNCamera)
 
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
 {
-    view.isDetectingFaces = [RCTConvert BOOL:json];
-    [view updateFaceDetecting:json];
+    view.canDetectFaces = [RCTConvert BOOL:json];
+    [view setupOrDisableFaceDetector];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(trackingEnabled, BOOL, RNCamera)
+{
+    [view updateTrackingEnabled:json];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectionMode, NSInteger, RNCamera)
