@@ -22,8 +22,18 @@ class BadInstagramCloneApp extends Component {
           style={styles.preview}
           type={RNCamera.Constants.Type.back}
           flashMode={RNCamera.Constants.FlashMode.on}
-          permissionDialogTitle={'Permission to use camera'}
-          permissionDialogMessage={'We need your permission to use your camera phone'}
+          androidCameraPermissionOptions={{
+            title: 'Permission to use camera',
+            message: 'We need your permission to use your camera',
+            buttonPositive: 'Ok',
+            buttonNegative: 'Cancel',
+          }}
+          androidRecordAudioPermissionOptions={{
+            title: 'Permission to use audio recording',
+            message: 'We need your permission to use your audio',
+            buttonPositive: 'Ok',
+            buttonNegative: 'Cancel',
+          }}
           onGoogleVisionBarcodesDetected={({ barcodes }) => {
             console.log(barcodes);
           }}
@@ -102,8 +112,18 @@ class App extends Component {
           style={styles.preview}
           type={RNCamera.Constants.Type.back}
           flashMode={RNCamera.Constants.FlashMode.on}
-          permissionDialogTitle={'Permission to use camera'}
-          permissionDialogMessage={'We need your permission to use your camera phone'}
+          androidCameraPermissionOptions={{
+            title: 'Permission to use camera',
+            message: 'We need your permission to use your camera',
+            buttonPositive: 'Ok',
+            buttonNegative: 'Cancel',
+          }}
+          androidRecordAudioPermissionOptions={{
+            title: 'Permission to use audio recording',
+            message: 'We need your permission to use your audio',
+            buttonPositive: 'Ok',
+            buttonNegative: 'Cancel',
+          }}
         >
           {({ camera, status, recordAudioPermissionStatus }) => {
             if (status !== 'READY') return <PendingView />;
@@ -245,13 +265,21 @@ Value: float from `0` to `1.0`
 
 Specifies the zoom of your camera. The value 0 is no zoom, 1 is maximum zoom. For a medium zoom, for example, you could pass `0.5`.
 
-#### `Android` `permissionDialogTitle`
+#### `Android` `permissionDialogTitle` - Depracated
 
 Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the title of the dialog prompt requesting permissions.
 
-#### `Android` `permissionDialogMessage`
+#### `Android` `permissionDialogMessage` - Depracated
 
 Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the content of the dialog prompt requesting permissions.
+
+#### `Android` `androidRecordAudioPermissionOptions`
+
+Configuration options for permissions request for recording audio. It will be passed as `rationale` parameter to [`PermissionsAndroid.request`](https://facebook.github.io/react-native/docs/permissionsandroid#request). This replaces and deprecates old `permissionDialogTitle` and `permissionDialogMessage` parameters.
+
+#### `Android` `androidCameraPermissionOptions`
+
+Configuration options for permissions request for camera. It will be passed as `rationale` parameter to [`PermissionsAndroid.request`](https://facebook.github.io/react-native/docs/permissionsandroid#request). This replaces and deprecates old `permissionDialogTitle` and `permissionDialogMessage` parameters.
 
 #### `notAuthorizedView`
 
