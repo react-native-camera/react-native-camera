@@ -43,10 +43,10 @@
 - (NSArray *)processBlocks:(NSArray *)features
 {
   NSMutableArray *textBlocks = [[NSMutableArray alloc] init];
-    for (FIRVisionTextBlock *textBlock in features) {
-        NSDictionary *textBlockDict = 
-        @{@"type": @"block", @"value" : textBlock.text, @"bounds" : [self processBounds:textBlock.frame], @"components" : [self processLine:textBlock.lines]};
-        [textBlocks addObject:textBlockDict];
+  for (FIRVisionTextBlock *textBlock in features) {
+      NSDictionary *textBlockDict = 
+      @{@"type": @"block", @"value" : textBlock.text, @"bounds" : [self processBounds:textBlock.frame], @"components" : [self processLine:textBlock.lines]};
+      [textBlocks addObject:textBlockDict];
   }
   return textBlocks;
 }
@@ -58,8 +58,8 @@
         NSDictionary *textLineDict = 
         @{@"type": @"line", @"value" : textLine.text, @"bounds" : [self processBounds:textLine.frame], @"components" : [self processElement:textLine.elements]};
         [lineBlocks addObject:textLineDict];
-        }
-    return lineBlocks;
+  }
+  return lineBlocks;
 }
 
 -(NSArray *)processElement:(NSArray *)elements 
@@ -69,8 +69,8 @@
         NSDictionary *textElementDict = 
         @{@"type": @"element", @"value" : textElement.text, @"bounds" : [self processBounds:textElement.frame]};
         [elementBlocks addObject:textElementDict];
-        }
-    return elementBlocks;
+  }
+  return elementBlocks;
 }
 
 -(NSDictionary *)processBounds:(CGRect)bounds 

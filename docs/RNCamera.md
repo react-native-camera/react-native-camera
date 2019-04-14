@@ -409,14 +409,29 @@ The following barcode types can be recognised:
 An array of barcode types to search for. Defaults to all types listed above. No effect if `onBarCodeRead` is undefined.
 Example: `<RNCamera barCodeTypes={[RNCamera.Constants.BarCodeType.qr]} />`
 
-#### `Android` `onGoogleVisionBarcodesDetected`
+#### `onGoogleVisionBarcodesDetected`
 
-Like `onBarCodeRead`, but we will use Google Play Service Vision to scan barcodes, which is pretty fast on Android. Note: If you already set `onBarCodeRead`, this will be invalid.
+Like `onBarCodeRead`, but using Firebase MLKit to scan barcodes. More info can be found [here](https://firebase.google.com/docs/ml-kit/read-barcodes) Note: If you already set `onBarCodeRead`, this will be invalid.
 
-#### `Android` `googleVisionBarcodeType`
+#### `googleVisionBarcodeType`
 
-Like `barCodeTypes`, but applies to the Google Play Service Vision barcode detector.
+Like `barCodeTypes`, but applies to the Firebase MLKit barcode detector.
 Example: `<RNCamera googleVisionBarcodeType={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeType.DATA_MATRIX} />`
+Available settings:
+- CODE_128
+- CODE_39
+- CODE_93
+- CODABAR
+- EAN_13
+- EAN_8
+- ITF
+- UPC_A
+- UPC_E
+- QR_CODE
+- PDF417
+- AZTEC
+- DATA_MATRIX
+- ALL
 
 #### `Android` `googleVisionBarcodeMode`
 
@@ -425,11 +440,11 @@ Example: `<RNCamera googleVisionBarcodeMode={RNCamera.Constants.GoogleVisionBarc
 
 ### Face Detection Related props
 
-RNCamera uses the Google Mobile Vision frameworks for Face Detection, you can read more info about it [here](https://developers.google.com/android/reference/com/google/android/gms/vision/face/FaceDetector).
+RNCamera uses the Firebase MLKit for Face Detection, you can read more about it [here](https://firebase.google.com/docs/ml-kit/detect-faces).
 
 #### `onFacesDetected`
 
-Method to be called when face is detected. Receives a Faces Detected Event object. The interesting value of this object is the `faces` value, which is an array with objects of the [Face](https://developers.google.com/android/reference/com/google/android/gms/vision/face/Face) properties.
+Method to be called when face is detected. Receives a Faces Detected Event object. The interesting value of this object is the `faces` value, which is an array of Face objects. You can find more details about the possible values of these objects [here](https://firebase.google.com/docs/ml-kit/face-detection-concepts)
 
 #### `onFaceDetectionError`
 
@@ -457,11 +472,11 @@ Classification is determining whether a certain facial characteristic is present
 
 ### Text Recognition Related props
 
-RNCamera uses the Google Mobile Vision frameworks for Text Recognition, you can read more info about it [here](https://developers.google.com/vision/android/text-overview).
+RNCamera uses the Firebase MLKit for Text Recognition, you can read more info about it [here](https://firebase.google.com/docs/ml-kit/recognize-text).
 
 #### `onTextRecognized`
 
-Method to be called when text is detected. Receives a Text Recognized Event object. The interesting value of this object is the `textBlocks` value, which is an array with objects of the [TextBlock](https://developers.google.com/android/reference/com/google/android/gms/vision/text/TextBlock) properties.
+Method to be called when text is detected. Receives a Text Recognized Event object. The interesting value of this object is the `textBlocks` value, which is an array of TextBlock objects.
 
 ## Component instance methods
 
@@ -612,9 +627,10 @@ Read more about [react-native-barcode-mask](https://github.com/shahnawaz/react-n
 
 To learn about how to test components which uses `RNCamera` check its [documentation about testing](./tests.md).
 
-## Example
+## Examples
 
 To see more of the `RNCamera` in action you can check out the [RNCamera examples directory](https://github.com/react-native-community/react-native-camera/tree/master/examples).
+Firebase MLKit-base features (such as Text, Face and Barcode detection) can be found in the [mlkit](https://github.com/react-native-community/react-native-camera/tree/master/examples/mlkit) example.
 
 ## Open Collective
 
