@@ -297,6 +297,7 @@ interface RecordResponse {
   uri: string;
   videoOrientation: number;
   deviceOrientation: number;
+  isRecordingInterrupted: boolean;
   /** iOS only */
   codec: VideoCodec[keyof VideoCodec];
 }

@@ -71,6 +71,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                 selector:@selector(bridgeDidForeground:)
                                                     name:UIApplicationWillEnterForegroundNotification
                                                 object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(audioDidInterrupted:)
+                                                     name:AVAudioSessionInterruptionNotification
+                                                   object:nil];
         self.autoFocus = -1;
 
     }
@@ -782,6 +786,24 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         dispatch_async( self.sessionQueue, ^{
             [self.session stopRunning];
         });
+    }
+}
+
+- (void)audioDidInterrupted:(NSNotification *)notification
+{
+    NSDictionary *userInfo = notification.userInfo;
+    NSInteger type = [[userInfo valueForKey:AVAudioSessionInterruptionTypeKey] integerValue];
+    switch (type) {
+        case AVAudioSessionInterruptionTypeBegan:
+            [self bridgeDidBackground: notification];
+            break;
+            
+        case AVAudioSessionInterruptionTypeEnded:
+            [self bridgeDidForeground: notification];
+            break;
+            
+        default:
+            break;
     }
 }
 
