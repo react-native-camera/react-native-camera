@@ -225,9 +225,9 @@ end
 5. In XCode, in the project navigator, select your project. Add `libRNCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
 6. Click `RNCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
 
-##### Face Detection or Text Recognition Steps
+##### Face Detection/Text Recognition/BarCode(using MLKit) Steps
 
-Face Detection/Text Recognition are optional on iOS. If you want them, you are going to use CocoaPods path and set-up Firebase project for your app (detailed steps below).
+Face Detection/Text Recognition/BarCode(using MLKit) are optional on iOS. If you want them, you will need to use CocoaPods path and set-up Firebase project for your app (detailed steps below).
 
 _Note:_ Installing react-native-firebase package is NOT necessary.
 
@@ -256,12 +256,21 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 ]
 ```
 
-or to (Both Face and Text detection)
+or to (for Text Recognition)
+
+```
+pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
+  'BarcodeDetectorMLKit'
+]
+```
+
+or to (all possible detections)
 
 ```
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
   'TextDetector',
-  'FaceDetectorMLKit'
+  'FaceDetectorMLKit',
+  'BarcodeDetectorMLKit'
 ]
 ```
 

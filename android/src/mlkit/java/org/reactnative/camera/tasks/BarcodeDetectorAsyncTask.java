@@ -160,6 +160,119 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
           serializedBarcode.putString("url", url);
           serializedBarcode.putString("title", title);
           break;
+        case FirebaseVisionBarcode.TYPE_SMS:
+          String message = barcode.getSms().getMessage();
+          String phoneNumber = barcode.getSms().getPhoneNumber();
+          serializedBarcode.putString("message", message);
+          serializedBarcode.putString("title", phoneNumber);
+          break;
+        case FirebaseVisionBarcode.TYPE_PHONE:
+          String number = barcode.getPhone().getNumber();
+          int typePhone = barcode.getPhone().getType();
+          serializedBarcode.putString("number", number);
+          String typeStringPhone = getPhoneType(typePhone);
+          serializedBarcode.putString("phoneType", typeStringPhone);
+          break;
+        case FirebaseVisionBarcode.TYPE_CALENDAR_EVENT:
+          serializedBarcode.putString("description", barcode.getCalendarEvent().getDescription());
+          serializedBarcode.putString("location", barcode.getCalendarEvent().getLocation());
+          serializedBarcode.putString("organizer", barcode.getCalendarEvent().getOrganizer());
+          serializedBarcode.putString("status", barcode.getCalendarEvent().getStatus());
+          serializedBarcode.putString("summary", barcode.getCalendarEvent().getSummary());
+          FirebaseVisionBarcode.CalendarDateTime start = barcode.getCalendarEvent().getStart();
+          FirebaseVisionBarcode.CalendarDateTime end = barcode.getCalendarEvent().getEnd();
+          if (start != null) {
+            serializedBarcode.putString("start", start.getRawValue());
+          }
+          if (end != null) {
+            serializedBarcode.putString("end", start.getRawValue());
+          }
+          break;
+        case FirebaseVisionBarcode.TYPE_DRIVER_LICENSE:
+          serializedBarcode.putString("addressCity", barcode.getDriverLicense().getAddressCity());
+          serializedBarcode.putString("addressState", barcode.getDriverLicense().getAddressState());
+          serializedBarcode.putString("addressStreet", barcode.getDriverLicense().getAddressStreet());
+          serializedBarcode.putString("addressZip", barcode.getDriverLicense().getAddressZip());
+          serializedBarcode.putString("birthDate", barcode.getDriverLicense().getBirthDate());
+          serializedBarcode.putString("documentType", barcode.getDriverLicense().getDocumentType());
+          serializedBarcode.putString("expiryDate", barcode.getDriverLicense().getExpiryDate());
+          serializedBarcode.putString("firstName", barcode.getDriverLicense().getFirstName());
+          serializedBarcode.putString("middleName", barcode.getDriverLicense().getMiddleName());
+          serializedBarcode.putString("lastName", barcode.getDriverLicense().getLastName());
+          serializedBarcode.putString("gender", barcode.getDriverLicense().getGender());
+          serializedBarcode.putString("issueDate", barcode.getDriverLicense().getIssueDate());
+          serializedBarcode.putString("issuingCountry", barcode.getDriverLicense().getIssuingCountry());
+          serializedBarcode.putString("licenseNumber", barcode.getDriverLicense().getLicenseNumber());
+          break;
+        case FirebaseVisionBarcode.TYPE_GEO:
+          serializedBarcode.putDouble("latitude", barcode.getGeoPoint().getLat());
+          serializedBarcode.putDouble("longitude", barcode.getGeoPoint().getLng());
+          break;
+        case FirebaseVisionBarcode.TYPE_CONTACT_INFO:
+          serializedBarcode.putString("organization", barcode.getContactInfo().getOrganization());
+          serializedBarcode.putString("title", barcode.getContactInfo().getTitle());
+          FirebaseVisionBarcode.PersonName name = barcode.getContactInfo().getName();
+          if (name != null) {
+            serializedBarcode.putString("firstName", name.getFirst());
+            serializedBarcode.putString("lastName", name.getLast());
+            serializedBarcode.putString("middleName", name.getMiddle());
+            serializedBarcode.putString("formattedName", name.getFormattedName());
+            serializedBarcode.putString("prefix", name.getPrefix());
+            serializedBarcode.putString("pronunciation", name.getPronunciation());
+            serializedBarcode.putString("suffix", name.getSuffix());
+          }
+          List<FirebaseVisionBarcode.Phone> phones = barcode.getContactInfo().getPhones();
+          WritableArray phonesList = Arguments.createArray();
+          for (FirebaseVisionBarcode.Phone phone : phones) {
+            WritableMap phoneObject = Arguments.createMap();
+            phoneObject.putString("number", phone.getNumber());
+            phoneObject.putString("phoneType", getPhoneType(phone.getType()));
+            phonesList.pushMap(phoneObject);
+          }
+          serializedBarcode.putArray("phones", phonesList);
+          List<FirebaseVisionBarcode.Address> addresses = barcode.getContactInfo().getAddresses();
+          WritableArray addressesList = Arguments.createArray();
+          for (FirebaseVisionBarcode.Address address : addresses) {
+            WritableMap addressesData = Arguments.createMap();
+            WritableArray addressesLinesList = Arguments.createArray();
+            String[] addressesLines = address.getAddressLines();
+            for (String line : addressesLines) {
+              addressesLinesList.pushString(line);
+            }
+            addressesData.putArray("addressLines", addressesLinesList);
+
+            int addressType = address.getType();
+            String addressTypeString = "UNKNOWN";
+            switch(addressType) {
+              case FirebaseVisionBarcode.Address.TYPE_WORK:
+                addressTypeString = "Work";
+                break;
+              case FirebaseVisionBarcode.Address.TYPE_HOME:
+                addressTypeString = "Home";
+                break;
+            }
+            addressesData.putString("addressType", addressTypeString);
+            addressesList.pushMap(addressesData);
+          }
+          serializedBarcode.putArray("addresses", addressesList);
+          List<FirebaseVisionBarcode.Email> emails = barcode.getContactInfo().getEmails();
+          WritableArray emailsList = Arguments.createArray();
+          for (FirebaseVisionBarcode.Email email : emails) {
+            WritableMap emailData = processEmail(email);
+            emailsList.pushMap(emailData);
+          }
+          serializedBarcode.putArray("emails", emailsList);
+          String[] urls = barcode.getContactInfo().getUrls();
+          WritableArray urlsList = Arguments.createArray();
+          for (String urlContact : urls) {
+            urlsList.pushString(urlContact);
+          }
+          serializedBarcode.putArray("urls", urlsList);
+          break;
+        case FirebaseVisionBarcode.TYPE_EMAIL:
+          WritableMap emailData = processEmail(barcode.getEmail());
+          serializedBarcode.putMap("email", emailData);
+          break;
       }
 
       serializedBarcode.putString("data", barcode.getDisplayValue());
@@ -170,6 +283,44 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
     }
 
     return barcodesList;
+  }
+
+  private WritableMap processEmail(FirebaseVisionBarcode.Email email) {
+    WritableMap emailData = Arguments.createMap();
+    emailData.putString("address", email.getAddress());
+    emailData.putString("body", email.getBody());
+    emailData.putString("subject", email.getSubject());
+    int emailType = email.getType();
+    String emailTypeString = "UNKNOWN";
+    switch (emailType) {
+      case FirebaseVisionBarcode.Email.TYPE_WORK:
+        emailTypeString = "Work";
+        break;
+      case FirebaseVisionBarcode.Email.TYPE_HOME:
+        emailTypeString = "Home";
+        break;
+    }
+    emailData.putString("emailType", emailTypeString);
+    return emailData;
+  }
+
+  private String getPhoneType(int typePhone) {
+    String typeStringPhone = "UNKNOWN";
+    switch(typePhone) {
+      case FirebaseVisionBarcode.Phone.TYPE_WORK:
+        typeStringPhone = "Work";
+        break;
+      case FirebaseVisionBarcode.Phone.TYPE_HOME:
+        typeStringPhone = "Home";
+        break;
+      case FirebaseVisionBarcode.Phone.TYPE_FAX:
+        typeStringPhone = "Fax";
+        break;
+      case FirebaseVisionBarcode.Phone.TYPE_MOBILE:
+        typeStringPhone = "Mobile";
+        break;
+    }
+    return typeStringPhone;
   }
 
   private WritableMap processBounds(Rect frame) {

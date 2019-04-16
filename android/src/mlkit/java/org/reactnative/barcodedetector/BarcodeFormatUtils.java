@@ -36,6 +36,7 @@ public class BarcodeFormatUtils {
     map.put(FirebaseVisionBarcode.FORMAT_AZTEC, "AZTEC");
     map.put(FirebaseVisionBarcode.FORMAT_ALL_FORMATS, "ALL");
     map.put(FirebaseVisionBarcode.FORMAT_UPC_A, "UPC_A");
+    map.put(FirebaseVisionBarcode.FORMAT_ALL_FORMATS, "ALL");
     map.put(-1, "None");
     FORMATS = map;
 

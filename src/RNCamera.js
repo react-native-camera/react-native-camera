@@ -125,6 +125,96 @@ type TrackedTextFeature = {
   components: Array<TrackedTextFeature>,
 };
 
+type TrackedBarcodeFeature = {
+  bounds: {
+    size: {
+      width: number,
+      height: number,
+    },
+    origin: {
+      x: number,
+      y: number,
+    },
+  },
+  data: string,
+  dataRaw: string,
+  type: BarcodeType,
+  addresses?: {
+    addressesType?: 'UNKNOWN' | 'Work' | 'Home',
+    addressLines?: string[],
+  }[],
+  emails?: Email[],
+  phones?: Phone[],
+  urls: ?(string[]),
+  name?: {
+    firstName?: string,
+    lastName?: string,
+    middleName?: string,
+    prefix?: string,
+    pronounciation?: string,
+    suffix?: string,
+    formattedName?: string,
+  },
+  phone?: Phone,
+  organization?: string,
+  latitude?: number,
+  longitude?: number,
+  ssid?: string,
+  password?: string,
+  encryptionType?: string,
+  title?: string,
+  url?: string,
+  firstName?: string,
+  middleName?: string,
+  lastName?: string,
+  gender?: string,
+  addressCity?: string,
+  addressState?: string,
+  addressStreet?: string,
+  addressZip?: string,
+  birthDate?: string,
+  documentType?: string,
+  licenseNumber?: string,
+  expiryDate?: string,
+  issuingDate?: string,
+  issuingCountry?: string,
+  eventDescription?: string,
+  location?: string,
+  organizer?: string,
+  status?: string,
+  summary?: string,
+  start?: string,
+  end?: string,
+  email?: Email,
+  phoneNumber?: string,
+  message?: string,
+};
+
+type BarcodeType =
+  | 'EMAIL'
+  | 'PHONE'
+  | 'CALENDAR_EVENT'
+  | 'DRIVER_LICENSE'
+  | 'GEO'
+  | 'SMS'
+  | 'CONTACT_INFO'
+  | 'WIFI'
+  | 'TEXT'
+  | 'ISBN'
+  | 'PRODUCT';
+
+type Email = {
+  address?: string,
+  body?: string,
+  subject?: string,
+  emailType?: 'UNKNOWN' | 'Work' | 'Home',
+};
+
+type Phone = {
+  number?: string,
+  phoneType?: 'UNKNOWN' | 'Work' | 'Home' | 'Fax' | 'Mobile',
+};
+
 type RecordingOptions = {
   maxDuration?: number,
   maxFileSize?: number,
@@ -149,7 +239,7 @@ type PropsType = typeof View.props & {
   onStatusChange?: Function,
   onBarCodeRead?: Function,
   onPictureSaved?: Function,
-  onGoogleVisionBarcodesDetected?: Function,
+  onGoogleVisionBarcodesDetected?: ({ barcodes: Array<TrackedBarcodeFeature> }) => void,
   faceDetectionMode?: number,
   trackingEnabled?: boolean,
   flashMode?: number | string,
@@ -688,9 +778,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
 
     if (Platform.OS === 'ios') {
-      delete newProps.googleVisionBarcodeType;
       delete newProps.googleVisionBarcodeMode;
-      delete newProps.googleVisionBarcodeDetectorEnabled;
       delete newProps.ratio;
     }
 

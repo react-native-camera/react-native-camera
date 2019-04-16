@@ -26,7 +26,8 @@ target 'mlkit' do
 
   pod 'react-native-camera', path: '../../../', subspecs: [
     'TextDetector',
-    'FaceDetectorMLKit'
+    'FaceDetectorMLKit',
+    'BarcodeDetectorMLKit'
   ]
 
   pod 'Firebase/Core'
