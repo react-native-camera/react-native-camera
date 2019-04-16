@@ -159,6 +159,7 @@ type PropsType = typeof View.props & {
   autoFocusPointOfInterest?: { x: number, y: number },
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
+  onPoseEstimated?: ({ points: Array<number> }) => void,
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
   captureAudio?: boolean,
   useCamera2Api?: boolean,
@@ -280,6 +281,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     onPictureSaved: PropTypes.func,
     onGoogleVisionBarcodesDetected: PropTypes.func,
     onFacesDetected: PropTypes.func,
+    onPoseEstimated: PropTypes.func,
     onTextRecognized: PropTypes.func,
     faceDetectionMode: PropTypes.number,
     faceDetectionLandmarks: PropTypes.number,
@@ -608,6 +610,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
             )}
             onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
             onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
+            onPoseEstimated={this._onObjectDetected(this.props.onPoseEstimated)}
             onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
             onPictureSaved={this._onPictureSaved}
           />
@@ -634,6 +637,10 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
     if (props.onFacesDetected) {
       newProps.faceDetectorEnabled = true;
+    }
+
+    if (props.onPoseEstimated) {
+      newProps.poseEstimatorEnabled = true;
     }
 
     if (props.onTextRecognized) {
@@ -669,6 +676,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     barCodeScannerEnabled: true,
     googleVisionBarcodeDetectorEnabled: true,
     faceDetectorEnabled: true,
+    poseEstimatorEnabled: true,
     textRecognizerEnabled: true,
     importantForAccessibility: true,
     onBarCodeRead: true,
@@ -676,6 +684,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     onCameraReady: true,
     onPictureSaved: true,
     onFaceDetected: true,
+    onPoseEstimated: true,
     onLayout: true,
     onMountError: true,
     renderToHardwareTextureAndroid: true,

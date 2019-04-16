@@ -12,9 +12,9 @@
 - (instancetype)init
 {
   if (self = [super init]) {
-    NSLog(@"init text detector");
     FIRVision *vision = [FIRVision vision];
     self.textRecognizer = [vision onDeviceTextRecognizer];
+    
   }
   return self;
 }

@@ -17,14 +17,17 @@
 @property (nonatomic, strong) RCTPromiseRejectBlock videoRecordedReject;
 @property (nonatomic, strong) id faceDetectorManager;
 @property (nonatomic, strong) id textDetector;
+@property (nonatomic, strong) id poseEstimator;
 
 @property (nonatomic, copy) RCTDirectEventBlock onCameraReady;
 @property (nonatomic, copy) RCTDirectEventBlock onMountError;
 @property (nonatomic, copy) RCTDirectEventBlock onBarCodeRead;
 @property (nonatomic, copy) RCTDirectEventBlock onTextRecognized;
+@property (nonatomic, copy) RCTDirectEventBlock onPoseEstimated;
 @property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onPictureSaved;
 @property (nonatomic, assign) BOOL finishedReadingText;
+@property (nonatomic, assign) BOOL finishedEstimatingPose;
 @property (nonatomic, copy) NSDate *start;
 
 @end
@@ -41,7 +44,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.sessionQueue = dispatch_queue_create("cameraQueue", DISPATCH_QUEUE_SERIAL);
         self.sensorOrientationChecker = [RNSensorOrientationChecker new];
         self.textDetector = [self createTextDetector];
+        self.poseEstimator = [self createPoseEstimator];
         self.finishedReadingText = true;
+        self.finishedEstimatingPose = true;
         self.start = [NSDate date];
         self.faceDetectorManager = [self createFaceDetectorManager];
 #if !(TARGET_IPHONE_SIMULATOR)
@@ -275,9 +280,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         return;
     }
 
-    if (![device respondsToSelector:@selector(isLockingFocusWithCustomLensPositionSupported)] || ![device isLockingFocusWithCustomLensPositionSupported]) {
-        RCTLogWarn(@"%s: Setting focusDepth isn't supported for this camera device", __func__);
-        return;
+    if (@available(iOS 10.0, *)) {
+        if (![device respondsToSelector:@selector(isLockingFocusWithCustomLensPositionSupported)] || ![device isLockingFocusWithCustomLensPositionSupported]) {
+            RCTLogWarn(@"%s: Setting focusDepth isn't supported for this camera device", __func__);
+            return;
+        }
+    } else {
+        // Fallback on earlier versions
     }
 
     if (![device lockForConfiguration:&error]) {
@@ -1039,6 +1048,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self cleanupMovieFileCapture];
         [self setupOrDisableTextDetector];
     }
+    
+    if ([self.poseEstimator isRealDetector]) {
+        [self cleanupMovieFileCapture];
+        [self setupOrDisablePoseEstimator];
+    }
 
     AVCaptureSessionPreset preset = [RNCameraUtils captureSessionPresetForVideoResolution:[self defaultVideoQuality]];
     if (self.session.sessionPreset != preset) {
@@ -1118,6 +1132,35 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 }
 
+# pragma mark - PoseEstimator
+
+- (id)createPoseEstimator
+{
+    Class poseEstimatorClass = NSClassFromString(@"PoseEstimator");
+    return [poseEstimatorClass new];
+}
+
+- (void)setupOrDisablePoseEstimator
+{
+    if ([self.poseEstimator isRealDetector]){
+        self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+        if (![self.session canAddOutput:_videoDataOutput]) {
+            NSLog(@"Failed to setup video data output");
+            [self stopPoseEstimation];
+            return;
+        }
+        NSDictionary *rgbOutputSettings = [NSDictionary
+                                           dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
+                                           forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+        [self.videoDataOutput setVideoSettings:rgbOutputSettings];
+        [self.videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
+        [self.videoDataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
+        [self.session addOutput:_videoDataOutput];
+    } else {
+        [self stopPoseEstimation];
+    }
+}
+
 # pragma mark - TextDetector
 
 -(id)createTextDetector
@@ -1151,16 +1194,55 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
            fromConnection:(AVCaptureConnection *)connection
 {
-    if (![self.textDetector isRealDetector]) {
+    if (![self.textDetector isRealDetector] && ![self.poseEstimator isRealDetector]) {
         return;
     }
+    
+    NSDate *methodFinish = [NSDate date];
+    NSTimeInterval timePassed = [methodFinish timeIntervalSinceDate:self.start];
+    if(timePassed > 0.5){
+        
+        CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
+        UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize];
+        
+        // Text
+        if([self canReadText] && _finishedReadingText){
+            
+            // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
+            float scaleX = _previewLayer.frame.size.width / image.size.width;
+            float scaleY = _previewLayer.frame.size.height / image.size.height;
+            
+            // find text features
+            _finishedReadingText = false;
+            self.start = [NSDate date];
+            [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks) {
+                NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
+                [self onText:eventText];
+                self.finishedReadingText = true;
+            }];
+        }
+        if([self canEstimatePose] && _finishedEstimatingPose){
+            
+            _finishedEstimatingPose = false;
+            self.start = [NSDate date];
+            CGImageRef cgImage = image.CGImage;
+            [self.poseEstimator estimatePoseOnDeviceInImage:cgImage completed:^(NSArray *heatmap) {
+                if (self->_onPoseEstimated && self->_session) {
+                    self->_onPoseEstimated(@{@"type": @"heatmap",
+                                       @"points": heatmap[0]
+                                       });
+                }
+                self.finishedEstimatingPose = true;
+            }];
+        }
+    }
+    
 
     // Do not submit image for text recognition too often:
     // 1. we only dispatch events every 500ms anyway
     // 2. wait until previous recognition is finished
     // 3. let user disable text recognition, e.g. onTextRecognized={someCondition ? null : this.textRecognized}
-    NSDate *methodFinish = [NSDate date];
-    NSTimeInterval timePassed = [methodFinish timeIntervalSinceDate:self.start];
+    
     if (timePassed > 0.5 && _finishedReadingText && [self canReadText]) {
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
         UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize];
@@ -1185,6 +1267,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self.session removeOutput:self.videoDataOutput];
     }
     self.videoDataOutput = nil;
+}
+
+- (void)stopPoseEstimation
+{
+    [self stopTextRecognition];
 }
 
 - (bool)isRecording {

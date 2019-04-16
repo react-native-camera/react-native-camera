@@ -10,6 +10,7 @@
 #endif
 
 #import "TextDetectorManager.h"
+#import "PoseEstimator.h"
 
 @class RNCamera;
 
@@ -39,6 +40,7 @@
 @property (nonatomic, assign) BOOL isRecordingInterrupted;
 @property (nonatomic, assign) BOOL isDetectingFaces;
 @property (nonatomic, assign) BOOL canReadText;
+@property (nonatomic, assign) BOOL canEstimatePose;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property (assign, nonatomic) AVCaptureVideoStabilizationMode videoStabilizationMode;
 @property(assign, nonatomic, nullable) NSNumber *defaultVideoQuality;
@@ -67,10 +69,12 @@
 - (void)pausePreview;
 - (void)setupOrDisableBarcodeScanner;
 - (void)setupOrDisableTextDetector;
+- (void)setupOrDisablePoseEstimator;
 - (void)onReady:(NSDictionary *)event;
 - (void)onMountingError:(NSDictionary *)event;
 - (void)onCodeRead:(NSDictionary *)event;
 - (void)onFacesDetected:(NSDictionary *)event;
+- (void)onPoseEstimated:(NSDictionary *)event;
 - (void)onPictureSaved:(NSDictionary *)event;
 - (void)onText:(NSDictionary *)event;
 - (bool)isRecording;

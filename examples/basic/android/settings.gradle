@@ -1,5 +1,0 @@
-rootProject.name = 'RNCameraExample'
-include ':react-native-camera'
-project(':react-native-camera').projectDir = new File(rootProject.projectDir, '../../../android')
-
-include ':app'
