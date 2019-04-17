@@ -125,7 +125,7 @@
                              
                              // Outputs has 4 dimensions, outer-most is each interpretation, and we only run it on one input
                              // therefore we return the inner three dimensions.
-                             NSArray *heatmap = [outputs outputAtIndex:0 error:&outputError][0];
+                             NSArray *heatmap = [outputs outputAtIndex:0 error:&outputError];
                              completed(heatmap);
                          }];
 }
