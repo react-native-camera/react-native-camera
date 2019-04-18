@@ -130,10 +130,6 @@ See this [doc](./docs/migrationV2.md)
 
 [RNCamera](./docs/RNCamera.md)
 
-### Docs old RCTCamera
-
-[RCTCamera](./docs/RCTCamera.md)
-
 ## Getting started
 
 ### Requirements
@@ -555,11 +551,3 @@ Follow the [Q & A](./docs/QA.md) section if you are having compilation issues.
 ### RNCamera
 
 Take a look into this [documentation](./docs/RNCamera.md).
-
-### RCTCamera
-
-Since `1.0.0`, RCTCamera is deprecated, but if you want to use it, you can see its [documentation](./docs/RCTCamera.md).
-
----
-
-Thanks to Brent Vatne (@brentvatne) for the `react-native-video` module which provided me with a great example of how to set up this module.
