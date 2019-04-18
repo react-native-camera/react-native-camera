@@ -265,11 +265,11 @@ Value: float from `0` to `1.0`
 
 Specifies the zoom of your camera. The value 0 is no zoom, 1 is maximum zoom. For a medium zoom, for example, you could pass `0.5`.
 
-#### `Android` `permissionDialogTitle` - Depracated
+#### `Android` `permissionDialogTitle` - Deprecated
 
 Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the title of the dialog prompt requesting permissions.
 
-#### `Android` `permissionDialogMessage` - Depracated
+#### `Android` `permissionDialogMessage` - Deprecated
 
 Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the content of the dialog prompt requesting permissions.
 
