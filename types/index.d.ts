@@ -219,7 +219,7 @@ interface Barcode {
   }[];
   emails?: Email[];
   phones?: Phone[];
-  urls:? string[];
+  urls?: string[];
   name?: {
     firstName?: string;
     lastName?: string;
