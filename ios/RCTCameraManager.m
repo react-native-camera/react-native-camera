@@ -9,6 +9,7 @@
 #import <AssetsLibrary/ALAssetsLibrary.h>
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
+#import <ImageIO/CGImageProperties.h>
 #import "RCTSensorOrientationChecker.h"
 
 @interface RCTCameraManager ()
@@ -497,13 +498,19 @@ RCT_EXPORT_METHOD(getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(
         @"min": @(CMTimeGetSeconds(device.activeFormat.minExposureDuration)),
         @"max": @(CMTimeGetSeconds(device.activeFormat.maxExposureDuration))
     };
-    
+
     resolve(boundaries);
 }
 
 RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     resolve([NSNumber numberWithDouble: device.lensAperture]);
+}
+
+
+RCT_EXPORT_METHOD(getBrightness:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    NSLog(@"get brightness: %d", (int) self.previewBrightness);
+    resolve([NSNumber numberWithInteger:self.previewBrightness]);
 }
 
 
@@ -516,6 +523,14 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
       self.presetCamera = AVCaptureDevicePositionBack;
     }
 
+    AVCaptureVideoDataOutput *videoOutput = [[AVCaptureVideoDataOutput alloc] init];
+    [videoOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarFullRange] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
+    [videoOutput setSampleBufferDelegate:self queue:dispatch_queue_create("com.exposio.samplevideobuffer", DISPATCH_QUEUE_SERIAL)];
+    if ([self.session canAddOutput:videoOutput]) {
+      [self.session addOutput:videoOutput];
+      self.videoOutput = videoOutput;
+    }
+
     AVCapturePhotoOutput *stillImageOutput = [[AVCapturePhotoOutput alloc] init];
     if ([self.session canAddOutput:stillImageOutput])
     {
@@ -524,12 +539,12 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
       self.stillImageOutput = stillImageOutput;
     }
 
-    AVCaptureMovieFileOutput *movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-    if ([self.session canAddOutput:movieFileOutput])
-    {
-      [self.session addOutput:movieFileOutput];
-      self.movieFileOutput = movieFileOutput;
-    }
+    // AVCaptureMovieFileOutput *movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+    // if ([self.session canAddOutput:movieFileOutput])
+    // {
+    //   [self.session addOutput:movieFileOutput];
+    //   self.movieFileOutput = movieFileOutput;
+    // }
 
     AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
     if ([self.session canAddOutput:metadataOutput]) {
@@ -547,7 +562,7 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
         [strongSelf.session startRunning];
       });
     }]];
-      
+
     NSMutableArray *bracketedStillImageSettings = [[NSMutableArray alloc] init];
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     CMTime expTime = device.activeFormat.maxExposureDuration;
@@ -557,7 +572,7 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
     for ( int i = 0; i < self.stillImageOutput.maxBracketedCapturePhotoCount; i++) {
       [bracketedStillImageSettings addObject:[AVCaptureManualExposureBracketedStillImageSettings manualExposureSettingsWithExposureDuration:expTime ISO:100]];
     }
-    
+
     AVCapturePhotoBracketSettings *settings = [AVCapturePhotoBracketSettings photoBracketSettingsWithRawPixelFormatType:0 processedFormat:nil bracketedSettings:bracketedStillImageSettings];
 
     [self.stillImageOutput setPreparedPhotoSettingsArray:@[settings] completionHandler:^(BOOL prepared, NSError *error) {
@@ -644,6 +659,66 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
   });
 }
 
+- (void)captureOutput:(AVCaptureOutput *)output
+didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
+       fromConnection:(AVCaptureConnection *)connection {
+    /*
+        Video preview stream output
+     */
+
+    if(sampleBuffer) {
+        // Exposure time & ISO
+        NSDictionary *exifMetadata = [self getExifMetadata:sampleBuffer];
+
+        self.previewExposure = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifExposureTime] floatValue];
+        self.previewISO = [exifMetadata objectForKey:(NSString *) kCGImagePropertyExifISOSpeedRatings];
+
+        // Brightness
+        NSData *data = [self nsDataFromSampleBuffer:sampleBuffer];
+        UInt8 *pixels = (UInt8 *)[data bytes];
+
+        dispatch_queue_t brightnessQueue = dispatch_queue_create("com.exposio.cameragetbrightness", NULL);
+
+        dispatch_async(brightnessQueue, ^{
+
+            unsigned long length = [data length];
+            int pixelSpacing = 0;
+            int luminance = 0;
+
+            for(int i=0; i<length; i+=(1+pixelSpacing)) {
+                luminance += pixels[i];
+            }
+
+            self.previewBrightness = (NSInteger) roundf(luminance / length);
+
+        });
+    }
+}
+
+- (NSDictionary *) getExifMetadata:(CMSampleBufferRef)sampleBuffer
+{
+    CFDictionaryRef metadataDict = CMCopyDictionaryOfAttachments(NULL, sampleBuffer, kCMAttachmentMode_ShouldPropagate);
+    NSDictionary *metadata = [[NSMutableDictionary alloc] initWithDictionary:(__bridge NSDictionary*)metadataDict];
+    CFRelease(metadataDict);
+    return [[metadata objectForKey:(NSString *)kCGImagePropertyExifDictionary] mutableCopy];
+}
+
+- (NSData *) nsDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer
+{
+    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    CVPixelBufferLockBaseAddress(imageBuffer, 0);
+
+    size_t byterPerRow = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 0);
+    size_t height = CVPixelBufferGetHeightOfPlane(imageBuffer, 0);
+    void * srcBuff = CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0);
+
+    NSData *data = [[NSData alloc] initWithBytes:srcBuff length:byterPerRow * height];
+
+    CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+
+    return data;
+}
+
 - (void)captureStill:(NSInteger)target options:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
     AVCaptureVideoOrientation orientation = options[@"orientation"] != nil ? [options[@"orientation"] integerValue] : self.orientation;
@@ -678,10 +753,10 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
               };
               // create cgimage
               CGImageRef rotatedCGImage = CGImageSourceCreateThumbnailAtIndex(source, 0, (CFDictionaryRef)options);
-    
+
               // Erase stupid TIFF stuff
               [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
-                
+
               // Create destination thing
               NSMutableData *rotatedImageData = [NSMutableData data];
               CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)rotatedImageData, CGImageSourceGetType(source), 1, NULL);
@@ -691,21 +766,21 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
               // And write
               CGImageDestinationFinalize(destination);
               CFRelease(destination);
-    
-                
+
+
               NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
               NSString *documentsDirectory = [paths firstObject];
-                
+
               NSFileManager *fileManager = [NSFileManager defaultManager];
               Float64 exposureDuration = CMTimeGetSeconds(bracketSettings.exposureDuration);
               Float64 iso = bracketSettings.ISO;
-                
+
               NSString *exposureString = [NSString stringWithFormat: @"%lf_%lf", iso, exposureDuration];
 
               NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[exposureString stringByAppendingString:[[NSUUID UUID] UUIDString]]] stringByAppendingPathExtension:@"jpg"];
-                
+
               [fileManager createFileAtPath:fullPath contents:rotatedImageData attributes:nil];
-                
+
               [self.sources addObject:fullPath];
               NSLog(@"Path %@", fullPath);
               NSLog(@"NB captures: %lu", (unsigned long)self.sources.count);
@@ -755,19 +830,19 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
       [self saveImage:imageData target:target metadata:nil resolve:resolve reject:reject];
 #else
       [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:orientation];
-      
+
       self.captureResolve = resolve;
       self.captureReject = reject;
       self.captureTarget = target;
       self.exposures = [options objectForKey:@"exposures"];
       [self.sources removeAllObjects];
-      
+
       NSMutableArray *exposuresBrackets = [NSMutableArray array];
-      
+
       int itemsRemaining = [self.exposures count];
       NSLog(@"bracket: nb of exposures -> %lu", itemsRemaining);
       int j = 0;
-      
+
       while(itemsRemaining) {
           NSRange range = NSMakeRange(j, MIN(self.stillImageOutput.maxBracketedCapturePhotoCount, itemsRemaining));
           NSArray *subarray = [self.exposures subarrayWithRange:range];
@@ -775,7 +850,7 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
           itemsRemaining-=range.length;
           j+=range.length;
       }
-      
+
       self.exposureBrackets = exposuresBrackets;
       [self captureBracket];
 #endif
@@ -791,11 +866,11 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
         AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
 
         [self.exposureBrackets removeLastObject];
-        
+
         for (NSDictionary *shotSettings in bracket) {
             NSNumber *exposure = [shotSettings objectForKey:@"exposure"];
             NSNumber *iso = [shotSettings objectForKey:@"iso"];
-            
+
             NSLog(@"bracket expoures: %lu / %lu", bracketedStillImageSettings.count, self.stillImageOutput.maxBracketedCapturePhotoCount);
             CMTime expTime = CMTimeMaximum(CMTimeMakeWithSeconds([exposure doubleValue], 1000000), device.activeFormat.minExposureDuration);
             expTime = CMTimeMinimum(expTime, device.activeFormat.maxExposureDuration);
@@ -803,7 +878,7 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
 
             [bracketedStillImageSettings addObject:[AVCaptureManualExposureBracketedStillImageSettings manualExposureSettingsWithExposureDuration:expTime ISO:[iso doubleValue]]];
         }
-        
+
         AVCapturePhotoBracketSettings *settings = [AVCapturePhotoBracketSettings photoBracketSettingsWithRawPixelFormatType:0 processedFormat:nil bracketedSettings:bracketedStillImageSettings];
         [self.stillImageOutput capturePhotoWithSettings:settings delegate:self];
     } else {
