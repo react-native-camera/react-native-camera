@@ -17,7 +17,7 @@ typedef struct detections {
 - (instancetype)init;
 - (BOOL)isRealDetector;
 - (void)setupModelForPoseEstimation;
-- (void)estimatePoseOnDeviceInImage:(CGImageRef)image completed:(postRecognitionBlock)completed;
+- (void)estimatePoseOnDeviceInImage:(UIImage *)uiImage completed:(postRecognitionBlock)completed;
 
 @end
 

@@ -1225,8 +1225,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             
             _finishedEstimatingPose = false;
             self.start = [NSDate date];
-            CGImageRef cgImage = image.CGImage;
-            [self.poseEstimator estimatePoseOnDeviceInImage:cgImage completed:^(NSArray *heatmap) {
+            [self.poseEstimator estimatePoseOnDeviceInImage:image completed:^(NSArray *heatmap) {
                 if (self->_onPoseEstimated && self->_session) {
                     self->_onPoseEstimated(@{@"type": @"heatmap",
                                        @"points": heatmap[0]
