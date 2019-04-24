@@ -11,7 +11,7 @@
  * If you are seeing this from the future, please, send us your cutting-edge technology :) (if it exists)
  */
 import { Component, ReactNode } from 'react';
-import { ViewProperties } from 'react-native';
+import { NativeMethodsMixinStatic, ViewProperties, findNodeHandle } from 'react-native';
 
 type Orientation = Readonly<{
   auto: any;
@@ -379,6 +379,9 @@ interface RecordResponse {
 
 export class RNCamera extends Component<RNCameraProps & ViewProperties> {
   static Constants: Constants;
+  
+  _cameraRef: null | NativeMethodsMixinStatic;
+  _cameraHandle: ReturnType<typeof findNodeHandle>;
 
   takePictureAsync(options?: TakePictureOptions): Promise<TakePictureResponse>;
   recordAsync(options?: RecordOptions): Promise<RecordResponse>;
