@@ -36,8 +36,10 @@
     return true;
 }
 
-const IN_DIM = 192;
-const OUT_DIM = 96;
+const int IN_DIM = 192;
+const int OUT_DIM = 96;
+const size_t FL32SIZE = 4;
+const int COLORS_PER_PIXEL = 3;
 
 - (void)setupModelForPoseEstimation{
     
@@ -71,46 +73,56 @@ const OUT_DIM = 96;
     if (error != nil) { return; }
 }
 
+
+
 - (void)estimatePoseOnDeviceInImage:(UIImage *)uiImage completed: (void (^)(NSArray * result)) completed
 {
-//    UIImage *static_image = [UIImage imageNamed:@"dancer"
-//                                inBundle:[NSBundle bundleForClass:self.class]
-//                  compatibleWithTraitCollection:nil];
-    UIImage *resized_image = [uiImage imageByScalingToFillSize:CGSizeMake(IN_DIM/2, IN_DIM/2)]; // Half size necessary for some reason
-    CGImageRef cgImage = resized_image.CGImage;
+    // Used for testing the static image. Uncomment, and change the resizedImage to use staticImage
+    
+    //    UIImage *staticImage = [UIImage imageNamed:@"dancer"
+    //                                inBundle:[NSBundle bundleForClass:self.class]
+    //                  compatibleWithTraitCollection:nil];
+    
+    //                                                       Half size, as it draws from center
+   
+    UIImage *resizedImage = [uiImage imageByScalingToFillSize:CGSizeMake(IN_DIM/2, IN_DIM/2)];
+    CGImageRef cgImage = resizedImage.CGImage;
     
     long imageWidth = CGImageGetWidth(cgImage);
     long imageHeight = CGImageGetHeight(cgImage);
     
     if(_context == nil){
         _context = CGBitmapContextCreate(nil,
-                                        imageWidth, imageHeight,
-                                        8,
-                                        imageWidth * 4,
-                                        CGColorSpaceCreateDeviceRGB(),
-                                        kCGImageAlphaNoneSkipFirst);
-        _inputData = [[NSMutableData alloc] initWithCapacity:IN_DIM*IN_DIM*3*4];
+                                         imageWidth, imageHeight,
+                                         8,
+                                         imageWidth * FL32SIZE,
+                                         CGColorSpaceCreateDeviceRGB(),
+                                         kCGImageAlphaNoneSkipFirst);
+        _inputData = [[NSMutableData alloc] initWithCapacity:IN_DIM*IN_DIM*COLORS_PER_PIXEL*FL32SIZE];
     }
     CGContextDrawImage(_context, CGRectMake(0, 0, imageWidth, imageHeight), cgImage);
     UInt8 *imageData = CGBitmapContextGetData(_context);
     
+    uiImage = nil;
+    resizedImage = nil;
+    cgImage = nil;
+    
     FIRModelInputs *inputs = [[FIRModelInputs alloc] init];
     
-    for (int row = 0; row < IN_DIM; row++) {
-        for (int col = 0; col < IN_DIM; col++) {
-            // Image comes in as COLUMN MAJOR
-            long offset = 4 * (col * imageWidth + row);
+    // Input and output should be COLUMN Major
+    for (int col = 0; col < IN_DIM; col++) {
+        for (int row = 0; row < IN_DIM; row++) {
+            long offset = FL32SIZE * (col * imageWidth + row);
 
             Float32 red = imageData[offset+1];
             Float32 green = imageData[offset+2];
             Float32 blue = imageData[offset+3];
             
-            // The model needs ROW MAJOR
-            long outOffset = 4 * 3 * (col + row * IN_DIM);
+            long outOffset = FL32SIZE * COLORS_PER_PIXEL * (col * IN_DIM + row);
             
-            [_inputData replaceBytesInRange:NSMakeRange(outOffset, sizeof(red)) withBytes:&red];
-            [_inputData replaceBytesInRange:NSMakeRange(outOffset + 1 * 4, sizeof(green)) withBytes:&green];
-            [_inputData replaceBytesInRange:NSMakeRange(outOffset + 2 * 4, sizeof(blue)) withBytes:&blue];
+            [_inputData replaceBytesInRange:NSMakeRange(outOffset, FL32SIZE) withBytes:&red];
+            [_inputData replaceBytesInRange:NSMakeRange(outOffset + 1 * FL32SIZE, FL32SIZE) withBytes:&green];
+            [_inputData replaceBytesInRange:NSMakeRange(outOffset + 2 * FL32SIZE, FL32SIZE) withBytes:&blue];
         }
     }
     NSError *error;
@@ -132,15 +144,6 @@ const OUT_DIM = 96;
                              // therefore we return the inner three dimensions.
                              NSArray *heatmap = [outputs outputAtIndex:0 error:&outputError];
                              completed(heatmap);
-                             //NSLog(@"OBJ C :::: %@", heatmap[0][38][29][0]);
-//                             for(int w = 38; w < 40; w++){
-//                                 for(int h = 0; h < 96; h++){
-//                                     NSNumber *val = heatmap[0][w][h][0];
-//                                     if(val != 0){
-//                                         NSLog(@"OBJC: (%d, %d): %@", w, h, val);
-//                                     }
-//                                 }
-//                             }
                          }];
 }
 
