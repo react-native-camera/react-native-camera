@@ -1200,40 +1200,40 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     
     NSDate *methodFinish = [NSDate date];
     NSTimeInterval timePassed = [methodFinish timeIntervalSinceDate:self.start];
-    if(timePassed > 0.5){
+//    if(timePassed > 0.5){
+    
+    CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
+    UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize];
+    
+    // Text
+    if([self canReadText] && _finishedReadingText){
         
-        CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
-        UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize];
+        // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
+        float scaleX = _previewLayer.frame.size.width / image.size.width;
+        float scaleY = _previewLayer.frame.size.height / image.size.height;
         
-        // Text
-        if([self canReadText] && _finishedReadingText){
-            
-            // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
-            float scaleX = _previewLayer.frame.size.width / image.size.width;
-            float scaleY = _previewLayer.frame.size.height / image.size.height;
-            
-            // find text features
-            _finishedReadingText = false;
-            self.start = [NSDate date];
-            [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks) {
-                NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
-                [self onText:eventText];
-                self.finishedReadingText = true;
-            }];
-        }
-        if([self canEstimatePose] && _finishedEstimatingPose){
-            
-            _finishedEstimatingPose = false;
-            self.start = [NSDate date];
-            [self.poseEstimator estimatePoseOnDeviceInImage:image completed:^(NSArray *heatmap) {
-                if (self->_onPoseEstimated && self->_session) {
-                    self->_onPoseEstimated(@{@"type": @"heatmap",
-                                       @"points": heatmap[0]
-                                       });
-                }
-                self.finishedEstimatingPose = true;
-            }];
-        }
+        // find text features
+        _finishedReadingText = false;
+        self.start = [NSDate date];
+        [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks) {
+            NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
+            [self onText:eventText];
+            self.finishedReadingText = true;
+        }];
+    }
+    if([self canEstimatePose] && _finishedEstimatingPose){
+        
+        _finishedEstimatingPose = false;
+        self.start = [NSDate date];
+        [self.poseEstimator estimatePoseOnDeviceInImage:image completed:^(NSArray *heatmap) {
+            if (self->_onPoseEstimated && self->_session) {
+                self->_onPoseEstimated(@{@"type": @"heatmap",
+                                   @"points": heatmap[0]
+                                   });
+            }
+            self.finishedEstimatingPose = true;
+        }];
+//        }
     }
     
 
@@ -1276,5 +1276,4 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (bool)isRecording {
     return self.movieFileOutput.isRecording;
 }
-
 @end
