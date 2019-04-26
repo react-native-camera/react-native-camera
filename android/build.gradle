@@ -54,6 +54,11 @@ android {
     abortOnError false
     warning 'InvalidPackage'
   }
+
+  packagingOptions {
+    exclude 'META-INF/androidx.exifinterface_exifinterface.version'
+    exclude 'META-INF/proguard/androidx-annotations.pro'
+  }
 }
 
 repositories {
