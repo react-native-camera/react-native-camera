@@ -252,7 +252,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 ]
 ```
 
-or to (for Text Recognition)
+or to (for Barcode Recognition)
 
 ```
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
