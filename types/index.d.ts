@@ -133,6 +133,7 @@ export interface RNCameraProps {
   children?: ReactNode | FaCC;
 
   autoFocus?: keyof AutoFocus;
+  autoFocusPointOfInterest?: Point;
   type?: keyof CameraType;
   flashMode?: keyof FlashMode;
   notAuthorizedView?: JSX.Element;
