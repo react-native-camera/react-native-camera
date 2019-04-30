@@ -159,7 +159,7 @@ type PropsType = typeof View.props & {
   autoFocusPointOfInterest?: { x: number, y: number },
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
-  onPoseEstimated?: ({ points: Array<number> }) => void,
+  onPoseEstimated?: ({ heatmap: Array<number> }) => void,
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
   captureAudio?: boolean,
   useCamera2Api?: boolean,
@@ -642,7 +642,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (props.onPoseEstimated) {
       newProps.poseEstimatorEnabled = true;
     }
-
+    
     if (props.onTextRecognized) {
       newProps.textRecognizerEnabled = true;
     }

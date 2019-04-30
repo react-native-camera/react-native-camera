@@ -231,6 +231,14 @@ public class RNCameraViewHelper {
     reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
   }
 
+  // Pose Estimation event
+
+  public static void emitPoseEstimatedEvent(ViewGroup view, WritableArray data) {
+    PoseEstimatedEvent event = PoseEstimatedEvent.obtain(view.getId(), data);
+    ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  }
+
   // Utilities
 
   public static int getCorrectCameraRotation(int rotation, int facing, int cameraOrientation) {
