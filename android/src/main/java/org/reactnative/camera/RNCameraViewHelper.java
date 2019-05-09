@@ -235,7 +235,8 @@ public class RNCameraViewHelper {
 
   public static int getCorrectCameraRotation(int rotation, int facing, int cameraOrientation) {
     if (facing == CameraView.FACING_FRONT) {
-      return (360 - (cameraOrientation + rotation) % 360) % 360;
+      // Tested the below line and there's no need to do the mirror calculation
+      return (cameraOrientation + rotation) % 360;
     } else {
       final int landscapeFlip = rotationIsLandscape(rotation) ? 180 : 0;
       return (cameraOrientation - rotation + landscapeFlip) % 360;
