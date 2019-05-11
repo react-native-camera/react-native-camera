@@ -646,19 +646,19 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             self.stillImageOutput = stillImageOutput;
         }
 
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-        [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
-#else
-        if ([self.textDetector isRealDetector]) {
-            [self setupOrDisableTextDetector];
-        }
-        // If AVCaptureVideoDataOutput is not required because of Google Vision
-        // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
-        // to avoid an exposure rack on some devices that can cause the first few
-        // frames of the recorded output to be underexposed.
-        [self setupMovieFileCapture];
-#endif
-        [self setupOrDisableBarcodeScanner];
+//#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
+//        [_faceDetectorManager maybeStartFaceDetectionOnSession:_session withPreviewLayer:_previewLayer];
+//#else
+//        if ([self.textDetector isRealDetector]) {
+//            [self setupOrDisableTextDetector];
+//        }
+//        // If AVCaptureVideoDataOutput is not required because of Google Vision
+//        // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
+//        // to avoid an exposure rack on some devices that can cause the first few
+//        // frames of the recorded output to be underexposed.
+//        [self setupMovieFileCapture];
+//#endif
+//        [self setupOrDisableBarcodeScanner];
 
         __weak RNCamera *weakSelf = self;
         [self setRuntimeErrorHandlingObserver:
@@ -683,12 +683,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     return;
 #endif
     dispatch_async(self.sessionQueue, ^{
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
-        [_faceDetectorManager stopFaceDetection];
-#endif
-        if ([self.textDetector isRealDetector]) {
-            [self stopTextRecognition];
-        }
+//#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
+//        [_faceDetectorManager stopFaceDetection];
+//#endif
+//        if ([self.textDetector isRealDetector]) {
+//            [self stopTextRecognition];
+//        }
         [self.previewLayer removeFromSuperlayer];
         [self.session commitConfiguration];
         [self.session stopRunning];
@@ -1194,47 +1194,51 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
            fromConnection:(AVCaptureConnection *)connection
 {
-    if (![self.textDetector isRealDetector] && ![self.poseEstimator isRealDetector]) {
-        return;
-    }
+    NSArray *fakeHeatmap = @[@[@[@0]]];
+    self->_onPoseEstimated(@{@"type": @"heatmap",
+                             @"heatmap": fakeHeatmap});
     
-    NSDate *methodFinish = [NSDate date];
-    NSTimeInterval timePassed = [methodFinish timeIntervalSinceDate:self.start];
-//    if(timePassed > 0.5){
-    
-    CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
-    UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize];
-    
-    // Text
-    if([self canReadText] && _finishedReadingText){
-        
-        // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
-        float scaleX = _previewLayer.frame.size.width / image.size.width;
-        float scaleY = _previewLayer.frame.size.height / image.size.height;
-        
-        // find text features
-        _finishedReadingText = false;
-        self.start = [NSDate date];
-        [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks) {
-            NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
-            [self onText:eventText];
-            self.finishedReadingText = true;
-        }];
-    }
-    if([self canEstimatePose] && _finishedEstimatingPose){
-        
-        _finishedEstimatingPose = false;
-        self.start = [NSDate date];
-        [self.poseEstimator estimatePoseOnDeviceInImage:image completed:^(NSArray *heatmap) {
-            if (self->_onPoseEstimated && self->_session) {
-                self->_onPoseEstimated(@{@"type": @"heatmap",
-                                   @"points": heatmap[0]
-                                   });
-            }
-            self.finishedEstimatingPose = true;
-        }];
+//    if (![self.textDetector isRealDetector] && ![self.poseEstimator isRealDetector]) {
+//        return;
+//    }
+//
+//    NSDate *methodFinish = [NSDate date];
+//    NSTimeInterval timePassed = [methodFinish timeIntervalSinceDate:self.start];
+////    if(timePassed > 0.5){
+//
+//    CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
+//    UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize];
+//
+//    // Text
+//    if([self canReadText] && _finishedReadingText){
+//
+//        // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
+//        float scaleX = _previewLayer.frame.size.width / image.size.width;
+//        float scaleY = _previewLayer.frame.size.height / image.size.height;
+//
+//        // find text features
+//        _finishedReadingText = false;
+//        self.start = [NSDate date];
+//        [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks) {
+//            NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
+//            [self onText:eventText];
+//            self.finishedReadingText = true;
+//        }];
+//    }
+//    if([self canEstimatePose] && _finishedEstimatingPose){
+//
+//        _finishedEstimatingPose = false;
+//        self.start = [NSDate date];
+//        [self.poseEstimator estimatePoseOnDeviceInImage:image completed:^(NSArray *heatmap) {
+//            if (self->_onPoseEstimated && self->_session) {
+//                self->_onPoseEstimated(@{@"type": @"heatmap",
+//                                   @"points": heatmap[0]
+//                                   });
+//            }
+//            self.finishedEstimatingPose = true;
+//        }];
 //        }
-    }
+//    }
     
 
     // Do not submit image for text recognition too often:
@@ -1242,22 +1246,22 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     // 2. wait until previous recognition is finished
     // 3. let user disable text recognition, e.g. onTextRecognized={someCondition ? null : this.textRecognized}
     
-    if (timePassed > 0.5 && _finishedReadingText && [self canReadText]) {
-        CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
-        UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize];
-        // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
-        float scaleX = _previewLayer.frame.size.width / image.size.width;
-        float scaleY = _previewLayer.frame.size.height / image.size.height;
-
-        // find text features
-        _finishedReadingText = false;
-        self.start = [NSDate date];
-        [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks) {
-            NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
-            [self onText:eventText];
-            self.finishedReadingText = true;
-        }];
-    }
+//    if (timePassed > 0.5 && _finishedReadingText && [self canReadText]) {
+//        CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
+//        UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize];
+//        // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
+//        float scaleX = _previewLayer.frame.size.width / image.size.width;
+//        float scaleY = _previewLayer.frame.size.height / image.size.height;
+//
+//        // find text features
+//        _finishedReadingText = false;
+//        self.start = [NSDate date];
+//        [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks) {
+//            NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
+//            [self onText:eventText];
+//            self.finishedReadingText = true;
+//        }];
+//    }
 }
 
 - (void)stopTextRecognition
