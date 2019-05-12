@@ -7,6 +7,8 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 #import  "RNSensorOrientationChecker.h"
+#import "react_native_camera-Swift.h"
+
 @interface RNCamera ()
 
 @property (nonatomic, weak) RCTBridge *bridge;
@@ -1048,11 +1050,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self cleanupMovieFileCapture];
         [self setupOrDisableTextDetector];
     }
-    
-    if ([self.poseEstimator isRealDetector]) {
-        [self cleanupMovieFileCapture];
-        [self setupOrDisablePoseEstimator];
-    }
 
     AVCaptureSessionPreset preset = [RNCameraUtils captureSessionPresetForVideoResolution:[self defaultVideoQuality]];
     if (self.session.sessionPreset != preset) {
@@ -1136,17 +1133,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (id)createPoseEstimator
 {
-    Class poseEstimatorClass = NSClassFromString(@"PoseEstimator");
-    return [poseEstimatorClass new];
+    return [PoseEstimatorMLCore newInstanceOnInferenceComplete:^(NSArray<NSArray<NSNumber *> *> * result){
+        self->_onPoseEstimated(@{@"type": @"heatmap",
+                                 @"heatmap": result});
+    }];
 }
 
 - (void)setupOrDisablePoseEstimator
 {
-    if ([self.poseEstimator isRealDetector]){
+    if(self.canEstimatePose){
         self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
         if (![self.session canAddOutput:_videoDataOutput]) {
             NSLog(@"Failed to setup video data output");
-            [self stopPoseEstimation];
             return;
         }
         NSDictionary *rgbOutputSettings = [NSDictionary
@@ -1159,6 +1157,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     } else {
         [self stopPoseEstimation];
     }
+    
 }
 
 # pragma mark - TextDetector
@@ -1190,78 +1189,20 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 }
 
+- (void) stopPoseEstimation{
+    if (self.videoDataOutput) {
+        [self.session removeOutput:self.videoDataOutput];
+    }
+    self.videoDataOutput = nil;
+}
+
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
            fromConnection:(AVCaptureConnection *)connection
 {
-    NSArray *fakeHeatmap = @[@[@[@0]]];
-    self->_onPoseEstimated(@{@"type": @"heatmap",
-                             @"heatmap": fakeHeatmap});
-    
-//    if (![self.textDetector isRealDetector] && ![self.poseEstimator isRealDetector]) {
-//        return;
-//    }
-//
-//    NSDate *methodFinish = [NSDate date];
-//    NSTimeInterval timePassed = [methodFinish timeIntervalSinceDate:self.start];
-////    if(timePassed > 0.5){
-//
-//    CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
-//    UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize];
-//
-//    // Text
-//    if([self canReadText] && _finishedReadingText){
-//
-//        // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
-//        float scaleX = _previewLayer.frame.size.width / image.size.width;
-//        float scaleY = _previewLayer.frame.size.height / image.size.height;
-//
-//        // find text features
-//        _finishedReadingText = false;
-//        self.start = [NSDate date];
-//        [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks) {
-//            NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
-//            [self onText:eventText];
-//            self.finishedReadingText = true;
-//        }];
-//    }
-//    if([self canEstimatePose] && _finishedEstimatingPose){
-//
-//        _finishedEstimatingPose = false;
-//        self.start = [NSDate date];
-//        [self.poseEstimator estimatePoseOnDeviceInImage:image completed:^(NSArray *heatmap) {
-//            if (self->_onPoseEstimated && self->_session) {
-//                self->_onPoseEstimated(@{@"type": @"heatmap",
-//                                   @"points": heatmap[0]
-//                                   });
-//            }
-//            self.finishedEstimatingPose = true;
-//        }];
-//        }
-//    }
-    
-
-    // Do not submit image for text recognition too often:
-    // 1. we only dispatch events every 500ms anyway
-    // 2. wait until previous recognition is finished
-    // 3. let user disable text recognition, e.g. onTextRecognized={someCondition ? null : this.textRecognized}
-    
-//    if (timePassed > 0.5 && _finishedReadingText && [self canReadText]) {
-//        CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
-//        UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize];
-//        // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
-//        float scaleX = _previewLayer.frame.size.width / image.size.width;
-//        float scaleY = _previewLayer.frame.size.height / image.size.height;
-//
-//        // find text features
-//        _finishedReadingText = false;
-//        self.start = [NSDate date];
-//        [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks) {
-//            NSDictionary *eventText = @{@"type" : @"TextBlock", @"textBlocks" : textBlocks};
-//            [self onText:eventText];
-//            self.finishedReadingText = true;
-//        }];
-//    }
+    // The example code limits the FPS to 15; perhaps that will be necessary on more powerful devices.
+    CVPixelBufferRef cvPixelBufferRef = CMSampleBufferGetImageBuffer(sampleBuffer);
+    [self.poseEstimator predictUsingVisionWithPixelBuffer:cvPixelBufferRef];
 }
 
 - (void)stopTextRecognition
@@ -1272,10 +1213,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     self.videoDataOutput = nil;
 }
 
-- (void)stopPoseEstimation
-{
-    [self stopTextRecognition];
-}
 
 - (bool)isRecording {
     return self.movieFileOutput.isRecording;

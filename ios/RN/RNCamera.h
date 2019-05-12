@@ -10,7 +10,6 @@
 #endif
 
 #import "TextDetectorManager.h"
-#import "PoseEstimator.h"
 
 @class RNCamera;
 
@@ -74,7 +73,6 @@
 - (void)onMountingError:(NSDictionary *)event;
 - (void)onCodeRead:(NSDictionary *)event;
 - (void)onFacesDetected:(NSDictionary *)event;
-- (void)onPoseEstimated:(NSDictionary *)event;
 - (void)onPictureSaved:(NSDictionary *)event;
 - (void)onText:(NSDictionary *)event;
 - (bool)isRecording;
