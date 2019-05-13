@@ -107,6 +107,9 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
       case 180:
         result = FirebaseVisionImageMetadata.ROTATION_180;
         break;
+      case 270:
+        result = FirebaseVisionImageMetadata.ROTATION_270;
+        break;
       case -90:
         result = FirebaseVisionImageMetadata.ROTATION_270;
         break;
