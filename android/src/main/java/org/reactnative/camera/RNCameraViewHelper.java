@@ -10,6 +10,7 @@ import android.support.media.ExifInterface;
 import android.view.ViewGroup;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.uimanager.UIManagerModule;
@@ -306,6 +307,27 @@ public class RNCameraViewHelper {
     }
 
     return exifMap;
+  }
+
+  public static void setExifData(ExifInterface exifInterface, WritableMap exifMap) {
+    ReadableMapKeySetIterator iterator = exifMap.keySetIterator();
+    while (iterator.hasNextKey()) {
+      String key = iterator.nextKey();
+      switch (exifMap.getType(key)) {
+        case Null:
+          exifInterface.setAttribute(key, null);
+          break;
+        case Boolean:
+          exifInterface.setAttribute(key, Boolean.toString(exifMap.getBoolean(key)));
+          break;
+        case Number:
+          exifInterface.setAttribute(key, Double.toString(exifMap.getDouble(key)));
+          break;
+        case String:
+          exifInterface.setAttribute(key, exifMap.getString(key));
+          break;
+      }
+    }
   }
 
   public static Bitmap generateSimulatorPhoto(int width, int height) {
