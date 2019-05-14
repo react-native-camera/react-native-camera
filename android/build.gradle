@@ -83,5 +83,7 @@ dependencies {
   mlkitImplementation "com.google.firebase:firebase-ml-vision:${safeExtGet('firebase-ml-vision', '19.0.3')}"
   mlkitImplementation "com.google.firebase:firebase-ml-vision-face-model:${safeExtGet('firebase-ml-vision-face-model', '17.0.2')}"
   implementation 'com.google.firebase:firebase-core:16.0.8'
-  implementation 'com.google.firebase:firebase-ml-model-interpreter:18.0.0'
+
+  implementation 'org.tensorflow:tensorflow-lite:0.0.0-nightly'
+  implementation 'org.tensorflow:tensorflow-lite-gpu:0.0.0-nightly'
 }

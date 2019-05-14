@@ -10,6 +10,7 @@ import android.media.CamcorderProfile;
 import android.media.MediaActionSound;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.os.AsyncTask;
 import com.facebook.react.bridge.*;
@@ -41,6 +42,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private List<String> mBarCodeTypes = null;
   private Boolean mPlaySoundOnCapture = false;
 
+  private final String TAG = "RNCameraView";
+
   private boolean mIsPaused = false;
   private boolean mIsNew = true;
   private boolean invertImageData = false;
@@ -58,7 +61,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private MultiFormatReader mMultiFormatReader;
   private RNFaceDetector mFaceDetector;
   private RNBarcodeDetector mGoogleBarcodeDetector;
-  private PoseEstimatorModule mPoseEstimatorModule;
+  private PoseEstimator mPoseEstimator;
   private boolean mShouldDetectFaces = false;
   private boolean mShouldGoogleDetectBarcodes = false;
   private boolean mShouldScanBarCodes = false;
@@ -188,7 +191,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 //          }
           PoseEstimatorAsyncTaskDelegate delegate = (PoseEstimatorAsyncTaskDelegate) cameraView;
 
-          new PoseEstimatorAsyncTask(delegate, mPoseEstimatorModule, data, width, height, correctRotation).execute();
+          new PoseEstimatorAsyncTask(delegate, mPoseEstimator, data, width, height, correctRotation).execute();
         }
       }
     });
@@ -492,11 +495,18 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
    */
 
   private void setupPoseEstimatorModule() {
-    mPoseEstimatorModule = new PoseEstimatorModule();
+    try {
+      mPoseEstimator = new PoseEstimatorTFLite(mThemedReactContext.getCurrentActivity());
+      mPoseEstimator.setNumThreads(1);
+      mPoseEstimator.useGpu();
+    } catch (IOException e){
+      Log.e(TAG, "Could not create PoseEstimator: " + e);
+    }
+
   }
 
   public void setShouldEstimatePose(boolean shouldEstimatePose) {
-    if (shouldEstimatePose && mPoseEstimatorModule == null) {
+    if (shouldEstimatePose && mPoseEstimator == null) {
       setupPoseEstimatorModule();
     }
     this.mShouldEstimatePose = shouldEstimatePose;
