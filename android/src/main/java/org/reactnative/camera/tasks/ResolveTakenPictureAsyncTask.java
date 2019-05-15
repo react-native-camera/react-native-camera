@@ -64,6 +64,14 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 // Save byte array (it is already a JPEG)
                 fOut.write(mImageData);
 
+                // get image size
+                if (mBitmap == null) {
+                    mBitmap = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
+                }
+
+                response.putInt("width", mBitmap.getWidth());
+                response.putInt("height", mBitmap.getHeight());
+
                 // Return file system URI
                 String fileUri = Uri.fromFile(imageFile).toString();
                 response.putString("uri", fileUri);
