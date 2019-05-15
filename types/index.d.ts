@@ -353,6 +353,7 @@ interface TakePictureOptions {
   /** Android only */
   skipProcessing?: boolean;
   fixOrientation?: boolean;
+  writeExif?: boolean;
 
   /** iOS only */
   forceUpOrientation?: boolean;
