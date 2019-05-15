@@ -23,6 +23,8 @@
 		71D5C72B201B8A320030A15E /* RNFaceDetectorModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB520155340003C59C3 /* RNFaceDetectorModule.m */; };
 		71D5C72C201B8A360030A15E /* RNFaceDetectorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB22015319E003C59C3 /* RNFaceDetectorManager.m */; };
 		9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */; };
+		A7E025FA22881339004180C6 /* MLMultiArray+PoseEstimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7E025F822881339004180C6 /* MLMultiArray+PoseEstimation.swift */; };
+		A7E025FB22881339004180C6 /* PoseEstimatorMLCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7E025F922881339004180C6 /* PoseEstimatorMLCore.swift */; };
 		F8393BEC21469C0000AB1995 /* RNSensorOrientationChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = F8393BEB21469C0000AB1995 /* RNSensorOrientationChecker.m */; };
 /* End PBXBuildFile section */
 
@@ -71,6 +73,9 @@
 		71C7FFD52013C824006EB75A /* RNFileSystem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNFileSystem.m; sourceTree = "<group>"; };
 		9FE592B11CA3CBF500788287 /* RCTSensorOrientationChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTSensorOrientationChecker.h; sourceTree = "<group>"; };
 		9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTSensorOrientationChecker.m; sourceTree = "<group>"; };
+		A7E025F722881338004180C6 /* RNCamera-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RNCamera-Bridging-Header.h"; sourceTree = "<group>"; };
+		A7E025F822881339004180C6 /* MLMultiArray+PoseEstimation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MLMultiArray+PoseEstimation.swift"; sourceTree = "<group>"; };
+		A7E025F922881339004180C6 /* PoseEstimatorMLCore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PoseEstimatorMLCore.swift; sourceTree = "<group>"; };
 		F8393BEA21469C0000AB1995 /* RNSensorOrientationChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSensorOrientationChecker.h; sourceTree = "<group>"; };
 		F8393BEB21469C0000AB1995 /* RNSensorOrientationChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSensorOrientationChecker.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -124,6 +129,8 @@
 			isa = PBXGroup;
 			children = (
 				F8393BEA21469C0000AB1995 /* RNSensorOrientationChecker.h */,
+				A7E025F822881339004180C6 /* MLMultiArray+PoseEstimation.swift */,
+				A7E025F922881339004180C6 /* PoseEstimatorMLCore.swift */,
 				F8393BEB21469C0000AB1995 /* RNSensorOrientationChecker.m */,
 				71C7FFD42013C824006EB75A /* RNFileSystem.h */,
 				71C7FFD52013C824006EB75A /* RNFileSystem.m */,
@@ -137,6 +144,7 @@
 				71C7FFCC2013C7BF006EB75A /* RNCamera.m */,
 				7103647920195C53009691D1 /* RNFaceDetectorManagerStub.h */,
 				7103647A20195C53009691D1 /* RNFaceDetectorManagerStub.m */,
+				A7E025F722881338004180C6 /* RNCamera-Bridging-Header.h */,
 			);
 			path = RN;
 			sourceTree = "<group>";
@@ -188,6 +196,7 @@
 				TargetAttributes = {
 					4107012E1ACB723B00C6AA39 = {
 						CreatedOnToolsVersion = 6.2;
+						LastSwiftMigration = 1020;
 					};
 				};
 			};
@@ -196,6 +205,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 410701241ACB719800C6AA39;
@@ -219,12 +229,14 @@
 				71C7FFD62013C824006EB75A /* RNFileSystem.m in Sources */,
 				71D5C729201B8A2D0030A15E /* RNFaceDetectorUtils.m in Sources */,
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,
+				A7E025FA22881339004180C6 /* MLMultiArray+PoseEstimation.swift in Sources */,
 				71D5C72C201B8A360030A15E /* RNFaceDetectorManager.m in Sources */,
 				7103647B20195C53009691D1 /* RNFaceDetectorManagerStub.m in Sources */,
 				4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */,
 				71D5C72A201B8A2F0030A15E /* RNFaceDetectorPointTransformCalculator.m in Sources */,
 				F8393BEC21469C0000AB1995 /* RNSensorOrientationChecker.m in Sources */,
 				71C7FFD02013C7E5006EB75A /* RNCameraUtils.m in Sources */,
+				A7E025FB22881339004180C6 /* PoseEstimatorMLCore.swift in Sources */,
 				7162BE682013EAA400FE51FF /* RNCameraManager.m in Sources */,
 				7162BE672013EAA100FE51FF /* RNCamera.m in Sources */,
 				9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */,
@@ -239,12 +251,18 @@
 		410701291ACB719800C6AA39 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				DEFINES_MODULE = YES;
+				PRODUCT_MODULE_NAME = RNCamera;
 			};
 			name = Debug;
 		};
 		4107012A1ACB719800C6AA39 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				DEFINES_MODULE = YES;
+				PRODUCT_MODULE_NAME = RNCamera;
 			};
 			name = Release;
 		};
@@ -291,6 +309,7 @@
 					"$(SRCROOT)/../../react-native/React/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -298,6 +317,9 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "RN/RNCamera-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -338,12 +360,15 @@
 					"$(SRCROOT)/../../react-native/React/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "RN/RNCamera-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
