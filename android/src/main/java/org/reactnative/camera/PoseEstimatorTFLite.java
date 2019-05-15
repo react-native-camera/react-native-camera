@@ -16,6 +16,11 @@ limitations under the License.
 package org.reactnative.camera;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.util.Log;
+import android.view.TextureView;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 
@@ -25,7 +30,11 @@ import java.io.IOException;
  */
 public class PoseEstimatorTFLite extends PoseEstimator {
 
-  private float[][][][] heatmap;
+  private final String TAG = "PoseEstimatorTFLite";
+
+  private final int BodyPointCount = 14;
+  private final int OutputDim = 96;
+  private final int InputDim = 192;
 
   /**
    * Initializes an {@code PoseEstimator}.
@@ -34,8 +43,7 @@ public class PoseEstimatorTFLite extends PoseEstimator {
    */
   PoseEstimatorTFLite(Activity activity) throws IOException {
     super(activity);
-    bodyPoints = new int[getBodyPointCount()][2];
-    heatmap = new float[1][96][96][getBodyPointCount()];
+    heatmap = new float[1][OutputDim][OutputDim][BodyPointCount];
   }
 
   @Override
@@ -45,12 +53,12 @@ public class PoseEstimatorTFLite extends PoseEstimator {
 
   @Override
   protected int getImageSizeX() {
-    return 192;
+    return InputDim;
   }
 
   @Override
   protected int getImageSizeY() {
-    return 192;
+    return InputDim;
   }
 
   @Override
@@ -70,11 +78,5 @@ public class PoseEstimatorTFLite extends PoseEstimator {
   protected void runInference()
   {
     tflite.run(imgData, heatmap);
-    //bodyPoints = TODO: convert them..
-  }
-
-  @Override
-  protected int getBodyPointCount() {
-    return 14;
   }
 }

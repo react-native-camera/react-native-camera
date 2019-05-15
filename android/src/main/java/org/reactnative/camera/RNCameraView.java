@@ -2,6 +2,7 @@ package org.reactnative.camera;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +12,8 @@ import android.media.MediaActionSound;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.os.AsyncTask;
 import com.facebook.react.bridge.*;
@@ -33,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate,
-    BarcodeDetectorAsyncTaskDelegate, TextRecognizerAsyncTaskDelegate, PictureSavedDelegate, PoseEstimatorAsyncTaskDelegate {
+    BarcodeDetectorAsyncTaskDelegate, TextRecognizerAsyncTaskDelegate, PictureSavedDelegate {
   private ThemedReactContext mThemedReactContext;
   private Queue<Promise> mPictureTakenPromises = new ConcurrentLinkedQueue<>();
   private Map<Promise, ReadableMap> mPictureTakenOptions = new ConcurrentHashMap<>();
@@ -57,16 +60,16 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   public volatile boolean textRecognizerTaskLock = false;
   public volatile boolean poseEstimatorTaskLock = false;
 
+  private PoseEstimatorRunner poseEstimatorRunner;
+
   // Scanning-related properties
   private MultiFormatReader mMultiFormatReader;
   private RNFaceDetector mFaceDetector;
   private RNBarcodeDetector mGoogleBarcodeDetector;
-  private PoseEstimator mPoseEstimator;
   private boolean mShouldDetectFaces = false;
   private boolean mShouldGoogleDetectBarcodes = false;
   private boolean mShouldScanBarCodes = false;
   private boolean mShouldRecognizeText = false;
-  private boolean mShouldEstimatePose = false;
   private int mFaceDetectorMode = RNFaceDetector.FAST_MODE;
   private int mFaceDetectionLandmarks = RNFaceDetector.NO_LANDMARKS;
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
@@ -99,13 +102,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
             promise.resolve(null);
         }
         final File cacheDirectory = mPictureTakenDirectories.remove(promise);
-        if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
-                  .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
-                  .execute();
-        }
+        new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
+                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         RNCameraViewHelper.emitPictureTakenEvent(cameraView);
       }
 
@@ -130,68 +128,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
       @Override
       public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int rotation) {
-        int correctRotation = RNCameraViewHelper.getCorrectCameraRotation(rotation, getFacing(), getCameraOrientation());
-        boolean willCallBarCodeTask = mShouldScanBarCodes && !barCodeScannerTaskLock && cameraView instanceof BarCodeScannerAsyncTaskDelegate;
-        boolean willCallFaceTask = mShouldDetectFaces && !faceDetectorTaskLock && cameraView instanceof FaceDetectorAsyncTaskDelegate;
-        boolean willCallGoogleBarcodeTask = mShouldGoogleDetectBarcodes && !googleBarcodeDetectorTaskLock && cameraView instanceof BarcodeDetectorAsyncTaskDelegate;
-        boolean willCallTextTask = mShouldRecognizeText && !textRecognizerTaskLock && cameraView instanceof TextRecognizerAsyncTaskDelegate;
-        boolean willCallPoseTask = mShouldEstimatePose && !poseEstimatorTaskLock && cameraView instanceof PoseEstimatorAsyncTaskDelegate;
-        if (!willCallBarCodeTask && !willCallFaceTask && !willCallGoogleBarcodeTask && !willCallTextTask && !willCallPoseTask) {
-          return;
-        }
-
-        if (data.length < (1.5 * width * height)) {
-            return;
-        }
-
-        if (willCallBarCodeTask) {
-          barCodeScannerTaskLock = true;
-          BarCodeScannerAsyncTaskDelegate delegate = (BarCodeScannerAsyncTaskDelegate) cameraView;
-          new BarCodeScannerAsyncTask(delegate, mMultiFormatReader, data, width, height).execute();
-        }
-
-        if (willCallFaceTask) {
-          faceDetectorTaskLock = true;
-          FaceDetectorAsyncTaskDelegate delegate = (FaceDetectorAsyncTaskDelegate) cameraView;
-          new FaceDetectorAsyncTask(delegate, mFaceDetector, data, width, height, correctRotation, getResources().getDisplayMetrics().density, getFacing(), getWidth(), getHeight(), mPaddingX, mPaddingY).execute();
-        }
-
-        if (willCallGoogleBarcodeTask) {
-          googleBarcodeDetectorTaskLock = true;
-          if (mGoogleVisionBarCodeMode == RNBarcodeDetector.NORMAL_MODE) {
-            invertImageData = false;
-          } else if (mGoogleVisionBarCodeMode == RNBarcodeDetector.ALTERNATE_MODE) {
-            invertImageData = !invertImageData;
-          } else if (mGoogleVisionBarCodeMode == RNBarcodeDetector.INVERTED_MODE) {
-            invertImageData = true;
-          }
-          if (invertImageData) {
-            for (int y = 0; y < data.length; y++) {
-              data[y] = (byte) ~data[y];
-            }
-          }
-          BarcodeDetectorAsyncTaskDelegate delegate = (BarcodeDetectorAsyncTaskDelegate) cameraView;
-          new BarcodeDetectorAsyncTask(delegate, mGoogleBarcodeDetector, data, width, height, correctRotation, getResources().getDisplayMetrics().density, getFacing(), getWidth(), getHeight(), mPaddingX, mPaddingY).execute();
-        }
-
-        if (willCallTextTask) {
-          textRecognizerTaskLock = true;
-          TextRecognizerAsyncTaskDelegate delegate = (TextRecognizerAsyncTaskDelegate) cameraView;
-          new TextRecognizerAsyncTask(delegate, mThemedReactContext, data, width, height, correctRotation, getResources().getDisplayMetrics().density, getFacing(), getWidth(), getHeight(), mPaddingX, mPaddingY).execute();
-        }
-
-        if(willCallPoseTask) {
-          poseEstimatorTaskLock = true;
-          // Used for testing
-//          Bitmap bitmap = null;
-//          try {
-//            bitmap = BitmapFactory.decodeStream(mThemedReactContext.getAssets().open("dancer.bmp"));
-//          } catch (IOException e) {
-//            e.printStackTrace();
-//          }
-          PoseEstimatorAsyncTaskDelegate delegate = (PoseEstimatorAsyncTaskDelegate) cameraView;
-
-          new PoseEstimatorAsyncTask(delegate, mPoseEstimator, data, width, height, correctRotation).execute();
+          if(poseEstimatorRunner == null){
+              maybeSetupPoseEstimatorRunner();
         }
       }
     });
@@ -494,35 +432,28 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
    * Pose Estimation
    */
 
-  private void setupPoseEstimatorModule() {
-    try {
-      mPoseEstimator = new PoseEstimatorTFLite(mThemedReactContext.getCurrentActivity());
-      mPoseEstimator.setNumThreads(1);
-      mPoseEstimator.useGpu();
-    } catch (IOException e){
-      Log.e(TAG, "Could not create PoseEstimator: " + e);
+  private void maybeSetupPoseEstimatorRunner(){
+    if(mThemedReactContext.hasCurrentActivity()){
+      Activity activity = mThemedReactContext.getCurrentActivity();
+      TextureView textureView = Objects.requireNonNull(activity).findViewById(R.id.texture_view);
+      if(textureView != null){
+        poseEstimatorRunner = new PoseEstimatorRunner(activity, textureView, (WritableArray serializedData) -> RNCameraViewHelper.emitPoseEstimatedEvent(this, serializedData));
+        poseEstimatorRunner.startPoseEstimationInBackground();
+      }
     }
-
   }
 
+  // TODO: This is called when we initate the view, and it should also be called when we leave.
+  // Maybe this object is created anew when we go to camera again, in which case, this should work
+  // If it is the same object, then we should probably handle setting up the poseEstimator a bit differently.
   public void setShouldEstimatePose(boolean shouldEstimatePose) {
-    if (shouldEstimatePose && mPoseEstimator == null) {
-      setupPoseEstimatorModule();
-    }
-    this.mShouldEstimatePose = shouldEstimatePose;
-    setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || mShouldEstimatePose);
-  }
 
-  public void onPoseEstimated(WritableArray serializedData) {
-    if (!mShouldEstimatePose) {
-      return;
-    }
-    RNCameraViewHelper.emitPoseEstimatedEvent(this, serializedData);
-  }
+    // Set up / shut down the subscription to frames from the camera
+    setScanning(shouldEstimatePose);
 
-  @Override
-  public void onPoseEstimatorTaskCompleted() {
-    poseEstimatorTaskLock = false;
+    if(poseEstimatorRunner != null && !shouldEstimatePose){
+      poseEstimatorRunner.stopPoseEstimationInBackground();
+    }
   }
 
   /**
@@ -567,11 +498,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   private boolean hasCameraPermissions() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      int result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA);
-      return result == PackageManager.PERMISSION_GRANTED;
-    } else {
-      return true;
-    }
+    int result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA);
+    return result == PackageManager.PERMISSION_GRANTED;
   }
 }

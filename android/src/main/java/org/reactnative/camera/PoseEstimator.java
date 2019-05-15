@@ -49,7 +49,7 @@ import java.util.PriorityQueue;
 public abstract class PoseEstimator {
 
   /** Tag for the {@link Log}. */
-  private static final String TAG = "TfLiteCameraDemo";
+  private static final String TAG = "PoseEstimator";
 
   /** Number of results to show in the UI. */
   private static final int RESULTS_TO_SHOW = 3;
@@ -74,23 +74,15 @@ public abstract class PoseEstimator {
   /** A ByteBuffer to hold image data, to be feed into Tensorflow Lite as inputs. */
   protected ByteBuffer imgData;
 
-  /** multi-stage low pass filter * */
-  public int[][] bodyPoints = null;
+  protected float[][][][] heatmap = null;
 
   private PriorityQueue<Map.Entry<String, Float>> sortedLabels =
       new PriorityQueue<>(
           RESULTS_TO_SHOW,
-          new Comparator<Map.Entry<String, Float>>() {
-            @Override
-            public int compare(Map.Entry<String, Float> o1, Map.Entry<String, Float> o2) {
-              return (o1.getValue()).compareTo(o2.getValue());
-            }
-          });
+              (o1, o2) -> (o1.getValue()).compareTo(o2.getValue()));
 
   /** holds a gpu delegate */
   GpuDelegate gpuDelegate = null;
-  /** holds an nnapi delegate */
-  //NnApiDelegate nnapiDelegate = null;
 
   /** Initializes an {@code PoseEstimator}. */
   PoseEstimator(Activity activity) throws IOException {
@@ -236,6 +228,10 @@ public abstract class PoseEstimator {
    */
   protected abstract void runInference();
 
-  protected abstract int getBodyPointCount();
-
+  public float[][][] getHeatmap(){
+    if(heatmap != null){
+      return heatmap[0];
+    }
+    return null;
+  }
 }
