@@ -1134,8 +1134,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (id)createPoseEstimator
 {
     return [PoseEstimatorMLCore newInstanceOnInferenceComplete:^(NSArray<NSArray<NSNumber *> *> * result){
-        self->_onPoseEstimated(@{@"type": @"heatmap",
-                                 @"heatmap": result});
+        self->_onPoseEstimated(@{@"type": @"bodyPoints",
+                                 @"bodyPoints": result});
     }];
 }
 
