@@ -84,7 +84,13 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, strong) NSMutableArray *exposureBrackets;
 @property (nonatomic, assign) NSInteger previewBrightness;
 @property (nonatomic, assign) float previewExposure;
-@property (nonatomic, assign) NSArray *previewISO;
+@property (nonatomic, strong) NSArray *previewISO;
+@property (nonatomic, assign) float previewFnumber;
+@property (nonatomic, assign) float previewFocalLenght;
+@property (nonatomic, strong) NSMutableArray *listOfPixelBuffer;
+@property (nonatomic, assign) BOOL imageIsMoving;
+@property (nonatomic, assign) NSInteger lastDiff;
+
 
 
 - (void)changeOrientation:(NSInteger)orientation;
@@ -98,15 +104,25 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 - (void)unlockAutoExposure:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)setExposure:(NSDictionary *)options exposure:(double)exposure resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)getExposureBoundaries:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)getISOBoundaries:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)getBrightness:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)getISO:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)getExposure:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)getMovement:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)initializeCaptureSessionInput:(NSString*)type;
 - (void)stopCapture;
 - (void)startSession;
 - (void)stopSession;
 - (void)focusAtThePoint:(CGPoint) atPoint;
 - (void)zoom:(CGFloat)velocity reactTag:(NSNumber *)reactTag;
+- (void)newFrame:(CMSampleBufferRef)sampleBuffer;
+- (void)computeImageMovement:(int)pixelSpacing;
+- (void)computeImageBrightness:(int)pixelSpacing;
+- (BOOL)isTooDark;
+- (BOOL)isMoving;
 - (NSDictionary *) getExifMetadata:(CMSampleBufferRef)sampleBuffer;
-- (NSData *) nsDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (NSDictionary *) nsDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 - (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(AVCaptureBracketedStillImageSettings *)bracketSettings error:(NSError *)error;
 
 @end
