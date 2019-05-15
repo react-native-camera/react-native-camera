@@ -32,10 +32,10 @@ public class PoseEstimatorRunner {
     private Consumer<WritableArray> onPoseEstimated;
 
     public PoseEstimatorRunner(Activity activity, TextureView textureView, Consumer<WritableArray> onPoseEstimated){
-        if(textureView == null){
-            Log.e(TAG, "TextureView should not be null!!");
-        }
+
+        assert textureView != null;
         this.textureView = textureView;
+
         try {
             poseEstimator = new PoseEstimatorTFLite(activity);
         } catch (IOException e){

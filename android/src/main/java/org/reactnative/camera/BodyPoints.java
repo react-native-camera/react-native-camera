@@ -6,6 +6,8 @@ public class BodyPoints {
     private static final int BODYPART_COUNT = 14;
     private static final int ROW_COUNT = 96;
     private static final int COL_COUNT = 96;
+    private static final int COORDINATE_COUNT = 2;
+    private static final float GAUSSIAN_WEIGHT = 0.2f;
 
     public BodyPoints(float[][][] heatmap){
         mBodyPoints = getMaxValues(heatmap);
@@ -19,7 +21,7 @@ public class BodyPoints {
      * @return A [14][2] array with x y coordinates for each limb. Inner array is empty, if the given limb wasn't found.
      */
     private static int[][] getMaxValues(float[][][] heatmap) {
-        int[][] arr = new int[14][2];
+        int[][] arr = new int[BODYPART_COUNT][COORDINATE_COUNT];
         for (int bodypart = 0; bodypart < BODYPART_COUNT; ++bodypart) {
             //Resetting max for each bodypart
             float max =  0;
@@ -49,7 +51,7 @@ public class BodyPoints {
                 int currentCol = col + j;
 
                 float value = heatmap[currentRow][currentCol][bodypart];
-                float weight = 0.2f;
+                float weight = GAUSSIAN_WEIGHT;
                 if (i == 0 && j == 0)
                     weight = 1;
                 sum += value * weight;
