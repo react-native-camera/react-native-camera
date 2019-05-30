@@ -279,7 +279,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
               mCamera.setParameters(mCameraParameters);
             }
             catch(RuntimeException e ) {
-              Log.e("Camera1", "setParameters failed", e);
+              Log.e("CAMERA_1::", "setParameters failed", e);
             }
         }
     }
@@ -323,7 +323,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             mCamera.setParameters(mCameraParameters);
           }
           catch(RuntimeException e ) {
-            Log.e("RCTCamera1", "setParameters failed", e);
+            Log.e("CAMERA_1::", "setParameters failed", e);
           }
         }
     }
@@ -347,7 +347,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             mCamera.setParameters(mCameraParameters);
           }
           catch(RuntimeException e ) {
-            Log.e("RCTCamera1", "setParameters failed", e);
+            Log.e("CAMERA_1::", "setParameters failed", e);
           }
         }
     }
@@ -373,7 +373,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             mCamera.setParameters(mCameraParameters);
           }
           catch(RuntimeException e ) {
-            Log.e("RCTCamera1", "setParameters failed", e);
+            Log.e("CAMERA_1::", "setParameters failed", e);
           }
         }
     }
@@ -398,7 +398,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             mCamera.setParameters(mCameraParameters);
           }
           catch(RuntimeException e ) {
-            Log.e("RCTCamera1", "setParameters failed", e);
+            Log.e("CAMERA_1::", "setParameters failed", e);
           }
         }
     }
@@ -418,7 +418,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             mCamera.setParameters(mCameraParameters);
           }
           catch(RuntimeException e ) {
-            Log.e("RCTCamera1", "setParameters failed", e);
+            Log.e("CAMERA_1::", "setParameters failed", e);
           }
         }
     }
@@ -504,7 +504,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                   mCamera.setParameters(mCameraParameters);
                 }
                 catch(RuntimeException e ) {
-                  Log.e("RCTCamera1", "setParameters failed", e);
+                  Log.e("CAMERA_1::", "setParameters failed", e);
                 }
             }
 
@@ -598,7 +598,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
               mCamera.setParameters(mCameraParameters);
             }
             catch(RuntimeException e ) {
-              Log.e("RCTCamera1", "setParameters failed", e);
+              Log.e("CAMERA_1::", "setParameters failed", e);
             }
          }
     }
@@ -721,7 +721,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
           mCamera.setParameters(mCameraParameters);
         }
         catch(RuntimeException e ) {
-          Log.e("RCTCamera1", "setParameters failed", e);
+          Log.e("CAMERA_1::", "setParameters failed", e);
         }
         if (mShowingPreview) {
             startCameraPreview();
@@ -793,7 +793,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                   mCamera.setParameters(parameters);
                 }
                 catch(RuntimeException e ) {
-                  Log.e("RCTCamera1", "setParameters failed", e);
+                  Log.e("CAMERA_1::", "setParameters failed", e);
                 }
                 mCamera.autoFocus(new Camera.AutoFocusCallback() {
                     @Override
@@ -813,7 +813,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                   mCamera.setParameters(parameters);
                 }
                 catch(RuntimeException e ) {
-                  Log.e("RCTCamera1", "setParameters failed", e);
+                  Log.e("CAMERA_1::", "setParameters failed", e);
                 }
                 mCamera.autoFocus(new Camera.AutoFocusCallback() {
                     @Override
@@ -850,7 +850,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                           mCamera.setParameters(parameters);
                         }
                         catch(RuntimeException e ) {
-                          Log.e("RCTCamera1", "setParameters failed", e);
+                          Log.e("CAMERA_1::", "setParameters failed", e);
                         }
                     }
 
