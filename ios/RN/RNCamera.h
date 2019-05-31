@@ -6,6 +6,7 @@
 #import "FaceDetectorManagerMlkit.h"
 #import "BarcodeDetectorManagerMlkit.h"
 #import "TextDetectorManager.h"
+#import "RNDocumentScanner.h"
 
 @class RNCamera;
 
@@ -40,6 +41,7 @@
 @property(nonatomic, assign) BOOL canReadText;
 @property(nonatomic, assign) BOOL canDetectFaces;
 @property(nonatomic, assign) BOOL canDetectBarcodes;
+@property(nonatomic, assign) BOOL canDetectDocument;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property(assign, nonatomic)
     AVCaptureVideoStabilizationMode videoStabilizationMode;
@@ -83,6 +85,7 @@
 - (void)setupOrDisableTextDetector;
 - (void)setupOrDisableFaceDetector;
 - (void)setupOrDisableBarcodeDetector;
+- (void)setupOrDisableDocumentDetector;
 - (void)onReady:(NSDictionary *)event;
 - (void)onMountingError:(NSDictionary *)event;
 - (void)onCodeRead:(NSDictionary *)event;
@@ -90,6 +93,7 @@
 - (void)onPictureSaved:(NSDictionary *)event;
 - (void)onText:(NSDictionary *)event;
 - (void)onBarcodesDetected:(NSDictionary *)event;
+- (void)onDocumentDetected:(NSDictionary *)event;
 - (bool)isRecording;
 
 @end

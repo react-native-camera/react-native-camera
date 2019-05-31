@@ -18,6 +18,7 @@
 @property (nonatomic, strong) id textDetector;
 @property (nonatomic, strong) id faceDetector;
 @property (nonatomic, strong) id barcodeDetector;
+@property (nonatomic, strong) id documentDetector;
 
 @property (nonatomic, copy) RCTDirectEventBlock onCameraReady;
 @property (nonatomic, copy) RCTDirectEventBlock onMountError;
@@ -26,12 +27,15 @@
 @property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onGoogleVisionBarcodesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onPictureSaved;
+@property (nonatomic, copy) RCTDirectEventBlock onDocumentDetected;
 @property (nonatomic, assign) BOOL finishedReadingText;
 @property (nonatomic, assign) BOOL finishedDetectingFace;
 @property (nonatomic, assign) BOOL finishedDetectingBarcodes;
+@property (nonatomic, assign) BOOL finishedDetectingDocument;
 @property (nonatomic, copy) NSDate *startText;
 @property (nonatomic, copy) NSDate *startFace;
 @property (nonatomic, copy) NSDate *startBarcode;
+@property (nonatomic, copy) NSDate *startDocument;
 
 @end
 
@@ -49,12 +53,15 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.textDetector = [self createTextDetector];
         self.faceDetector = [self createFaceDetectorMlKit];
         self.barcodeDetector = [self createBarcodeDetectorMlKit];
+        self.documentDetector = [self createDocumentDetector];
         self.finishedReadingText = true;
         self.finishedDetectingFace = true;
         self.finishedDetectingBarcodes = true;
+        self.finishedDetectingDocument = true;
         self.startText = [NSDate date];
         self.startFace = [NSDate date];
         self.startBarcode = [NSDate date];
+        self.startDocument = [NSDate date];
 #if !(TARGET_IPHONE_SIMULATOR)
         self.previewLayer =
         [AVCaptureVideoPreviewLayer layerWithSession:self.session];
@@ -391,18 +398,21 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
 
             UIImage *takenImage = [UIImage imageWithData:imageData];
-
-            CGImageRef takenCGImage = takenImage.CGImage;
-            CGSize previewSize;
-            if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
-                previewSize = CGSizeMake(self.previewLayer.frame.size.height, self.previewLayer.frame.size.width);
+            if ([self canDetectDocument] && [self.documentDetector isRealDetector]) {
+                takenImage = [self.documentDetector getDocument:takenImage];
             } else {
-                previewSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
+                CGImageRef takenCGImage = takenImage.CGImage;
+                CGSize previewSize;
+                if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
+                    previewSize = CGSizeMake(self.previewLayer.frame.size.height, self.previewLayer.frame.size.width);
+                } else {
+                    previewSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
+                }
+                CGRect cropRect = CGRectMake(0, 0, CGImageGetWidth(takenCGImage), CGImageGetHeight(takenCGImage));
+                CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
+                takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
             }
-            CGRect cropRect = CGRectMake(0, 0, CGImageGetWidth(takenCGImage), CGImageGetHeight(takenCGImage));
-            CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
-            takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
-
+            
             if ([options[@"mirrorImage"] boolValue]) {
                 takenImage = [RNImageUtils mirrorImage:takenImage];
             }
@@ -621,11 +631,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
         // to avoid an exposure rack on some devices that can cause the first few
         // frames of the recorded output to be underexposed.
-        if (![self.faceDetector isRealDetector] && ![self.textDetector isRealDetector] && ![self.barcodeDetector isRealDetector]) {
+        if (![self.faceDetector isRealDetector] && ![self.textDetector isRealDetector] && ![self.barcodeDetector isRealDetector] && ![self.documentDetector isRealDetector]) {
             [self setupMovieFileCapture];
         }
-        [self setupOrDisableBarcodeScanner];
-
+//        [self setupOrDisableBarcodeScanner];
+//        [self setupOrDisableDocumentDetector];
+        
         __weak RNCamera *weakSelf = self;
         [self setRuntimeErrorHandlingObserver:
          [NSNotificationCenter.defaultCenter addObserverForName:AVCaptureSessionRuntimeErrorNotification object:self.session queue:nil usingBlock:^(NSNotification *note) {
@@ -1039,6 +1050,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self setupOrDisableBarcodeDetector];
     }
 
+    if ([self.documentDetector isRealDetector]) {
+        [self setupOrDisableDocumentDetector];
+    }
+
     AVCaptureSessionPreset preset = [RNCameraUtils captureSessionPresetForVideoResolution:[self defaultVideoQuality]];
     if (self.session.sessionPreset != preset) {
         [self updateSessionPreset: preset == AVCaptureSessionPresetHigh ? AVCaptureSessionPresetPhoto: preset];
@@ -1146,7 +1161,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks
-{   
+{
     [self.faceDetector setLandmarksMode:requestedLandmarks queue:self.sessionQueue];
 }
 
@@ -1259,13 +1274,61 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     self.videoDataOutput = nil;
 }
 
+# pragma mark - DocumentDetector
+- (id) createDocumentDetector
+{
+    Class documentScannerClass = NSClassFromString(@"RNDocumentScanner");
+    return [[documentScannerClass alloc] init];
+}
+
+- (void)setupOrDisableDocumentDetector
+{
+    if ([self canDetectDocument] && [self.documentDetector isRealDetector]) {
+        if (!self.videoDataOutput) {
+            self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+            if (![self.session canAddOutput:_videoDataOutput]) {
+                NSLog(@"Failed to setup video data output");
+                [self stopDocumentDetector];
+                return;
+            }
+            NSDictionary *rgbOutputSettings = [NSDictionary
+                                               dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
+                                               forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+            [self.videoDataOutput setVideoSettings:rgbOutputSettings];
+            [self.videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
+            [self.videoDataOutput setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey:@(kCVPixelFormatType_32BGRA)}];
+            [self.videoDataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
+            [self.session addOutput:_videoDataOutput];
+        }
+    } else {
+        [self stopDocumentDetector];
+    }
+    
+}
+
+- (void)stopDocumentDetector
+{
+    if (self.videoDataOutput && !self.canDetectDocument) {
+        [self.session removeOutput:self.videoDataOutput];
+    }
+    self.videoDataOutput = nil;
+}
+
+- (void)onDocumentDetected:(NSDictionary *)event
+{
+    if (_onDocumentDetected && _session) {
+        _onDocumentDetected(event);
+    }
+}
+
+
 # pragma mark - mlkit
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
            fromConnection:(AVCaptureConnection *)connection
 {
-    if (![self.textDetector isRealDetector] && ![self.faceDetector isRealDetector] && ![self.barcodeDetector isRealDetector]) {
+    if (![self.textDetector isRealDetector] && ![self.faceDetector isRealDetector] && ![self.barcodeDetector isRealDetector] && ![self.documentDetector isRealDetector]) {
         NSLog(@"failing real check");
         return;
     }
@@ -1278,10 +1341,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     NSTimeInterval timePassedSinceSubmittingForText = [methodFinish timeIntervalSinceDate:self.startText];
     NSTimeInterval timePassedSinceSubmittingForFace = [methodFinish timeIntervalSinceDate:self.startFace];
     NSTimeInterval timePassedSinceSubmittingForBarcode = [methodFinish timeIntervalSinceDate:self.startBarcode];
+    NSTimeInterval timePassedSinceSubmittingForDocument = [methodFinish timeIntervalSinceDate:self.startDocument];
     BOOL canSubmitForTextDetection = timePassedSinceSubmittingForText > 0.5 && _finishedReadingText && self.canReadText && [self.textDetector isRealDetector];
     BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
     BOOL canSubmitForBarcodeDetection = timePassedSinceSubmittingForBarcode > 0.5 && _finishedDetectingBarcodes && self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
-    if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection) {
+    BOOL canSubmitForDocumentDetection = timePassedSinceSubmittingForDocument > 0.3 && _finishedDetectingDocument && self.canDetectDocument && [self.documentDetector isRealDetector];
+    
+    if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection || canSubmitForDocumentDetection) {
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
         NSInteger position = self.videoCaptureDeviceInput.device.position;
         UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize position:position];
@@ -1317,6 +1383,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 NSDictionary *eventBarcode = @{@"type" : @"barcode", @"barcodes" : barcodes};
                 [self onBarcodesDetected:eventBarcode];
                 self.finishedDetectingBarcodes = true;
+            }];
+        }
+        // find document
+        if (canSubmitForDocumentDetection) {
+            _finishedDetectingDocument = false;
+            self.startDocument = [NSDate date];
+            [self.documentDetector findDocumentInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSDictionary *document) {
+                NSDictionary *eventDocument = @{@"type": @"document", @"document": document};
+                [self onDocumentDetected:eventDocument];
+                self.finishedDetectingDocument = true;
             }];
         }
     }
