@@ -1,0 +1,7 @@
+{
+  "docs": {
+    "Getting Started": ["doc1"],
+    "Guides": ["doc2"],
+    "API": ["doc3"]
+  }
+}
