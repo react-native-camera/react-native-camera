@@ -11,11 +11,11 @@ All you need is to `import` `{ RNCamera }` from the `react-native-camera` module
 
 ```javascript
 'use strict';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { AppRegistry, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 
-class BadInstagramCloneApp extends Component {
+class ExampleApp extends PureComponent {
   render() {
     return (
       <View style={styles.container}>
@@ -51,7 +51,7 @@ class BadInstagramCloneApp extends Component {
     );
   }
 
-  takePicture = async function() {
+  takePicture = async() => {
     if (this.camera) {
       const options = { quality: 0.5, base64: true };
       const data = await this.camera.takePictureAsync(options);
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('BadInstagramCloneApp', () => BadInstagramCloneApp);
+AppRegistry.registerComponent('ExampleApp', () => ExampleApp);
 ```
 
 ## FaCC (Function as Child Components)
@@ -91,7 +91,7 @@ AppRegistry.registerComponent('BadInstagramCloneApp', () => BadInstagramCloneApp
 
 ```javascript
 'use strict';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 
@@ -108,7 +108,7 @@ const PendingView = () => (
   </View>
 );
 
-class App extends Component {
+class ExampleApp extends PureComponent {
   render() {
     return (
       <View style={styles.container}>
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('BadInstagramCloneApp', () => App);
+AppRegistry.registerComponent('ExampleApp', () => ExampleApp);
 ```
 
 ### `camera`

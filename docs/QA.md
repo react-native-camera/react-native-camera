@@ -91,14 +91,14 @@ The strategy is:
 2. Use `react-native.ImageEditor.cropImage()` to crop the image using the image's native size as the crop size (thus maintaiing the original image), and the desired new size as the `displaySize` attribute (thus resizing the image).
 
 ```javascript
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Button, ImageEditor } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 
-class CameraComponent extends Component {
+class CameraComponent extends PureComponent {
   // ...
 
-  capturePicture = function () {
+  capturePicture = () => {
     if (this.camera) {
       // 1) Capture the image using RNCamera API
       this.camera.takePictureAsync(options)
