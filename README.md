@@ -118,20 +118,4 @@ To enable `video recording` feature you have to add the following code to the `A
 
 ![5j2jduk](https://cloud.githubusercontent.com/assets/2302315/22190752/6bc6ccd0-e0da-11e6-8e2f-6f22a3567a57.gif)
 
-## Migrating from RCTCamera to RNCamera
-
-See this [doc](./docs/migration.md)
-
-## Migrating from version 1.x to 2.x
-
-See this [doc](./docs/migrationV2.md)
-
-### RNCamera Docs
-
-[RNCamera](./docs/RNCamera.md)
-
-## Usage
-
-### RNCamera
-
 Take a look into this [documentation](./docs/RNCamera.md).

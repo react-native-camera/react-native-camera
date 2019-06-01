@@ -9,7 +9,6 @@ const React = require('react');
 
 const CompLibrary = require('../../core/CompLibrary.js');
 
-const MarkdownBlock = CompLibrary.MarkdownBlock; /* Used to read markdown */
 const Container = CompLibrary.Container;
 const GridBlock = CompLibrary.GridBlock;
 
@@ -64,9 +63,9 @@ class HomeSplash extends React.Component {
         <div className="inner">
           <ProjectTitle siteConfig={siteConfig} />
           <PromoSection>
-            <Button href="#try">Try It Out</Button>
-            <Button href={docUrl('installation.html')}>Example Link</Button>
-            <Button href={docUrl('doc2.html')}>Example Link 2</Button>
+            <Button href={docUrl('installation.html')}>Try It Out</Button>
+            <Button href="#support">Support</Button>
+            <Button href="#collective">Open Collective</Button>
           </PromoSection>
         </div>
       </SplashContainer>
@@ -76,8 +75,8 @@ class HomeSplash extends React.Component {
 
 class Index extends React.Component {
   render() {
-    const {config: siteConfig, language = ''} = this.props;
-    const {baseUrl} = siteConfig;
+    const { config: siteConfig, language = '' } = this.props;
+    const { baseUrl } = siteConfig;
 
     const Block = props => (
       <Container
@@ -92,117 +91,48 @@ class Index extends React.Component {
       </Container>
     );
 
-    const FeatureCallout = () => (
-      <div
-        className="productShowcaseSection paddingBottom"
-        style={{textAlign: 'center'}}>
-        <h2>Feature Callout</h2>
-        <MarkdownBlock>These are features of this project</MarkdownBlock>
-      </div>
-    );
-
-    const TryOut = () => (
-      <Block id="try">
+    const Support = () => (
+      <Block id="support">
         {[
           {
             content:
               'To make your landing page more attractive, use illustrations! Check out ' +
-              '[**unDraw**](https://undraw.co/) which provides you with customizable illustrations which are free to use. ' +
-              'The illustrations you see on this page are from unDraw.',
+              'If you use this library on your commercial/personal projects, you can help us by funding the work on specific issues that you choose by using [**IssueHunt.io**](https://issuehunt.io/repos/33218414)! \n\n' +
+              'This gives you the power to prioritize our work and support the project contributors. Moreover it\'ll guarantee the project will be updated and maintained in the long run.' +
+              '\n\n[![issuehunt-image](https://issuehunt.io/static/embed/issuehunt-button-v1.svg)](https://issuehunt.io/repos/33218414)',
             image: `${baseUrl}img/undraw_code_review.svg`,
-            imageAlign: 'left',
-            title: 'Wonderful SVG Illustrations',
-          },
-        ]}
-      </Block>
-    );
-
-    const Description = () => (
-      <Block background="dark">
-        {[
-          {
-            content:
-              'This is another description of how this project is useful',
-            image: `${baseUrl}img/undraw_note_list.svg`,
             imageAlign: 'right',
-            title: 'Description',
+            title: 'Support',
           },
         ]}
       </Block>
     );
 
-    const LearnHow = () => (
-      <Block background="light">
+    const backersList = Array(10).fill('x').map( (bk, i) => `<a href="https://opencollective.com/react-native-camera/backer/${i}/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/${i}/avatar.svg"></a>`)
+    const sponsorsList = Array(10).fill('x').map( (bk, i) => `<a href="https://opencollective.com/react-native-camera/sponsor/${i}/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/${i}/avatar.svg"></a>`)
+
+    const Backers = () => (
+      <Block id="collective" background="light">
         {[
           {
-            content:
-              'Each new Docusaurus project has **randomly-generated** theme colors.',
-            image: `${baseUrl}img/undraw_youtube_tutorial.svg`,
-            imageAlign: 'right',
-            title: 'Randomly Generated Theme Colors',
+            content: `**Backers** 
+            \n\nSupport us with a monthly donation and help us continue our activities. [[**Become a backer**](https://opencollective.com/react-native-camera#backer)] \n\n\n ${backersList.join("")}
+            \n\n\n**Sponsors** \n\nBecome a sponsor and get your logo on our README on Github with a link to your site. [[**Become a sponsor**](https://opencollective.com/react-native-camera#sponsor)] \n\n\n ${sponsorsList.join("")}
+            `,
+            imageAlign: 'center',
+            title: 'Open Collective',
           },
         ]}
       </Block>
     );
 
-    const Features = () => (
-      <Block layout="fourColumn">
-        {[
-          {
-            content: 'This is the content of my feature',
-            image: `${baseUrl}img/undraw_react.svg`,
-            imageAlign: 'top',
-            title: 'Feature One',
-          },
-          {
-            content: 'The content of my second feature',
-            image: `${baseUrl}img/undraw_operating_system.svg`,
-            imageAlign: 'top',
-            title: 'Feature Two',
-          },
-        ]}
-      </Block>
-    );
-
-    const Showcase = () => {
-      if ((siteConfig.users || []).length === 0) {
-        return null;
-      }
-
-      const showcase = siteConfig.users
-        .filter(user => user.pinned)
-        .map(user => (
-          <a href={user.infoLink} key={user.infoLink}>
-            <img src={user.image} alt={user.caption} title={user.caption} />
-          </a>
-        ));
-
-      const pageUrl = page => baseUrl + (language ? `${language}/` : '') + page;
-
-      return (
-        <div className="productShowcaseSection paddingBottom">
-          <h2>Who is Using This?</h2>
-          <p>This project is used by all these people</p>
-          <div className="logos">{showcase}</div>
-          <div className="more-users">
-            <a className="button" href={pageUrl('users.html')}>
-              More {siteConfig.title} Users
-            </a>
-          </div>
-        </div>
-      );
-    };
 
     return (
       <div>
         <HomeSplash siteConfig={siteConfig} language={language} />
         <div className="mainContainer">
-          <Features />
-          <FeatureCallout />
-          <LearnHow />
-          <TryOut />
-          <Description />
-          <Showcase />
+          <Backers />
+          <Support />
         </div>
       </div>
     );

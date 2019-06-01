@@ -3,10 +3,14 @@
   "localized-strings": {
     "next": "Next",
     "previous": "Previous",
-    "tagline": "A website for testing",
+    "tagline": "The comprehensive camera module for React Native.",
     "docs": {
       "api": {
-        "title": "This is document number 3"
+        "title": "Work in progress"
+      },
+      "contributing": {
+        "title": "Contributing",
+        "sidebar_label": "Contributing"
       },
       "expo_usage": {
         "title": "Expo Usage",

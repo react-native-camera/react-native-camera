@@ -18,11 +18,27 @@ const users = [
     infoLink: 'https://www.facebook.com',
     pinned: true,
   },
+  {
+    caption: 'User2',
+    // You will need to prepend the image path with your baseUrl
+    // if it is not '/', like: '/test-site/img/image.jpg'.
+    image: '/img/undraw_open_source.svg',
+    infoLink: 'https://www.facebook.com',
+    pinned: true,
+  },
+  {
+    caption: 'User3',
+    // You will need to prepend the image path with your baseUrl
+    // if it is not '/', like: '/test-site/img/image.jpg'.
+    image: '/img/undraw_open_source.svg',
+    infoLink: 'https://www.facebook.com',
+    pinned: true,
+  },
 ];
 
 const siteConfig = {
   title: 'React Native Camera', // Title for your website.
-  tagline: 'A website for testing',
+  tagline: 'The comprehensive camera module for React Native.',
   url: 'https://your-docusaurus-test-site.com', // Your website URL
   baseUrl: '/', // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
@@ -52,8 +68,8 @@ const siteConfig = {
   users,
 
   /* path to images for header/footer */
-  headerIcon: 'img/favicon.ico',
-  footerIcon: 'img/favicon.ico',
+  headerIcon: 'img/community.png',
+  footerIcon: 'img/community.png',
   favicon: 'img/favicon.ico',
 
   /* Colors for website */
@@ -77,7 +93,7 @@ const siteConfig = {
   */
 
   // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
-  copyright: `Copyright © ${new Date().getFullYear()} Your Name or Your Company Name`,
+  copyright: `Copyright © ${new Date().getFullYear()}`,
 
   highlight: {
     // Highlight.js theme to use for syntax highlighting in code blocks.
@@ -97,10 +113,10 @@ const siteConfig = {
   twitterImage: 'img/undraw_tweetstorm.svg',
 
   // Show documentation's last contributor's name.
-  // enableUpdateBy: true,
+  enableUpdateBy: true, 
 
   // Show documentation's last update time.
-  // enableUpdateTime: true,
+  enableUpdateTime: true,
 
   // You may provide arbitrary config keys to be used as needed by your
   // template. For example, if you need your repo's URL...

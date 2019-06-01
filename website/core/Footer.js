@@ -38,13 +38,13 @@ class Footer extends React.Component {
           <div>
             <h5>Docs</h5>
             <a href={this.docUrl('installation.html', this.props.language)}>
-              Getting Started (or other categories)
+              Getting Started
             </a>
             <a href={this.docUrl('expo_usage.html', this.props.language)}>
-              Guides (or other categories)
+              Guides
             </a>
             <a href={this.docUrl('api.html', this.props.language)}>
-              API Reference (or other categories)
+              API Reference
             </a>
           </div>
           <div>
@@ -53,18 +53,12 @@ class Footer extends React.Component {
               User Showcase
             </a>
             <a
-              href="https://stackoverflow.com/questions/tagged/"
+              href="https://stackoverflow.com/questions/tagged/react-native-camera"
               target="_blank"
               rel="noreferrer noopener">
               Stack Overflow
             </a>
-            <a href="https://discordapp.com/">Project Chat</a>
-            <a
-              href="https://twitter.com/"
-              target="_blank"
-              rel="noreferrer noopener">
-              Twitter
-            </a>
+            <a href="https://spectrum.chat/">Project Chat</a>
           </div>
           <div>
             <h5>More</h5>
