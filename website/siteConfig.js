@@ -94,17 +94,15 @@ const siteConfig = {
 
   // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
   copyright: `Copyright © ${new Date().getFullYear()}`,
-
+  usePrism: ['jsx'],
   highlight: {
     theme: 'atom-one-dark',
   },
   scripts: [
     'https://buttons.github.io/buttons.js',
     'https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js',
-    'js/code-blocks-buttons.js',
+    './js/code-blocks-buttons.js',
   ],
-  // Add custom scripts here that would be placed in <script> tags.
-  // scripts: ['https://buttons.github.io/buttons.js'],
 
   // On page navigation for the current documentation page.
   onPageNav: 'separate',
@@ -120,6 +118,7 @@ const siteConfig = {
 
   // Show documentation's last update time.
   enableUpdateTime: true,
+  editUrl: 'https://github.com/react-native-community/react-native-camera/master/docs/',
 
   // You may provide arbitrary config keys to be used as needed by your
   // template. For example, if you need your repo's URL...
