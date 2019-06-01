@@ -5,25 +5,59 @@
     "previous": "Previous",
     "tagline": "A website for testing",
     "docs": {
-      "doc1": {
-        "title": "[Expo](https://expo.io/) Usage",
-        "sidebar_label": "Expo Usage"
+      "api": {
+        "title": "This is document number 3"
       },
       "doc2": {
         "title": "document number 2"
       },
-      "doc3": {
-        "title": "This is document number 3"
+      "doc1": {
+        "title": "[Expo](https://expo.io/) Usage",
+        "sidebar_label": "Expo Usage"
       },
       "doc4": {
         "title": "Other Document"
       },
       "doc5": {
         "title": "Fifth Document"
+      },
+      "expo_usage": {
+        "title": "Expo Usage",
+        "sidebar_label": "Expo Usage"
+      },
+      "GradleUpgradeGuide": {
+        "title": "Upgrade gradle for Android projects",
+        "sidebar_label": "Gradle Upgrade Guide"
+      },
+      "installation": {
+        "title": "Installation"
+      },
+      "migration": {
+        "title": "Migrating from RCTCamera to RNCamera",
+        "sidebar_label": "Migrating from RCTCamera to RNCamera"
+      },
+      "migrationV2": {
+        "title": "migrationV2"
+      },
+      "QA": {
+        "title": "QA"
+      },
+      "react-navigation": {
+        "title": "react-navigation"
+      },
+      "Recipes": {
+        "title": "Recipes"
+      },
+      "RNCamera": {
+        "title": "RNCamera"
+      },
+      "tests": {
+        "title": "tests"
       }
     },
     "links": {
       "Docs": "Docs",
+      "Guides": "Guides",
       "API": "API",
       "Help": "Help",
       "GitHub": "GitHub"
