@@ -10,30 +10,15 @@
 
 // List of projects/orgs using your project for the users page.
 const users = [
-  {
-    caption: 'User1',
-    // You will need to prepend the image path with your baseUrl
-    // if it is not '/', like: '/test-site/img/image.jpg'.
-    image: '/img/undraw_open_source.svg',
-    infoLink: 'https://www.facebook.com',
-    pinned: true,
-  },
-  {
-    caption: 'User2',
-    // You will need to prepend the image path with your baseUrl
-    // if it is not '/', like: '/test-site/img/image.jpg'.
-    image: '/img/undraw_open_source.svg',
-    infoLink: 'https://www.facebook.com',
-    pinned: true,
-  },
-  {
-    caption: 'User3',
-    // You will need to prepend the image path with your baseUrl
-    // if it is not '/', like: '/test-site/img/image.jpg'.
-    image: '/img/undraw_open_source.svg',
-    infoLink: 'https://www.facebook.com',
-    pinned: true,
-  },
+  // example to add showcase
+  // {
+  //   caption: 'User1',
+  //   // You will need to prepend the image path with your baseUrl
+  //   // if it is not '/', like: '/test-site/img/image.jpg'.
+  //   image: '/img/undraw_open_source.svg',
+  //   infoLink: 'https://www.facebook.com',
+  //   pinned: true,
+  // },
 ];
 
 const siteConfig = {
@@ -70,7 +55,7 @@ const siteConfig = {
   /* path to images for header/footer */
   headerIcon: 'img/community.png',
   footerIcon: 'img/community.png',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/community.png',
 
   /* Colors for website */
   colors: {

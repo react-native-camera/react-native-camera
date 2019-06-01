@@ -8,7 +8,6 @@ services:
       - 35729:35729
     volumes:
       - ./docs:/app/docs
-      - ./website/blog:/app/website/blog
       - ./website/core:/app/website/core
       - ./website/i18n:/app/website/i18n
       - ./website/pages:/app/website/pages
