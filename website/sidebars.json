@@ -1,7 +1,8 @@
 {
   "docs": {
     "Getting Started": ["installation"],
-    "Guides": ["expo_usage", "migration"],
-    "API": ["api"]
+    "Guides": ["expo_usage", "GradleUpgradeGuide", "migration", "migrationv2", "react-navigation", "recipes", "rncamera", "tests"],
+    "API": ["api"],
+    "Help": ["qa"]
   }
 }

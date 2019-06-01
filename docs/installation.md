@@ -415,4 +415,4 @@ ext {
 3. Add the capabilities (permissions) for the webcam and microphone as described here: [docs.microsoft / audio-video-camera](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/simple-camera-preview-access#add-capability-declarations-to-the-app-manifest)
 4. Use `RCTCamera` (RNCamera is not supported yet) like described above
 
-Follow the [Q & A](./docs/QA.md) section if you are having compilation issues.
+Follow the [Q & A](QA.md) section if you are having compilation issues.

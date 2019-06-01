@@ -8,19 +8,6 @@
       "api": {
         "title": "This is document number 3"
       },
-      "doc2": {
-        "title": "document number 2"
-      },
-      "doc1": {
-        "title": "[Expo](https://expo.io/) Usage",
-        "sidebar_label": "Expo Usage"
-      },
-      "doc4": {
-        "title": "Other Document"
-      },
-      "doc5": {
-        "title": "Fifth Document"
-      },
       "expo_usage": {
         "title": "Expo Usage",
         "sidebar_label": "Expo Usage"
@@ -36,23 +23,29 @@
         "title": "Migrating from RCTCamera to RNCamera",
         "sidebar_label": "Migrating from RCTCamera to RNCamera"
       },
-      "migrationV2": {
-        "title": "migrationV2"
+      "migrationv2": {
+        "title": "Migrating from version 1.x to 2.x",
+        "sidebar_label": "Migrating from version 1.x to 2.x"
       },
-      "QA": {
-        "title": "QA"
+      "qa": {
+        "title": "Q & A",
+        "sidebar_label": "Q & A"
       },
       "react-navigation": {
-        "title": "react-navigation"
+        "title": "React Navigation",
+        "sidebar_label": "React Navigation"
       },
-      "Recipes": {
-        "title": "Recipes"
+      "recipes": {
+        "title": "Recipes",
+        "sidebar_label": "Recipes"
       },
-      "RNCamera": {
-        "title": "RNCamera"
+      "rncamera": {
+        "title": "RNCamera",
+        "sidebar_label": "RNCamera"
       },
       "tests": {
-        "title": "tests"
+        "title": "Testing",
+        "sidebar_label": "Testing"
       }
     },
     "links": {
@@ -65,7 +58,8 @@
     "categories": {
       "Getting Started": "Getting Started",
       "Guides": "Guides",
-      "API": "API"
+      "API": "API",
+      "Help": "Help"
     }
   },
   "pages-strings": {
