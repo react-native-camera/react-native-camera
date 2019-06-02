@@ -1,4 +1,8 @@
-# Recipes
+---
+id: recipes
+title: Recipes
+sidebar_label: Recipes
+---
 
 The idea is to provide a list of useful snippets, links and resources to be used together with react-native-camera
 
@@ -18,7 +22,7 @@ const { shouldFaceDetect } = this.state;
 
 Passing `null` to `onFaceDetected`, `onGoogleVisionBarcodesDetected`, `onTextRecognized`, `onBarCodeRead` automatically turns off the correspondent detector.
 
-### Events continue if screen is mounted but not on top of stack
+## Events continue if screen is mounted but not on top of stack
 
 Lets say you use Face Detection, you take a picture and then takes the user to another screen to see that picture. Meanwhile, RNCamera is still mounted on the previous screen. `onFaceDetected` will still be called if you do not prevent it. For example (using [`react-navigation`](https://github.com/react-navigation/react-navigation):
 
@@ -83,7 +87,7 @@ Because of different project requirements there is no gesture zoom (like pinch z
 
 However we have some recipies for common zoom behaviours. If you implemented your own solution feel free to add it to the list!
 
-### SlideUp Zoom
+## SlideUp Zoom
 
 ```js
 import React, { Component } from 'react';
