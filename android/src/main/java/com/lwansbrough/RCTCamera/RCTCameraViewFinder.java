@@ -13,6 +13,7 @@ import android.hardware.Camera;
 import android.view.MotionEvent;
 import android.view.TextureView;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
@@ -188,7 +189,12 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 );
                 parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
 
-                _camera.setParameters(parameters);
+                try{
+                  _camera.setParameters(parameters);
+                }
+                catch(RuntimeException e ) {
+                  Log.e("RCTCameraViewFinder", "setParameters failed", e);
+                }
                 _camera.setPreviewTexture(_surfaceTexture);
                 _camera.startPreview();
                 // clear window background if needed
@@ -476,7 +482,12 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         }
         mFingerSpacing = newDist;
         params.setZoom(zoom);
-        _camera.setParameters(params);
+        try{
+          _camera.setParameters(params);
+        }
+        catch(RuntimeException e ) {
+          Log.e("RCTCameraViewFinder", "setParameters failed", e);
+        }
     }
 
     /**
@@ -522,7 +533,12 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             }
 
             // Set parameters before starting auto-focus.
-            _camera.setParameters(params);
+            try{
+              _camera.setParameters(params);
+            }
+            catch(RuntimeException e ) {
+              Log.e("RCTCameraViewFinder", "setParameters failed", e);
+            }
 
             // Start auto-focus now that focus area has been set. If successful, then can cancel
             // it afterwards. Wrap in try-catch to avoid crashing on merely autoFocus fails.
