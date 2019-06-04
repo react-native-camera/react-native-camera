@@ -1,4 +1,8 @@
-## Q & A
+---
+id: qa
+title: Q & A
+sidebar_label: Q & A
+---
 
 - [meta-data android 26](#meta-data-android-26)
 - [Manifest merger failed](#when-i-try-to-build-my-project-i-get-following-error)
@@ -6,7 +10,7 @@
 - [How can I get thumbnails for my video?](#how-can-i-get-thumbnails-for-my-video)
 - [How can I save my video/image to the camera roll?](#hoc-can-i-save-my-video-image-to-the-camera-roll)
 
-#### meta-data android 26
+## meta-data android 26
 
 ```
   AndroidManifest.xml:25:13-35 Error:
@@ -40,7 +44,7 @@ Add this to your AndroidManifest.xml:
 
 ---
 
-#### When I try to build my project, I get following error:
+## When I try to build my project, I get following error:
 
 ```
 Execution failed for task ':app:processDebugManifest'.
@@ -49,7 +53,7 @@ Execution failed for task ':app:processDebugManifest'.
         Suggestion: add 'tools:replace="android:value"' to <meta-data> element at AndroidManifest.xml:23:9-25:38 to override.
 ```
 
-#### As the error message hints `com.android.support:exifinterface:26.0.2` is already found in `com.android.support:support-v4:26.0.1`
+## As the error message hints `com.android.support:exifinterface:26.0.2` is already found in `com.android.support:support-v4:26.0.1`
 
 To fix this issue, modify your project's `android/app/build.gradle` as follows:
 
@@ -76,25 +80,25 @@ dependencies {
 
 ---
 
-#### How can I resize captured images?
+## How can I resize captured images?
 
 Currently, `RNCamera` does not allow for specifying the desired resolution of the captured image, nor does it natively expose any functionality to resize images.
 One way to achieve this (without any additional dependencies )is using [react-native.ImageEditor.cropImage](https://facebook.github.io/react-native/docs/imageeditor.html#cropimage).
 
 The strategy is:
 
-1.  Capture an image using `RNCamera`, which uses the device's max resolution.
-2.  Use `react-native.ImageEditor.cropImage()` to crop the image using the image's native size as the crop size (thus maintaiing the original image), and the desired new size as the `displaySize` attribute (thus resizing the image).
+1. Capture an image using `RNCamera`, which uses the device's max resolution.
+2. Use `react-native.ImageEditor.cropImage()` to crop the image using the image's native size as the crop size (thus maintaiing the original image), and the desired new size as the `displaySize` attribute (thus resizing the image).
 
 ```javascript
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Button, ImageEditor } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 
-class CameraComponent extends Component {
+class CameraComponent extends PureComponent {
   // ...
 
-  capturePicture = function () {
+  capturePicture = () => {
     if (this.camera) {
       // 1) Capture the image using RNCamera API
       this.camera.takePictureAsync(options)
@@ -138,12 +142,11 @@ class CameraComponent extends Component {
 
 ```
 
-#### How can I get thumbnails for my video
+## How can I get thumbnails for my video
 
 We recommend using the library [`react-native-thumbnail`](https://github.com/phuochau/react-native-thumbnail) for generating thumbnails of your video files.
 
-#### How can I save my video/image to the camera roll?
+## How can I save my video/image to the camera roll?
 
 You can use the [`CameraRoll` Module](https://facebook.github.io/react-native/docs/cameraroll.htm).
 You must follow the setup instructions in the `react-native` documentation, since `CameraRoll` module needs to be linked first.
-

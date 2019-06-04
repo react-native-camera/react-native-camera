@@ -1,4 +1,8 @@
-# RNCamera
+---
+id: rncamera
+title: RNCamera
+sidebar_label: RNCamera
+---
 
 ## Usage
 
@@ -7,11 +11,11 @@ All you need is to `import` `{ RNCamera }` from the `react-native-camera` module
 
 ```javascript
 'use strict';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { AppRegistry, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 
-class BadInstagramCloneApp extends Component {
+class ExampleApp extends PureComponent {
   render() {
     return (
       <View style={styles.container}>
@@ -47,7 +51,7 @@ class BadInstagramCloneApp extends Component {
     );
   }
 
-  takePicture = async function() {
+  takePicture = async() => {
     if (this.camera) {
       const options = { quality: 0.5, base64: true };
       const data = await this.camera.takePictureAsync(options);
@@ -78,7 +82,7 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('BadInstagramCloneApp', () => BadInstagramCloneApp);
+AppRegistry.registerComponent('ExampleApp', () => ExampleApp);
 ```
 
 ## FaCC (Function as Child Components)
@@ -87,7 +91,7 @@ AppRegistry.registerComponent('BadInstagramCloneApp', () => BadInstagramCloneApp
 
 ```javascript
 'use strict';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 
@@ -104,7 +108,7 @@ const PendingView = () => (
   </View>
 );
 
-class App extends Component {
+class ExampleApp extends PureComponent {
   render() {
     return (
       <View style={styles.container}>
@@ -170,20 +174,20 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('BadInstagramCloneApp', () => App);
+AppRegistry.registerComponent('ExampleApp', () => ExampleApp);
 ```
 
-#### `camera`
+### `camera`
 
 _It's the RNCamera's reference_
 
-#### `status`
+### `status`
 
 One of `RNCamera.Constants.CameraStatus`
 
 'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED'
 
-#### `recordAudioPermissionStatus`
+### `recordAudioPermissionStatus`
 
 One of `RNCamera.Constants.RecordAudioPermissionStatus`.
 
@@ -191,7 +195,7 @@ One of `RNCamera.Constants.RecordAudioPermissionStatus`.
 
 ## Properties
 
-#### `autoFocus`
+### `autoFocus`
 
 Values: `RNCamera.Constants.AutoFocus.on` (default) or `RNCamera.Constants.AutoFocus.off`
 
@@ -199,7 +203,7 @@ Most cameras have a Auto Focus feature. It adjusts your camera lens position aut
 
 Use the `autoFocus` property to specify the auto focus setting of your camera. `RNCamera.Constants.AutoFocus.on` turns it ON, `RNCamera.Constants.AutoFocus.off` turns it OFF.
 
-#### `autoFocusPointOfInterest`
+### `autoFocusPointOfInterest`
 
 Values: Object `{ x: 0.5, y: 0.5 }`.
 
@@ -210,14 +214,14 @@ Coordinates values are measured as floats from `0` to `1.0`. `{ x: 0, y: 0 }` wi
 Hint:
 for portrait orientation, apply 90° clockwise rotation + translation: [Example](https://gist.github.com/Craigtut/6632a9ac7cfff55e74fb561862bc4edb)
 
-#### `captureAudio`
+### `captureAudio`
 
 Values: boolean `true` (default) | `false`
 
 Specifies if audio recording permissions should be requested.
-Make sure to follow README instructions for audio recording permissions [here](../README.md).
+Make sure to follow README instructions for audio recording permissions [here](README.md).
 
-#### `flashMode`
+### `flashMode`
 
 Values: `RNCamera.Constants.FlashMode.off` (default), `RNCamera.Constants.FlashMode.on`, `RNCamera.Constants.FlashMode.auto` or `RNCamera.Constants.FlashMode.torch`.
 
@@ -231,25 +235,25 @@ Specifies the flash mode of your camera.
 
 `RNCamera.Constants.FlashMode.torch` turns on torch mode, meaning the flash light will be turned on all the time (even before taking photo) just like a flashlight.
 
-#### `focusDepth`
+### `focusDepth`
 
 Value: float from `0` to `1.0`
 
 Manually set camera focus. Only works with `autoFocus` off. The value 0 is minimum focus depth, 1 is maximum focus depth. For a medium focus depth, for example, you could use 0.5.
 
-#### `Android` `ratio`
+### `Android` `ratio`
 
 A string representing the camera ratio in the format 'height:width'. Default is `"4:3"`.
 
 Use `getSupportedRatiosAsync` method to get ratio strings supported by your camera on Android.
 
-#### `type`
+### `type`
 
 Values: `RNCamera.Constants.Type.front` or `RNCamera.Constants.Type.back` (default)
 
 Use the `type` property to specify which camera to use.
 
-#### `whiteBalance`
+### `whiteBalance`
 
 Values: `RNCamera.Constants.WhiteBalance.sunny`, `RNCamera.Constants.WhiteBalance.cloudy`, `RNCamera.Constants.WhiteBalance.shadow`, `RNCamera.Constants.WhiteBalance.incandescent`, `RNCamera.Constants.WhiteBalance.fluorescent` or `RNCamera.Constants.WhiteBalance.auto` (default)
 
@@ -259,33 +263,33 @@ The idea is that you select the appropriate white balance setting for the type o
 
 Use the `whiteBalance` property to specify which white balance setting the camera should use.
 
-#### `zoom`
+### `zoom`
 
 Value: float from `0` to `1.0`
 
 Specifies the zoom of your camera. The value 0 is no zoom, 1 is maximum zoom. For a medium zoom, for example, you could pass `0.5`.
 
-#### `Android` `permissionDialogTitle` - Deprecated
+### `Android` `permissionDialogTitle` - Deprecated
 
 Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the title of the dialog prompt requesting permissions.
 
-#### `Android` `permissionDialogMessage` - Deprecated
+### `Android` `permissionDialogMessage` - Deprecated
 
 Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the content of the dialog prompt requesting permissions.
 
-#### `Android` `androidRecordAudioPermissionOptions`
+### `Android` `androidRecordAudioPermissionOptions`
 
 Configuration options for permissions request for recording audio. It will be passed as `rationale` parameter to [`PermissionsAndroid.request`](https://facebook.github.io/react-native/docs/permissionsandroid#request). This replaces and deprecates old `permissionDialogTitle` and `permissionDialogMessage` parameters.
 
-#### `Android` `androidCameraPermissionOptions`
+### `Android` `androidCameraPermissionOptions`
 
 Configuration options for permissions request for camera. It will be passed as `rationale` parameter to [`PermissionsAndroid.request`](https://facebook.github.io/react-native/docs/permissionsandroid#request). This replaces and deprecates old `permissionDialogTitle` and `permissionDialogMessage` parameters.
 
-#### `notAuthorizedView`
+### `notAuthorizedView`
 
 By default a `Camera not authorized` message will be displayed when access to the camera has been denied, if set displays the passed react element instead of the default one.
 
-#### `pendingAuthorizationView`
+### `pendingAuthorizationView`
 
 By default a <ActivityIndicator> will be displayed while the component is waiting for the user to grant/deny access to the camera, if set displays the passed react element instead of the default one.
 
@@ -328,15 +332,15 @@ Note: This solve the flicker video recording issue for iOS
 
 ### Native Event callbacks props
 
-#### `onCameraReady`
+### `onCameraReady`
 
 Function to be called when native code emit onCameraReady event, when camera is ready.
 
-#### `onMountError`
+### `onMountError`
 
 Function to be called when native code emit onMountError event, when there is a problem mounting the camera.
 
-#### `onStatusChange`
+### `onStatusChange`
 
 Function to be called when native code emits status changes in relation to authorization changes.
 
@@ -345,13 +349,13 @@ Event contains the following fields:
 - `cameraStatus` - one of the [CameraStatus](#status) values
 - `recordAudioPermissionStatus` - one of the [RecordAudioPermissionStatus](#recordAudioPermissionStatus) values
 
-#### `Android` `onPictureTaken`
+### `Android` `onPictureTaken`
 
 Function to be called when native code emit onPictureTaken event, when camera has taken a picture.
 
 ### Bar Code Related props
 
-#### `onBarCodeRead`
+### `onBarCodeRead`
 
 Will call the specified method when a barcode is detected in the camera's view.
 
@@ -404,16 +408,16 @@ The following barcode types can be recognised:
 - `itf14` (when available)
 - `datamatrix` (when available)
 
-#### `barCodeTypes`
+### `barCodeTypes`
 
 An array of barcode types to search for. Defaults to all types listed above. No effect if `onBarCodeRead` is undefined.
 Example: `<RNCamera barCodeTypes={[RNCamera.Constants.BarCodeType.qr]} />`
 
-#### `onGoogleVisionBarcodesDetected`
+### `onGoogleVisionBarcodesDetected`
 
 Like `onBarCodeRead`, but using Firebase MLKit to scan barcodes. More info can be found [here](https://firebase.google.com/docs/ml-kit/read-barcodes) Note: If you already set `onBarCodeRead`, this will be invalid.
 
-#### `googleVisionBarcodeType`
+### `googleVisionBarcodeType`
 
 Like `barCodeTypes`, but applies to the Firebase MLKit barcode detector.
 Example: `<RNCamera googleVisionBarcodeType={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeType.DATA_MATRIX} />`
@@ -433,7 +437,7 @@ Available settings:
 - DATA_MATRIX
 - ALL
 
-#### `Android` `googleVisionBarcodeMode`
+### `Android` `googleVisionBarcodeMode`
 
 Change the mode in order to scan "inverted" barcodes. You can either change it to `alternate`, which will inverted the image data every second screen and be able to read both normal and inverted barcodes, or `inverted`, which will only read inverted barcodes. Default is `normal`, which only reads "normal" barcodes. Note: this property only applies to the Google Vision barcode detector.
 Example: `<RNCamera googleVisionBarcodeMode={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeMode.ALTERNATE} />`
@@ -442,15 +446,15 @@ Example: `<RNCamera googleVisionBarcodeMode={RNCamera.Constants.GoogleVisionBarc
 
 RNCamera uses the Firebase MLKit for Face Detection, you can read more about it [here](https://firebase.google.com/docs/ml-kit/detect-faces).
 
-#### `onFacesDetected`
+### `onFacesDetected`
 
 Method to be called when face is detected. Receives a Faces Detected Event object. The interesting value of this object is the `faces` value, which is an array of Face objects. You can find more details about the possible values of these objects [here](https://firebase.google.com/docs/ml-kit/face-detection-concepts)
 
-#### `onFaceDetectionError`
+### `onFaceDetectionError`
 
 Method to be called if there was an Face Detection Error, receives an object with the `isOperational` property set to `false` if Face Detector is NOT operational and `true`if it is.
 
-#### `faceDetectionMode`
+### `faceDetectionMode`
 
 Values: `RNCamera.Constants.FaceDetection.Mode.fast` (default) or `RNCamera.Constants.FaceDetection.Mode.accurate`
 
@@ -458,13 +462,13 @@ Specifies the face detection mode of the Face Detection API.
 
 Use `RNCamera.Constants.FaceDetection.Mode.accurate` if you want slower but more accurate results.
 
-#### `faceDetectionLandmarks`
+### `faceDetectionLandmarks`
 
 Values: `RNCamera.Constants.FaceDetection.Landmarks.all` or `RNCamera.Constants.FaceDetection.Landmarks.none` (default)
 
 A landmark is a point of interest within a face. The left eye, right eye, and nose base are all examples of landmarks. The Face API provides the ability to find landmarks on a detected face.
 
-#### `faceDetectionClassifications`
+### `faceDetectionClassifications`
 
 Values: `RNCamera.Constants.FaceDetection.Classifications.all` or `RNCamera.Constants.FaceDetection.Classifications.none` (default)
 
@@ -474,13 +478,13 @@ Classification is determining whether a certain facial characteristic is present
 
 RNCamera uses the Firebase MLKit for Text Recognition, you can read more info about it [here](https://firebase.google.com/docs/ml-kit/recognize-text).
 
-#### `onTextRecognized`
+### `onTextRecognized`
 
 Method to be called when text is detected. Receives a Text Recognized Event object. The interesting value of this object is the `textBlocks` value, which is an array of TextBlock objects.
 
 ## Component instance methods
 
-#### `takePictureAsync([options]): Promise`
+### `takePictureAsync([options]): Promise`
 
 Takes a picture, saves in your app's cache directory and returns a promise.
 
@@ -518,7 +522,7 @@ The promise will be fulfilled with an object with some of the following properti
 - `pictureOrientation`: (number) the orientation of the picture
 - `deviceOrientation`: (number) the orientation of the device
 
-#### `recordAsync([options]): Promise`
+### `recordAsync([options]): Promise`
 
 Records a video, saves it in your app's cache directory and returns a promise when stopRecording is called or either maxDuration or maxFileSize specified are reached.
 
@@ -586,28 +590,28 @@ The promise will be fulfilled with an object with some of the following properti
 
 - `isRecordingInterrupted`: (boolean) whether the app has been minimized while recording
 
-#### `refreshAuthorizationStatus: Promise<void>`
+### `refreshAuthorizationStatus: Promise<void>`
 
 Allows to make RNCamera check Permissions again and set status accordingly.  
 Making it possible to refresh status of RNCamera after user initially rejected the permissions.
 
-#### `stopRecording: void`
+### `stopRecording: void`
 
 Should be called after recordAsync() to make the promise be fulfilled and get the video uri.
 
-#### `pausePreview: void`
+### `pausePreview: void`
 
 Pauses the preview. The preview can be resumed again by using resumePreview().
 
-#### `resumePreview: void`
+### `resumePreview: void`
 
 Resumes the preview after pausePreview() has been called.
 
-#### `Android` `getSupportedRatiosAsync(): Promise`
+### `Android` `getSupportedRatiosAsync(): Promise`
 
 Android only. Returns a promise. The promise will be fulfilled with an object with an array containing strings with all camera aspect ratios supported by the device.
 
-#### `iOS` `isRecording(): Promise<boolean>`
+### `iOS` `isRecording(): Promise<boolean>`
 
 iOS only. Returns a promise. The promise will be fulfilled with a boolean indicating if currently recording is started or stopped.
 

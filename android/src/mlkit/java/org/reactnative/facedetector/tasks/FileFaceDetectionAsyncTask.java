@@ -1,7 +1,7 @@
 package org.reactnative.facedetector.tasks;
 
 import android.content.Context;
-import android.support.media.ExifInterface;
+import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
