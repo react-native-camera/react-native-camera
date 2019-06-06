@@ -1,0 +1,188 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Q &amp; A · React Native Camera</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#meta-data-android-26&quot;&gt;meta-data android 26&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Q &amp; A · React Native Camera"/><meta property="og:type" content="website"/><meta property="og:url" content="https://react-native-community/github.io/react-native-camera/"/><meta property="og:description" content="&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#meta-data-android-26&quot;&gt;meta-data android 26&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+"/><meta property="og:image" content="https://react-native-community/github.io/react-native-camera/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://react-native-community/github.io/react-native-camera/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/react-native-camera/img/community.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-dark.min.css"/><link rel="stylesheet" href="/css/code-block-buttons.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/code-blocks-buttons.js"></script><script src="/react-native-camera/js/scrollSpy.js"></script><link rel="stylesheet" href="/react-native-camera/css/prism.css"/><link rel="stylesheet" href="/react-native-camera/css/main.css"/><script src="/react-native-camera/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/react-native-camera/"><img class="logo" src="/react-native-camera/img/community.png" alt="React Native Camera"/><h2 class="headerTitleWithLogo">React Native Camera</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/react-native-camera/docs/installation" target="_self">Docs</a></li><li class="siteNavGroupActive"><a href="/react-native-camera/docs/expo_usage" target="_self">Guides</a></li><li class="siteNavGroupActive"><a href="/react-native-camera/docs/api" target="_self">API</a></li><li class=""><a href="/react-native-camera/docs/qa" target="_self">Help</a></li><li class=""><a href="https://github.com/react-native-community/react-native-camera" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Help</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting Started</h3><ul class=""><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/installation">Installation</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/contributing">Contributing</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Guides</h3><ul class=""><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/expo_usage">Expo Usage</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/GradleUpgradeGuide">Gradle Upgrade Guide</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/migration">Migrating from RCTCamera to RNCamera</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/migrationv2">Migrating from version 1.x to 2.x</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/react-navigation">React Navigation</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/recipes">Recipes</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/rncamera">RNCamera</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/tests">Testing</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">API</h3><ul class=""><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/api">Work in progress</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Help</h3><ul class=""><li class="navListItem navListItemActive"><a class="navItem" href="/react-native-camera/docs/qa">Q &amp; A</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/react-native-community/react-native-camera/master/docs/QA.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Q &amp; A</h1></header><article><div><span><ul>
+<li><a href="#meta-data-android-26">meta-data android 26</a></li>
+<li><a href="#when-i-try-to-build-my-project-i-get-following-error">Manifest merger failed</a></li>
+<li><a href="#how-can-i-resize-captured-images">How can I resize captured images?</a></li>
+<li><a href="#how-can-i-get-thumbnails-for-my-video">How can I get thumbnails for my video?</a></li>
+<li><a href="#hoc-can-i-save-my-video-image-to-the-camera-roll">How can I save my video/image to the camera roll?</a></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="meta-data-android-26"></a><a href="#meta-data-android-26" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>meta-data android 26</h2>
+<pre><code class="hljs">  AndroidManifest.xml:<span class="hljs-number">25</span>:<span class="hljs-number">13</span><span class="hljs-number">-35</span> Error:
+       Attribute meta-data#android.support.<span class="hljs-symbol">VERSION@</span>value value=(<span class="hljs-number">26.0</span><span class="hljs-number">.2</span>) <span class="hljs-keyword">from</span> [com.android.support:exifinterface:<span class="hljs-number">26.0</span><span class="hljs-number">.2</span>] Android
+  Manifest.xml:<span class="hljs-number">25</span>:<span class="hljs-number">13</span><span class="hljs-number">-35</span>
+    <span class="hljs-keyword">is</span> also present at [com.android.support:support-v4:<span class="hljs-number">26.0</span><span class="hljs-number">.1</span>] AndroidManifest.xml:<span class="hljs-number">28</span>:<span class="hljs-number">13</span><span class="hljs-number">-35</span> value=(<span class="hljs-number">26.0</span><span class="hljs-number">.1</span>).
+          Suggestion: add <span class="hljs-string">'tools:replace="android:value"'</span> to &lt;meta-data&gt; element at AndroidManifest.xml:<span class="hljs-number">23</span>:<span class="hljs-number">9</span><span class="hljs-number">-25</span>:<span class="hljs-number">38</span> to <span class="hljs-keyword">override</span>.
+</code></pre>
+<p>Add this to your AndroidManifest.xml:</p>
+<ul>
+<li>[ ]           xmlns:tools=&quot;<a href="http://schemas.android.com/tools">http://schemas.android.com/tools</a>&quot;</li>
+</ul>
+<pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">manifest</span> <span class="hljs-attr">xmlns:android</span>=<span class="hljs-string">"http://schemas.android.com/apk/res/android"</span>
+          <span class="hljs-attr">xmlns:tools</span>=<span class="hljs-string">"http://schemas.android.com/tools"</span>
+</span></code></pre>
+<ul>
+<li>[ ] tools:node=&quot;replace&quot;</li>
+</ul>
+<pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">application</span>
+      <span class="hljs-attr">android:name</span>=<span class="hljs-string">".MainApplication"</span>
+      <span class="hljs-attr">android:allowBackup</span>=<span class="hljs-string">"true"</span>
+      <span class="hljs-attr">android:label</span>=<span class="hljs-string">"@string/app_name"</span>
+      <span class="hljs-attr">android:icon</span>=<span class="hljs-string">"@mipmap/ic_launcher"</span>
+      <span class="hljs-attr">android:theme</span>=<span class="hljs-string">"@style/AppTheme"</span>
+      <span class="hljs-attr">tools:node</span>=<span class="hljs-string">"replace"</span>
+    &gt;</span>
+</code></pre>
+<hr>
+<h2><a class="anchor" aria-hidden="true" id="when-i-try-to-build-my-project-i-get-following-error"></a><a href="#when-i-try-to-build-my-project-i-get-following-error" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>When I try to build my project, I get following error:</h2>
+<pre><code class="hljs">Execution failed <span class="hljs-keyword">for</span> task <span class="hljs-string">':app:processDebugManifest'</span>.
+&gt; Manifest merger failed : Attribute meta-data#android.support.<span class="hljs-symbol">VERSION@</span>value value=(<span class="hljs-number">26.0</span><span class="hljs-number">.2</span>) <span class="hljs-keyword">from</span> [com.android.support:exifinterface:<span class="hljs-number">26.0</span><span class="hljs-number">.2</span>] AndroidManifest.xml:<span class="hljs-number">25</span>:<span class="hljs-number">13</span><span class="hljs-number">-35</span>
+        <span class="hljs-keyword">is</span> also present at [com.android.support:support-v4:<span class="hljs-number">26.0</span><span class="hljs-number">.1</span>] AndroidManifest.xml:<span class="hljs-number">28</span>:<span class="hljs-number">13</span><span class="hljs-number">-35</span> value=(<span class="hljs-number">26.0</span><span class="hljs-number">.1</span>).
+        Suggestion: add <span class="hljs-string">'tools:replace="android:value"'</span> to &lt;meta-data&gt; element at AndroidManifest.xml:<span class="hljs-number">23</span>:<span class="hljs-number">9</span><span class="hljs-number">-25</span>:<span class="hljs-number">38</span> to <span class="hljs-keyword">override</span>.
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="as-the-error-message-hints-comandroidsupport-exifinterface-2602-is-already-found-in-comandroidsupport-support-v4-2601"></a><a href="#as-the-error-message-hints-comandroidsupport-exifinterface-2602-is-already-found-in-comandroidsupport-support-v4-2601" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>As the error message hints <code>com.android.support:exifinterface:26.0.2</code> is already found in <code>com.android.support:support-v4:26.0.1</code></h2>
+<p>To fix this issue, modify your project's <code>android/app/build.gradle</code> as follows:</p>
+<pre><code class="hljs css language-Gradle"><span class="hljs-keyword">dependencies</span> {
+    <span class="hljs-keyword">compile</span> (<span class="hljs-keyword">project</span>(<span class="hljs-string">':react-native-camera'</span>)) {
+        <span class="hljs-keyword">exclude</span> <span class="hljs-keyword">group</span>: <span class="hljs-string">"com.android.support"</span>
+
+        <span class="hljs-comment">// uncomment this if also com.google.android.gms:play-services-vision versions are conflicting</span>
+        <span class="hljs-comment">// this can happen if you use react-native-firebase</span>
+        <span class="hljs-comment">// exclude group: "com.google.android.gms"</span>
+    }
+
+    <span class="hljs-keyword">compile</span> (<span class="hljs-string">'com.android.support:exifinterface:26.0.1'</span>) {
+        force = <span class="hljs-keyword">true</span>;
+    }
+
+    <span class="hljs-comment">// uncomment this if you uncommented the previous line</span>
+    <span class="hljs-comment">// compile ('com.google.android.gms:play-services-vision:11.6.0') {</span>
+    <span class="hljs-comment">//    force = true;</span>
+    <span class="hljs-comment">// }</span>
+}
+</code></pre>
+<hr>
+<h2><a class="anchor" aria-hidden="true" id="how-can-i-resize-captured-images"></a><a href="#how-can-i-resize-captured-images" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>How can I resize captured images?</h2>
+<p>Currently, <code>RNCamera</code> does not allow for specifying the desired resolution of the captured image, nor does it natively expose any functionality to resize images.
+One way to achieve this (without any additional dependencies )is using <a href="https://facebook.github.io/react-native/docs/imageeditor.html#cropimage">react-native.ImageEditor.cropImage</a>.</p>
+<p>The strategy is:</p>
+<ol>
+<li>Capture an image using <code>RNCamera</code>, which uses the device's max resolution.</li>
+<li>Use <code>react-native.ImageEditor.cropImage()</code> to crop the image using the image's native size as the crop size (thus maintaiing the original image), and the desired new size as the <code>displaySize</code> attribute (thus resizing the image).</li>
+</ol>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> React, { PureComponent } <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
+<span class="hljs-keyword">import</span> { Button, ImageEditor } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native'</span>;
+<span class="hljs-keyword">import</span> { RNCamera } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native-camera'</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CameraComponent</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">PureComponent</span> </span>{
+  <span class="hljs-comment">// ...</span>
+
+  capturePicture = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.camera) {
+      <span class="hljs-comment">// 1) Capture the image using RNCamera API</span>
+      <span class="hljs-keyword">this</span>.camera.takePictureAsync(options)
+        .then(<span class="hljs-function">(<span class="hljs-params">capturedImg</span>) =&gt;</span> {
+          <span class="hljs-comment">// 2a) Extract a reference to the captured image,</span>
+          <span class="hljs-comment">//    along with its natural dimensions</span>
+          <span class="hljs-keyword">const</span> { uri, width, height } = capturedImg;
+
+          <span class="hljs-keyword">const</span> cropData = {
+            <span class="hljs-comment">// 2b) By cropping from (0, 0) to (imgWidth, imgHeight),</span>
+            <span class="hljs-comment">//    we maintain the original image's dimensions</span>
+            offset: { <span class="hljs-attr">x</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0</span> },
+            <span class="hljs-attr">size</span>: { width, height },
+
+            <span class="hljs-comment">// 2c) Use the displaySize option to specify the new image size</span>
+            displaySize: { <span class="hljs-attr">width</span>: RESIZED_WIDTH, <span class="hljs-attr">height</span>: RESIZED_HEIGHT },
+          };
+
+          ImageEditor.cropImage(uri, cropData, (resizedImage) =&gt; {
+              <span class="hljs-comment">// resizedImage == 'file:///data/.../img.jpg'</span>
+            }, (error) =&gt; {
+              <span class="hljs-built_in">console</span>.error(<span class="hljs-string">'Error resizing image: '</span>, error.getMessage());
+          });
+        })
+        .catch(<span class="hljs-function">(<span class="hljs-params">error</span>) =&gt;</span> {
+          <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Could not capture image.'</span>, error.getMessage());
+        });
+    }
+
+  render() {
+    <span class="hljs-keyword">return</span> (
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">RNCamera</span>
+        <span class="hljs-attr">ref</span>=<span class="hljs-string">{ref</span> =&gt;</span> (this.camera = ref)}
+        // ...
+      /&gt;
+
+      <span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">onPress</span>=<span class="hljs-string">{()</span> =&gt;</span> this.capturePicture()}&gt;Capture<span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
+    );
+  }
+}
+
+</span></code></pre>
+<h2><a class="anchor" aria-hidden="true" id="how-can-i-get-thumbnails-for-my-video"></a><a href="#how-can-i-get-thumbnails-for-my-video" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>How can I get thumbnails for my video</h2>
+<p>We recommend using the library <a href="https://github.com/phuochau/react-native-thumbnail"><code>react-native-thumbnail</code></a> for generating thumbnails of your video files.</p>
+<h2><a class="anchor" aria-hidden="true" id="how-can-i-save-my-video-image-to-the-camera-roll"></a><a href="#how-can-i-save-my-video-image-to-the-camera-roll" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>How can I save my video/image to the camera roll?</h2>
+<p>You can use the <a href="https://facebook.github.io/react-native/docs/cameraroll.htm"><code>CameraRoll</code> Module</a>.
+You must follow the setup instructions in the <code>react-native</code> documentation, since <code>CameraRoll</code> module needs to be linked first.</p>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 6/2/2019 by Ronaldo Lima</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/react-native-camera/docs/api"><span class="arrow-prev">← </span><span>Work in progress</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#meta-data-android-26">meta-data android 26</a></li><li><a href="#when-i-try-to-build-my-project-i-get-following-error">When I try to build my project, I get following error:</a></li><li><a href="#as-the-error-message-hints-comandroidsupport-exifinterface-2602-is-already-found-in-comandroidsupport-support-v4-2601">As the error message hints <code>com.android.support:exifinterface:26.0.2</code> is already found in <code>com.android.support:support-v4:26.0.1</code></a></li><li><a href="#how-can-i-resize-captured-images">How can I resize captured images?</a></li><li><a href="#how-can-i-get-thumbnails-for-my-video">How can I get thumbnails for my video</a></li><li><a href="#how-can-i-save-my-video-image-to-the-camera-roll">How can I save my video/image to the camera roll?</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/react-native-camera/" class="nav-home"><img src="/react-native-camera/img/community.png" alt="React Native Camera" width="66" height="58"/></a><div><h5>Docs</h5><a href="/react-native-camera/docs/en/installation.html">Getting Started</a><a href="/react-native-camera/docs/en/expo_usage.html">Guides</a><a href="/react-native-camera/docs/en/api.html">API Reference</a></div><div><h5>Community</h5><a href="/react-native-camera/en/users.html">User Showcase</a><a href="https://stackoverflow.com/questions/tagged/react-native-camera" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://spectrum.chat/">Project Chat</a></div><div><h5>More</h5><a href="https://github.com/react-native-community/react-native-camera">GitHub</a><a class="github-button" href="https://github.com/react-native-community/react-native-camera" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/react-native-camera/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2019</section></footer></div></body></html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>RNCamera · React Native Camera</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;h2&gt;&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; id=&quot;usage&quot;&gt;&lt;/a&gt;&lt;a href=&quot;#usage&quot; aria-hidden=&quot;true&quot; class=&quot;hash-link&quot;&gt;&lt;svg class=&quot;hash-link-icon&quot; aria-hidden=&quot;true&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Usage&lt;/h2&gt;
+"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="RNCamera · React Native Camera"/><meta property="og:type" content="website"/><meta property="og:url" content="https://react-native-community/github.io/react-native-camera/"/><meta property="og:description" content="&lt;h2&gt;&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; id=&quot;usage&quot;&gt;&lt;/a&gt;&lt;a href=&quot;#usage&quot; aria-hidden=&quot;true&quot; class=&quot;hash-link&quot;&gt;&lt;svg class=&quot;hash-link-icon&quot; aria-hidden=&quot;true&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Usage&lt;/h2&gt;
+"/><meta property="og:image" content="https://react-native-community/github.io/react-native-camera/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://react-native-community/github.io/react-native-camera/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/react-native-camera/img/community.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-dark.min.css"/><link rel="stylesheet" href="/css/code-block-buttons.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/code-blocks-buttons.js"></script><script src="/react-native-camera/js/scrollSpy.js"></script><link rel="stylesheet" href="/react-native-camera/css/prism.css"/><link rel="stylesheet" href="/react-native-camera/css/main.css"/><script src="/react-native-camera/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/react-native-camera/"><img class="logo" src="/react-native-camera/img/community.png" alt="React Native Camera"/><h2 class="headerTitleWithLogo">React Native Camera</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/react-native-camera/docs/installation" target="_self">Docs</a></li><li class="siteNavGroupActive"><a href="/react-native-camera/docs/expo_usage" target="_self">Guides</a></li><li class="siteNavGroupActive"><a href="/react-native-camera/docs/api" target="_self">API</a></li><li class=""><a href="/react-native-camera/docs/qa" target="_self">Help</a></li><li class=""><a href="https://github.com/react-native-community/react-native-camera" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Guides</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting Started</h3><ul class=""><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/installation">Installation</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/contributing">Contributing</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Guides</h3><ul class=""><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/expo_usage">Expo Usage</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/GradleUpgradeGuide">Gradle Upgrade Guide</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/migration">Migrating from RCTCamera to RNCamera</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/migrationv2">Migrating from version 1.x to 2.x</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/react-navigation">React Navigation</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/recipes">Recipes</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/react-native-camera/docs/rncamera">RNCamera</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/tests">Testing</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">API</h3><ul class=""><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/api">Work in progress</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Help</h3><ul class=""><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/qa">Q &amp; A</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/react-native-community/react-native-camera/master/docs/RNCamera.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">RNCamera</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="usage"></a><a href="#usage" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Usage</h2>
+<p>All you need is to <code>import</code> <code>{ RNCamera }</code> from the <code>react-native-camera</code> module and then use the
+<code>&lt;RNCamera/&gt;</code> tag.</p>
+<pre><code class="hljs css language-javascript"><span class="hljs-meta">'use strict'</span>;
+<span class="hljs-keyword">import</span> React, { PureComponent } <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
+<span class="hljs-keyword">import</span> { AppRegistry, StyleSheet, Text, TouchableOpacity, View } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native'</span>;
+<span class="hljs-keyword">import</span> { RNCamera } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native-camera'</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">PureComponent</span> </span>{
+  render() {
+    <span class="hljs-keyword">return</span> (
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">View</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{styles.container}</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">RNCamera</span>
+          <span class="hljs-attr">ref</span>=<span class="hljs-string">{ref</span> =&gt;</span> {
+            this.camera = ref;
+          }}
+          style={styles.preview}
+          type={RNCamera.Constants.Type.back}
+          flashMode={RNCamera.Constants.FlashMode.on}
+          androidCameraPermissionOptions={{
+            title: 'Permission to use camera',
+            message: 'We need your permission to use your camera',
+            buttonPositive: 'Ok',
+            buttonNegative: 'Cancel',
+          }}
+          androidRecordAudioPermissionOptions={{
+            title: 'Permission to use audio recording',
+            message: 'We need your permission to use your audio',
+            buttonPositive: 'Ok',
+            buttonNegative: 'Cancel',
+          }}
+          onGoogleVisionBarcodesDetected={({ barcodes }) =&gt; {
+            console.log(barcodes);
+          }}
+        /&gt;
+        <span class="hljs-tag">&lt;<span class="hljs-name">View</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{{</span> <span class="hljs-attr">flex:</span> <span class="hljs-attr">0</span>, <span class="hljs-attr">flexDirection:</span> '<span class="hljs-attr">row</span>', <span class="hljs-attr">justifyContent:</span> '<span class="hljs-attr">center</span>' }}&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">TouchableOpacity</span> <span class="hljs-attr">onPress</span>=<span class="hljs-string">{this.takePicture.bind(this)}</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{styles.capture}</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">Text</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{{</span> <span class="hljs-attr">fontSize:</span> <span class="hljs-attr">14</span> }}&gt;</span> SNAP <span class="hljs-tag">&lt;/<span class="hljs-name">Text</span>&gt;</span>
+          <span class="hljs-tag">&lt;/<span class="hljs-name">TouchableOpacity</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">View</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">View</span>&gt;</span>
+    );
+  }
+
+  takePicture = async() =&gt; {
+    if (this.camera) {
+      const options = { quality: 0.5, base64: true };
+      const data = await this.camera.takePictureAsync(options);
+      console.log(data.uri);
+    }
+  };
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    backgroundColor: 'black',
+  },
+  preview: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  capture: {
+    flex: 0,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    padding: 15,
+    paddingHorizontal: 20,
+    alignSelf: 'center',
+    margin: 20,
+  },
+});
+
+AppRegistry.registerComponent('ExampleApp', () =&gt; ExampleApp);
+</span></code></pre>
+<h2><a class="anchor" aria-hidden="true" id="facc-function-as-child-components"></a><a href="#facc-function-as-child-components" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>FaCC (Function as Child Components)</h2>
+<p>*<em>You can also use it with Facc.</em></p>
+<pre><code class="hljs css language-javascript"><span class="hljs-meta">'use strict'</span>;
+<span class="hljs-keyword">import</span> React, { PureComponent } <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
+<span class="hljs-keyword">import</span> { StyleSheet, Text, TouchableOpacity, View } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native'</span>;
+<span class="hljs-keyword">import</span> { RNCamera } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native-camera'</span>;
+
+<span class="hljs-keyword">const</span> PendingView = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> (
+  <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">View</span>
+    <span class="hljs-attr">style</span>=<span class="hljs-string">{{</span>
+      <span class="hljs-attr">flex:</span> <span class="hljs-attr">1</span>,
+      <span class="hljs-attr">backgroundColor:</span> '<span class="hljs-attr">lightgreen</span>',
+      <span class="hljs-attr">justifyContent:</span> '<span class="hljs-attr">center</span>',
+      <span class="hljs-attr">alignItems:</span> '<span class="hljs-attr">center</span>',
+    }}
+  &gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">Text</span>&gt;</span>Waiting<span class="hljs-tag">&lt;/<span class="hljs-name">Text</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">View</span>&gt;</span></span>
+);
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleApp</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">PureComponent</span> </span>{
+  render() {
+    <span class="hljs-keyword">return</span> (
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">View</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{styles.container}</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">RNCamera</span>
+          <span class="hljs-attr">style</span>=<span class="hljs-string">{styles.preview}</span>
+          <span class="hljs-attr">type</span>=<span class="hljs-string">{RNCamera.Constants.Type.back}</span>
+          <span class="hljs-attr">flashMode</span>=<span class="hljs-string">{RNCamera.Constants.FlashMode.on}</span>
+          <span class="hljs-attr">androidCameraPermissionOptions</span>=<span class="hljs-string">{{</span>
+            <span class="hljs-attr">title:</span> '<span class="hljs-attr">Permission</span> <span class="hljs-attr">to</span> <span class="hljs-attr">use</span> <span class="hljs-attr">camera</span>',
+            <span class="hljs-attr">message:</span> '<span class="hljs-attr">We</span> <span class="hljs-attr">need</span> <span class="hljs-attr">your</span> <span class="hljs-attr">permission</span> <span class="hljs-attr">to</span> <span class="hljs-attr">use</span> <span class="hljs-attr">your</span> <span class="hljs-attr">camera</span>',
+            <span class="hljs-attr">buttonPositive:</span> '<span class="hljs-attr">Ok</span>',
+            <span class="hljs-attr">buttonNegative:</span> '<span class="hljs-attr">Cancel</span>',
+          }}
+          <span class="hljs-attr">androidRecordAudioPermissionOptions</span>=<span class="hljs-string">{{</span>
+            <span class="hljs-attr">title:</span> '<span class="hljs-attr">Permission</span> <span class="hljs-attr">to</span> <span class="hljs-attr">use</span> <span class="hljs-attr">audio</span> <span class="hljs-attr">recording</span>',
+            <span class="hljs-attr">message:</span> '<span class="hljs-attr">We</span> <span class="hljs-attr">need</span> <span class="hljs-attr">your</span> <span class="hljs-attr">permission</span> <span class="hljs-attr">to</span> <span class="hljs-attr">use</span> <span class="hljs-attr">your</span> <span class="hljs-attr">audio</span>',
+            <span class="hljs-attr">buttonPositive:</span> '<span class="hljs-attr">Ok</span>',
+            <span class="hljs-attr">buttonNegative:</span> '<span class="hljs-attr">Cancel</span>',
+          }}
+        &gt;</span>
+          {({ camera, status, recordAudioPermissionStatus }) =&gt; {
+            if (status !== 'READY') return <span class="hljs-tag">&lt;<span class="hljs-name">PendingView</span> /&gt;</span>;
+            return (
+              <span class="hljs-tag">&lt;<span class="hljs-name">View</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{{</span> <span class="hljs-attr">flex:</span> <span class="hljs-attr">0</span>, <span class="hljs-attr">flexDirection:</span> '<span class="hljs-attr">row</span>', <span class="hljs-attr">justifyContent:</span> '<span class="hljs-attr">center</span>' }}&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">TouchableOpacity</span> <span class="hljs-attr">onPress</span>=<span class="hljs-string">{()</span> =&gt;</span> this.takePicture(camera)} style={styles.capture}&gt;
+                  <span class="hljs-tag">&lt;<span class="hljs-name">Text</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{{</span> <span class="hljs-attr">fontSize:</span> <span class="hljs-attr">14</span> }}&gt;</span> SNAP <span class="hljs-tag">&lt;/<span class="hljs-name">Text</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-name">TouchableOpacity</span>&gt;</span>
+              <span class="hljs-tag">&lt;/<span class="hljs-name">View</span>&gt;</span>
+            );
+          }}
+        <span class="hljs-tag">&lt;/<span class="hljs-name">RNCamera</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">View</span>&gt;</span></span>
+    );
+  }
+
+  takePicture = <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">camera</span>) </span>{
+    <span class="hljs-keyword">const</span> options = { <span class="hljs-attr">quality</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">base64</span>: <span class="hljs-literal">true</span> };
+    <span class="hljs-keyword">const</span> data = <span class="hljs-keyword">await</span> camera.takePictureAsync(options);
+    <span class="hljs-comment">//  eslint-disable-next-line</span>
+    <span class="hljs-built_in">console</span>.log(data.uri);
+  };
+}
+
+<span class="hljs-keyword">const</span> styles = StyleSheet.create({
+  <span class="hljs-attr">container</span>: {
+    <span class="hljs-attr">flex</span>: <span class="hljs-number">1</span>,
+    <span class="hljs-attr">flexDirection</span>: <span class="hljs-string">'column'</span>,
+    <span class="hljs-attr">backgroundColor</span>: <span class="hljs-string">'black'</span>,
+  },
+  <span class="hljs-attr">preview</span>: {
+    <span class="hljs-attr">flex</span>: <span class="hljs-number">1</span>,
+    <span class="hljs-attr">justifyContent</span>: <span class="hljs-string">'flex-end'</span>,
+    <span class="hljs-attr">alignItems</span>: <span class="hljs-string">'center'</span>,
+  },
+  <span class="hljs-attr">capture</span>: {
+    <span class="hljs-attr">flex</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">backgroundColor</span>: <span class="hljs-string">'#fff'</span>,
+    <span class="hljs-attr">borderRadius</span>: <span class="hljs-number">5</span>,
+    <span class="hljs-attr">padding</span>: <span class="hljs-number">15</span>,
+    <span class="hljs-attr">paddingHorizontal</span>: <span class="hljs-number">20</span>,
+    <span class="hljs-attr">alignSelf</span>: <span class="hljs-string">'center'</span>,
+    <span class="hljs-attr">margin</span>: <span class="hljs-number">20</span>,
+  },
+});
+
+AppRegistry.registerComponent(<span class="hljs-string">'ExampleApp'</span>, () =&gt; ExampleApp);
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="camera"></a><a href="#camera" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>camera</code></h3>
+<p><em>It's the RNCamera's reference</em></p>
+<h3><a class="anchor" aria-hidden="true" id="status"></a><a href="#status" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>status</code></h3>
+<p>One of <code>RNCamera.Constants.CameraStatus</code></p>
+<p>'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED'</p>
+<h3><a class="anchor" aria-hidden="true" id="recordaudiopermissionstatus"></a><a href="#recordaudiopermissionstatus" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>recordAudioPermissionStatus</code></h3>
+<p>One of <code>RNCamera.Constants.RecordAudioPermissionStatus</code>.</p>
+<p><code>'AUTHORIZED'</code> | <code>'NOT_AUTHORIZED'</code> | <code>'PENDING_AUTHORIZATION'</code></p>
+<h2><a class="anchor" aria-hidden="true" id="properties"></a><a href="#properties" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Properties</h2>
+<h3><a class="anchor" aria-hidden="true" id="autofocus"></a><a href="#autofocus" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>autoFocus</code></h3>
+<p>Values: <code>RNCamera.Constants.AutoFocus.on</code> (default) or <code>RNCamera.Constants.AutoFocus.off</code></p>
+<p>Most cameras have a Auto Focus feature. It adjusts your camera lens position automatically depending on the pixels seen by your camera.</p>
+<p>Use the <code>autoFocus</code> property to specify the auto focus setting of your camera. <code>RNCamera.Constants.AutoFocus.on</code> turns it ON, <code>RNCamera.Constants.AutoFocus.off</code> turns it OFF.</p>
+<h3><a class="anchor" aria-hidden="true" id="autofocuspointofinterest"></a><a href="#autofocuspointofinterest" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>autoFocusPointOfInterest</code></h3>
+<p>Values: Object <code>{ x: 0.5, y: 0.5 }</code>.</p>
+<p>Setting this property causes the auto focus feature of the camera to attempt to focus on the part of the image at this coordiate.</p>
+<p>Coordinates values are measured as floats from <code>0</code> to <code>1.0</code>. <code>{ x: 0, y: 0 }</code> will focus on the top left of the image, <code>{ x: 1, y: 1 }</code> will be the bottom right. Values are based on landscape mode with the home button on the right—this applies even if the device is in portrait mode.</p>
+<p>Hint:
+for portrait orientation, apply 90° clockwise rotation + translation: <a href="https://gist.github.com/Craigtut/6632a9ac7cfff55e74fb561862bc4edb">Example</a></p>
+<h3><a class="anchor" aria-hidden="true" id="captureaudio"></a><a href="#captureaudio" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>captureAudio</code></h3>
+<p>Values: boolean <code>true</code> (default) | <code>false</code></p>
+<p>Specifies if audio recording permissions should be requested.
+Make sure to follow README instructions for audio recording permissions <a href="README.md">here</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="flashmode"></a><a href="#flashmode" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>flashMode</code></h3>
+<p>Values: <code>RNCamera.Constants.FlashMode.off</code> (default), <code>RNCamera.Constants.FlashMode.on</code>, <code>RNCamera.Constants.FlashMode.auto</code> or <code>RNCamera.Constants.FlashMode.torch</code>.</p>
+<p>Specifies the flash mode of your camera.</p>
+<p><code>RNCamera.Constants.FlashMode.off</code> turns it off.</p>
+<p><code>RNCamera.Constants.FlashMode.on</code> means camera will use flash in all photos taken.</p>
+<p><code>RNCamera.Constants.FlashMode.auto</code> leaves your phone to decide when to use flash when taking photos, based on the lightning conditions that the camera observes.</p>
+<p><code>RNCamera.Constants.FlashMode.torch</code> turns on torch mode, meaning the flash light will be turned on all the time (even before taking photo) just like a flashlight.</p>
+<h3><a class="anchor" aria-hidden="true" id="focusdepth"></a><a href="#focusdepth" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>focusDepth</code></h3>
+<p>Value: float from <code>0</code> to <code>1.0</code></p>
+<p>Manually set camera focus. Only works with <code>autoFocus</code> off. The value 0 is minimum focus depth, 1 is maximum focus depth. For a medium focus depth, for example, you could use 0.5.</p>
+<h3><a class="anchor" aria-hidden="true" id="android-ratio"></a><a href="#android-ratio" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Android</code> <code>ratio</code></h3>
+<p>A string representing the camera ratio in the format 'height:width'. Default is <code>&quot;4:3&quot;</code>.</p>
+<p>Use <code>getSupportedRatiosAsync</code> method to get ratio strings supported by your camera on Android.</p>
+<h3><a class="anchor" aria-hidden="true" id="type"></a><a href="#type" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>type</code></h3>
+<p>Values: <code>RNCamera.Constants.Type.front</code> or <code>RNCamera.Constants.Type.back</code> (default)</p>
+<p>Use the <code>type</code> property to specify which camera to use.</p>
+<h3><a class="anchor" aria-hidden="true" id="whitebalance"></a><a href="#whitebalance" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>whiteBalance</code></h3>
+<p>Values: <code>RNCamera.Constants.WhiteBalance.sunny</code>, <code>RNCamera.Constants.WhiteBalance.cloudy</code>, <code>RNCamera.Constants.WhiteBalance.shadow</code>, <code>RNCamera.Constants.WhiteBalance.incandescent</code>, <code>RNCamera.Constants.WhiteBalance.fluorescent</code> or <code>RNCamera.Constants.WhiteBalance.auto</code> (default)</p>
+<p>A camera’s white balance setting allows you to control the color temperature in your photos by cooling down or warming up the colors.</p>
+<p>The idea is that you select the appropriate white balance setting for the type of light that you’re shooting in, and then your camera automatically adjusts the colors to eliminate any warm or cool color casts from your light source.</p>
+<p>Use the <code>whiteBalance</code> property to specify which white balance setting the camera should use.</p>
+<h3><a class="anchor" aria-hidden="true" id="zoom"></a><a href="#zoom" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>zoom</code></h3>
+<p>Value: float from <code>0</code> to <code>1.0</code></p>
+<p>Specifies the zoom of your camera. The value 0 is no zoom, 1 is maximum zoom. For a medium zoom, for example, you could pass <code>0.5</code>.</p>
+<h3><a class="anchor" aria-hidden="true" id="android-permissiondialogtitle-deprecated"></a><a href="#android-permissiondialogtitle-deprecated" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Android</code> <code>permissionDialogTitle</code> - Deprecated</h3>
+<p>Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the title of the dialog prompt requesting permissions.</p>
+<h3><a class="anchor" aria-hidden="true" id="android-permissiondialogmessage-deprecated"></a><a href="#android-permissiondialogmessage-deprecated" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Android</code> <code>permissionDialogMessage</code> - Deprecated</h3>
+<p>Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the content of the dialog prompt requesting permissions.</p>
+<h3><a class="anchor" aria-hidden="true" id="android-androidrecordaudiopermissionoptions"></a><a href="#android-androidrecordaudiopermissionoptions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Android</code> <code>androidRecordAudioPermissionOptions</code></h3>
+<p>Configuration options for permissions request for recording audio. It will be passed as <code>rationale</code> parameter to <a href="https://facebook.github.io/react-native/docs/permissionsandroid#request"><code>PermissionsAndroid.request</code></a>. This replaces and deprecates old <code>permissionDialogTitle</code> and <code>permissionDialogMessage</code> parameters.</p>
+<h3><a class="anchor" aria-hidden="true" id="android-androidcamerapermissionoptions"></a><a href="#android-androidcamerapermissionoptions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Android</code> <code>androidCameraPermissionOptions</code></h3>
+<p>Configuration options for permissions request for camera. It will be passed as <code>rationale</code> parameter to <a href="https://facebook.github.io/react-native/docs/permissionsandroid#request"><code>PermissionsAndroid.request</code></a>. This replaces and deprecates old <code>permissionDialogTitle</code> and <code>permissionDialogMessage</code> parameters.</p>
+<h3><a class="anchor" aria-hidden="true" id="notauthorizedview"></a><a href="#notauthorizedview" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>notAuthorizedView</code></h3>
+<p>By default a <code>Camera not authorized</code> message will be displayed when access to the camera has been denied, if set displays the passed react element instead of the default one.</p>
+<h3><a class="anchor" aria-hidden="true" id="pendingauthorizationview"></a><a href="#pendingauthorizationview" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>pendingAuthorizationView</code></h3>
+<p>By default a <ActivityIndicator> will be displayed while the component is waiting for the user to grant/deny access to the camera, if set displays the passed react element instead of the default one.</p>
+<h3><a class="anchor" aria-hidden="true" id="ios-videostabilizationmode"></a><a href="#ios-videostabilizationmode" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>iOS</code> <code>videoStabilizationMode</code></h3>
+<p>The video stabilization mode used for a video recording. The possible values are:</p>
+<ul>
+<li><code>RNCamera.Constants.VideoStabilization['off']</code></li>
+<li><code>RNCamera.Constants.VideoStabilization['standard']</code></li>
+<li><code>RNCamera.Constants.VideoStabilization['cinematic']</code></li>
+<li><code>RNCamera.Constants.VideoStabilization['auto']</code></li>
+</ul>
+<p>You can read more about each stabilization type here: <a href="https://developer.apple.com/documentation/avfoundation/avcapturevideostabilizationmode">https://developer.apple.com/documentation/avfoundation/avcapturevideostabilizationmode</a></p>
+<h3><a class="anchor" aria-hidden="true" id="ios-defaultvideoquality"></a><a href="#ios-defaultvideoquality" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>iOS</code> <code>defaultVideoQuality</code></h3>
+<p>This option specifies the quality of the video to be taken. The possible values are:</p>
+<ul>
+<li><code>RNCamera.Constants.VideoQuality.2160p</code>.
+<ul>
+<li><code>ios</code> Specifies capture settings suitable for 2160p (also called UHD or 4K) quality (3840x2160 pixel) video output.</li>
+<li><code>android</code> Quality level corresponding to the 2160p (3840x2160) resolution. (Android Lollipop and above only!).</li>
+</ul></li>
+<li><code>RNCamera.Constants.VideoQuality.1080p</code>.
+<ul>
+<li><code>ios</code> Specifies capture settings suitable for 1080p quality (1920x1080 pixel) video output.</li>
+<li><code>android</code> Quality level corresponding to the 1080p (1920 x 1080) resolution.</li>
+</ul></li>
+<li><code>RNCamera.Constants.VideoQuality.720p</code>.
+<ul>
+<li><code>ios</code> Specifies capture settings suitable for 720p quality (1280x720 pixel) video output.</li>
+<li><code>android</code> Quality level corresponding to the 720p (1280 x 720) resolution.</li>
+</ul></li>
+<li><code>RNCamera.Constants.VideoQuality.480p</code>.
+<ul>
+<li><code>ios</code> Specifies capture settings suitable for VGA quality (640x480 pixel) video output.</li>
+<li><code>android</code> Quality level corresponding to the 480p (720 x 480) resolution.</li>
+</ul></li>
+<li><code>RNCamera.Constants.VideoQuality.4:3</code>.
+<ul>
+<li><code>ios</code> Specifies capture settings suitable for VGA quality (640x480 pixel) video output. (Same as RNCamera.Constants.VideoQuality.480p).</li>
+<li><code>android</code> Quality level corresponding to the 480p (720 x 480) resolution but with video frame width set to 640.</li>
+</ul></li>
+<li><code>RNCamera.Constants.VideoQuality.288p</code>.
+<ul>
+<li><code>ios</code> Specifies capture settings suitable for CIF quality (352x288 pixel) video output.</li>
+<li><code>android</code> Not supported.</li>
+</ul></li>
+</ul>
+<p>If nothing is passed the device's highest camera quality will be used as default.
+Note: This solve the flicker video recording issue for iOS</p>
+<h3><a class="anchor" aria-hidden="true" id="native-event-callbacks-props"></a><a href="#native-event-callbacks-props" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Native Event callbacks props</h3>
+<h3><a class="anchor" aria-hidden="true" id="oncameraready"></a><a href="#oncameraready" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>onCameraReady</code></h3>
+<p>Function to be called when native code emit onCameraReady event, when camera is ready.</p>
+<h3><a class="anchor" aria-hidden="true" id="onmounterror"></a><a href="#onmounterror" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>onMountError</code></h3>
+<p>Function to be called when native code emit onMountError event, when there is a problem mounting the camera.</p>
+<h3><a class="anchor" aria-hidden="true" id="onstatuschange"></a><a href="#onstatuschange" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>onStatusChange</code></h3>
+<p>Function to be called when native code emits status changes in relation to authorization changes.</p>
+<p>Event contains the following fields:</p>
+<ul>
+<li><code>cameraStatus</code> - one of the <a href="#status">CameraStatus</a> values</li>
+<li><code>recordAudioPermissionStatus</code> - one of the <a href="#recordAudioPermissionStatus">RecordAudioPermissionStatus</a> values</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="android-onpicturetaken"></a><a href="#android-onpicturetaken" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Android</code> <code>onPictureTaken</code></h3>
+<p>Function to be called when native code emit onPictureTaken event, when camera has taken a picture.</p>
+<h3><a class="anchor" aria-hidden="true" id="bar-code-related-props"></a><a href="#bar-code-related-props" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Bar Code Related props</h3>
+<h3><a class="anchor" aria-hidden="true" id="onbarcoderead"></a><a href="#onbarcoderead" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>onBarCodeRead</code></h3>
+<p>Will call the specified method when a barcode is detected in the camera's view.</p>
+<p>Event contains the following fields</p>
+<ul>
+<li><p><code>data</code> - a textual representation of the barcode, if available</p></li>
+<li><p><code>rawData</code> - The raw data encoded in the barcode, if available</p></li>
+<li><p><code>type</code> - the type of the barcode detected</p></li>
+<li><p><code>bounds</code> -</p>
+<ul>
+<li><p>on iOS:</p>
+<pre><code class="hljs">bounds:{
+  size:{
+    width:string,
+    height:string
+  }
+  origin:{
+    x:string,
+    y:string
+  }
+}
+</code></pre></li>
+<li><p>onAndroid:</p>
+<pre><code class="hljs">bounds:[{x:string,y:string}]
+    - on Android it just returns resultPoints:
+- for barcodes:
+
+      bounds[0].x : left side of barcode.
+      bounds[1].x : right side of barcode
+- counting for QRcodes:
+
+      1 2
+      0
+</code></pre></li>
+</ul></li>
+</ul>
+<p>The following barcode types can be recognised:</p>
+<ul>
+<li><code>aztec</code></li>
+<li><code>code128</code></li>
+<li><code>code39</code></li>
+<li><code>code39mod43</code></li>
+<li><code>code93</code></li>
+<li><code>ean13</code> (<code>iOS</code> converts <code>upca</code> barcodes to <code>ean13</code> by adding a leading 0)</li>
+<li><code>ean8</code></li>
+<li><code>pdf417</code></li>
+<li><code>qr</code></li>
+<li><code>upce</code></li>
+<li><code>interleaved2of5</code> (when available)</li>
+<li><code>itf14</code> (when available)</li>
+<li><code>datamatrix</code> (when available)</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="barcodetypes"></a><a href="#barcodetypes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>barCodeTypes</code></h3>
+<p>An array of barcode types to search for. Defaults to all types listed above. No effect if <code>onBarCodeRead</code> is undefined.
+Example: <code>&lt;RNCamera barCodeTypes={[RNCamera.Constants.BarCodeType.qr]} /&gt;</code></p>
+<h3><a class="anchor" aria-hidden="true" id="ongooglevisionbarcodesdetected"></a><a href="#ongooglevisionbarcodesdetected" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>onGoogleVisionBarcodesDetected</code></h3>
+<p>Like <code>onBarCodeRead</code>, but using Firebase MLKit to scan barcodes. More info can be found <a href="https://firebase.google.com/docs/ml-kit/read-barcodes">here</a> Note: If you already set <code>onBarCodeRead</code>, this will be invalid.</p>
+<h3><a class="anchor" aria-hidden="true" id="googlevisionbarcodetype"></a><a href="#googlevisionbarcodetype" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>googleVisionBarcodeType</code></h3>
+<p>Like <code>barCodeTypes</code>, but applies to the Firebase MLKit barcode detector.
+Example: <code>&lt;RNCamera googleVisionBarcodeType={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeType.DATA_MATRIX} /&gt;</code>
+Available settings:</p>
+<ul>
+<li>CODE_128</li>
+<li>CODE_39</li>
+<li>CODE_93</li>
+<li>CODABAR</li>
+<li>EAN_13</li>
+<li>EAN_8</li>
+<li>ITF</li>
+<li>UPC_A</li>
+<li>UPC_E</li>
+<li>QR_CODE</li>
+<li>PDF417</li>
+<li>AZTEC</li>
+<li>DATA_MATRIX</li>
+<li>ALL</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="android-googlevisionbarcodemode"></a><a href="#android-googlevisionbarcodemode" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Android</code> <code>googleVisionBarcodeMode</code></h3>
+<p>Change the mode in order to scan &quot;inverted&quot; barcodes. You can either change it to <code>alternate</code>, which will inverted the image data every second screen and be able to read both normal and inverted barcodes, or <code>inverted</code>, which will only read inverted barcodes. Default is <code>normal</code>, which only reads &quot;normal&quot; barcodes. Note: this property only applies to the Google Vision barcode detector.
+Example: <code>&lt;RNCamera googleVisionBarcodeMode={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeMode.ALTERNATE} /&gt;</code></p>
+<h3><a class="anchor" aria-hidden="true" id="face-detection-related-props"></a><a href="#face-detection-related-props" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Face Detection Related props</h3>
+<p>RNCamera uses the Firebase MLKit for Face Detection, you can read more about it <a href="https://firebase.google.com/docs/ml-kit/detect-faces">here</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="onfacesdetected"></a><a href="#onfacesdetected" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>onFacesDetected</code></h3>
+<p>Method to be called when face is detected. Receives a Faces Detected Event object. The interesting value of this object is the <code>faces</code> value, which is an array of Face objects. You can find more details about the possible values of these objects <a href="https://firebase.google.com/docs/ml-kit/face-detection-concepts">here</a></p>
+<h3><a class="anchor" aria-hidden="true" id="onfacedetectionerror"></a><a href="#onfacedetectionerror" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>onFaceDetectionError</code></h3>
+<p>Method to be called if there was an Face Detection Error, receives an object with the <code>isOperational</code> property set to <code>false</code> if Face Detector is NOT operational and <code>true</code>if it is.</p>
+<h3><a class="anchor" aria-hidden="true" id="facedetectionmode"></a><a href="#facedetectionmode" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>faceDetectionMode</code></h3>
+<p>Values: <code>RNCamera.Constants.FaceDetection.Mode.fast</code> (default) or <code>RNCamera.Constants.FaceDetection.Mode.accurate</code></p>
+<p>Specifies the face detection mode of the Face Detection API.</p>
+<p>Use <code>RNCamera.Constants.FaceDetection.Mode.accurate</code> if you want slower but more accurate results.</p>
+<h3><a class="anchor" aria-hidden="true" id="facedetectionlandmarks"></a><a href="#facedetectionlandmarks" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>faceDetectionLandmarks</code></h3>
+<p>Values: <code>RNCamera.Constants.FaceDetection.Landmarks.all</code> or <code>RNCamera.Constants.FaceDetection.Landmarks.none</code> (default)</p>
+<p>A landmark is a point of interest within a face. The left eye, right eye, and nose base are all examples of landmarks. The Face API provides the ability to find landmarks on a detected face.</p>
+<h3><a class="anchor" aria-hidden="true" id="facedetectionclassifications"></a><a href="#facedetectionclassifications" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>faceDetectionClassifications</code></h3>
+<p>Values: <code>RNCamera.Constants.FaceDetection.Classifications.all</code> or <code>RNCamera.Constants.FaceDetection.Classifications.none</code> (default)</p>
+<p>Classification is determining whether a certain facial characteristic is present. For example, a face can be classified with regards to whether its eyes are open or closed. Another example is whether the face is smiling or not.</p>
+<h3><a class="anchor" aria-hidden="true" id="text-recognition-related-props"></a><a href="#text-recognition-related-props" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Text Recognition Related props</h3>
+<p>RNCamera uses the Firebase MLKit for Text Recognition, you can read more info about it <a href="https://firebase.google.com/docs/ml-kit/recognize-text">here</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="ontextrecognized"></a><a href="#ontextrecognized" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>onTextRecognized</code></h3>
+<p>Method to be called when text is detected. Receives a Text Recognized Event object. The interesting value of this object is the <code>textBlocks</code> value, which is an array of TextBlock objects.</p>
+<h2><a class="anchor" aria-hidden="true" id="component-instance-methods"></a><a href="#component-instance-methods" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Component instance methods</h2>
+<h3><a class="anchor" aria-hidden="true" id="takepictureasync-options-promise"></a><a href="#takepictureasync-options-promise" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>takePictureAsync([options]): Promise</code></h3>
+<p>Takes a picture, saves in your app's cache directory and returns a promise.</p>
+<p>Supported options:</p>
+<ul>
+<li><p><code>width</code> (integer). This property allows to specify the width that the returned image should have, image ratio will not be affected. If no value is specified the maximum image size is used (capture may take longer).</p></li>
+<li><p><code>quality</code> (float between 0 to 1.0). This property is used to compress the output jpeg file with 1 meaning no jpeg compression will be applied. If no value is specified <code>quality:1</code> is used.</p></li>
+<li><p><code>base64</code> (boolean true or false) Use this with <code>true</code> if you want a base64 representation of the picture taken on the return data of your promise. If no value is specified <code>base64:false</code> is used.</p></li>
+<li><p><code>mirrorImage</code> (boolean true or false). Use this with <code>true</code> if you want the resulting rendered picture to be mirrored (inverted in the vertical axis). If no value is specified <code>mirrorImage:false</code> is used.</p></li>
+<li><p><code>exif</code> (boolean true or false) Use this with <code>true</code> if you want a exif data map of the picture taken on the return data of your promise. If no value is specified <code>exif:false</code> is used.</p></li>
+<li><p><code>fixOrientation</code> (android only, boolean true or false) Use this with <code>true</code> if you want to fix incorrect image orientation (can take up to 5 seconds on some devices). Do not provide this if you only need EXIF based orientation.</p></li>
+<li><p><code>forceUpOrientation</code> (iOS only, boolean true or false). This property allows to force portrait orientation based on actual data instead of exif data.</p></li>
+<li><p><code>skipProcessing</code> (android only, boolean). This property skips all image processing on android, this makes taking photos super fast, but you loose some of the information, width, height and the ability to do some processing on the image (base64, width, quality, mirrorImage, exif, etc)</p></li>
+<li><p><code>doNotSave</code> (boolean true or false). Use this with <code>true</code> if you do not want the picture to be saved as a file to cache. If no value is specified <code>doNotSave:false</code> is used. If you only need the base64 for the image, you can use this with <code>base64:true</code> and avoid having to save the file.</p></li>
+<li><p><code>pauseAfterCapture</code> (boolean true or false). If true, pause the preview layer immediately after capturing the image. You will need to call <code>cameraRef.resumePreview()</code> before using the camera again. If no value is specified <code>pauseAfterCapture:false</code> is used.</p></li>
+<li><p><code>orientation</code> (string or number). Specifies the orientation that us used for taking the picture. Possible values: <code>&quot;portrait&quot;</code>, <code>&quot;portraitUpsideDown&quot;</code>, <code>&quot;landscapeLeft&quot;</code> or <code>&quot;landscapeRight&quot;</code>.</p></li>
+</ul>
+<p>The promise will be fulfilled with an object with some of the following properties:</p>
+<ul>
+<li><code>width</code>: returns the image's width (taking image orientation into account)</li>
+<li><code>height</code>: returns the image's height (taking image orientation into account)</li>
+<li><code>uri</code>: (string) the path to the image saved on your app's cache directory.</li>
+<li><code>base64</code>: (string?) the base64 representation of the image if required.</li>
+<li><code>exif</code>: returns an exif map of the image if required.</li>
+<li><code>pictureOrientation</code>: (number) the orientation of the picture</li>
+<li><code>deviceOrientation</code>: (number) the orientation of the device</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="recordasync-options-promise"></a><a href="#recordasync-options-promise" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>recordAsync([options]): Promise</code></h3>
+<p>Records a video, saves it in your app's cache directory and returns a promise when stopRecording is called or either maxDuration or maxFileSize specified are reached.</p>
+<p>Supported options:</p>
+<ul>
+<li><p><code>quality</code>. This option specifies the quality of the video to be taken. The possible values are:</p>
+<ul>
+<li><code>RNCamera.Constants.VideoQuality.2160p</code>.
+<ul>
+<li><code>ios</code> Specifies capture settings suitable for 2160p (also called UHD or 4K) quality (3840x2160 pixel) video output.</li>
+<li><code>android</code> Quality level corresponding to the 2160p (3840x2160) resolution. (Android Lollipop and above only!).</li>
+</ul></li>
+<li><code>RNCamera.Constants.VideoQuality.1080p</code>.
+<ul>
+<li><code>ios</code> Specifies capture settings suitable for 1080p quality (1920x1080 pixel) video output.</li>
+<li><code>android</code> Quality level corresponding to the 1080p (1920 x 1080) resolution.</li>
+</ul></li>
+<li><code>RNCamera.Constants.VideoQuality.720p</code>.
+<ul>
+<li><code>ios</code> Specifies capture settings suitable for 720p quality (1280x720 pixel) video output.</li>
+<li><code>android</code> Quality level corresponding to the 720p (1280 x 720) resolution.</li>
+</ul></li>
+<li><code>RNCamera.Constants.VideoQuality.480p</code>.
+<ul>
+<li><code>ios</code> Specifies capture settings suitable for VGA quality (640x480 pixel) video output.</li>
+<li><code>android</code> Quality level corresponding to the 480p (720 x 480) resolution.</li>
+</ul></li>
+<li><code>RNCamera.Constants.VideoQuality.4:3</code>.
+<ul>
+<li><code>ios</code> Specifies capture settings suitable for VGA quality (640x480 pixel) video output. (Same as RNCamera.Constants.VideoQuality.480p).</li>
+<li><code>android</code> Quality level corresponding to the 480p (720 x 480) resolution but with video frame width set to 640.</li>
+</ul></li>
+<li><code>RNCamera.Constants.VideoQuality.288p</code>.
+<ul>
+<li><code>ios</code> Specifies capture settings suitable for CIF quality (352x288 pixel) video output.</li>
+<li><code>android</code> Not supported.</li>
+</ul></li>
+</ul></li>
+<li><p><code>videoBitrate</code>. (int greater than 0) This option specifies a desired video bitrate. For example, 5*1000*1000 would be 5Mbps.</p>
+<ul>
+<li><code>ios</code> Not supported.</li>
+<li><code>android</code> Supported.</li>
+</ul></li>
+<li><p><code>orientation</code> (string or number). Specifies the orientation that us used for recording the video. Possible values: <code>&quot;portrait&quot;</code>, <code>&quot;portraitUpsideDown&quot;</code>, <code>&quot;landscapeLeft&quot;</code> or <code>&quot;landscapeRight&quot;</code>.</p>
+<p>If nothing is passed the device's highest camera quality will be used as default.</p></li>
+<li><p><code>iOS</code> <code>codec</code>. This option specifies the codec of the output video. Setting the codec is only supported on <code>iOS &gt;= 10</code>. The possible values are:</p>
+<ul>
+<li><code>RNCamera.Constants.VideoCodec['H264']</code></li>
+<li><code>RNCamera.Constants.VideoCodec['JPEG']</code></li>
+<li><code>RNCamera.Constants.VideoCodec['HVEC']</code> (<code>iOS &gt;= 11</code>)</li>
+<li><code>RNCamera.Constants.VideoCodec['AppleProRes422']</code> (<code>iOS &gt;= 11</code>)</li>
+<li><code>RNCamera.Constants.VideoCodec['AppleProRes4444']</code> (<code>iOS &gt;= 11</code>)</li>
+</ul></li>
+<li><p><code>mirrorVideo</code> (boolean true or false). Use this with <code>true</code> if you want the resulting video to be mirrored (inverted in the vertical axis). If no value is specified <code>mirrorVideo:false</code> is used.</p></li>
+<li><p><code>maxDuration</code> (float greater than 0). Specifies the maximum duration of the video to be recorded in seconds. If nothing is specified, no time limit will be used.</p></li>
+<li><p><code>maxFileSize</code> (int greater than 0). Specifies the maximum file size, in bytes, of the video to be recorded. For 1mb, for example, use 1*1024*1024. If nothing is specified, no size limit will be used.</p></li>
+<li><p><code>mute</code> (any value). (<em>This value will automatically be set to true if the <code>captureAudio</code> has not been passed to the Camera component</em>) If this flag is given in the option with any value, the video to be recorded will be mute. If nothing is specified, video will NOT be muted.
+<strong>Note:</strong> The recommended way of recording audio without sound passing captureAudio: false to the Camera component.
+The <code>mute</code> parameter is likely to become deprecated in the near future.</p></li>
+<li><p><code>path</code> (file path on disk). Specifies the path on disk to record the video to. You can use the same <code>uri</code> returned to continue recording across start/stops</p></li>
+</ul>
+<p>The promise will be fulfilled with an object with some of the following properties:</p>
+<ul>
+<li><p><code>uri</code>: (string) the path to the video saved on your app's cache directory.</p></li>
+<li><p><code>videoOrientation</code>: (number) orientation of the video</p></li>
+<li><p><code>deviceOrientation</code>: (number) orientation of the device</p></li>
+<li><p><code>iOS</code> <code>codec</code>: the codec of the recorded video. One of <code>RNCamera.Constants.VideoCodec</code></p></li>
+<li><p><code>isRecordingInterrupted</code>: (boolean) whether the app has been minimized while recording</p></li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="refreshauthorizationstatus-promise-void"></a><a href="#refreshauthorizationstatus-promise-void" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>refreshAuthorizationStatus: Promise&lt;void&gt;</code></h3>
+<p>Allows to make RNCamera check Permissions again and set status accordingly.<br>
+Making it possible to refresh status of RNCamera after user initially rejected the permissions.</p>
+<h3><a class="anchor" aria-hidden="true" id="stoprecording-void"></a><a href="#stoprecording-void" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>stopRecording: void</code></h3>
+<p>Should be called after recordAsync() to make the promise be fulfilled and get the video uri.</p>
+<h3><a class="anchor" aria-hidden="true" id="pausepreview-void"></a><a href="#pausepreview-void" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>pausePreview: void</code></h3>
+<p>Pauses the preview. The preview can be resumed again by using resumePreview().</p>
+<h3><a class="anchor" aria-hidden="true" id="resumepreview-void"></a><a href="#resumepreview-void" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>resumePreview: void</code></h3>
+<p>Resumes the preview after pausePreview() has been called.</p>
+<h3><a class="anchor" aria-hidden="true" id="android-getsupportedratiosasync-promise"></a><a href="#android-getsupportedratiosasync-promise" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Android</code> <code>getSupportedRatiosAsync(): Promise</code></h3>
+<p>Android only. Returns a promise. The promise will be fulfilled with an object with an array containing strings with all camera aspect ratios supported by the device.</p>
+<h3><a class="anchor" aria-hidden="true" id="ios-isrecording-promise-boolean"></a><a href="#ios-isrecording-promise-boolean" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>iOS</code> <code>isRecording(): Promise&lt;boolean&gt;</code></h3>
+<p>iOS only. Returns a promise. The promise will be fulfilled with a boolean indicating if currently recording is started or stopped.</p>
+<h2><a class="anchor" aria-hidden="true" id="subviews"></a><a href="#subviews" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Subviews</h2>
+<p>This component supports subviews, so if you wish to use the camera view as a background or if you want to layout buttons/images/etc. inside the camera then you can do that.</p>
+<p><strong>Example subview:</strong></p>
+<h3><a class="anchor" aria-hidden="true" id="react-native-barcode-mask"></a><a href="#react-native-barcode-mask" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>react-native-barcode-mask</h3>
+<p>A Barcode and QR code UI mask which can be use to render a scanning layout on camera with customizable styling.</p>
+<p>Read more about <a href="https://github.com/shahnawaz/react-native-barcode-mask">react-native-barcode-mask</a> here.</p>
+<h2><a class="anchor" aria-hidden="true" id="testing"></a><a href="#testing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Testing</h2>
+<p>To learn about how to test components which uses <code>RNCamera</code> check its <a href="/react-native-camera/docs/tests">documentation about testing</a>.</p>
+<h2><a class="anchor" aria-hidden="true" id="examples"></a><a href="#examples" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h2>
+<p>To see more of the <code>RNCamera</code> in action you can check out the <a href="https://github.com/react-native-community/react-native-camera/tree/master/examples">RNCamera examples directory</a>.
+Firebase MLKit-base features (such as Text, Face and Barcode detection) can be found in the <a href="https://github.com/react-native-community/react-native-camera/tree/master/examples/mlkit">mlkit</a> example.</p>
+<h2><a class="anchor" aria-hidden="true" id="open-collective"></a><a href="#open-collective" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Open Collective</h2>
+<p>We are just beginning a funding campaign for react-native-camera. Contributions are greatly appreciated. When we gain more than $250 we will begin distributing funds to core maintainers in a fully transparent manner. Feedback for this process is welcomed, we will continue to evolve the strategy as we grow and learn more.</p>
+<h3><a class="anchor" aria-hidden="true" id="backers"></a><a href="#backers" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Backers</h3>
+<p>Support us with a monthly donation and help us continue our activities. [<a href="https://opencollective.com/react-native-camera#backer">Become a backer</a>]</p>
+<p><a href="https://opencollective.com/react-native-camera/backer/0/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/0/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/1/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/1/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/2/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/2/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/3/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/3/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/4/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/4/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/5/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/5/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/6/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/6/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/7/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/7/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/8/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/8/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/9/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/9/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/10/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/10/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/11/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/11/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/12/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/12/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/13/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/13/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/14/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/14/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/15/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/15/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/16/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/16/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/17/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/17/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/18/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/18/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/19/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/19/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/20/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/20/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/21/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/21/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/22/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/22/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/23/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/23/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/24/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/24/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/25/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/25/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/26/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/26/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/27/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/27/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/28/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/28/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/backer/29/website" target="_blank"><img src="https://opencollective.com/react-native-camera/backer/29/avatar.svg"></a></p>
+<h3><a class="anchor" aria-hidden="true" id="sponsors"></a><a href="#sponsors" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sponsors</h3>
+<p>Become a sponsor and get your logo on our README on Github with a link to your site. [<a href="https://opencollective.com/react-native-camera#sponsor">Become a sponsor</a>]</p>
+<p><a href="https://opencollective.com/react-native-camera/sponsor/0/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/1/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/2/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/3/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/4/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/5/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/6/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/7/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/8/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-camera/sponsor/9/website" target="_blank"><img src="https://opencollective.com/react-native-camera/sponsor/9/avatar.svg"></a></p>
+<hr>
+<p>Thanks to Brent Vatne (@brentvatne) for the <code>react-native-video</code> module which provided me with a great example of how to set up this module.</p>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 6/2/2019 by Ronaldo Lima</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/react-native-camera/docs/recipes"><span class="arrow-prev">← </span><span>Recipes</span></a><a class="docs-next button" href="/react-native-camera/docs/tests"><span>Testing</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#usage">Usage</a></li><li><a href="#facc-function-as-child-components">FaCC (Function as Child Components)</a><ul class="toc-headings"><li><a href="#camera"><code>camera</code></a></li><li><a href="#status"><code>status</code></a></li><li><a href="#recordaudiopermissionstatus"><code>recordAudioPermissionStatus</code></a></li></ul></li><li><a href="#properties">Properties</a><ul class="toc-headings"><li><a href="#autofocus"><code>autoFocus</code></a></li><li><a href="#autofocuspointofinterest"><code>autoFocusPointOfInterest</code></a></li><li><a href="#captureaudio"><code>captureAudio</code></a></li><li><a href="#flashmode"><code>flashMode</code></a></li><li><a href="#focusdepth"><code>focusDepth</code></a></li><li><a href="#android-ratio"><code>Android</code> <code>ratio</code></a></li><li><a href="#type"><code>type</code></a></li><li><a href="#whitebalance"><code>whiteBalance</code></a></li><li><a href="#zoom"><code>zoom</code></a></li><li><a href="#android-permissiondialogtitle-deprecated"><code>Android</code> <code>permissionDialogTitle</code> - Deprecated</a></li><li><a href="#android-permissiondialogmessage-deprecated"><code>Android</code> <code>permissionDialogMessage</code> - Deprecated</a></li><li><a href="#android-androidrecordaudiopermissionoptions"><code>Android</code> <code>androidRecordAudioPermissionOptions</code></a></li><li><a href="#android-androidcamerapermissionoptions"><code>Android</code> <code>androidCameraPermissionOptions</code></a></li><li><a href="#notauthorizedview"><code>notAuthorizedView</code></a></li><li><a href="#pendingauthorizationview"><code>pendingAuthorizationView</code></a></li><li><a href="#ios-videostabilizationmode"><code>iOS</code> <code>videoStabilizationMode</code></a></li><li><a href="#ios-defaultvideoquality"><code>iOS</code> <code>defaultVideoQuality</code></a></li><li><a href="#native-event-callbacks-props">Native Event callbacks props</a></li><li><a href="#oncameraready"><code>onCameraReady</code></a></li><li><a href="#onmounterror"><code>onMountError</code></a></li><li><a href="#onstatuschange"><code>onStatusChange</code></a></li><li><a href="#android-onpicturetaken"><code>Android</code> <code>onPictureTaken</code></a></li><li><a href="#bar-code-related-props">Bar Code Related props</a></li><li><a href="#onbarcoderead"><code>onBarCodeRead</code></a></li><li><a href="#barcodetypes"><code>barCodeTypes</code></a></li><li><a href="#ongooglevisionbarcodesdetected"><code>onGoogleVisionBarcodesDetected</code></a></li><li><a href="#googlevisionbarcodetype"><code>googleVisionBarcodeType</code></a></li><li><a href="#android-googlevisionbarcodemode"><code>Android</code> <code>googleVisionBarcodeMode</code></a></li><li><a href="#face-detection-related-props">Face Detection Related props</a></li><li><a href="#onfacesdetected"><code>onFacesDetected</code></a></li><li><a href="#onfacedetectionerror"><code>onFaceDetectionError</code></a></li><li><a href="#facedetectionmode"><code>faceDetectionMode</code></a></li><li><a href="#facedetectionlandmarks"><code>faceDetectionLandmarks</code></a></li><li><a href="#facedetectionclassifications"><code>faceDetectionClassifications</code></a></li><li><a href="#text-recognition-related-props">Text Recognition Related props</a></li><li><a href="#ontextrecognized"><code>onTextRecognized</code></a></li></ul></li><li><a href="#component-instance-methods">Component instance methods</a><ul class="toc-headings"><li><a href="#takepictureasync-options-promise"><code>takePictureAsync([options]): Promise</code></a></li><li><a href="#recordasync-options-promise"><code>recordAsync([options]): Promise</code></a></li><li><a href="#refreshauthorizationstatus-promise-void"><code>refreshAuthorizationStatus: Promise&lt;void&gt;</code></a></li><li><a href="#stoprecording-void"><code>stopRecording: void</code></a></li><li><a href="#pausepreview-void"><code>pausePreview: void</code></a></li><li><a href="#resumepreview-void"><code>resumePreview: void</code></a></li><li><a href="#android-getsupportedratiosasync-promise"><code>Android</code> <code>getSupportedRatiosAsync(): Promise</code></a></li><li><a href="#ios-isrecording-promise-boolean"><code>iOS</code> <code>isRecording(): Promise&lt;boolean&gt;</code></a></li></ul></li><li><a href="#subviews">Subviews</a><ul class="toc-headings"><li><a href="#react-native-barcode-mask">react-native-barcode-mask</a></li></ul></li><li><a href="#testing">Testing</a></li><li><a href="#examples">Examples</a></li><li><a href="#open-collective">Open Collective</a><ul class="toc-headings"><li><a href="#backers">Backers</a></li><li><a href="#sponsors">Sponsors</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/react-native-camera/" class="nav-home"><img src="/react-native-camera/img/community.png" alt="React Native Camera" width="66" height="58"/></a><div><h5>Docs</h5><a href="/react-native-camera/docs/en/installation.html">Getting Started</a><a href="/react-native-camera/docs/en/expo_usage.html">Guides</a><a href="/react-native-camera/docs/en/api.html">API Reference</a></div><div><h5>Community</h5><a href="/react-native-camera/en/users.html">User Showcase</a><a href="https://stackoverflow.com/questions/tagged/react-native-camera" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://spectrum.chat/">Project Chat</a></div><div><h5>More</h5><a href="https://github.com/react-native-community/react-native-camera">GitHub</a><a class="github-button" href="https://github.com/react-native-community/react-native-camera" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/react-native-camera/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2019</section></footer></div></body></html>
