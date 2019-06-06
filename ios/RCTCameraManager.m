@@ -529,8 +529,6 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
 }
 
 RCT_EXPORT_METHOD(getBrightness:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
-//    NSString *text = [NSString stringWithFormat:@"brightness: %ld exposure: %f iso: %@ 𝑓numb: %f focal lenght: %f", (long) self.previewBrightness, self.previewExposure, [self.previewISO objectAtIndex:0], self.previewFnumber, self.previewFocalLenght];
-//    resolve(text);
     NSLog(@"get brightness: %d", (int) self.previewBrightness);
     resolve([NSNumber numberWithInteger:self.previewBrightness]);
 }
@@ -563,7 +561,6 @@ RCT_EXPORT_METHOD(getDebugInformation:(RCTPromiseResolveBlock)resolve reject:(RC
     }
 
       self.cameraEventEmitter = [CameraEventEmitter allocWithZone: nil];
-      self.nbPixelIgnored = 0.0;
     self.imageIsMoving = NO;
     self.listOfPixelBuffer = [NSMutableArray array];
     self.avrgPixelBuffer = [NSMutableArray array];
@@ -610,7 +607,6 @@ RCT_EXPORT_METHOD(getDebugInformation:(RCTPromiseResolveBlock)resolve reject:(RC
     }]];
 
     NSMutableArray *bracketedStillImageSettings = [[NSMutableArray alloc] init];
-    //AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     CMTime expTime = device.activeFormat.maxExposureDuration;
 
     self.stillImageOutput.highResolutionCaptureEnabled = TRUE;
@@ -705,28 +701,6 @@ RCT_EXPORT_METHOD(getDebugInformation:(RCTPromiseResolveBlock)resolve reject:(RC
   });
 }
 
-- (void)configureCameraForHighestFrameRate:(AVCaptureDevice *)device
-{
-    AVCaptureDeviceFormat *bestFormat = nil;
-    AVFrameRateRange *bestFrameRateRange = nil;
-    for ( AVCaptureDeviceFormat *format in [device formats] ) {
-        for ( AVFrameRateRange *range in format.videoSupportedFrameRateRanges ) {
-            if ( range.maxFrameRate > bestFrameRateRange.maxFrameRate ) {
-                bestFormat = format;
-                bestFrameRateRange = range;
-            }
-        }
-    }
-    if ( bestFormat ) {
-        if ( [device lockForConfiguration:NULL] == YES ) {
-            device.activeFormat = bestFormat;
-            device.activeVideoMinFrameDuration = bestFrameRateRange.minFrameDuration;
-            device.activeVideoMaxFrameDuration = bestFrameRateRange.minFrameDuration;
-            [device unlockForConfiguration];
-        }
-    }
-}
-
 - (void)captureStill:(NSInteger)target options:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
     AVCaptureVideoOrientation orientation = options[@"orientation"] != nil ? [options[@"orientation"] integerValue] : self.orientation;
@@ -769,9 +743,11 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             self.previewBrightness = [self computeImageBrightness:10]; // to affect localy
 
             self.previewExposure = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifExposureTime] floatValue];
-    //        self.previewFnumber = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifFNumber] floatValue];
-    //        self.previewFocalLenght = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifFocalLength] floatValue]; // remove
-            self.previewISO = [NSArray arrayWithArray:[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifISOSpeedRatings]]; // local
+            self.previewISO = [NSArray arrayWithArray:[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifISOSpeedRatings]];
+            // debug stuff
+//              self.previewFnumber = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifFNumber] floatValue];
+//              self.previewFocalLenght = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifFocalLength] floatValue];
+
 
             int coefficient = 1;
 
@@ -859,9 +835,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     NSData *data = [self.listOfPixelBuffer objectAtIndex:(SAMPLE_SIZE - 1)];
     UInt8 *pixels = (UInt8 *)[data bytes];
 
-    //dispatch_queue_t brightnessQueue = dispatch_queue_create("com.exposio.cameragetbrightness", NULL);
-
-
     unsigned long length = [data length];
     int luminance = 0;
     int n = 0;
@@ -941,6 +914,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
   didDropSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection
 {
+    // Just for debug, this funtion is triggered often when we do processing.
     //NSLog(@"Video Output: dropped an buffer");
 }
 

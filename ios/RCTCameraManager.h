@@ -93,7 +93,6 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, assign) float lastDiff;
 @property (nonatomic, strong) NSMutableArray *avrgPixelBuffer;
 @property (nonatomic, assign) BOOL isLowLight;
-@property (nonatomic, assign) float nbPixelIgnored;
 @property (nonatomic, assign) float threshold_movement;
 
 
@@ -130,7 +129,6 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 - (void)emmitEvent:(NSString *)event value:(BOOL)value;
 - (NSDictionary *) getExifMetadata:(CMSampleBufferRef)sampleBuffer;
 - (NSData *) nsDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer;
-- (void)configureCameraForHighestFrameRate:(AVCaptureDevice *)device;
 - (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(AVCaptureBracketedStillImageSettings *)bracketSettings error:(NSError *)error;
 
 @end
