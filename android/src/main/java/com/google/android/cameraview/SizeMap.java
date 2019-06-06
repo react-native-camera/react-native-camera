@@ -16,7 +16,7 @@
 
 package com.google.android.cameraview;
 
-import androidx.collection.ArrayMap;
+import android.support.v4.util.ArrayMap;
 
 import java.util.Set;
 import java.util.SortedSet;
