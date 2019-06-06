@@ -91,7 +91,10 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, strong) NSMutableArray *listOfPixelBuffer;
 @property (nonatomic, assign) BOOL imageIsMoving;
 @property (nonatomic, assign) float lastDiff;
+@property (nonatomic, strong) NSMutableArray *avrgPixelBuffer;
 @property (nonatomic, assign) BOOL isLowLight;
+@property (nonatomic, assign) float nbPixelIgnored;
+@property (nonatomic, assign) float threshold_movement;
 
 
 - (void)changeOrientation:(NSInteger)orientation;
@@ -119,13 +122,15 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 - (void)focusAtThePoint:(CGPoint) atPoint;
 - (void)zoom:(CGFloat)velocity reactTag:(NSNumber *)reactTag;
 - (void)newFrame:(CMSampleBufferRef)sampleBuffer;
+- (UInt8 *)mergeBuffers:(UInt8 *)pixelBufferA with:(UInt8 *)pixelBufferB length:(long)length;
 - (float)computeImageMovement:(int)pixelSpacing;
 - (int)computeImageBrightness:(int)pixelSpacing;
 - (BOOL)isTooDark:(double)exposure_ref brightness:(int)brightness;
 - (BOOL)isMoving:(float)difference;
 - (void)emmitEvent:(NSString *)event value:(BOOL)value;
 - (NSDictionary *) getExifMetadata:(CMSampleBufferRef)sampleBuffer;
-- (NSDictionary *) nsDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (NSData *) nsDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (void)configureCameraForHighestFrameRate:(AVCaptureDevice *)device;
 - (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(AVCaptureBracketedStillImageSettings *)bracketSettings error:(NSError *)error;
 
 @end
