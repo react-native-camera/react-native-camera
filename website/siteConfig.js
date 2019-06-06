@@ -25,7 +25,7 @@ const siteConfig = {
   title: 'React Native Camera', // Title for your website.
   tagline: 'The comprehensive camera module for React Native.',
 
-  url: 'https://react-native-community/github.io', // Your website URL
+  //url: 'https://react-native-community/github.io', // Your website URL
   baseUrl: '/react-native-camera/',
   projectName: 'react-native-camera',
   organizationName: 'react-native-community',
