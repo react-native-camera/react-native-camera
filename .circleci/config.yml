@@ -1,9 +1,3 @@
-aliases:
-  - &filter-only-master
-    branches:
-      only:
-        - master
-
 version: 2
 executorType: docker
 jobs:
@@ -52,25 +46,26 @@ jobs:
           key: v1-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules/
-
-  deploy-website:
+  deploy-docs:
     docker:
       - image: circleci/node:8.11.1
-
-      steps:
-        - checkout
-        - run:
-            name: Deploying to GitHub Pages
-            command: |
-              git config --global user.email "<GITHUB_USERNAME>@users.noreply.github.com"
-              git config --global user.name "<YOUR_NAME>"
-              echo "machine github.com login <GITHUB_USERNAME> password $GH_TOKEN" > ~/.netrc
-              cd website && yarn install && GIT_USER=<GIT_USER> yarn run publish-gh-pages
+    steps:
+      - checkout
+      - run:
+          name: Deploying to GitHub Pages
+          command: |
+            git config --global user.email "<GITHUB_USERNAME>@users.noreply.github.com"
+            git config --global user.name "<YOUR_NAME>"
+            echo "machine github.com login <GITHUB_USERNAME> password $GH_TOKEN" > ~/.netrc
+            cd website && yarn install && GIT_USER=<GIT_USER> yarn run publish-gh-pages
 
 workflows:
   version: 2
-  build_and_deploy:
+  build_and_deploy_docs:
     jobs:
-      - build:
-      - deploy-website:
-        filters: *filter-only-master
+      - build
+      - deploy-docs
+        filters
+        branches
+        only
+        - master
