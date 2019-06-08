@@ -47,6 +47,7 @@ jobs:
           paths:
             - node_modules/
   deploy-docs:
+    working_directory: ~/app
     docker:
       - image: circleci/node:8.11.1
     steps:
@@ -54,10 +55,14 @@ jobs:
       - run:
           name: Deploying to GitHub Pages
           command: |
-            git config --global user.email "<GITHUB_USERNAME>@users.noreply.github.com"
-            git config --global user.name "<YOUR_NAME>"
-            echo "machine github.com login <GITHUB_USERNAME> password $GH_TOKEN" > ~/.netrc
-            cd website && yarn install && GIT_USER=<GIT_USER> yarn run publish-gh-pages
+            if [[ $CIRCLE_PROJECT_USERNAME == "react-native-community" ]]; then
+              git config --global user.email $GH_EMAIL
+              git config --global user.name  $GH_NAME
+              echo "machine github.com login $GH_NAME password $GH_TOKEN" > ~/.netrc
+              cd website && yarn install && GIT_USER=$GH_NAME yarn run publish-gh-pages
+            else
+              echo "Skipping deploy."
+            fi
 workflows:
   version: 2
   build-and-deploy-docs:
