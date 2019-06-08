@@ -58,14 +58,14 @@ jobs:
             git config --global user.name "<YOUR_NAME>"
             echo "machine github.com login <GITHUB_USERNAME> password $GH_TOKEN" > ~/.netrc
             cd website && yarn install && GIT_USER=<GIT_USER> yarn run publish-gh-pages
-
 workflows:
   version: 2
-  build_and_deploy_docs:
+  build-and-deploy-docs:
     jobs:
-      - build:
+      - build
       - deploy-docs:
-        filters:
-          branches:
-            only:
-              - master
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
