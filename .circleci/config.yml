@@ -63,9 +63,9 @@ workflows:
   version: 2
   build_and_deploy_docs:
     jobs:
-      - build
-      - deploy-docs
-        filters
-        branches
-        only
-        - master
+      - build:
+      - deploy-docs:
+        filters:
+          branches:
+            only:
+              - master
