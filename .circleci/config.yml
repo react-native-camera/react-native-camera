@@ -57,7 +57,8 @@ jobs:
           command: |
             git config --global user.email "$GH_EMAIL@users.noreply.github.com"
             git config --global user.name "$GH_NAME"
-            cd website && yarn install && GIT_USER=$GH_NAME yarn run publish-gh-pages
+            echo "machine github.com login $GH_NAME"
+            cd website && yarn install && GIT_USER="$GH_NAME" yarn run publish-gh-pages
             echo "Docs deployed to : https://react-native-community.github.io/react-native-camera/"
 workflows:
   version: 2
