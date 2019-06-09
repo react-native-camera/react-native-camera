@@ -37,25 +37,18 @@ class Footer extends React.Component {
           </a>
           <div>
             <h5>Docs</h5>
-            <a href={this.docUrl('installation.html', this.props.language)}>
-              Getting Started
-            </a>
-            <a href={this.docUrl('expo_usage.html', this.props.language)}>
-              Guides
-            </a>
-            <a href={this.docUrl('api.html', this.props.language)}>
-              API Reference
-            </a>
+            <a href={this.docUrl('installation.html', this.props.language)}>Getting Started</a>
+            <a href={this.docUrl('expo_usage.html', this.props.language)}>Guides</a>
+            <a href={this.docUrl('api.html', this.props.language)}>API Reference</a>
           </div>
           <div>
             <h5>Community</h5>
-            <a href={this.pageUrl('users.html', this.props.language)}>
-              User Showcase
-            </a>
+            <a href={this.pageUrl('users.html', this.props.language)}>User Showcase</a>
             <a
               href="https://stackoverflow.com/questions/tagged/react-native-camera"
               target="_blank"
-              rel="noreferrer noopener">
+              rel="noreferrer noopener"
+            >
               Stack Overflow
             </a>
             <a href="https://spectrum.chat/">Project Chat</a>
@@ -70,8 +63,9 @@ class Footer extends React.Component {
               data-count-href="/facebook/docusaurus/stargazers"
               data-show-count="true"
               data-count-aria-label="# stargazers on GitHub"
-              aria-label="Star this project on GitHub">
-              Star
+              aria-label="Star this project on GitHub"
+            >
+              Stars
             </a>
           </div>
         </section>
@@ -80,7 +74,8 @@ class Footer extends React.Component {
           href="https://opensource.facebook.com/"
           target="_blank"
           rel="noreferrer noopener"
-          className="fbOpenSource">
+          className="fbOpenSource"
+        >
           <img
             src={`${this.props.config.baseUrl}img/oss_logo.png`}
             alt="Facebook Open Source"
