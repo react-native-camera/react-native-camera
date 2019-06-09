@@ -55,9 +55,8 @@ jobs:
       - run:
           name: Deploying to GitHub Pages
           command: |
-            git config --global user.email $GH_EMAIL
-            git config --global user.name  $GH_NAME
-            echo "machine github.com login $GH_NAME password $GH_TOKEN" > ~/.netrc
+            git config --global user.email "$GH_EMAIL@users.noreply.github.com"
+            git config --global user.name "$GH_NAME"
             cd website && yarn install && GIT_USER=$GH_NAME yarn run publish-gh-pages
 workflows:
   version: 2
@@ -65,3 +64,7 @@ workflows:
     jobs:
       - build-app
       - deploy-docs
+#      - deploy-docs:
+#          filters:
+#            branches:
+#              only: master
