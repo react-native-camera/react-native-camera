@@ -1,7 +1,7 @@
 version: 2
 executorType: docker
 jobs:
-  build:
+  build-app:
     resource_class: large
     environment:
       - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
@@ -55,17 +55,13 @@ jobs:
       - run:
           name: Deploying to GitHub Pages
           command: |
-            if [[ $CIRCLE_PROJECT_USERNAME == "react-native-community" ]]; then
-              git config --global user.email $GH_EMAIL
-              git config --global user.name  $GH_NAME
-              echo "machine github.com login $GH_NAME password $GH_TOKEN" > ~/.netrc
-              cd website && yarn install && GIT_USER=$GH_NAME yarn run publish-gh-pages
-            else
-              echo "Skipping deploy."
-            fi
+            git config --global user.email $GH_EMAIL
+            git config --global user.name  $GH_NAME
+            echo "machine github.com login $GH_NAME password $GH_TOKEN" > ~/.netrc
+            cd website && yarn install && GIT_USER=$GH_NAME yarn run publish-gh-pages
 workflows:
   version: 2
   build-and-deploy-docs:
     jobs:
-      - build
-      - deploy-docs:
+      - build-app
+      - deploy-docs
