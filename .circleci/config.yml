@@ -63,8 +63,7 @@ workflows:
   build-and-deploy-docs:
     jobs:
       - build-app
-      - deploy-docs
-#      - deploy-docs:
-#          filters:
-#            branches:
-#              only: master
+      - deploy-docs:
+          filters:
+            branches:
+              only: master
