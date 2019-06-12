@@ -588,19 +588,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     @Override
     void setDeviceOrientation(int deviceOrientation) {
-        if (mDeviceOrientation == deviceOrientation) {
-            return;
-        }
-        mDeviceOrientation = deviceOrientation;
-        if (isCameraOpened() && mOrientation == Constants.ORIENTATION_AUTO && !mIsRecording) {
-            mCameraParameters.setRotation(calcCameraRotation(deviceOrientation));
-            try{
-              mCamera.setParameters(mCameraParameters);
-            }
-            catch(RuntimeException e ) {
-              Log.e("CAMERA_1::", "setParameters failed", e);
-            }
-         }
+        return;
     }
 
     @Override
