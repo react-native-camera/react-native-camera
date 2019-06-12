@@ -24,25 +24,17 @@ const users = [
 const siteConfig = {
   title: 'React Native Camera', // Title for your website.
   tagline: 'The comprehensive camera module for React Native.',
-  url: 'https://your-docusaurus-test-site.com', // Your website URL
-  baseUrl: '/', // Base URL for your project */
-  // For github.io type URLs, you would set the url and baseUrl like:
-  //   url: 'https://facebook.github.io',
-  //   baseUrl: '/test-site/',
 
-  // Used for publishing and more
-  projectName: 'React Native Camera',
-  organizationName: 'React Native Community',
-  // For top-level user or org sites, the organization is still the same.
-  // e.g., for the https://JoelMarcey.github.io site, it would be set like...
-  //   organizationName: 'JoelMarcey'
+  //url: 'https://react-native-community/github.io', // Your website URL
+  baseUrl: '/react-native-camera/',
+  projectName: 'react-native-camera',
+  organizationName: 'react-native-community',
 
-  // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
-    {doc: 'installation', label: 'Docs'},
-    {doc: 'expo_usage', label: 'Guides'},
-    {doc: 'api', label: 'API'},
-    {page: 'docs/qa', label: 'Help'},
+    { doc: 'installation', label: 'Docs' },
+    { doc: 'expo_usage', label: 'Guides' },
+    { doc: 'api', label: 'API' },
+    { page: 'docs/qa', label: 'Help' },
     {
       href: 'https://github.com/react-native-community/react-native-camera',
       label: 'GitHub',
@@ -99,7 +91,7 @@ const siteConfig = {
   twitterImage: 'img/undraw_tweetstorm.svg',
 
   // Show documentation's last contributor's name.
-  enableUpdateBy: true, 
+  enableUpdateBy: true,
 
   // Show documentation's last update time.
   enableUpdateTime: true,
