@@ -93,7 +93,6 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, assign) float lastDiff;
 @property (nonatomic, strong) NSMutableArray *avrgPixelBuffer;
 @property (nonatomic, assign) BOOL isLowLight;
-@property (nonatomic, assign) float threshold_movement;
 
 
 - (void)changeOrientation:(NSInteger)orientation;

@@ -50,7 +50,7 @@ RCT_EXPORT_MODULE();
     self.previewLayer.needsDisplayOnBoundsChange = YES;
   #endif
 
-  if(!self.camera){
+  if (!self.camera){
     self.camera = [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
   }
   return self.camera;
@@ -86,11 +86,11 @@ RCT_EXPORT_MODULE();
         [runtimeBarcodeTypes setObject:AVMetadataObjectTypeInterleaved2of5Code forKey:@"interleaved2of5"];
     }
 
-    if(&AVMetadataObjectTypeITF14Code != NULL){
+    if (&AVMetadataObjectTypeITF14Code != NULL){
         [runtimeBarcodeTypes setObject:AVMetadataObjectTypeITF14Code forKey:@"itf14"];
     }
 
-    if(&AVMetadataObjectTypeDataMatrixCode != NULL){
+    if (&AVMetadataObjectTypeDataMatrixCode != NULL){
         [runtimeBarcodeTypes setObject:AVMetadataObjectTypeDataMatrixCode forKey:@"datamatrix"];
     }
 
@@ -546,7 +546,7 @@ RCT_EXPORT_METHOD(getExposure:(RCTPromiseResolveBlock)resolve reject:(RCTPromise
 }
 
 RCT_EXPORT_METHOD(getDebugInformation:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
-    NSString *text = [NSString stringWithFormat:@"is moving: %s = %f (diff) > %f \nisLowLigh: %s = %Lf (exposure at iso 100) > %f",self.imageIsMoving ? "yes": "no", self.lastDiff, self.threshold_movement, self.isLowLight? "yes": "no" , self.previewExposureRef, THRESHOLD_EXPOSURE];
+    NSString *text = [NSString stringWithFormat:@"is moving: %s = %f (diff) > %f \nisLowLigh: %s = %Lf (exposure at iso 100) > %f",self.imageIsMoving ? "yes": "no", self.lastDiff, THRESHOLD_MOVEMENT_DEFAULT, self.isLowLight? "yes": "no" , self.previewExposureRef, THRESHOLD_EXPOSURE];
 
     resolve(text);
 }
@@ -724,7 +724,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         Video preview stream output
      */
 
-    if(sampleBuffer) {
+    if (sampleBuffer) {
         [self newFrame:sampleBuffer];
     }
 }
@@ -736,7 +736,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
         [self.listOfPixelBuffer addObject:imageData];
 
-        if(self.listOfPixelBuffer.count >= SAMPLE_SIZE) {
+        if (self.listOfPixelBuffer.count >= SAMPLE_SIZE) {
             // Exposure time & ISO
             NSDictionary *exifMetadata = [self getExifMetadata:sampleBuffer];
 
@@ -764,35 +764,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
             if (isLowLight) {
 
-                if(self.isLowLight == NO) {
+                if (self.isLowLight == NO) {
                     self.isLowLight = isLowLight;
                     [self.cameraEventEmitter sendOnLowLightChange:YES];
                 }
 
                 self.lastDiff = [self computeImageMovement:10];
-                BOOL isMoving = [self isMoving:self.lastDiff];
+                self.imageIsMoving = [self isMoving:self.lastDiff];
 
-                if(isMoving && self.imageIsMoving == NO) {
-
-                    self.imageIsMoving = isMoving;
-
-                    [self.cameraEventEmitter sendOnMovementChange:YES];
-
-                } else if (isMoving == NO && self.imageIsMoving) {
-
-                    self.imageIsMoving = isMoving;
-
-                    [self.cameraEventEmitter sendOnMovementChange:NO];
-
-                }
-            } else if(isLowLight == NO) {
-                if(self.isLowLight) {
+            } else if (isLowLight == NO) {
+                if (self.isLowLight) {
                     self.isLowLight = isLowLight;
                     [self.cameraEventEmitter sendOnLowLightChange:NO];
-                    self.imageIsMoving = NO;
-                    self.lastDiff = 0;
-                    [self.cameraEventEmitter sendOnMovementChange:NO];
-
                 }
             }
 
@@ -816,7 +799,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 
 - (BOOL)isMoving:(float)difference {
-    if (difference > self.threshold_movement) {
+    if (difference > THRESHOLD_MOVEMENT_DEFAULT) {
         return YES;
     }
     return NO;
@@ -877,18 +860,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         float tempSTD = (float) sqrt((double) deviationTotal / (self.listOfPixelBuffer.count - 1));
         standardDeviation += tempSTD;
 
-        if(i%1000 == 0) {
-            [arrPercentile addObject:@(tempSTD)];
-        }
+//        if (i%1000 == 0) {
+//            [arrPercentile addObject:@(tempSTD)];
+//        }
 
         deviationTotal = 0;
         average = 0.0;
         subTotal = 0;
     }
 
-    NSArray *sorted = [arrPercentile sortedArrayUsingSelector:@selector(compare:)];
+//    NSArray *sorted = [arrPercentile sortedArrayUsingSelector:@selector(compare:)];
 
-    self.threshold_movement = [sorted[200] floatValue] * 1.5;
+//    self.threshold_movement = [sorted[200] floatValue] * 1.5;
 
     return (float) standardDeviation / (sizeOfAnBuffer / pixelSpacing);
 
@@ -910,13 +893,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     return yData;
 }
 
-- (void)captureOutput:(AVCaptureOutput *)output
-  didDropSampleBuffer:(CMSampleBufferRef)sampleBuffer
-       fromConnection:(AVCaptureConnection *)connection
-{
-    // Just for debug, this funtion is triggered often when we do processing.
-    //NSLog(@"Video Output: dropped an buffer");
-}
+//- (void)captureOutput:(AVCaptureOutput *)output
+//  didDropSampleBuffer:(CMSampleBufferRef)sampleBuffer
+//       fromConnection:(AVCaptureConnection *)connection
+//{
+//    //Just for debug, this funtion is triggered often when we do processing.
+//    //NSLog(@"Video Output: dropped an buffer");
+//}
 
 - (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(AVCaptureManualExposureBracketedStillImageSettings *)bracketSettings error:(NSError *)error
 {
@@ -1386,7 +1369,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     if (captureDeviceClass != nil) {
         dispatch_async([self sessionQueue], ^{
             AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
-            if([device isFocusPointOfInterestSupported] &&
+            if ([device isFocusPointOfInterestSupported] &&
                [device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
                 CGRect cameraViewRect = [[self camera] bounds];
                 double cameraViewWidth = cameraViewRect.size.width;
@@ -1394,7 +1377,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
                 double focus_x = atPoint.x/cameraViewWidth;
                 double focus_y = atPoint.y/cameraViewHeight;
                 CGPoint cameraViewPoint = CGPointMake(focus_x, focus_y);
-                if([device lockForConfiguration:nil]) {
+                if ([device lockForConfiguration:nil]) {
                     [device setFocusPointOfInterest:cameraViewPoint];
                     [device setFocusMode:AVCaptureFocusModeAutoFocus];
                     if ([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:AVCaptureExposureModeAutoExpose]) {
