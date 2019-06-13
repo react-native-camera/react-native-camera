@@ -777,7 +777,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                     self.isLowLight = isLowLight;
                     [self.cameraEventEmitter sendOnLowLightChange:NO];
                 }
+
+                self.lastDiff = 0.0;
+                self.imageIsMoving = NO;
             }
+
+
 
             [self.listOfPixelBuffer removeAllObjects];
 
