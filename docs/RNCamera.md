@@ -92,7 +92,7 @@ AppRegistry.registerComponent('ExampleApp', () => ExampleApp);
 ```javascript
 'use strict';
 import React, { PureComponent } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppRegistry, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 
 const PendingView = () => (

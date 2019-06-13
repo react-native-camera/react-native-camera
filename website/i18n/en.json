@@ -5,6 +5,9 @@
     "previous": "Previous",
     "tagline": "The comprehensive camera module for React Native.",
     "docs": {
+      "AndroidXMigration": {
+        "title": "AndroidXMigration"
+      },
       "api": {
         "title": "Work in progress"
       },
