@@ -634,8 +634,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         if (![self.faceDetector isRealDetector] && ![self.textDetector isRealDetector] && ![self.barcodeDetector isRealDetector] && ![self.documentDetector isRealDetector]) {
             [self setupMovieFileCapture];
         }
-//        [self setupOrDisableBarcodeScanner];
-//        [self setupOrDisableDocumentDetector];
         
         __weak RNCamera *weakSelf = self;
         [self setRuntimeErrorHandlingObserver:
