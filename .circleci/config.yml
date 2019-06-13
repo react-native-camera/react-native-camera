@@ -57,6 +57,7 @@ jobs:
           command: |
             git config --global user.email "${GH_EMAIL}@users.noreply.github.com"
             git config --global user.name "${GH_NAME}"
+            echo "machine github.com login $GH_NAME password $GH_TOKEN_DOCS" > ~/.netrc
             cd website && yarn install && GIT_USER=${GH_NAME} yarn run publish-gh-pages
 workflows:
   version: 2
