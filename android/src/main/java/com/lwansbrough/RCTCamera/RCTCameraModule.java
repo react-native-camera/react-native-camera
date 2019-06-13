@@ -734,7 +734,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         if (parameters.isZoomSupported()) {
             if (zoom >=0 && zoom < maxZoom) {
                 parameters.setZoom(zoom);
-                camera.setParameters(parameters);
+                try{
+                  camera.setParameters(parameters);
+                }
+                catch(RuntimeException e ) {
+                  Log.e("RCTCameraModule", "setParameters failed", e);
+                }
             }
         }
     }

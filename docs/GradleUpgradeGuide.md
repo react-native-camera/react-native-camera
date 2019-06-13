@@ -1,4 +1,8 @@
-# Upgrade gradle for Android projects
+---
+id: GradleUpgradeGuide
+title: Upgrade gradle for Android projects
+sidebar_label: Gradle Upgrade Guide
+---
 
 To integrate react-native-camera into your own react native project and make it work for Android, you need to edit the following files in the `android` folder under your project folder:
 

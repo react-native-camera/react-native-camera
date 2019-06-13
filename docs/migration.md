@@ -1,4 +1,8 @@
-# Migrating from RCTCamera to RNCamera
+---
+id: migration
+title: Migrating from RCTCamera to RNCamera
+sidebar_label: Migrating from RCTCamera to RNCamera
+---
 
 ## Project Integration
 

@@ -1,7 +1,7 @@
 version: 2
 executorType: docker
 jobs:
-  build:
+  build-app:
     resource_class: large
     environment:
       - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
@@ -46,3 +46,25 @@ jobs:
           key: v1-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules/
+  deploy-docs:
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:8.11.1
+    steps:
+      - checkout
+      - run:
+          name: Deploying to GitHub Pages
+          command: |
+            git config --global user.email "${GH_EMAIL}@users.noreply.github.com"
+            git config --global user.name "${GH_NAME}"
+            echo "machine github.com login $GH_NAME password $GH_TOKEN_DOCS" > ~/.netrc
+            cd website && yarn install && GIT_USER=${GH_NAME} yarn run publish-gh-pages
+workflows:
+  version: 2
+  build-and-deploy-docs:
+    jobs:
+      - build-app
+      - deploy-docs:
+          filters:
+            branches:
+              only: master

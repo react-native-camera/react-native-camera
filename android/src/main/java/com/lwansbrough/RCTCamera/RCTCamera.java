@@ -221,7 +221,12 @@ public class RCTCamera {
         // this hint can help reduce the time it takes to start recording.
         Camera.Parameters parameters = camera.getParameters();
         parameters.setRecordingHint(captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_VIDEO);
-        camera.setParameters(parameters);
+        try{
+          camera.setParameters(parameters);
+        }
+        catch(RuntimeException e ) {
+          Log.e("RCTCamera", "setParameters failed", e);
+        }
     }
 
     public void setCaptureQuality(int cameraType, String captureQuality) {
@@ -260,7 +265,12 @@ public class RCTCamera {
 
         if (pictureSize != null) {
             parameters.setPictureSize(pictureSize.width, pictureSize.height);
+            try{
             camera.setParameters(parameters);
+            }
+            catch(RuntimeException e ) {
+              Log.e("RCTCamera", "setParameters failed", e);
+            }
         }
     }
 
@@ -332,7 +342,12 @@ public class RCTCamera {
         List<String> flashModes = parameters.getSupportedFlashModes();
         if (flashModes != null && flashModes.contains(value)) {
             parameters.setFlashMode(value);
-            camera.setParameters(parameters);
+            try{
+              camera.setParameters(parameters);
+            }
+          catch(RuntimeException e ) {
+            Log.e("RCTCamera", "setParameters failed", e);
+          }
         }
     }
 
@@ -358,7 +373,12 @@ public class RCTCamera {
         List<String> flashModes = parameters.getSupportedFlashModes();
         if (flashModes != null && flashModes.contains(value)) {
             parameters.setFlashMode(value);
+            try{
             camera.setParameters(parameters);
+            }
+            catch(RuntimeException e ) {
+              Log.e("RCTCamera", "setParameters failed", e);
+            }
         }
     }
 
@@ -373,7 +393,12 @@ public class RCTCamera {
         if (parameters.isZoomSupported()) {
             if (zoom >=0 && zoom < maxZoom) {
                 parameters.setZoom(zoom);
-                camera.setParameters(parameters);
+                try{
+                  camera.setParameters(parameters);
+                }
+                catch(RuntimeException e ) {
+                  Log.e("RCTCamera", "setParameters failed", e);
+                }
             }
         }
     }
