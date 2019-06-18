@@ -12,6 +12,7 @@
 @interface CameraEventEmitter : RCTEventEmitter <RCTBridgeModule>
 
 + (id)allocWithZone:(NSZone *)zone;
+- (BOOL)hasListener;
 - (void)sendOnLowLightChange:(BOOL)isLowLight;
 - (void)sendOnMovementChange:(BOOL)isMoving;
 
