@@ -25,7 +25,8 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_BARCODE_DETECTION_ERROR("onGoogleVisionBarcodeDetectionError"),
     EVENT_ON_TEXT_RECOGNIZED("onTextRecognized"),
     EVENT_ON_PICTURE_TAKEN("onPictureTaken"),
-    EVENT_ON_PICTURE_SAVED("onPictureSaved");
+    EVENT_ON_PICTURE_SAVED("onPictureSaved"),
+    EVENT_ON_DOCUMENT_DETECTED("onDocumentDetected");
 
     private final String mName;
 
@@ -190,5 +191,10 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "textRecognizerEnabled")
   public void setTextRecognizing(RNCameraView view, boolean textRecognizerEnabled) {
     view.setShouldRecognizeText(textRecognizerEnabled);
+  }
+
+  @ReactProp(name = "documentScannerEnabled")
+  public void setDocumentDetection(RNCameraView view, boolean documentScannerEnabled) {
+    view.setShouldDetectDocuments(documentScannerEnabled);
   }
 }
