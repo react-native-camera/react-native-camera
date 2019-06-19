@@ -256,6 +256,7 @@ type PropsType = typeof View.props & {
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
   onDocumentDetected?: ({ document: {x: number, y: number, widht: number, height: number} }) => void,
+  documentScannerEnabled?: boolean,
   captureAudio?: boolean,
   useCamera2Api?: boolean,
   playSoundOnCapture?: boolean,

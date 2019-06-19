@@ -1,4 +1,8 @@
-# Migrating from version 1.x to 2.x
+---
+id: migrationv2
+title: Migrating from version 1.x to 2.x
+sidebar_label: Migrating from version 1.x to 2.x
+---
 
 Version 2.x of react-native-camera moves to using Firebase MLKit for advanced features such as text/face recognition. Users can now opt into useing MLKit in their app by choosing a certain flavor of the library (Android) or selecting a desired podspec (iOS). This allows users who do not need Firebase MLKit-based features to not be forced to set up a Firebase project.
 
