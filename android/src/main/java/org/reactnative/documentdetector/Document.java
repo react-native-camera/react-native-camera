@@ -2,6 +2,8 @@ package org.reactnative.documentdetector;
 
 import android.graphics.PointF;
 
+import org.opencv.core.Point;
+
 public class Document {
     private PointF topLeft;
     private PointF topRight;
@@ -21,6 +23,12 @@ public class Document {
         this.topLeft = topLeft;
         this.width = width;
         this.height = height;
+    }
+
+    public Document(Point[] points) {
+        this.topLeft = new PointF((float)points[0].x, (float)points[0].y);
+        this.width = (float) (points[1].x-points[0].x+points[2].x-points[3].x)/2;
+        this.height = (float) (points[3].y-points[0].y+points[2].y-points[1].y)/2;
     }
 
     public PointF getTopLeft() {

@@ -34,7 +34,7 @@ public class DocumentDetectorAsyncTask extends AsyncTask<Void, Void, Document> {
             return null;
         }
 
-        return mDocumentDetector.detect(); // Todo pass frame to image processing
+        return mDocumentDetector.detect(mImageData, mWidth, mHeight, mScaleX, mScaleY);
     }
 
     @Override
