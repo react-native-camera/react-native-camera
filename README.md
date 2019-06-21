@@ -129,5 +129,6 @@ To enable `video recording` feature you have to add the following code to the `A
 ...
 	
 ```
+For more information on installation, please refer to [installation requirements](./docs/installation.md#requirements).
 
-Take a look into this [documentation](./docs/RNCamera.md).
+For general introduction, please take a look into this [RNCamera](./docs/RNCamera.md).
