@@ -11,6 +11,8 @@ import android.util.Base64;
 
 import org.reactnative.camera.RNCameraViewHelper;
 import org.reactnative.camera.utils.RNFileUtils;
+import org.reactnative.documentdetector.Document;
+import org.reactnative.documentdetector.RNDocumentDetector;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -25,6 +27,7 @@ import java.io.IOException;
 
 public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, WritableMap> {
     private static final String ERROR_TAG = "E_TAKING_PICTURE_FAILED";
+    private final RNDocumentDetector mDocumentDetector;
     private Promise mPromise;
     private byte[] mImageData;
     private ReadableMap mOptions;
@@ -33,13 +36,14 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private int mDeviceOrientation;
     private PictureSavedDelegate mPictureSavedDelegate;
 
-    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate) {
+    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate, RNDocumentDetector documentDetector) {
         mPromise = promise;
         mOptions = options;
         mImageData = imageData;
         mCacheDirectory = cacheDirectory;
         mDeviceOrientation = deviceOrientation;
         mPictureSavedDelegate = delegate;
+        mDocumentDetector = documentDetector;
     }
 
     private int getQuality() {
@@ -91,6 +95,22 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         if (mBitmap == null) {
             mBitmap = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
             inputStream = new ByteArrayInputStream(mImageData);
+        }
+
+        // If we use document detection feature the detector is passed to constructor
+        if (mDocumentDetector != null) {
+            Document document = mDocumentDetector.detectCaptured(mImageData, mBitmap.getWidth(), mBitmap.getHeight());
+            if (document != null) {
+                try {
+                    mBitmap = cropBitmap(mBitmap, document);
+                    // replace the byte array with the data from the cropped bitmap
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), outputStream);
+                    mImageData = outputStream.toByteArray();
+                } catch (IllegalArgumentException e) {
+                    //invalid document parameters
+                }
+            }
         }
 
         try {
@@ -196,6 +216,11 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
         // An exception had to occur, promise has already been rejected. Do not try to resolve it again.
         return null;
+    }
+
+    private Bitmap cropBitmap(Bitmap source, Document document) throws IllegalArgumentException {
+        if (document == null) return source;
+        return Bitmap.createBitmap(source, (int)document.getTopLeft().x, (int)document.getTopLeft().y, (int)document.getWidth(), (int)document.getHeight());
     }
 
     private Bitmap rotateBitmap(Bitmap source, int angle) {

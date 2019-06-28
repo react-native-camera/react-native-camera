@@ -255,7 +255,9 @@ type PropsType = typeof View.props & {
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
-  onDocumentDetected?: ({ document: {x: number, y: number, widht: number, height: number} }) => void,
+  onDocumentDetected?: ({
+    document: { x: number, y: number, widht: number, height: number },
+  }) => void,
   documentScannerEnabled?: boolean,
   captureAudio?: boolean,
   useCamera2Api?: boolean,
@@ -779,10 +781,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
     if (props.onTextRecognized) {
       newProps.textRecognizerEnabled = true;
-    }
-
-    if (props.onDocumentDetected) {
-      newProps.documentScannerEnabled = true;
     }
 
     if (Platform.OS === 'ios') {

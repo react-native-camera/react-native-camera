@@ -51,6 +51,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   public volatile boolean googleBarcodeDetectorTaskLock = false;
   public volatile boolean textRecognizerTaskLock = false;
   public volatile boolean documentDetectionTaskLock = false;
+  public volatile long scannerStart;
 
   // Scanning-related properties
   private MultiFormatReader mMultiFormatReader;
@@ -76,6 +77,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mThemedReactContext = themedReactContext;
     themedReactContext.addLifecycleEventListener(this);
 
+    scannerStart = new Date().getTime();
+
     addCallback(new Callback() {
       @Override
       public void onCameraOpened(CameraView cameraView) {
@@ -96,10 +99,10 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
         final File cacheDirectory = mPictureTakenDirectories.remove(promise);
         if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
+          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this, mShouldDetectDocuments ? mDocumentDetector : null)
                   .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
+          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this, mShouldDetectDocuments ? mDocumentDetector : null)
                   .execute();
         }
         RNCameraViewHelper.emitPictureTakenEvent(cameraView);
@@ -126,12 +129,13 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
       @Override
       public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int rotation) {
+        long msPassedSinceLastScan = new Date().getTime() - scannerStart;
         int correctRotation = RNCameraViewHelper.getCorrectCameraRotation(rotation, getFacing(), getCameraOrientation());
         boolean willCallBarCodeTask = mShouldScanBarCodes && !barCodeScannerTaskLock && cameraView instanceof BarCodeScannerAsyncTaskDelegate;
         boolean willCallFaceTask = mShouldDetectFaces && !faceDetectorTaskLock && cameraView instanceof FaceDetectorAsyncTaskDelegate;
         boolean willCallGoogleBarcodeTask = mShouldGoogleDetectBarcodes && !googleBarcodeDetectorTaskLock && cameraView instanceof BarcodeDetectorAsyncTaskDelegate;
         boolean willCallTextTask = mShouldRecognizeText && !textRecognizerTaskLock && cameraView instanceof TextRecognizerAsyncTaskDelegate;
-        boolean willCallDocumentDetectionTask = mShouldDetectDocuments && !documentDetectionTaskLock && cameraView instanceof DocumentDetectorAsyncTaskDelegate;
+        boolean willCallDocumentDetectionTask = msPassedSinceLastScan > 300 && mShouldDetectDocuments && !documentDetectionTaskLock && cameraView instanceof DocumentDetectorAsyncTaskDelegate;
         if (!willCallBarCodeTask && !willCallFaceTask && !willCallGoogleBarcodeTask && !willCallTextTask && !willCallDocumentDetectionTask) {
           return;
         }
@@ -178,6 +182,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
         if (willCallDocumentDetectionTask) {
           documentDetectionTaskLock = true;
+          scannerStart = new Date().getTime();
           DocumentDetectorAsyncTaskDelegate delegate = (DocumentDetectorAsyncTaskDelegate) cameraView;
           new DocumentDetectorAsyncTask(delegate, mDocumentDetector, data, width, height, getResources().getDisplayMetrics().density, getWidth(), getHeight()).execute();
         }

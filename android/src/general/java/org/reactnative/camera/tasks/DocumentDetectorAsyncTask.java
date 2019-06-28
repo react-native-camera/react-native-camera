@@ -34,7 +34,7 @@ public class DocumentDetectorAsyncTask extends AsyncTask<Void, Void, Document> {
             return null;
         }
 
-        return mDocumentDetector.detect(mImageData, mWidth, mHeight, mScaleX, mScaleY);
+        return mDocumentDetector.detectPreview(mImageData, mWidth, mHeight, mScaleX, mScaleY);
     }
 
     @Override
