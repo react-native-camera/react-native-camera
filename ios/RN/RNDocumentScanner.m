@@ -42,14 +42,14 @@
     _lastRectBorder = [self biggestRectangleInRectangles:[[self highAccuracyRectangleDetector] featuresInImage:cimage]];
     
     completed(@{
-//                @"topLeft": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.topLeft.x * scaleX],
-//                              @"y": [NSNumber numberWithFloat:_lastRectBorder.topLeft.y * scaleY]},
-//                @"topRight": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.topRight.x * scaleX],
-//                               @"y": [NSNumber numberWithFloat:_lastRectBorder.topRight.y * scaleY]},
-//                @"bottomLeft": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.bottomLeft.x * scaleX],
-//                                 @"y": [NSNumber numberWithFloat:_lastRectBorder.bottomLeft.y * scaleY]},
-//                @"bottomRight": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.bottomRight.x * scaleX],
-//                                  @"y": [NSNumber numberWithFloat:_lastRectBorder.bottomRight.y * scaleY]},
+                @"tl": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.topLeft.x * scaleX],
+                              @"y": [NSNumber numberWithFloat:_lastRectBorder.topLeft.y * scaleY]},
+                @"tr": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.topRight.x * scaleX],
+                               @"y": [NSNumber numberWithFloat:_lastRectBorder.topRight.y * scaleY]},
+                @"bl": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.bottomLeft.x * scaleX],
+                                 @"y": [NSNumber numberWithFloat:_lastRectBorder.bottomLeft.y * scaleY]},
+                @"br": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.bottomRight.x * scaleX],
+                                  @"y": [NSNumber numberWithFloat:_lastRectBorder.bottomRight.y * scaleY]},
                 @"x": [NSNumber numberWithFloat:_lastRectBorder.topLeft.x * scaleX],
                 @"y": [NSNumber numberWithFloat:(image.size.height - _lastRectBorder.topLeft.y) * scaleY],
                 @"width": [NSNumber numberWithFloat:(_lastRectBorder.topRight.x - _lastRectBorder.topLeft.x) * scaleX],
