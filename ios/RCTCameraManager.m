@@ -551,6 +551,15 @@ RCT_EXPORT_METHOD(getDebugInformation:(RCTPromiseResolveBlock)resolve reject:(RC
     resolve(text);
 }
 
+RCT_EXPORT_METHOD(resetLowLightProcess:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+
+    self.isLowLight = NO;
+    self.imageIsMoving = NO;
+    [self.listOfPixelBuffer removeAllObjects];
+    resolve(@"OK");
+}
+
+
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
@@ -845,7 +854,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     int subTotal = 0;
     UInt8 *pixels;
 
-    NSMutableArray *arrPercentile = [NSMutableArray arrayWithCapacity:sizeOfAnBuffer / 1000];
+    //NSMutableArray *arrPercentile = [NSMutableArray arrayWithCapacity:sizeOfAnBuffer / 1000];
 
     for (int i = 0; i < sizeOfAnBuffer ; i+=(pixelSpacing)) {
 
