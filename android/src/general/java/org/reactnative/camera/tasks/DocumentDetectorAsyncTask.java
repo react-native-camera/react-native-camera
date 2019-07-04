@@ -24,8 +24,8 @@ public class DocumentDetectorAsyncTask extends AsyncTask<Void, Void, Document> {
         this.mImageData = data;
         this.mWidth = width;
         this.mHeight = height;
-        this.mScaleX = (double) viewWidth / (width * density);
-        this.mScaleY = (double) viewHeight / (height * density);
+        this.mScaleX = (double) viewHeight / (width * density);
+        this.mScaleY = (double) viewWidth / (height * density);
     }
 
     @Override
@@ -40,19 +40,32 @@ public class DocumentDetectorAsyncTask extends AsyncTask<Void, Void, Document> {
     @Override
     protected void onPostExecute(Document document) {
         super.onPostExecute(document);
-        if (document != null) {
-            mDelegate.onDocumentDetected(serializeEventData(document));
-        }
+        mDelegate.onDocumentDetected(document != null ? serializeEventData(document) : null);
         mDelegate.onDocumentDetectingTaskCompleted();
     }
 
     private WritableMap serializeEventData(Document document) {
         WritableMap serializedDocument = Arguments.createMap();
 
-        serializedDocument.putDouble("x", document.getTopLeft().x);
-        serializedDocument.putDouble("y", document.getTopLeft().y);
-        serializedDocument.putDouble("width", document.getWidth());
-        serializedDocument.putDouble("height", document.getHeight());
+        WritableMap tl = Arguments.createMap();
+        tl.putDouble("x", document.getTopLeft().x);
+        tl.putDouble("y", document.getTopLeft().y);
+        serializedDocument.putMap("tl", tl);
+
+        WritableMap tr = Arguments.createMap();
+        tr.putDouble("x", document.getTopRight().x);
+        tr.putDouble("y", document.getTopRight().y);
+        serializedDocument.putMap("tr", tr);
+
+        WritableMap br = Arguments.createMap();
+        br.putDouble("x", document.getBottomRight().x);
+        br.putDouble("y", document.getBottomRight().y);
+        serializedDocument.putMap("br", br);
+
+        WritableMap bl = Arguments.createMap();
+        bl.putDouble("x", document.getBottomLeft().x);
+        bl.putDouble("y", document.getBottomLeft().y);
+        serializedDocument.putMap("bl", bl);
 
         return serializedDocument;
     }

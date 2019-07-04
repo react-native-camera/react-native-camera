@@ -1,13 +1,13 @@
 package org.reactnative.documentdetector;
 
-import android.util.Log;
-
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.reactnative.documentdetector.helpers.Quadrilateral;
 
@@ -15,12 +15,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 public class RNDocumentDetector {
     public RNDocumentDetector() {}
 
     public Document detectPreview(byte[] imageData, double landscapeWidth, double landscapeHeight, double scaleX, double scaleY) {
-        Mat mat = createMat(imageData, landscapeWidth, landscapeHeight);
+        Mat mat = createMat(imageData, landscapeWidth, landscapeHeight, false);
 
         Quadrilateral quadrilateral = processFrame(mat);
 
@@ -33,7 +34,7 @@ public class RNDocumentDetector {
     }
 
     public Document detectCaptured(byte[] imageData, double landscapeWidth, double landscapeHeight) {
-        Mat mat = createMat(imageData, landscapeWidth, landscapeHeight);
+        Mat mat = createMat(imageData, landscapeWidth, landscapeHeight, true);
 
         Quadrilateral quadrilateral = processFrame(mat);
 
@@ -44,7 +45,10 @@ public class RNDocumentDetector {
         return new Document(quadrilateral.getPoints());
     }
 
-    private Mat createMat(byte[] imageData, double landscapeWidth, double landscapeHeight) {
+    private Mat createMat(byte[] imageData, double landscapeWidth, double landscapeHeight, boolean compressed) {
+        if (compressed) {
+            return Imgcodecs.imdecode(new MatOfByte(imageData), Imgcodecs.IMREAD_REDUCED_COLOR_2 | Imgcodecs.IMREAD_IGNORE_ORIENTATION );
+        }
         Mat yuv = new Mat(new Size(landscapeWidth, landscapeHeight * 1.5), CvType.CV_8UC1);
         yuv.put(0, 0, imageData);
 
@@ -57,7 +61,7 @@ public class RNDocumentDetector {
     }
 
     private Quadrilateral processFrame(Mat frame) {
-        ArrayList<MatOfPoint> contours = findContours(frame);
+        List<MatOfPoint> contours = findContours(frame);
 
         return getQuadrilateral(contours, frame.size());
     }
@@ -81,7 +85,7 @@ public class RNDocumentDetector {
         };
     }
 
-    private ArrayList<MatOfPoint> findContours(Mat src) {
+    private List<MatOfPoint> findContours(Mat src) {
         Mat grayImage = null;
         Mat cannedImage = null;
         Mat resizedImage = null;
@@ -100,7 +104,7 @@ public class RNDocumentDetector {
         Imgproc.GaussianBlur(grayImage, grayImage, new Size(5, 5), 0);
         Imgproc.Canny(grayImage, cannedImage, 80, 100, 3, false);
 
-        ArrayList<MatOfPoint> contours = new ArrayList<>();
+        List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
 
         Imgproc.findContours(cannedImage, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -119,10 +123,13 @@ public class RNDocumentDetector {
         grayImage.release();
         cannedImage.release();
 
+        if (contours.size() > 10) {
+            return contours.subList(0, 10);
+        }
         return contours;
     }
 
-    private Quadrilateral getQuadrilateral(ArrayList<MatOfPoint> contours, Size srcSize) {
+    private Quadrilateral getQuadrilateral(List<MatOfPoint> contours, Size srcSize) {
 
         double ratio = srcSize.height / 500;
         int height = Double.valueOf(srcSize.height / ratio).intValue();
@@ -132,15 +139,18 @@ public class RNDocumentDetector {
         for (MatOfPoint matOfPoint : contours) {
             // find contour perimeter
             MatOfPoint2f c2f = new MatOfPoint2f(matOfPoint.toArray());
-            double epsilon = 0.02 * Imgproc.arcLength(c2f, true);
+            double perimeter = Imgproc.arcLength(c2f, true);
+
             // approximate the shape by Ramer–Douglas–Peucker
             MatOfPoint2f approx = new MatOfPoint2f();
-            Imgproc.approxPolyDP(c2f, approx, epsilon, true);
-            if (approx.toArray().length < 4) continue; // cant get a quadrilateral from three points
+            Imgproc.approxPolyDP(c2f, approx, 0.1 * perimeter, true);
+
+            // cant get a quadrilateral from less than 4 points
+            if (approx.toArray().length < 4) continue;
 
             Point[] points = selectCornersFromPoints(approx.toArray());
-            if (insideArea(points, size)) {
-                scalePoints(points, ratio); // reset scaling
+            if (isQuadrilateralLargeEnough(points, size)) {
+                scalePoints(points, ratio); // reset scale to src size
                 return new Quadrilateral(matOfPoint, points);
             }
         }
@@ -191,25 +201,23 @@ public class RNDocumentDetector {
         return result;
     }
 
-    private boolean insideArea(Point[] rp, Size size) {
-        int width = Double.valueOf(size.width).intValue(); // 666
-        int height = Double.valueOf(size.height).intValue(); // 500
-        int baseMeasure = height / 4; // 125
+    private boolean isQuadrilateralLargeEnough(Point[] rp, Size size) {
+        double widthMax = size.width; // 666
+        double heightMax = size.height; // 500
 
-        int bottomPos = height - baseMeasure; // 375
-        int topPos = baseMeasure; // 125
-        int leftPos = width / 2 - baseMeasure; // 208
-        int rightPos = width / 2 + baseMeasure; // 458
+        Point tl = rp[0];
+        Point tr = rp[1];
+        Point br = rp[2];
+        Point bl = rp[3];
 
-        boolean isInside = (
-                rp[0].x <= leftPos && rp[0].y <= topPos // topleft.x <= 208 && topleft.y <= 125
-                        && rp[1].x >= rightPos && rp[1].y <= topPos // topright.x >= 458 && topright.y <= 125
-                        && rp[2].x >= rightPos && rp[2].y >= bottomPos // bottomright.x >= 458 && bottomright.y >= 375
-                        && rp[3].x <= leftPos && rp[3].y >= bottomPos // bottomleft.x <= 208 && bottomleft.y >= 375
-        );
-        if (!isInside) {
-            Log.i("inside calc", String.format("not inside means at (%d, %d)",(int)rp[0].x, (int)rp[0].y));
-        }
-        return isInside;
+        double width1 = Math.hypot(tr.x-tl.x, tr.y-tl.y);
+        double width2 = Math.hypot(br.x-bl.x, br.y-bl.y);
+        double width = Math.max(width1, width2);
+
+        double height1 = Math.hypot(tr.x-br.x, tr.y-br.y);
+        double height2 = Math.hypot(tl.x-bl.x, tl.y-bl.y);
+        double height = Math.max(height1, height2);
+
+        return width*height > .15*(widthMax*heightMax); // at least 15% of area
     }
 }

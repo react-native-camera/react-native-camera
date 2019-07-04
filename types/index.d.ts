@@ -210,11 +210,19 @@ export interface RNCameraProps {
   defaultVideoQuality?: keyof VideoQuality;
 }
 
-interface Document {
-  x: number;
-  y: number;
-  widht: number;
-  height: number;
+interface DocumentCorners {
+  /** Top Left corner coords */
+  tl: Point<number>;
+  /** Top Right corner coords */
+  tr: Point<number>;
+  /** Bottom Right corner coords */
+  br: Point<number>;
+  /** Bottom Left corner coords */
+  bl: Point<number>;
+}
+
+export interface Document {
+  document: DocumentCorners;
 }
 
 interface Point<T = number> {

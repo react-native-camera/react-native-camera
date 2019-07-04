@@ -9,15 +9,15 @@ import android.os.AsyncTask;
 import android.support.media.ExifInterface;
 import android.util.Base64;
 
-import org.reactnative.camera.RNCameraViewHelper;
-import org.reactnative.camera.utils.RNFileUtils;
-import org.reactnative.documentdetector.Document;
-import org.reactnative.documentdetector.RNDocumentDetector;
-
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+
+import org.reactnative.camera.RNCameraViewHelper;
+import org.reactnative.camera.utils.RNFileUtils;
+import org.reactnative.documentdetector.Document;
+import org.reactnative.documentdetector.RNDocumentDetector;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -220,7 +220,12 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
     private Bitmap cropBitmap(Bitmap source, Document document) throws IllegalArgumentException {
         if (document == null) return source;
-        return Bitmap.createBitmap(source, (int)document.getTopLeft().x, (int)document.getTopLeft().y, (int)document.getWidth(), (int)document.getHeight());
+        int x = (int)document.getTopLeft().x;
+        int y = (int)document.getTopLeft().y;
+        int width = (int)(document.getTopRight().x-document.getTopLeft().x);
+        int height = (int)(document.getBottomRight().y-document.getTopRight().y);
+        // TODO use matrix setPolyToPoly for perspective correction... actually better move this to another class
+        return Bitmap.createBitmap(source, x, y, width, height);
     }
 
     private Bitmap rotateBitmap(Bitmap source, int angle) {
