@@ -144,7 +144,7 @@ export interface RNCameraProps {
 
   onCameraReady?(): void;
   onStatusChange?(event: {
-    cameraStatus: CameraStatus;
+    cameraStatus: keyof CameraStatus;
     recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
   }): void;
   onMountError?(error: { message: string }): void;
