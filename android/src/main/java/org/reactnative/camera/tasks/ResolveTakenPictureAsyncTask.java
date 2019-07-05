@@ -102,7 +102,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
             Document document = mDocumentDetector.detectCaptured(mImageData, mBitmap.getWidth(), mBitmap.getHeight());
             if (document != null) {
                 try {
-                    mBitmap = cropBitmap(mBitmap, document);
+                    mBitmap = cropBitmapWithPerspectiveCorrection(mBitmap, document);
                     // replace the byte array with the data from the cropped bitmap
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), outputStream);
@@ -218,14 +218,37 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         return null;
     }
 
-    private Bitmap cropBitmap(Bitmap source, Document document) throws IllegalArgumentException {
+    private Bitmap cropBitmapWithPerspectiveCorrection(Bitmap source, Document document) throws IllegalArgumentException {
         if (document == null) return source;
-        int x = (int)document.getTopLeft().x;
-        int y = (int)document.getTopLeft().y;
-        int width = (int)(document.getTopRight().x-document.getTopLeft().x);
-        int height = (int)(document.getBottomRight().y-document.getTopRight().y);
-        // TODO use matrix setPolyToPoly for perspective correction... actually better move this to another class
-        return Bitmap.createBitmap(source, x, y, width, height);
+        float[] transformOrigin = document.getTransformOrigin();
+        float[] transformTarget = new float[] {
+                0f, 0f, //top left
+                source.getWidth(), 0f, //top right
+                source.getWidth(), source.getHeight(), //bottom right
+                0f, source.getHeight() //bottom left
+        };
+
+        Matrix matrix = new Matrix();
+        matrix.setPolyToPoly(transformOrigin, 0, transformTarget, 0, 4);
+
+        float[] mappedTopLeft = new float[] { 0, 0 };
+        matrix.mapPoints(mappedTopLeft);
+        int mappedTopLeftX = Math.round(mappedTopLeft[0]);
+        int mappedTopLeftY = Math.round(mappedTopLeft[1]);
+
+        float[] mappedTopRight = new float[] { source.getWidth(), 0 };
+        matrix.mapPoints(mappedTopRight);
+        int mappedTopRightY = Math.round(mappedTopRight[1]);
+
+        float[] mappedBottomLeft = new float[] { 0, source.getHeight() };
+        matrix.mapPoints(mappedBottomLeft);
+        int mappedBottomLeftX = Math.round(mappedBottomLeft[0]);
+
+        Bitmap correctedPerspective = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+
+        int shiftX = Math.max(-mappedTopLeftX, -mappedBottomLeftX);
+        int shiftY = Math.max(-mappedTopRightY, -mappedTopLeftY);
+        return Bitmap.createBitmap(correctedPerspective, shiftX, shiftY, source.getWidth(), source.getHeight(), null, true);
     }
 
     private Bitmap rotateBitmap(Bitmap source, int angle) {
