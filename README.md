@@ -102,7 +102,9 @@ We recommend using the releases from npm, however if you need some features that
 
 ##### Permissions
 
-To use the camera on Android you must ask for camera permission:
+To use the camera,
+
+1. On Android you must ask for camera permission:
 
 ```java
   <uses-permission android:name="android.permission.CAMERA" />
@@ -118,4 +120,16 @@ To enable `video recording` feature you have to add the following code to the `A
 
 ![5j2jduk](https://cloud.githubusercontent.com/assets/2302315/22190752/6bc6ccd0-e0da-11e6-8e2f-6f22a3567a57.gif)
 
-Take a look into this [documentation](./docs/RNCamera.md).
+2. On iOS, you must update Info.plist with a usage description for camera
+
+```
+...
+<key>NSCameraUsageDescription</key>
+<string>Your own description of the purpose</string>
+...
+
+```
+
+For more information on installation, please refer to [installation requirements](./docs/installation.md#requirements).
+
+For general introduction, please take a look into this [RNCamera](./docs/RNCamera.md).

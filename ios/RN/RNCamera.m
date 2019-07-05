@@ -412,7 +412,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
                 takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
             }
-            
+
             if ([options[@"mirrorImage"] boolValue]) {
                 takenImage = [RNImageUtils mirrorImage:takenImage];
             }
@@ -634,7 +634,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         if (![self.faceDetector isRealDetector] && ![self.textDetector isRealDetector] && ![self.barcodeDetector isRealDetector] && ![self.documentDetector isRealDetector]) {
             [self setupMovieFileCapture];
         }
-        
+
         __weak RNCamera *weakSelf = self;
         [self setRuntimeErrorHandlingObserver:
          [NSNotificationCenter.defaultCenter addObserverForName:AVCaptureSessionRuntimeErrorNotification object:self.session queue:nil usingBlock:^(NSNotification *note) {
@@ -1052,7 +1052,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self setupOrDisableDocumentDetector];
     }
 
-    AVCaptureSessionPreset preset = [RNCameraUtils captureSessionPresetForVideoResolution:[self defaultVideoQuality]];
+    AVCaptureSessionPreset preset = [RNCameraUtils captureSessionPresetForVideoResolution:self.defaultVideoQuality.integerValue];
     if (self.session.sessionPreset != preset) {
         [self updateSessionPreset: preset == AVCaptureSessionPresetHigh ? AVCaptureSessionPresetPhoto: preset];
     }
@@ -1301,7 +1301,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     } else {
         [self stopDocumentDetector];
     }
-    
+
 }
 
 - (void)stopDocumentDetector
@@ -1344,7 +1344,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
     BOOL canSubmitForBarcodeDetection = timePassedSinceSubmittingForBarcode > 0.5 && _finishedDetectingBarcodes && self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
     BOOL canSubmitForDocumentDetection = timePassedSinceSubmittingForDocument > 0.3 && _finishedDetectingDocument && self.canDetectDocument && [self.documentDetector isRealDetector];
-    
+
     if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection || canSubmitForDocumentDetection) {
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
         NSInteger position = self.videoCaptureDeviceInput.device.position;
