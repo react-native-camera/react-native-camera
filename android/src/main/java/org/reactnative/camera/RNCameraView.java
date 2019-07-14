@@ -7,7 +7,7 @@ import android.graphics.Color;
 import android.media.CamcorderProfile;
 import android.media.MediaActionSound;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 import android.view.View;
 import android.os.AsyncTask;
 import com.facebook.react.bridge.*;
