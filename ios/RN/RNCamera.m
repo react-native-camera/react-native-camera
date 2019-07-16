@@ -697,6 +697,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
         if (error || captureDeviceInput == nil) {
             RCTLog(@"%s: %@", __func__, error);
+            [self.session commitConfiguration];
             return;
         }
 
@@ -766,6 +767,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
             if (error || audioDeviceInput == nil) {
                 RCTLogWarn(@"%s: %@", __func__, error);
+                [self.session commitConfiguration];
                 return;
             }
 
