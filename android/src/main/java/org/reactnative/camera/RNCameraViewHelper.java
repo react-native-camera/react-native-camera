@@ -321,7 +321,12 @@ public class RNCameraViewHelper {
           exifInterface.setAttribute(key, Boolean.toString(exifMap.getBoolean(key)));
           break;
         case Number:
-          exifInterface.setAttribute(key, Double.toString(exifMap.getDouble(key)));
+          // This is to fix an issue with using doubles for Orientation
+          if (key.equals(ExifInterface.TAG_ORIENTATION)) {
+            exifInterface.setAttribute(key, Integer.toString(exifMap.getInt(key)));
+          } else {
+            exifInterface.setAttribute(key, Double.toString(exifMap.getDouble(key)));
+          }
           break;
         case String:
           exifInterface.setAttribute(key, exifMap.getString(key));
