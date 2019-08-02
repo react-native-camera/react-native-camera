@@ -99,7 +99,7 @@ type PictureOptions = {
   base64?: boolean,
   mirrorImage?: boolean,
   exif?: boolean,
-  writeExif?: boolean,
+  writeExif?: boolean | { [name: string]: any },
   width?: number,
   fixOrientation?: boolean,
   forceUpOrientation?: boolean,
