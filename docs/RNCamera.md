@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('ExampleApp', () => ExampleApp);
+AppRegistry.registerComponent('App', () => ExampleApp);
 ```
 
 ## FaCC (Function as Child Components)
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('ExampleApp', () => ExampleApp);
+AppRegistry.registerComponent('App', () => ExampleApp);
 ```
 
 ### `camera`
