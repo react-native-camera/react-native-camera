@@ -15,6 +15,7 @@ import org.reactnative.camera.utils.RNFileUtils;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableType;
 import com.facebook.react.bridge.WritableMap;
 
 import java.io.ByteArrayInputStream;
@@ -119,8 +120,20 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 }
 
                 WritableMap exifData = null;
+                ReadableMap exifExtraData = null;
                 boolean writeExifToResponse = mOptions.hasKey("exif") && mOptions.getBoolean("exif");
-                boolean writeExifToFile = mOptions.hasKey("writeExif") && mOptions.getBoolean("writeExif");
+                boolean writeExifToFile = false;
+                if (mOptions.hasKey("writeExif")) {
+                    switch (mOptions.getType("writeExif")) {
+                        case Boolean:
+                            writeExifToFile = mOptions.getBoolean("writeExif");
+                            break;
+                        case Map:
+                            exifExtraData = mOptions.getMap("writeExif");
+                            writeExifToFile = true;
+                            break;
+                    }
+                }
 
                 // Read Exif data if needed
                 if (writeExifToResponse || writeExifToFile) {
@@ -135,6 +148,9 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                     fileExifData.putInt("height", mBitmap.getHeight());
                     if (fixOrientation) {
                         fileExifData.putInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                    }
+                    if (exifExtraData != null) {
+                        fileExifData.merge(exifExtraData);
                     }
                 }
 
