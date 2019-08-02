@@ -310,23 +310,32 @@ public class RNCameraViewHelper {
   }
 
   public static void setExifData(ExifInterface exifInterface, WritableMap exifMap) {
-    ReadableMapKeySetIterator iterator = exifMap.keySetIterator();
-    while (iterator.hasNextKey()) {
-      String key = iterator.nextKey();
-      switch (exifMap.getType(key)) {
-        case Null:
-          exifInterface.setAttribute(key, null);
-          break;
-        case Boolean:
-          exifInterface.setAttribute(key, Boolean.toString(exifMap.getBoolean(key)));
-          break;
-        case Number:
-          exifInterface.setAttribute(key, Double.toString(exifMap.getDouble(key)));
-          break;
-        case String:
-          exifInterface.setAttribute(key, exifMap.getString(key));
-          break;
+    for (String[] tagInfo : exifTags) {
+      String name = tagInfo[1];
+      if (exifMap.hasKey(name)) {
+        String type = tagInfo[0];
+        switch (type) {
+          case "string":
+            exifInterface.setAttribute(name, exifMap.getString(name));
+            break;
+          case "int":
+            exifInterface.setAttribute(name, Integer.toString(exifMap.getInt(name)));
+            exifMap.getInt(name);
+            break;
+          case "double":
+            exifInterface.setAttribute(name, Double.toString(exifMap.getDouble(name)));
+            exifMap.getDouble(name);
+            break;
+        }
       }
+    }
+    
+    if (exifMap.hasKey(ExifInterface.TAG_GPS_LATITUDE) && 
+        exifMap.hasKey(ExifInterface.TAG_GPS_LONGITUDE) && 
+        exifMap.hasKey(ExifInterface.TAG_GPS_ALTITUDE)) {
+      exifInterface.setLatLong(exifMap.getDouble(ExifInterface.TAG_GPS_LATITUDE),
+                               exifMap.getDouble(ExifInterface.TAG_GPS_LONGITUDE));
+      exifInterface.setAltitude(exifMap.getDouble(ExifInterface.TAG_GPS_ALTITUDE));
     }
   }
 
