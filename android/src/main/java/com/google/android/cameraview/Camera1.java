@@ -979,8 +979,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private boolean setExposureInternal(int exposure) {
         Log.e("CAMERA_1::", ""+isCameraOpened()+"; Exposure: "+exposure);
+        mExposure = exposure;
         if (isCameraOpened()){
-            mExposure = exposure;
             int minExposure = mCameraParameters.getMinExposureCompensation();
             int maxExposure = mCameraParameters.getMaxExposureCompensation();
             Log.e("CAMERA_1::", ""+minExposure);
