@@ -358,6 +358,17 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [device unlockForConfiguration];
 }
 
+
+/// Set the AVCaptureDevice's ISO values based on RNCamera's 'exposure' value,
+/// which is a float between 0 and 1 if defined by the user or -1 to indicate that no
+/// selection is active.
+///
+/// The exposure gets reset every time the user manually sets the autofocus-point in
+/// 'updateAutoFocusPointOfInterest' automatically. Currently no explicit event is fired.
+/// This leads to two 'exposure'-states: one here and one in the component, which is
+/// fine. 'exposure' here gets only synced if 'exposure' on the js-side changes. You
+/// can manually keep the state in sync by setting 'exposure' in your React-state
+/// everytime the js-updateAutoFocusPointOfInterest-function gets called.
 - (void)updateExposure
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
@@ -370,8 +381,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         return;
     }
     
-    // Flag to indicate that either no explicit exposure-val has been set yet
-    // or that it has been reset. Check for > 1 only a gurad.
+    // Check that either no explicit exposure-val has been set yet
+    // or that it has been reset. Check for > 1 is only a guard.
     if(self.exposure < 0 || self.exposure > 1){
         [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
         [device unlockForConfiguration];
@@ -383,7 +394,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if(!self.exposureIsoMax){ self.exposureIsoMax = device.activeFormat.maxISO; }
     
     // Get a valid ISO-value in range from min to max. After we mapped the exposure
-    // (a val between 0 - 1), the result gets corrected by the offset from 0, witch
+    // (a val between 0 - 1), the result gets corrected by the offset from 0, which
     // is the min-ISO-value.
     float appliedExposure = (self.exposureIsoMax - self.exposureIsoMin) * self.exposure + self.exposureIsoMin;
     
