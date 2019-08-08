@@ -84,7 +84,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   }
 
   @ReactProp(name = "exposure")
-  public void setExposureCompensation(RNCameraView view, int exposure){
+  public void setExposureCompensation(RNCameraView view, float exposure){
     view.setExposureCompensation(exposure);
   }
 

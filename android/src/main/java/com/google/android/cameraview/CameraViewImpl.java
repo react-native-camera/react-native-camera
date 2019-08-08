@@ -76,9 +76,9 @@ abstract class CameraViewImpl {
 
     abstract int getFlash();
 
-    abstract void setExposureCompensation(int exposure);
+    abstract void setExposureCompensation(float exposure);
 
-    abstract int getExposureCompensation();
+    abstract float getExposureCompensation();
 
     abstract void takePicture(ReadableMap options);
 
