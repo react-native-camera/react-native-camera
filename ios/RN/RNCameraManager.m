@@ -206,6 +206,12 @@ RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSInteger, RNCamera)
     [view updateWhiteBalance];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(exposure, NSNumber, RNCamera)
+{
+    [view setExposure:[RCTConvert float:json]];
+    [view updateExposure];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(pictureSize, NSString *, RNCamera)
 {
     [view setPictureSize:[[self class] pictureSizes][[RCTConvert NSString:json]]];

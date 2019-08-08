@@ -84,7 +84,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                      name:AVAudioSessionInterruptionNotification
                                                    object:nil];
         self.autoFocus = -1;
-
+        self.exposure = -1;
     }
     return self;
 }
@@ -223,28 +223,34 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-
+    
     if (![device lockForConfiguration:&error]) {
         if (error) {
             RCTLogError(@"%s: %@", __func__, error);
         }
         return;
     }
-
+    
     if ([self.autoFocusPointOfInterest objectForKey:@"x"] && [self.autoFocusPointOfInterest objectForKey:@"y"]) {
         float xValue = [self.autoFocusPointOfInterest[@"x"] floatValue];
         float yValue = [self.autoFocusPointOfInterest[@"y"] floatValue];
         if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
-
+            
             CGPoint autofocusPoint = CGPointMake(xValue, yValue);
             [device setFocusPointOfInterest:autofocusPoint];
             [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-          }
+            
+            // Manual selection of AFPoI also resets the manual exposure, if there was any.
+            if(self.exposure >= 0 && self.exposure <= 1){
+                self.exposure = -1;
+                [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+            }
+        }
         else {
             RCTLogWarn(@"AutoFocusPointOfInterest not supported");
         }
     }
-
+    
     [device unlockForConfiguration];
 }
 
@@ -349,6 +355,45 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
     }
 
+    [device unlockForConfiguration];
+}
+
+- (void)updateExposure
+{
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    NSError *error = nil;
+    
+    if (![device lockForConfiguration:&error]) {
+        if (error) {
+            RCTLogError(@"%s: %@", __func__, error);
+        }
+        return;
+    }
+    
+    // Flag to indicate that either no explicit exposure-val has been set yet
+    // or that it has been reset. Check for > 1 only a gurad.
+    if(self.exposure < 0 || self.exposure > 1){
+        [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+        [device unlockForConfiguration];
+        return;
+    }
+    
+    // Lazy init of range.
+    if(!self.exposureIsoMin){ self.exposureIsoMin = device.activeFormat.minISO; }
+    if(!self.exposureIsoMax){ self.exposureIsoMax = device.activeFormat.maxISO; }
+    
+    // Get a valid ISO-value in range from min to max. After we mapped the exposure
+    // (a val between 0 - 1), the result gets corrected by the offset from 0, witch
+    // is the min-ISO-value.
+    float appliedExposure = (self.exposureIsoMax - self.exposureIsoMin) * self.exposure + self.exposureIsoMin;
+    
+    // Make sure we're in AVCaptureExposureModeCustom, else the ISO + duration time won't apply.
+    if(device.exposureMode != AVCaptureExposureModeCustom){
+        [device setExposureMode:AVCaptureExposureModeCustom];
+    }
+    
+    // Only set the ISO for now, duration will be default as a change might affect frame rate.
+    [device setExposureModeCustomWithDuration:AVCaptureExposureDurationCurrent ISO:appliedExposure completionHandler:nil];
     [device unlockForConfiguration];
 }
 
