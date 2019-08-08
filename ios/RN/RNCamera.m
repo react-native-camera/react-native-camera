@@ -361,7 +361,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 /// Set the AVCaptureDevice's ISO values based on RNCamera's 'exposure' value,
 /// which is a float between 0 and 1 if defined by the user or -1 to indicate that no
-/// selection is active.
+/// selection is active. 'exposure' gets mapped to a valid ISO value between the
+/// device's min/max-range of ISO-values.
 ///
 /// The exposure gets reset every time the user manually sets the autofocus-point in
 /// 'updateAutoFocusPointOfInterest' automatically. Currently no explicit event is fired.
