@@ -997,7 +997,6 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     private boolean setExposureInternal(float exposure) {
-        Log.e("CAMERA_1::", ""+isCameraOpened()+"; Exposure: "+exposure);
         mExposure = exposure;
         if (isCameraOpened()){
             int minExposure = mCameraParameters.getMinExposureCompensation();
@@ -1007,7 +1006,6 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 int scaledValue = 0;
                 if (mExposure >= 0 && mExposure <= 1) {
                     scaledValue = (int) (mExposure * (maxExposure - minExposure)) + minExposure; 
-                    Log.e("CAMERA_1::", "New exposure value: "+scaledValue);
                 }
 
                 mCameraParameters.setExposureCompensation(scaledValue);
