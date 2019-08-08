@@ -104,6 +104,7 @@ type PictureOptions = {
   fixOrientation?: boolean,
   forceUpOrientation?: boolean,
   pauseAfterCapture?: boolean,
+  saveInDirectory?: string,
 };
 
 type TrackedFaceFeature = FaceFeature & {
@@ -225,6 +226,7 @@ type RecordingOptions = {
   mute?: boolean,
   path?: string,
   videoBitrate?: number,
+  saveInDirectory?: string,
 };
 
 type EventCallbackArgumentsType = {
