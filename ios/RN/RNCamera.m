@@ -62,6 +62,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.previewLayer.needsDisplayOnBoundsChange = YES;
 #endif
         self.paused = NO;
+        self.rectOfInterest = CGRectMake(0, 0, 1.0, 1.0);
         [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
         [self initializeCaptureSessionInput];
         [self startSession];
@@ -857,6 +858,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self _updateMetadataObjectsToRecognize];
 }
 
+- (void)updateRectOfInterest
+{
+    if (_metadataOutput == nil) {
+        return;
+    }
+    [_metadataOutput setRectOfInterest: _rectOfInterest];
+}
+
 - (void)_setupOrDisableMetadataOutput
 {
     if ([self isReadingBarCodes] && (_metadataOutput == nil || ![self.session.outputs containsObject:_metadataOutput])) {
@@ -889,6 +898,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     [_metadataOutput setMetadataObjectTypes:availableRequestedObjectTypes];
+    [self updateRectOfInterest];
 }
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects
