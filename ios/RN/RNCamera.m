@@ -33,6 +33,9 @@
 @property (nonatomic, copy) NSDate *startFace;
 @property (nonatomic, copy) NSDate *startBarcode;
 
+@property (nonatomic, copy) RCTDirectEventBlock onSubjectAreaChanged;
+@property (nonatomic, assign) BOOL isFocusedOnPoint;
+
 @end
 
 @implementation RNCamera
@@ -84,6 +87,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                    object:nil];
         self.autoFocus = -1;
 
+        self.isFocusedOnPoint = false;
+
     }
     return self;
 }
@@ -120,6 +125,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     if (_onTextRecognized && _session) {
         _onTextRecognized(event);
+    }
+}
+
+- (void)onSubjectAreaChanged:(NSDictionary *)event
+{
+    if (_onSubjectAreaChanged) {
+        _onSubjectAreaChanged(event);
     }
 }
 
@@ -218,6 +230,37 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [device unlockForConfiguration];
 }
 
+- (void)defocusPointOfInterest
+{
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+
+    if (self.isFocusedOnPoint) {
+
+        self.isFocusedOnPoint = false;
+
+        device.subjectAreaChangeMonitoringEnabled = NO;
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:device];
+
+        CGPoint prevPoint = [device focusPointOfInterest];
+
+        CGPoint autofocusPoint = CGPointMake(0.5f, 0.5f);
+        CGPoint exposurePoint = CGPointMake(0.5f, 0.5f);
+
+        [device setExposurePointOfInterest: autofocusPoint];
+        [device setFocusPointOfInterest: exposurePoint];
+
+        [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+
+        [self onSubjectAreaChanged:@{
+            @"prevPointOfInterest": @{
+                @"x": @(prevPoint.x),
+                @"y": @(prevPoint.y)
+            }
+        }];
+    }
+}
+
 - (void)updateAutoFocusPointOfInterest
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
@@ -233,18 +276,46 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if ([self.autoFocusPointOfInterest objectForKey:@"x"] && [self.autoFocusPointOfInterest objectForKey:@"y"]) {
         float xValue = [self.autoFocusPointOfInterest[@"x"] floatValue];
         float yValue = [self.autoFocusPointOfInterest[@"y"] floatValue];
-        if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
+        if ([device isFocusPointOfInterestSupported]
+            && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]
+            && [device isFocusModeSupported:AVCaptureFocusModeAutoFocus]
+            && [device isExposurePointOfInterestSupported]
+            && [device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]
+            && [device isExposureModeSupported:AVCaptureExposureModeAutoExpose]) {
 
             CGPoint autofocusPoint = CGPointMake(xValue, yValue);
+            CGPoint exposurePoint = CGPointMake(xValue, yValue);
+
             [device setFocusPointOfInterest:autofocusPoint];
+            [device setExposurePointOfInterest:exposurePoint];
+
             [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-          }
-        else {
+            [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+
+            if (!self.isFocusedOnPoint) {
+                self.isFocusedOnPoint = true;
+
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(AutofocusDelegate:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:device];
+                device.subjectAreaChangeMonitoringEnabled = YES;
+            }
+
+        } else {
             RCTLogWarn(@"AutoFocusPointOfInterest not supported");
         }
+    } else {
+        [self defocusPointOfInterest];
     }
 
     [device unlockForConfiguration];
+}
+
+-(void) AutofocusDelegate:(NSNotification*) notification {
+    AVCaptureDevice* device = [notification object];
+
+    if ([device lockForConfiguration:NULL] == YES ) {
+        [self defocusPointOfInterest];
+        [device unlockForConfiguration];
+    }
 }
 
 - (void)updateFocusMode
@@ -384,15 +455,15 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 if ([options[@"pauseAfterCapture"] boolValue]) {
                     [[self.previewLayer connection] setEnabled:NO];
                 }
-                
+
                 BOOL useFastMode = [options valueForKey:@"fastMode"] != nil && [options[@"fastMode"] boolValue];
                 if (useFastMode) {
                     resolve(nil);
                 }
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
-                
+
                 UIImage *takenImage = [UIImage imageWithData:imageData];
-                
+
                 CGImageRef takenCGImage = takenImage.CGImage;
                 CGSize previewSize;
                 if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
@@ -403,18 +474,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 CGRect cropRect = CGRectMake(0, 0, CGImageGetWidth(takenCGImage), CGImageGetHeight(takenCGImage));
                 CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
                 takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
-                
+
                 if ([options[@"mirrorImage"] boolValue]) {
                     takenImage = [RNImageUtils mirrorImage:takenImage];
                 }
                 if ([options[@"forceUpOrientation"] boolValue]) {
                     takenImage = [RNImageUtils forceUpOrientation:takenImage];
                 }
-                
+
                 if ([options[@"width"] integerValue]) {
                     takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
                 }
-                
+
                 NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
                 float quality = [options[@"quality"] floatValue];
                 NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
@@ -424,11 +495,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 }
                 response[@"width"] = @(takenImage.size.width);
                 response[@"height"] = @(takenImage.size.height);
-                
+
                 if ([options[@"base64"] boolValue]) {
                     response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
                 }
-                
+
                 if ([options[@"exif"] boolValue]) {
                     int imageRotation;
                     switch (takenImage.imageOrientation) {
@@ -451,12 +522,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                     }
                     [RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
                 }
-                
+
                 response[@"pictureOrientation"] = @([self.orientation integerValue]);
                 response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
                 self.orientation = nil;
                 self.deviceOrientation = nil;
-                
+
                 if (useFastMode) {
                     [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
                 } else {
@@ -473,7 +544,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                [NSError errorWithDomain:@"E_IMAGE_CAPTURE_FAILED" code: 500 userInfo:@{NSLocalizedDescriptionKey:exception.reason}]
         );
     }
-    
+
 }
 - (void)recordWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
     [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
@@ -821,11 +892,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         case AVAudioSessionInterruptionTypeBegan:
             [self bridgeDidBackground: notification];
             break;
-            
+
         case AVAudioSessionInterruptionTypeEnded:
             [self bridgeDidForeground: notification];
             break;
-            
+
         default:
             break;
     }
@@ -993,7 +1064,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         void (^resolveBlock)(void) = ^() {
             self.videoRecordedResolve(result);
         };
-        
+
         result[@"uri"] = outputFileURL.absoluteString;
         result[@"videoOrientation"] = @([self.orientation integerValue]);
         result[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
@@ -1120,7 +1191,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [self stopFaceDetection];
                 return;
             }
-            
+
             NSDictionary *rgbOutputSettings = [NSDictionary
                 dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
                                 forKey:(id)kCVPixelBufferPixelFormatTypeKey];
@@ -1157,7 +1228,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks
-{   
+{
     [self.faceDetector setLandmarksMode:requestedLandmarks queue:self.sessionQueue];
 }
 
@@ -1193,7 +1264,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [self stopBarcodeDetection];
                 return;
             }
-            
+
             NSDictionary *rgbOutputSettings = [NSDictionary
                                                dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
                                                forKey:(id)kCVPixelBufferPixelFormatTypeKey];

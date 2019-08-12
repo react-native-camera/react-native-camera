@@ -241,6 +241,7 @@ type PropsType = typeof View.props & {
   onBarCodeRead?: Function,
   onPictureSaved?: Function,
   onGoogleVisionBarcodesDetected?: ({ barcodes: Array<TrackedBarcodeFeature> }) => void,
+  onSubjectAreaChanged?: ({ nativeEvent: { prevPoint: {| x: number, y: number |} } }) => void,
   faceDetectionMode?: number,
   trackingEnabled?: boolean,
   flashMode?: number | string,
@@ -376,6 +377,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     onGoogleVisionBarcodesDetected: PropTypes.func,
     onFacesDetected: PropTypes.func,
     onTextRecognized: PropTypes.func,
+    onSubjectAreaChanged: PropTypes.func,
     trackingEnabled: PropTypes.bool,
     faceDetectionMode: PropTypes.number,
     faceDetectionLandmarks: PropTypes.number,
@@ -622,6 +624,12 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
+  _onSubjectAreaChanged = e => {
+    if (this.props.onSubjectAreaChanged) {
+      this.props.onSubjectAreaChanged(e);
+    }
+  };
+
   _setReference = (ref: ?Object) => {
     if (ref) {
       this._cameraRef = ref;
@@ -752,6 +760,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
             onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
             onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
             onPictureSaved={this._onPictureSaved}
+            onSubjectAreaChanged={this._onSubjectAreaChanged}
           />
           {this.renderChildren()}
         </View>
@@ -818,6 +827,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     onFaceDetected: true,
     onLayout: true,
     onMountError: true,
+    onSubjectAreaChanged: true,
     renderToHardwareTextureAndroid: true,
     testID: true,
   },

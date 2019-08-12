@@ -62,4 +62,3 @@ typedef NS_ENUM(NSInteger, RNCameraVideoResolution) {
 + (NSDictionary *)validVideoStabilizationModes;
 
 @end
-

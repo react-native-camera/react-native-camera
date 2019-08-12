@@ -91,5 +91,6 @@
 - (void)onText:(NSDictionary *)event;
 - (void)onBarcodesDetected:(NSDictionary *)event;
 - (bool)isRecording;
+- (void)onSubjectAreaChanged:(NSDictionary *)event;
 
 @end
