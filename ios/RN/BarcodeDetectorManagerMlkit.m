@@ -149,14 +149,14 @@
                 if(barcode.contactInfo.name) {
                     FIRVisionBarcodePersonName *name = barcode.contactInfo.name;
                     NSObject *nameObject = @{
-                                       @"formattedName" : name.formattedName,
-                                       @"firstName" : name.first,
-                                       @"middleName" : name.middle,
-                                       @"lastName" : name.last,
-                                       @"prefix" : name.prefix,
-                                       @"pronounciation" : name.pronounciation,
-                                       @"suffix" : name.suffix,
-                                       };
+                                             @"formattedName" : name.formattedName ? name.formattedName : @"",
+                                             @"firstName" : name.first ? name.first : @"",
+                                             @"middleName" : name.middle ? name.middle : @"",
+                                             @"lastName" : name.last ? name.last : @"",
+                                             @"prefix" : name.prefix ? name.prefix : @"",
+                                             @"pronounciation" : name.pronounciation ? name.pronounciation : @"",
+                                             @"suffix" : name.suffix ? name.suffix : @"",
+                                             };
                     [resultDict setObject:nameObject forKey:@"name"];
                 }
                 if(barcode.contactInfo.phones) {
