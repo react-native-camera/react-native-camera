@@ -239,12 +239,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             CGPoint autofocusPoint = CGPointMake(xValue, yValue);
             [device setFocusPointOfInterest:autofocusPoint];
             [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-            
-            // Manual selection of AFPoI also resets the manual exposure, if there was any.
-            if(self.exposure >= 0 && self.exposure <= 1){
-                self.exposure = -1;
-                [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
-            }
         }
         else {
             RCTLogWarn(@"AutoFocusPointOfInterest not supported");

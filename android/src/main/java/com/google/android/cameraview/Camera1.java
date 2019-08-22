@@ -846,8 +846,6 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                   Log.e("CAMERA_1::", "autoFocus failed", e);
                 }
             }
-
-            setExposureInternal(-1);
         }
     }
 
