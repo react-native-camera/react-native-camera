@@ -106,7 +106,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private int mFlash;
 
-    private int mExposure;
+    private float mExposure;
 
     private int mDisplayOrientation;
 
@@ -358,12 +358,12 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     @Override
-    int getExposureCompensation() {
+    float getExposureCompensation() {
         return mExposure;
     }
 
     @Override
-    void setExposureCompensation(int exposure) {
+    void setExposureCompensation(float exposure) {
 
         if (exposure == mExposure) {
             return;
@@ -994,17 +994,19 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         }
     }
 
-    private boolean setExposureInternal(int exposure) {
-        Log.e("CAMERA_1::", ""+isCameraOpened()+"; Exposure: "+exposure);
+    private boolean setExposureInternal(float exposure) {
         mExposure = exposure;
         if (isCameraOpened()){
             int minExposure = mCameraParameters.getMinExposureCompensation();
             int maxExposure = mCameraParameters.getMaxExposureCompensation();
-            Log.e("CAMERA_1::", ""+minExposure);
-            Log.e("CAMERA_1::", ""+maxExposure);
 
             if (minExposure != maxExposure) {
-                mCameraParameters.setExposureCompensation(mExposure);
+                int scaledValue = 0;
+                if (mExposure >= 0 && mExposure <= 1) {
+                    scaledValue = (int) (mExposure * (maxExposure - minExposure)) + minExposure; 
+                }
+
+                mCameraParameters.setExposureCompensation(scaledValue);
                 return true;
             }
         }

@@ -478,11 +478,11 @@ public class CameraView extends FrameLayout {
         return mImpl.getFlash();
     }
 
-    public void setExposureCompensation(int exposure) {
+    public void setExposureCompensation(float exposure) {
         mImpl.setExposureCompensation(exposure);
     }
 
-    public int getExposureCompensation() {
+    public float getExposureCompensation() {
         return mImpl.getExposureCompensation();
     }
 
@@ -653,7 +653,7 @@ public class CameraView extends FrameLayout {
         @Flash
         int flash;
 
-        int exposure;
+        float exposure;
 
         float focusDepth;
 
@@ -672,7 +672,7 @@ public class CameraView extends FrameLayout {
             ratio = source.readParcelable(loader);
             autoFocus = source.readByte() != 0;
             flash = source.readInt();
-            exposure = source.readInt();
+            exposure = source.readFloat();
             focusDepth = source.readFloat();
             zoom = source.readFloat();
             whiteBalance = source.readInt();
@@ -691,7 +691,7 @@ public class CameraView extends FrameLayout {
             out.writeParcelable(ratio, 0);
             out.writeByte((byte) (autoFocus ? 1 : 0));
             out.writeInt(flash);
-            out.writeInt(exposure);
+            out.writeFloat(exposure);
             out.writeFloat(focusDepth);
             out.writeFloat(zoom);
             out.writeInt(whiteBalance);
