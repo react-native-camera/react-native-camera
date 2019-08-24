@@ -69,6 +69,9 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 if (mBitmap == null) {
                     mBitmap = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
                 }
+                if(mBitmap == null){
+                    throw new IOException("Failed to decode Image bitmap.");
+                }
 
                 response.putInt("width", mBitmap.getWidth());
                 response.putInt("height", mBitmap.getHeight());
@@ -78,9 +81,11 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 response.putString("uri", fileUri);
 
             } catch (Resources.NotFoundException e) {
+                response = null; // do not resolve
                 mPromise.reject(ERROR_TAG, "Documents directory of the app could not be found.", e);
                 e.printStackTrace();
             } catch (IOException e) {
+                response = null; // do not resolve
                 mPromise.reject(ERROR_TAG, "An unknown I/O exception has occurred.", e);
                 e.printStackTrace();
             }
