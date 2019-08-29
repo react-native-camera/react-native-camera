@@ -35,7 +35,10 @@ title: Installation
 
 1. `npm install react-native-camera --save`
 2. `react-native link react-native-camera`
+3. React Native RN >= 0.60.X: Run `pod install` in the `ios` directory.
    _To install it with Windows, see manual install below_
+   
+For React Native RN >= 0.60.X you will be warned about `react-native-camera` and auotlinking. It is safe to ignore this error.
 
 ## Mostly automatic install with CocoaPods
 
