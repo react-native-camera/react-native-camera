@@ -402,7 +402,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
     androidCameraPermissionOptions: Rationale,
     androidRecordAudioPermissionOptions: Rationale,
     notAuthorizedView: PropTypes.element,
-    pendingAuthorizationView: PropTypes.element,
     captureAudio: PropTypes.bool,
     useCamera2Api: PropTypes.bool,
     playSoundOnCapture: PropTypes.bool,
@@ -443,11 +442,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
     notAuthorizedView: (
       <View style={styles.authorizationContainer}>
         <Text style={styles.notAuthorizedText}>Camera not authorized</Text>
-      </View>
-    ),
-    pendingAuthorizationView: (
-      <View style={styles.authorizationContainer}>
-        <ActivityIndicator size="small" />
       </View>
     ),
     captureAudio: true,
@@ -742,6 +736,15 @@ export default class Camera extends React.Component<PropsType, StateType> {
     return this.props.children;
   };
 
+  renderPendingAuthorizationView = () => {
+    const { color, size } = this.props.activityIndicatorStyle;
+    return (
+      <View style={styles.authorizationContainer}>
+        <ActivityIndicator color={color} size={size || 'small'} />
+      </View>
+    );
+  };
+
   render() {
     const { style, ...nativeProps } = this._convertNativeProps(this.props);
 
@@ -766,7 +769,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
         </View>
       );
     } else if (!this.state.isAuthorizationChecked) {
-      return this.props.pendingAuthorizationView;
+      return this.renderPendingAuthorizationView();
     } else {
       return this.props.notAuthorizedView;
     }

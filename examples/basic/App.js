@@ -295,6 +295,7 @@ export default class CameraScreen extends React.Component {
         whiteBalance={this.state.whiteBalance}
         ratio={this.state.ratio}
         focusDepth={this.state.depth}
+        activityIndicatorStyle={{ color: 'blue', size: 'large' }}
         androidCameraPermissionOptions={{
           title: 'Permission to use camera',
           message: 'We need your permission to use your camera',
