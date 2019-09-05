@@ -159,10 +159,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     @Override
     void stop() {
-        if (mCamera != null) {
-            mCamera.stopPreview();
-            mCamera.setPreviewCallback(null);
-        }
+
         mShowingPreview = false;
         if (mMediaRecorder != null) {
             mMediaRecorder.stop();
@@ -175,6 +172,12 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mIsRecording = false;
             }
         }
+
+        if (mCamera != null) {
+            mCamera.stopPreview();
+            mCamera.setPreviewCallback(null);
+        }
+
         releaseCamera();
     }
 
@@ -1003,7 +1006,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             if (minExposure != maxExposure) {
                 int scaledValue = 0;
                 if (mExposure >= 0 && mExposure <= 1) {
-                    scaledValue = (int) (mExposure * (maxExposure - minExposure)) + minExposure; 
+                    scaledValue = (int) (mExposure * (maxExposure - minExposure)) + minExposure;
                 }
 
                 mCameraParameters.setExposureCompensation(scaledValue);
