@@ -208,7 +208,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
       }
     });
   }
-    
+
     @ReactMethod
     public void pausePreview(final int viewTag) {
         final ReactApplicationContext context = getReactApplicationContext();
@@ -217,7 +217,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
             @Override
             public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
                 final RNCameraView cameraView;
-                
+
                 try {
                     cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
                     if (cameraView.isCameraOpened()) {
@@ -229,7 +229,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
             }
         });
     }
-    
+
     @ReactMethod
     public void resumePreview(final int viewTag) {
         final ReactApplicationContext context = getReactApplicationContext();
@@ -238,7 +238,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
             @Override
             public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
                 final RNCameraView cameraView;
-                
+
                 try {
                     cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
                     if (cameraView.isCameraOpened()) {
@@ -261,14 +261,18 @@ public class CameraModule extends ReactContextBaseJavaModule {
       public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
           RNCameraView cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
           try {
-            if (cameraView.isCameraOpened()) {
-              cameraView.takePicture(options, promise, cacheDirectory);
-            } else {
-              promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
-            }
-        } catch (Exception e) {
-          promise.reject("E_CAMERA_BAD_VIEWTAG", "takePictureAsync: Expected a Camera component");
-        }
+              if (cameraView.isCameraOpened()) {
+                cameraView.takePicture(options, promise, cacheDirectory);
+              } else {
+                promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
+              }
+          }
+          catch(IllegalStateException e){
+            promise.reject("E_CAMERA_UNAVAILABLE", e.getMessage());
+          }
+          catch (Exception e) {
+            promise.reject("E_CAMERA_BAD_VIEWTAG", e.getMessage());
+          }
       }
     });
   }
@@ -353,7 +357,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
             @Override
             public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
                 final RNCameraView cameraView;
-                
+
                 try {
                     cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
                     WritableArray result = Arguments.createArray();
