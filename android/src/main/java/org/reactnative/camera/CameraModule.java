@@ -21,10 +21,13 @@ import com.google.android.cameraview.Size;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Properties;
+import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedSet;
+
 
 public class CameraModule extends ReactContextBaseJavaModule {
   private static final String TAG = "CameraModule";
@@ -349,49 +352,81 @@ public class CameraModule extends ReactContextBaseJavaModule {
           }
       });
   }
-    @ReactMethod
-    public void getAvailablePictureSizes(final String ratio, final int viewTag, final Promise promise) {
-        final ReactApplicationContext context = getReactApplicationContext();
-        UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-        uiManager.addUIBlock(new UIBlock() {
-            @Override
-            public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-                final RNCameraView cameraView;
 
-                try {
-                    cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-                    WritableArray result = Arguments.createArray();
-                    if (cameraView.isCameraOpened()) {
-                        SortedSet<Size> sizes = cameraView.getAvailablePictureSizes(AspectRatio.parse(ratio));
-                        for (Size size : sizes) {
-                            result.pushString(size.toString());
-                        }
-                        promise.resolve(result);
-                    } else {
-                        promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
-                    }
-                } catch (Exception e) {
-                    promise.reject("E_CAMERA_BAD_VIEWTAG", "getAvailablePictureSizesAsync: Expected a Camera component");
-                }
-            }
-        });
-    }
+  @ReactMethod
+  public void getCameraIds(final int viewTag, final Promise promise) {
+      final ReactApplicationContext context = getReactApplicationContext();
+      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+      uiManager.addUIBlock(new UIBlock() {
+          @Override
+          public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+              final RNCameraView cameraView;
+              try {
+                  cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
+                  WritableArray result = Arguments.createArray();
+                  if (cameraView.isCameraOpened()) {
+                      List<Properties> ids = cameraView.getCameraIds();
+                      for (Properties p : ids) {
+                          WritableMap m = new WritableNativeMap();
+                          m.putString("id", p.getProperty("id"));
+                          m.putInt("type", Integer.valueOf(p.getProperty("type")));
+                          result.pushMap(m);
+                      }
+                      promise.resolve(result);
+                  } else {
+                      promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
+                  }
+              } catch (Exception e) {
+                  e.printStackTrace();
+                  promise.reject("E_CAMERA_FAILED", e.getMessage());
+              }
+          }
+      });
+  }
 
-    @ReactMethod
-    public void checkIfRecordAudioPermissionsAreDefined(final Promise promise) {
-        try {
-            PackageInfo info = getCurrentActivity().getPackageManager().getPackageInfo(getReactApplicationContext().getPackageName(), PackageManager.GET_PERMISSIONS);
-            if (info.requestedPermissions != null) {
-                for (String p : info.requestedPermissions) {
-                    if (p.equals(Manifest.permission.RECORD_AUDIO)) {
-                        promise.resolve(true);
-                        return;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        promise.resolve(false);
-    }
+  @ReactMethod
+  public void getAvailablePictureSizes(final String ratio, final int viewTag, final Promise promise) {
+      final ReactApplicationContext context = getReactApplicationContext();
+      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+      uiManager.addUIBlock(new UIBlock() {
+          @Override
+          public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+              final RNCameraView cameraView;
+
+              try {
+                  cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
+                  WritableArray result = Arguments.createArray();
+                  if (cameraView.isCameraOpened()) {
+                      SortedSet<Size> sizes = cameraView.getAvailablePictureSizes(AspectRatio.parse(ratio));
+                      for (Size size : sizes) {
+                          result.pushString(size.toString());
+                      }
+                      promise.resolve(result);
+                  } else {
+                      promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
+                  }
+              } catch (Exception e) {
+                  promise.reject("E_CAMERA_BAD_VIEWTAG", "getAvailablePictureSizesAsync: Expected a Camera component");
+              }
+          }
+      });
+  }
+
+  @ReactMethod
+  public void checkIfRecordAudioPermissionsAreDefined(final Promise promise) {
+      try {
+          PackageInfo info = getCurrentActivity().getPackageManager().getPackageInfo(getReactApplicationContext().getPackageName(), PackageManager.GET_PERMISSIONS);
+          if (info.requestedPermissions != null) {
+              for (String p : info.requestedPermissions) {
+                  if (p.equals(Manifest.permission.RECORD_AUDIO)) {
+                      promise.resolve(true);
+                      return;
+                  }
+              }
+          }
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      promise.resolve(false);
+  }
 }

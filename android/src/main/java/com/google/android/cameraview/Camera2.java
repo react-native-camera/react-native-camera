@@ -50,7 +50,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -199,6 +202,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
 
     private String mCameraId;
+    private String _mCameraId;
 
     private CameraCharacteristics mCameraCharacteristics;
 
@@ -360,8 +364,49 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     }
 
     @Override
+    void setCameraId(String id) {
+        if(_mCameraId != id){
+            _mCameraId = id;
+            // this will call chooseCameraIdByFacing
+            if (isCameraOpened()) {
+                stop();
+                start();
+            }
+        }
+    }
+
+    @Override
+    String getCameraId() {
+        return _mCameraId;
+    }
+
+    @Override
     Set<AspectRatio> getSupportedAspectRatios() {
         return mPreviewSizes.ratios();
+    }
+
+    @Override
+    List<Properties> getCameraIds() {
+        try{
+
+            List<Properties> ids = new ArrayList<>();
+
+            String[] cameraIds = mCameraManager.getCameraIdList();
+            for (String id : cameraIds) {
+                Properties p = new Properties();
+
+                CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(id);
+                Integer internal = characteristics.get(CameraCharacteristics.LENS_FACING);
+
+                p.put("id", id);
+                p.put("type", String.valueOf(internal == CameraCharacteristics.LENS_FACING_FRONT ? Constants.FACING_FRONT : Constants.FACING_BACK));
+                ids.add(p);
+            }
+            return ids;
+        }
+        catch (CameraAccessException e) {
+            throw new RuntimeException("Failed to get a list of camera ids", e);
+        }
     }
 
     @Override
@@ -660,55 +705,61 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
      * {@link #mFacing}.</p>
      */
     private boolean chooseCameraIdByFacing() {
-        try {
-            int internalFacing = INTERNAL_FACINGS.get(mFacing);
-            final String[] ids = mCameraManager.getCameraIdList();
-            if (ids.length == 0) { // No camera
-                throw new RuntimeException("No camera available.");
-            }
-            for (String id : ids) {
-                CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(id);
-                Integer level = characteristics.get(
+        if(_mCameraId == null){
+            try {
+                int internalFacing = INTERNAL_FACINGS.get(mFacing);
+                final String[] ids = mCameraManager.getCameraIdList();
+                if (ids.length == 0) { // No camera
+                    throw new RuntimeException("No camera available.");
+                }
+                for (String id : ids) {
+                    CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(id);
+                    Integer level = characteristics.get(
+                            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+                    if (level == null ||
+                            level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+                        continue;
+                    }
+                    Integer internal = characteristics.get(CameraCharacteristics.LENS_FACING);
+                    if (internal == null) {
+                        throw new NullPointerException("Unexpected state: LENS_FACING null");
+                    }
+                    if (internal == internalFacing) {
+                        mCameraId = id;
+                        mCameraCharacteristics = characteristics;
+                        return true;
+                    }
+                }
+                // Not found
+                mCameraId = ids[0];
+                mCameraCharacteristics = mCameraManager.getCameraCharacteristics(mCameraId);
+                Integer level = mCameraCharacteristics.get(
                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
                 if (level == null ||
                         level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-                    continue;
+                    return false;
                 }
-                Integer internal = characteristics.get(CameraCharacteristics.LENS_FACING);
+                Integer internal = mCameraCharacteristics.get(CameraCharacteristics.LENS_FACING);
                 if (internal == null) {
                     throw new NullPointerException("Unexpected state: LENS_FACING null");
                 }
-                if (internal == internalFacing) {
-                    mCameraId = id;
-                    mCameraCharacteristics = characteristics;
-                    return true;
+                for (int i = 0, count = INTERNAL_FACINGS.size(); i < count; i++) {
+                    if (INTERNAL_FACINGS.valueAt(i) == internal) {
+                        mFacing = INTERNAL_FACINGS.keyAt(i);
+                        return true;
+                    }
                 }
+                // The operation can reach here when the only camera device is an external one.
+                // We treat it as facing back.
+                mFacing = Constants.FACING_BACK;
+                return true;
+            } catch (CameraAccessException e) {
+                throw new RuntimeException("Failed to get a list of camera devices", e);
             }
-            // Not found
-            mCameraId = ids[0];
-            mCameraCharacteristics = mCameraManager.getCameraCharacteristics(mCameraId);
-            Integer level = mCameraCharacteristics.get(
-                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
-            if (level == null ||
-                    level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-                return false;
-            }
-            Integer internal = mCameraCharacteristics.get(CameraCharacteristics.LENS_FACING);
-            if (internal == null) {
-                throw new NullPointerException("Unexpected state: LENS_FACING null");
-            }
-            for (int i = 0, count = INTERNAL_FACINGS.size(); i < count; i++) {
-                if (INTERNAL_FACINGS.valueAt(i) == internal) {
-                    mFacing = INTERNAL_FACINGS.keyAt(i);
-                    return true;
-                }
-            }
-            // The operation can reach here when the only camera device is an external one.
-            // We treat it as facing back.
-            mFacing = Constants.FACING_BACK;
+        }
+        else{
+            mCameraId = _mCameraId;
             return true;
-        } catch (CameraAccessException e) {
-            throw new RuntimeException("Failed to get a list of camera devices", e);
         }
     }
 

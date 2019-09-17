@@ -73,6 +73,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setFacing(type);
   }
 
+  @ReactProp(name = "cameraId")
+  public void setCameraId(RNCameraView view, String id) {
+    view.setCameraId(id);
+  }
+
   @ReactProp(name = "ratio")
   public void setRatio(RNCameraView view, String ratio) {
     view.setAspectRatio(AspectRatio.parse(ratio));
@@ -171,7 +176,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   public void setTracking(RNCameraView view, boolean trackingEnabled) {
     view.setTracking(trackingEnabled);
   }
-  
+
   @ReactProp(name = "googleVisionBarcodeDetectorEnabled")
   public void setGoogleVisionBarcodeDetecting(RNCameraView view, boolean googleBarcodeDetectorEnabled) {
     view.setShouldGoogleDetectBarcodes(googleBarcodeDetectorEnabled);

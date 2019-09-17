@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -73,6 +74,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     private Handler mHandler = new Handler();
 
     private int mCameraId;
+    private String _mCameraId;
 
     private final AtomicBoolean isPictureCaptureInProgress = new AtomicBoolean(false);
 
@@ -282,6 +284,26 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     @Override
+    void setCameraId(String id) {
+
+        if(_mCameraId != id){
+            _mCameraId = id;
+
+            // this will call chooseCamera
+            if (isCameraOpened()) {
+                stop();
+                start();
+            }
+        }
+
+    }
+
+    @Override
+    String getCameraId() {
+        return _mCameraId;
+    }
+
+    @Override
     Set<AspectRatio> getSupportedAspectRatios() {
         SizeMap idealAspectRatios = mPreviewSizes;
         for (AspectRatio aspectRatio : idealAspectRatios.ratios()) {
@@ -290,6 +312,23 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             }
         }
         return idealAspectRatios.ratios();
+    }
+
+
+    @Override
+    List<Properties> getCameraIds() {
+        List<Properties> ids = new ArrayList<>();
+
+        Camera.CameraInfo info = new Camera.CameraInfo();
+
+        for (int i = 0, count = Camera.getNumberOfCameras(); i < count; i++) {
+            Properties p = new Properties();
+            Camera.getCameraInfo(i, info);
+            p.put("id", String.valueOf(i));
+            p.put("type", String.valueOf(info.facing));
+            ids.add(p);
+        }
+        return ids;
     }
 
     @Override
@@ -445,6 +484,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     float getZoom() {
         return mZoom;
     }
+
 
     @Override
     public void setWhiteBalance(int whiteBalance) {
@@ -693,14 +733,25 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      * This rewrites {@link #mCameraId} and {@link #mCameraInfo}.
      */
     private void chooseCamera() {
-        for (int i = 0, count = Camera.getNumberOfCameras(); i < count; i++) {
-            Camera.getCameraInfo(i, mCameraInfo);
-            if (mCameraInfo.facing == mFacing) {
-                mCameraId = i;
-                return;
+        if(_mCameraId == null){
+            for (int i = 0, count = Camera.getNumberOfCameras(); i < count; i++) {
+                Camera.getCameraInfo(i, mCameraInfo);
+                if (mCameraInfo.facing == mFacing) {
+                    mCameraId = i;
+                    return;
+                }
+            }
+            mCameraId = 0; // default to the only available camera
+        }
+        else{
+            try{
+                mCameraId = Integer.parseInt(_mCameraId);
+                Camera.getCameraInfo(mCameraId, mCameraInfo);
+            }
+            catch(Exception e){
+                mCameraId = INVALID_CAMERA_ID;
             }
         }
-        mCameraId = INVALID_CAMERA_ID;
     }
 
     private boolean openCamera() {
