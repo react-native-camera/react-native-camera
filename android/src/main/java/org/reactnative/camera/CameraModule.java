@@ -364,18 +364,14 @@ public class CameraModule extends ReactContextBaseJavaModule {
               try {
                   cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
                   WritableArray result = Arguments.createArray();
-                  if (cameraView.isCameraOpened()) {
-                      List<Properties> ids = cameraView.getCameraIds();
-                      for (Properties p : ids) {
-                          WritableMap m = new WritableNativeMap();
-                          m.putString("id", p.getProperty("id"));
-                          m.putInt("type", Integer.valueOf(p.getProperty("type")));
-                          result.pushMap(m);
-                      }
-                      promise.resolve(result);
-                  } else {
-                      promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
+                  List<Properties> ids = cameraView.getCameraIds();
+                  for (Properties p : ids) {
+                      WritableMap m = new WritableNativeMap();
+                      m.putString("id", p.getProperty("id"));
+                      m.putInt("type", Integer.valueOf(p.getProperty("type")));
+                      result.pushMap(m);
                   }
+                  promise.resolve(result);
               } catch (Exception e) {
                   e.printStackTrace();
                   promise.reject("E_CAMERA_FAILED", e.getMessage());
