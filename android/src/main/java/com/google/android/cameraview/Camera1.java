@@ -740,14 +740,21 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      */
     private void chooseCamera() {
         if(_mCameraId == null){
-            for (int i = 0, count = Camera.getNumberOfCameras(); i < count; i++) {
+            int count = Camera.getNumberOfCameras();
+            if(count == 0){
+                throw new RuntimeException("No camera available.");
+            }
+
+            for (int i = 0; i < count; i++) {
                 Camera.getCameraInfo(i, mCameraInfo);
                 if (mCameraInfo.facing == mFacing) {
                     mCameraId = i;
                     return;
                 }
             }
-            mCameraId = 0; // default to the only available camera
+            // no camera found, set the one we have
+            mCameraId = 0;
+            Camera.getCameraInfo(mCameraId, mCameraInfo)
         }
         else{
             try{
