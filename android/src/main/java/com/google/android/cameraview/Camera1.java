@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
@@ -286,13 +287,18 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     @Override
     void setCameraId(String id) {
 
-        if(_mCameraId != id){
+        if(!Objects.equals(_mCameraId, id)){
             _mCameraId = id;
 
-            // this will call chooseCamera
-            if (isCameraOpened()) {
-                stop();
-                start();
+            // only update if our camera ID actually changes
+            // from what we currently have.
+            // Passing null will always yield true
+            if(!Objects.equals(_mCameraId, String.valueOf(mCameraId))){
+                // this will call chooseCamera
+                if (isCameraOpened()) {
+                    stop();
+                    start();
+                }
             }
         }
 

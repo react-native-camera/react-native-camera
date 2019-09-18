@@ -53,6 +53,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
@@ -365,12 +366,18 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     @Override
     void setCameraId(String id) {
-        if(_mCameraId != id){
+        if(!Objects.equals(_mCameraId, id)){
             _mCameraId = id;
-            // this will call chooseCameraIdByFacing
-            if (isCameraOpened()) {
-                stop();
-                start();
+
+            // only update if our camera ID actually changes
+            // from what we currently have.
+            // Passing null will always yield true
+            if(!Objects.equals(_mCameraId, mCameraId)){
+                // this will call chooseCameraIdByFacing
+                if (isCameraOpened()) {
+                    stop();
+                    start();
+                }
             }
         }
     }
