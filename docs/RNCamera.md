@@ -259,6 +259,8 @@ Overrides the `type` property and uses the camera given by cameraId. Use `getCam
 
 A common use case for this is to provide a "switch camera" button that loops through all available cameras.
 
+Note: Variables such as flash might need to be resetted due to the camera not reporting an error when those values are not supported.
+
 ### `whiteBalance`
 
 Values: `RNCamera.Constants.WhiteBalance.sunny`, `RNCamera.Constants.WhiteBalance.cloudy`, `RNCamera.Constants.WhiteBalance.shadow`, `RNCamera.Constants.WhiteBalance.incandescent`, `RNCamera.Constants.WhiteBalance.fluorescent` or `RNCamera.Constants.WhiteBalance.auto` (default)
