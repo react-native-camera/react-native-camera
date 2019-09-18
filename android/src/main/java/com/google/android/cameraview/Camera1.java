@@ -754,7 +754,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             }
             // no camera found, set the one we have
             mCameraId = 0;
-            Camera.getCameraInfo(mCameraId, mCameraInfo)
+            Camera.getCameraInfo(mCameraId, mCameraInfo);
         }
         else{
             try{
