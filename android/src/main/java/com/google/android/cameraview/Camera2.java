@@ -703,7 +703,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     @Override
     void setDeviceOrientation(int deviceOrientation) {
         mDeviceOrientation = deviceOrientation;
-        mPreview.setDisplayOrientation(mDeviceOrientation);
+        //mPreview.setDisplayOrientation(deviceOrientation); // this is not needed and messes up the display orientation
     }
 
     /**
@@ -765,8 +765,37 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             }
         }
         else{
-            mCameraId = _mCameraId;
-            return true;
+
+            try{
+                // need to set the mCameraCharacteristics variable as above and also do the same checks
+                // for legacy hardware
+                mCameraCharacteristics = mCameraManager.getCameraCharacteristics(_mCameraId);
+
+                Integer level = mCameraCharacteristics.get(
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+                if (level == null ||
+                        level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+                    return false;
+                }
+
+                // set our facing variable so orientation also works as expected
+                Integer internal = mCameraCharacteristics.get(CameraCharacteristics.LENS_FACING);
+                if (internal == null) {
+                    throw new NullPointerException("Unexpected state: LENS_FACING null");
+                }
+                for (int i = 0, count = INTERNAL_FACINGS.size(); i < count; i++) {
+                    if (INTERNAL_FACINGS.valueAt(i) == internal) {
+                        mFacing = INTERNAL_FACINGS.keyAt(i);
+                        break;
+                    }
+                }
+
+                mCameraId = _mCameraId;
+                return true;
+            }
+            catch(Exception e){
+                throw new RuntimeException("Failed to get camera characteristics", e);
+            }
         }
     }
 
@@ -1248,9 +1277,25 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     private int getOutputRotation() {
         @SuppressWarnings("ConstantConditions")
         int sensorOrientation = mCameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-        return (sensorOrientation +
-                mDisplayOrientation * (mFacing == Constants.FACING_FRONT ? 1 : -1) +
-                360) % 360;
+
+        // updated and copied from Camera1
+        if (mFacing == Constants.FACING_BACK) {
+           return (sensorOrientation + mDeviceOrientation) % 360;
+        } else {
+            final int landscapeFlip = isLandscape(mDeviceOrientation) ? 180 : 0;
+            return (sensorOrientation + mDeviceOrientation + landscapeFlip) % 360;
+        }
+    }
+
+    /**
+     * Test if the supplied orientation is in landscape.
+     *
+     * @param orientationDegrees Orientation in degrees (0,90,180,270)
+     * @return True if in landscape, false if portrait
+     */
+    private boolean isLandscape(int orientationDegrees) {
+        return (orientationDegrees == Constants.LANDSCAPE_90 ||
+                orientationDegrees == Constants.LANDSCAPE_270);
     }
 
     private void setUpMediaRecorder(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile) {
