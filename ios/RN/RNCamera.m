@@ -68,7 +68,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self startSession];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(orientationChanged:)
-                                                     name:UIDeviceOrientationDidChangeNotification
+                                                     name:UIApplicationDidChangeStatusBarOrientationNotification
                                                    object:nil];
 
         [[NSNotificationCenter defaultCenter] addObserver:self
