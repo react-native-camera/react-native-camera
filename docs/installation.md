@@ -227,7 +227,7 @@ android {
 ```gradle
 allprojects {
     repositories {
-        maven { url "https://jitpack.io" }
+        maven { url "https://www.jitpack.io" }
         maven { url "https://maven.google.com" }
     }
 }
