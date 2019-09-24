@@ -599,17 +599,28 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [connection setVideoOrientation:orientation];
 
     if (options[@"codec"]) {
-      if (@available(iOS 10, *)) {
-        AVVideoCodecType videoCodecType = options[@"codec"];
-        if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
-          [self.movieFileOutput setOutputSettings:@{AVVideoCodecKey:videoCodecType} forConnection:connection];
-          self.videoCodecType = videoCodecType;
-        } else {
-            RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
+        if (@available(iOS 10, *)) {
+            AVVideoCodecType videoCodecType = options[@"codec"];
+            if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
+                self.videoCodecType = videoCodecType;
+                if(options[@"videoBitrate"]) {
+                    NSString *videoBitrate = options[@"videoBitrate"];
+                    [self.movieFileOutput setOutputSettings:@{
+                      AVVideoCodecKey:videoCodecType,
+                      AVVideoCompressionPropertiesKey:
+                          @{
+                              AVVideoAverageBitRateKey:videoBitrate
+                          }
+                      } forConnection:connection];
+                } else {
+                    [self.movieFileOutput setOutputSettings:@{AVVideoCodecKey:videoCodecType} forConnection:connection];
+                }
+            } else {
+                RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
+            }
         }
-      }
     }
-
+    
     dispatch_async(self.sessionQueue, ^{
         [self updateFlashMode];
         NSString *path = nil;

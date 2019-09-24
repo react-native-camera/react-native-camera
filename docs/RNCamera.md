@@ -555,7 +555,7 @@ Supported options:
 
 - `videoBitrate`. (int greater than 0) This option specifies a desired video bitrate. For example, 5\*1000\*1000 would be 5Mbps.
 
-  - `ios` Not supported.
+  - `ios` Supported however requires that the codec key is also set.
   - `android` Supported.
 
 - `orientation` (string or number). Specifies the orientation that us used for recording the video. Possible values: `"portrait"`, `"portraitUpsideDown"`, `"landscapeLeft"` or `"landscapeRight"`.
