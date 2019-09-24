@@ -22,8 +22,11 @@ import android.graphics.SurfaceTexture;
 
 import com.facebook.react.bridge.ReadableMap;
 
+import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
+
 
 abstract class CameraViewImpl {
 
@@ -53,12 +56,18 @@ abstract class CameraViewImpl {
 
     abstract int getFacing();
 
+    abstract void setCameraId(String id);
+
+    abstract String getCameraId();
+
     abstract Set<AspectRatio> getSupportedAspectRatios();
-    
+
+    abstract List<Properties> getCameraIds();
+
     abstract SortedSet<Size> getAvailablePictureSizes(AspectRatio ratio);
-    
+
     abstract void setPictureSize(Size size);
-    
+
     abstract Size getPictureSize();
 
     /**
@@ -92,7 +101,7 @@ abstract class CameraViewImpl {
     abstract void setDisplayOrientation(int displayOrientation);
 
     abstract void setDeviceOrientation(int deviceOrientation);
-    
+
     abstract void setFocusArea(float x, float y);
 
     abstract void setFocusDepth(float value);
@@ -110,9 +119,9 @@ abstract class CameraViewImpl {
     abstract void setScanning(boolean isScanning);
 
     abstract boolean getScanning();
-    
+
     abstract public void resumePreview();
-    
+
     abstract public void pausePreview();
 
     abstract public void setPreviewTexture(SurfaceTexture surfaceTexture);

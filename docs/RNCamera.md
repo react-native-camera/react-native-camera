@@ -253,6 +253,14 @@ Values: `RNCamera.Constants.Type.front` or `RNCamera.Constants.Type.back` (defau
 
 Use the `type` property to specify which camera to use.
 
+### `Android` `cameraId`
+
+Overrides the `type` property and uses the camera given by cameraId. Use `getCameraIds` to get the list of available IDs.
+
+A common use case for this is to provide a "switch camera" button that loops through all available cameras.
+
+Note: Variables such as flash might need to be resetted due to the camera not reporting an error when those values are not supported.
+
 ### `whiteBalance`
 
 Values: `RNCamera.Constants.WhiteBalance.sunny`, `RNCamera.Constants.WhiteBalance.cloudy`, `RNCamera.Constants.WhiteBalance.shadow`, `RNCamera.Constants.WhiteBalance.incandescent`, `RNCamera.Constants.WhiteBalance.fluorescent` or `RNCamera.Constants.WhiteBalance.auto` (default)
@@ -596,7 +604,7 @@ The promise will be fulfilled with an object with some of the following properti
 
 ### `refreshAuthorizationStatus: Promise<void>`
 
-Allows to make RNCamera check Permissions again and set status accordingly.  
+Allows to make RNCamera check Permissions again and set status accordingly.
 Making it possible to refresh status of RNCamera after user initially rejected the permissions.
 
 ### `stopRecording: void`
@@ -614,6 +622,16 @@ Resumes the preview after pausePreview() has been called.
 ### `Android` `getSupportedRatiosAsync(): Promise`
 
 Android only. Returns a promise. The promise will be fulfilled with an object with an array containing strings with all camera aspect ratios supported by the device.
+
+### `Android` `getCameraIdsAsync(): Promise`
+
+Android only. Returns a promise. The promise will be fulfilled with an array containing objects with all camera IDs and type supported by the device.
+
+The promise will be fulfilled with an array containing objects with some of the following properties:
+
+- `id`: (string) the ID of the camera.
+
+- `type`: One of `RNCamera.Constants.Type.front` | `RNCamera.Constants.Type.back`
 
 ### `iOS` `isRecording(): Promise<boolean>`
 
