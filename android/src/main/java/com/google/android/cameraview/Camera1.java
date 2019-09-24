@@ -336,7 +336,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         } else if (!mAspectRatio.equals(ratio)) {
             final Set<Size> sizes = mPreviewSizes.sizes(ratio);
             if (sizes == null) {
-                throw new UnsupportedOperationException(ratio + " is not supported");
+                // do nothing, ratio remains unchanged. Consistent with Camera2 and initial mount behaviour
             } else {
                 mAspectRatio = ratio;
                 adjustCameraParameters();
