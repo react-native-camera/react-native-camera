@@ -3,7 +3,9 @@ package org.reactnative.camera;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.media.CamcorderProfile;
 import android.media.MediaActionSound;
 import android.os.Build;
@@ -21,9 +23,11 @@ import org.reactnative.barcodedetector.RNBarcodeDetector;
 import org.reactnative.camera.tasks.*;
 import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.facedetector.RNFaceDetector;
+import org.reactnative.camera.utils.YuvToBitmap;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -37,6 +41,19 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private Promise mVideoRecordedPromise;
   private List<String> mBarCodeTypes = null;
   private Boolean mPlaySoundOnCapture = false;
+
+  public static final String CAMERA1SCANNONE = "none";
+  public static final String CAMERA1SCANECO = "eco";
+  public static final String CAMERA1SCANFAST = "fast";
+  public static final String CAMERA1SCANSUPERFAST = "boost";
+
+  private YuvToBitmap mYuvToBitmap = null;
+  private Matrix mRotationMatrix = null;
+  private int mLastRotation = -1;
+  private String mCamera1ScanMode = CAMERA1SCANECO;
+  private boolean mProcessingPreview = false;
+  private Bitmap mRotated = null;
+  private final Object COLLECTION_LOCK = new Object();
 
   private boolean mIsPaused = false;
   private boolean mIsNew = true;
@@ -66,6 +83,10 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private boolean mTrackingEnabled = true;
   private int mPaddingX;
   private int mPaddingY;
+
+  private synchronized void storeRotated(Bitmap rotated) {
+    mRotated = rotated;
+  }
 
   public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext, true);
@@ -121,13 +142,20 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       }
 
       @Override
-      public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int rotation) {
-        int correctRotation = RNCameraViewHelper.getCorrectCameraRotation(rotation, getFacing(), getCameraOrientation());
+      public void onFramePreview(CameraView cameraView, final byte[] data, final int width, final int height, final int rotation) {
+        final int correctRotation = RNCameraViewHelper.getCorrectCameraRotation(rotation, getFacing(), getCameraOrientation());
         boolean willCallBarCodeTask = mShouldScanBarCodes && !barCodeScannerTaskLock && cameraView instanceof BarCodeScannerAsyncTaskDelegate;
         boolean willCallFaceTask = mShouldDetectFaces && !faceDetectorTaskLock && cameraView instanceof FaceDetectorAsyncTaskDelegate;
         boolean willCallGoogleBarcodeTask = mShouldGoogleDetectBarcodes && !googleBarcodeDetectorTaskLock && cameraView instanceof BarcodeDetectorAsyncTaskDelegate;
         boolean willCallTextTask = mShouldRecognizeText && !textRecognizerTaskLock && cameraView instanceof TextRecognizerAsyncTaskDelegate;
-        if (!willCallBarCodeTask && !willCallFaceTask && !willCallGoogleBarcodeTask && !willCallTextTask) {
+        Promise pictureTakenPromise;
+        synchronized (COLLECTION_LOCK) {
+          pictureTakenPromise = mPictureTakenPromises.poll();
+        }
+        final boolean superFast = mCamera1ScanMode.equals(CAMERA1SCANSUPERFAST) && !mProcessingPreview;
+
+        if (!willCallBarCodeTask && !willCallFaceTask && !willCallGoogleBarcodeTask && !willCallTextTask
+                && pictureTakenPromise  == null && !superFast) {
           return;
         }
 
@@ -169,6 +197,57 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           textRecognizerTaskLock = true;
           TextRecognizerAsyncTaskDelegate delegate = (TextRecognizerAsyncTaskDelegate) cameraView;
           new TextRecognizerAsyncTask(delegate, mThemedReactContext, data, width, height, correctRotation, getResources().getDisplayMetrics().density, getFacing(), getWidth(), getHeight(), mPaddingX, mPaddingY).execute();
+        }
+
+        if (pictureTakenPromise != null || superFast) {
+          checkScanning();
+          mProcessingPreview = true;
+
+          if (mYuvToBitmap == null) {
+            mYuvToBitmap = new YuvToBitmap(getContext());
+          }
+
+          final Promise aPictureTakenPromise = pictureTakenPromise;
+
+          Thread thread = new Thread() {
+            @Override
+            public void run() {
+              // Get RGB
+              mYuvToBitmap.refreshBitmap(data, width, height);
+
+              Bitmap rotated;
+              if (correctRotation == 0) {
+                rotated = mYuvToBitmap.getBimap();
+              } else {
+                // Rotate
+                if (mLastRotation != correctRotation) {
+                  mLastRotation = correctRotation;
+                  mRotationMatrix = new Matrix();
+                  mRotationMatrix.postRotate(correctRotation);
+                }
+                Bitmap bitmap = mYuvToBitmap.getBimap();
+                rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), mRotationMatrix, false);
+              }
+
+              mProcessingPreview = false;
+
+              // Resolve
+              synchronized (COLLECTION_LOCK) {
+                Promise promise = aPictureTakenPromise;
+                if (promise == null) {
+                  promise = mPictureTakenPromises.poll();
+                }
+                if (promise == null) {
+                  storeRotated(rotated);
+                } else {
+                  ReadableMap options = mPictureTakenOptions.remove(promise);
+                  final File cacheDirectory = mPictureTakenDirectories.remove(promise);
+                  resolveTakenPicture(rotated, options, promise, cacheDirectory);
+                }
+              }
+            }
+          };
+          thread.start();
         }
       }
     });
@@ -226,20 +305,79 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mPlaySoundOnCapture = playSoundOnCapture;
   }
 
+  public Object getImpl() {
+    try {
+      Field field = CameraView.class.getDeclaredField("mImpl");
+      field.setAccessible(true);
+      Object value = field.get(this);
+      field.setAccessible(false);
+      return value;
+
+    } catch (NoSuchFieldException e) {
+      throw new RuntimeException(e);
+
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  private boolean usingCamera2() {
+    Object impl = getImpl();
+
+    if (impl == null) return false;
+
+    String className = impl.getClass().getName();
+    return className.contains("cameraview.Camera2");
+  }
+
+  private boolean useTakePicture() {
+    return usingCamera2() || mCamera1ScanMode.equals(CAMERA1SCANNONE);
+  }
+
+  private void resolveTakenPicture(Bitmap picture, ReadableMap options, final Promise promise, File cacheDirectory) {
+    ResolveTakenPictureAsyncTask task = new ResolveTakenPictureAsyncTask(
+            picture, promise, options, cacheDirectory, 0, RNCameraView.this
+    );
+
+    if (Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
+      task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    } else {
+      task.execute();
+    }
+  }
+
   public void takePicture(ReadableMap options, final Promise promise, File cacheDirectory) {
-    mPictureTakenPromises.add(promise);
-    mPictureTakenOptions.put(promise, options);
-    mPictureTakenDirectories.put(promise, cacheDirectory);
+    boolean takePicture = useTakePicture();
+
     if (mPlaySoundOnCapture) {
       MediaActionSound sound = new MediaActionSound();
       sound.play(MediaActionSound.SHUTTER_CLICK);
     }
+
+    if (!takePicture && mCamera1ScanMode.equals(CAMERA1SCANSUPERFAST) && mRotated != null) {
+      resolveTakenPicture(mRotated, options, promise, cacheDirectory);
+      storeRotated(null);
+      return;
+    }
+
+    synchronized (COLLECTION_LOCK) {
+      mPictureTakenPromises.add(promise);
+      mPictureTakenOptions.put(promise, options);
+      mPictureTakenDirectories.put(promise, cacheDirectory);
+    }
     try {
-      super.takePicture(options);
+      if (takePicture) {
+        super.takePicture(options);
+      } else {
+        checkScanning();
+      }
     } catch (Exception e) {
-      mPictureTakenPromises.remove(promise);
-      mPictureTakenOptions.remove(promise);
-      mPictureTakenDirectories.remove(promise);
+      synchronized (COLLECTION_LOCK) {
+        mPictureTakenPromises.remove(promise);
+        mPictureTakenOptions.remove(promise);
+        mPictureTakenDirectories.remove(promise);
+      }
       throw e;
     }
   }
@@ -285,6 +423,23 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   /**
+   * Set camera1 scan mode (camera2 does not allow frame preview).
+   * - none: use native takePicture()
+   * - eco: run preview on picture request only
+   * - fast: preview each frame and process when picture is requested
+   */
+
+  public void setCamera1ScanMode(String scanMode) {
+    scanMode = scanMode.toLowerCase();
+    if (scanMode.equals(CAMERA1SCANECO) || scanMode.equals(CAMERA1SCANFAST) || scanMode.equals(CAMERA1SCANSUPERFAST)) {
+      mCamera1ScanMode = scanMode;
+    } else {
+      mCamera1ScanMode = CAMERA1SCANNONE;
+    }
+    checkScanning();
+  }
+
+  /**
    * Initialize the barcode decoder.
    * Supports all iOS codes except [code138, code39mod43, itf14]
    * Additionally supports [codabar, code128, maxicode, rss14, rssexpanded, upc_a, upc_ean]
@@ -307,12 +462,18 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mMultiFormatReader.setHints(hints);
   }
 
+  private void checkScanning() {
+    boolean fast = mCamera1ScanMode.equals(CAMERA1SCANFAST) || mCamera1ScanMode.equals(CAMERA1SCANSUPERFAST);
+    boolean scanForPictures = mCamera1ScanMode != CAMERA1SCANNONE && (fast || !mPictureTakenPromises.isEmpty());
+    setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || scanForPictures);
+  }
+
   public void setShouldScanBarCodes(boolean shouldScanBarCodes) {
     if (shouldScanBarCodes && mMultiFormatReader == null) {
       initBarcodeReader();
     }
     this.mShouldScanBarCodes = shouldScanBarCodes;
-    setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
+    checkScanning();
   }
 
   public void onBarCodeRead(Result barCode, int width, int height) {
@@ -375,7 +536,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       setupFaceDetector();
     }
     this.mShouldDetectFaces = shouldDetectFaces;
-    setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
+    checkScanning();
   }
 
   public void onFacesDetected(WritableArray data) {
@@ -412,7 +573,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       setupBarcodeDetector();
     }
     this.mShouldGoogleDetectBarcodes = shouldDetectBarcodes;
-    setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
+    checkScanning();
   }
 
   public void setGoogleVisionBarcodeType(int barcodeType) {
@@ -453,7 +614,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   public void setShouldRecognizeText(boolean shouldRecognizeText) {
     this.mShouldRecognizeText = shouldRecognizeText;
-    setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
+    checkScanning();
   }
 
   public void onTextRecognized(WritableArray serializedData) {

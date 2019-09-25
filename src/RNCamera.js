@@ -227,6 +227,8 @@ type RecordingOptions = {
   videoBitrate?: number,
 };
 
+type Camera1ScanMode = 'none' | 'eco' | 'fast' | 'boost';
+
 type EventCallbackArgumentsType = {
   nativeEvent: Object,
 };
@@ -264,6 +266,7 @@ type PropsType = typeof View.props & {
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
   captureAudio?: boolean,
   useCamera2Api?: boolean,
+  camera1ScanMode: Camera1ScanMode,
   playSoundOnCapture?: boolean,
   videoStabilizationMode?: number | string,
   pictureSize?: string,
@@ -405,6 +408,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     pendingAuthorizationView: PropTypes.element,
     captureAudio: PropTypes.bool,
     useCamera2Api: PropTypes.bool,
+    camera1ScanMode: PropTypes.string,
     playSoundOnCapture: PropTypes.bool,
     videoStabilizationMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     pictureSize: PropTypes.string,
@@ -452,6 +456,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     ),
     captureAudio: true,
     useCamera2Api: false,
+    camera1ScanMode: 'eco',
     playSoundOnCapture: false,
     pictureSize: 'None',
     videoStabilizationMode: 0,

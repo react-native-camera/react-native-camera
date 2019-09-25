@@ -43,6 +43,15 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         mPictureSavedDelegate = delegate;
     }
 
+    public ResolveTakenPictureAsyncTask(Bitmap bitmap, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate) {
+        mPromise = promise;
+        mOptions = options;
+        mBitmap = bitmap;
+        mCacheDirectory = cacheDirectory;
+        mDeviceOrientation = deviceOrientation;
+        mPictureSavedDelegate = delegate;
+    }
+
     private int getQuality() {
         return (int) (mOptions.getDouble("quality") * 100);
     }
