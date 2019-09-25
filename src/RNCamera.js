@@ -522,7 +522,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (Platform.OS === 'android') {
       return await CameraManager.getCameraIds(this._cameraHandle);
     } else {
-      return [];
+      return await CameraManager.getCameraIds(); // iOS does not need a camera instance
     }
   }
 

@@ -316,7 +316,7 @@ The video stabilization mode used for a video recording. The possible values are
 
 You can read more about each stabilization type here: https://developer.apple.com/documentation/avfoundation/avcapturevideostabilizationmode
 
-### `iOS` `defaultVideoQuality`
+### `defaultVideoQuality`
 
 This option specifies the quality of the video to be taken. The possible values are:
 
@@ -623,9 +623,9 @@ Resumes the preview after pausePreview() has been called.
 
 Android only. Returns a promise. The promise will be fulfilled with an object with an array containing strings with all camera aspect ratios supported by the device.
 
-### `Android` `getCameraIdsAsync(): Promise`
+### `getCameraIdsAsync(): Promise`
 
-Android only. Returns a promise. The promise will be fulfilled with an array containing objects with all camera IDs and type supported by the device.
+Returns a promise. The promise will be fulfilled with an array containing objects with all camera IDs and type supported by the device.
 
 The promise will be fulfilled with an array containing objects with some of the following properties:
 
