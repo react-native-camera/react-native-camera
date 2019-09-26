@@ -277,6 +277,14 @@ Value: float from `0` to `1.0`
 
 Specifies the zoom of your camera. The value 0 is no zoom, 1 is maximum zoom. For a medium zoom, for example, you could pass `0.5`.
 
+### `iOS` `maxZoom`
+
+iOS Only.
+
+Value: optional float greater than `1.0` used to enforce a maximum zoom value on the camera. Setting a value to less than `1` (default) will make the camera use its own max zoom property.
+
+Specifies the max zoom value used in zoom calculations. This is specifically useful for iOS where it reports arbitrary high values and using a 0 to 1 value as the zoom factor is not appropriate.
+
 ### `Android` `permissionDialogTitle` - Deprecated
 
 Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the title of the dialog prompt requesting permissions.

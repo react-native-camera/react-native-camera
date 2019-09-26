@@ -377,9 +377,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             RCTLogError(@"%s: %@", __func__, error);
         }
         return;
+    }    
+    
+    float maxZoom;
+    if(self.maxZoom > 1){
+        maxZoom = MIN(self.maxZoom, device.activeFormat.videoMaxZoomFactor);
     }
-
-    device.videoZoomFactor = (device.activeFormat.videoMaxZoomFactor - 1.0) * self.zoom + 1.0;
+    else{
+        maxZoom = device.activeFormat.videoMaxZoomFactor;
+    }
+    
+    device.videoZoomFactor = (maxZoom - 1) * self.zoom + 1;
+    
 
     [device unlockForConfiguration];
 }

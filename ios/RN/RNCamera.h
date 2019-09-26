@@ -29,6 +29,7 @@
 @property(nonatomic, assign) NSString *cameraId;
 @property(assign, nonatomic) NSInteger flashMode;
 @property(assign, nonatomic) CGFloat zoom;
+@property(assign, nonatomic) CGFloat maxZoom;
 @property(assign, nonatomic) NSInteger autoFocus;
 @property(copy, nonatomic) NSDictionary *autoFocusPointOfInterest;
 @property(assign, nonatomic) float focusDepth;

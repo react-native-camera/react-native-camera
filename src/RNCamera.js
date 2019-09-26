@@ -240,6 +240,7 @@ type Rect = {
 
 type PropsType = typeof View.props & {
   zoom?: number,
+  maxZoom?: number,
   ratio?: string,
   focusDepth?: number,
   type?: number | string,
@@ -374,6 +375,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
   static propTypes = {
     ...ViewPropTypes,
     zoom: PropTypes.number,
+    maxZoom: PropTypes.number,
     ratio: PropTypes.string,
     focusDepth: PropTypes.number,
     onMountError: PropTypes.func,
@@ -416,6 +418,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
   static defaultProps: Object = {
     zoom: 0,
+    maxZoom: 0,
     ratio: '4:3',
     focusDepth: 0,
     type: CameraManager.Type.back,
