@@ -64,7 +64,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         response.putInt("deviceOrientation", mDeviceOrientation);
         response.putInt("pictureOrientation", mOptions.hasKey("orientation") ? mOptions.getInt("orientation") : mDeviceOrientation);
 
-        if (mOptions.hasKey("skipProcessing")) {
+        if (mOptions.hasKey("skipProcessing") && mOptions.getBoolean("skipProcessing")) {
             try {
                 // Prepare file output
                 File imageFile = new File(RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg"));
