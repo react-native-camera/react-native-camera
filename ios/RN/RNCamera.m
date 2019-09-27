@@ -341,6 +341,22 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 }
 
+- (void)deexposePointOfInterest
+{
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    
+    
+    if(self.isExposedOnPoint){
+        self.isExposedOnPoint = NO;
+        
+        CGPoint exposurePoint = CGPointMake(0.5f, 0.5f);
+        
+        [device setExposurePointOfInterest: exposurePoint];
+        
+        [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+    }
+}
+
 
 - (void)updateAutoFocusPointOfInterest
 {
@@ -391,10 +407,17 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                     RCTLogWarn(@"AutoExposurePointOfInterest not supported");
                 }
             }
+            else{
+                [self deexposePointOfInterest];
+            }
+        }
+        else{
+            [self deexposePointOfInterest];
         }
 
     } else {
         [self defocusPointOfInterest];
+        [self deexposePointOfInterest];
     }
 
     [device unlockForConfiguration];
@@ -405,6 +428,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
     if ([device lockForConfiguration:NULL] == YES ) {
         [self defocusPointOfInterest];
+        [self deexposePointOfInterest];
         [device unlockForConfiguration];
     }
 }
