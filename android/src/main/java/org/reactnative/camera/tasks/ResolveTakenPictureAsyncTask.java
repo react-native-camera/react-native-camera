@@ -71,8 +71,13 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 imageFile.createNewFile();
                 FileOutputStream fOut = new FileOutputStream(imageFile);
 
-                // Save byte array (it is already a JPEG)
-                fOut.write(mImageData);
+                if (mImageData != null) {
+                    // Save byte array (it is already a JPEG)
+                    fOut.write(mImageData);
+                } else if (mBitmap != null) {
+                    // Convert to JPEG and save
+                    mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), fOut);
+                }
 
                 // get image size
                 if (mBitmap == null) {
