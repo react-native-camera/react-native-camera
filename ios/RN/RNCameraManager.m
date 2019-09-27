@@ -499,18 +499,20 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
     // these warnings can be easily seen on XCode
     if (@available(iOS 10.0, *)) {
         NSArray *captureDeviceType;
-
-        if (@available(iOS 10.2, *)) {
-            if (@available(iOS 11.1, *)) {
-                captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeBuiltInDualCamera, AVCaptureDeviceTypeBuiltInTelephotoCamera, AVCaptureDeviceTypeBuiltInTrueDepthCamera];
-
-
-            } else {
-                captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeBuiltInDualCamera, AVCaptureDeviceTypeBuiltInTelephotoCamera];
-            }
-        } else {
+        
+        if (@available(iOS 13.0, *)) {
+            captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeBuiltInDualCamera, AVCaptureDeviceTypeBuiltInTelephotoCamera, AVCaptureDeviceTypeBuiltInTrueDepthCamera, AVCaptureDeviceTypeBuiltInUltraWideCamera];
+        }
+        else if (@available(iOS 11.1, *)) {
+            captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeBuiltInDualCamera, AVCaptureDeviceTypeBuiltInTelephotoCamera, AVCaptureDeviceTypeBuiltInTrueDepthCamera];
+        }
+        else if (@available(iOS 10.2, *)){
+            captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeBuiltInDualCamera, AVCaptureDeviceTypeBuiltInTelephotoCamera];
+        }
+        else{
             captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeBuiltInTelephotoCamera];
         }
+        
 
         AVCaptureDeviceDiscoverySession *captureDevice =
         [AVCaptureDeviceDiscoverySession
