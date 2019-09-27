@@ -134,6 +134,8 @@ export interface RNCameraProps {
 
   autoFocus?: keyof AutoFocus;
   autoFocusPointOfInterest?: Point;
+  /* iOS only */
+  onSubjectAreaChanged?: (event: { nativeEvent: { prevPoint: { x: number; y: number; } } }) => void;
   type?: keyof CameraType;
   flashMode?: keyof FlashMode;
   notAuthorizedView?: JSX.Element;

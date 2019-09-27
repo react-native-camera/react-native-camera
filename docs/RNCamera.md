@@ -217,6 +217,12 @@ On iOS, focusing will not change the exposure automatically unless autoExposure 
 Hint:
 for portrait orientation, apply 90° clockwise rotation + translation: [Example](https://gist.github.com/Craigtut/6632a9ac7cfff55e74fb561862bc4edb)
 
+
+### iOS `onSubjectAreaChanged`
+iOS only.
+
+if autoFocusPointOfInterest is set, this event will be fired when a substancial change is detected with the following object: `{ nativeEvent: { prevPoint: { x: number; y: number; } } }`
+
 ### `captureAudio`
 
 Values: boolean `true` (default) | `false`
