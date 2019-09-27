@@ -302,11 +302,26 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if ([self.autoFocusPointOfInterest objectForKey:@"x"] && [self.autoFocusPointOfInterest objectForKey:@"y"]) {
         float xValue = [self.autoFocusPointOfInterest[@"x"] floatValue];
         float yValue = [self.autoFocusPointOfInterest[@"y"] floatValue];
+        
         if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
 
             CGPoint autofocusPoint = CGPointMake(xValue, yValue);
             [device setFocusPointOfInterest:autofocusPoint];
             [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+            
+            if([self.autoFocusPointOfInterest objectForKey:@"autoExposure"]){
+                BOOL autoExposure = [self.autoFocusPointOfInterest[@"autoExposure"] boolValue];
+                
+                if(autoExposure){
+                    if([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure])
+                    {
+                        [device setExposurePointOfInterest:autofocusPoint];
+                        [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+                    }
+                }
+                
+            }
+            
         }
         else {
             RCTLogWarn(@"AutoFocusPointOfInterest not supported");
@@ -905,6 +920,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self updateZoom];
             [self updateFocusMode];
             [self updateFocusDepth];
+            [self updateExposure];
             [self updateAutoFocusPointOfInterest];
             [self updateWhiteBalance];
             [self.previewLayer.connection setVideoOrientation:orientation];
