@@ -76,8 +76,6 @@ interface RecordOptions {
   mute?: boolean;
   mirrorVideo?: boolean;
   path?: string;
-
-  /** Android only */
   videoBitrate?: number;
 
   /** iOS only */

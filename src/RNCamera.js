@@ -395,6 +395,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     googleVisionBarcodeType: PropTypes.number,
     googleVisionBarcodeMode: PropTypes.number,
     type: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    cameraId: PropTypes.string,
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     exposure: PropTypes.number,
     whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -422,6 +423,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     ratio: '4:3',
     focusDepth: 0,
     type: CameraManager.Type.back,
+    cameraId: null,
     autoFocus: CameraManager.AutoFocus.on,
     flashMode: CameraManager.FlashMode.off,
     exposure: -1,
@@ -518,6 +520,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
       return await CameraManager.getSupportedRatios(this._cameraHandle);
     } else {
       throw new Error('Ratio is not supported on iOS');
+    }
+  }
+
+  async getCameraIdsAsync() {
+    if (Platform.OS === 'android') {
+      return await CameraManager.getCameraIds(this._cameraHandle);
+    } else {
+      return [];
     }
   }
 
