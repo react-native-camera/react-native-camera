@@ -71,12 +71,29 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 imageFile.createNewFile();
                 FileOutputStream fOut = new FileOutputStream(imageFile);
 
-                if (mImageData != null) {
-                    // Save byte array (it is already a JPEG)
-                    fOut.write(mImageData);
-                } else if (mBitmap != null) {
-                    // Convert to JPEG and save
-                    mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), fOut);
+                ByteArrayOutputStream imageStream = null;
+
+                // Write base64-encoded image to the response if requested
+                if (mOptions.hasKey("base64") && mOptions.getBoolean("base64")) {
+                    imageStream = new ByteArrayOutputStream();
+                    mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), imageStream);
+
+                    response.putString("base64", Base64.encodeToString(imageStream.toByteArray(), Base64.NO_WRAP));
+                }
+
+                boolean saveFile = !mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave");
+                if (saveFile) {
+                    if (mImageData != null) {
+                        // Save byte array (it is already a JPEG)
+                        fOut.write(mImageData);
+                    } else if (mBitmap != null) {
+                        if (imageStream == null) {
+                            // Convert to JPEG and save
+                            mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), fOut);
+                        } else {
+                            fOut.write(imageStream.toByteArray());
+                        }
+                    }
                 }
 
                 // get image size
@@ -90,9 +107,11 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 response.putInt("width", mBitmap.getWidth());
                 response.putInt("height", mBitmap.getHeight());
 
-                // Return file system URI
-                String fileUri = Uri.fromFile(imageFile).toString();
-                response.putString("uri", fileUri);
+                if (saveFile) {
+                    // Return file system URI
+                    String fileUri = Uri.fromFile(imageFile).toString();
+                    response.putString("uri", fileUri);
+                }
 
             } catch (Resources.NotFoundException e) {
                 response = null; // do not resolve
