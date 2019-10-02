@@ -26,7 +26,7 @@
 @property(nonatomic, strong) NSArray *googleVisionBarcodeTypes;
 
 @property(nonatomic, assign) NSInteger presetCamera;
-@property(nonatomic, assign) NSString *cameraId;
+@property(nonatomic, copy) NSString *cameraId; // copy required for strings/pointers
 @property(assign, nonatomic) NSInteger flashMode;
 @property(assign, nonatomic) CGFloat zoom;
 @property(assign, nonatomic) CGFloat maxZoom;

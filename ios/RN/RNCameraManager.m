@@ -176,7 +176,7 @@ RCT_CUSTOM_VIEW_PROPERTY(cameraId, NSString, RNCamera)
 {
     NSString *newId = [RCTConvert NSString:json];
     
-    // also compare pointers so we check for nulls
+    // also compare pointers so we check for nulls    
     if (view.cameraId != newId && ![view.cameraId isEqualToString:newId]) {
         [view setCameraId:newId];
         // using same call as setting the type here since they

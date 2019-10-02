@@ -617,6 +617,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
+    // if video device is not set, reject
+    if(self.videoCaptureDeviceInput == nil){
+        reject(@"E_IMAGE_CAPTURE_FAILED", @"Camera is not ready.", nil);
+        return;
+    }
+    
     if (!self.deviceOrientation) {
         [self takePictureWithOrientation:options resolve:resolve reject:reject];
         return;
@@ -736,6 +742,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
+    if(self.videoCaptureDeviceInput == nil){
+        reject(@"E_VIDEO_CAPTURE_FAILED", @"Camera is not ready.", nil);
+        return;
+    }
+    
     if (!self.deviceOrientation) {
         [self recordWithOrientation:options resolve:resolve reject:reject];
         return;
