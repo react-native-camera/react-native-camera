@@ -17,6 +17,7 @@ public class BarcodeFormatUtils {
   private static final int UNKNOWN_FORMAT_INT = FirebaseVisionBarcode.FORMAT_UNKNOWN;
 
   private static final String UNKNOWN_TYPE_STRING = "UNKNOWN_TYPE";
+  private static final String UNKNOWN_FORMAT_STRING = "UNKNOWN_FORMAT";
 
   static {
     // Initialize integer to string map
@@ -80,6 +81,9 @@ public class BarcodeFormatUtils {
 
   public static String get(int format) {
     return TYPES.get(format, UNKNOWN_TYPE_STRING);
+  }
+  public static String getFormat(int format) {
+    return FORMATS.get(format, UNKNOWN_FORMAT_STRING);
   }
 
   public static int get(String format) {

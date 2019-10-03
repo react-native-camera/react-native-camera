@@ -62,12 +62,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.previewLayer.needsDisplayOnBoundsChange = YES;
 #endif
         self.paused = NO;
+        self.rectOfInterest = CGRectMake(0, 0, 1.0, 1.0);
         [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
         [self initializeCaptureSessionInput];
         [self startSession];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(orientationChanged:)
-                                                     name:UIDeviceOrientationDidChangeNotification
+                                                     name:UIApplicationDidChangeStatusBarOrientationNotification
                                                    object:nil];
 
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -83,7 +84,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                      name:AVAudioSessionInterruptionNotification
                                                    object:nil];
         self.autoFocus = -1;
-
+        self.exposure = -1;
     }
     return self;
 }
@@ -222,28 +223,28 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-
+    
     if (![device lockForConfiguration:&error]) {
         if (error) {
             RCTLogError(@"%s: %@", __func__, error);
         }
         return;
     }
-
+    
     if ([self.autoFocusPointOfInterest objectForKey:@"x"] && [self.autoFocusPointOfInterest objectForKey:@"y"]) {
         float xValue = [self.autoFocusPointOfInterest[@"x"] floatValue];
         float yValue = [self.autoFocusPointOfInterest[@"y"] floatValue];
         if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
-
+            
             CGPoint autofocusPoint = CGPointMake(xValue, yValue);
             [device setFocusPointOfInterest:autofocusPoint];
             [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-          }
+        }
         else {
             RCTLogWarn(@"AutoFocusPointOfInterest not supported");
         }
     }
-
+    
     [device unlockForConfiguration];
 }
 
@@ -351,6 +352,57 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [device unlockForConfiguration];
 }
 
+
+/// Set the AVCaptureDevice's ISO values based on RNCamera's 'exposure' value,
+/// which is a float between 0 and 1 if defined by the user or -1 to indicate that no
+/// selection is active. 'exposure' gets mapped to a valid ISO value between the
+/// device's min/max-range of ISO-values.
+///
+/// The exposure gets reset every time the user manually sets the autofocus-point in
+/// 'updateAutoFocusPointOfInterest' automatically. Currently no explicit event is fired.
+/// This leads to two 'exposure'-states: one here and one in the component, which is
+/// fine. 'exposure' here gets only synced if 'exposure' on the js-side changes. You
+/// can manually keep the state in sync by setting 'exposure' in your React-state
+/// everytime the js-updateAutoFocusPointOfInterest-function gets called.
+- (void)updateExposure
+{
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    NSError *error = nil;
+    
+    if (![device lockForConfiguration:&error]) {
+        if (error) {
+            RCTLogError(@"%s: %@", __func__, error);
+        }
+        return;
+    }
+    
+    // Check that either no explicit exposure-val has been set yet
+    // or that it has been reset. Check for > 1 is only a guard.
+    if(self.exposure < 0 || self.exposure > 1){
+        [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+        [device unlockForConfiguration];
+        return;
+    }
+    
+    // Lazy init of range.
+    if(!self.exposureIsoMin){ self.exposureIsoMin = device.activeFormat.minISO; }
+    if(!self.exposureIsoMax){ self.exposureIsoMax = device.activeFormat.maxISO; }
+    
+    // Get a valid ISO-value in range from min to max. After we mapped the exposure
+    // (a val between 0 - 1), the result gets corrected by the offset from 0, which
+    // is the min-ISO-value.
+    float appliedExposure = (self.exposureIsoMax - self.exposureIsoMin) * self.exposure + self.exposureIsoMin;
+    
+    // Make sure we're in AVCaptureExposureModeCustom, else the ISO + duration time won't apply.
+    if(device.exposureMode != AVCaptureExposureModeCustom){
+        [device setExposureMode:AVCaptureExposureModeCustom];
+    }
+    
+    // Only set the ISO for now, duration will be default as a change might affect frame rate.
+    [device setExposureModeCustomWithDuration:AVCaptureExposureDurationCurrent ISO:appliedExposure completionHandler:nil];
+    [device unlockForConfiguration];
+}
+
 - (void)updatePictureSize
 {
     [self updateSessionPreset:self.pictureSize];
@@ -378,93 +430,102 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
     AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [connection setVideoOrientation:orientation];
-    [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
-        if (imageSampleBuffer && !error) {
-            if ([options[@"pauseAfterCapture"] boolValue]) {
-                [[self.previewLayer connection] setEnabled:NO];
-            }
-
-            BOOL useFastMode = [options valueForKey:@"fastMode"] != nil && [options[@"fastMode"] boolValue];
-            if (useFastMode) {
-                resolve(nil);
-            }
-            NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
-
-            UIImage *takenImage = [UIImage imageWithData:imageData];
-
-            CGImageRef takenCGImage = takenImage.CGImage;
-            CGSize previewSize;
-            if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
-                previewSize = CGSizeMake(self.previewLayer.frame.size.height, self.previewLayer.frame.size.width);
-            } else {
-                previewSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
-            }
-            CGRect cropRect = CGRectMake(0, 0, CGImageGetWidth(takenCGImage), CGImageGetHeight(takenCGImage));
-            CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
-            takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
-
-            if ([options[@"mirrorImage"] boolValue]) {
-                takenImage = [RNImageUtils mirrorImage:takenImage];
-            }
-            if ([options[@"forceUpOrientation"] boolValue]) {
-                takenImage = [RNImageUtils forceUpOrientation:takenImage];
-            }
-
-            if ([options[@"width"] integerValue]) {
-                takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
-            }
-
-            NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
-            float quality = [options[@"quality"] floatValue];
-            NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
-            NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
-            if (![options[@"doNotSave"] boolValue]) {
-                response[@"uri"] = [RNImageUtils writeImage:takenImageData toPath:path];
-            }
-            response[@"width"] = @(takenImage.size.width);
-            response[@"height"] = @(takenImage.size.height);
-
-            if ([options[@"base64"] boolValue]) {
-                response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
-            }
-
-            if ([options[@"exif"] boolValue]) {
-                int imageRotation;
-                switch (takenImage.imageOrientation) {
-                    case UIImageOrientationLeft:
-                    case UIImageOrientationRightMirrored:
-                        imageRotation = 90;
-                        break;
-                    case UIImageOrientationRight:
-                    case UIImageOrientationLeftMirrored:
-                        imageRotation = -90;
-                        break;
-                    case UIImageOrientationDown:
-                    case UIImageOrientationDownMirrored:
-                        imageRotation = 180;
-                        break;
-                    case UIImageOrientationUpMirrored:
-                    default:
-                        imageRotation = 0;
-                        break;
+    @try {
+        [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
+            if (imageSampleBuffer && !error) {
+                if ([options[@"pauseAfterCapture"] boolValue]) {
+                    [[self.previewLayer connection] setEnabled:NO];
                 }
-                [RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
-            }
-
-            response[@"pictureOrientation"] = @([self.orientation integerValue]);
-            response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
-            self.orientation = nil;
-            self.deviceOrientation = nil;
-
-            if (useFastMode) {
-                [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
+                
+                BOOL useFastMode = [options valueForKey:@"fastMode"] != nil && [options[@"fastMode"] boolValue];
+                if (useFastMode) {
+                    resolve(nil);
+                }
+                NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
+                
+                UIImage *takenImage = [UIImage imageWithData:imageData];
+                
+                CGImageRef takenCGImage = takenImage.CGImage;
+                CGSize previewSize;
+                if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
+                    previewSize = CGSizeMake(self.previewLayer.frame.size.height, self.previewLayer.frame.size.width);
+                } else {
+                    previewSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
+                }
+                CGRect cropRect = CGRectMake(0, 0, CGImageGetWidth(takenCGImage), CGImageGetHeight(takenCGImage));
+                CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
+                takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
+                
+                if ([options[@"mirrorImage"] boolValue]) {
+                    takenImage = [RNImageUtils mirrorImage:takenImage];
+                }
+                if ([options[@"forceUpOrientation"] boolValue]) {
+                    takenImage = [RNImageUtils forceUpOrientation:takenImage];
+                }
+                
+                if ([options[@"width"] integerValue]) {
+                    takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
+                }
+                
+                NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
+                float quality = [options[@"quality"] floatValue];
+                NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
+                NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+                if (![options[@"doNotSave"] boolValue]) {
+                    response[@"uri"] = [RNImageUtils writeImage:takenImageData toPath:path];
+                }
+                response[@"width"] = @(takenImage.size.width);
+                response[@"height"] = @(takenImage.size.height);
+                
+                if ([options[@"base64"] boolValue]) {
+                    response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
+                }
+                
+                if ([options[@"exif"] boolValue]) {
+                    int imageRotation;
+                    switch (takenImage.imageOrientation) {
+                        case UIImageOrientationLeft:
+                        case UIImageOrientationRightMirrored:
+                            imageRotation = 90;
+                            break;
+                        case UIImageOrientationRight:
+                        case UIImageOrientationLeftMirrored:
+                            imageRotation = -90;
+                            break;
+                        case UIImageOrientationDown:
+                        case UIImageOrientationDownMirrored:
+                            imageRotation = 180;
+                            break;
+                        case UIImageOrientationUpMirrored:
+                        default:
+                            imageRotation = 0;
+                            break;
+                    }
+                    [RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
+                }
+                
+                response[@"pictureOrientation"] = @([self.orientation integerValue]);
+                response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
+                self.orientation = nil;
+                self.deviceOrientation = nil;
+                
+                if (useFastMode) {
+                    [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
+                } else {
+                    resolve(response);
+                }
             } else {
-                resolve(response);
+                reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be captured", error);
             }
-        } else {
-            reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be captured", error);
-        }
-    }];
+        }];
+    } @catch (NSException *exception) {
+        reject(
+               @"E_IMAGE_CAPTURE_FAILED",
+               @"Got exception while taking picture",
+               [NSError errorWithDomain:@"E_IMAGE_CAPTURE_FAILED" code: 500 userInfo:@{NSLocalizedDescriptionKey:exception.reason}]
+        );
+    }
+    
 }
 - (void)recordWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
     [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
@@ -538,17 +599,28 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [connection setVideoOrientation:orientation];
 
     if (options[@"codec"]) {
-      if (@available(iOS 10, *)) {
-        AVVideoCodecType videoCodecType = options[@"codec"];
-        if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
-          [self.movieFileOutput setOutputSettings:@{AVVideoCodecKey:videoCodecType} forConnection:connection];
-          self.videoCodecType = videoCodecType;
-        } else {
-            RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
+        if (@available(iOS 10, *)) {
+            AVVideoCodecType videoCodecType = options[@"codec"];
+            if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
+                self.videoCodecType = videoCodecType;
+                if(options[@"videoBitrate"]) {
+                    NSString *videoBitrate = options[@"videoBitrate"];
+                    [self.movieFileOutput setOutputSettings:@{
+                      AVVideoCodecKey:videoCodecType,
+                      AVVideoCompressionPropertiesKey:
+                          @{
+                              AVVideoAverageBitRateKey:videoBitrate
+                          }
+                      } forConnection:connection];
+                } else {
+                    [self.movieFileOutput setOutputSettings:@{AVVideoCodecKey:videoCodecType} forConnection:connection];
+                }
+            } else {
+                RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
+            }
         }
-      }
     }
-
+    
     dispatch_async(self.sessionQueue, ^{
         [self updateFlashMode];
         NSString *path = nil;
@@ -697,6 +769,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
         if (error || captureDeviceInput == nil) {
             RCTLog(@"%s: %@", __func__, error);
+            [self.session commitConfiguration];
             return;
         }
 
@@ -766,6 +839,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
             if (error || audioDeviceInput == nil) {
                 RCTLogWarn(@"%s: %@", __func__, error);
+                [self.session commitConfiguration];
                 return;
             }
 
@@ -846,6 +920,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self _updateMetadataObjectsToRecognize];
 }
 
+- (void)updateRectOfInterest
+{
+    if (_metadataOutput == nil) {
+        return;
+    }
+    [_metadataOutput setRectOfInterest: _rectOfInterest];
+}
+
 - (void)_setupOrDisableMetadataOutput
 {
     if ([self isReadingBarCodes] && (_metadataOutput == nil || ![self.session.outputs containsObject:_metadataOutput])) {
@@ -878,6 +960,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     [_metadataOutput setMetadataObjectTypes:availableRequestedObjectTypes];
+    [self updateRectOfInterest];
 }
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects

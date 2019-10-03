@@ -139,6 +139,7 @@ export interface RNCameraProps {
   notAuthorizedView?: JSX.Element;
   pendingAuthorizationView?: JSX.Element;
   useCamera2Api?: boolean;
+  exposure?: number;
   whiteBalance?: keyof WhiteBalance;
   captureAudio?: boolean;
 
@@ -353,7 +354,7 @@ interface TakePictureOptions {
   /** Android only */
   skipProcessing?: boolean;
   fixOrientation?: boolean;
-  writeExif?: boolean;
+  writeExif?: boolean | { [name: string]: any };
 
   /** iOS only */
   forceUpOrientation?: boolean;
@@ -377,8 +378,6 @@ interface RecordOptions {
   mute?: boolean;
   mirrorVideo?: boolean;
   path?: string;
-
-  /** Android only */
   videoBitrate?: number;
 
   /** iOS only */

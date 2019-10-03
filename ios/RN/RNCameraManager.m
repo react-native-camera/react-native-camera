@@ -206,6 +206,12 @@ RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSInteger, RNCamera)
     [view updateWhiteBalance];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(exposure, NSNumber, RNCamera)
+{
+    [view setExposure:[RCTConvert float:json]];
+    [view updateExposure];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(pictureSize, NSString *, RNCamera)
 {
     [view setPictureSize:[[self class] pictureSizes][[RCTConvert NSString:json]]];
@@ -269,6 +275,12 @@ RCT_CUSTOM_VIEW_PROPERTY(textRecognizerEnabled, BOOL, RNCamera)
     [view setupOrDisableTextDetector];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(rectOfInterest, CGRect, RNCamera)
+{
+    [view setRectOfInterest: [RCTConvert CGRect:json]];
+    [view updateRectOfInterest];
+}
+   
 RCT_CUSTOM_VIEW_PROPERTY(defaultVideoQuality, NSInteger, RNCamera)
 {
     [view setDefaultVideoQuality: [NSNumber numberWithInteger:[RCTConvert NSInteger:json]]];
