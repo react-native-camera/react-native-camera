@@ -495,32 +495,27 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
 
     NSMutableArray *res = [NSMutableArray array];
     
-    // iOS might return duplicated IDs. Keep track of them to remove them
-    NSMutableSet *dups = [[NSMutableSet alloc] init];
 
     // need to filter/search devices based on iOS version
     // these warnings can be easily seen on XCode
     if (@available(iOS 10.0, *)) {
         NSArray *captureDeviceType;
         
+                       
         if (@available(iOS 13.0, *)) {
-            captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera,
-            AVCaptureDeviceTypeBuiltInDualCamera,
-            AVCaptureDeviceTypeBuiltInTripleCamera,
-            AVCaptureDeviceTypeBuiltInTelephotoCamera,
-            AVCaptureDeviceTypeBuiltInTrueDepthCamera,
-            AVCaptureDeviceTypeBuiltInDualWideCamera,
-            AVCaptureDeviceTypeBuiltInUltraWideCamera];
-        }
-        else if (@available(iOS 11.1, *)) {
-            captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeBuiltInDualCamera,
-                AVCaptureDeviceTypeBuiltInTelephotoCamera, AVCaptureDeviceTypeBuiltInTrueDepthCamera];
-        }
-        else if (@available(iOS 10.2, *)){
-            captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeBuiltInDualCamera, AVCaptureDeviceTypeBuiltInTelephotoCamera];
+            captureDeviceType = @[
+                AVCaptureDeviceTypeBuiltInWideAngleCamera,
+                AVCaptureDeviceTypeBuiltInTelephotoCamera
+                #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+                    ,AVCaptureDeviceTypeBuiltInUltraWideCamera
+                #endif
+            ];
         }
         else{
-            captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeBuiltInTelephotoCamera];
+            captureDeviceType = @[
+                AVCaptureDeviceTypeBuiltInWideAngleCamera,
+                AVCaptureDeviceTypeBuiltInTelephotoCamera
+            ];
         }
         
 
@@ -532,60 +527,55 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
 
         for(AVCaptureDevice *camera in [captureDevice devices]){
             
-            // exclude virtual devices
-            if (@available(iOS 13.0, *)) {
-                if([camera isVirtualDevice]){
-                    continue;
+            // exclude virtual devices. We currently cannot use
+            // any virtual device feature like auto switching or
+            // depth of field detetion anyways.
+            #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+                if (@available(iOS 13.0, *)) {
+                    if([camera isVirtualDevice]){
+                        continue;
+                    }
                 }
+            #endif
+                        
+                            
+            if([camera position] == AVCaptureDevicePositionFront) {
+                [res addObject: @{
+                    @"id": [camera uniqueID],
+                    @"type": @(RNCameraTypeFront),
+                    @"deviceType": [camera deviceType]
+                }];
+            }
+            else if([camera position] == AVCaptureDevicePositionBack){
+                [res addObject: @{
+                    @"id": [camera uniqueID],
+                    @"type": @(RNCameraTypeBack),
+                    @"deviceType": [camera deviceType]
+                }];
             }
             
-            NSString *deviceId = [camera uniqueID];
-            
-            if(![dups containsObject:deviceId]) {
-                
-                [dups addObject:deviceId];
-            
-                if([camera position] == AVCaptureDevicePositionFront) {
-                    [res addObject: @{
-                        @"id": deviceId,
-                        @"type": @(RNCameraTypeFront),
-                        @"deviceType": [camera deviceType]
-                    }];
-                }
-                else if([camera position] == AVCaptureDevicePositionBack){
-                    [res addObject: @{
-                        @"id": deviceId,
-                        @"type": @(RNCameraTypeBack),
-                        @"deviceType": [camera deviceType]
-                    }];
-                }
-            }
         }
 
     } else {
         NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
         for(AVCaptureDevice *camera in devices) {
-            NSString *deviceId = [camera uniqueID];
-                                 
-            if(![dups containsObject:deviceId]) {
-               
-               [dups addObject:deviceId];
+                                
                 
-                if([camera position] == AVCaptureDevicePositionFront) {
-                    [res addObject: @{
-                        @"id": deviceId,
-                        @"type": @(RNCameraTypeFront),
-                        @"deviceType": @""
-                    }];
-                }
-                else if([camera position] == AVCaptureDevicePositionBack){
-                    [res addObject: @{
-                        @"id": deviceId,
-                        @"type": @(RNCameraTypeBack),
-                        @"deviceType": @""
-                    }];
-                }
+            if([camera position] == AVCaptureDevicePositionFront) {
+                [res addObject: @{
+                    @"id": [camera uniqueID],
+                    @"type": @(RNCameraTypeFront),
+                    @"deviceType": @""
+                }];
             }
+            else if([camera position] == AVCaptureDevicePositionBack){
+                [res addObject: @{
+                    @"id": [camera uniqueID],
+                    @"type": @(RNCameraTypeBack),
+                    @"deviceType": @""
+                }];
+            }
+            
         }
     }
 
