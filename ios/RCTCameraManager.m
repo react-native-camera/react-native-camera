@@ -874,7 +874,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         standardDeviation += tempSTD;
     }
 
-    return (float) standardDeviation / imageSize / pixelSpacing;
+    return (float) standardDeviation / (imageSize / pixelSpacing);
 }
 
 - (NSData *) nsDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer
