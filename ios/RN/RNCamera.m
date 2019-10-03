@@ -588,12 +588,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     float appliedExposure = (self.exposureIsoMax - self.exposureIsoMin) * self.exposure + self.exposureIsoMin;
 
     // Make sure we're in AVCaptureExposureModeCustom, else the ISO + duration time won't apply.
-    if(device.exposureMode != AVCaptureExposureModeCustom){
-        [device setExposureMode:AVCaptureExposureModeCustom];
-    }
+    // Also make sure the device can set exposure
+    if([device isExposureModeSupported:AVCaptureExposureModeCustom]){
+        if(device.exposureMode != AVCaptureExposureModeCustom){
+            [device setExposureMode:AVCaptureExposureModeCustom];
+        }
 
-    // Only set the ISO for now, duration will be default as a change might affect frame rate.
-    [device setExposureModeCustomWithDuration:AVCaptureExposureDurationCurrent ISO:appliedExposure completionHandler:nil];
+        // Only set the ISO for now, duration will be default as a change might affect frame rate.
+        [device setExposureModeCustomWithDuration:AVCaptureExposureDurationCurrent ISO:appliedExposure completionHandler:nil];
+    }
+    else{
+        RCTLog(@"Device does not support AVCaptureExposureModeCustom");
+    }
     [device unlockForConfiguration];
 }
 
