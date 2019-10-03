@@ -494,6 +494,9 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
 #endif
 
     NSMutableArray *res = [NSMutableArray array];
+    
+    // iOS might return duplicated IDs. Keep track of them to remove them
+    NSMutableSet *dups = [[NSMutableSet alloc] init];
 
     // need to filter/search devices based on iOS version
     // these warnings can be easily seen on XCode
@@ -510,7 +513,8 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
             AVCaptureDeviceTypeBuiltInUltraWideCamera];
         }
         else if (@available(iOS 11.1, *)) {
-            captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeBuiltInDualCamera, AVCaptureDeviceTypeBuiltInTelephotoCamera, AVCaptureDeviceTypeBuiltInTrueDepthCamera];
+            captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeBuiltInDualCamera,
+                AVCaptureDeviceTypeBuiltInTelephotoCamera, AVCaptureDeviceTypeBuiltInTrueDepthCamera];
         }
         else if (@available(iOS 10.2, *)){
             captureDeviceType = @[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeBuiltInDualCamera, AVCaptureDeviceTypeBuiltInTelephotoCamera];
@@ -527,34 +531,53 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
          position:AVCaptureDevicePositionUnspecified];
 
         for(AVCaptureDevice *camera in [captureDevice devices]){
-            if([camera position] == AVCaptureDevicePositionFront) {
-                [res addObject: @{
-                                  @"id": [camera uniqueID],
-                                  @"type": @(RNCameraTypeFront)
-                                  }];
-            }
-            else if([camera position] == AVCaptureDevicePositionBack){
-                [res addObject: @{
-                                  @"id": [camera uniqueID],
-                                  @"type": @(RNCameraTypeBack)
-                                  }];
+            
+            NSString *deviceId = [camera uniqueID];
+            
+            if(![dups containsObject:deviceId]) {
+                
+                [dups addObject:deviceId];
+            
+                if([camera position] == AVCaptureDevicePositionFront) {
+                    [res addObject: @{
+                        @"id": deviceId,
+                        @"type": @(RNCameraTypeFront),
+                        @"deviceType": [camera deviceType]
+                    }];
+                }
+                else if([camera position] == AVCaptureDevicePositionBack){
+                    [res addObject: @{
+                        @"id": deviceId,
+                        @"type": @(RNCameraTypeBack),
+                        @"deviceType": [camera deviceType]
+                    }];
+                }
             }
         }
 
     } else {
         NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
         for(AVCaptureDevice *camera in devices) {
-            if([camera position] == AVCaptureDevicePositionFront) {
-                [res addObject: @{
-                                  @"id": [camera uniqueID],
-                                  @"type": @(RNCameraTypeFront)
-                              }];
-            }
-            else if([camera position] == AVCaptureDevicePositionBack){
-                [res addObject: @{
-                                  @"id": [camera uniqueID],
-                                  @"type": @(RNCameraTypeBack)
-                                  }];
+            NSString *deviceId = [camera uniqueID];
+                       
+            if(![dups containsObject:deviceId]) {
+               
+               [dups addObject:deviceId];
+                
+                if([camera position] == AVCaptureDevicePositionFront) {
+                    [res addObject: @{
+                        @"id": deviceId,
+                        @"type": @(RNCameraTypeFront),
+                        @"deviceType": @""
+                    }];
+                }
+                else if([camera position] == AVCaptureDevicePositionBack){
+                    [res addObject: @{
+                        @"id": deviceId,
+                        @"type": @(RNCameraTypeBack),
+                        @"deviceType": @""
+                    }];
+                }
             }
         }
     }

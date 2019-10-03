@@ -533,9 +533,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         AVCaptureWhiteBalanceGains rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
         __weak __typeof__(device) weakDevice = device;
         if ([device lockForConfiguration:&error]) {
-            [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:^(CMTime syncTime) {
-                [weakDevice unlockForConfiguration];
-            }];
+            @try{
+                [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:^(CMTime syncTime) {
+                    [weakDevice unlockForConfiguration];
+                }];
+            }
+            @catch(NSException *exception){
+                RCTLogError(@"Failed to set white balance: %@", exception);
+            }
         } else {
             if (error) {
                 RCTLogError(@"%s: %@", __func__, error);

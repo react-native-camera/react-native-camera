@@ -650,6 +650,8 @@ The promise will be fulfilled with an array containing objects with some of the 
 
 - `type`: One of `RNCamera.Constants.Type.front` | `RNCamera.Constants.Type.back`
 
+- `deviceType`: iOS 10+ only. Returns the internal device string type used by the OS. Useful to identify camera types (e.g., wide)
+
 ### `iOS` `isRecording(): Promise<boolean>`
 
 iOS only. Returns a promise. The promise will be fulfilled with a boolean indicating if currently recording is started or stopped.
