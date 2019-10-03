@@ -645,7 +645,7 @@ RCT_EXPORT_METHOD(resetLowLightProcess:(RCTPromiseResolveBlock)resolve reject:(R
     [self.previewLayer removeFromSuperlayer];
     [self.session commitConfiguration];
     [self.session stopRunning];
-    
+
     for(AVCaptureInput *input in self.session.inputs) {
       [self.session removeInput:input];
     }
@@ -857,7 +857,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         float average = 0.0;
         int deviationTotal = 0;
         int subTotal = 0;
-        
+
         for (int j = 0; j < numberOfFrames; j++) {
             UInt8 *pixels = (UInt8 *)[[frames objectAtIndex:j] bytes];
             subTotal += pixels[i];
@@ -874,7 +874,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         standardDeviation += tempSTD;
     }
 
-    return (float) standardDeviation / (imageSize / pixelSpacing);
+    int numberOfPixelProcessed = imageSize / pixelSpacing;
+
+    return (float) standardDeviation / numberOfPixelProcessed;
 }
 
 - (NSData *) nsDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer
