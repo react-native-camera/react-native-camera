@@ -848,7 +848,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     dispatch_async(self.sessionQueue, ^{
-        [self updateFlashMode];
+        
         NSString *path = nil;
         if (options[@"path"]) {
             path = options[@"path"];
@@ -1077,6 +1077,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [self.session beginConfiguration];
                 self.session.sessionPreset = preset;
                 [self.session commitConfiguration];
+                
+                // Need to update these since it gets reset on record start
+                [self updateFlashMode];
+                [self updateZoom];
             }
             else{
                 RCTLog(@"The selected preset [%@] does not work with the current session.", preset);

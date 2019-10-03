@@ -532,6 +532,13 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
 
         for(AVCaptureDevice *camera in [captureDevice devices]){
             
+            // exclude virtual devices
+            if (@available(iOS 13.0, *)) {
+                if([camera isVirtualDevice]){
+                    continue;
+                }
+            }
+            
             NSString *deviceId = [camera uniqueID];
             
             if(![dups containsObject:deviceId]) {
@@ -559,7 +566,7 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
         NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
         for(AVCaptureDevice *camera in devices) {
             NSString *deviceId = [camera uniqueID];
-                       
+                                 
             if(![dups containsObject:deviceId]) {
                
                [dups addObject:deviceId];
