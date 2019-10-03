@@ -645,6 +645,7 @@ RCT_EXPORT_METHOD(resetLowLightProcess:(RCTPromiseResolveBlock)resolve reject:(R
     [self.previewLayer removeFromSuperlayer];
     [self.session commitConfiguration];
     [self.session stopRunning];
+    
     for(AVCaptureInput *input in self.session.inputs) {
       [self.session removeInput:input];
     }
@@ -844,51 +845,36 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     return (int) roundf(luminance / n);
 }
 
-- (float)computeImageMovement:(int)pixelSpacing {
+- (float)computeImageMovement:(int)pixelSpacing
+{
+    NSArray *frames = [NSMutableArray arrayWithArray:self.listOfPixelBuffer];
+    int numberOfFrames = frames.count;
 
-    long sizeOfAnBuffer = [[self.listOfPixelBuffer objectAtIndex:0] length];
-
-    float average = 0.0;
-    int deviationTotal = 0;
+    long imageSize = [[frames objectAtIndex:0] length];
     float standardDeviation = 0.0;
-    int subTotal = 0;
-    UInt8 *pixels;
 
-    //NSMutableArray *arrPercentile = [NSMutableArray arrayWithCapacity:sizeOfAnBuffer / 1000];
-
-    for (int i = 0; i < sizeOfAnBuffer ; i+=(pixelSpacing)) {
-
-        for (int j = 0; j < self.listOfPixelBuffer.count; j++) {
-            pixels = (UInt8 *)[[self.listOfPixelBuffer objectAtIndex:j] bytes];
-
+    for (int i = 0; i < imageSize ; i+=pixelSpacing) {
+        float average = 0.0;
+        int deviationTotal = 0;
+        int subTotal = 0;
+        
+        for (int j = 0; j < numberOfFrames; j++) {
+            UInt8 *pixels = (UInt8 *)[[frames objectAtIndex:j] bytes];
             subTotal += pixels[i];
         }
 
-        average = (float) subTotal / self.listOfPixelBuffer.count;
+        average = (float) subTotal / numberOfFrames;
 
-        for (int j = 0; j < self.listOfPixelBuffer.count; j++) {
-            pixels = (UInt8 *)[[self.listOfPixelBuffer objectAtIndex:j] bytes];
-
+        for (int j = 0; j < numberOfFrames; j++) {
+            UInt8 *pixels = (UInt8 *)[[frames objectAtIndex:j] bytes];
             deviationTotal += (double) pow((double) pixels[i] - average, 2);
         }
-        float tempSTD = (float) sqrt((double) deviationTotal / (self.listOfPixelBuffer.count - 1));
+
+        float tempSTD = (float) sqrt((double) deviationTotal / (numberOfFrames - 1));
         standardDeviation += tempSTD;
-
-//        if (i%1000 == 0) {
-//            [arrPercentile addObject:@(tempSTD)];
-//        }
-
-        deviationTotal = 0;
-        average = 0.0;
-        subTotal = 0;
     }
 
-//    NSArray *sorted = [arrPercentile sortedArrayUsingSelector:@selector(compare:)];
-
-//    self.threshold_movement = [sorted[200] floatValue] * 1.5;
-
-    return (float) standardDeviation / (sizeOfAnBuffer / pixelSpacing);
-
+    return (float) standardDeviation / imageSize / pixelSpacing;
 }
 
 - (NSData *) nsDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer
