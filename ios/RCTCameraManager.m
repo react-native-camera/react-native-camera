@@ -852,6 +852,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
     long imageSize = [[frames objectAtIndex:0] length];
     float standardDeviation = 0.0;
+    UInt8 *pixels;
 
     for (int i = 0; i < imageSize ; i+=pixelSpacing) {
         float average = 0.0;
@@ -859,14 +860,14 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         int subTotal = 0;
 
         for (int j = 0; j < numberOfFrames; j++) {
-            UInt8 *pixels = (UInt8 *)[[frames objectAtIndex:j] bytes];
+            pixels = (UInt8 *)[[frames objectAtIndex:j] bytes];
             subTotal += pixels[i];
         }
 
         average = (float) subTotal / numberOfFrames;
 
         for (int j = 0; j < numberOfFrames; j++) {
-            UInt8 *pixels = (UInt8 *)[[frames objectAtIndex:j] bytes];
+            pixels = (UInt8 *)[[frames objectAtIndex:j] bytes];
             deviationTotal += (double) pow((double) pixels[i] - average, 2);
         }
 
