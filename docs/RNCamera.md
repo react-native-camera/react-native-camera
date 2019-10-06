@@ -650,7 +650,9 @@ The promise will be fulfilled with an array containing objects with some of the 
 
 - `type`: One of `RNCamera.Constants.Type.front` | `RNCamera.Constants.Type.back`
 
-- `deviceType`: iOS 10+ only. Returns the internal device string type used by the OS. Useful to identify camera types (e.g., wide)
+- `deviceType`: iOS 10+ only. Returns the internal device string type used by the OS. Useful to identify camera types (e.g., wide). Constants match iOS' string values: `AVCaptureDeviceTypeBuiltInWideAngleCamera`, `AVCaptureDeviceTypeBuiltInTelephotoCamera`, `AVCaptureDeviceTypeBuiltInUltraWideCamera`. More info can be found at <a href="https://developer.apple.com/documentation/avfoundation/avcapturedevicetypebuiltinultrawidecamera" target="_blank">Apple Docs</a>
+
+Note: iOS also allows for virtual cameras (e.g., a camera made of multiple cameras). However, only physical non-virtual cameras are returned by this method since advanced features (such as depth maps or auto switching on camera zoom) are not supported.
 
 ### `iOS` `isRecording(): Promise<boolean>`
 
