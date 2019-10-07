@@ -744,7 +744,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
         NSData *imageData = [self nsDataFromSampleBuffer:sampleBuffer];
 
-        [self.listOfPixelBuffer addObject:imageData];
+        if ([self.listOfPixelBuffer count] == 0 || [imageData length] == [[self.listOfPixelBuffer objectAtIndex:0] length]) {
+            [self.listOfPixelBuffer addObject:imageData];
+        } else {
+            [self.listOfPixelBuffer removeAllObjects];
+            [self.listOfPixelBuffer addObject:imageData];
+        }
+
 
         if (self.listOfPixelBuffer.count >= SAMPLE_SIZE) {
             // Exposure time & ISO
@@ -847,8 +853,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (float)computeImageMovement:(int)pixelSpacing
 {
-    NSArray *frames = [NSMutableArray arrayWithArray:self.listOfPixelBuffer];
-    int numberOfFrames = frames.count;
+    NSArray* frames = [NSKeyedUnarchiver unarchiveObjectWithData:[NSKeyedArchiver archivedDataWithRootObject:self.listOfPixelBuffer]];
+    int numberOfFrames = (int) frames.count;
 
     long imageSize = [[frames objectAtIndex:0] length];
     float standardDeviation = 0.0;
