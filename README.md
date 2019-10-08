@@ -125,7 +125,7 @@ To enable `video recording` feature you have to add the following code to the `A
 
 2) On iOS, you must update Info.plist with a usage description for camera
 
-```
+```xml
 ...
 <key>NSCameraUsageDescription</key>
 <string>Your own description of the purpose</string>
