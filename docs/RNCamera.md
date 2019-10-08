@@ -277,6 +277,14 @@ Value: float from `0` to `1.0`
 
 Specifies the zoom of your camera. The value 0 is no zoom, 1 is maximum zoom. For a medium zoom, for example, you could pass `0.5`.
 
+### `iOS` `maxZoom`
+
+iOS Only.
+
+Value: optional float greater than `1.0` used to enforce a maximum zoom value on the camera. Setting a value to less than `1` (default) will make the camera use its own max zoom property.
+
+Specifies the max zoom value used in zoom calculations. This is specifically useful for iOS where it reports arbitrary high values and using a 0 to 1 value as the zoom factor is not appropriate.
+
 ### `Android` `permissionDialogTitle` - Deprecated
 
 Starting on android M individual permissions must be granted for certain services, the camera is one of them, you can use this to change the title of the dialog prompt requesting permissions.
@@ -316,7 +324,7 @@ The video stabilization mode used for a video recording. The possible values are
 
 You can read more about each stabilization type here: https://developer.apple.com/documentation/avfoundation/avcapturevideostabilizationmode
 
-### `iOS` `defaultVideoQuality`
+### `defaultVideoQuality`
 
 This option specifies the quality of the video to be taken. The possible values are:
 
@@ -623,9 +631,9 @@ Resumes the preview after pausePreview() has been called.
 
 Android only. Returns a promise. The promise will be fulfilled with an object with an array containing strings with all camera aspect ratios supported by the device.
 
-### `Android` `getCameraIdsAsync(): Promise`
+### `getCameraIdsAsync(): Promise`
 
-Android only. Returns a promise. The promise will be fulfilled with an array containing objects with all camera IDs and type supported by the device.
+Returns a promise. The promise will be fulfilled with an array containing objects with all camera IDs and type supported by the device.
 
 The promise will be fulfilled with an array containing objects with some of the following properties:
 

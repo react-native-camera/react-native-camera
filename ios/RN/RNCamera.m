@@ -63,28 +63,20 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 #endif
         self.paused = NO;
         self.rectOfInterest = CGRectMake(0, 0, 1.0, 1.0);
-        [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
-        [self initializeCaptureSessionInput];
-        [self startSession];
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(orientationChanged:)
-                                                     name:UIApplicationDidChangeStatusBarOrientationNotification
-                                                   object:nil];
-
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(bridgeDidBackground:)
-                                                     name:UIApplicationDidEnterBackgroundNotification
-                                                   object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                selector:@selector(bridgeDidForeground:)
-                                                    name:UIApplicationWillEnterForegroundNotification
-                                                object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(audioDidInterrupted:)
-                                                     name:AVAudioSessionInterruptionNotification
-                                                   object:nil];
         self.autoFocus = -1;
         self.exposure = -1;
+        self.presetCamera = AVCaptureDevicePositionUnspecified;
+        self.cameraId = nil;
+
+        [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
+        
+        // we will do other initialization after
+        // the view is loaded.
+        // This is to prevent code if the view is unused as react
+        // might create multiple instances of it.
+        // and we need to also add/remove event listeners.
+        
+
     }
     return self;
 }
@@ -134,7 +126,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)insertReactSubview:(UIView *)view atIndex:(NSInteger)atIndex
 {
-    [self insertSubview:view atIndex:atIndex + 1];
+    [self insertSubview:view atIndex:atIndex + 1]; // is this + 1 really necessary?
     [super insertReactSubview:view atIndex:atIndex];
     return;
 }
@@ -146,22 +138,98 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     return;
 }
 
-- (void)removeFromSuperview
+
+- (void)willMoveToSuperview:(nullable UIView *)newSuperview;
 {
-    [super removeFromSuperview];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
-    [self stopSession];
+    if(newSuperview != nil){
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+         selector:@selector(orientationChanged:)
+             name:UIApplicationDidChangeStatusBarOrientationNotification
+           object:nil];
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                 selector:@selector(bridgeDidBackground:)
+                     name:UIApplicationDidEnterBackgroundNotification
+                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                 selector:@selector(bridgeDidForeground:)
+                     name:UIApplicationWillEnterForegroundNotification
+                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                 selector:@selector(audioDidInterrupted:)
+                     name:AVAudioSessionInterruptionNotification
+                   object:nil];
+        
+        // this is not needed since RN will update our type value
+        // after mount to set the camera's default, and that will already
+        // this method
+        // [self initializeCaptureSessionInput];
+        [self startSession];
+    }
+    else{
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+        
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+        
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+        
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:AVAudioSessionInterruptionNotification object:nil];
+        
+        [self stopSession];
+    }
+    
+    [super willMoveToSuperview:newSuperview];
 }
+
+
+
+// Helper to get a device from the currently set properties (type and camera id)
+// might return nil if device failed to be retrieved or is invalid
+-(AVCaptureDevice*)getDevice
+{
+    AVCaptureDevice *captureDevice;
+    if(self.cameraId != nil){
+        captureDevice = [RNCameraUtils deviceWithCameraId:self.cameraId];
+    }
+    else{
+        captureDevice = [RNCameraUtils deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
+    }
+    return captureDevice;
+
+}
+
+// helper to return the camera's instance default preset
+// this is for pictures only, and video should set another preset
+// before recording.
+// This default preset returns much smoother photos than High.
+-(AVCaptureSessionPreset)getDefaultPreset
+{
+    AVCaptureSessionPreset preset =
+    ([self pictureSize] && [[self pictureSize] integerValue] >= 0) ? [self pictureSize] : AVCaptureSessionPresetPhoto;
+
+    return preset;
+}
+
+// helper to return the camera's default preset for videos
+// considering what is currently set
+-(AVCaptureSessionPreset)getDefaultPresetVideo
+{
+    // Default video quality AVCaptureSessionPresetHigh if non is provided
+    AVCaptureSessionPreset preset =
+    ([self defaultVideoQuality]) ? [RNCameraUtils captureSessionPresetForVideoResolution:[[self defaultVideoQuality] integerValue]] : AVCaptureSessionPresetHigh;
+
+    return preset;
+}
+
 
 -(void)updateType
 {
-    dispatch_async(self.sessionQueue, ^{
-        [self initializeCaptureSessionInput];
-        if (!self.session.isRunning) {
-            [self startSession];
-        }
-    });
+    [self initializeCaptureSessionInput];
+    [self startSession]; // will already check if session is running
 }
+
 
 - (void)updateFlashMode
 {
@@ -223,19 +291,19 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if (![device lockForConfiguration:&error]) {
         if (error) {
             RCTLogError(@"%s: %@", __func__, error);
         }
         return;
     }
-    
+
     if ([self.autoFocusPointOfInterest objectForKey:@"x"] && [self.autoFocusPointOfInterest objectForKey:@"y"]) {
         float xValue = [self.autoFocusPointOfInterest[@"x"] floatValue];
         float yValue = [self.autoFocusPointOfInterest[@"y"] floatValue];
         if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
-            
+
             CGPoint autofocusPoint = CGPointMake(xValue, yValue);
             [device setFocusPointOfInterest:autofocusPoint];
             [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
@@ -244,7 +312,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             RCTLogWarn(@"AutoFocusPointOfInterest not supported");
         }
     }
-    
+
     [device unlockForConfiguration];
 }
 
@@ -309,9 +377,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             RCTLogError(@"%s: %@", __func__, error);
         }
         return;
+    }    
+    
+    float maxZoom;
+    if(self.maxZoom > 1){
+        maxZoom = MIN(self.maxZoom, device.activeFormat.videoMaxZoomFactor);
     }
-
-    device.videoZoomFactor = (device.activeFormat.videoMaxZoomFactor - 1.0) * self.zoom + 1.0;
+    else{
+        maxZoom = device.activeFormat.videoMaxZoomFactor;
+    }
+    
+    device.videoZoomFactor = (maxZoom - 1) * self.zoom + 1;
+    
 
     [device unlockForConfiguration];
 }
@@ -368,14 +445,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if (![device lockForConfiguration:&error]) {
         if (error) {
             RCTLogError(@"%s: %@", __func__, error);
         }
         return;
     }
-    
+
     // Check that either no explicit exposure-val has been set yet
     // or that it has been reset. Check for > 1 is only a guard.
     if(self.exposure < 0 || self.exposure > 1){
@@ -383,21 +460,21 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [device unlockForConfiguration];
         return;
     }
-    
+
     // Lazy init of range.
     if(!self.exposureIsoMin){ self.exposureIsoMin = device.activeFormat.minISO; }
     if(!self.exposureIsoMax){ self.exposureIsoMax = device.activeFormat.maxISO; }
-    
+
     // Get a valid ISO-value in range from min to max. After we mapped the exposure
     // (a val between 0 - 1), the result gets corrected by the offset from 0, which
     // is the min-ISO-value.
     float appliedExposure = (self.exposureIsoMax - self.exposureIsoMin) * self.exposure + self.exposureIsoMin;
-    
+
     // Make sure we're in AVCaptureExposureModeCustom, else the ISO + duration time won't apply.
     if(device.exposureMode != AVCaptureExposureModeCustom){
         [device setExposureMode:AVCaptureExposureModeCustom];
     }
-    
+
     // Only set the ISO for now, duration will be default as a change might affect frame rate.
     [device setExposureModeCustomWithDuration:AVCaptureExposureDurationCurrent ISO:appliedExposure completionHandler:nil];
     [device unlockForConfiguration];
@@ -405,7 +482,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)updatePictureSize
 {
-    [self updateSessionPreset:self.pictureSize];
+    // make sure to call this function so the right default is used if
+    // "None" is used
+    [self updateSessionPreset:[self getDefaultPreset]];
 }
 
 - (void)takePictureWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
@@ -436,15 +515,15 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 if ([options[@"pauseAfterCapture"] boolValue]) {
                     [[self.previewLayer connection] setEnabled:NO];
                 }
-                
+
                 BOOL useFastMode = [options valueForKey:@"fastMode"] != nil && [options[@"fastMode"] boolValue];
                 if (useFastMode) {
                     resolve(nil);
                 }
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
-                
+
                 UIImage *takenImage = [UIImage imageWithData:imageData];
-                
+
                 CGImageRef takenCGImage = takenImage.CGImage;
                 CGSize previewSize;
                 if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
@@ -455,18 +534,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 CGRect cropRect = CGRectMake(0, 0, CGImageGetWidth(takenCGImage), CGImageGetHeight(takenCGImage));
                 CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
                 takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
-                
+
                 if ([options[@"mirrorImage"] boolValue]) {
                     takenImage = [RNImageUtils mirrorImage:takenImage];
                 }
                 if ([options[@"forceUpOrientation"] boolValue]) {
                     takenImage = [RNImageUtils forceUpOrientation:takenImage];
                 }
-                
+
                 if ([options[@"width"] integerValue]) {
                     takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
                 }
-                
+
                 NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
                 float quality = [options[@"quality"] floatValue];
                 NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
@@ -476,11 +555,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 }
                 response[@"width"] = @(takenImage.size.width);
                 response[@"height"] = @(takenImage.size.height);
-                
+
                 if ([options[@"base64"] boolValue]) {
                     response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
                 }
-                
+
                 if ([options[@"exif"] boolValue]) {
                     int imageRotation;
                     switch (takenImage.imageOrientation) {
@@ -503,12 +582,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                     }
                     [RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
                 }
-                
+
                 response[@"pictureOrientation"] = @([self.orientation integerValue]);
                 response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
                 self.orientation = nil;
                 self.deviceOrientation = nil;
-                
+
                 if (useFastMode) {
                     [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
                 } else {
@@ -525,7 +604,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                [NSError errorWithDomain:@"E_IMAGE_CAPTURE_FAILED" code: 500 userInfo:@{NSLocalizedDescriptionKey:exception.reason}]
         );
     }
-    
+
 }
 - (void)recordWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
     [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
@@ -576,8 +655,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.movieFileOutput.maxRecordedFileSize = [options[@"maxFileSize"] integerValue];
     }
 
+    // video preset will be cleanedup/restarted once capture is done
+    // with a camera cleanup call
     if (options[@"quality"]) {
         AVCaptureSessionPreset newQuality = [RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]];
+        if (self.session.sessionPreset != newQuality) {
+            [self updateSessionPreset:newQuality];
+        }
+    }
+    else{
+        AVCaptureSessionPreset newQuality = [self getDefaultPresetVideo];
         if (self.session.sessionPreset != newQuality) {
             [self updateSessionPreset:newQuality];
         }
@@ -620,7 +707,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             }
         }
     }
-    
+
     dispatch_async(self.sessionQueue, ^{
         [self updateFlashMode];
         NSString *path = nil;
@@ -640,7 +727,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
         NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
         [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
-        self.isRecording = YES;
         self.videoRecordedResolve = resolve;
         self.videoRecordedReject = reject;
     });
@@ -672,15 +758,23 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     return;
 #endif
     dispatch_async(self.sessionQueue, ^{
-        if (self.presetCamera == AVCaptureDevicePositionUnspecified) {
+        
+        // if session already running, also return.
+        if(self.session.isRunning){
             return;
         }
-
-        // Default video quality AVCaptureSessionPresetHigh if non is provided
-        AVCaptureSessionPreset preset = ([self defaultVideoQuality]) ? [RNCameraUtils captureSessionPresetForVideoResolution:[[self defaultVideoQuality] integerValue]] : AVCaptureSessionPresetHigh;
-
-        self.session.sessionPreset = preset == AVCaptureSessionPresetHigh ? AVCaptureSessionPresetPhoto: preset;
-
+        
+        // if camera not set (invalid type and no ID) return.
+        if (self.presetCamera == AVCaptureDevicePositionUnspecified && self.cameraId == nil) {
+            return;
+        }
+        
+        // video device was not initialized, also return
+        if(self.videoCaptureDeviceInput == nil){
+            return;
+        }
+        
+        
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
             stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
@@ -745,12 +839,23 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)initializeCaptureSessionInput
 {
-    if (self.videoCaptureDeviceInput.device.position == self.presetCamera) {
+    AVCaptureDevice *captureDevice = [self getDevice];
+
+
+    // if setting a new device is the same we currently have, nothing to do
+    // return.
+    if(self.videoCaptureDeviceInput != nil && captureDevice != nil && [self.videoCaptureDeviceInput.device.uniqueID isEqualToString:captureDevice.uniqueID]){
         return;
     }
+
+    // if the device we are setting is also invalid/nil, return
+    if(captureDevice == nil){
+        return;
+    }
+
     __block UIInterfaceOrientation interfaceOrientation;
 
-    void (^statusBlock)() = ^() {
+    void (^statusBlock)(void) = ^() {
         interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
     };
     if ([NSThread isMainThread]) {
@@ -761,19 +866,37 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
     AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:interfaceOrientation];
     dispatch_async(self.sessionQueue, ^{
-        [self.session beginConfiguration];
 
+        [self.session beginConfiguration];
+        
         NSError *error = nil;
-        AVCaptureDevice *captureDevice = [RNCameraUtils deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
         AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+
+        if(error != nil){
+            NSLog(@"Capture device error %@", error);
+        }
 
         if (error || captureDeviceInput == nil) {
             RCTLog(@"%s: %@", __func__, error);
             [self.session commitConfiguration];
             return;
         }
+        
 
+        // setup our capture preset based on what was set from RN
+        // and our defaults
+        // if the preset is not supported (e.g., when switching cameras)
+        // canAddInput below will fail
+        self.session.sessionPreset = [self getDefaultPreset];
+        
+        
         [self.session removeInput:self.videoCaptureDeviceInput];
+
+        // clear this variable before setting it again.
+        // Otherwise, if setting fails, we end up with a stale value.
+        // and we are no longer able to detect if it changed or not
+        self.videoCaptureDeviceInput = nil;
+
         if ([self.session canAddInput:captureDeviceInput]) {
             [self.session addInput:captureDeviceInput];
 
@@ -786,6 +909,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self updateWhiteBalance];
             [self.previewLayer.connection setVideoOrientation:orientation];
             [self _updateMetadataObjectsToRecognize];
+        }
+        else{
+            RCTLog(@"The selected device does not work with the Preset [%@] or configuration provided", self.session.sessionPreset);
         }
 
         [self.session commitConfiguration];
@@ -806,11 +932,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             preset = AVCaptureSessionPresetHigh;
         }
         dispatch_async(self.sessionQueue, ^{
-            [self.session beginConfiguration];
+            
             if ([self.session canSetSessionPreset:preset]) {
+                [self.session beginConfiguration];
                 self.session.sessionPreset = preset;
+                [self.session commitConfiguration];
             }
-            [self.session commitConfiguration];
+            else{
+                RCTLog(@"The selected preset [%@] does not work with the current session.", preset);
+            }
+            
         });
     }
 #endif
@@ -854,26 +985,28 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)bridgeDidForeground:(NSNotification *)notification
 {
-
+    // do not run in async queue because we might end up with a race condition
+    // leaving the camera stuck after a resume. Queue is also not needed.
     if (![self.session isRunning] && [self isSessionPaused]) {
         self.paused = NO;
-        dispatch_async( self.sessionQueue, ^{
-            [self.session startRunning];
-        });
+        [self.session startRunning];
     }
+    
 }
 
 - (void)bridgeDidBackground:(NSNotification *)notification
 {
-    if (self.isRecording) {
+    
+    if ([self isRecording]) {
         self.isRecordingInterrupted = YES;
     }
+    
     if ([self.session isRunning] && ![self isSessionPaused]) {
         self.paused = YES;
-        dispatch_async( self.sessionQueue, ^{
-            [self.session stopRunning];
-        });
+        [self.session stopRunning];
     }
+    
+    
 }
 
 - (void)audioDidInterrupted:(NSNotification *)notification
@@ -884,11 +1017,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         case AVAudioSessionInterruptionTypeBegan:
             [self bridgeDidBackground: notification];
             break;
-            
+
         case AVAudioSessionInterruptionTypeEnded:
             [self bridgeDidForeground: notification];
             break;
-            
+
         default:
             break;
     }
@@ -1065,7 +1198,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         void (^resolveBlock)(void) = ^() {
             self.videoRecordedResolve(result);
         };
-        
+
         result[@"uri"] = outputFileURL.absoluteString;
         result[@"videoOrientation"] = @([self.orientation integerValue]);
         result[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
@@ -1103,7 +1236,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     self.videoCodecType = nil;
     self.deviceOrientation = nil;
     self.orientation = nil;
-    self.isRecording = NO;
     self.isRecordingInterrupted = NO;
 
     if ([self.textDetector isRealDetector] || [self.faceDetector isRealDetector]) {
@@ -1122,9 +1254,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self setupOrDisableBarcodeDetector];
     }
 
-    AVCaptureSessionPreset preset = [RNCameraUtils captureSessionPresetForVideoResolution:self.defaultVideoQuality.integerValue];
+    // reset preset to current default
+    AVCaptureSessionPreset preset = [self getDefaultPreset];
     if (self.session.sessionPreset != preset) {
-        [self updateSessionPreset: preset == AVCaptureSessionPresetHigh ? AVCaptureSessionPresetPhoto: preset];
+        [self updateSessionPreset: preset];
     }
 }
 
@@ -1183,7 +1316,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)setupOrDisableFaceDetector
 {
     if (self.canDetectFaces && [self.faceDetector isRealDetector]){
-        AVCaptureSessionPreset preset = ([self defaultVideoQuality]) ? [RNCameraUtils captureSessionPresetForVideoResolution:[[self defaultVideoQuality] integerValue]] : AVCaptureSessionPresetHigh;
+        AVCaptureSessionPreset preset = [self getDefaultPresetVideo];
+
         self.session.sessionPreset = preset;
         if (!self.videoDataOutput) {
             self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
@@ -1192,7 +1326,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [self stopFaceDetection];
                 return;
             }
-            
+
             NSDictionary *rgbOutputSettings = [NSDictionary
                 dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
                                 forKey:(id)kCVPixelBufferPixelFormatTypeKey];
@@ -1212,9 +1346,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self.session removeOutput:self.videoDataOutput];
     }
     self.videoDataOutput = nil;
-    AVCaptureSessionPreset preset = [RNCameraUtils captureSessionPresetForVideoResolution:[self defaultVideoQuality]];
+    AVCaptureSessionPreset preset = [self getDefaultPreset];
     if (self.session.sessionPreset != preset) {
-        [self updateSessionPreset: preset == AVCaptureSessionPresetHigh ? AVCaptureSessionPresetPhoto: preset];
+        [self updateSessionPreset: preset];
     }
 }
 
@@ -1229,7 +1363,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks
-{   
+{
     [self.faceDetector setLandmarksMode:requestedLandmarks queue:self.sessionQueue];
 }
 
@@ -1256,7 +1390,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)setupOrDisableBarcodeDetector
 {
     if (self.canDetectBarcodes && [self.barcodeDetector isRealDetector]){
-        AVCaptureSessionPreset preset = ([self defaultVideoQuality]) ? [RNCameraUtils captureSessionPresetForVideoResolution:[[self defaultVideoQuality] integerValue]] : AVCaptureSessionPresetHigh;
+        AVCaptureSessionPreset preset = [self getDefaultPresetVideo];
+
         self.session.sessionPreset = preset;
         if (!self.videoDataOutput) {
             self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
@@ -1265,7 +1400,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [self stopBarcodeDetection];
                 return;
             }
-            
+
             NSDictionary *rgbOutputSettings = [NSDictionary
                                                dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
                                                forKey:(id)kCVPixelBufferPixelFormatTypeKey];
@@ -1285,9 +1420,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self.session removeOutput:self.videoDataOutput];
     }
     self.videoDataOutput = nil;
-    AVCaptureSessionPreset preset = [RNCameraUtils captureSessionPresetForVideoResolution:[self defaultVideoQuality]];
+    AVCaptureSessionPreset preset = [self getDefaultPreset];
     if (self.session.sessionPreset != preset) {
-        [self updateSessionPreset: preset == AVCaptureSessionPresetHigh ? AVCaptureSessionPresetPhoto: preset];
+        [self updateSessionPreset: preset];
     }
 }
 
@@ -1406,7 +1541,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 - (bool)isRecording {
-    return self.movieFileOutput.isRecording;
+    return self.movieFileOutput != nil ? self.movieFileOutput.isRecording : NO;
 }
 
 @end
