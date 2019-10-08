@@ -175,8 +175,8 @@ RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RNCamera)
 RCT_CUSTOM_VIEW_PROPERTY(cameraId, NSString, RNCamera)
 {
     NSString *newId = [RCTConvert NSString:json];
-    
-    // also compare pointers so we check for nulls    
+
+    // also compare pointers so we check for nulls
     if (view.cameraId != newId && ![view.cameraId isEqualToString:newId]) {
         [view setCameraId:newId];
         // using same call as setting the type here since they
@@ -494,14 +494,14 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
 #endif
 
     NSMutableArray *res = [NSMutableArray array];
-    
+
 
     // need to filter/search devices based on iOS version
     // these warnings can be easily seen on XCode
     if (@available(iOS 10.0, *)) {
         NSArray *captureDeviceType;
-        
-                       
+
+
         if (@available(iOS 13.0, *)) {
             captureDeviceType = @[
                 AVCaptureDeviceTypeBuiltInWideAngleCamera,
@@ -517,7 +517,7 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
                 AVCaptureDeviceTypeBuiltInTelephotoCamera
             ];
         }
-        
+
 
         AVCaptureDeviceDiscoverySession *captureDevice =
         [AVCaptureDeviceDiscoverySession
@@ -526,7 +526,7 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
          position:AVCaptureDevicePositionUnspecified];
 
         for(AVCaptureDevice *camera in [captureDevice devices]){
-            
+
             // exclude virtual devices. We currently cannot use
             // any virtual device feature like auto switching or
             // depth of field detetion anyways.
@@ -537,8 +537,8 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
                     }
                 }
             #endif
-                        
-                            
+
+
             if([camera position] == AVCaptureDevicePositionFront) {
                 [res addObject: @{
                     @"id": [camera uniqueID],
@@ -553,14 +553,14 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
                     @"deviceType": [camera deviceType]
                 }];
             }
-            
+
         }
 
     } else {
         NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
         for(AVCaptureDevice *camera in devices) {
-                                
-                
+
+
             if([camera position] == AVCaptureDevicePositionFront) {
                 [res addObject: @{
                     @"id": [camera uniqueID],
@@ -575,7 +575,7 @@ RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
                     @"deviceType": @""
                 }];
             }
-            
+
         }
     }
 

@@ -344,15 +344,15 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)deexposePointOfInterest
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    
-    
+
+
     if(self.isExposedOnPoint){
         self.isExposedOnPoint = NO;
-        
+
         CGPoint exposurePoint = CGPointMake(0.5f, 0.5f);
-        
+
         [device setExposurePointOfInterest: exposurePoint];
-        
+
         [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
     }
 }
@@ -371,12 +371,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     if ([self.autoFocusPointOfInterest objectForKey:@"x"] && [self.autoFocusPointOfInterest objectForKey:@"y"]) {
-        
+
         float xValue = [self.autoFocusPointOfInterest[@"x"] floatValue];
         float yValue = [self.autoFocusPointOfInterest[@"y"] floatValue];
-        
+
         CGPoint autofocusPoint = CGPointMake(xValue, yValue);
-        
+
 
         if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
 
@@ -633,7 +633,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         reject(@"E_IMAGE_CAPTURE_FAILED", @"Camera is not ready.", nil);
         return;
     }
-    
+
     if (!self.deviceOrientation) {
         [self takePictureWithOrientation:options resolve:resolve reject:reject];
         return;
@@ -757,7 +757,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         reject(@"E_VIDEO_CAPTURE_FAILED", @"Camera is not ready.", nil);
         return;
     }
-    
+
     if (!self.deviceOrientation) {
         [self recordWithOrientation:options resolve:resolve reject:reject];
         return;
@@ -848,7 +848,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     dispatch_async(self.sessionQueue, ^{
-        
+
         NSString *path = nil;
         if (options[@"path"]) {
             path = options[@"path"];
@@ -1072,12 +1072,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             preset = AVCaptureSessionPresetHigh;
         }
         dispatch_async(self.sessionQueue, ^{
-
             if ([self.session canSetSessionPreset:preset]) {
                 [self.session beginConfiguration];
                 self.session.sessionPreset = preset;
                 [self.session commitConfiguration];
-                
+
                 // Need to update these since it gets reset on record start
                 [self updateFlashMode];
                 [self updateZoom];
@@ -1085,7 +1084,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             else{
                 RCTLog(@"The selected preset [%@] does not work with the current session.", preset);
             }
-
         });
     }
 #endif
@@ -1135,7 +1133,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.paused = NO;
         [self.session startRunning];
     }
-
 }
 
 - (void)bridgeDidBackground:(NSNotification *)notification
