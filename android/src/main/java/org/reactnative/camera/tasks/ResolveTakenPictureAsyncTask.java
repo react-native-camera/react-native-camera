@@ -66,6 +66,13 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
         if (mOptions.hasKey("skipProcessing") && mOptions.getBoolean("skipProcessing")) {
             try {
+                if (mBitmap == null) {
+                    mBitmap = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
+                }
+                if(mBitmap == null){
+                    throw new IOException("Failed to decode Image bitmap.");
+                }
+
                 // Prepare file output
                 File imageFile = new File(RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg"));
                 imageFile.createNewFile();
@@ -97,13 +104,6 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 }
 
                 // get image size
-                if (mBitmap == null) {
-                    mBitmap = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
-                }
-                if(mBitmap == null){
-                    throw new IOException("Failed to decode Image bitmap.");
-                }
-
                 response.putInt("width", mBitmap.getWidth());
                 response.putInt("height", mBitmap.getHeight());
 
