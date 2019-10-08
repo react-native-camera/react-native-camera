@@ -80,6 +80,10 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
                 ByteArrayOutputStream imageStream = null;
 
+                if (mOptions.hasKey("mirrorImage") && mOptions.getBoolean("mirrorImage")) {
+                    mBitmap = flipHorizontally(mBitmap);
+                }
+
                 // Write base64-encoded image to the response if requested
                 if (mOptions.hasKey("base64") && mOptions.getBoolean("base64")) {
                     imageStream = new ByteArrayOutputStream();
