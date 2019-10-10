@@ -6,7 +6,7 @@
 /*
  * Author notes:
  * I've tried to find a easy tool to convert from Flow to Typescript definition files (.d.ts).
- * So we woudn't have to do it manually... Sadly, I haven't found it.
+ * So we wouldn't have to do it manually... Sadly, I haven't found it.
  *
  * If you are seeing this from the future, please, send us your cutting-edge technology :) (if it exists)
  */
