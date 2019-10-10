@@ -152,6 +152,11 @@ export interface RNCameraProps {
 
   /** Value: float from 0 to 1.0 */
   zoom?: number;
+  /** iOS only. float from 0 to any. Locks the max zoom value to the provided value
+    A value <= 1 will use the camera's max zoom, while a value > 1
+    will use that value as the max available zoom
+  **/
+  maxZoom?: number;
   /** Value: float from 0 to 1.0 */
   focusDepth?: number;
 
