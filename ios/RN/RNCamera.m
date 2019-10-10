@@ -36,6 +36,11 @@
 @end
 
 @implementation RNCamera
+{
+    NSDictionary *_scanItemOptions;
+    RCTPromiseResolveBlock _scanItemResolve;
+    RCTPromiseRejectBlock _scanItemReject;
+}
 
 static NSDictionary *defaultFaceDetectorOptions = nil;
 
@@ -67,6 +72,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.exposure = -1;
         self.presetCamera = AVCaptureDevicePositionUnspecified;
         self.cameraId = nil;
+        _cameraScanMode = @"none";
 
         [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
         
@@ -498,15 +504,44 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self takePicture:tmpOptions resolve:resolve reject:reject];
     }];
 }
+
+- (void)prepareCaptureFromPreview:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
+{
+    if (_videoDataOutput) {
+        AVCaptureConnection *connection = [_videoDataOutput connectionWithMediaType:AVMediaTypeVideo];
+        if ([connection isVideoOrientationSupported]) {
+            UIDeviceOrientation deviceOrientation = [[UIDevice currentDevice] orientation];
+            AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForDeviceOrientation:deviceOrientation];
+            
+            [connection setVideoOrientation:orientation];
+        }
+    }
+    dispatch_async(self.sessionQueue, ^{
+        if (resolve != _scanItemResolve) {
+            if (_scanItemReject) {
+                _scanItemReject(@"-1", @"Already capturing", nil);
+            }
+            _scanItemOptions = options;
+            _scanItemResolve = resolve;
+            _scanItemReject = reject;
+        }
+    });
+}
+
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
     if (!self.deviceOrientation) {
         [self takePictureWithOrientation:options resolve:resolve reject:reject];
         return;
     }
+    
+    if (![_cameraScanMode isEqualToString:@"none"]) {
+        [self prepareCaptureFromPreview:options resolve:resolve reject:reject];
+        return;
+    }
 
     NSInteger orientation = [options[@"orientation"] integerValue];
-
+    
     AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [connection setVideoOrientation:orientation];
     @try {
@@ -534,65 +569,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 CGRect cropRect = CGRectMake(0, 0, CGImageGetWidth(takenCGImage), CGImageGetHeight(takenCGImage));
                 CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
                 takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
-
-                if ([options[@"mirrorImage"] boolValue]) {
-                    takenImage = [RNImageUtils mirrorImage:takenImage];
-                }
-                if ([options[@"forceUpOrientation"] boolValue]) {
-                    takenImage = [RNImageUtils forceUpOrientation:takenImage];
-                }
-
-                if ([options[@"width"] integerValue]) {
-                    takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
-                }
-
-                NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
-                float quality = [options[@"quality"] floatValue];
-                NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
-                NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
-                if (![options[@"doNotSave"] boolValue]) {
-                    response[@"uri"] = [RNImageUtils writeImage:takenImageData toPath:path];
-                }
-                response[@"width"] = @(takenImage.size.width);
-                response[@"height"] = @(takenImage.size.height);
-
-                if ([options[@"base64"] boolValue]) {
-                    response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
-                }
-
-                if ([options[@"exif"] boolValue]) {
-                    int imageRotation;
-                    switch (takenImage.imageOrientation) {
-                        case UIImageOrientationLeft:
-                        case UIImageOrientationRightMirrored:
-                            imageRotation = 90;
-                            break;
-                        case UIImageOrientationRight:
-                        case UIImageOrientationLeftMirrored:
-                            imageRotation = -90;
-                            break;
-                        case UIImageOrientationDown:
-                        case UIImageOrientationDownMirrored:
-                            imageRotation = 180;
-                            break;
-                        case UIImageOrientationUpMirrored:
-                        default:
-                            imageRotation = 0;
-                            break;
-                    }
-                    [RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
-                }
-
-                response[@"pictureOrientation"] = @([self.orientation integerValue]);
-                response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
-                self.orientation = nil;
-                self.deviceOrientation = nil;
-
-                if (useFastMode) {
-                    [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
-                } else {
-                    resolve(response);
-                }
+                
+                [self handlePicture:takenImage
+                       sampleBuffer:imageSampleBuffer
+                            options:options
+                        useFastMode:useFastMode
+                            resolve:resolve];
             } else {
                 reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be captured", error);
             }
@@ -604,8 +586,75 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                [NSError errorWithDomain:@"E_IMAGE_CAPTURE_FAILED" code: 500 userInfo:@{NSLocalizedDescriptionKey:exception.reason}]
         );
     }
-
 }
+
+- (void)handlePicture:(UIImage *)takenImage
+         sampleBuffer:(CMSampleBufferRef)imageSampleBuffer
+              options:(NSDictionary *)options
+          useFastMode:(BOOL)useFastMode
+              resolve:(RCTPromiseResolveBlock)resolve
+
+{
+    if ([options[@"mirrorImage"] boolValue]) {
+        takenImage = [RNImageUtils mirrorImage:takenImage];
+    }
+    if ([options[@"forceUpOrientation"] boolValue]) {
+        takenImage = [RNImageUtils forceUpOrientation:takenImage];
+    }
+
+    if ([options[@"width"] integerValue]) {
+        takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
+    }
+
+    NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
+    float quality = [options[@"quality"] floatValue];
+    NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
+    NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+    if (![options[@"doNotSave"] boolValue]) {
+        response[@"uri"] = [RNImageUtils writeImage:takenImageData toPath:path];
+    }
+    response[@"width"] = @(takenImage.size.width);
+    response[@"height"] = @(takenImage.size.height);
+
+    if ([options[@"base64"] boolValue]) {
+        response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
+    }
+
+    if ([options[@"exif"] boolValue]) {
+        int imageRotation;
+        switch (takenImage.imageOrientation) {
+            case UIImageOrientationLeft:
+            case UIImageOrientationRightMirrored:
+                imageRotation = 90;
+                break;
+            case UIImageOrientationRight:
+            case UIImageOrientationLeftMirrored:
+                imageRotation = -90;
+                break;
+            case UIImageOrientationDown:
+            case UIImageOrientationDownMirrored:
+                imageRotation = 180;
+                break;
+            case UIImageOrientationUpMirrored:
+            default:
+                imageRotation = 0;
+                break;
+        }
+        [RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
+    }
+
+    response[@"pictureOrientation"] = @([self.orientation integerValue]);
+    response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
+    self.orientation = nil;
+    self.deviceOrientation = nil;
+
+    if (useFastMode) {
+        [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
+    } else {
+        resolve(response);
+    }
+}
+
 - (void)recordWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
     [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
         NSMutableDictionary *tmpOptions = [options mutableCopy];
@@ -787,7 +836,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
         // to avoid an exposure rack on some devices that can cause the first few
         // frames of the recorded output to be underexposed.
-        if (![self.faceDetector isRealDetector] && ![self.textDetector isRealDetector] && ![self.barcodeDetector isRealDetector]) {
+        if (![self.faceDetector isRealDetector] && ![self.textDetector isRealDetector] && ![self.barcodeDetector isRealDetector] && [_cameraScanMode isEqualToString:@"none"]) {
             [self setupMovieFileCapture];
         }
         [self setupOrDisableBarcodeScanner];
@@ -1477,14 +1526,81 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     self.videoDataOutput = nil;
 }
 
+# pragma mark - Scan Mode
+
+- (void)setCameraScanMode:(NSString *)cameraScanMode
+{
+    NSString *scanMode;
+    if ([cameraScanMode isEqualToString:@"fast"]) {
+        scanMode = @"fast";
+    } else {
+        scanMode = @"none";
+    }
+    if (![scanMode isEqualToString:_cameraScanMode]) {
+        _cameraScanMode = scanMode;
+        [self checkFrameCapture];
+    }
+}
+
+- (void)checkFrameCapture
+{
+    if (_cameraScanMode && ![_cameraScanMode isEqualToString:@"none"]) {
+        if (!self.videoDataOutput) {
+            self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+            if (![self.session canAddOutput:_videoDataOutput]) {
+                NSLog(@"Failed to setup video data output");
+                self.cameraScanMode = @"none";
+                return;
+            }
+            NSDictionary *rgbOutputSettings = [NSDictionary
+                dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
+                                forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+            [self.videoDataOutput setVideoSettings:rgbOutputSettings];
+            [self.videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
+            [self.videoDataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
+            [self.session addOutput:_videoDataOutput];
+        }
+    }
+}
+
 # pragma mark - mlkit
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
            fromConnection:(AVCaptureConnection *)connection
 {
-    if (![self.textDetector isRealDetector] && ![self.faceDetector isRealDetector] && ![self.barcodeDetector isRealDetector]) {
+    if (![self.textDetector isRealDetector] && ![self.faceDetector isRealDetector] && ![self.barcodeDetector isRealDetector] && [_cameraScanMode isEqualToString:@"none"]) {
         NSLog(@"failing real check");
+        return;
+    }
+    
+    if (_scanItemResolve) {
+        RCTPromiseResolveBlock resolve = _scanItemResolve;
+        RCTPromiseRejectBlock reject = _scanItemReject;
+        NSDictionary *options = _scanItemOptions;
+
+        _scanItemResolve = nil;
+        _scanItemReject = nil;
+        _scanItemOptions = nil;
+
+        CVImageBufferRef buffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+        CIImage *ciImage = [CIImage imageWithCVImageBuffer:buffer];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            CIContext *context = [CIContext new];
+            CGImageRef cgImage = [context createCGImage:ciImage fromRect:ciImage.extent];
+            UIImage *image = [UIImage imageWithCGImage:cgImage];
+            CGImageRelease(cgImage);
+            if (image) {
+                BOOL useFastMode = [options valueForKey:@"fastMode"] != nil && [options[@"fastMode"] boolValue];
+                [self handlePicture:image
+                       sampleBuffer:sampleBuffer
+                            options:options
+                        useFastMode:useFastMode
+                            resolve:resolve];
+            } else {
+                reject(@"-1", @"Could not process camera output", nil);
+            }
+        });
         return;
     }
 

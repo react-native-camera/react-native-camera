@@ -51,6 +51,7 @@
 @property(assign, nonatomic, nullable) NSNumber *defaultVideoQuality;
 @property(assign, nonatomic, nullable) NSNumber *deviceOrientation;
 @property(assign, nonatomic, nullable) NSNumber *orientation;
+@property(copy, nonatomic) NSString * _Nonnull cameraScanMode;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;
