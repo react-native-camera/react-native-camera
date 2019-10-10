@@ -33,6 +33,10 @@
 @property (nonatomic, copy) NSDate *startFace;
 @property (nonatomic, copy) NSDate *startBarcode;
 
+@property (nonatomic, copy) RCTDirectEventBlock onSubjectAreaChanged;
+@property (nonatomic, assign) BOOL isFocusedOnPoint;
+@property (nonatomic, assign) BOOL isExposedOnPoint;
+
 @end
 
 @implementation RNCamera
@@ -67,15 +71,20 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.exposure = -1;
         self.presetCamera = AVCaptureDevicePositionUnspecified;
         self.cameraId = nil;
+        self.isFocusedOnPoint = NO;
+        self.isExposedOnPoint = NO;
 
         [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
-        
+
+
         // we will do other initialization after
         // the view is loaded.
         // This is to prevent code if the view is unused as react
         // might create multiple instances of it.
         // and we need to also add/remove event listeners.
-        
+
+
+
 
     }
     return self;
@@ -116,6 +125,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 }
 
+- (void)onSubjectAreaChanged:(NSDictionary *)event
+{
+    if (_onSubjectAreaChanged) {
+        _onSubjectAreaChanged(event);
+    }
+}
+
 - (void)layoutSubviews
 {
     [super layoutSubviews];
@@ -142,7 +158,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)willMoveToSuperview:(nullable UIView *)newSuperview;
 {
     if(newSuperview != nil){
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self
          selector:@selector(orientationChanged:)
              name:UIApplicationDidChangeStatusBarOrientationNotification
@@ -152,7 +168,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                  selector:@selector(bridgeDidBackground:)
                      name:UIApplicationDidEnterBackgroundNotification
                    object:nil];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self
                  selector:@selector(bridgeDidForeground:)
                      name:UIApplicationWillEnterForegroundNotification
@@ -161,7 +177,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                  selector:@selector(audioDidInterrupted:)
                      name:AVAudioSessionInterruptionNotification
                    object:nil];
-        
+
         // this is not needed since RN will update our type value
         // after mount to set the camera's default, and that will already
         // this method
@@ -170,16 +186,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
     else{
         [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
-        
+
         [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
-        
+
         [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
-        
+
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVAudioSessionInterruptionNotification object:nil];
-        
+
         [self stopSession];
     }
-    
+
     [super willMoveToSuperview:newSuperview];
 }
 
@@ -287,6 +303,61 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [device unlockForConfiguration];
 }
 
+- (void)defocusPointOfInterest
+{
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+
+    if (self.isFocusedOnPoint) {
+
+        self.isFocusedOnPoint = NO;
+
+        device.subjectAreaChangeMonitoringEnabled = NO;
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:device];
+
+        CGPoint prevPoint = [device focusPointOfInterest];
+
+        CGPoint autofocusPoint = CGPointMake(0.5f, 0.5f);
+
+        [device setFocusPointOfInterest: autofocusPoint];
+
+        [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+
+        [self onSubjectAreaChanged:@{
+            @"prevPointOfInterest": @{
+                @"x": @(prevPoint.x),
+                @"y": @(prevPoint.y)
+            }
+        }];
+    }
+
+    if(self.isExposedOnPoint){
+        self.isExposedOnPoint = NO;
+
+        CGPoint exposurePoint = CGPointMake(0.5f, 0.5f);
+
+        [device setExposurePointOfInterest: exposurePoint];
+
+        [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+    }
+}
+
+- (void)deexposePointOfInterest
+{
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+
+
+    if(self.isExposedOnPoint){
+        self.isExposedOnPoint = NO;
+
+        CGPoint exposurePoint = CGPointMake(0.5f, 0.5f);
+
+        [device setExposurePointOfInterest: exposurePoint];
+
+        [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+    }
+}
+
+
 - (void)updateAutoFocusPointOfInterest
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
@@ -300,20 +371,66 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     if ([self.autoFocusPointOfInterest objectForKey:@"x"] && [self.autoFocusPointOfInterest objectForKey:@"y"]) {
+
         float xValue = [self.autoFocusPointOfInterest[@"x"] floatValue];
         float yValue = [self.autoFocusPointOfInterest[@"y"] floatValue];
+
+        CGPoint autofocusPoint = CGPointMake(xValue, yValue);
+
+
         if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
 
-            CGPoint autofocusPoint = CGPointMake(xValue, yValue);
             [device setFocusPointOfInterest:autofocusPoint];
             [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-        }
-        else {
+
+            if (!self.isFocusedOnPoint) {
+                self.isFocusedOnPoint = YES;
+
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(AutofocusDelegate:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:device];
+                device.subjectAreaChangeMonitoringEnabled = YES;
+            }
+        } else {
             RCTLogWarn(@"AutoFocusPointOfInterest not supported");
         }
+
+        if([self.autoFocusPointOfInterest objectForKey:@"autoExposure"]){
+            BOOL autoExposure = [self.autoFocusPointOfInterest[@"autoExposure"] boolValue];
+
+            if(autoExposure){
+                if([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure])
+                {
+                    [device setExposurePointOfInterest:autofocusPoint];
+                    [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+                    self.isExposedOnPoint = YES;
+
+                } else {
+                    RCTLogWarn(@"AutoExposurePointOfInterest not supported");
+                }
+            }
+            else{
+                [self deexposePointOfInterest];
+            }
+        }
+        else{
+            [self deexposePointOfInterest];
+        }
+
+    } else {
+        [self defocusPointOfInterest];
+        [self deexposePointOfInterest];
     }
 
     [device unlockForConfiguration];
+}
+
+-(void) AutofocusDelegate:(NSNotification*) notification {
+    AVCaptureDevice* device = [notification object];
+
+    if ([device lockForConfiguration:NULL] == YES ) {
+        [self defocusPointOfInterest];
+        [self deexposePointOfInterest];
+        [device unlockForConfiguration];
+    }
 }
 
 - (void)updateFocusMode
@@ -377,8 +494,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             RCTLogError(@"%s: %@", __func__, error);
         }
         return;
-    }    
-    
+    }
+
     float maxZoom;
     if(self.maxZoom > 1){
         maxZoom = MIN(self.maxZoom, device.activeFormat.videoMaxZoomFactor);
@@ -386,9 +503,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     else{
         maxZoom = device.activeFormat.videoMaxZoomFactor;
     }
-    
+
     device.videoZoomFactor = (maxZoom - 1) * self.zoom + 1;
-    
+
 
     [device unlockForConfiguration];
 }
@@ -416,9 +533,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         AVCaptureWhiteBalanceGains rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
         __weak __typeof__(device) weakDevice = device;
         if ([device lockForConfiguration:&error]) {
-            [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:^(CMTime syncTime) {
-                [weakDevice unlockForConfiguration];
-            }];
+            @try{
+                [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:^(CMTime syncTime) {
+                    [weakDevice unlockForConfiguration];
+                }];
+            }
+            @catch(NSException *exception){
+                RCTLogError(@"Failed to set white balance: %@", exception);
+            }
         } else {
             if (error) {
                 RCTLogError(@"%s: %@", __func__, error);
@@ -471,12 +593,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     float appliedExposure = (self.exposureIsoMax - self.exposureIsoMin) * self.exposure + self.exposureIsoMin;
 
     // Make sure we're in AVCaptureExposureModeCustom, else the ISO + duration time won't apply.
-    if(device.exposureMode != AVCaptureExposureModeCustom){
-        [device setExposureMode:AVCaptureExposureModeCustom];
-    }
+    // Also make sure the device can set exposure
+    if([device isExposureModeSupported:AVCaptureExposureModeCustom]){
+        if(device.exposureMode != AVCaptureExposureModeCustom){
+            [device setExposureMode:AVCaptureExposureModeCustom];
+        }
 
-    // Only set the ISO for now, duration will be default as a change might affect frame rate.
-    [device setExposureModeCustomWithDuration:AVCaptureExposureDurationCurrent ISO:appliedExposure completionHandler:nil];
+        // Only set the ISO for now, duration will be default as a change might affect frame rate.
+        [device setExposureModeCustomWithDuration:AVCaptureExposureDurationCurrent ISO:appliedExposure completionHandler:nil];
+    }
+    else{
+        RCTLog(@"Device does not support AVCaptureExposureModeCustom");
+    }
     [device unlockForConfiguration];
 }
 
@@ -500,6 +628,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
+    // if video device is not set, reject
+    if(self.videoCaptureDeviceInput == nil){
+        reject(@"E_IMAGE_CAPTURE_FAILED", @"Camera is not ready.", nil);
+        return;
+    }
+
     if (!self.deviceOrientation) {
         [self takePictureWithOrientation:options resolve:resolve reject:reject];
         return;
@@ -619,6 +753,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
+    if(self.videoCaptureDeviceInput == nil){
+        reject(@"E_VIDEO_CAPTURE_FAILED", @"Camera is not ready.", nil);
+        return;
+    }
+
     if (!self.deviceOrientation) {
         [self recordWithOrientation:options resolve:resolve reject:reject];
         return;
@@ -709,7 +848,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     dispatch_async(self.sessionQueue, ^{
-        [self updateFlashMode];
+
         NSString *path = nil;
         if (options[@"path"]) {
             path = options[@"path"];
@@ -758,23 +897,23 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     return;
 #endif
     dispatch_async(self.sessionQueue, ^{
-        
+
         // if session already running, also return.
         if(self.session.isRunning){
             return;
         }
-        
+
         // if camera not set (invalid type and no ID) return.
         if (self.presetCamera == AVCaptureDevicePositionUnspecified && self.cameraId == nil) {
             return;
         }
-        
+
         // video device was not initialized, also return
         if(self.videoCaptureDeviceInput == nil){
             return;
         }
-        
-        
+
+
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
             stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
@@ -868,7 +1007,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     dispatch_async(self.sessionQueue, ^{
 
         [self.session beginConfiguration];
-        
+
         NSError *error = nil;
         AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
 
@@ -881,15 +1020,15 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self.session commitConfiguration];
             return;
         }
-        
+
 
         // setup our capture preset based on what was set from RN
         // and our defaults
         // if the preset is not supported (e.g., when switching cameras)
         // canAddInput below will fail
         self.session.sessionPreset = [self getDefaultPreset];
-        
-        
+
+
         [self.session removeInput:self.videoCaptureDeviceInput];
 
         // clear this variable before setting it again.
@@ -905,6 +1044,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self updateZoom];
             [self updateFocusMode];
             [self updateFocusDepth];
+            [self updateExposure];
             [self updateAutoFocusPointOfInterest];
             [self updateWhiteBalance];
             [self.previewLayer.connection setVideoOrientation:orientation];
@@ -932,16 +1072,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             preset = AVCaptureSessionPresetHigh;
         }
         dispatch_async(self.sessionQueue, ^{
-            
             if ([self.session canSetSessionPreset:preset]) {
                 [self.session beginConfiguration];
                 self.session.sessionPreset = preset;
                 [self.session commitConfiguration];
+
+                // Need to update these since it gets reset on record start
+                [self updateFlashMode];
+                [self updateZoom];
             }
             else{
                 RCTLog(@"The selected preset [%@] does not work with the current session.", preset);
             }
-            
         });
     }
 #endif
@@ -991,22 +1133,21 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.paused = NO;
         [self.session startRunning];
     }
-    
 }
 
 - (void)bridgeDidBackground:(NSNotification *)notification
 {
-    
+
     if ([self isRecording]) {
         self.isRecordingInterrupted = YES;
     }
-    
+
     if ([self.session isRunning] && ![self isSessionPaused]) {
         self.paused = YES;
         [self.session stopRunning];
     }
-    
-    
+
+
 }
 
 - (void)audioDidInterrupted:(NSNotification *)notification
