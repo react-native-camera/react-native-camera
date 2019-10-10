@@ -206,13 +206,22 @@ Use the `autoFocus` property to specify the auto focus setting of your camera. `
 ### `autoFocusPointOfInterest`
 
 Values: Object `{ x: 0.5, y: 0.5 }`.
+Values (iOS): Object `{ x: 0.5, y: 0.5, autoExposure }`.
 
 Setting this property causes the auto focus feature of the camera to attempt to focus on the part of the image at this coordiate.
 
 Coordinates values are measured as floats from `0` to `1.0`. `{ x: 0, y: 0 }` will focus on the top left of the image, `{ x: 1, y: 1 }` will be the bottom right. Values are based on landscape mode with the home button on the right—this applies even if the device is in portrait mode.
 
+On iOS, focusing will not change the exposure automatically unless autoExposure is also set to true.
+
 Hint:
 for portrait orientation, apply 90° clockwise rotation + translation: [Example](https://gist.github.com/Craigtut/6632a9ac7cfff55e74fb561862bc4edb)
+
+
+### iOS `onSubjectAreaChanged`
+iOS only.
+
+if autoFocusPointOfInterest is set, this event will be fired when a substancial change is detected with the following object: `{ nativeEvent: { prevPoint: { x: number; y: number; } } }`
 
 ### `captureAudio`
 
@@ -640,6 +649,10 @@ The promise will be fulfilled with an array containing objects with some of the 
 - `id`: (string) the ID of the camera.
 
 - `type`: One of `RNCamera.Constants.Type.front` | `RNCamera.Constants.Type.back`
+
+- `deviceType`: iOS 10+ only. Returns the internal device string type used by the OS. Useful to identify camera types (e.g., wide). Constants match iOS' string values: `AVCaptureDeviceTypeBuiltInWideAngleCamera`, `AVCaptureDeviceTypeBuiltInTelephotoCamera`, `AVCaptureDeviceTypeBuiltInUltraWideCamera`. More info can be found at <a href="https://developer.apple.com/documentation/avfoundation/avcapturedevicetypebuiltinultrawidecamera" target="_blank">Apple Docs</a>
+
+Note: iOS also allows for virtual cameras (e.g., a camera made of multiple cameras). However, only physical non-virtual cameras are returned by this method since advanced features (such as depth maps or auto switching on camera zoom) are not supported.
 
 ### `iOS` `isRecording(): Promise<boolean>`
 
