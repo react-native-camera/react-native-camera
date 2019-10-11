@@ -7,6 +7,8 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 #import  "RNSensorOrientationChecker.h"
+#import <AudioToolbox/AudioToolbox.h>
+
 @interface RNCamera ()
 
 @property (nonatomic, weak) RCTBridge *bridge;
@@ -673,6 +675,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     
     if (![_cameraScanMode isEqualToString:@"none"]) {
         [self prepareCaptureFromPreview:options resolve:resolve reject:reject];
+        AudioServicesPlaySystemSound(1108);
         return;
     }
 
