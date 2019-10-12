@@ -879,11 +879,29 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         
         // finally, commit our config changes before starting to record
         [self.session commitConfiguration];
+        
+        // after everything is set, start recording with a tiny delay
+        // to ensure the camera already has focus and exposure set.
+        double delayInSeconds = 0.5;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+        
+        dispatch_after(popTime, self.sessionQueue, ^(void){
+            
+            // our session might have stopped in between the timeout
+            // so make sure it is still valid, otherwise, error and cleanup
+            if(self.movieFileOutput != nil && self.videoCaptureDeviceInput != nil && self.session.isRunning){
+                NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
+                [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+                self.videoRecordedResolve = resolve;
+                self.videoRecordedReject = reject;
+            }
+            else{
+                reject(@"E_VIDEO_CAPTURE_FAILED", @"Camera is not ready.", nil);
+                [self cleanupCamera];
+            }
+        });
 
-        NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
-        [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
-        self.videoRecordedResolve = resolve;
-        self.videoRecordedReject = reject;
+        
     });
 }
 
