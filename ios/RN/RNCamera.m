@@ -764,6 +764,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     NSInteger orientation = [options[@"orientation"] integerValue];
+    
+    // some operations will change our config
+    // so we batch config updates, even if inner calls
+    // might also call this, only the outermost commit will take effect
+    // making the camera changes much faster.
+    [self.session beginConfiguration];
+    
 
     if (_movieFileOutput == nil) {
         // At the time of writing AVCaptureMovieFileOutput and AVCaptureVideoDataOutput (> GMVDataOutput)
@@ -782,6 +789,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     if (self.movieFileOutput == nil || self.movieFileOutput.isRecording || _videoRecordedResolve != nil || _videoRecordedReject != nil) {
+        [self.session commitConfiguration];
       return;
     }
 
@@ -807,11 +815,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         if (self.session.sessionPreset != newQuality) {
             [self updateSessionPreset:newQuality];
         }
-    }
-
-    // only update audio session when mute is not set or set to false, because otherwise there will be a flickering
-    if ([options valueForKey:@"mute"] == nil || ([options valueForKey:@"mute"] != nil && ![options[@"mute"] boolValue])) {
-        [self updateSessionAudioIsMuted:NO];
     }
 
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
@@ -846,6 +849,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             }
         }
     }
+    
+    // sound recording connection, we can easily turn it on/off without manipulating inputs, this prevents flickering.
+    AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
+
+    if ([options valueForKey:@"mute"] == nil || ([options valueForKey:@"mute"] != nil && ![options[@"mute"] boolValue])) {
+        audioConnection.enabled = YES;
+    }
+    else{
+        audioConnection.enabled = NO;
+    }
 
     dispatch_async(self.sessionQueue, ^{
 
@@ -863,6 +876,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [connection setVideoMirrored:YES];
             }
         }
+        
+        // finally, commit our config changes before starting to record
+        [self.session commitConfiguration];
 
         NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
         [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
@@ -873,11 +889,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)stopRecording
 {
-    if ([self.movieFileOutput isRecording]) {
-        [self.movieFileOutput stopRecording];
-    } else {
-        RCTLogWarn(@"Video is not recording.");
-    }
+    dispatch_async(self.sessionQueue, ^{
+        if ([self.movieFileOutput isRecording]) {
+            [self.movieFileOutput stopRecording];
+        } else {
+            RCTLogWarn(@"Video is not recording.");
+        }
+    });
 }
 
 - (void)resumePreview
@@ -973,6 +991,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         for (AVCaptureOutput *output in self.session.outputs) {
             [self.session removeOutput:output];
         }
+        
+        // clean these up as well since we've removed
+        // all inputs and outputs from session
+        self.videoCaptureDeviceInput = nil;
+        self.audioCaptureDeviceInput = nil;
+        self.movieFileOutput = nil;
     });
 }
 
@@ -1053,6 +1077,28 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         else{
             RCTLog(@"The selected device does not work with the Preset [%@] or configuration provided", self.session.sessionPreset);
         }
+        
+        
+        // if we have not yet set our audio capture device
+        // set it. Setting it early will prevent flickering when
+        // recording a video
+        if(self.audioCaptureDeviceInput == nil){
+            AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+            AVCaptureDeviceInput *audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
+
+            if (error || audioDeviceInput == nil) {
+                RCTLogWarn(@"%s: %@", __func__, error);
+            }
+            else{
+                if ([self.session canAddInput:audioDeviceInput]) {
+                    [self.session addInput:audioDeviceInput];
+                    self.audioCaptureDeviceInput = audioDeviceInput;
+                }
+                else{
+                    RCTLog(@"Cannot add audio input");
+                }
+            }
+        }
 
         [self.session commitConfiguration];
     });
@@ -1089,41 +1135,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 #endif
 }
 
-- (void)updateSessionAudioIsMuted:(BOOL)isMuted
-{
-    dispatch_async(self.sessionQueue, ^{
-        [self.session beginConfiguration];
-
-        for (AVCaptureDeviceInput* input in [self.session inputs]) {
-            if ([input.device hasMediaType:AVMediaTypeAudio]) {
-                if (isMuted) {
-                    [self.session removeInput:input];
-                }
-                [self.session commitConfiguration];
-                return;
-            }
-        }
-
-        if (!isMuted) {
-            NSError *error = nil;
-
-            AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-            AVCaptureDeviceInput *audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
-
-            if (error || audioDeviceInput == nil) {
-                RCTLogWarn(@"%s: %@", __func__, error);
-                [self.session commitConfiguration];
-                return;
-            }
-
-            if ([self.session canAddInput:audioDeviceInput]) {
-                [self.session addInput:audioDeviceInput];
-            }
-        }
-
-        [self.session commitConfiguration];
-    });
-}
 
 - (void)bridgeDidForeground:(NSNotification *)notification
 {
