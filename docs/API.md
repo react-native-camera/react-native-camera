@@ -2,7 +2,9 @@
 id: api
 title: Work in progress
 ---
+
 ## API props
+
 [**wip**]
 
 ## Methods
@@ -10,11 +12,13 @@ title: Work in progress
 ## takePictureAsync()
 
 Returns a promise with TakePictureResponse.
+
 ### Method type
 
 ```ts
 takePictureAsync(options?: TakePictureOptions): Promise<TakePictureResponse>;
 ```
+
 ```ts
 interface TakePictureOptions {
   quality?: number;
@@ -29,7 +33,7 @@ interface TakePictureOptions {
   /** Android only */
   skipProcessing?: boolean;
   fixOrientation?: boolean;
-  writeExif?: boolean;
+  writeExif?: boolean | { [name: string]: any };
 
   /** iOS only */
   forceUpOrientation?: boolean;
@@ -56,6 +60,7 @@ takePicture = async () => {
   }
 };
 ```
+
 ---
 
 ## recordAsync()
@@ -67,6 +72,7 @@ Returns a promise with RecordResponse.
 ```ts
 recordAsync(options?: RecordOptions): Promise<RecordResponse>;
 ```
+
 ```ts
 interface RecordOptions {
   quality?: keyof VideoQuality;
@@ -76,8 +82,6 @@ interface RecordOptions {
   mute?: boolean;
   mirrorVideo?: boolean;
   path?: string;
-
-  /** Android only */
   videoBitrate?: number;
 
   /** iOS only */
@@ -93,7 +97,6 @@ interface RecordResponse {
   /** iOS only */
   codec: VideoCodec[keyof VideoCodec];
 }
-
 ```
 
 ### Usage example
@@ -118,7 +121,6 @@ takeVideo = async () => {
 ```
 
 ---
-
 
 ## refreshAuthorizationStatus()
 
@@ -162,7 +164,6 @@ stopRecording(): void;
 
 ---
 
-
 ## pausePreview()
 
 Pauses the preview. The preview can be resumed again by using resumePreview().
@@ -182,7 +183,6 @@ pausePreview(): void;
 ```
 
 ---
-
 
 ## resumePreview()
 
@@ -225,7 +225,6 @@ getAvailablePictureSizes(): Promise<string[]>;
 
 ---
 
-
 ## getSupportedRatiosAsync() - Android only
 
 Android only. Returns a promise. The promise will be fulfilled with an object with an array containing strings with all camera aspect ratios supported by the device.
@@ -246,12 +245,12 @@ getSupportedRatiosAsync(): Promise<string[]>;
 
 ---
 
-
 ## isRecording() - iOS only
 
 iOS only. Returns a promise. The promise will be fulfilled with a boolean indicating if currently recording is started or stopped.
 
 ### Method type
+
 ```ts
 isRecording(): Promise<boolean>;
 

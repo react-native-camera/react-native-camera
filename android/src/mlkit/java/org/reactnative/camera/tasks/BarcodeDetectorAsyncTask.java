@@ -57,7 +57,7 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
     mBarcodeDetector = barcodeDetector;
     mImageDimensions = new ImageDimensions(width, height, rotation, facing);
     mScaleX = (double) (viewWidth) / (mImageDimensions.getWidth() * density);
-    mScaleY = (double) (viewHeight) / (mImageDimensions.getHeight() * density);
+    mScaleY = 1 / density;
     mPaddingLeft = viewPaddingLeft;
     mPaddingTop = viewPaddingTop;
   }
@@ -130,6 +130,7 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
       String rawValue = barcode.getRawValue();
 
       int valueType = barcode.getValueType();
+      int valueFormat = barcode.getFormat();
 
       WritableMap serializedBarcode = Arguments.createMap();
 
@@ -278,6 +279,7 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
       serializedBarcode.putString("data", barcode.getDisplayValue());
       serializedBarcode.putString("dataRaw", rawValue);
       serializedBarcode.putString("type", BarcodeFormatUtils.get(valueType));
+      serializedBarcode.putString("format", BarcodeFormatUtils.getFormat(valueFormat));
       serializedBarcode.putMap("bounds", processBounds(bounds));
       barcodesList.pushMap(serializedBarcode);
     }
@@ -334,11 +336,7 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
       x = x - mPaddingLeft / 2;
     }
 
-    if (frame.top < mHeight / 2) {
-      y = y + mPaddingTop / 2;
-    } else if (frame.top > mHeight / 2) {
-      y = y - mPaddingTop / 2;
-    }
+    y = y + mPaddingTop;
 
     origin.putDouble("x", x * mScaleX);
     origin.putDouble("y", y * mScaleY);

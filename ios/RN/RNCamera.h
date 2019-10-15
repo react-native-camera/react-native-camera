@@ -33,6 +33,9 @@
 @property(copy, nonatomic) NSDictionary *autoFocusPointOfInterest;
 @property(assign, nonatomic) float focusDepth;
 @property(assign, nonatomic) NSInteger whiteBalance;
+@property(assign, nonatomic) float exposure;
+@property(assign, nonatomic) float exposureIsoMin;
+@property(assign, nonatomic) float exposureIsoMax;
 @property(assign, nonatomic) AVCaptureSessionPreset pictureSize;
 @property(nonatomic, assign) BOOL isReadingBarCodes;
 @property(nonatomic, assign) BOOL isRecording;
@@ -42,6 +45,7 @@
 @property(nonatomic, assign) BOOL canDetectFaces;
 @property(nonatomic, assign) BOOL canDetectBarcodes;
 @property(nonatomic, assign) BOOL canDetectDocument;
+@property(nonatomic, assign) CGRect rectOfInterest;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property(assign, nonatomic)
     AVCaptureVideoStabilizationMode videoStabilizationMode;
@@ -57,12 +61,14 @@
 - (void)updateAutoFocusPointOfInterest;
 - (void)updateZoom;
 - (void)updateWhiteBalance;
+- (void)updateExposure;
 - (void)updatePictureSize;
 // Face Detection props
 - (void)updateTrackingEnabled:(id)requestedTracking;
 - (void)updateFaceDetectionMode:(id)requestedMode;
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks;
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications;
+- (void)updateRectOfInterest;
 // google Barcode props
 - (void)updateGoogleVisionBarcodeType:(id)requestedTypes;
 

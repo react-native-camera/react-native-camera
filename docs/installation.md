@@ -217,6 +217,7 @@ android {
 
 ```xml
 <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+<uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 ```
@@ -226,7 +227,7 @@ android {
 ```gradle
 allprojects {
     repositories {
-        maven { url "https://jitpack.io" }
+        maven { url "https://www.jitpack.io" }
         maven { url "https://maven.google.com" }
     }
 }
@@ -406,7 +407,7 @@ ext {
 ### Windows
 
 1. `npm install react-native-camera --save`
-2. Link the library as described here: [react-native-windows / LinkingLibrariesWindows.md](https://github.com/Microsoft/react-native-windows/blob/master/docs/LinkingLibrariesWindows.md)
+2. Link the library as described here: [react-native-windows / LinkingLibrariesWindows.md](https://github.com/microsoft/react-native-windows/blob/master/current/docs/LinkingLibrariesWindows.md)
    For the last step of this guide, you have to add the following things to your `MainReactNativeHost.cs`:
 
 - in the import section at the very top: `using RNCamera;`
