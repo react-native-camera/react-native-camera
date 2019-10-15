@@ -296,6 +296,11 @@ RCT_CUSTOM_VIEW_PROPERTY(textRecognizerEnabled, BOOL, RNCamera)
     [view setupOrDisableTextDetector];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RNCamera)
+{
+    [view setCaptureAudio:[RCTConvert BOOL:json]];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(rectOfInterest, CGRect, RNCamera)
 {
     [view setRectOfInterest: [RCTConvert CGRect:json]];

@@ -43,6 +43,9 @@
 
 static NSDictionary *defaultFaceDetectorOptions = nil;
 
+BOOL _recordRequested = NO;
+
+
 - (id)initWithBridge:(RCTBridge *)bridge
 {
     if ((self = [super init])) {
@@ -850,16 +853,39 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
     }
     
+    
+    BOOL recordAudio = [options valueForKey:@"mute"] == nil || ([options valueForKey:@"mute"] != nil && ![options[@"mute"] boolValue]);
+        
+    
     // sound recording connection, we can easily turn it on/off without manipulating inputs, this prevents flickering.
-    AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
-
-    if ([options valueForKey:@"mute"] == nil || ([options valueForKey:@"mute"] != nil && ![options[@"mute"] boolValue])) {
-        audioConnection.enabled = YES;
+    // note that mute will also be set to true
+    // if captureAudio is set to false on the JS side.
+    // Check the property anyways just in case it is manipulated
+    // with setNativeProps
+    if(recordAudio && self.captureAudio){
+                
+        // if we haven't initialized our capture session yet
+        // initialize it. This will cause video to flicker.
+        if(self.audioCaptureDeviceInput == nil){
+            [self initializeAudioCaptureSessionInput];
+        }
+        
+        // finally, make sure we got access to the capture device
+        // and turn the connection on.
+        if(self.audioCaptureDeviceInput != nil){
+            AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
+            audioConnection.enabled = YES;
+        }
+        
     }
-    else{
-        audioConnection.enabled = NO;
+    
+    // if we have a capture input but are muted
+    // disable connection. No flickering here.
+    else if(self.audioCaptureDeviceInput != nil){
+        AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
+         audioConnection.enabled = NO;
     }
-
+        
     dispatch_async(self.sessionQueue, ^{
 
         NSString *path = nil;
@@ -885,20 +911,28 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         double delayInSeconds = 0.5;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
         
+        // we will use this flag to stop recording
+        // if it was requested to stop before it could even start
+        _recordRequested = YES;
+
         dispatch_after(popTime, self.sessionQueue, ^(void){
-            
+                    
             // our session might have stopped in between the timeout
             // so make sure it is still valid, otherwise, error and cleanup
-            if(self.movieFileOutput != nil && self.videoCaptureDeviceInput != nil && self.session.isRunning){
+            if(self.movieFileOutput != nil && self.videoCaptureDeviceInput != nil && self.session.isRunning && _recordRequested){
                 NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
                 [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
                 self.videoRecordedResolve = resolve;
                 self.videoRecordedReject = reject;
+                
             }
             else{
-                reject(@"E_VIDEO_CAPTURE_FAILED", @"Camera is not ready.", nil);
+                reject(@"E_VIDEO_CAPTURE_FAILED", !_recordRequested ? @"Recording request cancelled." : @"Camera is not ready.", nil);
                 [self cleanupCamera];
             }
+            
+            // reset our flag
+            _recordRequested = NO;
         });
 
         
@@ -911,7 +945,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         if ([self.movieFileOutput isRecording]) {
             [self.movieFileOutput stopRecording];
         } else {
-            RCTLogWarn(@"Video is not recording.");
+            if(_recordRequested){
+                _recordRequested = NO;
+            }
+            else{
+                RCTLogWarn(@"Video is not recording.");
+            }
         }
     });
 }
@@ -1018,6 +1057,31 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     });
 }
 
+// Initializes audio capture device
+// Note: Ensure this is called within a a session configuration block
+- (void)initializeAudioCaptureSessionInput
+{
+    NSError *error = nil;
+    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    AVCaptureDeviceInput *audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
+
+    if (error || audioDeviceInput == nil) {
+        RCTLogWarn(@"%s: %@", __func__, error);
+    }
+    else{
+        if ([self.session canAddInput:audioDeviceInput]) {
+            [self.session addInput:audioDeviceInput];
+            self.audioCaptureDeviceInput = audioDeviceInput;
+        }
+        else{
+            RCTLog(@"Cannot add audio input");
+        }
+    }
+
+    
+    
+}
+
 - (void)initializeCaptureSessionInput
 {
     AVCaptureDevice *captureDevice = [self getDevice];
@@ -1097,25 +1161,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
         
         
-        // if we have not yet set our audio capture device
+        // if we have not yet set our audio capture device,
         // set it. Setting it early will prevent flickering when
         // recording a video
-        if(self.audioCaptureDeviceInput == nil){
-            AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-            AVCaptureDeviceInput *audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
-
-            if (error || audioDeviceInput == nil) {
-                RCTLogWarn(@"%s: %@", __func__, error);
-            }
-            else{
-                if ([self.session canAddInput:audioDeviceInput]) {
-                    [self.session addInput:audioDeviceInput];
-                    self.audioCaptureDeviceInput = audioDeviceInput;
-                }
-                else{
-                    RCTLog(@"Cannot add audio input");
-                }
-            }
+        // Only set it if captureAudio is true so we don't prompt
+        // for permission if audio is not needed.
+        // TODO: If we can update checkRecordAudioAuthorizationStatus
+        // to actually do something in production, we can replace
+        // the captureAudio prop by a simple permission check;
+        // for example, checking
+        // [[AVAudioSession sharedInstance] recordPermission] == AVAudioSessionRecordPermissionGranted
+        if(self.audioCaptureDeviceInput == nil && self.captureAudio){
+            [self initializeAudioCaptureSessionInput];
         }
 
         [self.session commitConfiguration];
