@@ -645,6 +645,19 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 setUpMediaRecorder(path, maxDuration, maxFileSize, recordAudio, profile);
                 mMediaRecorder.prepare();
                 mMediaRecorder.start();
+
+                // after our media recorder is set and started, we must update
+                // some camera parameters again because the recorder's exclusive access (after unlock is called)
+                // might interfere with the camera parameters (e.g., flash and zoom)
+                // This should also be safe to call since both recording and
+                // camera parameters are getting set by the same thread and process.
+                // https://stackoverflow.com/a/14855668/1777914
+                try{
+                    mCamera.setParameters(mCameraParameters);
+                } catch (Exception e) {
+                    Log.e("CAMERA_1::", "Record setParameters failed", e);
+                }
+
                 return true;
             } catch (Exception e) {
                 mIsRecording.set(false);
