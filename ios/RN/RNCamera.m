@@ -254,6 +254,10 @@ BOOL _recordRequested = NO;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
+    
+    if(device == nil){
+        return;
+    }
 
     if (self.flashMode == RNCameraFlashModeTorch) {
         if (![device hasTorch])
@@ -309,11 +313,16 @@ BOOL _recordRequested = NO;
 - (void)defocusPointOfInterest
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    
 
     if (self.isFocusedOnPoint) {
 
         self.isFocusedOnPoint = NO;
 
+        if(device == nil){
+            return;
+        }
+        
         device.subjectAreaChangeMonitoringEnabled = NO;
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:device];
 
@@ -335,6 +344,10 @@ BOOL _recordRequested = NO;
 
     if(self.isExposedOnPoint){
         self.isExposedOnPoint = NO;
+        
+        if(device == nil){
+            return;
+        }
 
         CGPoint exposurePoint = CGPointMake(0.5f, 0.5f);
 
@@ -351,6 +364,10 @@ BOOL _recordRequested = NO;
 
     if(self.isExposedOnPoint){
         self.isExposedOnPoint = NO;
+        
+        if(device == nil){
+            return;
+        }
 
         CGPoint exposurePoint = CGPointMake(0.5f, 0.5f);
 
@@ -365,6 +382,10 @@ BOOL _recordRequested = NO;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
+    
+    if(device == nil){
+        return;
+    }
 
     if (![device lockForConfiguration:&error]) {
         if (error) {
@@ -440,6 +461,10 @@ BOOL _recordRequested = NO;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
+    
+    if(device == nil){
+        return;
+    }
 
     if (![device lockForConfiguration:&error]) {
         if (error) {
@@ -491,6 +516,10 @@ BOOL _recordRequested = NO;
 - (void)updateZoom {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
+    
+    if(device == nil){
+        return;
+    }
 
     if (![device lockForConfiguration:&error]) {
         if (error) {
@@ -517,6 +546,10 @@ BOOL _recordRequested = NO;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
+    
+    if(device == nil){
+        return;
+    }
 
     if (![device lockForConfiguration:&error]) {
         if (error) {
@@ -570,6 +603,10 @@ BOOL _recordRequested = NO;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
+    
+    if(device == nil){
+        return;
+    }
 
     if (![device lockForConfiguration:&error]) {
         if (error) {
@@ -615,7 +652,10 @@ BOOL _recordRequested = NO;
 {
     // make sure to call this function so the right default is used if
     // "None" is used
-    [self updateSessionPreset:[self getDefaultPreset]];
+    AVCaptureSessionPreset preset = [self getDefaultPreset];
+    if (self.session.sessionPreset != preset) {
+        [self updateSessionPreset: preset];
+    }
 }
 
 - (void)takePictureWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
@@ -906,6 +946,10 @@ BOOL _recordRequested = NO;
         // finally, commit our config changes before starting to record
         [self.session commitConfiguration];
         
+        // and update flash in case it was turned off automatically
+        // due to session/preset changes
+        [self updateFlashMode];
+        
         // after everything is set, start recording with a tiny delay
         // to ensure the camera already has focus and exposure set.
         double delayInSeconds = 0.5;
@@ -1110,6 +1154,7 @@ BOOL _recordRequested = NO;
     }
 
     AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:interfaceOrientation];
+    
     dispatch_async(self.sessionQueue, ^{
 
         [self.session beginConfiguration];
@@ -1146,13 +1191,19 @@ BOOL _recordRequested = NO;
             [self.session addInput:captureDeviceInput];
 
             self.videoCaptureDeviceInput = captureDeviceInput;
-            [self updateFlashMode];
-            [self updateZoom];
-            [self updateFocusMode];
-            [self updateFocusDepth];
-            [self updateExposure];
-            [self updateAutoFocusPointOfInterest];
-            [self updateWhiteBalance];
+            
+            // Update all these async after our session has commited
+            // since some values might be changed on session commit.
+            dispatch_async(self.sessionQueue, ^{
+                [self updateZoom];
+                [self updateFocusMode];
+                [self updateFocusDepth];
+                [self updateExposure];
+                [self updateAutoFocusPointOfInterest];
+                [self updateWhiteBalance];
+                [self updateFlashMode];
+            });
+            
             [self.previewLayer.connection setVideoOrientation:orientation];
             [self _updateMetadataObjectsToRecognize];
         }
@@ -1198,7 +1249,7 @@ BOOL _recordRequested = NO;
                 self.session.sessionPreset = preset;
                 [self.session commitConfiguration];
 
-                // Need to update these since it gets reset on record start
+                // Need to update these since it gets reset on preset change
                 [self updateFlashMode];
                 [self updateZoom];
             }
@@ -1218,6 +1269,7 @@ BOOL _recordRequested = NO;
     if (![self.session isRunning] && [self isSessionPaused]) {
         self.paused = NO;
         [self.session startRunning];
+        [self updateFlashMode]; // flash is disabled when session is paused
     }
 }
 
@@ -1772,3 +1824,4 @@ BOOL _recordRequested = NO;
 }
 
 @end
+
