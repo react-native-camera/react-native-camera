@@ -32,11 +32,11 @@ jobs:
           command: yarn lint
       - restore_cache:
           keys: 
-            - v1-gradle-wrapper-{{ checksum "examples/basic/android/gradle/wrapper/gradle-wrapper.properties" }}
+            - v1-gradle-{{ checksum "android/gradle/wrapper/gradle-wrapper.properties" }}-{{ checksum "examples/basic/android/gradle/wrapper/gradle-wrapper.properties" }}
             - v1-gradle-wrapper
       - restore_cache:
           keys:
-            - v1-gradle-cache-{{ checksum "examples/basic/android/build.gradle" }}
+            - v1-gradle-cache-{{ checksum "android/build.gradle" }}-{{ checksum "examples/basic/android/build.gradle" }}
             - v1-gradle-cache
       - run:
           name: Run Checks
@@ -58,11 +58,11 @@ jobs:
           key: v1-gradle-cache-{{ checksum "examples/basic/android/build.gradle" }}
           paths:
             - ~/.gradle/caches
-      - deploy:
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              yarn ci:publish
-            fi
+              #- deploy:
+              #command: |
+              #if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              #yarn ci:publish
+              #fi
   deploy-docs:
     working_directory: ~/app
     docker:
@@ -81,7 +81,7 @@ workflows:
   build-and-deploy-docs:
     jobs:
       - build-app
-      - deploy-docs:
-          filters:
-            branches:
-              only: master
+        #- deploy-docs:
+        #filters:
+        #branches:
+        #only: master
