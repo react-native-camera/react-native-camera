@@ -4,7 +4,7 @@ jobs:
   build-app:
     resource_class: medium
     environment:
-      - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+      - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx3072m -XX:+HeapDumpOnOutOfMemoryError"'
       - REACT_NATIVE_MAX_WORKERS: 2
       - ANDROID_BUILD_TOOLS_VERSION: '28.0.3'
     working_directory: ~/app
@@ -43,9 +43,6 @@ jobs:
           keys:
             - v1-gradle-cache-{{ checksum "examples/basic/android/build.gradle" }}
             - v1-gradle-cache
-      - run:
-          name: Run yarn
-          command: cd examples/basic/android && yarn
       - run:
           name: Build Sample App
           command: |
