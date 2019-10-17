@@ -44,6 +44,9 @@ jobs:
             - v1-gradle-cache-{{ checksum "examples/basic/android/build.gradle" }}
             - v1-gradle-cache
       - run:
+          name: Run Yarn to Generate react.gradle
+          command: cd examples/basic/android && yarn
+      - run:
           name: Build Sample App
           command: |
             cd examples/basic/android && chmod +x ./gradlew && ./gradlew build
