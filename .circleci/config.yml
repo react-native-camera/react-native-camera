@@ -36,9 +36,13 @@ jobs:
             cd android
             chmod +x ./gradlew && ./gradlew check
       - restore_cache:
-          key: v1-gradle-wrapper-{{ checksum "examples/basic/android/gradle/wrapper/gradle-wrapper.properties" }}
+          keys: 
+            - v1-gradle-wrapper-{{ checksum "examples/basic/android/gradle/wrapper/gradle-wrapper.properties" }}
+            - v1-gradle-wrapper
       - restore_cache:
-          key: v1-gradle-cache-{{ checksum "examples/basic/build.gradle" }}
+          keys:
+            - v1-gradle-cache-{{ checksum "examples/basic/android/build.gradle" }}
+            - v1-gradle-cache
       - run:
           name: Build Sample App
           command: |
@@ -46,13 +50,13 @@ jobs:
             yarn
             chmod +x ./gradlew && ./gradlew build
       - save_cache:
+          key: v1-gradle-wrapper-{{ checksum "examples/basic/android/gradle/wrapper/gradle-wrapper.properties" }}
           paths:
             - ~/.gradle/wrapper
-          key: v1-gradle-wrapper-{{ checksum "examples/basic/android/gradle/wrapper/gradle-wrapper.properties" }}
       - save_cache:
+          key: v1-gradle-cache-{{ checksum "examples/basic/android/build.gradle" }}
           paths:
             - ~/.gradle/caches
-          key: v1-gradle-cache-{{ checksum "examples/basic/build.gradle" }}
           #- deploy:
           #command: |
           # if [ "${CIRCLE_BRANCH}" == "master" ]; then
