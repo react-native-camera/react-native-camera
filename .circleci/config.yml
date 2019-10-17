@@ -30,11 +30,6 @@ jobs:
       - run:
           name: Lint
           command: yarn lint
-      - run:
-          name: Run Checks
-          command: |
-            cd android
-            chmod +x ./gradlew && ./gradlew check
       - restore_cache:
           keys: 
             - v1-gradle-wrapper-{{ checksum "examples/basic/android/gradle/wrapper/gradle-wrapper.properties" }}
@@ -43,6 +38,11 @@ jobs:
           keys:
             - v1-gradle-cache-{{ checksum "examples/basic/android/build.gradle" }}
             - v1-gradle-cache
+      - run:
+          name: Run Checks
+          command: |
+            cd android
+            chmod +x ./gradlew && ./gradlew check
       - run:
           name: Run Yarn to Generate react.gradle
           command: cd examples/basic/android && yarn
