@@ -43,6 +43,8 @@ jobs:
           command: |
             cd android
             chmod +x ./gradlew && ./gradlew check
+      - store_artifacts:
+          path: android/build/reports
       - run:
           name: Run Yarn to Generate react.gradle
           command: cd examples/basic/android && yarn
@@ -50,6 +52,9 @@ jobs:
           name: Build Sample App
           command: |
             cd examples/basic/android && chmod +x ./gradlew && ./gradlew build
+      - store_artifacts:
+          path: examples/basic/android/app/build/reports
+          destination: app
       - save_cache:
           key: v1-gradle-wrapper-{{ checksum "examples/basic/android/gradle/wrapper/gradle-wrapper.properties" }}
           paths:
