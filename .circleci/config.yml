@@ -58,11 +58,11 @@ jobs:
           key: v1-gradle-cache-{{ checksum "examples/basic/android/build.gradle" }}
           paths:
             - ~/.gradle/caches
-          #- deploy:
-          #command: |
-          # if [ "${CIRCLE_BRANCH}" == "master" ]; then
-          #   yarn ci:publish
-          #  fi
+      - deploy:
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              yarn ci:publish
+            fi
   deploy-docs:
     working_directory: ~/app
     docker:
@@ -81,7 +81,7 @@ workflows:
   build-and-deploy-docs:
     jobs:
       - build-app
-        #- deploy-docs:
-        # filters:
-        #   branches:
-        #     only: master
+      - deploy-docs:
+          filters:
+            branches:
+              only: master
