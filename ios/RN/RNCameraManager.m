@@ -13,6 +13,8 @@
 
 RCT_EXPORT_MODULE(RNCameraManager);
 RCT_EXPORT_VIEW_PROPERTY(onCameraReady, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onAudioInterrupted, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onAudioConnected, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onMountError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
@@ -298,7 +300,12 @@ RCT_CUSTOM_VIEW_PROPERTY(textRecognizerEnabled, BOOL, RNCamera)
 
 RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RNCamera)
 {
-    [view setCaptureAudio:[RCTConvert BOOL:json]];
+    BOOL newVal = [RCTConvert BOOL:json];
+    if([view captureAudio] != newVal){
+        [view setCaptureAudio:newVal];
+        [view updateCaptureAudio];
+    }
+    
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(rectOfInterest, CGRect, RNCamera)
