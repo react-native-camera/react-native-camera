@@ -206,7 +206,7 @@ export interface RNCameraProps {
     buttonPositive?: string;
     buttonNegative?: string;
     buttonNeutral?: string;
-  };
+  } | null;
 
   androidRecordAudioPermissionOptions?: {
     title: string;
@@ -214,7 +214,7 @@ export interface RNCameraProps {
     buttonPositive?: string;
     buttonNegative?: string;
     buttonNeutral?: string;
-  };
+  } | null;
 
   // -- IOS ONLY PROPS
   defaultVideoQuality?: keyof VideoQuality;
