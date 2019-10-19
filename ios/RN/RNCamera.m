@@ -1339,31 +1339,44 @@ BOOL _sessionInterrupted = NO;
 }
 
 
+// We are using this event to detect audio interruption ended
+// events since we won't receive it on our session
+// after disabling audio.
 - (void)audioDidInterrupted:(NSNotification *)notification
 {
     NSDictionary *userInfo = notification.userInfo;
     NSInteger type = [[userInfo valueForKey:AVAudioSessionInterruptionTypeKey] integerValue];
     
+    
+    // if our audio interruption ended
     if(type == AVAudioSessionInterruptionTypeEnded){
         
-        // fire interrupt ended here since we
-        // have no way to tell below which interruption ended
-        // use our queue since audio start might be heavy
-       
-        dispatch_async(self.sessionQueue, ^{
-            // initialize audio if we need it
-            if(self.captureAudio){
-                [self initializeAudioCaptureSessionInput];
-            }
-        });
+        // and the end event contains a hint that we should resume
+        // audio. Then re-connect our audio session if we are
+        // capturing audio.
+        // Sometimes we are hinted to not resume audio; e.g.,
+        // when playing music in background.
+        
+        NSInteger option = [[userInfo valueForKey:AVAudioSessionInterruptionOptionKey] integerValue];
+        
+        if(self.captureAudio && option == AVAudioSessionInterruptionOptionShouldResume){
+            
+            dispatch_async(self.sessionQueue, ^{
+                
+                // initialize audio if we need it
+                // check again captureAudio in case it was changed
+                // in between
+                if(self.captureAudio){
+                    [self initializeAudioCaptureSessionInput];
+                }
+            });
+        }
+        
     }
-    // no need to fire our interrupt event here
-    // we already fired it below in the other handler
-    // AVAudioSessionInterruptionTypeBegan
-    
-    //NSLog(@"audioDidInterrupted %ld", (long)type);
 }
 
+
+// session interrupted events
 - (void)sessionWasInterrupted:(NSNotification *)notification
 {
     // Mark session interruption
@@ -1378,7 +1391,8 @@ BOOL _sessionInterrupted = NO;
     // prevent any video recording start that we might have on the way
     _recordRequested = NO;
     
-    // get event info and fire RN event
+    // get event info and fire RN event if our session was interrupted
+    // due to audio being taken away.
     NSDictionary *userInfo = notification.userInfo;
     NSInteger type = [[userInfo valueForKey:AVCaptureSessionInterruptionReasonKey] integerValue];
     
@@ -1389,12 +1403,10 @@ BOOL _sessionInterrupted = NO;
         [self removeAudioCaptureSessionInput];
     }
     
-    //NSLog(@"sessionWasInterrupted %ld", (long)type);
-    
 }
 
-// we will not use the interruption ended event
-// because it does not tell us if the session is running.
+
+// update flash and our interrupted flag on session resume
 - (void)sessionDidStartRunning:(NSNotification *)notification
 {
     //NSLog(@"sessionDidStartRunning Was interrupted? %d", _sessionInterrupted);
