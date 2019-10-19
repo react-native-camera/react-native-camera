@@ -300,12 +300,8 @@ RCT_CUSTOM_VIEW_PROPERTY(textRecognizerEnabled, BOOL, RNCamera)
 
 RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RNCamera)
 {
-    BOOL newVal = [RCTConvert BOOL:json];
-    if([view captureAudio] != newVal){
-        [view setCaptureAudio:newVal];
-        [view updateCaptureAudio];
-    }
-    
+    [view setCaptureAudio:[RCTConvert BOOL:json]];
+    [view updateCaptureAudio];    
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(rectOfInterest, CGRect, RNCamera)
