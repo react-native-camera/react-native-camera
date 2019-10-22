@@ -637,7 +637,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }];
 }
 
-- (void)prepareCaptureFromPreview:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
+- (BOOL)checkVideoOrientation
 {
     if (_videoDataOutput) {
         AVCaptureConnection *connection = [_videoDataOutput connectionWithMediaType:AVMediaTypeVideo];
@@ -645,9 +645,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             UIDeviceOrientation deviceOrientation = [[UIDevice currentDevice] orientation];
             AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForDeviceOrientation:deviceOrientation];
             
-            [connection setVideoOrientation:orientation];
+            AVCaptureVideoOrientation currentOrientation = [connection videoOrientation];
+            if (orientation != currentOrientation) {
+                [connection setVideoOrientation:orientation];
+                return YES;
+            }
         }
     }
+    return NO;
+}
+
+- (void)prepareCaptureFromPreview:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
+{
     dispatch_async(self.sessionQueue, ^{
         if (resolve != _scanItemResolve) {
             if (_scanItemReject) {
@@ -1701,6 +1710,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             NSDictionary *rgbOutputSettings = [NSDictionary
                 dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
                                 forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+            [self checkVideoOrientation];
             [self.videoDataOutput setVideoSettings:rgbOutputSettings];
             [self.videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
             [self.videoDataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
@@ -1715,6 +1725,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
            fromConnection:(AVCaptureConnection *)connection
 {
+    if ([self checkVideoOrientation]) {
+        return;
+    }
     if (![self.textDetector isRealDetector] && ![self.faceDetector isRealDetector] && ![self.barcodeDetector isRealDetector] && [_cameraScanMode isEqualToString:@"none"]) {
         NSLog(@"failing real check");
         return;
