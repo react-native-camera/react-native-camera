@@ -43,6 +43,15 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         mPictureSavedDelegate = delegate;
     }
 
+    public ResolveTakenPictureAsyncTask(Bitmap bitmap, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate) {
+        mPromise = promise;
+        mOptions = options;
+        mBitmap = bitmap;
+        mCacheDirectory = cacheDirectory;
+        mDeviceOrientation = deviceOrientation;
+        mPictureSavedDelegate = delegate;
+    }
+
     private int getQuality() {
         return (int) (mOptions.getDouble("quality") * 100);
     }
@@ -55,17 +64,8 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         response.putInt("deviceOrientation", mDeviceOrientation);
         response.putInt("pictureOrientation", mOptions.hasKey("orientation") ? mOptions.getInt("orientation") : mDeviceOrientation);
 
-        if (mOptions.hasKey("skipProcessing")) {
+        if (mOptions.hasKey("skipProcessing") && mOptions.getBoolean("skipProcessing")) {
             try {
-                // Prepare file output
-                File imageFile = new File(RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg"));
-                imageFile.createNewFile();
-                FileOutputStream fOut = new FileOutputStream(imageFile);
-
-                // Save byte array (it is already a JPEG)
-                fOut.write(mImageData);
-
-                // get image size
                 if (mBitmap == null) {
                     mBitmap = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
                 }
@@ -73,12 +73,49 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                     throw new IOException("Failed to decode Image bitmap.");
                 }
 
+                // Prepare file output
+                File imageFile = new File(RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg"));
+                imageFile.createNewFile();
+                FileOutputStream fOut = new FileOutputStream(imageFile);
+
+                ByteArrayOutputStream imageStream = null;
+
+                if (mOptions.hasKey("mirrorImage") && mOptions.getBoolean("mirrorImage")) {
+                    mBitmap = flipHorizontally(mBitmap);
+                }
+
+                // Write base64-encoded image to the response if requested
+                if (mOptions.hasKey("base64") && mOptions.getBoolean("base64")) {
+                    imageStream = new ByteArrayOutputStream();
+                    mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), imageStream);
+
+                    response.putString("base64", Base64.encodeToString(imageStream.toByteArray(), Base64.NO_WRAP));
+                }
+
+                boolean saveFile = !mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave");
+                if (saveFile) {
+                    if (mImageData != null) {
+                        // Save byte array (it is already a JPEG)
+                        fOut.write(mImageData);
+                    } else if (mBitmap != null) {
+                        if (imageStream == null) {
+                            // Convert to JPEG and save
+                            mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), fOut);
+                        } else {
+                            fOut.write(imageStream.toByteArray());
+                        }
+                    }
+                }
+
+                // get image size
                 response.putInt("width", mBitmap.getWidth());
                 response.putInt("height", mBitmap.getHeight());
 
-                // Return file system URI
-                String fileUri = Uri.fromFile(imageFile).toString();
-                response.putString("uri", fileUri);
+                if (saveFile) {
+                    // Return file system URI
+                    String fileUri = Uri.fromFile(imageFile).toString();
+                    response.putString("uri", fileUri);
+                }
 
             } catch (Resources.NotFoundException e) {
                 response = null; // do not resolve

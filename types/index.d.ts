@@ -84,6 +84,20 @@ type GoogleVisionBarcodeType = Readonly<{
 }>;
 type GoogleVisionBarcodeMode = Readonly<{ NORMAL: any; ALTERNATE: any; INVERTED: any }>;
 
+// Android only
+type Camera1ScanModes = Readonly<{
+  'none': any;
+  'eco': any;
+  'fast': any;
+  'boost': any;
+}>;
+
+// iOS only
+type CameraScanModes = Readonly<{
+  'none': any;
+  'fast': any;
+}>;
+
 // FaCC (Function as Child Components)
 type Self<T> = { [P in keyof T]: P };
 type CameraStatus = Readonly<Self<{ READY: any; PENDING_AUTHORIZATION: any; NOT_AUTHORIZED: any }>>;
@@ -144,6 +158,8 @@ export interface RNCameraProps {
   exposure?: number;
   whiteBalance?: keyof WhiteBalance;
   captureAudio?: boolean;
+  camera1ScanMode?: keyof Camera1ScanModes;
+  cameraScanMode?: keyof CameraScanModes;
 
   onCameraReady?(): void;
   onStatusChange?(event: {
