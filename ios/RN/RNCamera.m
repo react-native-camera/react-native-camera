@@ -50,6 +50,9 @@
 
 static NSDictionary *defaultFaceDetectorOptions = nil;
 
+BOOL _recordRequested = NO;
+
+
 - (id)initWithBridge:(RCTBridge *)bridge
 {
     if ((self = [super init])) {
@@ -261,6 +264,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
+    
+    if(device == nil){
+        return;
+    }
 
     if (self.flashMode == RNCameraFlashModeTorch) {
         if (![device hasTorch])
@@ -316,11 +323,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)defocusPointOfInterest
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    
 
     if (self.isFocusedOnPoint) {
 
         self.isFocusedOnPoint = NO;
 
+        if(device == nil){
+            return;
+        }
+        
         device.subjectAreaChangeMonitoringEnabled = NO;
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:device];
 
@@ -342,6 +354,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
     if(self.isExposedOnPoint){
         self.isExposedOnPoint = NO;
+        
+        if(device == nil){
+            return;
+        }
 
         CGPoint exposurePoint = CGPointMake(0.5f, 0.5f);
 
@@ -358,6 +374,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
     if(self.isExposedOnPoint){
         self.isExposedOnPoint = NO;
+        
+        if(device == nil){
+            return;
+        }
 
         CGPoint exposurePoint = CGPointMake(0.5f, 0.5f);
 
@@ -372,6 +392,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
+    
+    if(device == nil){
+        return;
+    }
 
     if (![device lockForConfiguration:&error]) {
         if (error) {
@@ -447,6 +471,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
+    
+    if(device == nil){
+        return;
+    }
 
     if (![device lockForConfiguration:&error]) {
         if (error) {
@@ -498,6 +526,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)updateZoom {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
+    
+    if(device == nil){
+        return;
+    }
 
     if (![device lockForConfiguration:&error]) {
         if (error) {
@@ -524,6 +556,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
+    
+    if(device == nil){
+        return;
+    }
 
     if (![device lockForConfiguration:&error]) {
         if (error) {
@@ -577,6 +613,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
+    
+    if(device == nil){
+        return;
+    }
 
     if (![device lockForConfiguration:&error]) {
         if (error) {
@@ -622,7 +662,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     // make sure to call this function so the right default is used if
     // "None" is used
-    [self updateSessionPreset:[self getDefaultPreset]];
+    AVCaptureSessionPreset preset = [self getDefaultPreset];
+    if (self.session.sessionPreset != preset) {
+        [self updateSessionPreset: preset];
+    }
 }
 
 - (void)takePictureWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
@@ -827,6 +870,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     NSInteger orientation = [options[@"orientation"] integerValue];
+    
+    // some operations will change our config
+    // so we batch config updates, even if inner calls
+    // might also call this, only the outermost commit will take effect
+    // making the camera changes much faster.
+    [self.session beginConfiguration];
+    
 
     if (_movieFileOutput == nil) {
         // At the time of writing AVCaptureMovieFileOutput and AVCaptureVideoDataOutput (> GMVDataOutput)
@@ -845,6 +895,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     if (self.movieFileOutput == nil || self.movieFileOutput.isRecording || _videoRecordedResolve != nil || _videoRecordedReject != nil) {
+        [self.session commitConfiguration];
       return;
     }
 
@@ -870,11 +921,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         if (self.session.sessionPreset != newQuality) {
             [self updateSessionPreset:newQuality];
         }
-    }
-
-    // only update audio session when mute is not set or set to false, because otherwise there will be a flickering
-    if ([options valueForKey:@"mute"] == nil || ([options valueForKey:@"mute"] != nil && ![options[@"mute"] boolValue])) {
-        [self updateSessionAudioIsMuted:NO];
     }
 
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
@@ -909,7 +955,40 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             }
         }
     }
-
+    
+    
+    BOOL recordAudio = [options valueForKey:@"mute"] == nil || ([options valueForKey:@"mute"] != nil && ![options[@"mute"] boolValue]);
+        
+    
+    // sound recording connection, we can easily turn it on/off without manipulating inputs, this prevents flickering.
+    // note that mute will also be set to true
+    // if captureAudio is set to false on the JS side.
+    // Check the property anyways just in case it is manipulated
+    // with setNativeProps
+    if(recordAudio && self.captureAudio){
+                
+        // if we haven't initialized our capture session yet
+        // initialize it. This will cause video to flicker.
+        if(self.audioCaptureDeviceInput == nil){
+            [self initializeAudioCaptureSessionInput];
+        }
+        
+        // finally, make sure we got access to the capture device
+        // and turn the connection on.
+        if(self.audioCaptureDeviceInput != nil){
+            AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
+            audioConnection.enabled = YES;
+        }
+        
+    }
+    
+    // if we have a capture input but are muted
+    // disable connection. No flickering here.
+    else if(self.audioCaptureDeviceInput != nil){
+        AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
+         audioConnection.enabled = NO;
+    }
+        
     dispatch_async(self.sessionQueue, ^{
 
         NSString *path = nil;
@@ -926,21 +1005,61 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [connection setVideoMirrored:YES];
             }
         }
+        
+        // finally, commit our config changes before starting to record
+        [self.session commitConfiguration];
+        
+        // and update flash in case it was turned off automatically
+        // due to session/preset changes
+        [self updateFlashMode];
+        
+        // after everything is set, start recording with a tiny delay
+        // to ensure the camera already has focus and exposure set.
+        double delayInSeconds = 0.5;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+        
+        // we will use this flag to stop recording
+        // if it was requested to stop before it could even start
+        _recordRequested = YES;
 
-        NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
-        [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
-        self.videoRecordedResolve = resolve;
-        self.videoRecordedReject = reject;
+        dispatch_after(popTime, self.sessionQueue, ^(void){
+                    
+            // our session might have stopped in between the timeout
+            // so make sure it is still valid, otherwise, error and cleanup
+            if(self.movieFileOutput != nil && self.videoCaptureDeviceInput != nil && self.session.isRunning && _recordRequested){
+                NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
+                [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+                self.videoRecordedResolve = resolve;
+                self.videoRecordedReject = reject;
+                
+            }
+            else{
+                reject(@"E_VIDEO_CAPTURE_FAILED", !_recordRequested ? @"Recording request cancelled." : @"Camera is not ready.", nil);
+                [self cleanupCamera];
+            }
+            
+            // reset our flag
+            _recordRequested = NO;
+        });
+
+        
     });
 }
 
 - (void)stopRecording
 {
-    if ([self.movieFileOutput isRecording]) {
-        [self.movieFileOutput stopRecording];
-    } else {
-        RCTLogWarn(@"Video is not recording.");
-    }
+    dispatch_async(self.sessionQueue, ^{
+        if ([self.movieFileOutput isRecording]) {
+            [self.movieFileOutput stopRecording];
+        } else {
+            if(_recordRequested){
+                _recordRequested = NO;
+            }
+            else{
+                RCTLogWarn(@"Video is not recording.");
+            }
+        }
+    });
 }
 
 - (void)resumePreview
@@ -1036,7 +1155,38 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         for (AVCaptureOutput *output in self.session.outputs) {
             [self.session removeOutput:output];
         }
+        
+        // clean these up as well since we've removed
+        // all inputs and outputs from session
+        self.videoCaptureDeviceInput = nil;
+        self.audioCaptureDeviceInput = nil;
+        self.movieFileOutput = nil;
     });
+}
+
+// Initializes audio capture device
+// Note: Ensure this is called within a a session configuration block
+- (void)initializeAudioCaptureSessionInput
+{
+    NSError *error = nil;
+    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    AVCaptureDeviceInput *audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
+
+    if (error || audioDeviceInput == nil) {
+        RCTLogWarn(@"%s: %@", __func__, error);
+    }
+    else{
+        if ([self.session canAddInput:audioDeviceInput]) {
+            [self.session addInput:audioDeviceInput];
+            self.audioCaptureDeviceInput = audioDeviceInput;
+        }
+        else{
+            RCTLog(@"Cannot add audio input");
+        }
+    }
+
+    
+    
 }
 
 - (void)initializeCaptureSessionInput
@@ -1067,6 +1217,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
 
     AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:interfaceOrientation];
+    
     dispatch_async(self.sessionQueue, ^{
 
         [self.session beginConfiguration];
@@ -1103,18 +1254,39 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self.session addInput:captureDeviceInput];
 
             self.videoCaptureDeviceInput = captureDeviceInput;
-            [self updateFlashMode];
-            [self updateZoom];
-            [self updateFocusMode];
-            [self updateFocusDepth];
-            [self updateExposure];
-            [self updateAutoFocusPointOfInterest];
-            [self updateWhiteBalance];
+            
+            // Update all these async after our session has commited
+            // since some values might be changed on session commit.
+            dispatch_async(self.sessionQueue, ^{
+                [self updateZoom];
+                [self updateFocusMode];
+                [self updateFocusDepth];
+                [self updateExposure];
+                [self updateAutoFocusPointOfInterest];
+                [self updateWhiteBalance];
+                [self updateFlashMode];
+            });
+            
             [self.previewLayer.connection setVideoOrientation:orientation];
             [self _updateMetadataObjectsToRecognize];
         }
         else{
             RCTLog(@"The selected device does not work with the Preset [%@] or configuration provided", self.session.sessionPreset);
+        }
+        
+        
+        // if we have not yet set our audio capture device,
+        // set it. Setting it early will prevent flickering when
+        // recording a video
+        // Only set it if captureAudio is true so we don't prompt
+        // for permission if audio is not needed.
+        // TODO: If we can update checkRecordAudioAuthorizationStatus
+        // to actually do something in production, we can replace
+        // the captureAudio prop by a simple permission check;
+        // for example, checking
+        // [[AVAudioSession sharedInstance] recordPermission] == AVAudioSessionRecordPermissionGranted
+        if(self.audioCaptureDeviceInput == nil && self.captureAudio){
+            [self initializeAudioCaptureSessionInput];
         }
 
         [self.session commitConfiguration];
@@ -1140,7 +1312,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 self.session.sessionPreset = preset;
                 [self.session commitConfiguration];
 
-                // Need to update these since it gets reset on record start
+                // Need to update these since it gets reset on preset change
                 [self updateFlashMode];
                 [self updateZoom];
             }
@@ -1152,41 +1324,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 #endif
 }
 
-- (void)updateSessionAudioIsMuted:(BOOL)isMuted
-{
-    dispatch_async(self.sessionQueue, ^{
-        [self.session beginConfiguration];
-
-        for (AVCaptureDeviceInput* input in [self.session inputs]) {
-            if ([input.device hasMediaType:AVMediaTypeAudio]) {
-                if (isMuted) {
-                    [self.session removeInput:input];
-                }
-                [self.session commitConfiguration];
-                return;
-            }
-        }
-
-        if (!isMuted) {
-            NSError *error = nil;
-
-            AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-            AVCaptureDeviceInput *audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
-
-            if (error || audioDeviceInput == nil) {
-                RCTLogWarn(@"%s: %@", __func__, error);
-                [self.session commitConfiguration];
-                return;
-            }
-
-            if ([self.session canAddInput:audioDeviceInput]) {
-                [self.session addInput:audioDeviceInput];
-            }
-        }
-
-        [self.session commitConfiguration];
-    });
-}
 
 - (void)bridgeDidForeground:(NSNotification *)notification
 {
@@ -1195,6 +1332,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if (![self.session isRunning] && [self isSessionPaused]) {
         self.paused = NO;
         [self.session startRunning];
+        [self updateFlashMode]; // flash is disabled when session is paused
     }
 }
 
@@ -1820,3 +1958,4 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 @end
+

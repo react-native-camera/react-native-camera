@@ -16,6 +16,7 @@
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
 @property(nonatomic, strong) AVCaptureSession *session;
 @property(nonatomic, strong) AVCaptureDeviceInput *videoCaptureDeviceInput;
+@property(nonatomic, strong) AVCaptureDeviceInput *audioCaptureDeviceInput;
 @property(nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
 @property(nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
 @property(nonatomic, strong) AVCaptureMetadataOutput *metadataOutput;
@@ -44,6 +45,7 @@
 @property(nonatomic, assign) BOOL canReadText;
 @property(nonatomic, assign) BOOL canDetectFaces;
 @property(nonatomic, assign) BOOL canDetectBarcodes;
+@property(nonatomic, assign) BOOL captureAudio;
 @property(nonatomic, assign) CGRect rectOfInterest;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property(assign, nonatomic)
