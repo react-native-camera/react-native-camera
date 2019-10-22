@@ -19,6 +19,7 @@ package com.google.android.cameraview;
 import android.media.CamcorderProfile;
 import android.view.View;
 import android.graphics.SurfaceTexture;
+import android.os.Handler;
 
 import com.facebook.react.bridge.ReadableMap;
 
@@ -31,12 +32,19 @@ import java.util.SortedSet;
 abstract class CameraViewImpl {
 
     protected final Callback mCallback;
-
     protected final PreviewImpl mPreview;
 
-    CameraViewImpl(Callback callback, PreviewImpl preview) {
+    // Background handler that the implementation an use to run heavy tasks in background
+    // in a thread/looper provided by the view.
+    // Most calls should not require this since the view will already schedule it
+    // on the bg thread. However, the implementation might need to do some heavy work
+    // by itself.
+    protected final Handler mBgHandler;
+
+    CameraViewImpl(Callback callback, PreviewImpl preview, Handler bgHandler) {
         mCallback = callback;
         mPreview = preview;
+        mBgHandler = bgHandler;
     }
 
     View getView() {
