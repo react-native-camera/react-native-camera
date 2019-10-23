@@ -310,6 +310,37 @@ BOOL _recordRequested = NO;
     [device unlockForConfiguration];
 }
 
+// Function to cleanup focus listeners and variables on device
+// change. This is required since "defocusing" might not be
+// possible on the new device, and our device reference will be
+// different
+- (void)cleanupFocus:(AVCaptureDevice*) previousDevice {
+    
+    self.isFocusedOnPoint = NO;
+    self.isExposedOnPoint = NO;
+    
+    // cleanup listeners if we had any
+    if(previousDevice != nil){
+        
+        // remove event listener
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:previousDevice];
+        
+        // cleanup device flags
+        NSError *error = nil;
+        if (![previousDevice lockForConfiguration:&error]) {
+            if (error) {
+                RCTLogError(@"%s: %@", __func__, error);
+            }
+            return;
+        }
+        
+        previousDevice.subjectAreaChangeMonitoringEnabled = NO;
+        
+        [previousDevice unlockForConfiguration];
+        
+    }
+}
+
 - (void)defocusPointOfInterest
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
@@ -1172,20 +1203,28 @@ BOOL _recordRequested = NO;
             return;
         }
 
+        
+        // Do additional cleanup that might be needed on the
+        // previous device, if any.
+        AVCaptureDevice *previousDevice = self.videoCaptureDeviceInput != nil ? self.videoCaptureDeviceInput.device : nil;
 
-        // setup our capture preset based on what was set from RN
-        // and our defaults
-        // if the preset is not supported (e.g., when switching cameras)
-        // canAddInput below will fail
-        self.session.sessionPreset = [self getDefaultPreset];
-
-
+        [self cleanupFocus:previousDevice];
+        
+        
+        // Remove inputs
         [self.session removeInput:self.videoCaptureDeviceInput];
 
         // clear this variable before setting it again.
         // Otherwise, if setting fails, we end up with a stale value.
         // and we are no longer able to detect if it changed or not
         self.videoCaptureDeviceInput = nil;
+        
+        // setup our capture preset based on what was set from RN
+        // and our defaults
+        // if the preset is not supported (e.g., when switching cameras)
+        // canAddInput below will fail
+        self.session.sessionPreset = [self getDefaultPreset];
+        
 
         if ([self.session canAddInput:captureDeviceInput]) {
             [self.session addInput:captureDeviceInput];
