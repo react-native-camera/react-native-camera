@@ -167,18 +167,18 @@ BOOL _sessionInterrupted = NO;
          selector:@selector(orientationChanged:)
              name:UIApplicationDidChangeStatusBarOrientationNotification
            object:nil];
-                
+
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionWasInterrupted:) name:AVCaptureSessionWasInterruptedNotification object:self.session];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionDidStartRunning:) name:AVCaptureSessionDidStartRunningNotification object:self.session];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionRuntimeError:) name:AVCaptureSessionRuntimeErrorNotification object:self.session];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self
             selector:@selector(audioDidInterrupted:)
             name:AVAudioSessionInterruptionNotification
             object:[AVAudioSession sharedInstance]];
-        
+
 
         // this is not needed since RN will update our type value
         // after mount to set the camera's default, and that will already
@@ -190,11 +190,11 @@ BOOL _sessionInterrupted = NO;
         [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
 
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureSessionWasInterruptedNotification object:self.session];
-        
+
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureSessionDidStartRunningNotification object:self.session];
-        
+
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureSessionRuntimeErrorNotification object:self.session];
-        
+
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
 
         [self stopSession];
@@ -255,7 +255,7 @@ BOOL _sessionInterrupted = NO;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if(device == nil){
         return;
     }
@@ -314,7 +314,7 @@ BOOL _sessionInterrupted = NO;
 - (void)defocusPointOfInterest
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    
+
 
     if (self.isFocusedOnPoint) {
 
@@ -323,7 +323,7 @@ BOOL _sessionInterrupted = NO;
         if(device == nil){
             return;
         }
-        
+
         device.subjectAreaChangeMonitoringEnabled = NO;
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:device];
 
@@ -345,7 +345,7 @@ BOOL _sessionInterrupted = NO;
 
     if(self.isExposedOnPoint){
         self.isExposedOnPoint = NO;
-        
+
         if(device == nil){
             return;
         }
@@ -365,7 +365,7 @@ BOOL _sessionInterrupted = NO;
 
     if(self.isExposedOnPoint){
         self.isExposedOnPoint = NO;
-        
+
         if(device == nil){
             return;
         }
@@ -383,7 +383,7 @@ BOOL _sessionInterrupted = NO;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if(device == nil){
         return;
     }
@@ -462,7 +462,7 @@ BOOL _sessionInterrupted = NO;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if(device == nil){
         return;
     }
@@ -517,7 +517,7 @@ BOOL _sessionInterrupted = NO;
 - (void)updateZoom {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if(device == nil){
         return;
     }
@@ -547,7 +547,7 @@ BOOL _sessionInterrupted = NO;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if(device == nil){
         return;
     }
@@ -604,7 +604,7 @@ BOOL _sessionInterrupted = NO;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if(device == nil){
         return;
     }
@@ -821,13 +821,13 @@ BOOL _sessionInterrupted = NO;
     }
 
     NSInteger orientation = [options[@"orientation"] integerValue];
-    
+
     // some operations will change our config
     // so we batch config updates, even if inner calls
     // might also call this, only the outermost commit will take effect
     // making the camera changes much faster.
     [self.session beginConfiguration];
-    
+
 
     if (_movieFileOutput == nil) {
         // At the time of writing AVCaptureMovieFileOutput and AVCaptureVideoDataOutput (> GMVDataOutput)
@@ -906,39 +906,39 @@ BOOL _sessionInterrupted = NO;
             }
         }
     }
-    
-    
+
+
     BOOL recordAudio = [options valueForKey:@"mute"] == nil || ([options valueForKey:@"mute"] != nil && ![options[@"mute"] boolValue]);
-        
-    
+
+
     // sound recording connection, we can easily turn it on/off without manipulating inputs, this prevents flickering.
     // note that mute will also be set to true
     // if captureAudio is set to false on the JS side.
     // Check the property anyways just in case it is manipulated
     // with setNativeProps
     if(recordAudio && self.captureAudio){
-                
+
         // if we haven't initialized our capture session yet
         // initialize it. This will cause video to flicker.
         [self initializeAudioCaptureSessionInput];
-        
-        
+
+
         // finally, make sure we got access to the capture device
         // and turn the connection on.
         if(self.audioCaptureDeviceInput != nil){
             AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
             audioConnection.enabled = YES;
         }
-        
+
     }
-    
+
     // if we have a capture input but are muted
     // disable connection. No flickering here.
     else if(self.audioCaptureDeviceInput != nil){
         AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
          audioConnection.enabled = NO;
     }
-        
+
     dispatch_async(self.sessionQueue, ^{
 
         NSString *path = nil;
@@ -955,25 +955,25 @@ BOOL _sessionInterrupted = NO;
                 [connection setVideoMirrored:YES];
             }
         }
-        
+
         // finally, commit our config changes before starting to record
         [self.session commitConfiguration];
-        
+
         // and update flash in case it was turned off automatically
         // due to session/preset changes
         [self updateFlashMode];
-        
+
         // after everything is set, start recording with a tiny delay
         // to ensure the camera already has focus and exposure set.
         double delayInSeconds = 0.5;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-        
+
         // we will use this flag to stop recording
         // if it was requested to stop before it could even start
         _recordRequested = YES;
 
         dispatch_after(popTime, self.sessionQueue, ^(void){
-                    
+
             // our session might have stopped in between the timeout
             // so make sure it is still valid, otherwise, error and cleanup
             if(self.movieFileOutput != nil && self.videoCaptureDeviceInput != nil && _recordRequested){
@@ -981,18 +981,18 @@ BOOL _sessionInterrupted = NO;
                 [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
                 self.videoRecordedResolve = resolve;
                 self.videoRecordedReject = reject;
-                
+
             }
             else{
                 reject(@"E_VIDEO_CAPTURE_FAILED", !_recordRequested ? @"Recording request cancelled." : @"Camera is not ready.", nil);
                 [self cleanupCamera];
             }
-            
+
             // reset our flag
             _recordRequested = NO;
         });
 
-        
+
     });
 }
 
@@ -1087,7 +1087,7 @@ BOOL _sessionInterrupted = NO;
         [self.previewLayer removeFromSuperlayer];
         [self.session commitConfiguration];
         [self.session stopRunning];
-        
+
         for (AVCaptureInput *input in self.session.inputs) {
             [self.session removeInput:input];
         }
@@ -1095,11 +1095,11 @@ BOOL _sessionInterrupted = NO;
         for (AVCaptureOutput *output in self.session.outputs) {
             [self.session removeOutput:output];
         }
-        
+
         // cleanup audio input if any, and release
         // audio session so other apps can continue playback.
         [self removeAudioCaptureSessionInput];
-        
+
         // clean these up as well since we've removed
         // all inputs and outputs from session
         self.videoCaptureDeviceInput = nil;
@@ -1115,28 +1115,28 @@ BOOL _sessionInterrupted = NO;
     // only initialize if not initialized already
     if(self.audioCaptureDeviceInput == nil){
         NSError *error = nil;
-                
+
         AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
         AVCaptureDeviceInput *audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
 
         if (error || audioDeviceInput == nil) {
             RCTLogWarn(@"%s: %@", __func__, error);
         }
-        
+
         else{
-            
+
             // test if we can activate the device input.
             // If we fail, means it is already being used
-            BOOL setActive = [[AVAudioSession sharedInstance] setActive:YES error:&error];            
-            
+            BOOL setActive = [[AVAudioSession sharedInstance] setActive:YES error:&error];
+
             if (!setActive) {
                 RCTLogWarn(@"Audio device could not set active: %s: %@", __func__, error);
             }
-            
+
             else if ([self.session canAddInput:audioDeviceInput]) {
                 [self.session addInput:audioDeviceInput];
                 self.audioCaptureDeviceInput = audioDeviceInput;
-                
+
                 // inform that audio has been resumed
                 if(self.onAudioConnected){
                     self.onAudioConnected(nil);
@@ -1146,7 +1146,7 @@ BOOL _sessionInterrupted = NO;
                 RCTLog(@"Cannot add audio input");
             }
         }
-        
+
         // if we failed to get the audio device, fire our interrupted event
         if(self.audioCaptureDeviceInput == nil && self.onAudioInterrupted){
             self.onAudioInterrupted(nil);
@@ -1161,40 +1161,40 @@ BOOL _sessionInterrupted = NO;
 - (void)removeAudioCaptureSessionInput
 {
     if(self.audioCaptureDeviceInput != nil){
-        
+
         BOOL audioRemoved = NO;
-        
+
         if ([self.session.inputs containsObject:self.audioCaptureDeviceInput]) {
-            
+
             if ([self isRecording]) {
                 self.isRecordingInterrupted = YES;
             }
-            
+
             [self.session removeInput:self.audioCaptureDeviceInput];
-            
+
             self.audioCaptureDeviceInput = nil;
-            
+
             // update flash since it gets reset when
             // we change the session inputs
             dispatch_async(self.sessionQueue, ^{
                 [self updateFlashMode];
             });
-            
+
             audioRemoved = YES;
         }
-        
+
         // Deactivate our audio session so other audio can resume
         // playing, if any. E.g., background music.
         NSError *error = nil;
-        
+
         BOOL setInactive = [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&error];
-        
+
         if (!setInactive) {
             RCTLogWarn(@"Audio device could not set inactive: %s: %@", __func__, error);
         }
-        
+
         self.audioCaptureDeviceInput = nil;
-        
+
         // inform that audio was interrupted
         if(audioRemoved && self.onAudioInterrupted){
            self.onAudioInterrupted(nil);
@@ -1231,7 +1231,7 @@ BOOL _sessionInterrupted = NO;
     }
 
     AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:interfaceOrientation];
-    
+
     dispatch_async(self.sessionQueue, ^{
 
         [self.session beginConfiguration];
@@ -1268,7 +1268,7 @@ BOOL _sessionInterrupted = NO;
             [self.session addInput:captureDeviceInput];
 
             self.videoCaptureDeviceInput = captureDeviceInput;
-            
+
             // Update all these async after our session has commited
             // since some values might be changed on session commit.
             dispatch_async(self.sessionQueue, ^{
@@ -1280,15 +1280,15 @@ BOOL _sessionInterrupted = NO;
                 [self updateWhiteBalance];
                 [self updateFlashMode];
             });
-            
+
             [self.previewLayer.connection setVideoOrientation:orientation];
             [self _updateMetadataObjectsToRecognize];
         }
         else{
             RCTLog(@"The selected device does not work with the Preset [%@] or configuration provided", self.session.sessionPreset);
         }
-        
-        
+
+
         // if we have not yet set our audio capture device,
         // set it. Setting it early will prevent flickering when
         // recording a video
@@ -1346,23 +1346,23 @@ BOOL _sessionInterrupted = NO;
 {
     NSDictionary *userInfo = notification.userInfo;
     NSInteger type = [[userInfo valueForKey:AVAudioSessionInterruptionTypeKey] integerValue];
-    
-    
+
+
     // if our audio interruption ended
     if(type == AVAudioSessionInterruptionTypeEnded){
-        
+
         // and the end event contains a hint that we should resume
         // audio. Then re-connect our audio session if we are
         // capturing audio.
         // Sometimes we are hinted to not resume audio; e.g.,
         // when playing music in background.
-        
+
         NSInteger option = [[userInfo valueForKey:AVAudioSessionInterruptionOptionKey] integerValue];
-        
+
         if(self.captureAudio && option == AVAudioSessionInterruptionOptionShouldResume){
-            
+
             dispatch_async(self.sessionQueue, ^{
-                
+
                 // initialize audio if we need it
                 // check again captureAudio in case it was changed
                 // in between
@@ -1371,7 +1371,7 @@ BOOL _sessionInterrupted = NO;
                 }
             });
         }
-        
+
     }
 }
 
@@ -1381,28 +1381,28 @@ BOOL _sessionInterrupted = NO;
 {
     // Mark session interruption
     _sessionInterrupted = YES;
-    
+
     // Turn on video interrupted if our session is interrupted
     // for any reason
     if ([self isRecording]) {
         self.isRecordingInterrupted = YES;
     }
-    
+
     // prevent any video recording start that we might have on the way
     _recordRequested = NO;
-    
+
     // get event info and fire RN event if our session was interrupted
     // due to audio being taken away.
     NSDictionary *userInfo = notification.userInfo;
     NSInteger type = [[userInfo valueForKey:AVCaptureSessionInterruptionReasonKey] integerValue];
-    
+
     if(type == AVCaptureSessionInterruptionReasonAudioDeviceInUseByAnotherClient){
         // if we have audio, stop it so preview resumes
         // it will eventually be re-loaded the next time recording
         // is requested, although it will flicker.
         [self removeAudioCaptureSessionInput];
     }
-    
+
 }
 
 
@@ -1410,14 +1410,14 @@ BOOL _sessionInterrupted = NO;
 - (void)sessionDidStartRunning:(NSNotification *)notification
 {
     //NSLog(@"sessionDidStartRunning Was interrupted? %d", _sessionInterrupted);
-    
+
     if(_sessionInterrupted){
         // resume flash value since it will be resetted / turned off
         dispatch_async(self.sessionQueue, ^{
             [self updateFlashMode];
         });
     }
-            
+
     _sessionInterrupted = NO;
 }
 
@@ -1425,9 +1425,11 @@ BOOL _sessionInterrupted = NO;
 {
     // Manually restarting the session since it must
     // have been stopped due to an error.
-     _sessionInterrupted = NO;
-    [self.session startRunning];
-    [self onReady:nil];
+    dispatch_async(self.sessionQueue, ^{
+         _sessionInterrupted = NO;
+        [self.session startRunning];
+        [self onReady:nil];
+    });
 }
 
 - (void)orientationChanged:(NSNotification *)notification
