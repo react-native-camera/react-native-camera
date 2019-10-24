@@ -717,7 +717,7 @@ BOOL _sessionInterrupted = NO;
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
     // if video device is not set, reject
-    if(self.videoCaptureDeviceInput == nil){
+    if(self.videoCaptureDeviceInput == nil || !self.session.isRunning){
         reject(@"E_IMAGE_CAPTURE_FAILED", @"Camera is not ready.", nil);
         return;
     }
@@ -841,7 +841,7 @@ BOOL _sessionInterrupted = NO;
 }
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
-    if(self.videoCaptureDeviceInput == nil){
+    if(self.videoCaptureDeviceInput == nil || !self.session.isRunning){
         reject(@"E_VIDEO_CAPTURE_FAILED", @"Camera is not ready.", nil);
         return;
     }
