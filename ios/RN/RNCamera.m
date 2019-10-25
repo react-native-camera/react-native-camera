@@ -80,8 +80,6 @@ BOOL _sessionInterrupted = NO;
         _recordRequested = NO;
         _sessionInterrupted = NO;
 
-        [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
-
 
         // we will do other initialization after
         // the view is loaded.
@@ -1219,20 +1217,19 @@ BOOL _sessionInterrupted = NO;
         return;
     }
 
-    __block UIInterfaceOrientation interfaceOrientation;
-
-    void (^statusBlock)(void) = ^() {
-        interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-    };
-    if ([NSThread isMainThread]) {
-        statusBlock();
-    } else {
-        dispatch_sync(dispatch_get_main_queue(), statusBlock);
-    }
-
-    AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:interfaceOrientation];
 
     dispatch_async(self.sessionQueue, ^{
+
+        // get orientation also in our session queue to prevent
+        // race conditions and also blocking the main thread
+        __block UIInterfaceOrientation interfaceOrientation;
+
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+        });
+
+        AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:interfaceOrientation];
+
 
         [self.session beginConfiguration];
 
