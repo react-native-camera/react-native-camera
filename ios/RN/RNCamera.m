@@ -1233,22 +1233,23 @@ BOOL _sessionInterrupted = NO;
 
 - (void)initializeCaptureSessionInput
 {
-    AVCaptureDevice *captureDevice = [self getDevice];
-
-
-    // if setting a new device is the same we currently have, nothing to do
-    // return.
-    if(self.videoCaptureDeviceInput != nil && captureDevice != nil && [self.videoCaptureDeviceInput.device.uniqueID isEqualToString:captureDevice.uniqueID]){
-        return;
-    }
-
-    // if the device we are setting is also invalid/nil, return
-    if(captureDevice == nil){
-        return;
-    }
-
 
     dispatch_async(self.sessionQueue, ^{
+
+        // Do all camera initialization in the session queue
+        // to prevent it from
+        AVCaptureDevice *captureDevice = [self getDevice];
+
+        // if setting a new device is the same we currently have, nothing to do
+        // return.
+        if(self.videoCaptureDeviceInput != nil && captureDevice != nil && [self.videoCaptureDeviceInput.device.uniqueID isEqualToString:captureDevice.uniqueID]){
+            return;
+        }
+
+        // if the device we are setting is also invalid/nil, return
+        if(captureDevice == nil){
+            return;
+        }
 
         // get orientation also in our session queue to prevent
         // race conditions and also blocking the main thread
