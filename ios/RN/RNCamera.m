@@ -1247,6 +1247,7 @@ BOOL _sessionInterrupted = NO;
         return;
     }
 
+
     dispatch_async(self.sessionQueue, ^{
 
         // get orientation also in our session queue to prevent
