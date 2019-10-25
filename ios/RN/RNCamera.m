@@ -80,9 +80,6 @@ BOOL _sessionInterrupted = NO;
         _recordRequested = NO;
         _sessionInterrupted = NO;
 
-        [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
-
-
         // we will do other initialization after
         // the view is loaded.
         // This is to prevent code if the view is unused as react
@@ -316,16 +313,16 @@ BOOL _sessionInterrupted = NO;
 // possible on the new device, and our device reference will be
 // different
 - (void)cleanupFocus:(AVCaptureDevice*) previousDevice {
-    
+
     self.isFocusedOnPoint = NO;
     self.isExposedOnPoint = NO;
-    
+
     // cleanup listeners if we had any
     if(previousDevice != nil){
-        
+
         // remove event listener
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:previousDevice];
-        
+
         // cleanup device flags
         NSError *error = nil;
         if (![previousDevice lockForConfiguration:&error]) {
@@ -334,11 +331,11 @@ BOOL _sessionInterrupted = NO;
             }
             return;
         }
-        
+
         previousDevice.subjectAreaChangeMonitoringEnabled = NO;
-        
+
         [previousDevice unlockForConfiguration];
-        
+
     }
 }
 
@@ -1250,20 +1247,18 @@ BOOL _sessionInterrupted = NO;
         return;
     }
 
-    __block UIInterfaceOrientation interfaceOrientation;
-
-    void (^statusBlock)(void) = ^() {
-        interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-    };
-    if ([NSThread isMainThread]) {
-        statusBlock();
-    } else {
-        dispatch_sync(dispatch_get_main_queue(), statusBlock);
-    }
-
-    AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:interfaceOrientation];
-
     dispatch_async(self.sessionQueue, ^{
+
+        // get orientation also in our session queue to prevent
+        // race conditions and also blocking the main thread
+        __block UIInterfaceOrientation interfaceOrientation;
+
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+        });
+
+        AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:interfaceOrientation];
+
 
         [self.session beginConfiguration];
 
@@ -1280,14 +1275,14 @@ BOOL _sessionInterrupted = NO;
             return;
         }
 
-        
+
         // Do additional cleanup that might be needed on the
         // previous device, if any.
         AVCaptureDevice *previousDevice = self.videoCaptureDeviceInput != nil ? self.videoCaptureDeviceInput.device : nil;
 
         [self cleanupFocus:previousDevice];
-        
-        
+
+
         // Remove inputs
         [self.session removeInput:self.videoCaptureDeviceInput];
 
@@ -1295,13 +1290,13 @@ BOOL _sessionInterrupted = NO;
         // Otherwise, if setting fails, we end up with a stale value.
         // and we are no longer able to detect if it changed or not
         self.videoCaptureDeviceInput = nil;
-        
+
         // setup our capture preset based on what was set from RN
         // and our defaults
         // if the preset is not supported (e.g., when switching cameras)
         // canAddInput below will fail
         self.session.sessionPreset = [self getDefaultPreset];
-        
+
 
         if ([self.session canAddInput:captureDeviceInput]) {
             [self.session addInput:captureDeviceInput];
