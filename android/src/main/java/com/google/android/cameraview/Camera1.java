@@ -665,7 +665,6 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
                     @Override
                     public void onPictureTaken(byte[] data, Camera camera) {
-                        isPictureCaptureInProgress.set(false);
 
                         // this shouldn't be needed and messes up autoFocusPointOfInterest
                         // camera.cancelAutoFocus();
@@ -681,6 +680,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                             mIsPreviewActive = false;
                             camera.setPreviewCallback(null);
                         }
+
+                        isPictureCaptureInProgress.set(false);
 
                         mOrientation = Constants.ORIENTATION_AUTO;
                         mCallback.onPictureTaken(data, displayOrientationToOrientationEnum(mDeviceOrientation));
