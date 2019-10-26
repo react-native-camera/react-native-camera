@@ -265,8 +265,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                     mCamera.setPreviewTexture((SurfaceTexture) mPreview.getSurfaceTexture());
                 }
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            Log.e("CAMERA_1::", "setUpPreview failed", e);
         }
     }
 
