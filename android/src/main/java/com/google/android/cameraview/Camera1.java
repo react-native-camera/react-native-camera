@@ -289,17 +289,26 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     @Override
     public void resumePreview() {
-        mShowingPreview = true;
-        startCameraPreview();
+        mBgHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized(this){
+                    mShowingPreview = true;
+                    startCameraPreview();
+                }
+            }
+        });
     }
 
     @Override
     public void pausePreview() {
-        mIsPreviewActive = false;
-        mShowingPreview = false;
+        synchronized(this){
+            mIsPreviewActive = false;
+            mShowingPreview = false;
 
-        if(mCamera != null){
-            mCamera.stopPreview();
+            if(mCamera != null){
+                mCamera.stopPreview();
+            }
         }
     }
 
@@ -409,15 +418,17 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         } else {
           mPictureSize = size;
         }
-        if (mCameraParameters != null && mCamera != null) {
-            mCameraParameters.setPictureSize(mPictureSize.getWidth(), mPictureSize.getHeight());
-            try{
-                mCamera.setParameters(mCameraParameters);
-            }
-            catch(RuntimeException e ) {
-                Log.e("CAMERA_1::", "setParameters failed", e);
-            }
+        synchronized(this){
+            if (mCameraParameters != null && mCamera != null) {
+                mCameraParameters.setPictureSize(mPictureSize.getWidth(), mPictureSize.getHeight());
+                try{
+                    mCamera.setParameters(mCameraParameters);
+                }
+                catch(RuntimeException e ) {
+                    Log.e("CAMERA_1::", "setParameters failed", e);
+                }
 
+            }
         }
     }
 
@@ -441,8 +452,10 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mBgHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if(mCamera != null){
-                            adjustCameraParameters();
+                        synchronized(Camera1.this){
+                            if(mCamera != null){
+                                adjustCameraParameters();
+                            }
                         }
                     }
                 });
@@ -462,14 +475,16 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         if (mAutoFocus == autoFocus) {
             return;
         }
-        if (setAutoFocusInternal(autoFocus)) {
-            try{
-                if(mCamera != null){
-                    mCamera.setParameters(mCameraParameters);
+        synchronized(this){
+            if (setAutoFocusInternal(autoFocus)) {
+                try{
+                    if(mCamera != null){
+                        mCamera.setParameters(mCameraParameters);
+                    }
                 }
-            }
-            catch(RuntimeException e ) {
-                Log.e("CAMERA_1::", "setParameters failed", e);
+                catch(RuntimeException e ) {
+                    Log.e("CAMERA_1::", "setParameters failed", e);
+                }
             }
         }
     }
@@ -992,89 +1007,96 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     // Most credit: https://github.com/CameraKit/camerakit-android/blob/master/camerakit-core/src/main/api16/com/wonderkiln/camerakit/Camera1.java
-    void setFocusArea(float x, float y) {
-        if (mCamera != null) {
-            Camera.Parameters parameters = mCamera.getParameters();
-            if (parameters == null) return;
+    void setFocusArea(final float x, final float y) {
+        mBgHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized(Camera1.this){
+                    if (mCamera != null) {
+                        Camera.Parameters parameters = mCamera.getParameters();
+                        if (parameters == null) return;
 
-            String focusMode = parameters.getFocusMode();
-            Rect rect = calculateFocusArea(x, y);
+                        String focusMode = parameters.getFocusMode();
+                        Rect rect = calculateFocusArea(x, y);
 
-            List<Camera.Area> meteringAreas = new ArrayList<>();
-            meteringAreas.add(new Camera.Area(rect, FOCUS_METERING_AREA_WEIGHT_DEFAULT));
+                        List<Camera.Area> meteringAreas = new ArrayList<>();
+                        meteringAreas.add(new Camera.Area(rect, FOCUS_METERING_AREA_WEIGHT_DEFAULT));
 
-            if (parameters.getMaxNumFocusAreas() != 0 && focusMode != null &&
-                    (focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO) ||
-                            focusMode.equals(Camera.Parameters.FOCUS_MODE_MACRO) ||
-                            focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) ||
-                            focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
-                    ) {
-                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-                parameters.setFocusAreas(meteringAreas);
-                if (parameters.getMaxNumMeteringAreas() > 0) {
-                    parameters.setMeteringAreas(meteringAreas);
-                }
-                if (!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-                    return; //cannot autoFocus
-                }
-                try{
-                  mCamera.setParameters(parameters);
-                }
-                catch(RuntimeException e ) {
-                  Log.e("CAMERA_1::", "setParameters failed", e);
-                }
+                        if (parameters.getMaxNumFocusAreas() != 0 && focusMode != null &&
+                                (focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO) ||
+                                        focusMode.equals(Camera.Parameters.FOCUS_MODE_MACRO) ||
+                                        focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) ||
+                                        focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
+                                ) {
+                            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                            parameters.setFocusAreas(meteringAreas);
+                            if (parameters.getMaxNumMeteringAreas() > 0) {
+                                parameters.setMeteringAreas(meteringAreas);
+                            }
+                            if (!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                                return; //cannot autoFocus
+                            }
+                            try{
+                                mCamera.setParameters(parameters);
+                            }
+                            catch(RuntimeException e ) {
+                                Log.e("CAMERA_1::", "setParameters failed", e);
+                            }
 
-                try{
-                    mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                        @Override
-                        public void onAutoFocus(boolean success, Camera camera) {
-                            //resetFocus(success, camera);
+                            try{
+                                mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                                    @Override
+                                    public void onAutoFocus(boolean success, Camera camera) {
+                                        //resetFocus(success, camera);
+                                    }
+                                });
+                            }
+                            catch(RuntimeException e ) {
+                                Log.e("CAMERA_1::", "autoFocus failed", e);
+                            }
+                        } else if (parameters.getMaxNumMeteringAreas() > 0) {
+                            if (!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                                return; //cannot autoFocus
+                            }
+                            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                            parameters.setFocusAreas(meteringAreas);
+                            parameters.setMeteringAreas(meteringAreas);
+
+                            try{
+                                mCamera.setParameters(parameters);
+                            }
+                            catch(RuntimeException e ) {
+                                Log.e("CAMERA_1::", "setParameters failed", e);
+                            }
+
+                            try{
+                                mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                                    @Override
+                                    public void onAutoFocus(boolean success, Camera camera) {
+                                        //resetFocus(success, camera);
+                                    }
+                                });
+                            }
+                            catch(RuntimeException e ) {
+                                Log.e("CAMERA_1::", "autoFocus failed", e);
+                            }
+                        } else {
+                            try{
+                                mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                                    @Override
+                                    public void onAutoFocus(boolean success, Camera camera) {
+                                        //mCamera.cancelAutoFocus();
+                                    }
+                                });
+                            }
+                            catch(RuntimeException e ) {
+                                Log.e("CAMERA_1::", "autoFocus failed", e);
+                            }
                         }
-                    });
-                }
-                catch(RuntimeException e ) {
-                  Log.e("CAMERA_1::", "autoFocus failed", e);
-                }
-            } else if (parameters.getMaxNumMeteringAreas() > 0) {
-                if (!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-                    return; //cannot autoFocus
-                }
-                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-                parameters.setFocusAreas(meteringAreas);
-                parameters.setMeteringAreas(meteringAreas);
-
-                try{
-                  mCamera.setParameters(parameters);
-                }
-                catch(RuntimeException e ) {
-                  Log.e("CAMERA_1::", "setParameters failed", e);
-                }
-
-                try{
-                    mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                        @Override
-                        public void onAutoFocus(boolean success, Camera camera) {
-                            //resetFocus(success, camera);
-                        }
-                    });
-                }
-                catch(RuntimeException e ) {
-                  Log.e("CAMERA_1::", "autoFocus failed", e);
-                }
-            } else {
-                try{
-                    mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                        @Override
-                        public void onAutoFocus(boolean success, Camera camera) {
-                            //mCamera.cancelAutoFocus();
-                        }
-                    });
-                }
-                catch(RuntimeException e ) {
-                  Log.e("CAMERA_1::", "autoFocus failed", e);
+                    }
                 }
             }
-        }
+        });
     }
 
     private void resetFocus(final boolean success, final Camera camera) {
