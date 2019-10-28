@@ -18,6 +18,21 @@ import java.util.Comparator;
 import java.util.List;
 
 public class RNDocumentDetector {
+
+    private final Comparator<Point> sumComparator = new Comparator<Point>() {
+        @Override
+        public int compare(Point lhs, Point rhs) {
+            return Double.compare(lhs.y + lhs.x, rhs.y + rhs.x);
+        }
+    };
+    private final Comparator<Point> diffComparator = new Comparator<Point>() {
+
+        @Override
+        public int compare(Point lhs, Point rhs) {
+            return Double.compare(lhs.y - lhs.x, rhs.y - rhs.x);
+        }
+    };
+
     public RNDocumentDetector() {}
 
     public Document detectPreview(byte[] imageData, double landscapeWidth, double landscapeHeight, double scaleX, double scaleY) {
@@ -71,17 +86,17 @@ public class RNDocumentDetector {
      *
      * +----------+      +--------+
      * |          |      | 0  1   |
-     * | 1  2     |  =>  | 3  2   |
-     * | 0  3     |      |        |
+     * | 0  1     |  =>  | 3  2   |
+     * | 3  2     |      |        |
      * +----------+      |        |
      *                   +--------+
      */
     private Point[] transformPoints(Point[] points, double scaleX, double scaleY, double landscapeHeight) {
         return new Point[]{
-                new Point((landscapeHeight - points[3].y) * scaleX, points[3].x * scaleY),// top left
-                new Point((landscapeHeight - points[0].y) * scaleX, points[0].x * scaleY),// top right
-                new Point((landscapeHeight - points[1].y) * scaleX, points[1].x * scaleY),// bottom right
-                new Point((landscapeHeight - points[2].y) * scaleX, points[2].x * scaleY)// bottom left
+                new Point((landscapeHeight - points[3].y) * scaleY, points[3].x * scaleX),// top left
+                new Point((landscapeHeight - points[0].y) * scaleY, points[0].x * scaleX),// top right
+                new Point((landscapeHeight - points[1].y) * scaleY, points[1].x * scaleX),// bottom right
+                new Point((landscapeHeight - points[2].y) * scaleY, points[2].x * scaleX)// bottom left
         };
     }
 
@@ -166,25 +181,9 @@ public class RNDocumentDetector {
     }
 
     private Point[] selectCornersFromPoints(Point[] src) {
-
         ArrayList<Point> srcPoints = new ArrayList<>(Arrays.asList(src));
 
         Point[] result = { null, null, null, null };
-
-        Comparator<Point> sumComparator = new Comparator<Point>() {
-            @Override
-            public int compare(Point lhs, Point rhs) {
-                return Double.compare(lhs.y + lhs.x, rhs.y + rhs.x);
-            }
-        };
-
-        Comparator<Point> diffComparator = new Comparator<Point>() {
-
-            @Override
-            public int compare(Point lhs, Point rhs) {
-                return Double.compare(lhs.y - lhs.x, rhs.y - rhs.x);
-            }
-        };
 
         // top-left corner = minimal sum
         result[0] = Collections.min(srcPoints, sumComparator);
