@@ -21,6 +21,7 @@
 @property (strong, nonatomic) RCTSensorOrientationChecker * sensorOrientationChecker;
 @property (assign, nonatomic) NSInteger* flashMode;
 @property (strong, nonatomic) CameraEventEmitter *cameraEventEmitter;
+@property (assign, nonatomic) BOOL livePreviewReadyEventDispatched;
 @end
 
 @implementation RCTCameraManager
@@ -631,6 +632,7 @@ RCT_EXPORT_METHOD(resetLowLightProcess:(RCTPromiseResolveBlock)resolve reject:(R
     }];
 
     self.previewLayer.connection.videoOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    self.livePreviewReadyEventDispatched = NO;
     [self.session startRunning];
   });
 }
@@ -741,7 +743,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)newFrame:(CMSampleBufferRef)sampleBuffer {
     if ([self.cameraEventEmitter hasListener]) {
-
         NSData *imageData = [self nsDataFromSampleBuffer:sampleBuffer];
 
         if ([self.listOfPixelBuffer count] == 0 || [imageData length] == [[self.listOfPixelBuffer objectAtIndex:0] length]) {
@@ -761,8 +762,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             self.previewExposure = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifExposureTime] floatValue];
             self.previewISO = [NSArray arrayWithArray:[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifISOSpeedRatings]];
             // debug stuff
-//              self.previewFnumber = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifFNumber] floatValue];
-//              self.previewFocalLenght = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifFocalLength] floatValue];
+            // self.previewFnumber = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifFNumber] floatValue];
+            // self.previewFocalLenght = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifFocalLength] floatValue];
 
 
             int coefficient = 1;
@@ -798,7 +799,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                 self.imageIsMoving = NO;
             }
 
-
+            if (self.livePreviewReadyEventDispatched == NO) {
+                [self.bridge.eventDispatcher sendAppEventWithName:@"livePreviewReady" body:nil];
+                self.livePreviewReadyEventDispatched = YES;
+            }
 
             [self.listOfPixelBuffer removeAllObjects];
 
