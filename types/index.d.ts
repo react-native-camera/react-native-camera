@@ -152,6 +152,10 @@ export interface RNCameraProps {
   }): void;
   onMountError?(error: { message: string }): void;
 
+  /** iOS only */
+  onAudioInterrupted?(): void;
+  onAudioConnected?(): void;
+
   /** Value: float from 0 to 1.0 */
   zoom?: number;
   /** iOS only. float from 0 to any. Locks the max zoom value to the provided value

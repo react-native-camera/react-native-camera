@@ -64,6 +64,7 @@
 - (void)updateWhiteBalance;
 - (void)updateExposure;
 - (void)updatePictureSize;
+- (void)updateCaptureAudio;
 // Face Detection props
 - (void)updateTrackingEnabled:(id)requestedTracking;
 - (void)updateFaceDetectionMode:(id)requestedMode;
