@@ -21,7 +21,6 @@
 @property (strong, nonatomic) RCTSensorOrientationChecker * sensorOrientationChecker;
 @property (assign, nonatomic) NSInteger* flashMode;
 @property (strong, nonatomic) CameraEventEmitter *cameraEventEmitter;
-@property (assign, nonatomic) BOOL livePreviewReadyEventDispatched;
 @end
 
 @implementation RCTCameraManager
@@ -632,7 +631,6 @@ RCT_EXPORT_METHOD(resetLowLightProcess:(RCTPromiseResolveBlock)resolve reject:(R
     }];
 
     self.previewLayer.connection.videoOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-    self.livePreviewReadyEventDispatched = NO;
     [self.session startRunning];
   });
 }
@@ -797,11 +795,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
                 self.lastDiff = 0.0;
                 self.imageIsMoving = NO;
-            }
-
-            if (self.livePreviewReadyEventDispatched == NO) {
-                [self.bridge.eventDispatcher sendAppEventWithName:@"livePreviewReady" body:nil];
-                self.livePreviewReadyEventDispatched = YES;
             }
 
             [self.listOfPixelBuffer removeAllObjects];
