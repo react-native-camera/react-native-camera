@@ -28,6 +28,9 @@
 float const THRESHOLD_MOVEMENT_DEFAULT = 5.0;
 float const THRESHOLD_EXPOSURE = 0.05;
 NSInteger const SAMPLE_SIZE = 30;
+dispatch_semaphore_t getISOSemaphore;
+dispatch_semaphore_t getExposureSemaphore;
+dispatch_semaphore_t getBrightnessSemaphore;
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -346,6 +349,10 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
     self.sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
 
     self.sensorOrientationChecker = [RCTSensorOrientationChecker new];
+
+    getISOSemaphore = dispatch_semaphore_create(0);
+    getExposureSemaphore = dispatch_semaphore_create(0);
+    getBrightnessSemaphore = dispatch_semaphore_create(0);
   }
   return self;
 }
@@ -530,6 +537,7 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
 
 RCT_EXPORT_METHOD(getBrightness:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     NSLog(@"get brightness: %d", (int) self.previewBrightness);
+    dispatch_semaphore_wait(getBrightnessSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
     resolve([NSNumber numberWithInteger:self.previewBrightness]);
 }
 
@@ -538,10 +546,12 @@ RCT_EXPORT_METHOD(getIsMoving:(RCTPromiseResolveBlock)resolve reject:(RCTPromise
 }
 
 RCT_EXPORT_METHOD(getISO:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    dispatch_semaphore_wait(getISOSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
     resolve([NSNumber numberWithInt:[[self.previewISO objectAtIndex:0] intValue]]);
 }
 
 RCT_EXPORT_METHOD(getExposure:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    dispatch_semaphore_wait(getExposureSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
     resolve([NSNumber numberWithFloat:self.previewExposure]);
 }
 
@@ -796,6 +806,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                 self.lastDiff = 0.0;
                 self.imageIsMoving = NO;
             }
+
+            dispatch_semaphore_signal(getISOSemaphore);
+            dispatch_semaphore_signal(getExposureSemaphore);
+            dispatch_semaphore_signal(getBrightnessSemaphore);
 
             [self.listOfPixelBuffer removeAllObjects];
 
