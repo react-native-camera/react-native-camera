@@ -80,7 +80,6 @@ BOOL _sessionInterrupted = NO;
         _recordRequested = NO;
         _sessionInterrupted = NO;
 
-
         // we will do other initialization after
         // the view is loaded.
         // This is to prevent code if the view is unused as react
@@ -314,16 +313,16 @@ BOOL _sessionInterrupted = NO;
 // possible on the new device, and our device reference will be
 // different
 - (void)cleanupFocus:(AVCaptureDevice*) previousDevice {
-    
+
     self.isFocusedOnPoint = NO;
     self.isExposedOnPoint = NO;
-    
+
     // cleanup listeners if we had any
     if(previousDevice != nil){
-        
+
         // remove event listener
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:previousDevice];
-        
+
         // cleanup device flags
         NSError *error = nil;
         if (![previousDevice lockForConfiguration:&error]) {
@@ -332,11 +331,11 @@ BOOL _sessionInterrupted = NO;
             }
             return;
         }
-        
+
         previousDevice.subjectAreaChangeMonitoringEnabled = NO;
-        
+
         [previousDevice unlockForConfiguration];
-        
+
     }
 }
 
@@ -1278,14 +1277,14 @@ BOOL _sessionInterrupted = NO;
             return;
         }
 
-        
+
         // Do additional cleanup that might be needed on the
         // previous device, if any.
         AVCaptureDevice *previousDevice = self.videoCaptureDeviceInput != nil ? self.videoCaptureDeviceInput.device : nil;
 
         [self cleanupFocus:previousDevice];
-        
-        
+
+
         // Remove inputs
         [self.session removeInput:self.videoCaptureDeviceInput];
 
@@ -1293,13 +1292,13 @@ BOOL _sessionInterrupted = NO;
         // Otherwise, if setting fails, we end up with a stale value.
         // and we are no longer able to detect if it changed or not
         self.videoCaptureDeviceInput = nil;
-        
+
         // setup our capture preset based on what was set from RN
         // and our defaults
         // if the preset is not supported (e.g., when switching cameras)
         // canAddInput below will fail
         self.session.sessionPreset = [self getDefaultPreset];
-        
+
 
         if ([self.session canAddInput:captureDeviceInput]) {
             [self.session addInput:captureDeviceInput];
@@ -1437,7 +1436,10 @@ BOOL _sessionInterrupted = NO;
         // if we have audio, stop it so preview resumes
         // it will eventually be re-loaded the next time recording
         // is requested, although it will flicker.
-        [self removeAudioCaptureSessionInput];
+        dispatch_async(self.sessionQueue, ^{
+            [self removeAudioCaptureSessionInput];
+        });
+            
     }
 
 }
