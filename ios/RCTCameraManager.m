@@ -910,6 +910,80 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 //    //NSLog(@"Video Output: dropped an buffer");
 //}
 
+- (void)captureOutput:(AVCapturePhotoOutput *)output
+didFinishProcessingPhoto:(AVCapturePhoto *)photo
+                error:(NSError *)error
+{
+    if (photo) {
+        NSData *imageData = [photo fileDataRepresentation];
+
+        // Create image source
+        CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
+
+        //get all the metadata in the image
+        NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
+        //NSMutableDictionary *imageMetadata = [photo.metadata mutableCopy];
+
+        // Resize to HDR working resolution
+        NSDictionary *options = @{
+            @"kCGImageSourceCreateThumbnailFromImageAlways": @YES,
+            @"kCGImageSourceThumbnailMaxPixelSize": @2108
+        };
+        // create cgimage
+        //CGImageRef rotatedCGImage = CGImageSourceCreateThumbnailAtIndex(source, 0, (CFDictionaryRef)options);
+        CGImageRef rotatedCGImage = photo.CGImageRepresentation;
+        // Erase stupid TIFF stuff
+        [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
+
+        // Create destination thing
+        NSMutableData *rotatedImageData = [NSMutableData data];
+        CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)rotatedImageData, CGImageSourceGetType(source), 1, NULL);
+        CFRelease(source);
+        // add the image to the destination, reattaching metadata
+        CGImageDestinationAddImage(destination, rotatedCGImage, (CFDictionaryRef) imageMetadata);
+        // And write
+        CGImageDestinationFinalize(destination);
+        CFRelease(destination);
+
+
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsDirectory = [paths firstObject];
+
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        AVCaptureBracketedStillImageSettings *setting = photo.bracketSettings;
+
+        long index = photo.photoCount - 1;
+        //Float64 exposureDuration = [[self.exposures objectAtIndex:index] floatValue];
+        //Float64 iso = [photo.resolvedSettings.expectedPhotoCount]
+
+
+//        Float64 exposureDuration = CMTimeGetSeconds(setting.expo);
+//        Float64 iso = bracketSettings.ISO;
+//
+//        NSString *exposureString = [NSString stringWithFormat: @"%lf_%lf", iso, exposureDuration];
+//
+        NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSString stringWithFormat:@"%ld_9", photo.photoCount] stringByAppendingString:[[NSUUID UUID] UUIDString]]] stringByAppendingPathExtension:@"jpg"];
+
+        [fileManager createFileAtPath:fullPath contents:rotatedImageData attributes:nil];
+        [self.sources insertObject:fullPath atIndex:index];
+        //[self.sources addObject:fullPath];
+        NSLog(@"Path %@", fullPath);
+        NSLog(@"NB captures: %lu", (unsigned long)self.sources.count);
+        if (self.sources.count == self.exposures.count) {
+            if (self.captureResolve) {
+                self.captureResolve(self.sources);
+                self.captureResolve = nil;
+            }
+        }
+        //CGImageRelease(rotatedCGImage);
+    } else {
+      if (self.captureReject) {
+        self.captureReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
+        self.captureReject = nil;
+      }
+    }
+}
+
 - (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(AVCaptureManualExposureBracketedStillImageSettings *)bracketSettings error:(NSError *)error
 {
             if (photoSampleBuffer) {
@@ -1056,6 +1130,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         }
 
         AVCapturePhotoBracketSettings *settings = [AVCapturePhotoBracketSettings photoBracketSettingsWithRawPixelFormatType:0 processedFormat:nil bracketedSettings:bracketedStillImageSettings];
+        //settings.autoVirtualDeviceFusionEnabled = FALSE;
         [self.stillImageOutput capturePhotoWithSettings:settings delegate:self];
     } else {
         NSLog(@"bracket: jobs done");
