@@ -1436,7 +1436,10 @@ BOOL _sessionInterrupted = NO;
         // if we have audio, stop it so preview resumes
         // it will eventually be re-loaded the next time recording
         // is requested, although it will flicker.
-        [self removeAudioCaptureSessionInput];
+        dispatch_async(self.sessionQueue, ^{
+            [self removeAudioCaptureSessionInput];
+        });
+            
     }
 
 }
