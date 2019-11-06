@@ -1,11 +1,16 @@
 package org.reactnative.camera.tasks;
 
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.media.ExifInterface;
 import android.util.Base64;
 
@@ -16,6 +21,7 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.uimanager.ThemedReactContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,14 +38,16 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private Bitmap mBitmap;
     private int mDeviceOrientation;
     private PictureSavedDelegate mPictureSavedDelegate;
+    private ThemedReactContext mThemedReactContext;
 
-    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate) {
+    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate, ThemedReactContext context) {
         mPromise = promise;
         mOptions = options;
         mImageData = imageData;
         mCacheDirectory = cacheDirectory;
         mDeviceOrientation = deviceOrientation;
         mPictureSavedDelegate = delegate;
+        mThemedReactContext = context;
     }
 
     private int getQuality() {
@@ -92,9 +100,15 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                         ExifInterface.ORIENTATION_UNDEFINED);
 
+                int cameraOrientation = getCameraOrientation();
+
                 // Rotate the bitmap to the proper orientation if needed
-                if (mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation") && orientation != ExifInterface.ORIENTATION_UNDEFINED) {
-                    mBitmap = rotateBitmap(mBitmap, getImageRotation(orientation));
+                if (mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation") && (orientation != ExifInterface.ORIENTATION_UNDEFINED || cameraOrientation != 0)) {
+                    if (orientation != ExifInterface.ORIENTATION_UNDEFINED) {
+                        mBitmap = rotateBitmap(mBitmap, getImageRotation(orientation));
+                    } else {
+                        mBitmap = rotateBitmap(mBitmap, cameraOrientation);
+                    }
                 }
 
                 if (mOptions.hasKey("width")) {
@@ -181,20 +195,34 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
+    private int getCameraOrientation() {
+        int orientation = 0;
+        if (Build.VERSION.SDK_INT >= 21) {
+            CameraManager manager = (CameraManager) mThemedReactContext.getSystemService(Context.CAMERA_SERVICE);
+            try {
+                String cameraId = manager.getCameraIdList()[0];
+                CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+                orientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+            } catch (Exception e) {
+            }
+        }
+        return orientation;
+    }
+
     // Get rotation degrees from Exif orientation enum
 
     private int getImageRotation(int orientation) {
         int rotationDegrees = 0;
         switch (orientation) {
-        case ExifInterface.ORIENTATION_ROTATE_90:
-            rotationDegrees = 90;
-            break;
-        case ExifInterface.ORIENTATION_ROTATE_180:
-            rotationDegrees = 180;
-            break;
-        case ExifInterface.ORIENTATION_ROTATE_270:
-            rotationDegrees = 270;
-            break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotationDegrees = 90;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotationDegrees = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotationDegrees = 270;
+                break;
         }
         return rotationDegrees;
     }
