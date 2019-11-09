@@ -6,6 +6,7 @@
 #import <React/RCTLog.h>
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 #import  "RNSensorOrientationChecker.h"
 @interface RNCamera ()
 
@@ -314,16 +315,16 @@ BOOL _sessionInterrupted = NO;
 // possible on the new device, and our device reference will be
 // different
 - (void)cleanupFocus:(AVCaptureDevice*) previousDevice {
-    
+
     self.isFocusedOnPoint = NO;
     self.isExposedOnPoint = NO;
-    
+
     // cleanup listeners if we had any
     if(previousDevice != nil){
-        
+
         // remove event listener
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:previousDevice];
-        
+
         // cleanup device flags
         NSError *error = nil;
         if (![previousDevice lockForConfiguration:&error]) {
@@ -332,11 +333,11 @@ BOOL _sessionInterrupted = NO;
             }
             return;
         }
-        
+
         previousDevice.subjectAreaChangeMonitoringEnabled = NO;
-        
+
         [previousDevice unlockForConfiguration];
-        
+
     }
 }
 
@@ -712,6 +713,7 @@ BOOL _sessionInterrupted = NO;
         [self takePicture:tmpOptions resolve:resolve reject:reject];
     }];
 }
+
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
     // if video device is not set, reject
@@ -732,6 +734,7 @@ BOOL _sessionInterrupted = NO;
     @try {
         [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
             if (imageSampleBuffer && !error) {
+
                 if ([options[@"pauseAfterCapture"] boolValue]) {
                     [[self.previewLayer connection] setEnabled:NO];
                 }
@@ -740,10 +743,17 @@ BOOL _sessionInterrupted = NO;
                 if (useFastMode) {
                     resolve(nil);
                 }
-                NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
 
+
+                // get JPEG image data
+                NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
                 UIImage *takenImage = [UIImage imageWithData:imageData];
 
+
+                // Adjust/crop image based on preview dimensions
+                // TODO: This seems needed because iOS does not allow
+                // for aspect ratio settings, so this is the best we can get
+                // to mimic android's behaviour.
                 CGImageRef takenCGImage = takenImage.CGImage;
                 CGSize previewSize;
                 if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
@@ -755,6 +765,7 @@ BOOL _sessionInterrupted = NO;
                 CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
                 takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
 
+                // apply other image settings
                 if ([options[@"mirrorImage"] boolValue]) {
                     takenImage = [RNImageUtils mirrorImage:takenImage];
                 }
@@ -766,53 +777,84 @@ BOOL _sessionInterrupted = NO;
                     takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
                 }
 
-                NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
+                // get image metadata so we can re-add it later
+                // make it mutable since we need to adjust quality/compression
+                CFDictionaryRef metaDict = CMCopyDictionaryOfAttachments(NULL, imageSampleBuffer, kCMAttachmentMode_ShouldPropagate);
+                NSMutableDictionary *metadata = [(__bridge NSDictionary*)metaDict mutableCopy];
+
+
+                // Get final JPEG image and set compression
                 float quality = [options[@"quality"] floatValue];
-                NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
-                NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
-                if (![options[@"doNotSave"] boolValue]) {
-                    response[@"uri"] = [RNImageUtils writeImage:takenImageData toPath:path];
-                }
-                response[@"width"] = @(takenImage.size.width);
-                response[@"height"] = @(takenImage.size.height);
+                [metadata setObject:@(quality) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
 
-                if ([options[@"base64"] boolValue]) {
-                    response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
+                // Correct some exif data that we might have modified
+                // in the above image processing
+                metadata[(NSString *)kCGImagePropertyExifPixelYDimension] = @(takenImage.size.width);
+                metadata[(NSString *)kCGImagePropertyExifPixelXDimension] = @(takenImage.size.height);
+
+
+                // if we rotated the image, update exif
+                if ([options[@"forceUpOrientation"] boolValue]){
+                    [metadata removeObjectForKey:@"Orientation"];
                 }
 
-                if ([options[@"exif"] boolValue]) {
-                    int imageRotation;
-                    switch (takenImage.imageOrientation) {
-                        case UIImageOrientationLeft:
-                        case UIImageOrientationRightMirrored:
-                            imageRotation = 90;
-                            break;
-                        case UIImageOrientationRight:
-                        case UIImageOrientationLeftMirrored:
-                            imageRotation = -90;
-                            break;
-                        case UIImageOrientationDown:
-                        case UIImageOrientationDownMirrored:
-                            imageRotation = 180;
-                            break;
-                        case UIImageOrientationUpMirrored:
-                        default:
-                            imageRotation = 0;
-                            break;
+
+                // get our final image data with added metadata
+                // idea taken from: https://stackoverflow.com/questions/9006759/how-to-write-exif-metadata-to-an-image-not-the-camera-roll-just-a-uiimage-or-j/9091472
+                NSMutableData * destData = [NSMutableData data];
+
+                CGImageDestinationRef destination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)destData, kUTTypeJPEG, 1, NULL);
+
+                CGImageDestinationAddImage(destination, takenImage.CGImage, (__bridge CFDictionaryRef) metadata);
+
+
+                // write final image data with metadata to our destination
+                if (CGImageDestinationFinalize(destination)){
+
+                    NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
+
+                    NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+
+                    if (![options[@"doNotSave"] boolValue]) {
+                        response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
                     }
-                    [RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
+                    response[@"width"] = @(takenImage.size.width);
+                    response[@"height"] = @(takenImage.size.height);
+
+                    if ([options[@"base64"] boolValue]) {
+                        response[@"base64"] = [destData base64EncodedStringWithOptions:0];
+                    }
+
+                    if ([options[@"exif"] boolValue]) {
+                        response[@"exif"] = metadata;
+
+                        // No longer needed since we always get the photo metadata now
+                        //[RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
+                    }
+
+                    response[@"pictureOrientation"] = @([self.orientation integerValue]);
+                    response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
+                    self.orientation = nil;
+                    self.deviceOrientation = nil;
+
+                    if (useFastMode) {
+                        [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
+                    } else {
+                        resolve(response);
+                    }
+                }
+                else{
+                    reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be saved", error);
                 }
 
-                response[@"pictureOrientation"] = @([self.orientation integerValue]);
-                response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
-                self.orientation = nil;
-                self.deviceOrientation = nil;
-
-                if (useFastMode) {
-                    [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
-                } else {
-                    resolve(response);
+                // release image resource
+                @try{
+                    CFRelease(destination);
                 }
+                @catch(NSException *exception){
+                    RCTLogError(@"Failed to release CGImageDestinationRef: %@", exception);
+                }
+
             } else {
                 reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be captured", error);
             }
@@ -824,8 +866,8 @@ BOOL _sessionInterrupted = NO;
                [NSError errorWithDomain:@"E_IMAGE_CAPTURE_FAILED" code: 500 userInfo:@{NSLocalizedDescriptionKey:exception.reason}]
         );
     }
-
 }
+
 - (void)recordWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
     [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
         NSMutableDictionary *tmpOptions = [options mutableCopy];
@@ -1278,14 +1320,14 @@ BOOL _sessionInterrupted = NO;
             return;
         }
 
-        
+
         // Do additional cleanup that might be needed on the
         // previous device, if any.
         AVCaptureDevice *previousDevice = self.videoCaptureDeviceInput != nil ? self.videoCaptureDeviceInput.device : nil;
 
         [self cleanupFocus:previousDevice];
-        
-        
+
+
         // Remove inputs
         [self.session removeInput:self.videoCaptureDeviceInput];
 
@@ -1293,13 +1335,13 @@ BOOL _sessionInterrupted = NO;
         // Otherwise, if setting fails, we end up with a stale value.
         // and we are no longer able to detect if it changed or not
         self.videoCaptureDeviceInput = nil;
-        
+
         // setup our capture preset based on what was set from RN
         // and our defaults
         // if the preset is not supported (e.g., when switching cameras)
         // canAddInput below will fail
         self.session.sessionPreset = [self getDefaultPreset];
-        
+
 
         if ([self.session canAddInput:captureDeviceInput]) {
             [self.session addInput:captureDeviceInput];
