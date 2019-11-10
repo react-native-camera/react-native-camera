@@ -766,14 +766,13 @@ BOOL _sessionInterrupted = NO;
 
                 // apply other image settings
                 bool resetOrientation = NO;
+                if ([options[@"mirrorImage"] boolValue]) {
+                    takenImage = [RNImageUtils mirrorImage:takenImage];
+                }
                 if ([options[@"forceUpOrientation"] boolValue]) {
                     takenImage = [RNImageUtils forceUpOrientation:takenImage];
                     resetOrientation = YES;
                 }
-                if ([options[@"mirrorImage"] boolValue]) {
-                    takenImage = [RNImageUtils mirrorImage:takenImage];
-                }
-
                 if ([options[@"width"] integerValue]) {
                     takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
                     resetOrientation = YES;
