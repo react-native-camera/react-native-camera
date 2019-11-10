@@ -766,8 +766,10 @@ BOOL _sessionInterrupted = NO;
                 takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
 
                 // apply other image settings
+                bool resetOrientation = NO;
                 if ([options[@"forceUpOrientation"] boolValue]) {
                     takenImage = [RNImageUtils forceUpOrientation:takenImage];
+                    resetOrientation = YES;
                 }
                 if ([options[@"mirrorImage"] boolValue]) {
                     takenImage = [RNImageUtils mirrorImage:takenImage];
@@ -775,6 +777,7 @@ BOOL _sessionInterrupted = NO;
 
                 if ([options[@"width"] integerValue]) {
                     takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
+                    resetOrientation = YES;
                 }
 
                 // get image metadata so we can re-add it later
@@ -787,15 +790,12 @@ BOOL _sessionInterrupted = NO;
                 float quality = [options[@"quality"] floatValue];
                 [metadata setObject:@(quality) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
 
-                // Correct some exif data that we might have modified
-                // in the above image processing
-                metadata[(NSString *)kCGImagePropertyExifPixelYDimension] = @(takenImage.size.width);
-                metadata[(NSString *)kCGImagePropertyExifPixelXDimension] = @(takenImage.size.height);
-
-
-                // if we rotated the image, update exif
-                if ([options[@"forceUpOrientation"] boolValue]){
-                    [metadata removeObjectForKey:@"Orientation"];
+                // Reset exif orientation if we need to due to image changes
+                // that already rotate the image.
+                // Other dimension attributes will be set automatically
+                // regardless of what we have on our metadata dict
+                if (resetOrientation){
+                    metadata[(NSString*)kCGImagePropertyOrientation] = @(1);
                 }
 
 
