@@ -387,9 +387,9 @@ iOS only. Function to be called when the camera audio session is interrupted or 
 iOS only. Function to be called when the camera audio session is connected. This will be fired the first time the camera is mounted with `captureAudio={true}`, and any time the audio device connection is established. Note that this event might not always fire after an interruption due to iOS' behavior. For example, if the audio was already interrupted before the camera was mounted, this event will only fire once a recording is attempted.
 
 
-### `Android` `onPictureTaken`
+### `onPictureTaken`
 
-Function to be called when native code emit onPictureTaken event, when camera has taken a picture.
+Function to be called when native code emit onPictureTaken event, when camera has taken a picture, but before all extra processing happens. This can be useful to allow the UI to take other pictures while the processing of the current picture is still taking place.
 
 ### Bar Code Related props
 

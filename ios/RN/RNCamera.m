@@ -27,6 +27,7 @@
 @property (nonatomic, copy) RCTDirectEventBlock onTextRecognized;
 @property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onGoogleVisionBarcodesDetected;
+@property (nonatomic, copy) RCTDirectEventBlock onPictureTaken;
 @property (nonatomic, copy) RCTDirectEventBlock onPictureSaved;
 @property (nonatomic, assign) BOOL finishedReadingText;
 @property (nonatomic, assign) BOOL finishedDetectingFace;
@@ -110,6 +111,13 @@ BOOL _sessionInterrupted = NO;
 {
     if (_onBarCodeRead) {
         _onBarCodeRead(event);
+    }
+}
+
+- (void)onPictureTaken:(NSDictionary *)event
+{
+    if (_onPictureTaken) {
+        _onPictureTaken(event);
     }
 }
 
@@ -742,6 +750,8 @@ BOOL _sessionInterrupted = NO;
                 if (useFastMode) {
                     resolve(nil);
                 }
+
+                [self onPictureTaken:@{}];
 
 
                 // get JPEG image data
