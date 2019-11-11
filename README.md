@@ -135,3 +135,11 @@ To enable `video recording` feature you have to add the following code to the `A
 For more information on installation, please refer to [installation requirements](./docs/installation.md#requirements).
 
 For general introduction, please take a look into this [RNCamera](./docs/RNCamera.md).
+
+## Security contact information
+
+To report a security vulnerability, please use the
+
+[Tidelift security contact](https://tidelift.com/security).
+
+Tidelift will coordinate the fix and disclosure.
