@@ -812,8 +812,78 @@ BOOL _sessionInterrupted = NO;
                 NSMutableData * destData = [NSMutableData data];
 
                 CGImageDestinationRef destination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)destData, kUTTypeJPEG, 1, NULL);
+                
+                // defaults to true, must like Android
+                bool writeExif = true;
+                
+                if(options[@"writeExif"]){
+                    
+                    // if we received an object, merge with our meta
+                    if ([options[@"writeExif"] isKindOfClass:[NSDictionary class]]){
+                        NSDictionary *newExif = options[@"writeExif"];
+                        
+                        // need to update both, since apple splits data
+                        // across exif and tiff dicts. No problems with duplicates
+                        // they will be handled appropiately.
+                        NSMutableDictionary *exif = metadata[(NSString*)kCGImagePropertyExifDictionary];
+                        
+                        NSMutableDictionary *tiff = metadata[(NSString*)kCGImagePropertyTIFFDictionary];
+                        
+                        
+                        // initialize exif dict if not built
+                        if(!exif){
+                            exif = [[NSMutableDictionary alloc] init];
+                            metadata[(NSString*)kCGImagePropertyExifDictionary] = exif;
+                        }
+                        
+                        if(!tiff){
+                            tiff = [[NSMutableDictionary alloc] init];
+                            metadata[(NSString*)kCGImagePropertyTIFFDictionary] = exif;
+                        }
+                        
+                        // merge new exif info
+                        [exif addEntriesFromDictionary:newExif];
+                        [tiff addEntriesFromDictionary:newExif];
+                        
+                        
+                        // correct any GPS metadata like Android does
+                        // need to get the right format for each value.
+                        NSMutableDictionary *gpsDict = [[NSMutableDictionary alloc] init];
+                        
+                        if(newExif[@"GPSLatitude"]){
+                            gpsDict[(NSString *)kCGImagePropertyGPSLatitude] = @(fabs([newExif[@"GPSLatitude"] floatValue]));
+                            
+                            gpsDict[(NSString *)kCGImagePropertyGPSLatitudeRef] = [newExif[@"GPSLatitude"] floatValue] >= 0 ? @"N" : @"S";
+                            
+                        }
+                        if(newExif[@"GPSLongitude"]){
+                            gpsDict[(NSString *)kCGImagePropertyGPSLongitude] = @(fabs([newExif[@"GPSLongitude"] floatValue]));
+                            
+                            gpsDict[(NSString *)kCGImagePropertyGPSLongitudeRef] = [newExif[@"GPSLongitude"] floatValue] >= 0 ? @"E" : @"W";
+                        }
+                        if(newExif[@"GPSAltitude"]){
+                            gpsDict[(NSString *)kCGImagePropertyGPSAltitude] = @(fabs([newExif[@"GPSAltitude"] floatValue]));
+                            
+                            gpsDict[(NSString *)kCGImagePropertyGPSAltitudeRef] = [newExif[@"GPSAltitude"] floatValue] >= 0 ? @(0) : @(1);
+                        }
+                        
+                        // if we don't have gps info, add it
+                        // otherwise, merge it
+                        if(!metadata[(NSString *)kCGImagePropertyGPSDictionary]){
+                            metadata[(NSString *)kCGImagePropertyGPSDictionary] = gpsDict;
+                        }
+                        else{
+                            [metadata[(NSString *)kCGImagePropertyGPSDictionary] addEntriesFromDictionary:gpsDict];
+                        }
+                                                
+                    }
+                    else{
+                        writeExif = [options[@"writeExif"] boolValue];
+                    }
+                    
+                }
 
-                CGImageDestinationAddImage(destination, takenImage.CGImage, (__bridge CFDictionaryRef) metadata);
+                CGImageDestinationAddImage(destination, takenImage.CGImage, writeExif ? ((__bridge CFDictionaryRef) metadata) : nil);
 
 
                 // write final image data with metadata to our destination
