@@ -2,10 +2,12 @@ package org.reactnative.camera;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.media.AudioManager;
 import android.media.CamcorderProfile;
 import android.media.MediaActionSound;
 import android.os.Build;
@@ -351,8 +353,11 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     boolean takePicture = useTakePicture();
 
     if (mPlaySoundOnCapture) {
-      MediaActionSound sound = new MediaActionSound();
-      sound.play(MediaActionSound.SHUTTER_CLICK);
+      AudioManager audioManager = (AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE);
+      if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
+        MediaActionSound sound = new MediaActionSound();
+        sound.play(MediaActionSound.SHUTTER_CLICK);
+      }
     }
 
     if (!takePicture && mCamera1ScanMode.equals(CAMERA1SCANSUPERFAST) && mRotated != null) {
