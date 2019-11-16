@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.CamcorderProfile;
 import android.os.Build;
+import android.os.Looper;
+import android.os.Handler;
 import androidx.exifinterface.media.ExifInterface;
 import android.view.ViewGroup;
 import com.facebook.react.bridge.Arguments;
@@ -157,80 +159,138 @@ public class RNCameraViewHelper {
       {"int", ExifInterface.TAG_RW2_SENSOR_TOP_BORDER},
       {"int", ExifInterface.TAG_RW2_ISO},
   };
+
+  // main thread handler so we ensure to dispatch on the appropriate thread
+  // since these events might be called from other non-ui threads
+  private static Handler mHandler = new Handler(Looper.getMainLooper());
+
   // Mount error event
 
-  public static void emitMountErrorEvent(ViewGroup view, String error) {
-    CameraMountErrorEvent event = CameraMountErrorEvent.obtain(view.getId(), error);
-    ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  public static void emitMountErrorEvent(final ViewGroup view, final String error) {
+    mHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        CameraMountErrorEvent event = CameraMountErrorEvent.obtain(view.getId(), error);
+        ReactContext reactContext = (ReactContext) view.getContext();
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+    });
   }
 
   // Camera ready event
 
-  public static void emitCameraReadyEvent(ViewGroup view) {
-    CameraReadyEvent event = CameraReadyEvent.obtain(view.getId());
-    ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  public static void emitCameraReadyEvent(final ViewGroup view) {
+
+    mHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        CameraReadyEvent event = CameraReadyEvent.obtain(view.getId());
+        ReactContext reactContext = (ReactContext) view.getContext();
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+    });
   }
 
   // Picture saved event
 
-  public static void emitPictureSavedEvent(ViewGroup view, WritableMap response) {
-    PictureSavedEvent event = PictureSavedEvent.obtain(view.getId(), response);
-    ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  public static void emitPictureSavedEvent(final ViewGroup view, final WritableMap response) {
+
+    mHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        PictureSavedEvent event = PictureSavedEvent.obtain(view.getId(), response);
+        ReactContext reactContext = (ReactContext) view.getContext();
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+    });
+
   }
 
   // Picture taken event
 
-  public static void emitPictureTakenEvent(ViewGroup view) {
-    PictureTakenEvent event = PictureTakenEvent.obtain(view.getId());
-    ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  public static void emitPictureTakenEvent(final ViewGroup view) {
+    mHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        PictureTakenEvent event = PictureTakenEvent.obtain(view.getId());
+        ReactContext reactContext = (ReactContext) view.getContext();
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+     });
   }
 
   // Face detection events
 
-  public static void emitFacesDetectedEvent(ViewGroup view, WritableArray data) {
-    FacesDetectedEvent event = FacesDetectedEvent.obtain(view.getId(), data);
-    ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  public static void emitFacesDetectedEvent(final ViewGroup view, final WritableArray data) {
+    mHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        FacesDetectedEvent event = FacesDetectedEvent.obtain(view.getId(), data);
+        ReactContext reactContext = (ReactContext) view.getContext();
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+     });
   }
 
-  public static void emitFaceDetectionErrorEvent(ViewGroup view, RNFaceDetector faceDetector) {
-    FaceDetectionErrorEvent event = FaceDetectionErrorEvent.obtain(view.getId(), faceDetector);
-    ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  public static void emitFaceDetectionErrorEvent(final ViewGroup view, final RNFaceDetector faceDetector) {
+    mHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        FaceDetectionErrorEvent event = FaceDetectionErrorEvent.obtain(view.getId(), faceDetector);
+        ReactContext reactContext = (ReactContext) view.getContext();
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+    });
   }
 
   // Barcode detection events
 
-  public static void emitBarcodesDetectedEvent(ViewGroup view, WritableArray barcodes) {
-    BarcodesDetectedEvent event = BarcodesDetectedEvent.obtain(view.getId(), barcodes);
-    ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  public static void emitBarcodesDetectedEvent(final ViewGroup view, final WritableArray barcodes) {
+    mHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        BarcodesDetectedEvent event = BarcodesDetectedEvent.obtain(view.getId(), barcodes);
+        ReactContext reactContext = (ReactContext) view.getContext();
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+    });
   }
 
-  public static void emitBarcodeDetectionErrorEvent(ViewGroup view, RNBarcodeDetector barcodeDetector) {
-    BarcodeDetectionErrorEvent event = BarcodeDetectionErrorEvent.obtain(view.getId(), barcodeDetector);
-    ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  public static void emitBarcodeDetectionErrorEvent(final ViewGroup view, final RNBarcodeDetector barcodeDetector) {
+    mHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        BarcodeDetectionErrorEvent event = BarcodeDetectionErrorEvent.obtain(view.getId(), barcodeDetector);
+        ReactContext reactContext = (ReactContext) view.getContext();
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+    });
   }
 
   // Bar code read event
 
-  public static void emitBarCodeReadEvent(ViewGroup view, Result barCode, int width, int height) {
-    BarCodeReadEvent event = BarCodeReadEvent.obtain(view.getId(), barCode, width,  height);
-    ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  public static void emitBarCodeReadEvent(final ViewGroup view, final Result barCode, final int width, final int height) {
+    mHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        BarCodeReadEvent event = BarCodeReadEvent.obtain(view.getId(), barCode, width,  height);
+        ReactContext reactContext = (ReactContext) view.getContext();
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+    });
   }
 
   // Text recognition event
 
-  public static void emitTextRecognizedEvent(ViewGroup view, WritableArray data) {
-    TextRecognizedEvent event = TextRecognizedEvent.obtain(view.getId(), data);
-    ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  public static void emitTextRecognizedEvent(final ViewGroup view, final WritableArray data) {
+    mHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        TextRecognizedEvent event = TextRecognizedEvent.obtain(view.getId(), data);
+        ReactContext reactContext = (ReactContext) view.getContext();
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+    });
   }
 
   // Utilities
