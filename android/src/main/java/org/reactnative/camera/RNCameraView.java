@@ -84,7 +84,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       }
 
       @Override
-      public void onPictureTaken(CameraView cameraView, final byte[] data, int deviceOrientation) {
+      public void onPictureTaken(CameraView cameraView, final byte[] data, int deviceOrientation, int cameraOrientation) {
         Promise promise = mPictureTakenPromises.poll();
         ReadableMap options = mPictureTakenOptions.remove(promise);
         if (options.hasKey("fastMode") && options.getBoolean("fastMode")) {
@@ -92,10 +92,10 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
         final File cacheDirectory = mPictureTakenDirectories.remove(promise);
         if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
+          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this, cameraOrientation)
                   .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
-          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
+          new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this, cameraOrientation)
                   .execute();
         }
         RNCameraViewHelper.emitPictureTakenEvent(cameraView);

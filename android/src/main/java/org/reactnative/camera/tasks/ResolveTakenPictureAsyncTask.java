@@ -15,7 +15,6 @@ import org.reactnative.camera.utils.RNFileUtils;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.ReadableType;
 import com.facebook.react.bridge.WritableMap;
 
 import java.io.ByteArrayInputStream;
@@ -32,15 +31,17 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private File mCacheDirectory;
     private Bitmap mBitmap;
     private int mDeviceOrientation;
+    private int mCameraOrientation;
     private PictureSavedDelegate mPictureSavedDelegate;
 
-    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate) {
+    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate, int cameraOrientation) {
         mPromise = promise;
         mOptions = options;
         mImageData = imageData;
         mCacheDirectory = cacheDirectory;
         mDeviceOrientation = deviceOrientation;
         mPictureSavedDelegate = delegate;
+        mCameraOrientation = cameraOrientation;
     }
 
     private int getQuality() {
@@ -111,9 +112,14 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 // Rotate the bitmap to the proper orientation if needed
                 boolean fixOrientation = mOptions.hasKey("fixOrientation")
                         && mOptions.getBoolean("fixOrientation")
-                        && orientation != ExifInterface.ORIENTATION_UNDEFINED;
+                        && (orientation != ExifInterface.ORIENTATION_UNDEFINED
+                        || mCameraOrientation != 0);
                 if (fixOrientation) {
-                    mBitmap = rotateBitmap(mBitmap, getImageRotation(orientation));
+                    if (orientation != ExifInterface.ORIENTATION_UNDEFINED) {
+                        mBitmap = rotateBitmap(mBitmap, getImageRotation(orientation));
+                    } else {
+                        mBitmap = rotateBitmap(mBitmap, mCameraOrientation);
+                    }
                 }
 
                 if (mOptions.hasKey("width")) {
@@ -244,15 +250,15 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private int getImageRotation(int orientation) {
         int rotationDegrees = 0;
         switch (orientation) {
-        case ExifInterface.ORIENTATION_ROTATE_90:
-            rotationDegrees = 90;
-            break;
-        case ExifInterface.ORIENTATION_ROTATE_180:
-            rotationDegrees = 180;
-            break;
-        case ExifInterface.ORIENTATION_ROTATE_270:
-            rotationDegrees = 270;
-            break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotationDegrees = 90;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotationDegrees = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotationDegrees = 270;
+                break;
         }
         return rotationDegrees;
     }

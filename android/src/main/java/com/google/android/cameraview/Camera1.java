@@ -697,7 +697,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                         isPictureCaptureInProgress.set(false);
 
                         mOrientation = Constants.ORIENTATION_AUTO;
-                        mCallback.onPictureTaken(data, displayOrientationToOrientationEnum(mDeviceOrientation));
+                        mCallback.onPictureTaken(data, displayOrientationToOrientationEnum(mDeviceOrientation), getCameraOrientation());
 
                         if(mustUpdateSurface){
                             updateSurface();
