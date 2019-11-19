@@ -134,7 +134,7 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
 
 - (NSDictionary *)constantsToExport
 {
-    return [FaceDetectorManagerMlkit constants];
+    return @{};
 }
 
 RCT_EXPORT_MODULE(RNFaceDetector);
