@@ -362,11 +362,10 @@ interface TakePictureOptions {
   mirrorImage?: boolean;
   doNotSave?: boolean;
   pauseAfterCapture?: boolean;
+  writeExif?: boolean | { [name: string]: any };
 
   /** Android only */
-  skipProcessing?: boolean;
   fixOrientation?: boolean;
-  writeExif?: boolean | { [name: string]: any };
 
   /** iOS only */
   forceUpOrientation?: boolean;

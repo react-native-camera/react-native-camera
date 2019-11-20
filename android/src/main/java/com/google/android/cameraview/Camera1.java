@@ -671,7 +671,19 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                         mCamera.setParameters(mCameraParameters);
                     }
                     catch(RuntimeException e ) {
-                        Log.e("CAMERA_1::", "setParameters failed", e);
+                        Log.e("CAMERA_1::", "setParameters rotation failed", e);
+                    }
+                }
+
+                // set quality on capture since we might not process the image bitmap if not needed now.
+                // This also achieves a much faster JPEG compression speed since it's done on the hardware
+                if(options.hasKey("quality")){
+                    mCameraParameters.setJpegQuality((int) (options.getDouble("quality") * 100));
+                    try{
+                        mCamera.setParameters(mCameraParameters);
+                    }
+                    catch(RuntimeException e ) {
+                        Log.e("CAMERA_1::", "setParameters quality failed", e);
                     }
                 }
 

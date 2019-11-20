@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.uimanager.UIManagerModule;
@@ -373,7 +374,7 @@ public class RNCameraViewHelper {
     return exifMap;
   }
 
-  public static void setExifData(ExifInterface exifInterface, WritableMap exifMap) {
+  public static void setExifData(ExifInterface exifInterface, ReadableMap exifMap) {
     for (String[] tagInfo : exifTags) {
       String name = tagInfo[1];
       if (exifMap.hasKey(name)) {
@@ -394,13 +395,25 @@ public class RNCameraViewHelper {
       }
     }
 
-    if (exifMap.hasKey(ExifInterface.TAG_GPS_LATITUDE) &&
-        exifMap.hasKey(ExifInterface.TAG_GPS_LONGITUDE) &&
-        exifMap.hasKey(ExifInterface.TAG_GPS_ALTITUDE)) {
+    if (exifMap.hasKey(ExifInterface.TAG_GPS_LATITUDE) && exifMap.hasKey(ExifInterface.TAG_GPS_LONGITUDE)) {
       exifInterface.setLatLong(exifMap.getDouble(ExifInterface.TAG_GPS_LATITUDE),
                                exifMap.getDouble(ExifInterface.TAG_GPS_LONGITUDE));
+    }
+    if(exifMap.hasKey(ExifInterface.TAG_GPS_ALTITUDE)){
       exifInterface.setAltitude(exifMap.getDouble(ExifInterface.TAG_GPS_ALTITUDE));
     }
+  }
+
+  // clears exif values in place
+  public static void clearExifData(ExifInterface exifInterface) {
+    for (String[] tagInfo : exifTags) {
+      exifInterface.setAttribute(tagInfo[1], null);
+    }
+
+    // these are not part of our tag list, remove by hand
+    exifInterface.setAttribute(ExifInterface.TAG_GPS_LATITUDE, null);
+    exifInterface.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, null);
+    exifInterface.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, null);
   }
 
   public static Bitmap generateSimulatorPhoto(int width, int height) {

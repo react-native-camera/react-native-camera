@@ -524,7 +524,7 @@ Method to be called when text is detected. Receives a Text Recognized Event obje
 
 ### `takePictureAsync([options]): Promise`
 
-Takes a picture, saves in your app's cache directory and returns a promise.
+Takes a picture, saves in your app's cache directory and returns a promise. Note: additional image processing, such as mirror, orientation, and width, can be significantly slow on Android.
 
 Supported options:
 
@@ -536,13 +536,20 @@ Supported options:
 
 - `mirrorImage` (boolean true or false). Use this with `true` if you want the resulting rendered picture to be mirrored (inverted in the vertical axis). If no value is specified `mirrorImage:false` is used.
 
+- `writeExif`: (boolean or object, defaults to true). Setting this to a boolean indicates if the image exif should be preserved after capture, or removed. Setting it to an object, merges any data with the final exif output. This is useful, for example, to add GPS metadata (note that GPS info is correctly transalted from double values to the EXIF format, so there's no need to read the EXIF protocol).
+```js
+writeExif = {
+  "GPSLatitude": latitude,
+  "GPSLongitude": longitude,
+  "GPSAltitude": altitude
+}
+```
+
 - `exif` (boolean true or false) Use this with `true` if you want a exif data map of the picture taken on the return data of your promise. If no value is specified `exif:false` is used.
 
 - `fixOrientation` (android only, boolean true or false) Use this with `true` if you want to fix incorrect image orientation (can take up to 5 seconds on some devices). Do not provide this if you only need EXIF based orientation.
 
 - `forceUpOrientation` (iOS only, boolean true or false). This property allows to force portrait orientation based on actual data instead of exif data.
-
-- `skipProcessing` (android only, boolean). This property skips all image processing on android, this makes taking photos super fast, but you loose some of the information, width, height and the ability to do some processing on the image (base64, width, quality, mirrorImage, exif, etc)
 
 - `doNotSave` (boolean true or false). Use this with `true` if you do not want the picture to be saved as a file to cache. If no value is specified `doNotSave:false` is used. If you only need the base64 for the image, you can use this with `base64:true` and avoid having to save the file.
 
