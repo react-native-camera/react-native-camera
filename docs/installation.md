@@ -31,13 +31,19 @@ title: Installation
 <string>Your message to user when the photo library is accessed for the first time</string>
 ```
 
-## Mostly automatic install with react-native
+5. Declare the permissions in your Android Manifest (required for `video recording` feature)
+
+```xml
+<uses-permission android:name="android.permission.CAMERA" />
+```
+
+## Mostly automatic install with react-native link (RN < 0.60)
 
 1. `npm install react-native-camera --save`
 2. `react-native link react-native-camera`
    _To install it with Windows, see manual install below_
 
-## Mostly automatic install with CocoaPods
+## Mostly automatic install with Autolink (RN > 0.60)
 
 1. `npm install react-native-camera --save`
 2. Add the plugin dependency to your Podfile, pointing at the path where NPM installed it:
@@ -79,6 +85,20 @@ post_install do |installer|
     end
   end
 end
+```
+
+4. Insert the following lines in `android/app/build.gradle`:
+
+inside defaultConfig block insert:
+
+```gradle
+android {
+  ...
+  defaultConfig {
+    ...
+    missingDimensionStrategy 'react-native-camera', 'general' <-- insert this line
+  }
+}
 ```
 
 ## Manual install
