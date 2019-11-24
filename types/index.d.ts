@@ -175,10 +175,10 @@ export interface RNCameraProps {
     rawData?: string;
     type: keyof BarCodeType;
     /**
-     * @description For Android use `[Point<string>, Point<string>]`
+     * @description For Android use `{ width: number, height: number, origin: Array<Point<string>> }`
      * @description For iOS use `{ origin: Point<string>, size: Size<string> }`
      */
-    bounds: [Point<string>, Point<string>] | { origin: Point<string>; size: Size<string> };
+    bounds: { width: number, height: number, origin: Array<Point<string>> } | { origin: Point<string>; size: Size<string> };
   }): void;
 
   onGoogleVisionBarcodesDetected?(event: {
