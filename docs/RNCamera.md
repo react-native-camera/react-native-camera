@@ -417,18 +417,24 @@ Event contains the following fields
           }
         }
 
-  - onAndroid:
+  - onAndroid: the `ResultPoint[]` (`bounds.origin`) is returned for scanned barcode origins. The number of `ResultPoint` returned depends on the type of Barcode.
 
-        bounds:[{x:string,y:string}]
-        	- on Android it just returns resultPoints:
-        - for barcodes:
+        bounds: {
+          width: number;
+          height: number;
+          origin: Array<{x: number, y: number}>
+        }
 
-              bounds[0].x : left side of barcode.
-              bounds[1].x : right side of barcode
-        - counting for QRcodes:
+        1. **PDF417**: 8 ResultPoint, laid out as follow:
+          0 --- 4 ------ 6 --- 2
+          | ////////////////// |
+          1 --- 5 ------ 7 --- 3
 
-              1 2
-              0
+        2. **QR**: 4 ResultPoint, laid out as follow:
+          2 ------ 3
+          | //////
+          | //////
+          1 ------ 0
 
 The following barcode types can be recognised:
 
