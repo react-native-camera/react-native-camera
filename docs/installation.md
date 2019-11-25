@@ -157,22 +157,19 @@ android {
 
 # Additional installation steps
 
-### Face Detection/Text Recognition/BarCode(using MLKit) Steps
+Follow these optional steps if you want to use Face Detection/Text Recognition/BarCode with [MLKit](https://developers.google.com/ml-kit).
+You will need to set-up Firebase project for your app (detailed steps below).
+_Note:_ Installing [react-native-firebase](https://github.com/invertase/react-native-firebase) package is NOT necessary.
 
-Face Detection/Text Recognition/BarCode(using MLKit) are optional on iOS. If you want them, you will need to use CocoaPods path and set-up Firebase project for your app (detailed steps below).
+## iOS
 
-_Note:_ Installing react-native-firebase package is NOT necessary.
+If you want any of these optional features, you will need to use CocoaPods.
 
 ### Modifying Podfile
 
-Modify the dependency towards `react-native-camera` in your
-`Podfile`, from
+Add dependency towards `react-native-camera` in your `Podfile` with `subspecs` using one of the following:
 
-```
-pod 'react-native-camera', path: '../node_modules/react-native-camera'
-```
-
-to (for Face Detection)
+* For Face Detection:
 
 ```
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
@@ -180,7 +177,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 ]
 ```
 
-or to (for Text Recognition)
+* For Text Recognition:
 
 ```
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
@@ -188,7 +185,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 ]
 ```
 
-or to (for Barcode Recognition)
+* For BarCode Recognition:
 
 ```
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
@@ -196,7 +193,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 ]
 ```
 
-or to (all possible detections)
+* For all possible detections:
 
 ```
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
@@ -206,7 +203,9 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 ]
 ```
 
-## Setting up Firebase
+Then run `cd ios && pod install && cd ..`
+
+### Setting up Firebase
 
 Text/Face recognition for iOS uses Firebase MLKit which requires setting up Firebase project for your app.
 If you have not already added Firebase to your app, please follow the steps described in [getting started guide](https://firebase.google.com/docs/ios/setup).
@@ -228,112 +227,66 @@ In short, you would need to
 }
 ```
 
-- If you have issues with duplicate symbols you will need to enable dead code stripping option in your Xcode (Target > Build Settings > search for "Dead code stripping") [see here](https://github.com/firebase/quickstart-ios/issues/487#issuecomment-415313053).
-- If you are using `pod Firebase/Core` with a version set below 5.13 you might want to add `pod 'GoogleAppMeasurement', '~> 5.3.0'` to your podfile
+<details>
+  <summary>Additional information in case of problems</summary>
 
-### Android
+  - If you have issues with duplicate symbols you will need to enable dead code stripping option in your Xcode (Target > Build Settings > search for "Dead code stripping") [see here](https://github.com/firebase/quickstart-ios/issues/487#issuecomment-415313053).
+  - If you are using `pod Firebase/Core` with a version set below 5.13 you might want to add `pod 'GoogleAppMeasurement', '~> 5.3.0'` to your podfile
+</details>
 
-1. `npm install react-native-camera --save`
-2. Open up `android/app/src/main/java/[...]/MainApplication.java`
 
-- Add `import org.reactnative.camera.RNCameraPackage;` to the imports at the top of the file
-- Add `new RNCameraPackage()` to the list returned by the `getPackages()` method. Add a comma to the previous item if there's already something there.
+## Android
 
-3. Append the following lines to `android/settings.gradle`:
+### Modifying build.gradle
 
-   ```gradle
-   include ':react-native-camera'
-   project(':react-native-camera').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-camera/android')
-   ```
-
-4. Insert the following lines in `android/app/build.gradle`:
-
-inside the dependencies block:
-
-    ```gradle
-    implementation project(':react-native-camera')
-    ```
-
-inside defaultConfig block insert either:
+Modify the following lines in `android/app/build.gradle`:
 
 ```gradle
 android {
   ...
   defaultConfig {
     ...
-    missingDimensionStrategy 'react-native-camera', 'general' <-- insert this line
+    missingDimensionStrategy 'react-native-camera', 'mlkit' // <--- replace general with mlkit
   }
 }
 ```
 
-or, if using MLKit for text/face/barcode recognition:
+### Setting up Firebase
+
+Using Firebase MLKit requires seting up Firebase project for your app. If you have not already added Firebase to your app, please follow the steps described in [getting started guide](https://firebase.google.com/docs/android/setup).
+In short, you would need to
+
+1. Register your app in Firebase console.
+2. Download google-services.json and place it in `android/app/`
+3. Add the folowing to project level `build.gradle`:
 
 ```gradle
-android {
-  ...
-  defaultConfig {
-    ...
-    missingDimensionStrategy 'react-native-camera', 'mlkit' <-- insert this line
+buildscript {
+  dependencies {
+  // Add this line
+  classpath 'com.google.gms:google-services:4.0.1' // <--- you might want to use different version
   }
 }
 ```
 
-5. Declare the permissions in your Android Manifest (required for `video recording` feature)
+4. add to the bottom of `android/app/build.gradle` file
+
+```gradle
+apply plugin: 'com.google.gms.google-services'
+```
+
+5. Configure your app to automatically download the ML model to the device after your app is installed from the Play Store. If you do not enable install-time model downloads, the model will be downloaded the first time you run the on-device detector. Requests you make before the download has completed will produce no results.
 
 ```xml
-<uses-permission android:name="android.permission.RECORD_AUDIO"/>
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<application ...>
+...
+  <meta-data
+      android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+      android:value="ocr, face" /> <!-- choose models that you will use -->
+</application>
 ```
 
-6. Add jitpack to android/build.gradle
-
-```gradle
-allprojects {
-    repositories {
-        maven { url "https://www.jitpack.io" }
-        maven { url "https://maven.google.com" }
-    }
-}
-```
-
-7. Additional steps for using MLKit for text/face/barcode recognition
-
-   7.1. Using Firebase MLKit requires seting up Firebase project for your app. If you have not already added Firebase to your app, please follow the steps described in [getting started guide](https://firebase.google.com/docs/android/setup).
-   In short, you would need to
-
-   - Register your app in Firebase console.
-   - Download google-services.json and place it in `android/app/`
-   - add the folowing to project level build.gradle:
-
-   ```gradle
-       buildscript {
-         dependencies {
-         // Add this line
-         classpath 'com.google.gms:google-services:4.0.1' <-- you might want to use different version
-         }
-       }
-   ```
-
-   - add to the bottom of `android/app/build.gradle` file
-
-   ```gradle
-   apply plugin: 'com.google.gms.google-services'
-   ```
-
-   7.2. Configure your app to automatically download the ML model to the device after your app is installed from the Play Store. If you do not enable install-time model downloads, the model will be downloaded the first time you run the on-device detector. Requests you make before the download has completed will produce no results.
-
-   ```xml
-   <application ...>
-   ...
-     <meta-data
-         android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-         android:value="ocr" />
-     <!-- To use multiple models, list all needed models: android:value="ocr, face, barcode" -->
-   </application>
-   ```
-
+### Additional info
 The current Android library defaults to the below values for the Google SDK and Libraries,
 
 ```gradle
@@ -458,7 +411,7 @@ dependencies {
 
 If you are using a version of `googlePlayServicesVersion` that does not have `play-services-vision`, you can specify a different version of `play-services-vision` by adding `googlePlayServicesVisionVersion` to the project-wide properties
 
-```
+```gradle
 ext {
     compileSdkVersion           = 26
     targetSdkVersion            = 26
