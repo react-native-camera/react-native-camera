@@ -3,14 +3,66 @@ id: installation
 title: Installation
 ---
 
-## Requirements
+This document is split into two main sections:
+1. Required installation steps for basic usage of `react-native-camera`
+2. Additional installation steps for usage of Face Detection/Text Recognition/BarCode with [MLKit](https://developers.google.com/ml-kit)
 
-1. JDK >= 1.7 (if you run on 1.6 you will get an error on "\_cameras = new HashMap<>();")
-2. With iOS 10 and higher you need to add the "Privacy - Camera Usage Description" key to the Info.plist of your project. This should be found in 'your_project/ios/your_project/Info.plist'. Add the following code:
+# Required installation steps
 
-```
+_These steps assume installation for iOS/Android. To install it with Windows, see manual install below_
+
+## Mostly automatic install with autolinking (RN > 0.60)
+
+1. `npm install react-native-camera --save`
+2. Run `cd ios && pod install && cd ..`
+
+## Mostly automatic install with react-native link (RN < 0.60)
+
+1. `npm install react-native-camera --save`
+2. `react-native link react-native-camera`
+
+## Manual install - iOS (not recommended)
+
+1. `npm install react-native-camera --save`
+2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
+3. Go to `node_modules` ➜ `react-native-camera` and add `RNCamera.xcodeproj`
+4. Expand the `RNCamera.xcodeproj` ➜ `Products` folder
+5. In XCode, in the project navigator, select your project. Add `libRNCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
+6. Click `RNCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
+
+## Manual install - Android (not recommended)
+
+1. `npm install react-native-camera --save`
+2. Open up `android/app/src/main/java/[...]/MainApplication.java`
+
+- Add `import org.reactnative.camera.RNCameraPackage;` to the imports at the top of the file
+- Add `new RNCameraPackage()` to the list returned by the `getPackages()` method. Add a comma to the previous item if there's already something there.
+
+3. Append the following lines to `android/settings.gradle`:
+
+  ```gradle
+  include ':react-native-camera'
+  project(':react-native-camera').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-camera/android')
+  ```
+
+4. Insert the following lines in `android/app/build.gradle` inside the dependencies block:
+
+  ```gradle
+  implementation project(':react-native-camera')
+  ```
+
+## iOS - other required steps
+
+Add permissions with usage descriptions to your app `Info.plist`:
+
+```xml
+<!-- Required with iOS 10 and higher -->
 <key>NSCameraUsageDescription</key>
 <string>Your message to user when the camera is accessed for the first time</string>
+
+<!-- Required with iOS 11 and higher: include this only if you are planning to use the camera roll -->
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>Your message to user when the photo library is accessed for the first time</string>
 
 <!-- Include this only if you are planning to use the camera roll -->
 <key>NSPhotoLibraryUsageDescription</key>
@@ -21,96 +73,89 @@ title: Installation
 <string>Your message to user when the microphone is accessed for the first time</string>
 ```
 
-3. On Android, you require `buildToolsVersion` of `25.0.2+`. _This should easily and automatically be downloaded by Android Studio's SDK Manager._
+<details>
+  <summary>Additional information in case of problems</summary>
 
-4. On iOS 11 and later you need to add `NSPhotoLibraryAddUsageDescription` key to the Info.plist. This key lets you describe the reason your app seeks write-only access to the user’s photo library. Info.plist can be found in 'your_project/ios/your_project/Info.plist'. Add the following code:
+  _Note:_ You might need to adjust your Podfile following the example below:
 
-```
-<!-- Include this only if you are planning to use the camera roll -->
-<key>NSPhotoLibraryAddUsageDescription</key>
-<string>Your message to user when the photo library is accessed for the first time</string>
-```
+  ```ruby
+  target 'yourTargetName' do
+    # See http://facebook.github.io/react-native/docs/integration-with-existing-apps.html#configuring-cocoapods-dependencies
+    pod 'React', :path => '../node_modules/react-native', :subspecs => [
+      'Core',
+      'CxxBridge', # Include this for RN >= 0.47
+      'DevSupport', # Include this to enable In-App Devmenu if RN >= 0.43
+      'RCTText',
+      'RCTNetwork',
+      'RCTWebSocket', # Needed for debugging
+      'RCTAnimation', # Needed for FlatList and animations running on native UI thread
+      # Add any other subspecs you want to use in your project
+    ]
 
-5. Declare the permissions in your Android Manifest (required for `video recording` feature)
+    # Explicitly include Yoga if you are using RN >= 0.42.0
+    pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
 
-```xml
-<uses-permission android:name="android.permission.CAMERA" />
-```
+    # Third party deps podspec link
+    pod 'react-native-camera', path: '../node_modules/react-native-camera'
 
-## Mostly automatic install with react-native link (RN < 0.60)
+  end
 
-1. `npm install react-native-camera --save`
-2. `react-native link react-native-camera`
-   _To install it with Windows, see manual install below_
-
-## Mostly automatic install with Autolink (RN > 0.60)
-
-1. `npm install react-native-camera --save`
-2. Add the plugin dependency to your Podfile, pointing at the path where NPM installed it:
-
-```obj-c
-pod 'react-native-camera', path: '../node_modules/react-native-camera'
-```
-
-3. Run `pod install`
-
-_Note:_ You might need to adjust your Podfile following the example below:
-
-```ruby
-target 'yourTargetName' do
-  # See http://facebook.github.io/react-native/docs/integration-with-existing-apps.html#configuring-cocoapods-dependencies
-  pod 'React', :path => '../node_modules/react-native', :subspecs => [
-    'Core',
-    'CxxBridge', # Include this for RN >= 0.47
-    'DevSupport', # Include this to enable In-App Devmenu if RN >= 0.43
-    'RCTText',
-    'RCTNetwork',
-    'RCTWebSocket', # Needed for debugging
-    'RCTAnimation', # Needed for FlatList and animations running on native UI thread
-    # Add any other subspecs you want to use in your project
-  ]
-
-  # Explicitly include Yoga if you are using RN >= 0.42.0
-  pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
-
-  # Third party deps podspec link
-  pod 'react-native-camera', path: '../node_modules/react-native-camera'
-
-end
-
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    if target.name == "React"
-      target.remove_from_project
+  post_install do |installer|
+    installer.pods_project.targets.each do |target|
+      if target.name == "React"
+        target.remove_from_project
+      end
     end
   end
-end
+  ```
+</details>
+
+## Android - other required steps
+
+Add permissions to your app `android/app/src/main/AndroidManifest.xml` file:
+
+```xml
+<!-- Required -->
+<uses-permission android:name="android.permission.CAMERA" />
+
+<!-- Include this only if you are planning to use the camera roll -->
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+<!-- Include this only if you are planning to use the microphone for video recording -->
+<uses-permission android:name="android.permission.RECORD_AUDIO"/>
 ```
 
-4. Insert the following lines in `android/app/build.gradle`:
-
-inside defaultConfig block insert:
+Insert the following lines in `android/app/build.gradle`:
 
 ```gradle
 android {
   ...
   defaultConfig {
     ...
-    missingDimensionStrategy 'react-native-camera', 'general' <-- insert this line
+    missingDimensionStrategy 'react-native-camera', 'general' // <--- insert this line
   }
 }
 ```
 
-## Manual install
+<details>
+  <summary>Additional information in case of problems</summary>
 
-## iOS
+  1. Make sure you use `JDK >= 1.7` and your `buildToolsVersion >= 25.0.2`
 
-1. `npm install react-native-camera --save`
-2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
-3. Go to `node_modules` ➜ `react-native-camera` and add `RNCamera.xcodeproj`
-4. Expand the `RNCamera.xcodeproj` ➜ `Products` folder
-5. In XCode, in the project navigator, select your project. Add `libRNCamera.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
-6. Click `RNCamera.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
+  2. Make sure you have jitpack added in `android/build.gradle`
+
+  ```gradle
+  allprojects {
+      repositories {
+          maven { url "https://www.jitpack.io" }
+          maven { url "https://maven.google.com" }
+      }
+  }
+  ```
+</details>
+
+# Additional installation steps
 
 ### Face Detection/Text Recognition/BarCode(using MLKit) Steps
 
@@ -424,7 +469,7 @@ ext {
 }
 ```
 
-### Windows
+# Windows
 
 1. `npm install react-native-camera --save`
 2. Link the library as described here: [react-native-windows / LinkingLibrariesWindows.md](https://github.com/microsoft/react-native-windows/blob/master/current/docs/LinkingLibrariesWindows.md)
