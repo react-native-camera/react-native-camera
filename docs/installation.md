@@ -286,141 +286,143 @@ apply plugin: 'com.google.gms.google-services'
 </application>
 ```
 
-### Additional info
-The current Android library defaults to the below values for the Google SDK and Libraries,
+<details>
+  <summary>Additional information in case of problems</summary>
+  The current Android library defaults to the below values for the Google SDK and Libraries,
 
-```gradle
-def DEFAULT_COMPILE_SDK_VERSION             = 26
-def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
-def DEFAULT_TARGET_SDK_VERSION              = 26
-def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
-def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
-```
+  ```gradle
+  def DEFAULT_COMPILE_SDK_VERSION             = 26
+  def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
+  def DEFAULT_TARGET_SDK_VERSION              = 26
+  def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
+  def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
+  ```
 
-You can override this settings by adding a Project-wide gradle configuration properties for
-use by all modules in your ReactNative project by adding the below to `android/build.gradle`
-file,
+  You can override this settings by adding a Project-wide gradle configuration properties for
+  use by all modules in your ReactNative project by adding the below to `android/build.gradle`
+  file,
 
-```gradle
-buildscript {...}
+  ```gradle
+  buildscript {...}
 
-allprojects {...}
+  allprojects {...}
 
-/**
-* Project-wide gradle configuration properties for use by all modules
-*/
-ext {
-    compileSdkVersion           = 26
-    targetSdkVersion            = 26
-    buildToolsVersion           = "26.0.2"
-    googlePlayServicesVersion   = "12.0.1"
-    googlePlayServicesVisionVersion = "15.0.2"
-    supportLibVersion           = "27.1.0"
-}
-```
+  /**
+  * Project-wide gradle configuration properties for use by all modules
+  */
+  ext {
+      compileSdkVersion           = 26
+      targetSdkVersion            = 26
+      buildToolsVersion           = "26.0.2"
+      googlePlayServicesVersion   = "12.0.1"
+      googlePlayServicesVisionVersion = "15.0.2"
+      supportLibVersion           = "27.1.0"
+  }
+  ```
 
-The above settings in the ReactNative project over-rides the values present in the `react-native-camera`
-module. For your reference below is the `android/build.gradle` file of the module.
+  The above settings in the ReactNative project over-rides the values present in the `react-native-camera`
+  module. For your reference below is the `android/build.gradle` file of the module.
 
-```gradle
-def safeExtGet(prop, fallback) {
-    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
-}
+  ```gradle
+  def safeExtGet(prop, fallback) {
+      rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+  }
 
-buildscript {
+  buildscript {
+    repositories {
+      google()
+      maven {
+        url 'https://maven.google.com'
+      }
+      jcenter()
+    }
+
+    dependencies {
+      classpath 'com.android.tools.build:gradle:3.3.1'
+    }
+  }
+
+  apply plugin: 'com.android.library'
+
+  android {
+    compileSdkVersion safeExtGet('compileSdkVersion', 28)
+    buildToolsVersion safeExtGet('buildToolsVersion', '28.0.3')
+
+    defaultConfig {
+      minSdkVersion safeExtGet('minSdkVersion', 16)
+      targetSdkVersion safeExtGet('targetSdkVersion', 28)
+    }
+
+    flavorDimensions "react-native-camera"
+
+    productFlavors {
+      general {
+        dimension "react-native-camera"
+      }
+      mlkit {
+        dimension "react-native-camera"
+      }
+    }
+
+    sourceSets {
+      main {
+        java.srcDirs = ['src/main/java']
+      }
+      general {
+        java.srcDirs = ['src/general/java']
+      }
+      mlkit {
+        java.srcDirs = ['src/mlkit/java']
+      }
+    }
+
+    lintOptions {
+      abortOnError false
+      warning 'InvalidPackage'
+    }
+  }
+
   repositories {
     google()
-    maven {
-      url 'https://maven.google.com'
-    }
     jcenter()
+    maven {
+    url 'https://maven.google.com'
+    }
+    maven { url "https://jitpack.io" }
+    maven {
+      // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+      url "$rootDir/../node_modules/react-native/android"
+    }
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.3.1'
+    def googlePlayServicesVisionVersion = safeExtGet('googlePlayServicesVisionVersion', safeExtGet('googlePlayServicesVersion', '17.0.2'))
+
+    implementation 'com.facebook.react:react-native:+'
+    implementation "com.google.zxing:core:3.3.3"
+    implementation "com.drewnoakes:metadata-extractor:2.11.0"
+    generalImplementation "com.google.android.gms:play-services-vision:$googlePlayServicesVisionVersion"
+    implementation "com.android.support:exifinterface:${safeExtGet('supportLibVersion', '28.0.0')}"
+    implementation "com.android.support:support-annotations:${safeExtGet('supportLibVersion', '28.0.0')}"
+    implementation "com.android.support:support-v4:${safeExtGet('supportLibVersion', '28.0.0')}"
+    mlkitImplementation "com.google.firebase:firebase-ml-vision:${safeExtGet('firebase-ml-vision', '19.0.3')}"
+    mlkitImplementation "com.google.firebase:firebase-ml-vision-face-model:${safeExtGet('firebase-ml-vision-face-model', '17.0.2')}"
   }
-}
+  ```
 
-apply plugin: 'com.android.library'
+  If you are using a version of `googlePlayServicesVersion` that does not have `play-services-vision`, you can specify a different version of `play-services-vision` by adding `googlePlayServicesVisionVersion` to the project-wide properties
 
-android {
-  compileSdkVersion safeExtGet('compileSdkVersion', 28)
-  buildToolsVersion safeExtGet('buildToolsVersion', '28.0.3')
-
-  defaultConfig {
-    minSdkVersion safeExtGet('minSdkVersion', 16)
-    targetSdkVersion safeExtGet('targetSdkVersion', 28)
+  ```gradle
+  ext {
+      compileSdkVersion           = 26
+      targetSdkVersion            = 26
+      buildToolsVersion           = "26.0.2"
+      googlePlayServicesVersion   = "16.0.1"
+      googlePlayServicesVisionVersion = "15.0.2"
+      supportLibVersion           = "27.1.0"
   }
-
-  flavorDimensions "react-native-camera"
-
-  productFlavors {
-    general {
-      dimension "react-native-camera"
-    }
-    mlkit {
-      dimension "react-native-camera"
-    }
-  }
-
-  sourceSets {
-    main {
-      java.srcDirs = ['src/main/java']
-    }
-    general {
-      java.srcDirs = ['src/general/java']
-    }
-    mlkit {
-      java.srcDirs = ['src/mlkit/java']
-    }
-  }
-
-  lintOptions {
-    abortOnError false
-    warning 'InvalidPackage'
-  }
-}
-
-repositories {
-  google()
-  jcenter()
-  maven {
-   url 'https://maven.google.com'
-  }
-  maven { url "https://jitpack.io" }
-  maven {
-    // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-    url "$rootDir/../node_modules/react-native/android"
-  }
-}
-
-dependencies {
-  def googlePlayServicesVisionVersion = safeExtGet('googlePlayServicesVisionVersion', safeExtGet('googlePlayServicesVersion', '17.0.2'))
-
-  implementation 'com.facebook.react:react-native:+'
-  implementation "com.google.zxing:core:3.3.3"
-  implementation "com.drewnoakes:metadata-extractor:2.11.0"
-  generalImplementation "com.google.android.gms:play-services-vision:$googlePlayServicesVisionVersion"
-  implementation "com.android.support:exifinterface:${safeExtGet('supportLibVersion', '28.0.0')}"
-  implementation "com.android.support:support-annotations:${safeExtGet('supportLibVersion', '28.0.0')}"
-  implementation "com.android.support:support-v4:${safeExtGet('supportLibVersion', '28.0.0')}"
-  mlkitImplementation "com.google.firebase:firebase-ml-vision:${safeExtGet('firebase-ml-vision', '19.0.3')}"
-  mlkitImplementation "com.google.firebase:firebase-ml-vision-face-model:${safeExtGet('firebase-ml-vision-face-model', '17.0.2')}"
-}
-```
-
-If you are using a version of `googlePlayServicesVersion` that does not have `play-services-vision`, you can specify a different version of `play-services-vision` by adding `googlePlayServicesVisionVersion` to the project-wide properties
-
-```gradle
-ext {
-    compileSdkVersion           = 26
-    targetSdkVersion            = 26
-    buildToolsVersion           = "26.0.2"
-    googlePlayServicesVersion   = "16.0.1"
-    googlePlayServicesVisionVersion = "15.0.2"
-    supportLibVersion           = "27.1.0"
-}
-```
+  ```
+</details>
 
 # Windows
 
