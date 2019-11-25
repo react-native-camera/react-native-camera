@@ -9,7 +9,7 @@ This document is split into two main sections:
 
 # Required installation steps
 
-_These steps assume installation for iOS/Android. To install it with Windows, see manual install below_
+_These steps assume installation for iOS/Android. To install it with Windows, see manual install [below](#windows)_
 
 ## Mostly automatic install with autolinking (RN > 0.60)
 
@@ -76,7 +76,7 @@ Add permissions with usage descriptions to your app `Info.plist`:
 <details>
   <summary>Additional information in case of problems</summary>
 
-  _Note:_ You might need to adjust your Podfile following the example below:
+  You might need to adjust your Podfile following the example below:
 
   ```ruby
   target 'yourTargetName' do
@@ -159,6 +159,7 @@ android {
 
 Follow these optional steps if you want to use Face Detection/Text Recognition/BarCode with [MLKit](https://developers.google.com/ml-kit).
 You will need to set-up Firebase project for your app (detailed steps below).
+
 _Note:_ Installing [react-native-firebase](https://github.com/invertase/react-native-firebase) package is NOT necessary.
 
 ## iOS
@@ -171,7 +172,7 @@ Add dependency towards `react-native-camera` in your `Podfile` with `subspecs` u
 
 * For Face Detection:
 
-```
+```ruby
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
   'FaceDetectorMLKit'
 ]
@@ -179,7 +180,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 
 * For Text Recognition:
 
-```
+```ruby
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
   'TextDetector'
 ]
@@ -187,7 +188,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 
 * For BarCode Recognition:
 
-```
+```ruby
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
   'BarcodeDetectorMLKit'
 ]
@@ -195,7 +196,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 
 * For all possible detections:
 
-```
+```ruby
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
   'TextDetector',
   'FaceDetectorMLKit',
