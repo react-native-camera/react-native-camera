@@ -1141,6 +1141,12 @@ BOOL _recordRequested = NO;
     return;
 #endif
     dispatch_async(self.sessionQueue, ^{
+        if (self.runtimeErrorHandlingObserver) {
+            [NSNotificationCenter.defaultCenter removeObserver:self.runtimeErrorHandlingObserver
+                                                          name:AVCaptureSessionRuntimeErrorNotification
+                                                        object:self.session];
+            [self setRuntimeErrorHandlingObserver:nil];
+        }
         if ([self.textDetector isRealDetector]) {
             [self stopTextRecognition];
         }
