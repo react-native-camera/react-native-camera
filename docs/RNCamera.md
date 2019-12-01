@@ -692,6 +692,14 @@ A Barcode and QR code UI mask which can be use to render a scanning layout on ca
 
 Read more about [react-native-barcode-mask](https://github.com/shahnawaz/react-native-barcode-mask) here.
 
+### @nartc/react-native-barcode-mask
+
+A rewritten version of `react-native-barcode-mask` using `Hooks` and `Reanimated`. If you're already using `react-native-reanimated` (`react-navigation` dependency) then you might benefit from this rewritten component.
+- Customizable
+- Provide custom hook to "scan barcode within finder area"
+
+Read more about it here [@nartc/react-native-barcode-mask](https://github.com/nartc/react-native-barcode-mask) 
+
 ## Testing
 
 To learn about how to test components which uses `RNCamera` check its [documentation about testing](./tests.md).
