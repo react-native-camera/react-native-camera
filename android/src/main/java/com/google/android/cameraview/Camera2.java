@@ -436,7 +436,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             mStillImageReader.close();
         }
         if (size == null) {
-          if (mAspectRatio == null) {
+          if (mAspectRatio == null || mPictureSize == null) {
             return;
           }
           mPictureSizes.sizes(mAspectRatio).last();

@@ -293,6 +293,8 @@ public class CameraView extends FrameLayout {
             } else {
                 mImpl = new Camera2Api23(mCallbacks, mImpl.mPreview, mContext, mBgHandler);
             }
+
+            onRestoreInstanceState(state);
         } else {
             if (mImpl instanceof Camera1) {
                 return;
@@ -316,7 +318,7 @@ public class CameraView extends FrameLayout {
                 this.removeView(mImpl.getView());
             }
             //store the state and restore this state after fall back to Camera1
-            Parcelable state=onSaveInstanceState();
+            Parcelable state = onSaveInstanceState();
             // Camera2 uses legacy hardware layer; fall back to Camera1
             mImpl = new Camera1(mCallbacks, createPreviewImpl(getContext()), mBgHandler);
             onRestoreInstanceState(state);
