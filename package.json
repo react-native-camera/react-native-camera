@@ -79,7 +79,7 @@
     "prettier": "prettier --write",
     "ci:publish": "semantic-release"
   },
-  "types": "types",
+  "types": "types/index.d.ts",
   "release": {
     "plugins": [
       "@semantic-release/commit-analyzer",
