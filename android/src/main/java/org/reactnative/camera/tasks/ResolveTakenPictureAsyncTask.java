@@ -103,7 +103,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
             inputStream = new ByteArrayInputStream(mImageData);
         }
 
-        // If we use document detection feature the detector is passed to constructor
+        // If we use document detection feature the detector was passed to this constructor
         if (mDocumentDetector != null) {
             Document document = mDocumentDetector.detectCaptured(mImageData, mBitmap.getWidth(), mBitmap.getHeight());
             if (document != null) {

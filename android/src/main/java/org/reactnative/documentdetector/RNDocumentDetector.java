@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class RNDocumentDetector {
+    static final double MINIMUM_SIZE_FACTOR = .15; // document at least 15% of image area
 
     private final Comparator<Point> sumComparator = new Comparator<Point>() {
         @Override
@@ -32,6 +33,13 @@ public class RNDocumentDetector {
             return Double.compare(lhs.y - lhs.x, rhs.y - rhs.x);
         }
     };
+    private final Comparator<MatOfPoint> contourAreaComparator = new Comparator<MatOfPoint>() {
+
+        @Override
+        public int compare(MatOfPoint lhs, MatOfPoint rhs) {
+            return Double.compare(Imgproc.contourArea(rhs), Imgproc.contourArea(lhs));
+        }
+    };
 
     public RNDocumentDetector() {}
 
@@ -41,11 +49,11 @@ public class RNDocumentDetector {
         Quadrilateral quadrilateral = processFrame(mat);
 
         mat.release();
-        if (quadrilateral != null) {
-            Point[] transformedPoints = transformPoints(quadrilateral.getPoints(), scaleX, scaleY, landscapeHeight);
-            return new Document(transformedPoints);
-        }
-        return null;
+        if (quadrilateral == null) return null;
+
+        // points need to be transformed for pixels to be used in RN
+        Point[] transformedPoints = transformPoints(quadrilateral.getPoints(), scaleX, scaleY, landscapeHeight);
+        return new Document(transformedPoints);
     }
 
     public Document detectCaptured(byte[] imageData, double landscapeWidth, double landscapeHeight) {
@@ -101,18 +109,14 @@ public class RNDocumentDetector {
     }
 
     private List<MatOfPoint> findContours(Mat src) {
-        Mat grayImage = null;
-        Mat cannedImage = null;
-        Mat resizedImage = null;
-
         double ratio = src.size().height / 500;
         int height = Double.valueOf(src.size().height / ratio).intValue();
         int width = Double.valueOf(src.size().width / ratio).intValue();
         Size size = new Size(width, height);
 
-        resizedImage = new Mat(size, CvType.CV_8UC4);
-        grayImage = new Mat(size, CvType.CV_8UC4);
-        cannedImage = new Mat(size, CvType.CV_8UC1);
+        Mat resizedImage = new Mat(size, CvType.CV_8UC4);
+        Mat grayImage = new Mat(size, CvType.CV_8UC4);
+        Mat cannedImage = new Mat(size, CvType.CV_8UC1);
 
         Imgproc.resize(src, resizedImage, size);
         Imgproc.cvtColor(resizedImage, grayImage, Imgproc.COLOR_RGBA2GRAY, 4);
@@ -125,18 +129,11 @@ public class RNDocumentDetector {
         Imgproc.findContours(cannedImage, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
 
         hierarchy.release();
-
-        Collections.sort(contours, new Comparator<MatOfPoint>() {
-
-            @Override
-            public int compare(MatOfPoint lhs, MatOfPoint rhs) {
-                return Double.compare(Imgproc.contourArea(rhs), Imgproc.contourArea(lhs));
-            }
-        });
-
         resizedImage.release();
         grayImage.release();
         cannedImage.release();
+
+        Collections.sort(contours, contourAreaComparator);
 
         if (contours.size() > 10) {
             return contours.subList(0, 10);
@@ -151,9 +148,9 @@ public class RNDocumentDetector {
         int width = Double.valueOf(srcSize.width / ratio).intValue();
         Size size = new Size(width, height);
 
-        for (MatOfPoint matOfPoint : contours) {
+        for (MatOfPoint contour : contours) {
             // find contour perimeter
-            MatOfPoint2f c2f = new MatOfPoint2f(matOfPoint.toArray());
+            MatOfPoint2f c2f = new MatOfPoint2f(contour.toArray());
             double perimeter = Imgproc.arcLength(c2f, true);
 
             // approximate the shape by Ramer–Douglas–Peucker
@@ -166,7 +163,7 @@ public class RNDocumentDetector {
             Point[] points = selectCornersFromPoints(approx.toArray());
             if (isQuadrilateralLargeEnough(points, size)) {
                 scalePoints(points, ratio); // reset scale to src size
-                return new Quadrilateral(matOfPoint, points);
+                return new Quadrilateral(contour, points);
             }
         }
 
@@ -217,6 +214,6 @@ public class RNDocumentDetector {
         double height2 = Math.hypot(tl.x-bl.x, tl.y-bl.y);
         double height = Math.max(height1, height2);
 
-        return width*height > .15*(widthMax*heightMax); // at least 15% of area
+        return width*height > MINIMUM_SIZE_FACTOR * (widthMax*heightMax);
     }
 }
