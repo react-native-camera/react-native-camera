@@ -16,18 +16,21 @@
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
 @property(nonatomic, strong) AVCaptureSession *session;
 @property(nonatomic, strong) AVCaptureDeviceInput *videoCaptureDeviceInput;
+@property(nonatomic, strong) AVCaptureDeviceInput *audioCaptureDeviceInput;
 @property(nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
 @property(nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
 @property(nonatomic, strong) AVCaptureMetadataOutput *metadataOutput;
 @property(nonatomic, strong) AVCaptureVideoDataOutput *videoDataOutput;
-@property(nonatomic, strong) id runtimeErrorHandlingObserver;
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
+@property(nonatomic, strong) id runtimeErrorHandlingObserver;
 @property(nonatomic, strong) NSArray *barCodeTypes;
 @property(nonatomic, strong) NSArray *googleVisionBarcodeTypes;
 
 @property(nonatomic, assign) NSInteger presetCamera;
+@property(nonatomic, copy) NSString *cameraId; // copy required for strings/pointers
 @property(assign, nonatomic) NSInteger flashMode;
 @property(assign, nonatomic) CGFloat zoom;
+@property(assign, nonatomic) CGFloat maxZoom;
 @property(assign, nonatomic) NSInteger autoFocus;
 @property(copy, nonatomic) NSDictionary *autoFocusPointOfInterest;
 @property(assign, nonatomic) float focusDepth;
@@ -37,12 +40,12 @@
 @property(assign, nonatomic) float exposureIsoMax;
 @property(assign, nonatomic) AVCaptureSessionPreset pictureSize;
 @property(nonatomic, assign) BOOL isReadingBarCodes;
-@property(nonatomic, assign) BOOL isRecording;
 @property(nonatomic, assign) BOOL isRecordingInterrupted;
 @property(nonatomic, assign) BOOL isDetectingFaces;
 @property(nonatomic, assign) BOOL canReadText;
 @property(nonatomic, assign) BOOL canDetectFaces;
 @property(nonatomic, assign) BOOL canDetectBarcodes;
+@property(nonatomic, assign) BOOL captureAudio;
 @property(nonatomic, assign) CGRect rectOfInterest;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property(assign, nonatomic)
@@ -61,6 +64,7 @@
 - (void)updateWhiteBalance;
 - (void)updateExposure;
 - (void)updatePictureSize;
+- (void)updateCaptureAudio;
 // Face Detection props
 - (void)updateTrackingEnabled:(id)requestedTracking;
 - (void)updateFaceDetectionMode:(id)requestedMode;
@@ -93,9 +97,11 @@
 - (void)onMountingError:(NSDictionary *)event;
 - (void)onCodeRead:(NSDictionary *)event;
 - (void)onFacesDetected:(NSDictionary *)event;
+- (void)onPictureTaken:(NSDictionary *)event;
 - (void)onPictureSaved:(NSDictionary *)event;
 - (void)onText:(NSDictionary *)event;
 - (void)onBarcodesDetected:(NSDictionary *)event;
 - (bool)isRecording;
+- (void)onSubjectAreaChanged:(NSDictionary *)event;
 
 @end

@@ -3,3 +3,5 @@
 circle.yml
 commitlint.config.js
 /android/build
+/website
+/docs

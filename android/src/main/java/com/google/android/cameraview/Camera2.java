@@ -263,8 +263,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     private Rect mInitialCropRegion;
 
-    Camera2(Callback callback, PreviewImpl preview, Context context) {
-        super(callback, preview);
+    Camera2(Callback callback, PreviewImpl preview, Context context, Handler bgHandler) {
+        super(callback, preview, bgHandler);
         mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
         mCameraManager.registerAvailabilityCallback(new CameraManager.AvailabilityCallback() {
             @Override
@@ -436,7 +436,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             mStillImageReader.close();
         }
         if (size == null) {
-          if (mAspectRatio == null) {
+          if (mAspectRatio == null || mPictureSize == null) {
             return;
           }
           mPictureSizes.sizes(mAspectRatio).last();
@@ -1254,6 +1254,13 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                     break;
             }
             captureRequestBuilder.set(CaptureRequest.JPEG_ORIENTATION, getOutputRotation());
+
+
+            if(mCaptureCallback.getOptions().hasKey("quality")){
+                int quality = (int) (mCaptureCallback.getOptions().getDouble("quality") * 100);
+                captureRequestBuilder.set(CaptureRequest.JPEG_QUALITY, (byte)quality);
+            }
+
             captureRequestBuilder.set(CaptureRequest.SCALER_CROP_REGION, mPreviewRequestBuilder.get(CaptureRequest.SCALER_CROP_REGION));
             // Stop preview and capture a still picture.
             mCaptureSession.stopRepeating();

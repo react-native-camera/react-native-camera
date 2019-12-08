@@ -61,7 +61,7 @@ public class RNBarcodeDetector {
     private void createBarcodeDetector() {
         FirebaseVisionBarcodeDetectorOptions options = mBuilder.build();
         mBarcodeDetector = FirebaseVision.getInstance()
-                .getVisionBarcodeDetector();
+                .getVisionBarcodeDetector(options);
 
     }
 }

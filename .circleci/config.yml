@@ -2,9 +2,9 @@ version: 2
 executorType: docker
 jobs:
   build-app:
-    resource_class: large
+    resource_class: medium
     environment:
-      - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+      - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx3072m -XX:+HeapDumpOnOutOfMemoryError"'
       - REACT_NATIVE_MAX_WORKERS: 2
       - ANDROID_BUILD_TOOLS_VERSION: '28.0.3'
     working_directory: ~/app
@@ -19,25 +19,6 @@ jobs:
       - run:
           name: Install Dependencies
           command: yarn install --ignore-engines
-      - run:
-          name: Lint
-          command: yarn lint
-      - run:
-          name: Run Checks
-          command: |
-            cd android
-            chmod +x ./gradlew && ./gradlew check
-      - run:
-          name: Build Sample App
-          command: |
-            cd examples/basic/android
-            yarn
-            chmod +x ./gradlew && ./gradlew build
-      - deploy:
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              yarn ci:publish
-            fi
       - save_cache:
           key: v1-npm
           paths:
@@ -46,6 +27,47 @@ jobs:
           key: v1-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules/
+      - run:
+          name: Lint
+          command: yarn lint
+      - restore_cache:
+          keys: 
+            - v1-gradle-{{ checksum "android/gradle/wrapper/gradle-wrapper.properties" }}-{{ checksum "examples/basic/android/gradle/wrapper/gradle-wrapper.properties" }}
+            - v1-gradle-wrapper
+      - restore_cache:
+          keys:
+            - v1-gradle-cache-{{ checksum "android/build.gradle" }}-{{ checksum "examples/basic/android/build.gradle" }}
+            - v1-gradle-cache
+      - run:
+          name: Run Checks
+          command: |
+            cd android
+            chmod +x ./gradlew && ./gradlew check
+      - store_artifacts:
+          path: android/build/reports
+      - run:
+          name: Run Yarn to Generate react.gradle
+          command: cd examples/basic/android && yarn
+      - run:
+          name: Build Sample App
+          command: |
+            cd examples/basic/android && chmod +x ./gradlew && ./gradlew build
+      - store_artifacts:
+          path: examples/basic/android/app/build/reports
+          destination: app
+      - save_cache:
+          key: v1-gradle-wrapper-{{ checksum "examples/basic/android/gradle/wrapper/gradle-wrapper.properties" }}
+          paths:
+            - ~/.gradle/wrapper
+      - save_cache:
+          key: v1-gradle-cache-{{ checksum "examples/basic/android/build.gradle" }}
+          paths:
+            - ~/.gradle/caches
+      - deploy:
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              yarn ci:publish
+            fi
   deploy-docs:
     working_directory: ~/app
     docker:

@@ -11,6 +11,12 @@ This gives you the power to prioritize our work and support the project contribu
 
 [![issuehunt-image](https://issuehunt.io/static/embed/issuehunt-button-v1.svg)](https://issuehunt.io/repos/33218414)
 
+## react-native-camera for enterprise
+
+Available as part of the Tidelift Subscription
+
+The maintainers of react-native-camera and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/npm-react-native-camera?utm_source=npm-react-native-camera&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)
+
 ## Open Collective
 
 You can also fund this project using open collective
@@ -75,12 +81,6 @@ Supports:
 - barcode scanning
 - text recognition (optional installation for iOS using CocoaPods)
 
-## Tidelift
-
-[Get supported react-native-camera with the Tidelift Subscription](https://tidelift.com/subscription/pkg/npm-react-native-camera?utm_source=npm-react-native-camera&utm_medium=referral&utm_campaign=readme)
-
-![tidelift](https://tidelift.com/badges/github/react-native-community/react-native-camera)
-
 ### Example import
 
 ```jsx
@@ -135,3 +135,11 @@ To enable `video recording` feature you have to add the following code to the `A
 For more information on installation, please refer to [installation requirements](./docs/installation.md#requirements).
 
 For general introduction, please take a look into this [RNCamera](./docs/RNCamera.md).
+
+## Security contact information
+
+To report a security vulnerability, please use the
+
+[Tidelift security contact](https://tidelift.com/security).
+
+Tidelift will coordinate the fix and disclosure.
