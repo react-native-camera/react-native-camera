@@ -31,13 +31,4 @@ public class Document {
         return bottomRight;
     }
 
-    public float[] getTransformOrigin() {
-        return new float[]{
-                (float) getTopLeft().x, (float) getTopLeft().y,
-                (float) getTopRight().x, (float) getTopRight().y,
-                (float) getBottomRight().x, (float) getBottomRight().y,
-                (float) getBottomLeft().x, (float) getBottomLeft().y
-        };
-    }
-
 }
