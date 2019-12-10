@@ -140,6 +140,7 @@ type TrackedBarcodeFeature = {
   data: string,
   dataRaw: string,
   type: BarcodeType,
+  format?: string,
   addresses?: {
     addressesType?: 'UNKNOWN' | 'Work' | 'Home',
     addressLines?: string[],
@@ -202,7 +203,8 @@ type BarcodeType =
   | 'WIFI'
   | 'TEXT'
   | 'ISBN'
-  | 'PRODUCT';
+  | 'PRODUCT'
+  | 'URL';
 
 type Email = {
   address?: string,

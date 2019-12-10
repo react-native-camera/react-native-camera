@@ -417,18 +417,24 @@ Event contains the following fields
           }
         }
 
-  - onAndroid:
+  - onAndroid: the `ResultPoint[]` (`bounds.origin`) is returned for scanned barcode origins. The number of `ResultPoint` returned depends on the type of Barcode.
 
-        bounds:[{x:string,y:string}]
-        	- on Android it just returns resultPoints:
-        - for barcodes:
+        bounds: {
+          width: number;
+          height: number;
+          origin: Array<{x: number, y: number}>
+        }
 
-              bounds[0].x : left side of barcode.
-              bounds[1].x : right side of barcode
-        - counting for QRcodes:
+        1. **PDF417**: 8 ResultPoint, laid out as follow:
+          0 --- 4 ------ 6 --- 2
+          | ////////////////// |
+          1 --- 5 ------ 7 --- 3
 
-              1 2
-              0
+        2. **QR**: 4 ResultPoint, laid out as follow:
+          2 ------ 3
+          | //////
+          | //////
+          1 ------ 0
 
 The following barcode types can be recognised:
 
@@ -685,6 +691,14 @@ This component supports subviews, so if you wish to use the camera view as a bac
 A Barcode and QR code UI mask which can be use to render a scanning layout on camera with customizable styling.
 
 Read more about [react-native-barcode-mask](https://github.com/shahnawaz/react-native-barcode-mask) here.
+
+### @nartc/react-native-barcode-mask
+
+A rewritten version of `react-native-barcode-mask` using `Hooks` and `Reanimated`. If you're already using `react-native-reanimated` (`react-navigation` dependency) then you might benefit from this rewritten component.
+- Customizable
+- Provide custom hook to "scan barcode within finder area"
+
+Read more about it here [@nartc/react-native-barcode-mask](https://github.com/nartc/react-native-barcode-mask) 
 
 ## Testing
 
