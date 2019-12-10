@@ -305,6 +305,11 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RNCamera)
     [view updateCaptureAudio];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(keepAudioSession, BOOL, RNCamera)
+{
+    [view setKeepAudioSession:[RCTConvert BOOL:json]];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(rectOfInterest, CGRect, RNCamera)
 {
     [view setRectOfInterest: [RCTConvert CGRect:json]];

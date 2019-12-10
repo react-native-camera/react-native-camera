@@ -1342,19 +1342,22 @@ BOOL _sessionInterrupted = NO;
 
         // Deactivate our audio session so other audio can resume
         // playing, if any. E.g., background music.
-        NSError *error = nil;
+        // unless told not to
+        if(!self.keepAudioSession){
+            NSError *error = nil;
 
-        BOOL setInactive = [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&error];
+            BOOL setInactive = [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&error];
 
-        if (!setInactive) {
-            RCTLogWarn(@"Audio device could not set inactive: %s: %@", __func__, error);
+            if (!setInactive) {
+                RCTLogWarn(@"Audio device could not set inactive: %s: %@", __func__, error);
+            }
         }
-
+        
         self.audioCaptureDeviceInput = nil;
 
         // inform that audio was interrupted
         if(audioRemoved && self.onAudioInterrupted){
-           self.onAudioInterrupted(nil);
+            self.onAudioInterrupted(nil);
         }
     }
 }

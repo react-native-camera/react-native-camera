@@ -223,6 +223,8 @@ export interface RNCameraProps {
 
   // -- IOS ONLY PROPS
   defaultVideoQuality?: keyof VideoQuality;
+  /* if true, audio session will not be released on component unmount */
+  keepAudioSession?: boolean;
 }
 
 interface Point<T = number> {

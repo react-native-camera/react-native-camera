@@ -230,6 +230,12 @@ Values: boolean `true` (default) | `false`
 Specifies if audio recording permissions should be requested.
 Make sure to follow README instructions for audio recording permissions [here](README.md).
 
+### iOS `keepAudioSession`
+
+Values: boolean `true` | `false` (false)
+
+(iOS Only) When the camera is unmounted, it will release any audio session it acquired (if `captureAudio=true`) so other media can continue playing. However, this might not be always desirable (e.g., if video is played afterwards) and can be disabled by setting it to `true`. Setting this to `true`, means you app will not release the audio session. Note: other apps might still "steal" the audio session from your app.
+
 ### `flashMode`
 
 Values: `RNCamera.Constants.FlashMode.off` (default), `RNCamera.Constants.FlashMode.on`, `RNCamera.Constants.FlashMode.auto` or `RNCamera.Constants.FlashMode.torch`.
@@ -698,7 +704,7 @@ A rewritten version of `react-native-barcode-mask` using `Hooks` and `Reanimated
 - Customizable
 - Provide custom hook to "scan barcode within finder area"
 
-Read more about it here [@nartc/react-native-barcode-mask](https://github.com/nartc/react-native-barcode-mask) 
+Read more about it here [@nartc/react-native-barcode-mask](https://github.com/nartc/react-native-barcode-mask)
 
 ## Testing
 
