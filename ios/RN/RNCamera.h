@@ -46,6 +46,7 @@
 @property(nonatomic, assign) BOOL canDetectFaces;
 @property(nonatomic, assign) BOOL canDetectBarcodes;
 @property(nonatomic, assign) BOOL captureAudio;
+@property(nonatomic, assign) BOOL keepAudioSession;
 @property(nonatomic, assign) CGRect rectOfInterest;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property(assign, nonatomic)
