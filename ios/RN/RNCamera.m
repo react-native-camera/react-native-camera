@@ -1187,8 +1187,11 @@ BOOL _sessionInterrupted = NO;
 #endif
     dispatch_async(self.sessionQueue, ^{
 
-        // if session already running, also return.
+        // if session already running, also return and fire ready event
+        // this is helpfu when the device type or ID is changed and we must
+        // receive another ready event (like Android does)
         if(self.session.isRunning){
+            [self onReady:nil];
             return;
         }
 
@@ -1380,6 +1383,7 @@ BOOL _sessionInterrupted = NO;
 
         // if the device we are setting is also invalid/nil, return
         if(captureDevice == nil){
+            [self onMountingError:@{@"message": @"Invalid camera device."}];
             return;
         }
 
@@ -1406,6 +1410,7 @@ BOOL _sessionInterrupted = NO;
         if (error || captureDeviceInput == nil) {
             RCTLog(@"%s: %@", __func__, error);
             [self.session commitConfiguration];
+            [self onMountingError:@{@"message": @"Failed to setup capture device."}];
             return;
         }
 
@@ -1454,6 +1459,8 @@ BOOL _sessionInterrupted = NO;
         }
         else{
             RCTLog(@"The selected device does not work with the Preset [%@] or configuration provided", self.session.sessionPreset);
+            
+            [self onMountingError:@{@"message": @"Camera device does not support selected settings."}];
         }
 
 
