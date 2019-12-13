@@ -369,7 +369,7 @@ Note: This solve the flicker video recording issue for iOS
 
 ### `onCameraReady`
 
-Function to be called when native code emit onCameraReady event, when camera is ready.
+Function to be called when native code emit onCameraReady event, when camera is ready. This event will also fire when changing cameras (by `type` or `cameraId`).
 
 ### `onMountError`
 
