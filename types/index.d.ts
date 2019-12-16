@@ -94,13 +94,11 @@ type RecordAudioPermissionStatus = Readonly<
     NOT_AUTHORIZED: 'NOT_AUTHORIZED';
   }>
 >;
-type FaCC = (
-  params: {
-    camera: RNCamera;
-    status: keyof CameraStatus;
-    recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
-  },
-) => JSX.Element;
+type FaCC = (params: {
+  camera: RNCamera;
+  status: keyof CameraStatus;
+  recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
+}) => JSX.Element;
 
 export interface Constants {
   CameraStatus: CameraStatus;
@@ -135,7 +133,7 @@ export interface RNCameraProps {
   autoFocus?: keyof AutoFocus;
   autoFocusPointOfInterest?: Point;
   /* iOS only */
-  onSubjectAreaChanged?: (event: { nativeEvent: { prevPoint: { x: number; y: number; } } }) => void;
+  onSubjectAreaChanged?: (event: { nativeEvent: { prevPoint: { x: number; y: number } } }) => void;
   type?: keyof CameraType;
   flashMode?: keyof FlashMode;
   notAuthorizedView?: JSX.Element;
@@ -178,12 +176,12 @@ export interface RNCameraProps {
      * @description For Android use `{ width: number, height: number, origin: Array<Point<string>> }`
      * @description For iOS use `{ origin: Point<string>, size: Size<string> }`
      */
-    bounds: { width: number, height: number, origin: Array<Point<string>> } | { origin: Point<string>; size: Size<string> };
+    bounds:
+      | { width: number; height: number; origin: Array<Point<string>> }
+      | { origin: Point<string>; size: Size<string> };
   }): void;
 
-  onGoogleVisionBarcodesDetected?(event: {
-    barcodes: Barcode[];
-  }): void;
+  onGoogleVisionBarcodesDetected?(event: { barcodes: Barcode[] }): void;
 
   // -- FACE DETECTION PROPS
 
@@ -247,7 +245,7 @@ export interface Barcode {
   type: BarcodeType;
   format?: string;
   addresses?: {
-    addressesType?: "UNKNOWN" | "Work" | "Home";
+    addressesType?: 'UNKNOWN' | 'Work' | 'Home';
     addressLines?: string[];
   }[];
   emails?: Email[];
@@ -257,9 +255,9 @@ export interface Barcode {
     firstName?: string;
     lastName?: string;
     middleName?: string;
-    prefix?:string;
-    pronounciation?:string;
-    suffix?:string;
+    prefix?: string;
+    pronounciation?: string;
+    suffix?: string;
     formattedName?: string;
   };
   phone?: Phone;
@@ -298,29 +296,29 @@ export interface Barcode {
 }
 
 export type BarcodeType =
-  |"EMAIL"
-  |"PHONE"
-  |"CALENDAR_EVENT"
-  |"DRIVER_LICENSE"
-  |"GEO"
-  |"SMS"
-  |"CONTACT_INFO"
-  |"WIFI"
-  |"TEXT"
-  |"ISBN"
-  |"PRODUCT"
-  |"URL"
+  | 'EMAIL'
+  | 'PHONE'
+  | 'CALENDAR_EVENT'
+  | 'DRIVER_LICENSE'
+  | 'GEO'
+  | 'SMS'
+  | 'CONTACT_INFO'
+  | 'WIFI'
+  | 'TEXT'
+  | 'ISBN'
+  | 'PRODUCT'
+  | 'URL';
 
 export interface Email {
   address?: string;
   body?: string;
   subject?: string;
-  emailType?: "UNKNOWN" | "Work" | "Home";
+  emailType?: 'UNKNOWN' | 'Work' | 'Home';
 }
 
 export interface Phone {
   number?: string;
-  phoneType?: "UNKNOWN" | "Work" | "Home" | "Fax" | "Mobile";
+  phoneType?: 'UNKNOWN' | 'Work' | 'Home' | 'Fax' | 'Mobile';
 }
 
 export interface Face {
@@ -409,26 +407,7 @@ export interface RecordResponse {
   codec: VideoCodec[keyof VideoCodec];
 }
 
-export class RNCamera extends Component<RNCameraProps & ViewProperties> {
-  static Constants: Constants;
-
-  _cameraRef: null | NativeMethodsMixinStatic;
-  _cameraHandle: ReturnType<typeof findNodeHandle>;
-
-  takePictureAsync(options?: TakePictureOptions): Promise<TakePictureResponse>;
-  recordAsync(options?: RecordOptions): Promise<RecordResponse>;
-  refreshAuthorizationStatus(): Promise<void>;
-  stopRecording(): void;
-  pausePreview(): void;
-  resumePreview(): void;
-  getAvailablePictureSizes(): Promise<string[]>;
-
-  /** Android only */
-  getSupportedRatiosAsync(): Promise<string[]>;
-
-  /** iOS only */
-  isRecording(): Promise<boolean>;
-}
+export function RNCamera(props: RNCameraProps & ViewProperties): Component;
 
 interface DetectionOptions {
   mode?: keyof FaceDetectionMode;
