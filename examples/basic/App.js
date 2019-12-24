@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React from 'react';
+import React, {useState, useReducer, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -30,61 +30,87 @@ const wbOrder = {
 
 const landmarkSize = 2;
 
-export default class CameraScreen extends React.Component {
-  state = {
-    flash: 'off',
-    zoom: 0,
-    autoFocus: 'on',
-    autoFocusPoint: {
-      normalized: { x: 0.5, y: 0.5 }, // normalized values required for autoFocusPointOfInterest
-      drawRectPosition: {
-        x: Dimensions.get('window').width * 0.5 - 32,
-        y: Dimensions.get('window').height * 0.5 - 32,
-      },
+const stateReducer = (state, action) => {
+  switch (action.type) {
+    case 'toggleFlash':
+      return { state.flash === flashModeOrder[ state.flash] }     
+      break;
+    case 'toggleZoom':
+      return { state.flash === flashModeOrder[ state.flash] }     
+      break;  
+    default:
+      break;
+  }
+}
+
+const initialState = {
+  flash: 'off',
+  zoom: 0,
+  autoFocus: 'on',
+  depth: 0,
+  type: 'back',
+  whiteBalance: 'auto',
+  ratio: '16:9',
+  isRecording: false,
+  canDetectFaces: false,
+  canDetectText: false,
+  canDetectBarcode: false,
+  faces: [],
+  textBlocks: [],
+  barcodes: [],
+
+  recordOptions: {
+    mute: false,
+    maxDuration: 5,
+    quality: RNCamera.Constants.VideoQuality['288p'],
+  },
+  autoFocusPoint: {
+    normalized: { x: 0.5, y: 0.5 }, // normalized values required for autoFocusPointOfInterest
+    drawRectPosition: {
+      x: Dimensions.get('window').width * 0.5 - 32,
+      y: Dimensions.get('window').height * 0.5 - 32,
     },
-    depth: 0,
-    type: 'back',
-    whiteBalance: 'auto',
-    ratio: '16:9',
-    recordOptions: {
-      mute: false,
-      maxDuration: 5,
-      quality: RNCamera.Constants.VideoQuality['288p'],
-    },
-    isRecording: false,
-    canDetectFaces: false,
-    canDetectText: false,
-    canDetectBarcode: false,
-    faces: [],
-    textBlocks: [],
-    barcodes: [],
-  };
+  },
 
-  toggleFacing() {
-    this.setState({
-      type: this.state.type === 'back' ? 'front' : 'back',
-    });
+};
+
+
+
+const CameraScreen = () => {
+  const [state, setState] = useState(initialState);  
+  const [recordOptions, togglerecordOptions] = useReducer(reducer, initialState.recordOptions);  
+  const [autoFocusPoint, touchToFocus] = useReducer(reducer, initialState.autoFocusPoint);  
+  const cameraRef = useRef(null);
+
+  toggleFacing =() =>{
+    setState({
+      ...state,
+      type: type === 'back' ? 'front' : 'back',
+    })
   }
 
-  toggleFlash() {
-    this.setState({
-      flash: flashModeOrder[this.state.flash],
-    });
+  toggleFlash =() => {
+    setState({
+      ...state,
+      flash: flashModeOrder[flash]
+    })
   }
 
-  toggleWB() {
-    this.setState({
-      whiteBalance: wbOrder[this.state.whiteBalance],
-    });
+  toggleWB =() => {
+    setState({
+      ...state,
+      whiteBalance: wbOrder[whiteBalance]
+    })      
   }
 
-  toggleFocus() {
-    this.setState({
-      autoFocus: this.state.autoFocus === 'on' ? 'off' : 'on',
-    });
+  toggleFocus =() =>{
+    setState({
+      ...state,
+      autoFocus: autoFocus === 'on' ? 'off' : 'on'
+    })
   }
 
-  touchToFocus(event) {
+  touchToFocus =(event) => {
     const { pageX, pageY } = event.nativeEvent;
     const screenWidth = Dimensions.get('window').width;
     const screenHeight = Dimensions.get('window').height;
@@ -97,49 +123,56 @@ export default class CameraScreen extends React.Component {
       x = pageY / screenHeight;
       y = -(pageX / screenWidth) + 1;
     }
-
-    this.setState({
+    return {
       autoFocusPoint: {
         normalized: { x, y },
         drawRectPosition: { x: pageX, y: pageY },
       },
+    };
+  }
+  zoomOut =() =>{
+    setState({
+      ...state,
+      zoom: state.zoom - 0.1 < 0 ? 0 : state.zoom - 0.1,
+    })
+  }
+
+  zoomIn =() => {
+    setState({
+      ...state,
+      zoom: state.zoom + 0.1 > 1 ? 1 : state.zoom + 0.1,
     });
   }
 
-  zoomOut() {
-    this.setState({
-      zoom: this.state.zoom - 0.1 < 0 ? 0 : this.state.zoom - 0.1,
-    });
-  }
-
-  zoomIn() {
-    this.setState({
-      zoom: this.state.zoom + 0.1 > 1 ? 1 : this.state.zoom + 0.1,
-    });
-  }
-
-  setFocusDepth(depth) {
-    this.setState({
-      depth,
+  setFocusDepth = (depth) => {
+    setState({
+      ...state,
+      depth: depth
     });
   }
 
   takePicture = async function() {
-    if (this.camera) {
-      const data = await this.camera.takePictureAsync();
+    if (cameraRef) {
+      const data = await cameraRef.takePictureAsync();
       console.warn('takePicture ', data);
     }
   };
 
   takeVideo = async function() {
-    if (this.camera) {
+    if (cameraRef) {
       try {
-        const promise = this.camera.recordAsync(this.state.recordOptions);
+        const promise = cameraRef.recordAsync( state.recordOptions);
 
         if (promise) {
-          this.setState({ isRecording: true });
+          setState({
+            ...state,
+             isRecording: true 
+            });
           const data = await promise;
-          this.setState({ isRecording: false });
+          setState({
+            ...state,
+             isRecording: false 
+          });
           console.warn('takeVideo', data);
         }
       } catch (e) {
@@ -148,9 +181,19 @@ export default class CameraScreen extends React.Component {
     }
   };
 
-  toggle = value => () => this.setState(prevState => ({ [value]: !prevState[value] }));
+  toggle = value => () => {
+    setState({
+      ...state,
+      [value]: !prevState[value] 
+    })
+  };
 
-  facesDetected = ({ faces }) => this.setState({ faces });
+  facesDetected = ({ faces }) => {
+    setState({
+      ...state,
+      faces: faces 
+    })
+  };
 
   renderFace = ({ bounds, faceID, rollAngle, yawAngle }) => (
     <View
@@ -175,7 +218,7 @@ export default class CameraScreen extends React.Component {
     </View>
   );
 
-  renderLandmarksOfFace(face) {
+  renderLandmarksOfFace =(face) => {
     const renderLandmark = position =>
       position && (
         <View
@@ -207,19 +250,19 @@ export default class CameraScreen extends React.Component {
 
   renderFaces = () => (
     <View style={styles.facesContainer} pointerEvents="none">
-      {this.state.faces.map(this.renderFace)}
+      { state.faces.map(() => renderFace())}
     </View>
   );
 
   renderLandmarks = () => (
     <View style={styles.facesContainer} pointerEvents="none">
-      {this.state.faces.map(this.renderLandmarksOfFace)}
+      { state.faces.map(() => renderLandmarksOfFace())}
     </View>
   );
 
   renderTextBlocks = () => (
     <View style={styles.facesContainer} pointerEvents="none">
-      {this.state.textBlocks.map(this.renderTextBlock)}
+      { state.textBlocks.map(() => renderTextBlock())}
     </View>
   );
 
@@ -243,14 +286,22 @@ export default class CameraScreen extends React.Component {
 
   textRecognized = object => {
     const { textBlocks } = object;
-    this.setState({ textBlocks });
+    setState({
+      ...state,
+       textBlocks: textBlocks 
+    });
   };
 
-  barcodeRecognized = ({ barcodes }) => this.setState({ barcodes });
+  barcodeRecognized = ({ barcodes }) => {
+    setState({
+      ...stat,
+       barcodes 
+    })
+  };
 
   renderBarcodes = () => (
     <View style={styles.facesContainer} pointerEvents="none">
-      {this.state.barcodes.map(this.renderBarcode)}
+      { state.barcodes.map( renderBarcode)}
     </View>
   );
 
@@ -271,30 +322,30 @@ export default class CameraScreen extends React.Component {
     </React.Fragment>
   );
 
-  renderCamera() {
-    const { canDetectFaces, canDetectText, canDetectBarcode } = this.state;
+  renderCamera = () => {
+    const { canDetectFaces, canDetectText, canDetectBarcode } =  state;
 
     const drawFocusRingPosition = {
-      top: this.state.autoFocusPoint.drawRectPosition.y - 32,
-      left: this.state.autoFocusPoint.drawRectPosition.x - 32,
+      top:  state.autoFocusPoint.drawRectPosition.y - 32,
+      left:  state.autoFocusPoint.drawRectPosition.x - 32,
     };
     return (
       <RNCamera
         ref={ref => {
-          this.camera = ref;
+          cameraRef = ref;
         }}
         style={{
           flex: 1,
           justifyContent: 'space-between',
         }}
-        type={this.state.type}
-        flashMode={this.state.flash}
-        autoFocus={this.state.autoFocus}
-        autoFocusPointOfInterest={this.state.autoFocusPoint.normalized}
-        zoom={this.state.zoom}
-        whiteBalance={this.state.whiteBalance}
-        ratio={this.state.ratio}
-        focusDepth={this.state.depth}
+        type={ state.type}
+        flashMode={ state.flash}
+        autoFocus={ state.autoFocus}
+        autoFocusPointOfInterest={ state.autoFocusPoint.normalized}
+        zoom={ state.zoom}
+        whiteBalance={ state.whiteBalance}
+        ratio={ state.ratio}
+        focusDepth={ state.depth}
         androidCameraPermissionOptions={{
           title: 'Permission to use camera',
           message: 'We need your permission to use your camera',
@@ -306,13 +357,13 @@ export default class CameraScreen extends React.Component {
             ? RNCamera.Constants.FaceDetection.Landmarks.all
             : undefined
         }
-        onFacesDetected={canDetectFaces ? this.facesDetected : null}
-        onTextRecognized={canDetectText ? this.textRecognized : null}
-        onGoogleVisionBarcodesDetected={canDetectBarcode ? this.barcodeRecognized : null}
+        onFacesDetected={canDetectFaces ? facesDetected() : null}
+        onTextRecognized={canDetectText ? textRecognized() : null}
+        onGoogleVisionBarcodesDetected={canDetectBarcode ? barcodeRecognized() : null}
       >
         <View style={StyleSheet.absoluteFill}>
           <View style={[styles.autoFocusBox, drawFocusRingPosition]} />
-          <TouchableWithoutFeedback onPress={this.touchToFocus.bind(this)}>
+          <TouchableWithoutFeedback onPress={() => touchToFocus()}>
             <View style={{ flex: 1 }} />
           </TouchableWithoutFeedback>
         </View>
@@ -332,14 +383,14 @@ export default class CameraScreen extends React.Component {
               justifyContent: 'space-around',
             }}
           >
-            <TouchableOpacity style={styles.flipButton} onPress={this.toggleFacing.bind(this)}>
+            <TouchableOpacity style={styles.flipButton} onPress={() => toggleFacing()}>
               <Text style={styles.flipText}> FLIP </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.flipButton} onPress={this.toggleFlash.bind(this)}>
-              <Text style={styles.flipText}> FLASH: {this.state.flash} </Text>
+            <TouchableOpacity style={styles.flipButton} onPress={() => toggleFlash()}>
+              <Text style={styles.flipText}> FLASH: { state.flash} </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.flipButton} onPress={this.toggleWB.bind(this)}>
-              <Text style={styles.flipText}> WB: {this.state.whiteBalance} </Text>
+            <TouchableOpacity style={styles.flipButton} onPress={() => toggleWB()}>
+              <Text style={styles.flipText}> WB: { state.whiteBalance} </Text>
             </TouchableOpacity>
           </View>
           <View
@@ -349,17 +400,17 @@ export default class CameraScreen extends React.Component {
               justifyContent: 'space-around',
             }}
           >
-            <TouchableOpacity onPress={this.toggle('canDetectFaces')} style={styles.flipButton}>
+            <TouchableOpacity onPress={()=> toggle('canDetectFaces')} style={styles.flipButton}>
               <Text style={styles.flipText}>
                 {!canDetectFaces ? 'Detect Faces' : 'Detecting Faces'}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={this.toggle('canDetectText')} style={styles.flipButton}>
+            <TouchableOpacity onPress={()=> toggle('canDetectText')} style={styles.flipButton}>
               <Text style={styles.flipText}>
                 {!canDetectText ? 'Detect Text' : 'Detecting Text'}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={this.toggle('canDetectBarcode')} style={styles.flipButton}>
+            <TouchableOpacity onPress={()=> toggle('canDetectBarcode')} style={styles.flipButton}>
               <Text style={styles.flipText}>
                 {!canDetectBarcode ? 'Detect Barcode' : 'Detecting Barcode'}
               </Text>
@@ -377,9 +428,9 @@ export default class CameraScreen extends React.Component {
           >
             <Slider
               style={{ width: 150, marginTop: 15, alignSelf: 'flex-end' }}
-              onValueChange={this.setFocusDepth.bind(this)}
+              onValueChange={() => setFocusDepth()}
               step={0.1}
-              disabled={this.state.autoFocus === 'on'}
+              disabled={ state.autoFocus === 'on'}
             />
           </View>
           <View
@@ -396,20 +447,20 @@ export default class CameraScreen extends React.Component {
                 {
                   flex: 0.3,
                   alignSelf: 'flex-end',
-                  backgroundColor: this.state.isRecording ? 'white' : 'darkred',
+                  backgroundColor:  state.isRecording ? 'white' : 'darkred',
                 },
               ]}
-              onPress={this.state.isRecording ? () => {} : this.takeVideo.bind(this)}
+              onPress={ state.isRecording ? () => {} : () => takeVideo()}
             >
-              {this.state.isRecording ? (
+              { state.isRecording ? (
                 <Text style={styles.flipText}> ☕ </Text>
               ) : (
                 <Text style={styles.flipText}> REC </Text>
               )}
             </TouchableOpacity>
           </View>
-          {this.state.zoom !== 0 && (
-            <Text style={[styles.flipText, styles.zoomText]}>Zoom: {this.state.zoom}</Text>
+          { state.zoom !== 0 && (
+            <Text style={[styles.flipText, styles.zoomText]}>Zoom: { state.zoom}</Text>
           )}
           <View
             style={{
@@ -421,42 +472,43 @@ export default class CameraScreen extends React.Component {
           >
             <TouchableOpacity
               style={[styles.flipButton, { flex: 0.1, alignSelf: 'flex-end' }]}
-              onPress={this.zoomIn.bind(this)}
+              onPress={() => zoomIn()}
             >
               <Text style={styles.flipText}> + </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.flipButton, { flex: 0.1, alignSelf: 'flex-end' }]}
-              onPress={this.zoomOut.bind(this)}
+              onPress={() => zoomOut()}
             >
               <Text style={styles.flipText}> - </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.flipButton, { flex: 0.25, alignSelf: 'flex-end' }]}
-              onPress={this.toggleFocus.bind(this)}
+              onPress={() => toggleFocus()}
             >
-              <Text style={styles.flipText}> AF : {this.state.autoFocus} </Text>
+              <Text style={styles.flipText}> AF : { state.autoFocus} </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.flipButton, styles.picButton, { flex: 0.3, alignSelf: 'flex-end' }]}
-              onPress={this.takePicture.bind(this)}
+              onPress={() => takePicture()}
             >
               <Text style={styles.flipText}> SNAP </Text>
             </TouchableOpacity>
           </View>
         </View>
-        {!!canDetectFaces && this.renderFaces()}
-        {!!canDetectFaces && this.renderLandmarks()}
-        {!!canDetectText && this.renderTextBlocks()}
-        {!!canDetectBarcode && this.renderBarcodes()}
+        {!!canDetectFaces && renderFaces()}
+        {!!canDetectFaces && renderLandmarks()}
+        {!!canDetectText && renderTextBlocks()}
+        {!!canDetectBarcode && renderBarcodes()}
       </RNCamera>
     );
   }
-
-  render() {
-    return <View style={styles.container}>{this.renderCamera()}</View>;
-  }
+  return (
+    <View style={styles.container}>{() => renderCamera()}</View>
+  );
 }
+
+export default CameraScreen;
 
 const styles = StyleSheet.create({
   container: {
