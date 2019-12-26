@@ -25,11 +25,10 @@ interface TakePictureOptions {
   mirrorImage?: boolean;
   doNotSave?: boolean;
   pauseAfterCapture?: boolean;
+  writeExif?: boolean | { [name: string]: any };
 
   /** Android only */
-  skipProcessing?: boolean;
   fixOrientation?: boolean;
-  writeExif?: boolean;
 
   /** iOS only */
   forceUpOrientation?: boolean;
@@ -76,8 +75,6 @@ interface RecordOptions {
   mute?: boolean;
   mirrorVideo?: boolean;
   path?: string;
-
-  /** Android only */
   videoBitrate?: number;
 
   /** iOS only */

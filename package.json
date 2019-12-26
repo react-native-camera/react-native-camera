@@ -1,7 +1,7 @@
 {
   "name": "react-native-camera",
   "description": "A Camera component for React Native. Also reads barcodes.",
-  "version": "2.11.0",
+  "version": "3.15.0",
   "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
   "collective": {
     "type": "opencollective",
@@ -79,7 +79,7 @@
     "prettier": "prettier --write",
     "ci:publish": "semantic-release"
   },
-  "types": "types",
+  "types": "types/index.d.ts",
   "release": {
     "plugins": [
       "@semantic-release/commit-analyzer",

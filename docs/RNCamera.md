@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('ExampleApp', () => ExampleApp);
+AppRegistry.registerComponent('App', () => ExampleApp);
 ```
 
 ## FaCC (Function as Child Components)
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('ExampleApp', () => ExampleApp);
+AppRegistry.registerComponent('App', () => ExampleApp);
 ```
 
 ### `camera`
@@ -206,13 +206,22 @@ Use the `autoFocus` property to specify the auto focus setting of your camera. `
 ### `autoFocusPointOfInterest`
 
 Values: Object `{ x: 0.5, y: 0.5 }`.
+Values (iOS): Object `{ x: 0.5, y: 0.5, autoExposure }`.
 
 Setting this property causes the auto focus feature of the camera to attempt to focus on the part of the image at this coordiate.
 
 Coordinates values are measured as floats from `0` to `1.0`. `{ x: 0, y: 0 }` will focus on the top left of the image, `{ x: 1, y: 1 }` will be the bottom right. Values are based on landscape mode with the home button on the right—this applies even if the device is in portrait mode.
 
+On iOS, focusing will not change the exposure automatically unless autoExposure is also set to true.
+
 Hint:
 for portrait orientation, apply 90° clockwise rotation + translation: [Example](https://gist.github.com/Craigtut/6632a9ac7cfff55e74fb561862bc4edb)
+
+
+### iOS `onSubjectAreaChanged`
+iOS only.
+
+if autoFocusPointOfInterest is set, this event will be fired when a substancial change is detected with the following object: `{ nativeEvent: { prevPoint: { x: number; y: number; } } }`
 
 ### `captureAudio`
 
@@ -220,6 +229,12 @@ Values: boolean `true` (default) | `false`
 
 Specifies if audio recording permissions should be requested.
 Make sure to follow README instructions for audio recording permissions [here](README.md).
+
+### iOS `keepAudioSession`
+
+Values: boolean `true` | `false` (false)
+
+(iOS Only) When the camera is unmounted, it will release any audio session it acquired (if `captureAudio=true`) so other media can continue playing. However, this might not be always desirable (e.g., if video is played afterwards) and can be disabled by setting it to `true`. Setting this to `true`, means your app will not release the audio session. Note: other apps might still "steal" the audio session from your app.
 
 ### `flashMode`
 
@@ -253,6 +268,14 @@ Values: `RNCamera.Constants.Type.front` or `RNCamera.Constants.Type.back` (defau
 
 Use the `type` property to specify which camera to use.
 
+### `Android` `cameraId`
+
+Overrides the `type` property and uses the camera given by cameraId. Use `getCameraIds` to get the list of available IDs.
+
+A common use case for this is to provide a "switch camera" button that loops through all available cameras.
+
+Note: Variables such as flash might need to be resetted due to the camera not reporting an error when those values are not supported.
+
 ### `whiteBalance`
 
 Values: `RNCamera.Constants.WhiteBalance.sunny`, `RNCamera.Constants.WhiteBalance.cloudy`, `RNCamera.Constants.WhiteBalance.shadow`, `RNCamera.Constants.WhiteBalance.incandescent`, `RNCamera.Constants.WhiteBalance.fluorescent` or `RNCamera.Constants.WhiteBalance.auto` (default)
@@ -268,6 +291,14 @@ Use the `whiteBalance` property to specify which white balance setting the camer
 Value: float from `0` to `1.0`
 
 Specifies the zoom of your camera. The value 0 is no zoom, 1 is maximum zoom. For a medium zoom, for example, you could pass `0.5`.
+
+### `iOS` `maxZoom`
+
+iOS Only.
+
+Value: optional float greater than `1.0` used to enforce a maximum zoom value on the camera. Setting a value to less than `1` (default) will make the camera use its own max zoom property.
+
+Specifies the max zoom value used in zoom calculations. This is specifically useful for iOS where it reports arbitrary high values and using a 0 to 1 value as the zoom factor is not appropriate.
 
 ### `Android` `permissionDialogTitle` - Deprecated
 
@@ -293,6 +324,10 @@ By default a `Camera not authorized` message will be displayed when access to th
 
 By default a <ActivityIndicator> will be displayed while the component is waiting for the user to grant/deny access to the camera, if set displays the passed react element instead of the default one.
 
+#### `iOS` `rectOfInterest`
+
+An `{x: , y:, width:, height: }` object which defines the rect of interst as normalized coordinates from `(0,0)` top left corner to `(1,1)` bottom right corner.
+
 ### `iOS` `videoStabilizationMode`
 
 The video stabilization mode used for a video recording. The possible values are:
@@ -304,7 +339,7 @@ The video stabilization mode used for a video recording. The possible values are
 
 You can read more about each stabilization type here: https://developer.apple.com/documentation/avfoundation/avcapturevideostabilizationmode
 
-### `iOS` `defaultVideoQuality`
+### `defaultVideoQuality`
 
 This option specifies the quality of the video to be taken. The possible values are:
 
@@ -334,7 +369,7 @@ Note: This solve the flicker video recording issue for iOS
 
 ### `onCameraReady`
 
-Function to be called when native code emit onCameraReady event, when camera is ready.
+Function to be called when native code emit onCameraReady event, when camera is ready. This event will also fire when changing cameras (by `type` or `cameraId`).
 
 ### `onMountError`
 
@@ -349,9 +384,18 @@ Event contains the following fields:
 - `cameraStatus` - one of the [CameraStatus](#status) values
 - `recordAudioPermissionStatus` - one of the [RecordAudioPermissionStatus](#recordAudioPermissionStatus) values
 
-### `Android` `onPictureTaken`
+### `iOS` `onAudioInterrupted`
 
-Function to be called when native code emit onPictureTaken event, when camera has taken a picture.
+iOS only. Function to be called when the camera audio session is interrupted or fails to start for any reason (e.g., in use or not authorized). For example, this might happen due to another app taking exclusive control over the microphone (e.g., a phone call) if `captureAudio={true}`. When this happens, any active audio input will be temporarily disabled and cause a flicker on the preview screen. This will fire any time an attempt to connect the audio device fails. Use this to update your UI to indicate that audio recording is not currently possible.
+
+### `iOS` `onAudioConnected`
+
+iOS only. Function to be called when the camera audio session is connected. This will be fired the first time the camera is mounted with `captureAudio={true}`, and any time the audio device connection is established. Note that this event might not always fire after an interruption due to iOS' behavior. For example, if the audio was already interrupted before the camera was mounted, this event will only fire once a recording is attempted.
+
+
+### `onPictureTaken`
+
+Function to be called when native code emit onPictureTaken event, when camera has taken a picture, but before all extra processing happens. This can be useful to allow the UI to take other pictures while the processing of the current picture is still taking place.
 
 ### Bar Code Related props
 
@@ -379,18 +423,24 @@ Event contains the following fields
           }
         }
 
-  - onAndroid:
+  - onAndroid: the `ResultPoint[]` (`bounds.origin`) is returned for scanned barcode origins. The number of `ResultPoint` returned depends on the type of Barcode.
 
-        bounds:[{x:string,y:string}]
-        	- on Android it just returns resultPoints:
-        - for barcodes:
+        bounds: {
+          width: number;
+          height: number;
+          origin: Array<{x: number, y: number}>
+        }
 
-              bounds[0].x : left side of barcode.
-              bounds[1].x : right side of barcode
-        - counting for QRcodes:
+        1. **PDF417**: 8 ResultPoint, laid out as follow:
+          0 --- 4 ------ 6 --- 2
+          | ////////////////// |
+          1 --- 5 ------ 7 --- 3
 
-              1 2
-              0
+        2. **QR**: 4 ResultPoint, laid out as follow:
+          2 ------ 3
+          | //////
+          | //////
+          1 ------ 0
 
 The following barcode types can be recognised:
 
@@ -486,7 +536,7 @@ Method to be called when text is detected. Receives a Text Recognized Event obje
 
 ### `takePictureAsync([options]): Promise`
 
-Takes a picture, saves in your app's cache directory and returns a promise.
+Takes a picture, saves in your app's cache directory and returns a promise. Note: additional image processing, such as mirror, orientation, and width, can be significantly slow on Android.
 
 Supported options:
 
@@ -498,13 +548,20 @@ Supported options:
 
 - `mirrorImage` (boolean true or false). Use this with `true` if you want the resulting rendered picture to be mirrored (inverted in the vertical axis). If no value is specified `mirrorImage:false` is used.
 
+- `writeExif`: (boolean or object, defaults to true). Setting this to a boolean indicates if the image exif should be preserved after capture, or removed. Setting it to an object, merges any data with the final exif output. This is useful, for example, to add GPS metadata (note that GPS info is correctly transalted from double values to the EXIF format, so there's no need to read the EXIF protocol).
+```js
+writeExif = {
+  "GPSLatitude": latitude,
+  "GPSLongitude": longitude,
+  "GPSAltitude": altitude
+}
+```
+
 - `exif` (boolean true or false) Use this with `true` if you want a exif data map of the picture taken on the return data of your promise. If no value is specified `exif:false` is used.
 
 - `fixOrientation` (android only, boolean true or false) Use this with `true` if you want to fix incorrect image orientation (can take up to 5 seconds on some devices). Do not provide this if you only need EXIF based orientation.
 
 - `forceUpOrientation` (iOS only, boolean true or false). This property allows to force portrait orientation based on actual data instead of exif data.
-
-- `skipProcessing` (android only, boolean). This property skips all image processing on android, this makes taking photos super fast, but you loose some of the information, width, height and the ability to do some processing on the image (base64, width, quality, mirrorImage, exif, etc)
 
 - `doNotSave` (boolean true or false). Use this with `true` if you do not want the picture to be saved as a file to cache. If no value is specified `doNotSave:false` is used. If you only need the base64 for the image, you can use this with `base64:true` and avoid having to save the file.
 
@@ -551,7 +608,7 @@ Supported options:
 
 - `videoBitrate`. (int greater than 0) This option specifies a desired video bitrate. For example, 5\*1000\*1000 would be 5Mbps.
 
-  - `ios` Not supported.
+  - `ios` Supported however requires that the codec key is also set.
   - `android` Supported.
 
 - `orientation` (string or number). Specifies the orientation that us used for recording the video. Possible values: `"portrait"`, `"portraitUpsideDown"`, `"landscapeLeft"` or `"landscapeRight"`.
@@ -592,7 +649,7 @@ The promise will be fulfilled with an object with some of the following properti
 
 ### `refreshAuthorizationStatus: Promise<void>`
 
-Allows to make RNCamera check Permissions again and set status accordingly.  
+Allows to make RNCamera check Permissions again and set status accordingly.
 Making it possible to refresh status of RNCamera after user initially rejected the permissions.
 
 ### `stopRecording: void`
@@ -611,6 +668,20 @@ Resumes the preview after pausePreview() has been called.
 
 Android only. Returns a promise. The promise will be fulfilled with an object with an array containing strings with all camera aspect ratios supported by the device.
 
+### `getCameraIdsAsync(): Promise`
+
+Returns a promise. The promise will be fulfilled with an array containing objects with all camera IDs and type supported by the device.
+
+The promise will be fulfilled with an array containing objects with some of the following properties:
+
+- `id`: (string) the ID of the camera.
+
+- `type`: One of `RNCamera.Constants.Type.front` | `RNCamera.Constants.Type.back`
+
+- `deviceType`: iOS 10+ only. Returns the internal device string type used by the OS. Useful to identify camera types (e.g., wide). Constants match iOS' string values: `AVCaptureDeviceTypeBuiltInWideAngleCamera`, `AVCaptureDeviceTypeBuiltInTelephotoCamera`, `AVCaptureDeviceTypeBuiltInUltraWideCamera`. More info can be found at <a href="https://developer.apple.com/documentation/avfoundation/avcapturedevicetypebuiltinultrawidecamera" target="_blank">Apple Docs</a>
+
+Note: iOS also allows for virtual cameras (e.g., a camera made of multiple cameras). However, only physical non-virtual cameras are returned by this method since advanced features (such as depth maps or auto switching on camera zoom) are not supported.
+
 ### `iOS` `isRecording(): Promise<boolean>`
 
 iOS only. Returns a promise. The promise will be fulfilled with a boolean indicating if currently recording is started or stopped.
@@ -626,6 +697,14 @@ This component supports subviews, so if you wish to use the camera view as a bac
 A Barcode and QR code UI mask which can be use to render a scanning layout on camera with customizable styling.
 
 Read more about [react-native-barcode-mask](https://github.com/shahnawaz/react-native-barcode-mask) here.
+
+### @nartc/react-native-barcode-mask
+
+A rewritten version of `react-native-barcode-mask` using `Hooks` and `Reanimated`. If you're already using `react-native-reanimated` (`react-navigation` dependency) then you might benefit from this rewritten component.
+- Customizable
+- Provide custom hook to "scan barcode within finder area"
+
+Read more about it here [@nartc/react-native-barcode-mask](https://github.com/nartc/react-native-barcode-mask)
 
 ## Testing
 

@@ -26,6 +26,12 @@
     return captureDevice;
 }
 
++ (AVCaptureDevice *)deviceWithCameraId:(NSString *)cameraId
+{
+    AVCaptureDevice *device = [AVCaptureDevice deviceWithUniqueID:cameraId];
+    return device;
+}
+
 # pragma mark - Enum conversion
 
 + (AVCaptureVideoOrientation)videoOrientationForInterfaceOrientation:(UIInterfaceOrientation)orientation
@@ -143,7 +149,7 @@
     videoImage = [temporaryContext createCGImage:ciImage fromRect:boundingRect];
     CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, boundingRect);
     CGImageRef croppedCGImage = CGImageCreateWithImageInRect(videoImage, croppedSize);
-    UIImage *image = [[UIImage alloc] initWithCGImage:croppedCGImage];
+    UIImage *image = [[UIImage alloc] initWithCGImage:videoImage];
     CGImageRelease(videoImage);
     CGImageRelease(croppedCGImage);
     return image;

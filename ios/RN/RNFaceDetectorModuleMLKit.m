@@ -119,9 +119,25 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
 @end
 #else
 @implementation RNFaceDetectorModuleMLKit
+
+@synthesize bridge = _bridge;
+
+- (void)setBridge:(RCTBridge *)bridge
+{
+    _bridge = bridge;
+}
+
++ (BOOL)requiresMainQueueSetup
+{
+    return NO;
+}
+
 - (NSDictionary *)constantsToExport
 {
-    return [FaceDetectorManagerMlkit constants];
+    return @{};
 }
+
+RCT_EXPORT_MODULE(RNFaceDetector);
+
 @end
 #endif

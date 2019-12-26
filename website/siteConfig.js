@@ -35,6 +35,7 @@ const siteConfig = {
     { doc: 'expo_usage', label: 'Guides' },
     { doc: 'api', label: 'API' },
     { page: 'docs/qa', label: 'Help' },
+    { doc: 'Tidelift', label: 'For Enterprise' },
     {
       href: 'https://github.com/react-native-community/react-native-camera',
       label: 'GitHub',
