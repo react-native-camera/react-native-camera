@@ -51,7 +51,7 @@ jobs:
       - run:
           name: Build Sample App
           command: |
-            cd examples/basic/android && chmod +x ./gradlew && ./gradlew build
+            cd examples/basic/android && chmod +x ./gradlew && ./gradlew clean && ./gradlew build
       - store_artifacts:
           path: examples/basic/android/app/build/reports
           destination: app

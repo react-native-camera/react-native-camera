@@ -24,7 +24,7 @@ Passing `null` to `onFaceDetected`, `onGoogleVisionBarcodesDetected`, `onTextRec
 
 ## Events continue if screen is mounted but not on top of stack
 
-Lets say you use Face Detection, you take a picture and then takes the user to another screen to see that picture. Meanwhile, RNCamera is still mounted on the previous screen. `onFaceDetected` will still be called if you do not prevent it. For example (using [`react-navigation`](https://github.com/react-navigation/react-navigation):
+Lets say you use Face Detection, you take a picture and then takes the user to another screen to see that picture. Meanwhile, RNCamera is still mounted on the previous screen. `onFaceDetected` will still be called if you do not prevent it. For example (using [`react-navigation`](https://github.com/react-navigation/react-navigation)):
 
 ```
 const takePictureAndShow = () => {
@@ -47,7 +47,7 @@ const { navigation } = this.props;
 
 ## Sending the image to a server
 
-A good way is to get the base64 string representation of your image. You can get it from RNCamera by passing the `base64: true` option lto `takePictureAsync` like:
+A good way is to get the base64 string representation of your image. You can get it from RNCamera by passing the `base64: true` option to `takePictureAsync` like:
 
 ```
 if (this.camera) {
@@ -85,7 +85,7 @@ Use this package https://github.com/phuochau/react-native-thumbnail
 
 Because of different project requirements there is no gesture zoom (like pinch zoom or slide-up zoom) implemented in this package. All implementation should be done in user-land.
 
-However we have some recipies for common zoom behaviours. If you implemented your own solution feel free to add it to the list!
+However we have some recipes for common zoom behaviours. If you implemented your own solution feel free to add it to the list!
 
 ## SlideUp Zoom
 
