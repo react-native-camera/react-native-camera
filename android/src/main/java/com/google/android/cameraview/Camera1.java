@@ -446,6 +446,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             final Set<Size> sizes = mPreviewSizes.sizes(ratio);
             if (sizes == null) {
                 // do nothing, ratio remains unchanged. Consistent with Camera2 and initial mount behaviour
+                Log.w("CAMERA_1::", "setAspectRatio received an unsupported value and will be ignored.");
             } else {
                 mAspectRatio = ratio;
                 mBgHandler.post(new Runnable() {
@@ -870,7 +871,10 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         if(_mCameraId == null){
             int count = Camera.getNumberOfCameras();
             if(count == 0){
-                throw new RuntimeException("No camera available.");
+                //throw new RuntimeException("No camera available.");
+                mCameraId = INVALID_CAMERA_ID;
+                Log.w("CAMERA_1::", "getNumberOfCameras returned 0. No camera available.");
+                return;
             }
 
             for (int i = 0; i < count; i++) {
@@ -899,19 +903,38 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         if (mCamera != null) {
             releaseCamera();
         }
+
+        // in case we got an invalid camera ID
+        // due to no cameras or invalid ID provided,
+        // return false so we can raise a mount error
+        if(mCameraId == INVALID_CAMERA_ID){
+            return false;
+        }
+
         try {
             mCamera = Camera.open(mCameraId);
             mCameraParameters = mCamera.getParameters();
+
             // Supported preview sizes
             mPreviewSizes.clear();
             for (Camera.Size size : mCameraParameters.getSupportedPreviewSizes()) {
                 mPreviewSizes.add(new Size(size.width, size.height));
             }
+
             // Supported picture sizes;
             mPictureSizes.clear();
             for (Camera.Size size : mCameraParameters.getSupportedPictureSizes()) {
                 mPictureSizes.add(new Size(size.width, size.height));
             }
+
+            // to be consistent with Camera2, and to prevent crashes on some devices
+            // do not allow preview sizes that are not also in the picture sizes set
+            for (AspectRatio aspectRatio : mPreviewSizes.ratios()) {
+                if (mPictureSizes.sizes(aspectRatio) == null) {
+                    mPreviewSizes.remove(aspectRatio);
+                }
+            }
+
             // AspectRatio
             if (mAspectRatio == null) {
                 mAspectRatio = Constants.DEFAULT_ASPECT_RATIO;
@@ -939,6 +962,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     void adjustCameraParameters() {
         SortedSet<Size> sizes = mPreviewSizes.sizes(mAspectRatio);
         if (sizes == null) { // Not supported
+            Log.w("CAMERA_1::", "adjustCameraParameters received an unsupported aspect ratio value and will be ignored.");
             mAspectRatio = chooseAspectRatio();
             sizes = mPreviewSizes.sizes(mAspectRatio);
         }
