@@ -112,15 +112,11 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         if (mDocumentDetector != null) {
             Document document = mDocumentDetector.detectCaptured(mImageData, mBitmap.getWidth(), mBitmap.getHeight());
             if (document != null) {
-                try {
-                    mBitmap = cropBitmapWithPerspectiveCorrection(mBitmap, document);
-                    // replace the byte array with the data from the cropped bitmap
-                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), outputStream);
-                    mImageData = outputStream.toByteArray();
-                } catch (IllegalArgumentException e) {
-                    //invalid document parameters
-                }
+                mBitmap = cropBitmapWithPerspectiveCorrection(mBitmap, document);
+                // replace the byte array with the data from the cropped bitmap
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), outputStream);
+                mImageData = outputStream.toByteArray();
             }
         }
 

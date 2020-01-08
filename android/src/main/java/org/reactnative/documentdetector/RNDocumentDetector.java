@@ -117,16 +117,18 @@ public class RNDocumentDetector {
         Mat resizedImage = new Mat(size, CvType.CV_8UC4);
         Mat grayImage = new Mat(size, CvType.CV_8UC4);
         Mat cannedImage = new Mat(size, CvType.CV_8UC1);
+        Mat _unused = new Mat(size, CvType.CV_8UC1);
 
         Imgproc.resize(src, resizedImage, size);
         Imgproc.cvtColor(resizedImage, grayImage, Imgproc.COLOR_RGBA2GRAY, 4);
         Imgproc.GaussianBlur(grayImage, grayImage, new Size(5, 5), 0);
-        Imgproc.Canny(grayImage, cannedImage, 80, 100, 3, false);
+        double thresholdHigh = Imgproc.threshold(grayImage, _unused,0, 255, Imgproc.THRESH_BINARY+Imgproc.THRESH_OTSU);
+        Imgproc.Canny(grayImage, cannedImage, .5 * thresholdHigh, thresholdHigh, 3, false);
 
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
 
-        Imgproc.findContours(cannedImage, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(cannedImage, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_TC89_KCOS);
 
         hierarchy.release();
         resizedImage.release();
@@ -149,13 +151,7 @@ public class RNDocumentDetector {
         Size size = new Size(width, height);
 
         for (MatOfPoint contour : contours) {
-            // find contour perimeter
-            MatOfPoint2f c2f = new MatOfPoint2f(contour.toArray());
-            double perimeter = Imgproc.arcLength(c2f, true);
-
-            // approximate the shape by Ramer–Douglas–Peucker
-            MatOfPoint2f approx = new MatOfPoint2f();
-            Imgproc.approxPolyDP(c2f, approx, 0.1 * perimeter, true);
+            MatOfPoint2f approx = getApproximation(contour);
 
             // cant get a quadrilateral from less than 4 points
             if (approx.toArray().length < 4) continue;
@@ -168,6 +164,21 @@ public class RNDocumentDetector {
         }
 
         return null;
+    }
+
+    /**
+     * Find contour perimeter and approximate the shape by Ramer–Douglas–Peucker
+     *
+     * @param contour A contour
+     * @return approx A shape approximation
+     */
+    private MatOfPoint2f getApproximation(MatOfPoint contour) {
+        MatOfPoint2f c2f = new MatOfPoint2f(contour.toArray());
+        double perimeter = Imgproc.arcLength(c2f, true);
+
+        MatOfPoint2f approx = new MatOfPoint2f();
+        Imgproc.approxPolyDP(c2f, approx, 0.1 * perimeter, true);
+        return approx;
     }
 
     private void scalePoints(Point[] points, double ratio) {
