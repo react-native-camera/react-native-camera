@@ -6,15 +6,15 @@ title: Work in progress
 [**wip**]
 
 - [`zoom`](API.md#zoom)
-- [`maxZoom`](API.md#maxZoom)
+- [`maxZoom`](API.md#maxzoom)
 - [`type`](API.md#type)
-- [`cameraId`](API.md#cameraId)
-- [`flashMode`](API.md#flashMode)
+- [`cameraId`](API.md#cameraid)
+- [`flashMode`](API.md#flashmode)
 - [`exposure`](API.md#exposure)
-- [`whiteBalance`](API.md#whiteBalance)
-- [`autoFocus`](API.md#autoFocus)
+- [`whiteBalance`](API.md#whitebalance)
+- [`autoFocus`](API.md#autofocus)
 - [`ratio`](API.md#ratio)
-- [`focusDepth`](API.md#focusDepth)
+- [`focusDepth`](API.md#focusdepth)
 - [`onMountError`](API.md#onMountError)
 - [`onCameraReady`](API.md#onCameraReady)
 
@@ -35,29 +35,30 @@ title: Work in progress
 
 This property specifies the zoom value of the camera. Ranges from 0 to 1. Default to 0.
 
-|   Type | Default Value | 
-|   ---- | --------      | 
-| number | 0             | 
+| Type   | Default Value | Plathform |
+| ------ | ------------- | --------- |
+| number | 0             | IOS       |
 
 ---
 ### `maxZoom`
 
-The maximum zoom value of the camera. Defaults to 0. 
-
-|   Type | Default Value | 
-|   ---- | --------      | 
-| number | 0             | 
+Locks the max zoom value to the provided value
+A value less than or equal to `1` will use the camera's max zoom, while a value greater than `1` will use that value as the max available zoom. \
+A float from `0` to `any`
+| Type   | Default Value |
+| ------ | ------------- |
+| number | 0             |
 
 ---
 ### `type`
 
-This property defines which camera on the phone the component is using. 
+This property defines which camera on the phone the component is using. \
 Possible values: 
 - `front`
 - `back`
 
-|   Type | Default Value |
-|   ---- | --------      |
+| Type   | Default Value |
+| ------ | ------------- |
 | number | 'back'        |
 
 ---
@@ -65,23 +66,78 @@ Possible values:
 
 For selecting from multiple cameras on Android devices. See [2492](https://github.com/react-native-community/react-native-camera/pull/2492) for more info. Can be retrieved with `getCameraIds()`
 
-|   Type | Default Value | Platform     | 
-|   ---- | --------      |  --------    | 
-| String | `null`        | Android      | 
+| Type   | Default Value | Platform |
+| ------ | ------------- | -------- |
+| String | `null`        | Android  |
 
 ---
 ### `flashMode`
 
-Determines the state of the camera flash. Has the following possible states. 
-  ```off: '1',
-  on: 'auto',
-  auto: 'torch',
-  torch: 'off'
-  ```
+Determines the state of the camera flash. \
+Possible values: 
+- `auto`
+- `on`
+- `off`
+- `torch`
 
-|   Type | Default Value | 
-|   ---- | --------      | 
-| object | `{ off: 1 }`  | 
+| Type   | Default Value |
+| ------ | ------------- |
+| String | `off`         |
+
+---
+### `whiteBalance`
+
+A camera’s white balance setting allows you to control the color temperature in your photos by cooling down or warming up the colors.\
+The idea is that you select the appropriate white balance setting for the type of light that you’re shooting in, and then your camera automatically adjusts the colors to eliminate any warm or cool color casts from your light source. \
+Possible values: 
+- `auto`
+- `sunny`
+- `cloudy`
+- `shadow`
+- `incandescent`
+- `fluorescent`
+  
+| Type   | Default Value | Plathform |
+| ------ | ------------- | --------- |
+| String | `auto`        | IOS       |
+
+---
+### `autoFocus`
+
+Determines if camera should auto focus by itself. It allows your camera to adjusts lens position automatically depending on the pixels seen by your camera. \
+Possible values: 
+- `on`
+- `off`
+  
+| Type   | Default Value |
+| ------ | ------------- |
+| String | `on`          |
+
+---
+### `ratio`
+
+A string representing the camera ratio in the format 'height:width'. \
+You can use `getSupportedRatiosAsync` method to get ratio strings supported by your camera on Android.
+| Type   | Default Value | Plathform |
+| ------ | ------------- | --------- |
+| String | `4:3`         | Android   |
+
+---
+### `focusDepth`
+Manually set camera focus. Only works with autoFocus set to `off`. The value `0` is minimum focus depth, `1` is maximum focus depth.\
+For a medium focus depth, for example, you could use `0.5`.
+| Type  | Default Value |
+| ----- | ------------- |
+| flaot | `null`        |
+
+---
+### `onMountError`
+ Function to be called when native code emit onMountError event, when there is a problem mounting the camera.
+
+---
+
+### `onCameraReady`
+ Function to be called when native code emit onCameraReady event, when camera is ready. This event will also fire when changing cameras (by type or cameraId).
 
 ---
 
