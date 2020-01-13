@@ -146,7 +146,13 @@ public class CameraView extends FrameLayout {
 
     public void cleanup(){
         if(mBgThread != null){
-            mBgThread.quitSafely();
+            if(Build.VERSION.SDK_INT < 18){
+                mBgThread.quit();
+            }
+            else{
+                mBgThread.quitSafely();
+            }
+
             mBgThread = null;
         }
     }
