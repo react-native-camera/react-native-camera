@@ -40,21 +40,25 @@
     CIImage *cimage = [[CIImage alloc] initWithCGImage:image.CGImage];
     
     _lastRectBorder = [self biggestRectangleInRectangles:[[self highAccuracyRectangleDetector] featuresInImage:cimage]];
-    
-    completed(@{
-                @"tl": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.topLeft.x * scaleX],
-                         @"y": [NSNumber numberWithFloat:(image.size.height - _lastRectBorder.topLeft.y) * scaleY]},
-                @"tr": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.topRight.x * scaleX],
-                         @"y": [NSNumber numberWithFloat:(image.size.height - _lastRectBorder.topRight.y) * scaleY]},
-                @"bl": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.bottomLeft.x * scaleX],
-                         @"y": [NSNumber numberWithFloat:(image.size.height - _lastRectBorder.bottomLeft.y) * scaleY]},
-                @"br": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.bottomRight.x * scaleX],
-                         @"y": [NSNumber numberWithFloat:(image.size.height - _lastRectBorder.bottomRight.y) * scaleY]},
-                @"x": [NSNumber numberWithFloat:_lastRectBorder.topLeft.x * scaleX],
-                @"y": [NSNumber numberWithFloat:(image.size.height - _lastRectBorder.topLeft.y) * scaleY],
-                @"width": [NSNumber numberWithFloat:(_lastRectBorder.topRight.x - _lastRectBorder.topLeft.x) * scaleX],
-                @"height": [NSNumber numberWithFloat:(_lastRectBorder.topLeft.y - _lastRectBorder.bottomLeft.y) * scaleY]});
-    
+
+    if (0 == (_lastRectBorder.topRight.x - _lastRectBorder.topLeft.x)) {
+        completed(nil);
+    } else {
+        completed(@{
+                    @"tl": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.topLeft.x * scaleX],
+                             @"y": [NSNumber numberWithFloat:(image.size.height - _lastRectBorder.topLeft.y) * scaleY]},
+                    @"tr": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.topRight.x * scaleX],
+                             @"y": [NSNumber numberWithFloat:(image.size.height - _lastRectBorder.topRight.y) * scaleY]},
+                    @"bl": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.bottomLeft.x * scaleX],
+                             @"y": [NSNumber numberWithFloat:(image.size.height - _lastRectBorder.bottomLeft.y) * scaleY]},
+                    @"br": @{@"x": [NSNumber numberWithFloat:_lastRectBorder.bottomRight.x * scaleX],
+                             @"y": [NSNumber numberWithFloat:(image.size.height - _lastRectBorder.bottomRight.y) * scaleY]},
+                    @"x": [NSNumber numberWithFloat:_lastRectBorder.topLeft.x * scaleX],
+                    @"y": [NSNumber numberWithFloat:(image.size.height - _lastRectBorder.topLeft.y) * scaleY],
+                    @"width": [NSNumber numberWithFloat:(_lastRectBorder.topRight.x - _lastRectBorder.topLeft.x) * scaleX],
+                    @"height": [NSNumber numberWithFloat:(_lastRectBorder.topLeft.y - _lastRectBorder.bottomLeft.y) * scaleY]});
+    }
+
 }
 
 - (CIRectangleFeature *)biggestRectangleInRectangles:(NSArray *)rectangles

@@ -1472,7 +1472,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             _finishedDetectingDocument = false;
             self.startDocument = [NSDate date];
             [self.documentDetector findDocumentInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSDictionary *document) {
-                NSDictionary *eventDocument = @{@"type": @"document", @"document": document};
+                NSDictionary *eventDocument;
+                if (document ==  nil) {
+                    eventDocument = @{@"type": @"document", @"document": [NSNull null]};
+                } else {
+                    eventDocument = @{@"type": @"document", @"document": document};
+                }
                 [self onDocumentDetected:eventDocument];
                 self.finishedDetectingDocument = true;
             }];
