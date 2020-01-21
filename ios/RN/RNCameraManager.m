@@ -23,6 +23,7 @@ RCT_EXPORT_VIEW_PROPERTY(onPictureTaken, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onTextRecognized, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onSubjectAreaChanged, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
 
 + (BOOL)requiresMainQueueSetup
 {
