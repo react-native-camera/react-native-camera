@@ -123,7 +123,7 @@ public class RNDocumentDetector {
         Imgproc.cvtColor(resizedImage, grayImage, Imgproc.COLOR_RGBA2GRAY, 4);
         Imgproc.GaussianBlur(grayImage, grayImage, new Size(5, 5), 0);
         double thresholdHigh = Imgproc.threshold(grayImage, _unused,0, 255, Imgproc.THRESH_BINARY+Imgproc.THRESH_OTSU);
-        Imgproc.Canny(grayImage, cannedImage, .1 * thresholdHigh, thresholdHigh, 3, false);
+        Imgproc.Canny(grayImage, cannedImage, .25 * thresholdHigh, thresholdHigh, 3, false);
 
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
