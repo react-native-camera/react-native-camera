@@ -300,7 +300,7 @@ class Camera extends Component{
     if(s.cameraStatus == 'READY'){
 
       let audioDisabled = s.recordAudioPermissionStatus == 'NOT_AUTHORIZED';
-      this.setState({cameraReady: true, audioDisabled: audioDisabled}, async () => {
+      this.setState({audioDisabled: audioDisabled}, async () => {
 
         let ids = [];
 
@@ -354,6 +354,18 @@ class Camera extends Component{
         this.setState({cameraReady: false});
       }
     }
+  }
+
+  onCameraReady = () => {
+    if(!this.state.cameraReady){
+      this.setState({cameraReady: true});
+    }
+  }
+
+  onCameraMountError = () => {
+    setTimeout(()=>{
+      Alert.alert("Error", "Camera start failed.");
+    }, 150);
   }
 
 
@@ -614,6 +626,8 @@ class Camera extends Component{
                 buttonNegative: 'Cancel',
               }}
               onStatusChange={this.onCameraStatusChange}
+              onCameraReady={this.onCameraReady}
+              onMountError={this.onCameraMountError}
               pendingAuthorizationView={
                 <SafeAreaView style={styles.cameraLoading}>
                   <Spinner color={style.brandLight}/>
@@ -898,11 +912,6 @@ class Camera extends Component{
         else{
           this.setState({cameraId: cameraId, ...defaultCameraOptions});
         }
-
-        // disable and reenable camera on camera change
-        setTimeout(()=>{
-          this.setState({cameraReady: true});
-        }, 550);
       });
     });
   }

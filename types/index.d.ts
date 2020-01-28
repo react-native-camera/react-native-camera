@@ -22,6 +22,7 @@ type Orientation = Readonly<{
 }>;
 type OrientationNumber = 1 | 2 | 3 | 4;
 type AutoFocus = Readonly<{ on: any; off: any }>;
+type VideoStabilization = Readonly<{off: any, standard: any, cinematic: any, auto: any}>;
 type FlashMode = Readonly<{ on: any; off: any; torch: any; auto: any }>;
 type CameraType = Readonly<{ front: any; back: any }>;
 type WhiteBalance = Readonly<{
@@ -127,6 +128,7 @@ export interface Constants {
     portrait: 'portrait';
     portraitUpsideDown: 'portraitUpsideDown';
   };
+  VideoStabilization: VideoStabilization;
 }
 
 export interface RNCameraProps {
@@ -134,6 +136,8 @@ export interface RNCameraProps {
 
   autoFocus?: keyof AutoFocus;
   autoFocusPointOfInterest?: Point;
+  pictureSize?: string;
+  
   /* iOS only */
   onSubjectAreaChanged?: (event: { nativeEvent: { prevPoint: { x: number; y: number; } } }) => void;
   type?: keyof CameraType;
@@ -222,7 +226,10 @@ export interface RNCameraProps {
   } | null;
 
   // -- IOS ONLY PROPS
+  videoStabilizationMode?: keyof VideoStabilization;
   defaultVideoQuality?: keyof VideoQuality;
+  /* if true, audio session will not be released on component unmount */
+  keepAudioSession?: boolean;
 }
 
 interface Point<T = number> {
