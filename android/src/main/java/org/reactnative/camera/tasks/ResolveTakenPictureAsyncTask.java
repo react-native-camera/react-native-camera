@@ -35,10 +35,10 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private static final String ERROR_TAG = "E_TAKING_PICTURE_FAILED";
     private final RNDocumentDetector mDocumentDetector;
     private Promise mPromise;
+    private Bitmap mBitmap;
     private byte[] mImageData;
     private ReadableMap mOptions;
     private File mCacheDirectory;
-    private Bitmap mBitmap;
     private int mDeviceOrientation;
     private PictureSavedDelegate mPictureSavedDelegate;
 
@@ -56,127 +56,123 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         return (int) (mOptions.getDouble("quality") * 100);
     }
 
+    // loads bitmap only if necessary
+    private void loadBitmap() throws IOException {
+        if(mBitmap == null){
+            mBitmap = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
+        }
+        if(mBitmap == null){
+            throw new IOException("Failed to decode Image Bitmap");
+        }
+    }
+
     @Override
     protected WritableMap doInBackground(Void... voids) {
         WritableMap response = Arguments.createMap();
         ByteArrayInputStream inputStream = null;
+        ExifInterface exifInterface = null;
+        WritableMap exifData = null;
+        ReadableMap exifExtraData = null;
+
+        boolean orientationChanged = false;
 
         response.putInt("deviceOrientation", mDeviceOrientation);
         response.putInt("pictureOrientation", mOptions.hasKey("orientation") ? mOptions.getInt("orientation") : mDeviceOrientation);
 
-        if (mOptions.hasKey("skipProcessing")) {
-            try {
-                // Prepare file output
-                File imageFile = new File(RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg"));
-                imageFile.createNewFile();
-                FileOutputStream fOut = new FileOutputStream(imageFile);
 
-                // Save byte array (it is already a JPEG)
-                fOut.write(mImageData);
+        try{
+            // this replaces the skipProcessing flag, we will process only if needed, and in
+            // an orderly manner, so that skipProcessing is the default behaviour if no options are given
+            // and this behaves more like the iOS version.
+            // We will load all data lazily only when needed.
 
-                // get image size
-                if (mBitmap == null) {
-                    mBitmap = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
-                }
-                if(mBitmap == null){
-                    throw new IOException("Failed to decode Image bitmap.");
-                }
-
-                response.putInt("width", mBitmap.getWidth());
-                response.putInt("height", mBitmap.getHeight());
-
-                // Return file system URI
-                String fileUri = Uri.fromFile(imageFile).toString();
-                response.putString("uri", fileUri);
-
-            } catch (Resources.NotFoundException e) {
-                response = null; // do not resolve
-                mPromise.reject(ERROR_TAG, "Documents directory of the app could not be found.", e);
-                e.printStackTrace();
-            } catch (IOException e) {
-                response = null; // do not resolve
-                mPromise.reject(ERROR_TAG, "An unknown I/O exception has occurred.", e);
-                e.printStackTrace();
-            }
-
-            return response;
-        }
-
-        // we need the stream only for photos from a device
-        if (mBitmap == null) {
-            mBitmap = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
+            // this should not incurr in any overhead if not read/used
             inputStream = new ByteArrayInputStream(mImageData);
-        }
 
-        // If we use document detection feature the detector was passed to this constructor
-        if (mDocumentDetector != null) {
-            Document document = mDocumentDetector.detectCaptured(mImageData, mBitmap.getWidth(), mBitmap.getHeight());
-            if (document != null) {
-                mBitmap = cropBitmapWithPerspectiveCorrection(mBitmap, document);
-                // replace the byte array with the data from the cropped bitmap
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), outputStream);
-                mImageData = outputStream.toByteArray();
+
+            // If we use document detection feature the detector was passed to this constructor
+            if (mDocumentDetector != null) {
+                loadBitmap();
+                Document document = mDocumentDetector.detectCaptured(mImageData, mBitmap.getWidth(), mBitmap.getHeight());
+                if (document != null) {
+                    mBitmap = cropBitmapWithPerspectiveCorrection(mBitmap, document);
+                    // replace the byte array with the data from the cropped bitmap
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), outputStream);
+                    mImageData = outputStream.toByteArray();
+                }
             }
-        }
 
-        try {
             WritableMap fileExifData = null;
+            // Rotate the bitmap to the proper orientation if requested
+            if(mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation")){
 
-            if (inputStream != null) {
-                ExifInterface exifInterface = new ExifInterface(inputStream);
+                exifInterface = new ExifInterface(inputStream);
+
                 // Get orientation of the image from mImageData via inputStream
-                int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                        ExifInterface.ORIENTATION_UNDEFINED);
+                int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
 
-                // Rotate the bitmap to the proper orientation if needed
-                boolean fixOrientation = mOptions.hasKey("fixOrientation")
-                        && mOptions.getBoolean("fixOrientation")
-                        && orientation != ExifInterface.ORIENTATION_UNDEFINED;
-                if (fixOrientation) {
+                if(orientation != ExifInterface.ORIENTATION_UNDEFINED){
+                    loadBitmap();
                     mBitmap = rotateBitmap(mBitmap, getImageRotation(orientation));
+                    orientationChanged = true;
                 }
+            }
 
-                if (mOptions.hasKey("width")) {
-                    mBitmap = resizeBitmap(mBitmap, mOptions.getInt("width"));
+            if (mOptions.hasKey("width")) {
+                loadBitmap();
+                mBitmap = resizeBitmap(mBitmap, mOptions.getInt("width"));
+            }
+
+            if (mOptions.hasKey("mirrorImage") && mOptions.getBoolean("mirrorImage")) {
+                loadBitmap();
+                mBitmap = flipHorizontally(mBitmap);
+            }
+
+
+            // EXIF code - we will adjust exif info later if we manipulated the bitmap
+            boolean writeExifToResponse = mOptions.hasKey("exif") && mOptions.getBoolean("exif");
+
+            // default to true if not provided so it is consistent with iOS and with what happens if no
+            // processing is done and the image is saved as is.
+            boolean writeExifToFile = true;
+
+            if (mOptions.hasKey("writeExif")) {
+                switch (mOptions.getType("writeExif")) {
+                    case Boolean:
+                        writeExifToFile = mOptions.getBoolean("writeExif");
+                        break;
+                    case Map:
+                        exifExtraData = mOptions.getMap("writeExif");
+                        writeExifToFile = true;
+                        break;
                 }
+            }
 
-                if (mOptions.hasKey("mirrorImage") && mOptions.getBoolean("mirrorImage")) {
-                    mBitmap = flipHorizontally(mBitmap);
-                }
+            // Read Exif data if needed
+            if (writeExifToResponse || writeExifToFile) {
 
-                WritableMap exifData = null;
-                ReadableMap exifExtraData = null;
-                boolean writeExifToResponse = mOptions.hasKey("exif") && mOptions.getBoolean("exif");
-                boolean writeExifToFile = false;
-                if (mOptions.hasKey("writeExif")) {
-                    switch (mOptions.getType("writeExif")) {
-                        case Boolean:
-                            writeExifToFile = mOptions.getBoolean("writeExif");
-                            break;
-                        case Map:
-                            exifExtraData = mOptions.getMap("writeExif");
-                            writeExifToFile = true;
-                            break;
+                // if we manipulated the image, or need to add extra data, or need to add it to the response,
+                // then we need to load the actual exif data.
+                // Otherwise we can just use w/e exif data we have right now in our byte array
+                if(mBitmap != null || exifExtraData != null || writeExifToResponse){
+                    if(exifInterface == null){
+                        exifInterface = new ExifInterface(inputStream);
                     }
-                }
-
-                // Read Exif data if needed
-                if (writeExifToResponse || writeExifToFile) {
                     exifData = RNCameraViewHelper.getExifData(exifInterface);
+
+                    if(exifExtraData != null){
+                        exifData.merge(exifExtraData);
+                    }
                 }
 
-                // Write Exif data to output file if requested
-                if (writeExifToFile) {
-                    fileExifData = Arguments.createMap();
-                    fileExifData.merge(exifData);
-                    fileExifData.putInt("width", mBitmap.getWidth());
-                    fileExifData.putInt("height", mBitmap.getHeight());
-                    if (fixOrientation) {
-                        fileExifData.putInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                    }
-                    if (exifExtraData != null) {
-                        fileExifData.merge(exifExtraData);
+                // if we did anything to the bitmap, adjust exif
+                if(mBitmap != null){
+                    exifData.putInt("width", mBitmap.getWidth());
+                    exifData.putInt("height", mBitmap.getHeight());
+
+                    if(orientationChanged){
+                        exifData.putInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
                     }
                 }
 
@@ -186,47 +182,108 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 }
             }
 
-            // Upon rotating, write the image's dimensions to the response
-            response.putInt("width", mBitmap.getWidth());
-            response.putInt("height", mBitmap.getHeight());
 
-            // Cache compressed image in imageStream
-            ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
-            mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), imageStream);
 
-            // Write compressed image to file in cache directory unless otherwise specified
-            if (!mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave")) {
-                String filePath = writeStreamToFile(imageStream);
-                if (fileExifData != null) {
-                    ExifInterface fileExifInterface = new ExifInterface(filePath);
-                    RNCameraViewHelper.setExifData(fileExifInterface, fileExifData);
-                    fileExifInterface.saveAttributes();
+            // final processing
+            // Based on whether or not we loaded the full bitmap into memory, final processing differs
+            if(mBitmap == null){
+
+                // set response dimensions. If we haven't read our bitmap, get it efficiently
+                // without loading the actual bitmap into memory
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length, options);
+                if(options != null){
+                    response.putInt("width", options.outWidth);
+                    response.putInt("height", options.outHeight);
                 }
-                File imageFile = new File(filePath);
-                String fileUri = Uri.fromFile(imageFile).toString();
-                response.putString("uri", fileUri);
-            }
 
-            // Write base64-encoded image to the response if requested
-            if (mOptions.hasKey("base64") && mOptions.getBoolean("base64")) {
-                response.putString("base64", Base64.encodeToString(imageStream.toByteArray(), Base64.NO_WRAP));
-            }
 
-            // Cleanup
-            imageStream.close();
-            if (inputStream != null) {
-                inputStream.close();
-                inputStream = null;
+                // save to file if requested
+                if (!mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave")) {
+
+                    // Prepare file output
+                    File imageFile = new File(RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg"));
+                    imageFile.createNewFile();
+                    FileOutputStream fOut = new FileOutputStream(imageFile);
+
+                    // Save byte array (it is already a JPEG)
+                    fOut.write(mImageData);
+                    fOut.flush();
+                    fOut.close();
+
+                    // update exif data if needed.
+                    // Since we didn't modify the image, we only update if we have extra exif info
+                    if (writeExifToFile && exifExtraData != null) {
+                        ExifInterface fileExifInterface = new ExifInterface(imageFile.getAbsolutePath());
+                        RNCameraViewHelper.setExifData(fileExifInterface, exifExtraData);
+                        fileExifInterface.saveAttributes();
+                    }
+                    else if (!writeExifToFile){
+                        // if we were requested to NOT store exif, we actually need to
+                        // clear the exif tags
+                        ExifInterface fileExifInterface = new ExifInterface(imageFile.getAbsolutePath());
+                        RNCameraViewHelper.clearExifData(fileExifInterface);
+                        fileExifInterface.saveAttributes();
+                    }
+                    // else: exif is unmodified, no need to update anything
+
+                    // Return file system URI
+                    String fileUri = Uri.fromFile(imageFile).toString();
+                    response.putString("uri", fileUri);
+                }
+
+                if (mOptions.hasKey("base64") && mOptions.getBoolean("base64")) {
+                    response.putString("base64", Base64.encodeToString(mImageData, Base64.NO_WRAP));
+                }
+
+            }
+            else{
+
+                // get response dimensions right from the bitmap if we have it
+                response.putInt("width", mBitmap.getWidth());
+                response.putInt("height", mBitmap.getHeight());
+
+                // Cache compressed image in imageStream
+                ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
+                mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), imageStream);
+
+
+                // Write compressed image to file in cache directory unless otherwise specified
+                if (!mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave")) {
+                    String filePath = writeStreamToFile(imageStream);
+
+                    // since we lost any exif data on bitmap creation, we only need
+                    // to add it if requested
+                    if (writeExifToFile && exifData != null) {
+                        ExifInterface fileExifInterface = new ExifInterface(filePath);
+                        RNCameraViewHelper.setExifData(fileExifInterface, exifData);
+                        fileExifInterface.saveAttributes();
+                    }
+                    File imageFile = new File(filePath);
+                    String fileUri = Uri.fromFile(imageFile).toString();
+                    response.putString("uri", fileUri);
+                }
+
+                // Write base64-encoded image to the response if requested
+                if (mOptions.hasKey("base64") && mOptions.getBoolean("base64")) {
+                    response.putString("base64", Base64.encodeToString(imageStream.toByteArray(), Base64.NO_WRAP));
+                }
+
             }
 
             return response;
-        } catch (Resources.NotFoundException e) {
+
+        }
+        catch (Resources.NotFoundException e) {
             mPromise.reject(ERROR_TAG, "Documents directory of the app could not be found.", e);
             e.printStackTrace();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             mPromise.reject(ERROR_TAG, "An unknown I/O exception has occurred.", e);
             e.printStackTrace();
-        } finally {
+        }
+        finally {
             try {
                 if (inputStream != null) {
                     inputStream.close();
@@ -236,7 +293,6 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
             }
         }
 
-        // An exception had to occur, promise has already been rejected. Do not try to resolve it again.
         return null;
     }
 

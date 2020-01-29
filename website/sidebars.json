@@ -3,6 +3,7 @@
     "Getting Started": ["installation", "contributing"],
     "Guides": ["expo_usage", "GradleUpgradeGuide", "migration", "migrationv2", "react-navigation", "recipes", "rncamera", "tests"],
     "API": ["api"],
-    "Help": ["qa"]
+    "Help": ["qa"],
+    "Enterprise": ["Tidelift"]
   }
 }

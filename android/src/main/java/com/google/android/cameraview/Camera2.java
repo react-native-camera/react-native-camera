@@ -53,10 +53,13 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
+
+import org.reactnative.camera.utils.ObjectUtils;
+
+
 
 @SuppressWarnings("MissingPermission")
 @TargetApi(21)
@@ -263,8 +266,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     private Rect mInitialCropRegion;
 
-    Camera2(Callback callback, PreviewImpl preview, Context context) {
-        super(callback, preview);
+    Camera2(Callback callback, PreviewImpl preview, Context context, Handler bgHandler) {
+        super(callback, preview, bgHandler);
         mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
         mCameraManager.registerAvailabilityCallback(new CameraManager.AvailabilityCallback() {
             @Override
@@ -366,13 +369,13 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     @Override
     void setCameraId(String id) {
-        if(!Objects.equals(_mCameraId, id)){
+        if(!ObjectUtils.equals(_mCameraId, id)){
             _mCameraId = id;
 
             // only update if our camera ID actually changes
             // from what we currently have.
             // Passing null will always yield true
-            if(!Objects.equals(_mCameraId, mCameraId)){
+            if(!ObjectUtils.equals(_mCameraId, mCameraId)){
                 // this will call chooseCameraIdByFacing
                 if (isCameraOpened()) {
                     stop();
@@ -436,7 +439,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             mStillImageReader.close();
         }
         if (size == null) {
-          if (mAspectRatio == null) {
+          if (mAspectRatio == null || mPictureSize == null) {
             return;
           }
           mPictureSizes.sizes(mAspectRatio).last();
@@ -1254,6 +1257,13 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                     break;
             }
             captureRequestBuilder.set(CaptureRequest.JPEG_ORIENTATION, getOutputRotation());
+
+
+            if(mCaptureCallback.getOptions().hasKey("quality")){
+                int quality = (int) (mCaptureCallback.getOptions().getDouble("quality") * 100);
+                captureRequestBuilder.set(CaptureRequest.JPEG_QUALITY, (byte)quality);
+            }
+
             captureRequestBuilder.set(CaptureRequest.SCALER_CROP_REGION, mPreviewRequestBuilder.get(CaptureRequest.SCALER_CROP_REGION));
             // Stop preview and capture a still picture.
             mCaptureSession.stopRepeating();

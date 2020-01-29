@@ -140,6 +140,7 @@ type TrackedBarcodeFeature = {
   data: string,
   dataRaw: string,
   type: BarcodeType,
+  format?: string,
   addresses?: {
     addressesType?: 'UNKNOWN' | 'Work' | 'Home',
     addressLines?: string[],
@@ -202,7 +203,8 @@ type BarcodeType =
   | 'WIFI'
   | 'TEXT'
   | 'ISBN'
-  | 'PRODUCT';
+  | 'PRODUCT'
+  | 'URL';
 
 type Email = {
   address?: string,
@@ -240,14 +242,19 @@ type Rect = {
 
 type PropsType = typeof View.props & {
   zoom?: number,
+  maxZoom?: number,
   ratio?: string,
   focusDepth?: number,
   type?: number | string,
   onCameraReady?: Function,
+  onAudioInterrupted?: Function,
+  onAudioConnected?: Function,
   onStatusChange?: Function,
   onBarCodeRead?: Function,
+  onPictureTaken?: Function,
   onPictureSaved?: Function,
   onGoogleVisionBarcodesDetected?: ({ barcodes: Array<TrackedBarcodeFeature> }) => void,
+  onSubjectAreaChanged?: ({ nativeEvent: { prevPoint: {| x: number, y: number |} } }) => void,
   faceDetectionMode?: number,
   trackingEnabled?: boolean,
   flashMode?: number | string,
@@ -272,6 +279,7 @@ type PropsType = typeof View.props & {
   }) => void,
   documentScannerEnabled?: boolean,
   captureAudio?: boolean,
+  keepAudioSession?: boolean,
   useCamera2Api?: boolean,
   playSoundOnCapture?: boolean,
   videoStabilizationMode?: number | string,
@@ -383,16 +391,21 @@ export default class Camera extends React.Component<PropsType, StateType> {
   static propTypes = {
     ...ViewPropTypes,
     zoom: PropTypes.number,
+    maxZoom: PropTypes.number,
     ratio: PropTypes.string,
     focusDepth: PropTypes.number,
     onMountError: PropTypes.func,
     onCameraReady: PropTypes.func,
+    onAudioInterrupted: PropTypes.func,
+    onAudioConnected: PropTypes.func,
     onStatusChange: PropTypes.func,
     onBarCodeRead: PropTypes.func,
+    onPictureTaken: PropTypes.func,
     onPictureSaved: PropTypes.func,
     onGoogleVisionBarcodesDetected: PropTypes.func,
     onFacesDetected: PropTypes.func,
     onTextRecognized: PropTypes.func,
+    onSubjectAreaChanged: PropTypes.func,
     trackingEnabled: PropTypes.bool,
     faceDetectionMode: PropTypes.number,
     faceDetectionLandmarks: PropTypes.number,
@@ -414,6 +427,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     notAuthorizedView: PropTypes.element,
     pendingAuthorizationView: PropTypes.element,
     captureAudio: PropTypes.bool,
+    keepAudioSession: PropTypes.bool,
     useCamera2Api: PropTypes.bool,
     playSoundOnCapture: PropTypes.bool,
     videoStabilizationMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -425,6 +439,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
   static defaultProps: Object = {
     zoom: 0,
+    maxZoom: 0,
     ratio: '4:3',
     focusDepth: 0,
     type: CameraManager.Type.back,
@@ -462,6 +477,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
       </View>
     ),
     captureAudio: true,
+    keepAudioSession: false,
     useCamera2Api: false,
     playSoundOnCapture: false,
     pictureSize: 'None',
@@ -531,7 +547,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (Platform.OS === 'android') {
       return await CameraManager.getCameraIds(this._cameraHandle);
     } else {
-      return [];
+      return await CameraManager.getCameraIds(); // iOS does not need a camera instance
     }
   }
 
@@ -617,6 +633,18 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
+  _onAudioInterrupted = () => {
+    if (this.props.onAudioInterrupted) {
+      this.props.onAudioInterrupted();
+    }
+  };
+
+  _onAudioConnected = () => {
+    if (this.props.onAudioConnected) {
+      this.props.onAudioConnected();
+    }
+  };
+
   _onStatusChange = () => {
     if (this.props.onStatusChange) {
       this.props.onStatusChange({
@@ -647,6 +675,12 @@ export default class Camera extends React.Component<PropsType, StateType> {
       callback(nativeEvent);
       this._lastEventsTimes[type] = new Date();
       this._lastEvents[type] = JSON.stringify(nativeEvent);
+    }
+  };
+
+  _onSubjectAreaChanged = e => {
+    if (this.props.onSubjectAreaChanged) {
+      this.props.onSubjectAreaChanged(e);
     }
   };
 
@@ -773,6 +807,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
             ref={this._setReference}
             onMountError={this._onMountError}
             onCameraReady={this._onCameraReady}
+            onAudioInterrupted={this._onAudioInterrupted}
+            onAudioConnected={this._onAudioConnected}
             onGoogleVisionBarcodesDetected={this._onObjectDetected(
               this.props.onGoogleVisionBarcodesDetected,
             )}
@@ -781,6 +817,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
             onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
             onDocumentDetected={this._onObjectDetected(this.props.onDocumentDetected)}
             onPictureSaved={this._onPictureSaved}
+            onSubjectAreaChanged={this._onSubjectAreaChanged}
           />
           {this.renderChildren()}
         </View>
@@ -843,10 +880,13 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     onBarCodeRead: true,
     onGoogleVisionBarcodesDetected: true,
     onCameraReady: true,
+    onAudioInterrupted: true,
+    onAudioConnected: true,
     onPictureSaved: true,
     onFaceDetected: true,
     onLayout: true,
     onMountError: true,
+    onSubjectAreaChanged: true,
     renderToHardwareTextureAndroid: true,
     testID: true,
     documentScannerEnabled: true,

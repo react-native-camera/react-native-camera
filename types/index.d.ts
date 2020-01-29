@@ -22,6 +22,7 @@ type Orientation = Readonly<{
 }>;
 type OrientationNumber = 1 | 2 | 3 | 4;
 type AutoFocus = Readonly<{ on: any; off: any }>;
+type VideoStabilization = Readonly<{ off: any; standard: any; cinematic: any; auto: any }>;
 type FlashMode = Readonly<{ on: any; off: any; torch: any; auto: any }>;
 type CameraType = Readonly<{ front: any; back: any }>;
 type WhiteBalance = Readonly<{
@@ -94,11 +95,13 @@ type RecordAudioPermissionStatus = Readonly<
     NOT_AUTHORIZED: 'NOT_AUTHORIZED';
   }>
 >;
-type FaCC = (params: {
-  camera: RNCamera;
-  status: keyof CameraStatus;
-  recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
-}) => JSX.Element;
+type FaCC = (
+  params: {
+    camera: RNCamera;
+    status: keyof CameraStatus;
+    recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
+  },
+) => JSX.Element;
 
 export interface Constants {
   CameraStatus: CameraStatus;
@@ -125,6 +128,7 @@ export interface Constants {
     portrait: 'portrait';
     portraitUpsideDown: 'portraitUpsideDown';
   };
+  VideoStabilization: VideoStabilization;
 }
 
 export interface RNCameraProps {
@@ -132,6 +136,10 @@ export interface RNCameraProps {
 
   autoFocus?: keyof AutoFocus;
   autoFocusPointOfInterest?: Point;
+  pictureSize?: string;
+
+  /* iOS only */
+  onSubjectAreaChanged?: (event: { nativeEvent: { prevPoint: { x: number; y: number } } }) => void;
   type?: keyof CameraType;
   flashMode?: keyof FlashMode;
   notAuthorizedView?: JSX.Element;
@@ -148,23 +156,35 @@ export interface RNCameraProps {
   }): void;
   onMountError?(error: { message: string }): void;
 
+  /** iOS only */
+  onAudioInterrupted?(): void;
+  onAudioConnected?(): void;
+
   /** Value: float from 0 to 1.0 */
   zoom?: number;
+  /** iOS only. float from 0 to any. Locks the max zoom value to the provided value
+    A value <= 1 will use the camera's max zoom, while a value > 1
+    will use that value as the max available zoom
+  **/
+  maxZoom?: number;
   /** Value: float from 0 to 1.0 */
   focusDepth?: number;
 
   // -- BARCODE PROPS
   barCodeTypes?: Array<keyof BarCodeType>;
   googleVisionBarcodeType?: Constants['GoogleVisionBarcodeDetection']['BarcodeType'];
+  googleVisionBarcodeMode?: Constants['GoogleVisionBarcodeDetection']['BarcodeMode'];
   onBarCodeRead?(event: {
     data: string;
     rawData?: string;
     type: keyof BarCodeType;
     /**
-     * @description For Android use `[Point<string>, Point<string>]`
+     * @description For Android use `{ width: number, height: number, origin: Array<Point<string>> }`
      * @description For iOS use `{ origin: Point<string>, size: Size<string> }`
      */
-    bounds: [Point<string>, Point<string>] | { origin: Point<string>; size: Size<string> };
+    bounds:
+      | { width: number; height: number; origin: Array<Point<string>> }
+      | { origin: Point<string>; size: Size<string> };
   }): void;
 
   onGoogleVisionBarcodesDetected?(event: { barcodes: Barcode[] }): void;
@@ -197,7 +217,7 @@ export interface RNCameraProps {
     buttonPositive?: string;
     buttonNegative?: string;
     buttonNeutral?: string;
-  };
+  } | null;
 
   androidRecordAudioPermissionOptions?: {
     title: string;
@@ -205,10 +225,13 @@ export interface RNCameraProps {
     buttonPositive?: string;
     buttonNegative?: string;
     buttonNeutral?: string;
-  };
+  } | null;
 
   // -- IOS ONLY PROPS
+  videoStabilizationMode?: keyof VideoStabilization;
   defaultVideoQuality?: keyof VideoQuality;
+  /* if true, audio session will not be released on component unmount */
+  keepAudioSession?: boolean;
 }
 
 interface DocumentCorners {
@@ -236,7 +259,7 @@ interface Size<T = number> {
   height: T;
 }
 
-interface Barcode {
+export interface Barcode {
   bounds: {
     size: Size;
     origin: Point;
@@ -244,6 +267,7 @@ interface Barcode {
   data: string;
   dataRaw: string;
   type: BarcodeType;
+  format?: string;
   addresses?: {
     addressesType?: 'UNKNOWN' | 'Work' | 'Home';
     addressLines?: string[];
@@ -295,7 +319,7 @@ interface Barcode {
   message?: string;
 }
 
-type BarcodeType =
+export type BarcodeType =
   | 'EMAIL'
   | 'PHONE'
   | 'CALENDAR_EVENT'
@@ -306,21 +330,22 @@ type BarcodeType =
   | 'WIFI'
   | 'TEXT'
   | 'ISBN'
-  | 'PRODUCT';
+  | 'PRODUCT'
+  | 'URL';
 
-interface Email {
+export interface Email {
   address?: string;
   body?: string;
   subject?: string;
   emailType?: 'UNKNOWN' | 'Work' | 'Home';
 }
 
-interface Phone {
+export interface Phone {
   number?: string;
   phoneType?: 'UNKNOWN' | 'Work' | 'Home' | 'Fax' | 'Mobile';
 }
 
-interface Face {
+export interface Face {
   faceID?: number;
   bounds: {
     size: Size;
@@ -344,7 +369,7 @@ interface Face {
   rollAngle?: number;
 }
 
-interface TrackedTextFeature {
+export interface TrackedTextFeature {
   type: 'block' | 'line' | 'element';
   bounds: {
     size: Size;
@@ -363,17 +388,16 @@ interface TakePictureOptions {
   mirrorImage?: boolean;
   doNotSave?: boolean;
   pauseAfterCapture?: boolean;
+  writeExif?: boolean | { [name: string]: any };
 
   /** Android only */
-  skipProcessing?: boolean;
   fixOrientation?: boolean;
-  writeExif?: boolean | { [name: string]: any };
 
   /** iOS only */
   forceUpOrientation?: boolean;
 }
 
-interface TakePictureResponse {
+export interface TakePictureResponse {
   width: number;
   height: number;
   uri: string;
@@ -397,7 +421,7 @@ interface RecordOptions {
   codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
 }
 
-interface RecordResponse {
+export interface RecordResponse {
   /** Path to the video saved on your app's cache directory. */
   uri: string;
   videoOrientation: number;
