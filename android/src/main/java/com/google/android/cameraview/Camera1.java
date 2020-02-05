@@ -1440,26 +1440,33 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private void stopMediaRecorder() {
 
-        if (mMediaRecorder != null) {
-            try {
-                mMediaRecorder.stop();
-            } catch (RuntimeException ex) {
-                Log.e("CAMERA_1::", "stopMediaRecorder failed", ex);
+        synchronized(this){
+            if (mMediaRecorder != null) {
+                try {
+                    mMediaRecorder.stop();
+                } catch (RuntimeException ex) {
+                    Log.e("CAMERA_1::", "stopMediaRecorder stop failed", ex);
+                }
+
+                try{
+                    mMediaRecorder.reset();
+                    mMediaRecorder.release();
+                } catch (RuntimeException ex) {
+                    Log.e("CAMERA_1::", "stopMediaRecorder reset failed", ex);
+                }
+
+                mMediaRecorder = null;
             }
-            mMediaRecorder.reset();
-            mMediaRecorder.release();
-            mMediaRecorder = null;
+
+            int deviceOrientation = displayOrientationToOrientationEnum(mDeviceOrientation);
+            if (mVideoPath == null || !new File(mVideoPath).exists()) {
+                mCallback.onVideoRecorded(null, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
+                return;
+            }
+
+            mCallback.onVideoRecorded(mVideoPath, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
+            mVideoPath = null;
         }
-
-        int deviceOrientation = displayOrientationToOrientationEnum(mDeviceOrientation);
-        if (mVideoPath == null || !new File(mVideoPath).exists()) {
-            mCallback.onVideoRecorded(null, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
-            return;
-        }
-
-        mCallback.onVideoRecorded(mVideoPath, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
-        mVideoPath = null;
-
     }
 
     private void setCamcorderProfile(CamcorderProfile profile, boolean recordAudio) {
