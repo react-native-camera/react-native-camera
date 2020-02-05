@@ -1007,15 +1007,7 @@ BOOL _sessionInterrupted = NO;
       return;
     }
 
-    if (options[@"maxDuration"]) {
-        Float64 maxDuration = [options[@"maxDuration"] floatValue];
-        self.movieFileOutput.maxRecordedDuration = CMTimeMakeWithSeconds(maxDuration, 30);
-    }
-
-    if (options[@"maxFileSize"]) {
-        self.movieFileOutput.maxRecordedFileSize = [options[@"maxFileSize"] integerValue];
-    }
-
+    
     // video preset will be cleanedup/restarted once capture is done
     // with a camera cleanup call
     if (options[@"quality"]) {
@@ -1032,6 +1024,7 @@ BOOL _sessionInterrupted = NO;
     }
 
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
+    
     if (self.videoStabilizationMode != 0) {
         if (connection.isVideoStabilizationSupported == NO) {
             RCTLogWarn(@"%s: Video Stabilization is not supported on this device.", __func__);
@@ -1041,29 +1034,7 @@ BOOL _sessionInterrupted = NO;
     }
     [connection setVideoOrientation:orientation];
 
-    if (options[@"codec"]) {
-        if (@available(iOS 10, *)) {
-            AVVideoCodecType videoCodecType = options[@"codec"];
-            if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
-                self.videoCodecType = videoCodecType;
-                if(options[@"videoBitrate"]) {
-                    NSString *videoBitrate = options[@"videoBitrate"];
-                    [self.movieFileOutput setOutputSettings:@{
-                      AVVideoCodecKey:videoCodecType,
-                      AVVideoCompressionPropertiesKey:
-                          @{
-                              AVVideoAverageBitRateKey:videoBitrate
-                          }
-                      } forConnection:connection];
-                } else {
-                    [self.movieFileOutput setOutputSettings:@{AVVideoCodecKey:videoCodecType} forConnection:connection];
-                }
-            } else {
-                RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
-            }
-        }
-    }
-
+    
 
     BOOL recordAudio = [options valueForKey:@"mute"] == nil || ([options valueForKey:@"mute"] != nil && ![options[@"mute"] boolValue]);
 
@@ -1097,7 +1068,46 @@ BOOL _sessionInterrupted = NO;
     }
 
     dispatch_async(self.sessionQueue, ^{
+        
+        // session preset might affect this, so we run this code
+        // also in the session queue
+        
+        if (options[@"maxDuration"]) {
+            Float64 maxDuration = [options[@"maxDuration"] floatValue];
+            self.movieFileOutput.maxRecordedDuration = CMTimeMakeWithSeconds(maxDuration, 30);
+        }
 
+        if (options[@"maxFileSize"]) {
+            self.movieFileOutput.maxRecordedFileSize = [options[@"maxFileSize"] integerValue];
+        }
+        
+        if (options[@"codec"]) {
+            if (@available(iOS 10, *)) {
+                AVVideoCodecType videoCodecType = options[@"codec"];
+                if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
+                    self.videoCodecType = videoCodecType;
+                    if(options[@"videoBitrate"]) {
+                        NSString *videoBitrate = options[@"videoBitrate"];
+                        [self.movieFileOutput setOutputSettings:@{
+                          AVVideoCodecKey:videoCodecType,
+                          AVVideoCompressionPropertiesKey:
+                              @{
+                                  AVVideoAverageBitRateKey:videoBitrate
+                              }
+                          } forConnection:connection];
+                    } else {
+                        [self.movieFileOutput setOutputSettings:@{AVVideoCodecKey:videoCodecType} forConnection:connection];
+                    }
+                } else {
+                    RCTLogWarn(@"Video Codec %@ is not available.", videoCodecType);
+                }
+            }
+            else {
+                RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
+            }
+        }
+
+        
         NSString *path = nil;
         if (options[@"path"]) {
             path = options[@"path"];
