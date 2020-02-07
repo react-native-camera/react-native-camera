@@ -397,6 +397,20 @@ iOS only. Function to be called when the camera audio session is connected. This
 
 Function to be called when native code emit onPictureTaken event, when camera has taken a picture, but before all extra processing happens. This can be useful to allow the UI to take other pictures while the processing of the current picture is still taking place.
 
+### `onRecordingStart`
+
+Function to be called when native code actually starts video recording. Note that video recording might take a few miliseconds to setup depending on the camera settings and hardware features. Use this event to detect when video is actually being recorded.
+Event will contain the following fields:
+
+- `uri` - Video file URI, as returned by `recordAsync`
+- `videoOrientation` - Video orientation, as returned by `recordAsync`
+- `deviceOrientation` - Video orientation, as returned by `recordAsync`
+
+### `onRecordingEnd`
+
+Function to be called when native code stops recording video, but before all video processing takes place. This event will only fire after a successful video recording, and it will not fire if video recording fails (use the error returned from `recordAsync` instead).
+
+
 ### Bar Code Related props
 
 ### `onBarCodeRead`

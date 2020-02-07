@@ -29,6 +29,8 @@
 @property (nonatomic, copy) RCTDirectEventBlock onGoogleVisionBarcodesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onPictureTaken;
 @property (nonatomic, copy) RCTDirectEventBlock onPictureSaved;
+@property (nonatomic, copy) RCTDirectEventBlock onRecordingStart;
+@property (nonatomic, copy) RCTDirectEventBlock onRecordingEnd;
 @property (nonatomic, assign) BOOL finishedReadingText;
 @property (nonatomic, assign) BOOL finishedDetectingFace;
 @property (nonatomic, assign) BOOL finishedDetectingBarcodes;
@@ -125,6 +127,20 @@ BOOL _sessionInterrupted = NO;
 {
     if (_onPictureSaved) {
         _onPictureSaved(event);
+    }
+}
+
+- (void)onRecordingStart:(NSDictionary *)event
+{
+    if (_onRecordingStart) {
+        _onRecordingStart(event);
+    }
+}
+
+- (void)onRecordingEnd:(NSDictionary *)event
+{
+    if (_onRecordingEnd) {
+        _onRecordingEnd(event);
     }
 }
 
@@ -1007,7 +1023,7 @@ BOOL _sessionInterrupted = NO;
       return;
     }
 
-    
+
     // video preset will be cleanedup/restarted once capture is done
     // with a camera cleanup call
     if (options[@"quality"]) {
@@ -1024,7 +1040,7 @@ BOOL _sessionInterrupted = NO;
     }
 
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
-    
+
     if (self.videoStabilizationMode != 0) {
         if (connection.isVideoStabilizationSupported == NO) {
             RCTLogWarn(@"%s: Video Stabilization is not supported on this device.", __func__);
@@ -1034,7 +1050,7 @@ BOOL _sessionInterrupted = NO;
     }
     [connection setVideoOrientation:orientation];
 
-    
+
 
     BOOL recordAudio = [options valueForKey:@"mute"] == nil || ([options valueForKey:@"mute"] != nil && ![options[@"mute"] boolValue]);
 
@@ -1068,10 +1084,10 @@ BOOL _sessionInterrupted = NO;
     }
 
     dispatch_async(self.sessionQueue, ^{
-        
+
         // session preset might affect this, so we run this code
         // also in the session queue
-        
+
         if (options[@"maxDuration"]) {
             Float64 maxDuration = [options[@"maxDuration"] floatValue];
             self.movieFileOutput.maxRecordedDuration = CMTimeMakeWithSeconds(maxDuration, 30);
@@ -1080,7 +1096,7 @@ BOOL _sessionInterrupted = NO;
         if (options[@"maxFileSize"]) {
             self.movieFileOutput.maxRecordedFileSize = [options[@"maxFileSize"] integerValue];
         }
-        
+
         if (options[@"codec"]) {
             if (@available(iOS 10, *)) {
                 AVVideoCodecType videoCodecType = options[@"codec"];
@@ -1107,7 +1123,7 @@ BOOL _sessionInterrupted = NO;
             }
         }
 
-        
+
         NSString *path = nil;
         if (options[@"path"]) {
             path = options[@"path"];
@@ -1149,6 +1165,12 @@ BOOL _sessionInterrupted = NO;
                 self.videoRecordedResolve = resolve;
                 self.videoRecordedReject = reject;
 
+                [self onRecordingStart:@{
+                    @"uri": outputURL.absoluteString,
+                    @"videoOrientation": @([self.orientation integerValue]),
+                    @"deviceOrientation": @([self.deviceOrientation integerValue])
+                }];
+
             }
             else{
                 reject(@"E_VIDEO_CAPTURE_FAILED", !_recordRequested ? @"Recording request cancelled." : @"Camera is not ready.", nil);
@@ -1168,6 +1190,7 @@ BOOL _sessionInterrupted = NO;
     dispatch_async(self.sessionQueue, ^{
         if ([self.movieFileOutput isRecording]) {
             [self.movieFileOutput stopRecording];
+            [self onRecordingEnd:@{}];
         } else {
             if(_recordRequested){
                 _recordRequested = NO;
@@ -1365,7 +1388,7 @@ BOOL _sessionInterrupted = NO;
                 RCTLogWarn(@"Audio device could not set inactive: %s: %@", __func__, error);
             }
         }
-        
+
         self.audioCaptureDeviceInput = nil;
 
         // inform that audio was interrupted
@@ -1469,7 +1492,7 @@ BOOL _sessionInterrupted = NO;
         }
         else{
             RCTLog(@"The selected device does not work with the Preset [%@] or configuration provided", self.session.sessionPreset);
-            
+
             [self onMountingError:@{@"message": @"Camera device does not support selected settings."}];
         }
 

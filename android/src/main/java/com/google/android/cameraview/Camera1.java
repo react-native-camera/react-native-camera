@@ -249,6 +249,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mMediaRecorder = null;
 
                 if (mIsRecording.get()) {
+                    mCallback.onRecordingEnd();
+
                     int deviceOrientation = displayOrientationToOrientationEnum(mDeviceOrientation);
                     mCallback.onVideoRecorded(mVideoPath, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
                 }
@@ -779,6 +781,10 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 } catch (Exception e) {
                     Log.e("CAMERA_1::", "Record setParameters failed", e);
                 }
+
+                int deviceOrientation = displayOrientationToOrientationEnum(mDeviceOrientation);
+                mCallback.onRecordingStart(path, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
+
 
                 return true;
             } catch (Exception e) {
@@ -1458,7 +1464,10 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mMediaRecorder = null;
             }
 
+            mCallback.onRecordingEnd();
+
             int deviceOrientation = displayOrientationToOrientationEnum(mDeviceOrientation);
+
             if (mVideoPath == null || !new File(mVideoPath).exists()) {
                 mCallback.onVideoRecorded(null, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
                 return;

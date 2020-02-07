@@ -604,6 +604,8 @@ public class CameraView extends FrameLayout {
      * @param maxDuration Maximum duration of the recording, in seconds.
      * @param maxFileSize Maximum recording file size, in bytes.
      * @param profile Quality profile of the recording.
+     *
+     * fires {@link Callback#onRecordingStart(CameraView, String, int, int)} and {@link Callback#onRecordingEnd(CameraView)}.
      */
     public boolean record(String path, int maxDuration, int maxFileSize,
                           boolean recordAudio, CamcorderProfile profile, int orientation) {
@@ -669,6 +671,20 @@ public class CameraView extends FrameLayout {
         public void onPictureTaken(byte[] data, int deviceOrientation) {
             for (Callback callback : mCallbacks) {
                 callback.onPictureTaken(CameraView.this, data, deviceOrientation);
+            }
+        }
+
+        @Override
+        public void onRecordingStart(String path, int videoOrientation, int deviceOrientation) {
+            for (Callback callback : mCallbacks) {
+                callback.onRecordingStart(CameraView.this, path, videoOrientation, deviceOrientation);
+            }
+        }
+
+        @Override
+        public void onRecordingEnd() {
+            for (Callback callback : mCallbacks) {
+                callback.onRecordingEnd(CameraView.this);
             }
         }
 
@@ -788,16 +804,14 @@ public class CameraView extends FrameLayout {
          *
          * @param cameraView The associated {@link CameraView}.
          */
-        public void onCameraOpened(CameraView cameraView) {
-        }
+        public void onCameraOpened(CameraView cameraView) {}
 
         /**
          * Called when camera is closed.
          *
          * @param cameraView The associated {@link CameraView}.
          */
-        public void onCameraClosed(CameraView cameraView) {
-        }
+        public void onCameraClosed(CameraView cameraView) {}
 
         /**
          * Called when a picture is taken.
@@ -805,8 +819,23 @@ public class CameraView extends FrameLayout {
          * @param cameraView The associated {@link CameraView}.
          * @param data       JPEG data.
          */
-        public void onPictureTaken(CameraView cameraView, byte[] data, int deviceOrientation) {
-        }
+        public void onPictureTaken(CameraView cameraView, byte[] data, int deviceOrientation) {}
+
+        /**
+         * Called when a video recording starts
+         *
+         * @param cameraView The associated {@link CameraView}.
+         * @param path       Path to recoredd video file.
+         */
+        public void onRecordingStart(CameraView cameraView, String path, int videoOrientation, int deviceOrientation) {}
+
+        /**
+         * Called when a video recording ends, but before video is saved/processed.
+         *
+         * @param cameraView The associated {@link CameraView}.
+         * @param path       Path to recoredd video file.
+         */
+        public void onRecordingEnd(CameraView cameraView){}
 
         /**
          * Called when a video is recorded.
@@ -814,11 +843,9 @@ public class CameraView extends FrameLayout {
          * @param cameraView The associated {@link CameraView}.
          * @param path       Path to recoredd video file.
          */
-        public void onVideoRecorded(CameraView cameraView, String path, int videoOrientation, int deviceOrientation) {
-        }
+        public void onVideoRecorded(CameraView cameraView, String path, int videoOrientation, int deviceOrientation) {}
 
-        public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int orientation) {
-        }
+        public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int orientation) {}
 
         public void onMountError(CameraView cameraView) {}
     }
