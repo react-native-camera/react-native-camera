@@ -292,7 +292,6 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.framework *.gch *.xcode* *.xcassets (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj node_modules";
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(SRCROOT)/../../../ios/**",
 					"${BUILT_PRODUCTS_DIR}/**",
 					"$(SRCROOT)/../../ios/**",
 				);
