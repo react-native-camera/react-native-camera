@@ -136,6 +136,8 @@ export interface RNCameraProps {
 
   autoFocus?: keyof AutoFocus;
   autoFocusPointOfInterest?: Point;
+  pictureSize?: string;
+  
   /* iOS only */
   onSubjectAreaChanged?: (event: { nativeEvent: { prevPoint: { x: number; y: number; } } }) => void;
   type?: keyof CameraType;
