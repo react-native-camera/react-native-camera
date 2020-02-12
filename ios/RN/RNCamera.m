@@ -1050,10 +1050,7 @@ BOOL _sessionInterrupted = NO;
     }
     [connection setVideoOrientation:orientation];
 
-
-
     BOOL recordAudio = [options valueForKey:@"mute"] == nil || ([options valueForKey:@"mute"] != nil && ![options[@"mute"] boolValue]);
-
 
     // sound recording connection, we can easily turn it on/off without manipulating inputs, this prevents flickering.
     // note that mute will also be set to true
@@ -1097,6 +1094,47 @@ BOOL _sessionInterrupted = NO;
             self.movieFileOutput.maxRecordedFileSize = [options[@"maxFileSize"] integerValue];
         }
 
+        if (options[@"fps"]) {
+            AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+            AVCaptureDeviceFormat *activeFormat = device.activeFormat;
+            CMFormatDescriptionRef activeDescription = activeFormat.formatDescription;
+            CMVideoDimensions activeDimensions = CMVideoFormatDescriptionGetDimensions(activeDescription);
+
+            NSInteger fps = [options[@"fps"] integerValue];
+            CGFloat desiredFPS = (CGFloat)fps;
+
+            AVCaptureDeviceFormat *selectedFormat = nil;
+            int32_t activeWidth = activeDimensions.width;
+            int32_t maxWidth = 0;
+
+            for (AVCaptureDeviceFormat *format in [device formats]) {
+                CMFormatDescriptionRef formatDescription = format.formatDescription;
+                CMVideoDimensions formatDimensions = CMVideoFormatDescriptionGetDimensions(formatDescription);
+                int32_t formatWidth = formatDimensions.width;
+                if (formatWidth != activeWidth || formatWidth < maxWidth) {
+                    continue;
+                }
+
+                for (AVFrameRateRange *range in format.videoSupportedFrameRateRanges) {
+                    if (range.minFrameRate <= desiredFPS && desiredFPS <= range.maxFrameRate) {
+                        selectedFormat = format;
+                        maxWidth = formatWidth;
+                    }
+                }
+            }
+
+            if (selectedFormat) {
+                if ([device lockForConfiguration:nil]) {
+                    device.activeFormat = selectedFormat;
+                    device.activeVideoMinFrameDuration = CMTimeMake(1, (int32_t)desiredFPS);
+                    device.activeVideoMaxFrameDuration = CMTimeMake(1, (int32_t)desiredFPS);
+                    [device unlockForConfiguration];
+                } 
+            } else {
+                RCTLog(@"We could not find a suitable format for this device.");
+            }
+        }
+
         if (options[@"codec"]) {
             if (@available(iOS 10, *)) {
                 AVVideoCodecType videoCodecType = options[@"codec"];
@@ -1122,7 +1160,6 @@ BOOL _sessionInterrupted = NO;
                 RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
             }
         }
-
 
         NSString *path = nil;
         if (options[@"path"]) {
@@ -2161,4 +2198,3 @@ BOOL _sessionInterrupted = NO;
 }
 
 @end
-
