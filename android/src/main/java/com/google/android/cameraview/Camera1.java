@@ -124,6 +124,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     private boolean mIsScanning;
 
     private boolean mustUpdateSurface;
+    private boolean surfaceWasDestroyed;
 
     private SurfaceTexture mPreviewTexture;
 
@@ -133,12 +134,56 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         preview.setCallback(new PreviewImpl.Callback() {
             @Override
             public void onSurfaceChanged() {
-                updateSurface();
+
+                // if we got our surface destroyed
+                // we must re-start the camera and surface
+                // otherwise, just update our surface
+
+
+                synchronized(Camera1.this){
+                    if(!surfaceWasDestroyed){
+                        updateSurface();
+                    }
+                    else{
+                        mBgHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                start();
+                            }
+                        });
+                    }
+                }
             }
 
             @Override
             public void onSurfaceDestroyed() {
-                stop();
+
+                // need to this early so we don't get buffer errors due to sufrace going away.
+                // Then call stop in bg thread since it might be quite slow and will freeze
+                // the UI or cause an ANR while it is happening.
+                synchronized(Camera1.this){
+                    if(mCamera != null){
+
+                        // let the instance know our surface was destroyed
+                        // and we might need to re-create it and restart the camera
+                        surfaceWasDestroyed = true;
+
+                        try{
+                            mCamera.setPreviewCallback(null);
+                            // note: this might give a debug message that can be ignored.
+                            mCamera.setPreviewDisplay(null);
+                        }
+                        catch(Exception e){
+                            Log.e("CAMERA_1::", "onSurfaceDestroyed preview cleanup failed", e);
+                        }
+                    }
+                }
+                mBgHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        stop();
+                    }
+                });
             }
         });
     }
@@ -235,8 +280,13 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
             if (mCamera != null) {
                 mIsPreviewActive = false;
-                mCamera.stopPreview();
-                mCamera.setPreviewCallback(null);
+                try{
+                    mCamera.stopPreview();
+                    mCamera.setPreviewCallback(null);
+                }
+                catch(Exception e){
+                    Log.e("CAMERA_1::", "stop preview cleanup failed", e);
+                }
             }
 
             releaseCamera();
@@ -247,6 +297,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     @SuppressLint("NewApi")
     void setUpPreview() {
         try {
+            surfaceWasDestroyed = false;
+
             if(mCamera != null){
                 if (mPreviewTexture != null) {
                     mCamera.setPreviewTexture(mPreviewTexture);
