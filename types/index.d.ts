@@ -412,6 +412,7 @@ interface RecordOptions {
 
   /** iOS only */
   codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
+  fps?: number;
 }
 
 export interface RecordResponse {
