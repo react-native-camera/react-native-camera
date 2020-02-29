@@ -19,7 +19,7 @@ import { RNCamera } from 'react-native-camera';
 const App: () => React$Node = () => {
   const [showCamera, setShowCamera] = useState();
 
-  const CAM_VIEW_HEIGHT = 600;
+  const CAM_VIEW_HEIGHT = Dimensions.get('screen').width * 1.5;
   const CAM_VIEW_WIDTH = Dimensions.get('screen').width;
 
   // The following are based on landscape orientation with home button to the right
@@ -43,7 +43,7 @@ const App: () => React$Node = () => {
     if (result) {
       const { type, data } = result;
       if (data) {
-        console.log('code detected', data);
+        console.log('code', data);
       }
     }
   }, []);
