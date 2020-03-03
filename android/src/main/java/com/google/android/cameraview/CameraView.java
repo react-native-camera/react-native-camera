@@ -623,8 +623,8 @@ public class CameraView extends FrameLayout {
      * fires {@link Callback#onRecordingStart(CameraView, String, int, int)} and {@link Callback#onRecordingEnd(CameraView)}.
      */
     public boolean record(String path, int maxDuration, int maxFileSize,
-                          boolean recordAudio, CamcorderProfile profile, int orientation) {
-        return mImpl.record(path, maxDuration, maxFileSize, recordAudio, profile, orientation);
+                          boolean recordAudio, CamcorderProfile profile, int orientation, int fps) {
+        return mImpl.record(path, maxDuration, maxFileSize, recordAudio, profile, orientation, fps);
     }
 
     public void stopRecording() {
