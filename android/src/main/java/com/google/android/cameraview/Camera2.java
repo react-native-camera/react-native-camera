@@ -376,6 +376,12 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     }
 
     @Override
+    public ArrayList<int[]> getSupportedPreviewFpsRange() {
+        ArrayList<int[]> validValues = new ArrayList<int[]>();
+        return validValues;
+    }
+
+    @Override
     void setCameraId(String id) {
         if(!ObjectUtils.equals(_mCameraId, id)){
             _mCameraId = id;

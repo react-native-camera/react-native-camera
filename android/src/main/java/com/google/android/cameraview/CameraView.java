@@ -531,6 +531,10 @@ public class CameraView extends FrameLayout {
         mImpl.setFlash(flash);
     }
 
+    public ArrayList<int[]> getSupportedPreviewFpsRange() {
+      return mImpl.getSupportedPreviewFpsRange();
+    }
+
     /**
      * Gets the current flash mode.
      *
