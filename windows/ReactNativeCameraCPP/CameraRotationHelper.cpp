@@ -78,7 +78,7 @@ namespace winrt::ReactNativeCameraCPP::implementation
         return result;
     }
 
-    int CameraRotationHelper::GetConvertedCameraPreviewOrientation()
+    int CameraRotationHelper::GetCameraPreviewClockwiseDegrees()
     {
         auto rotation = GetCameraPreviewOrientation();
         return ConvertSimpleOrientationToClockwiseDegrees(rotation);

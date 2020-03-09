@@ -44,7 +44,7 @@ namespace winrt::ReactNativeCameraCPP {
         void OnApplicationResuming();
         winrt::Windows::Foundation::IAsyncAction OnUnloaded();
 
-        bool GetNumericValue(std::map<std::wstring, winrt::Microsoft::ReactNative::JSValue> const& options, const std::wstring key, int& value);
+        bool TryGetalueAsInt(std::map<std::wstring, winrt::Microsoft::ReactNative::JSValue> const& options, const std::wstring key, int& value);
 
         winrt::Microsoft::ReactNative::IReactContext m_reactContext{ nullptr };
         winrt::Windows::UI::Xaml::Controls::CaptureElement m_childElement;

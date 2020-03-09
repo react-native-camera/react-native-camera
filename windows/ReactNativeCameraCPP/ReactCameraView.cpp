@@ -93,13 +93,17 @@ namespace winrt::ReactNativeCameraCPP {
                 auto titleString = titleValue.String();
                 props.Title(winrt::to_hstring(titleString));
             }
+            else
+            {
+                throw winrt::hresult_invalid_argument();
+            }
             co_await props.SavePropertiesAsync();
         }
     }
     
     // RNW has a bug where the numeric value is set as int in debug but double in release
     // ToDo: remove this function once bug https://github.com/microsoft/react-native-windows/issues/4225 is fixed.
-    bool ReactCameraView::GetNumericValue(std::map<std::wstring, JSValue> const& options, const std::wstring key, int &value)
+    bool ReactCameraView::TryGetalueAsInt(std::map<std::wstring, JSValue> const& options, const std::wstring key, int &value)
     {
         bool found = false;
         auto search = options.find(key);
@@ -130,7 +134,7 @@ namespace winrt::ReactNativeCameraCPP {
     {
         if (!m_isInitialized)
         {
-            result.Reject(L"Media device is not initialized!");
+            result.Reject(L"Media device is not initialized.");
             return;
         }
 
@@ -142,9 +146,9 @@ namespace winrt::ReactNativeCameraCPP {
             auto randomStream = winrt::InMemoryRandomAccessStream();
             co_await mediaCapture.CapturePhotoToStreamAsync(encoding, randomStream);
             int target;
-            if (!GetNumericValue(options, L"target", target))
+            if (!TryGetalueAsInt(options, L"target", target))
             {
-                result.Reject(L"target parameter not specified!");
+                result.Reject(L"target parameter not specified.");
                 return;
             }
             if (target == CameraCaptureTargetMemory)
@@ -178,7 +182,7 @@ namespace winrt::ReactNativeCameraCPP {
         }
         else
         {
-            result.Reject(L"Media device is not initialized!");
+            result.Reject(L"Media device is not initialized.");
         }
 
         co_await resume_background();
@@ -188,7 +192,7 @@ namespace winrt::ReactNativeCameraCPP {
     {
         if (!m_isInitialized)
         {
-            result.Reject(L"Media device is not initialized!");
+            result.Reject(L"Media device is not initialized.");
             return;
         }
 
@@ -197,7 +201,7 @@ namespace winrt::ReactNativeCameraCPP {
         if (auto mediaCapture = m_childElement.Source())
         {
             int quality = static_cast<int>(VideoEncodingQuality::Auto);
-            GetNumericValue(options, L"quality", quality);
+            TryGetalueAsInt(options, L"quality", quality);
             auto encodingProfile = winrt::MediaEncodingProfile();
             auto encoding = encodingProfile.CreateMp4(static_cast<VideoEncodingQuality>(quality));
 
@@ -209,12 +213,12 @@ namespace winrt::ReactNativeCameraCPP {
             }
 
             int totalSeconds = INT_MAX;
-            GetNumericValue(options, L"totalSeconds", totalSeconds);
+            TryGetalueAsInt(options, L"totalSeconds", totalSeconds);
 
             int target;
-            if (!GetNumericValue(options, L"target", target))
+            if (!TryGetalueAsInt(options, L"target", target))
             {
-                result.Reject(L"target parameter not specified!");
+                result.Reject(L"target parameter not specified.");
                 return;
             }
             if (target == CameraCaptureTargetMemory)
@@ -248,7 +252,7 @@ namespace winrt::ReactNativeCameraCPP {
         }
         else
         {
-            result.Reject("No media capture device found!");
+            result.Reject("No media capture device found");
         }
         co_await resume_background();
     }
@@ -482,7 +486,7 @@ namespace winrt::ReactNativeCameraCPP {
             {
                 const GUID RotationKey = { 0xC380465D, 0x2271, 0x428C, {0x9B, 0x83, 0xEC, 0xEA, 0x3B, 0x4A, 0x85, 0xC1} };
                 auto props = mediaCapture.VideoDeviceController().GetMediaStreamProperties(MediaStreamType::VideoPreview);
-                props.Properties().Insert(RotationKey, winrt::box_value(m_rotationHelper.GetConvertedCameraPreviewOrientation()));
+                props.Properties().Insert(RotationKey, winrt::box_value(m_rotationHelper.GetCameraPreviewClockwiseDegrees()));
                 co_await mediaCapture.SetEncodingPropertiesAsync(MediaStreamType::VideoPreview, props, nullptr);
             }
         }

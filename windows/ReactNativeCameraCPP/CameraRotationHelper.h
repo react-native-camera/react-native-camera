@@ -17,7 +17,7 @@ namespace winrt::ReactNativeCameraCPP::implementation
         winrt::Windows::Devices::Sensors::SimpleOrientation GetCameraCaptureOrientation();
         winrt::Windows::Storage::FileProperties::PhotoOrientation GetConvertedCameraCaptureOrientation();
         winrt::Windows::Devices::Sensors::SimpleOrientation GetCameraPreviewOrientation();
-        int GetConvertedCameraPreviewOrientation();
+        int GetCameraPreviewClockwiseDegrees();
 
     private:
 
@@ -34,11 +34,12 @@ namespace winrt::ReactNativeCameraCPP::implementation
         winrt::Windows::Devices::Sensors::SimpleOrientation MirrorOrientation(winrt::Windows::Devices::Sensors::SimpleOrientation orientation);
         winrt::Windows::Devices::Sensors::SimpleOrientation AddOrientations(winrt::Windows::Devices::Sensors::SimpleOrientation a, winrt::Windows::Devices::Sensors::SimpleOrientation b);
 
-        winrt::Windows::Storage::FileProperties::PhotoOrientation ConvertSimpleOrientationToPhotoOrientation(
-            winrt::Windows::Devices::Sensors::SimpleOrientation orientation);
-        int ConvertSimpleOrientationToClockwiseDegrees(winrt::Windows::Devices::Sensors::SimpleOrientation orientation);
         winrt::Windows::Devices::Sensors::SimpleOrientation ConvertDisplayOrientationToSimpleOrientation(Windows::Graphics::Display::DisplayOrientations orientation);
-        winrt::Windows::Devices::Sensors::SimpleOrientation ConvertClockwiseDegreesToSimpleOrientation(int orientation);
+        
+        static winrt::Windows::Storage::FileProperties::PhotoOrientation ConvertSimpleOrientationToPhotoOrientation(
+            winrt::Windows::Devices::Sensors::SimpleOrientation orientation);
+        static int ConvertSimpleOrientationToClockwiseDegrees(winrt::Windows::Devices::Sensors::SimpleOrientation orientation);
+        static winrt::Windows::Devices::Sensors::SimpleOrientation ConvertClockwiseDegreesToSimpleOrientation(int orientation);
 
         void SimpleOrientationSensor_OrientationChanged(IInspectable const& sender, IInspectable const& args);
         void DisplayInformation_OrientationChanged(IInspectable const& sender, IInspectable const& args);

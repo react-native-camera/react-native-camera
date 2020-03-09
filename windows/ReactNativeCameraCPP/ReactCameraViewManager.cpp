@@ -94,7 +94,7 @@ namespace winrt::ReactNativeCameraCPP::implementation {
         }
         else
         {
-            result.Reject("No camera instance found!");
+            result.Reject("No camera instance found.");
         }
     }
 
@@ -111,7 +111,7 @@ namespace winrt::ReactNativeCameraCPP::implementation {
         }
         else
         {
-            result.Reject("No camera instance found!");
+            result.Reject("No camera instance found.");
         }
     }
     

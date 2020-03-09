@@ -89,11 +89,9 @@ namespace winrt::ReactNativeCameraCPP {
 #pragma endregion
 
     public:
-        RNCameraModule() {
-        }
+        RNCameraModule() = default;
 
-        ~RNCameraModule() {
-        }
+        ~RNCameraModule() = default;
 
     };
 
