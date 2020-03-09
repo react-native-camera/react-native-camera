@@ -1504,18 +1504,27 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         }
     }
 
+    @Override
+    public ArrayList<int[]> getSupportedPreviewFpsRange() {
+      return (ArrayList<int[]>) mCameraParameters.getSupportedPreviewFpsRange();
+    }
+
     private boolean isCompatibleWithDevice(int fps) {
-        ArrayList<int[]> validValues = (ArrayList<int[]>) mCameraParameters.getSupportedPreviewFpsRange();
+        ArrayList<int[]> validValues;
+        validValues = getSupportedPreviewFpsRange();
+        int accurate_fps = fps * 1000;
         for(int[] row : validValues) {
-            boolean is_included = fps >= row[0] && fps <= row[1];
-            if (is_included) return true;
+            boolean is_included = accurate_fps >= row[0] && accurate_fps <= row[1];
+            boolean greater_then_zero = accurate_fps > 0;
+            boolean compatible_with_device = is_included && greater_then_zero;
+            if (compatible_with_device) return true;
         }
         Log.w("CAMERA_1::", "fps (framePerSecond) received an unsupported value and will be ignored.");
         return false;
     }
     
     private void setCamcorderProfile(CamcorderProfile profile, boolean recordAudio, int fps) {
-        int compatible_fps = isCompatibleWithDevice(fps * 1000) ? fps : profile.videoFrameRate;
+        int compatible_fps = isCompatibleWithDevice(fps) ? fps : profile.videoFrameRate;
         mMediaRecorder.setOutputFormat(profile.fileFormat);
         mMediaRecorder.setVideoFrameRate(compatible_fps);
         mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
