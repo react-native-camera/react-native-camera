@@ -34,16 +34,16 @@ namespace winrt::ReactNativeCameraCPP {
 #pragma region Constants
         REACT_CONSTANT_PROVIDER(ConstantProvider)
             void ConstantProvider(ReactConstantProvider& provider) noexcept {
-            provider.Add(L"Aspect", GetAspectConstants());
-            provider.Add(L"BarCodeType", GetBarcodeConstants());
-            provider.Add(L"AutoFocus", GetAutoFocusConstants());
-            provider.Add(L"WhiteBalance", GetWhiteBalanceConstants());
-            provider.Add(L"Type", GetTypeConstants());
-            provider.Add(L"VideoQuality", GetCaptureQualityConstants());
-            provider.Add(L"CaptureTarget", GetCaptureTargetConstants());
-            provider.Add(L"Orientation", GetOrientationConstants());
-            provider.Add(L"FlashMode", GetFlashModeConstants());
-            provider.Add(L"TorchMode", GetTorchModeConstants());
+            provider.Add(L"Aspect", ReactCameraContants::GetAspectConstants());
+            provider.Add(L"BarCodeType", ReactCameraContants::GetBarcodeConstants());
+            provider.Add(L"AutoFocus", ReactCameraContants::GetAutoFocusConstants());
+            provider.Add(L"WhiteBalance", ReactCameraContants::GetWhiteBalanceConstants());
+            provider.Add(L"Type", ReactCameraContants::GetTypeConstants());
+            provider.Add(L"VideoQuality", ReactCameraContants::GetCaptureQualityConstants());
+            provider.Add(L"CaptureTarget", ReactCameraContants::GetCaptureTargetConstants());
+            provider.Add(L"Orientation", ReactCameraContants::GetOrientationConstants());
+            provider.Add(L"FlashMode", ReactCameraContants::GetFlashModeConstants());
+            provider.Add(L"TorchMode", ReactCameraContants::GetTorchModeConstants());
         }
 
         REACT_METHOD(record)

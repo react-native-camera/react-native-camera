@@ -103,7 +103,7 @@ namespace winrt::ReactNativeCameraCPP {
     
     // RNW has a bug where the numeric value is set as int in debug but double in release
     // ToDo: remove this function once bug https://github.com/microsoft/react-native-windows/issues/4225 is fixed.
-    bool ReactCameraView::TryGetalueAsInt(std::map<std::wstring, JSValue> const& options, const std::wstring key, int &value)
+    bool ReactCameraView::TryGetValueAsInt(std::map<std::wstring, JSValue> const& options, const std::wstring key, int &value)
     {
         bool found = false;
         auto search = options.find(key);
@@ -146,12 +146,12 @@ namespace winrt::ReactNativeCameraCPP {
             auto randomStream = winrt::InMemoryRandomAccessStream();
             co_await mediaCapture.CapturePhotoToStreamAsync(encoding, randomStream);
             int target;
-            if (!TryGetalueAsInt(options, L"target", target))
+            if (!TryGetValueAsInt(options, L"target", target))
             {
                 result.Reject(L"target parameter not specified.");
                 return;
             }
-            if (target == CameraCaptureTargetMemory)
+            if (target == ReactCameraContants::CameraCaptureTargetMemory)
             {
                 // In memeory returns a base64 string for the captured image
                 auto string = co_await GetBase64DataAsync(randomStream);
@@ -161,7 +161,7 @@ namespace winrt::ReactNativeCameraCPP {
             }
             else
             {
-                auto storageFile = co_await GetOutputStorageFileAsync(MediaTypeImage, target);
+                auto storageFile = co_await GetOutputStorageFileAsync(ReactCameraContants::MediaTypeImage, target);
                 {
                     auto photoOrientation = m_rotationHelper.GetConvertedCameraCaptureOrientation();
                     auto decoder = co_await winrt::BitmapDecoder::CreateAsync(randomStream);
@@ -201,7 +201,7 @@ namespace winrt::ReactNativeCameraCPP {
         if (auto mediaCapture = m_childElement.Source())
         {
             int quality = static_cast<int>(VideoEncodingQuality::Auto);
-            TryGetalueAsInt(options, L"quality", quality);
+            TryGetValueAsInt(options, L"quality", quality);
             auto encodingProfile = winrt::MediaEncodingProfile();
             auto encoding = encodingProfile.CreateMp4(static_cast<VideoEncodingQuality>(quality));
 
@@ -213,15 +213,15 @@ namespace winrt::ReactNativeCameraCPP {
             }
 
             int totalSeconds = INT_MAX;
-            TryGetalueAsInt(options, L"totalSeconds", totalSeconds);
+            TryGetValueAsInt(options, L"totalSeconds", totalSeconds);
 
             int target;
-            if (!TryGetalueAsInt(options, L"target", target))
+            if (!TryGetValueAsInt(options, L"target", target))
             {
                 result.Reject(L"target parameter not specified.");
                 return;
             }
-            if (target == CameraCaptureTargetMemory)
+            if (target == ReactCameraContants::CameraCaptureTargetMemory)
             {
                 auto randomStream = winrt::InMemoryRandomAccessStream();
                 m_mediaRecording = co_await mediaCapture.PrepareLowLagRecordToStreamAsync(
@@ -237,7 +237,7 @@ namespace winrt::ReactNativeCameraCPP {
             }
             else
             {
-                auto storageFile = co_await GetOutputStorageFileAsync(MediaTypeVideo, target);
+                auto storageFile = co_await GetOutputStorageFileAsync(ReactCameraContants::MediaTypeVideo, target);
                 m_mediaRecording = co_await mediaCapture.PrepareLowLagRecordToStorageFileAsync(
                     encoding, storageFile);
                 co_await m_mediaRecording.StartAsync();
@@ -321,7 +321,7 @@ namespace winrt::ReactNativeCameraCPP {
             auto torchControl = mediaCapture.VideoDeviceController().TorchControl();
             if (torchControl.Supported())
             {
-                torchControl.Enabled(torchMode == CameraTorchModeOn);
+                torchControl.Enabled(torchMode == ReactCameraContants::CameraTorchModeOn);
             }
         }
     }
@@ -334,8 +334,8 @@ namespace winrt::ReactNativeCameraCPP {
             auto flashControl = mediaCapture.VideoDeviceController().FlashControl();
             if (flashControl.Supported())
             {
-                flashControl.Enabled(flashMode == CameraFlashModeOn);
-                flashControl.Auto(flashMode == CameraFlashModeAuto);
+                flashControl.Enabled(flashMode == ReactCameraContants::CameraFlashModeOn);
+                flashControl.Auto(flashMode == ReactCameraContants::CameraFlashModeAuto);
             }
         }
     }
@@ -344,13 +344,13 @@ namespace winrt::ReactNativeCameraCPP {
     {
         switch (aspect)
         {
-        case CameraAspectFill:
+        case ReactCameraContants::CameraAspectFill:
             m_childElement.Stretch(Stretch::Uniform);
             break;
-        case CameraAspectFit:
+        case ReactCameraContants::CameraAspectFit:
             m_childElement.Stretch(Stretch::UniformToFill);
             break;
-        case CameraAspectStretch:
+        case ReactCameraContants::CameraAspectStretch:
             m_childElement.Stretch(Stretch::Fill);
             break;
         default:
@@ -504,7 +504,7 @@ namespace winrt::ReactNativeCameraCPP {
 
     IAsyncOperation<winrt::StorageFile> ReactCameraView::GetOutputStorageFileAsync(int type, int target)
     {
-        auto ext = type == MediaTypeImage ? ".jpg" : ".mp4";
+        auto ext = type == ReactCameraContants::MediaTypeImage ? ".jpg" : ".mp4";
         auto now = winrt::clock::now();
         auto ttnow = winrt::clock::to_time_t(now);
         struct tm time;
@@ -515,13 +515,13 @@ namespace winrt::ReactNativeCameraCPP {
 
         switch (target)
         {
-        case CameraCaptureTargetMemory:
-        case CameraCaptureTargetTemp:
+        case ReactCameraContants::CameraCaptureTargetMemory:
+        case ReactCameraContants::CameraCaptureTargetTemp:
             return winrt::ApplicationData::Current().TemporaryFolder().CreateFileAsync(filename);
-        case CameraCaptureTargetCameraRoll:
+        case ReactCameraContants::CameraCaptureTargetCameraRoll:
             return winrt::KnownFolders::CameraRoll().CreateFileAsync(filename);
-        case CameraCaptureTargetDisk:
-            if (type == MediaTypeImage)
+        case ReactCameraContants::CameraCaptureTargetDisk:
+            if (type == ReactCameraContants::MediaTypeImage)
             {
                 return winrt::KnownFolders::PicturesLibrary().CreateFileAsync(filename);
             }

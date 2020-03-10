@@ -44,7 +44,7 @@ namespace winrt::ReactNativeCameraCPP {
         void OnApplicationResuming();
         winrt::Windows::Foundation::IAsyncAction OnUnloaded();
 
-        bool TryGetalueAsInt(std::map<std::wstring, winrt::Microsoft::ReactNative::JSValue> const& options, const std::wstring key, int& value);
+        bool TryGetValueAsInt(std::map<std::wstring, winrt::Microsoft::ReactNative::JSValue> const& options, const std::wstring key, int& value);
 
         winrt::Microsoft::ReactNative::IReactContext m_reactContext{ nullptr };
         winrt::Windows::UI::Xaml::Controls::CaptureElement m_childElement;
@@ -61,8 +61,8 @@ namespace winrt::ReactNativeCameraCPP {
 
         bool m_isInitialized{ false };
         bool m_keepAwake{ false };
-        int m_torchMode{ CameraTorchModeOff };
-        int m_flashMode{ CameraFlashModeOff };
+        int m_torchMode{ ReactCameraContants::CameraTorchModeOff };
+        int m_flashMode{ ReactCameraContants::CameraFlashModeOff };
         winrt::Windows::Devices::Enumeration::Panel m_panelType{ winrt::Windows::Devices::Enumeration::Panel::Unknown };
     };
 } // namespace winrt::ReactNativeVideoCPP
