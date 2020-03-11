@@ -45,6 +45,8 @@ const requestPermissions = async (
     } else {
       hasCameraPermissions = cameraPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
     }
+  } else if (Platform.OS === 'windows') {
+    hasCameraPermissions = await CameraManager.checkMediaCapturePermission();
   }
 
   if (captureAudio) {
@@ -69,6 +71,8 @@ const requestPermissions = async (
             `Otherwise you should set the 'captureAudio' property on the component instance to 'false'.`,
         );
       }
+    } else if (Platform.OS === 'windows') {
+      hasRecordAudioPermissions = await CameraManager.checkMediaCapturePermission();
     }
   }
 

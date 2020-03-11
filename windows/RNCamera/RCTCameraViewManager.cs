@@ -23,7 +23,7 @@ namespace RNCamera
         {
             get
             {
-                return "RCTCamera";
+                return "RNCamera";
             }
         }
 
@@ -66,12 +66,6 @@ namespace RNCamera
         {
             var camera = CameraManager.GetOrCreateCameraForView(view);
             await camera.UpdatePanelAsync((Windows.Devices.Enumeration.Panel)type);
-        }
-
-        [ReactProp("captureQuality")]
-        public void SetCaptureQuality(CaptureElement view, int captureQuality)
-        {
-            // No reason to handle this props valeu here since it's passed to the `capture` method.
         }
 
         [ReactProp("torchMode")]

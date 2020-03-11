@@ -427,14 +427,21 @@ apply plugin: 'com.google.gms.google-services'
 
 # Windows
 
-1. `npm install react-native-camera --save`
-2. Link the library as described here: [react-native-windows / LinkingLibrariesWindows.md](https://github.com/microsoft/react-native-windows/blob/master/current/docs/LinkingLibrariesWindows.md)
-   For the last step of this guide, you have to add the following things to your `MainReactNativeHost.cs`:
-
-- in the import section at the very top: `using RNCamera;`
-- in `protected override List<IReactPackage> Packages => new List<IReactPackage>` add a new line with `new RNCameraPackage()`
-
+## Windows RNW C++/WinRT details
+1. `yarn install react-native-camera`
+2. Link the library as described below:
+   windows/myapp.sln
+     Add the ReactNativeCamera project to your solution.
+     Open the solution in Visual Studio 2019
+     Right-click Solution icon in Solution Explorer > Add > Existing Project Select node_modules\react-native-camera\windows\ReactNativeCameraCPP\ReactNativeCameraCPP.vcxproj
+   windows/myapp/myapp.vcxproj
+     Add a reference to ReactNativeCameraCPP to your main application project. From Visual Studio 2019:
+     Right-click main application project > Add > Reference... Check ReactNativeCameraCPP from Solution Projects.
+3. Modify files below to add the Camera package providers to your main application project
+   pch.h
+     Add #include "winrt/ReactNativeCameraCPP.h".
+  app.cpp
+     Add PackageProviders().Append(winrt::ReactNativeCameraCPP::ReactPackageProvider()); before InitializeComponent();
 3. Add the capabilities (permissions) for the webcam and microphone as described here: [docs.microsoft / audio-video-camera](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/simple-camera-preview-access#add-capability-declarations-to-the-app-manifest)
-4. Use `RCTCamera` (RNCamera is not supported yet) like described above
 
 Follow the [Q & A](QA.md) section if you are having compilation issues.
