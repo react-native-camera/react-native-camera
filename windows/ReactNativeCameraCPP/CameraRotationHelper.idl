@@ -1,0 +1,14 @@
+namespace ReactNativeCameraCPP
+{
+    [default_interface]
+    runtimeclass CameraRotationHelper
+    {
+        CameraRotationHelper(Windows.Devices.Enumeration.EnclosureLocation location);
+        Windows.Devices.Sensors.SimpleOrientation GetCameraCaptureOrientation();
+        Windows.Devices.Sensors.SimpleOrientation GetCameraPreviewOrientation();
+        Windows.Storage.FileProperties.PhotoOrientation GetConvertedCameraCaptureOrientation();
+        Int32 GetCameraPreviewClockwiseDegrees();
+
+        event Windows.Foundation.EventHandler<Boolean> OrientationChanged;
+    }
+}

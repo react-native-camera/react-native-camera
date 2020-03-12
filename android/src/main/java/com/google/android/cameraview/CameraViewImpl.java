@@ -146,6 +146,10 @@ abstract class CameraViewImpl {
 
         void onVideoRecorded(String path, int videoOrientation, int deviceOrientation);
 
+        void onRecordingStart(String path, int videoOrientation, int deviceOrientation);
+
+        void onRecordingEnd();
+
         void onFramePreview(byte[] data, int width, int height, int orientation);
 
         void onMountError();
