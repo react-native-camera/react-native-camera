@@ -200,4 +200,26 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   public void setTextRecognizing(RNCameraView view, boolean textRecognizerEnabled) {
     view.setShouldRecognizeText(textRecognizerEnabled);
   }
+
+  /**---limit scan area addition---**/
+  @ReactProp(name = "rectOfInterest")
+  public void setRectOfInterest(RNCameraView view, ReadableMap coordinates) {
+    if(coordinates != null){
+      float x = (float) coordinates.getDouble("x");
+      float y = (float) coordinates.getDouble("y");
+      float width = (float) coordinates.getDouble("width");
+      float height = (float) coordinates.getDouble("height");
+      view.setRectOfInterest(x, y, width, height);
+    }
+  }
+
+  @ReactProp(name = "cameraViewDimensions")
+  public void setCameraViewDimensions(RNCameraView view, ReadableMap dimensions) {
+    if(dimensions != null){
+      int cameraViewWidth = (int) dimensions.getDouble("width");
+      int cameraViewHeight = (int) dimensions.getDouble("height");
+      view.setCameraViewDimensions(cameraViewWidth, cameraViewHeight);
+    }
+  }
+  /**---limit scan area addition---**/
 }
