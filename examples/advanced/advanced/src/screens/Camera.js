@@ -477,13 +477,38 @@ class Camera extends Component{
     this.setState({takingPic: false});
   }
 
+  onRecordingStart = () => {
+    this.reportRequestPrompt = true;
+
+    if(this._recordingTimer){
+      clearInterval(this._recordingTimer);
+      this._recordingTimer = null;
+    }
+
+    if(this.state.recording){
+      this.setState({elapsed: 0})
+      this._recordingTimer = setInterval(()=>{
+        this.setState({elapsed: this.state.elapsed + 1})
+      }, 1000);
+    }
+  }
+
+  onRecordingEnd = () => {
+    this.reportRequestPrompt = true;
+
+    if(this._recordingTimer){
+      clearInterval(this._recordingTimer);
+      this._recordingTimer = null;
+    }
+  }
+
   goBack = () => {
     this.props.navigation.goBack();
   }
 
   render() {
 
-    let {orientation, takingPic, cameraReady, recording, audioDisabled, zoom, wb, cameraType, cameraId, cameraIds, flashMode} = this.state;
+    let {orientation, takingPic, cameraReady, recording, audioDisabled, zoom, wb, cameraType, cameraId, cameraIds, flashMode, elapsed} = this.state;
     let {style} = this.props;
 
     let isPortrait = orientation.isPortrait;
@@ -607,6 +632,8 @@ class Camera extends Component{
               onAudioInterrupted={this.onAudioInterrupted}
               onAudioConnected={this.onAudioConnected}
               onPictureTaken={this.onPictureTaken}
+              onRecordingStart={this.onRecordingStart}
+              onRecordingEnd={this.onRecordingEnd}
               ratio={this.state.aspectRatioStr}
               flashMode={flashMode}
               zoom={zoom}
@@ -744,7 +771,7 @@ class Camera extends Component{
               <View
                 style={styles.capturingStyle}
               >
-              {takingPic ? <H2 transparent>Capturing Picture...</H2> : <H2 transparent>{`Capturing Video${audioDisabled ? ' (muted)' : ''}... (${this.state.elapsed})`}</H2>}
+              {takingPic ? <H2 transparent>Capturing Picture...</H2> : <H2 transparent>{`Capturing Video${audioDisabled ? ' (muted)' : ''}... (${elapsed != -1 ? elapsed : "Preparing Camera..."})`}</H2>}
               </View>
             : null}
 
@@ -814,11 +841,7 @@ class Camera extends Component{
        };
 
 
-      this.setState({recording: true, elapsed: 0}, async () => {
-
-        let timer = setInterval(()=>{
-          this.setState({elapsed: this.state.elapsed + 1})
-        }, 1000);
+      this.setState({recording: true, elapsed: -1}, async () => {
 
         let result = null;
         try {
@@ -839,7 +862,12 @@ class Camera extends Component{
           this.setState({recording: false});
         }, 500);
 
-        clearInterval(timer);
+        // might be cleared on recording stop or
+        // here if we had errors
+        if(this._recordingTimer){
+          clearInterval(this._recordingTimer);
+          this._recordingTimer = null;
+        }
 
       });
 

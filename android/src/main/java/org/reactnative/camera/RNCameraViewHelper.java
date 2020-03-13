@@ -219,6 +219,32 @@ public class RNCameraViewHelper {
      });
   }
 
+  // video recording start/end events
+
+  public static void emitRecordingStartEvent(final ViewGroup view, final WritableMap response) {
+
+    final ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.runOnNativeModulesQueueThread(new Runnable() {
+      @Override
+      public void run() {
+        RecordingStartEvent event = RecordingStartEvent.obtain(view.getId(), response);
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+     });
+  }
+
+  public static void emitRecordingEndEvent(final ViewGroup view) {
+
+    final ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.runOnNativeModulesQueueThread(new Runnable() {
+      @Override
+      public void run() {
+        RecordingEndEvent event = RecordingEndEvent.obtain(view.getId());
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+     });
+  }
+
   // Face detection events
 
   public static void emitFacesDetectedEvent(final ViewGroup view, final WritableArray data) {

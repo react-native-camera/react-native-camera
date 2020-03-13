@@ -124,6 +124,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     private boolean mIsScanning;
 
     private boolean mustUpdateSurface;
+    private boolean surfaceWasDestroyed;
 
     private SurfaceTexture mPreviewTexture;
 
@@ -133,12 +134,56 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         preview.setCallback(new PreviewImpl.Callback() {
             @Override
             public void onSurfaceChanged() {
-                updateSurface();
+
+                // if we got our surface destroyed
+                // we must re-start the camera and surface
+                // otherwise, just update our surface
+
+
+                synchronized(Camera1.this){
+                    if(!surfaceWasDestroyed){
+                        updateSurface();
+                    }
+                    else{
+                        mBgHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                start();
+                            }
+                        });
+                    }
+                }
             }
 
             @Override
             public void onSurfaceDestroyed() {
-                stop();
+
+                // need to this early so we don't get buffer errors due to sufrace going away.
+                // Then call stop in bg thread since it might be quite slow and will freeze
+                // the UI or cause an ANR while it is happening.
+                synchronized(Camera1.this){
+                    if(mCamera != null){
+
+                        // let the instance know our surface was destroyed
+                        // and we might need to re-create it and restart the camera
+                        surfaceWasDestroyed = true;
+
+                        try{
+                            mCamera.setPreviewCallback(null);
+                            // note: this might give a debug message that can be ignored.
+                            mCamera.setPreviewDisplay(null);
+                        }
+                        catch(Exception e){
+                            Log.e("CAMERA_1::", "onSurfaceDestroyed preview cleanup failed", e);
+                        }
+                    }
+                }
+                mBgHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        stop();
+                    }
+                });
             }
         });
     }
@@ -228,6 +273,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mMediaRecorder = null;
 
                 if (mIsRecording.get()) {
+                    mCallback.onRecordingEnd();
+
                     int deviceOrientation = displayOrientationToOrientationEnum(mDeviceOrientation);
                     mCallback.onVideoRecorded(mVideoPath, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
                 }
@@ -235,8 +282,13 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
             if (mCamera != null) {
                 mIsPreviewActive = false;
-                mCamera.stopPreview();
-                mCamera.setPreviewCallback(null);
+                try{
+                    mCamera.stopPreview();
+                    mCamera.setPreviewCallback(null);
+                }
+                catch(Exception e){
+                    Log.e("CAMERA_1::", "stop preview cleanup failed", e);
+                }
             }
 
             releaseCamera();
@@ -247,6 +299,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     @SuppressLint("NewApi")
     void setUpPreview() {
         try {
+            surfaceWasDestroyed = false;
+
             if(mCamera != null){
                 if (mPreviewTexture != null) {
                     mCamera.setPreviewTexture(mPreviewTexture);
@@ -753,6 +807,10 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 } catch (Exception e) {
                     Log.e("CAMERA_1::", "Record setParameters failed", e);
                 }
+
+                int deviceOrientation = displayOrientationToOrientationEnum(mDeviceOrientation);
+                mCallback.onRecordingStart(path, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
+
 
                 return true;
             } catch (Exception e) {
@@ -1414,26 +1472,36 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private void stopMediaRecorder() {
 
-        if (mMediaRecorder != null) {
-            try {
-                mMediaRecorder.stop();
-            } catch (RuntimeException ex) {
-                Log.e("CAMERA_1::", "stopMediaRecorder failed", ex);
+        synchronized(this){
+            if (mMediaRecorder != null) {
+                try {
+                    mMediaRecorder.stop();
+                } catch (RuntimeException ex) {
+                    Log.e("CAMERA_1::", "stopMediaRecorder stop failed", ex);
+                }
+
+                try{
+                    mMediaRecorder.reset();
+                    mMediaRecorder.release();
+                } catch (RuntimeException ex) {
+                    Log.e("CAMERA_1::", "stopMediaRecorder reset failed", ex);
+                }
+
+                mMediaRecorder = null;
             }
-            mMediaRecorder.reset();
-            mMediaRecorder.release();
-            mMediaRecorder = null;
+
+            mCallback.onRecordingEnd();
+
+            int deviceOrientation = displayOrientationToOrientationEnum(mDeviceOrientation);
+
+            if (mVideoPath == null || !new File(mVideoPath).exists()) {
+                mCallback.onVideoRecorded(null, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
+                return;
+            }
+
+            mCallback.onVideoRecorded(mVideoPath, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
+            mVideoPath = null;
         }
-
-        int deviceOrientation = displayOrientationToOrientationEnum(mDeviceOrientation);
-        if (mVideoPath == null || !new File(mVideoPath).exists()) {
-            mCallback.onVideoRecorded(null, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
-            return;
-        }
-
-        mCallback.onVideoRecorded(mVideoPath, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
-        mVideoPath = null;
-
     }
 
     private void setCamcorderProfile(CamcorderProfile profile, boolean recordAudio) {

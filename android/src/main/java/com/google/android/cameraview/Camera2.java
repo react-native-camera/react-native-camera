@@ -338,6 +338,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             mMediaRecorder = null;
 
             if (mIsRecording) {
+                mCallback.onRecordingEnd();
+
                 // @TODO: implement videoOrientation and deviceOrientation calculation
                 mCallback.onVideoRecorded(mVideoPath, 0, 0);
                 mIsRecording = false;
@@ -577,6 +579,11 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                     mSessionCallback, null);
                 mMediaRecorder.start();
                 mIsRecording = true;
+
+                // @TODO: implement videoOrientation and deviceOrientation calculation
+                // same TODO as onVideoRecorded
+                mCallback.onRecordingStart(mVideoPath, 0, 0);
+
                 return true;
             } catch (CameraAccessException | IOException e) {
                 e.printStackTrace();
@@ -1365,6 +1372,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         mMediaRecorder.reset();
         mMediaRecorder.release();
         mMediaRecorder = null;
+
+        mCallback.onRecordingEnd();
 
         if (mVideoPath == null || !new File(mVideoPath).exists()) {
             // @TODO: implement videoOrientation and deviceOrientation calculation

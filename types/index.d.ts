@@ -156,6 +156,16 @@ export interface RNCameraProps {
   }): void;
   onMountError?(error: { message: string }): void;
 
+  onPictureTaken?(): void;
+  onRecordingStart?(event: {
+    nativeEvent: {
+      uri: string;
+      videoOrientation: number;
+      deviceOrientation: number;
+    };
+  }): void;
+  onRecordingEnd?(): void;
+
   /** iOS only */
   onAudioInterrupted?(): void;
   onAudioConnected?(): void;
@@ -419,6 +429,7 @@ interface RecordOptions {
 
   /** iOS only */
   codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
+  fps?: number;
 }
 
 export interface RecordResponse {
