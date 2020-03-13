@@ -27,8 +27,8 @@ const Rationale = PropTypes.shape({
 const requestPermissions = async (
   captureAudio: boolean,
   CameraManager: any,
-  androidCameraPermissionOptions: Rationale,
-  androidRecordAudioPermissionOptions: Rationale,
+  androidCameraPermissionOptions: Rationale | null,
+  androidRecordAudioPermissionOptions: Rationale | null,
 ): Promise<{ hasCameraPermissions: boolean, hasRecordAudioPermissions: boolean }> => {
   let hasCameraPermissions = false;
   let hasRecordAudioPermissions = false;
@@ -458,14 +458,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
     faceDetectionClassifications: ((CameraManager.FaceDetection || {}).Classifications || {}).none,
     permissionDialogTitle: '',
     permissionDialogMessage: '',
-    androidCameraPermissionOptions: {
-      title: '',
-      message: '',
-    },
-    androidRecordAudioPermissionOptions: {
-      title: '',
-      message: '',
-    },
+    androidCameraPermissionOptions: null,
+    androidRecordAudioPermissionOptions: null,
     notAuthorizedView: (
       <View style={styles.authorizationContainer}>
         <Text style={styles.notAuthorizedText}>Camera not authorized</Text>
