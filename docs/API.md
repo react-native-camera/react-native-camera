@@ -371,7 +371,7 @@ getSupportedPreviewFpsRange(): Promise<[{MINIMUM_FPS: string, MAXIMUM_FPS: strin
 ### Usage example
 
 ```js
-const previewRange = await this.camera.getSupportedPreviewRange();
+const previewRange = await this.camera.getSupportedPreviewFpsRange();
 /* -> [
   {
     MINIMUM_FPS: "15000",
