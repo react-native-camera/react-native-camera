@@ -195,10 +195,6 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                     if (image.getFormat() == ImageFormat.JPEG) {
                         // @TODO: implement deviceOrientation
                         mCallback.onPictureTaken(data, 0);
-                        if (mPlaySoundOnCapture) {
-                            MediaActionSound sound = new MediaActionSound();
-                            sound.play(MediaActionSound.SHUTTER_CLICK);
-                        }
                     } else {
                         mCallback.onFramePreview(data, image.getWidth(), image.getHeight(), mDisplayOrientation);
                     }
@@ -1301,6 +1297,10 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                             if (mCaptureCallback.getOptions().hasKey("pauseAfterCapture")
                               && !mCaptureCallback.getOptions().getBoolean("pauseAfterCapture")) {
                                 unlockFocus();
+                            }
+                            if (mPlaySoundOnCapture) {
+                                MediaActionSound sound = new MediaActionSound();
+                                sound.play(MediaActionSound.SHUTTER_CLICK);
                             }
                         }
                     }, null);
