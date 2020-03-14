@@ -126,7 +126,7 @@ public class CameraView extends FrameLayout {
         // Internal setup
         final PreviewImpl preview = createPreviewImpl(context);
         mCallbacks = new CallbackBridge();
-        if (fallbackToOldApi || Build.VERSION.SDK_INT < 21) {
+        if (fallbackToOldApi || Build.VERSION.SDK_INT < 21 || Camera2.isLegacy(context)) {
             mImpl = new Camera1(mCallbacks, preview, mBgHandler);
         } else if (Build.VERSION.SDK_INT < 23) {
             mImpl = new Camera2(mCallbacks, preview, context, mBgHandler);
@@ -292,7 +292,7 @@ public class CameraView extends FrameLayout {
         boolean wasOpened = isCameraOpened();
         Parcelable state = onSaveInstanceState();
 
-        if (useCamera2) {
+        if (useCamera2 && !Camera2.isLegacy(mContext)) {
             if (wasOpened) {
                 stop();
             }
@@ -323,17 +323,20 @@ public class CameraView extends FrameLayout {
      * {@link Activity#onResume()}.
      */
     public void start() {
-        if (!mImpl.start()) {
-            if (mImpl.getView() != null) {
-                this.removeView(mImpl.getView());
-            }
-            //store the state and restore this state after fall back to Camera1
-            Parcelable state = onSaveInstanceState();
-            // Camera2 uses legacy hardware layer; fall back to Camera1
-            mImpl = new Camera1(mCallbacks, createPreviewImpl(getContext()), mBgHandler);
-            onRestoreInstanceState(state);
-            mImpl.start();
-        }
+        mImpl.start();
+
+        // this fallback is no longer needed and was too buggy/slow
+        // if (!mImpl.start()) {
+        //     if (mImpl.getView() != null) {
+        //         this.removeView(mImpl.getView());
+        //     }
+        //     //store the state and restore this state after fall back to Camera1
+        //     Parcelable state = onSaveInstanceState();
+        //     // Camera2 uses legacy hardware layer; fall back to Camera1
+        //     mImpl = new Camera1(mCallbacks, createPreviewImpl(getContext()), mBgHandler);
+        //     onRestoreInstanceState(state);
+        //     mImpl.start();
+        // }
     }
 
     /**
