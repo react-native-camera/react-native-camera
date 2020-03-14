@@ -213,6 +213,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     CameraDevice mCamera;
 
+    MediaActionSound sound = new MediaActionSound();
+
     CameraCaptureSession mCaptureSession;
 
     CaptureRequest.Builder mPreviewRequestBuilder;
@@ -1299,7 +1301,6 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                                 unlockFocus();
                             }
                             if (mPlaySoundOnCapture) {
-                                MediaActionSound sound = new MediaActionSound();
                                 sound.play(MediaActionSound.SHUTTER_CLICK);
                             }
                         }

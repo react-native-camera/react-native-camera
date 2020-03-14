@@ -22,6 +22,7 @@ import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.media.MediaActionSound;
 import android.os.Build;
 import android.os.Handler;
 import androidx.collection.SparseArrayCompat;
@@ -81,6 +82,9 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     private final AtomicBoolean isPictureCaptureInProgress = new AtomicBoolean(false);
 
     Camera mCamera;
+
+    // do not instantiate this every time since it allocates unnecessary resources
+    MediaActionSound sound = new MediaActionSound();
 
     private Camera.Parameters mCameraParameters;
 
@@ -751,6 +755,10 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
                         // this shouldn't be needed and messes up autoFocusPointOfInterest
                         // camera.cancelAutoFocus();
+
+                        if(mPlaySoundOnCapture){
+                            sound.play(MediaActionSound.SHUTTER_CLICK);
+                        }
 
                         if (options.hasKey("pauseAfterCapture") && !options.getBoolean("pauseAfterCapture")) {
                             camera.startPreview();
@@ -1434,10 +1442,21 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         mPlaySoundOnCapture = playSoundOnCapture;
         if(mCamera != null){
             try{
-                mCamera.enableShutterSound(mPlaySoundOnCapture);
+                // Always disable shutter sound, and play our own.
+                // This is because not all devices honor this value when set to true
+                boolean res = mCamera.enableShutterSound(false);
+
+                // if we fail to disable the shutter sound
+                // set mPlaySoundOnCapture to false since it means
+                // we cannot change it and the system will play it
+                // playing the sound ourselves also makes it consistent with Camera2
+                if(!res){
+                    mPlaySoundOnCapture = false;
+                }
             }
             catch(Exception ex){
                 Log.e("CAMERA_1::", "setPlaySoundInternal failed", ex);
+                mPlaySoundOnCapture = false;
             }
         }
     }
