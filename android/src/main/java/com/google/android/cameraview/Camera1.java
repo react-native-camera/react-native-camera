@@ -123,6 +123,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private boolean mIsScanning;
 
+    private Boolean mPlaySoundOnCapture = false;
+
     private boolean mustUpdateSurface;
     private boolean surfaceWasDestroyed;
 
@@ -1048,6 +1050,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         setZoomInternal(mZoom);
         setWhiteBalanceInternal(mWhiteBalance);
         setScanningInternal(mIsScanning);
+        setPlaySoundInternal(mPlaySoundOnCapture);
+
         try{
             mCamera.setParameters(mCameraParameters);
         }
@@ -1424,6 +1428,31 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mCamera.setPreviewCallback(null);
             }
         }
+    }
+
+    private void setPlaySoundInternal(boolean playSoundOnCapture){
+        mPlaySoundOnCapture = playSoundOnCapture;
+        if(mCamera != null){
+            try{
+                mCamera.enableShutterSound(mPlaySoundOnCapture);
+            }
+            catch(Exception ex){
+                Log.e("CAMERA_1::", "setPlaySoundInternal failed", ex);
+            }
+        }
+    }
+
+    @Override
+    void setPlaySoundOnCapture(boolean playSoundOnCapture) {
+        if (playSoundOnCapture == mPlaySoundOnCapture) {
+            return;
+        }
+        setPlaySoundInternal(playSoundOnCapture);
+    }
+
+    @Override
+    public boolean getPlaySoundOnCapture(){
+        return mPlaySoundOnCapture;
     }
 
     @Override

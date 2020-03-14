@@ -256,6 +256,7 @@ public class CameraView extends FrameLayout {
         state.focusDepth = getFocusDepth();
         state.zoom = getZoom();
         state.whiteBalance = getWhiteBalance();
+        state.playSoundOnCapture = getPlaySoundOnCapture();
         state.scanning = getScanning();
         state.pictureSize = getPictureSize();
         return state;
@@ -278,6 +279,7 @@ public class CameraView extends FrameLayout {
         setFocusDepth(ss.focusDepth);
         setZoom(ss.zoom);
         setWhiteBalance(ss.whiteBalance);
+        setPlaySoundOnCapture(ss.playSoundOnCapture);
         setScanning(ss.scanning);
         setPictureSize(ss.pictureSize);
     }
@@ -585,6 +587,14 @@ public class CameraView extends FrameLayout {
       return mImpl.getWhiteBalance();
     }
 
+    public void setPlaySoundOnCapture(boolean playSoundOnCapture) {
+      mImpl.setPlaySoundOnCapture(playSoundOnCapture);
+    }
+
+    public boolean getPlaySoundOnCapture() {
+      return mImpl.getPlaySoundOnCapture();
+    }
+
     public void setScanning(boolean isScanning) { mImpl.setScanning(isScanning);}
 
     public boolean getScanning() { return mImpl.getScanning(); }
@@ -736,6 +746,8 @@ public class CameraView extends FrameLayout {
 
         int whiteBalance;
 
+        boolean playSoundOnCapture;
+
         boolean scanning;
 
         Size pictureSize;
@@ -752,6 +764,7 @@ public class CameraView extends FrameLayout {
             focusDepth = source.readFloat();
             zoom = source.readFloat();
             whiteBalance = source.readInt();
+            playSoundOnCapture = source.readByte() != 0;
             scanning = source.readByte() != 0;
             pictureSize = source.readParcelable(loader);
         }
@@ -772,6 +785,7 @@ public class CameraView extends FrameLayout {
             out.writeFloat(focusDepth);
             out.writeFloat(zoom);
             out.writeInt(whiteBalance);
+            out.writeByte((byte) (playSoundOnCapture ? 1 : 0));
             out.writeByte((byte) (scanning ? 1 : 0));
             out.writeParcelable(pictureSize, flags);
         }

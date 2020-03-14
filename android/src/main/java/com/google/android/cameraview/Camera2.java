@@ -37,6 +37,7 @@ import android.media.CamcorderProfile;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaRecorder;
+import android.media.MediaActionSound;
 import androidx.annotation.NonNull;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -194,6 +195,10 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                     if (image.getFormat() == ImageFormat.JPEG) {
                         // @TODO: implement deviceOrientation
                         mCallback.onPictureTaken(data, 0);
+                        if (mPlaySoundOnCapture) {
+                            MediaActionSound sound = new MediaActionSound();
+                            sound.play(MediaActionSound.SHUTTER_CLICK);
+                        }
                     } else {
                         mCallback.onFramePreview(data, image.getWidth(), image.getHeight(), mDisplayOrientation);
                     }
@@ -261,6 +266,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     private int mWhiteBalance;
 
     private boolean mIsScanning;
+
+    private Boolean mPlaySoundOnCapture = false;
 
     private Surface mPreviewSurface;
 
@@ -676,6 +683,16 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     }
 
     @Override
+    void setPlaySoundOnCapture(boolean playSoundOnCapture) {
+        mPlaySoundOnCapture = playSoundOnCapture;
+    }
+
+    @Override
+    public boolean getPlaySoundOnCapture(){
+        return mPlaySoundOnCapture;
+    }
+
+    @Override
     void setScanning(boolean isScanning) {
         if (mIsScanning == isScanning) {
             return;
@@ -905,6 +922,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             mCamera.createCaptureSession(Arrays.asList(surface, mStillImageReader.getSurface(),
                     mScanImageReader.getSurface()), mSessionCallback, null);
         } catch (CameraAccessException e) {
+            Log.e(TAG, "Failed to start capture session", e);
             mCallback.onMountError();
         }
     }

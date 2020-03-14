@@ -124,6 +124,10 @@ abstract class CameraViewImpl {
 
     abstract int getWhiteBalance();
 
+    abstract void setPlaySoundOnCapture(boolean playSoundOnCapture);
+
+    abstract boolean getPlaySoundOnCapture();
+
     abstract void setScanning(boolean isScanning);
 
     abstract boolean getScanning();
