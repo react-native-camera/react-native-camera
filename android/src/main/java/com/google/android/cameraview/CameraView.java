@@ -313,7 +313,9 @@ public class CameraView extends FrameLayout {
             }
             mImpl = new Camera1(mCallbacks, mImpl.mPreview, mBgHandler);
         }
-        start();
+        if(wasOpened){
+            start();
+        }
     }
 
     /**
