@@ -129,6 +129,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setPictureSize(size.equals("None") ? null : Size.parse(size));
   }
 
+  @ReactProp(name = "playSoundOnCapture")
+  public void setPlaySoundOnCapture(RNCameraView view, boolean playSoundOnCapture) {
+    view.setPlaySoundOnCapture(playSoundOnCapture);
+  }
+
   @ReactProp(name = "barCodeTypes")
   public void setBarCodeTypes(RNCameraView view, ReadableArray barCodeTypes) {
     if (barCodeTypes == null) {
@@ -149,11 +154,6 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "useCamera2Api")
   public void setUseCamera2Api(RNCameraView view, boolean useCamera2Api) {
     view.setUsingCamera2Api(useCamera2Api);
-  }
-
-  @ReactProp(name = "playSoundOnCapture")
-  public void setPlaySoundOnCapture(RNCameraView view, boolean playSoundOnCapture) {
-    view.setPlaySoundOnCapture(playSoundOnCapture);
   }
 
   @ReactProp(name = "faceDetectorEnabled")

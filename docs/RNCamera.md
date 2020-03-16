@@ -286,6 +286,11 @@ The idea is that you select the appropriate white balance setting for the type o
 
 Use the `whiteBalance` property to specify which white balance setting the camera should use.
 
+### `exposure`
+Value: float from `0` to `1.0`, or `-1` (default) for auto.
+
+Sets the camera's exposure value.
+
 ### `zoom`
 
 Value: float from `0` to `1.0`
@@ -333,6 +338,9 @@ Note: Must also provide cameraViewDimensions prop for Android device
 ### `Android` `cameraViewDimensions`
 
 An `{width:, height: }` object which defines the width and height of the cameraView. This prop is used to adjust the effect of Aspect Raio for rectOfInterest area on Android
+
+### `Android` `playSoundOnCapture`
+Boolean to turn on or off the camera's shutter sound (default false). Note that in some countries, the shutter sound cannot be turned off.
 
 
 ### `iOS` `videoStabilizationMode`
