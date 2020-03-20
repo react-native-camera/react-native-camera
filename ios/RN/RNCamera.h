@@ -35,6 +35,7 @@
 @property(copy, nonatomic) NSDictionary *autoFocusPointOfInterest;
 @property(assign, nonatomic) float focusDepth;
 @property(assign, nonatomic) NSInteger whiteBalance;
+@property(copy, nonatomic) NSDictionary *customWhiteBalance;
 @property(assign, nonatomic) float exposure;
 @property(assign, nonatomic) float exposureIsoMin;
 @property(assign, nonatomic) float exposureIsoMax;

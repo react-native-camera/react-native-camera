@@ -51,6 +51,7 @@ RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
              @"AutoFocus" :
                  @{@"on" : @(RNCameraAutoFocusOn), @"off" : @(RNCameraAutoFocusOff)},
              @"WhiteBalance" : @{
+                     @"custom" : @(RNCameraWhiteBalanceCustom),
                      @"auto" : @(RNCameraWhiteBalanceAuto),
                      @"sunny" : @(RNCameraWhiteBalanceSunny),
                      @"cloudy" : @(RNCameraWhiteBalanceCloudy),
@@ -230,6 +231,13 @@ RCT_CUSTOM_VIEW_PROPERTY(maxZoom, NSNumber, RNCamera)
 RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSInteger, RNCamera)
 {
     [view setWhiteBalance:[RCTConvert NSInteger:json]];
+    [view updateWhiteBalance];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(customWhiteBalance, NSDictionary *, RNCamera)
+{
+    [view setWhiteBalance:RNCameraWhiteBalanceCustom];
+    [view setCustomWhiteBalance:[RCTConvert NSDictionary:json]];
     [view updateWhiteBalance];
 }
 

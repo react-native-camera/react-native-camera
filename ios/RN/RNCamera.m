@@ -616,11 +616,30 @@ BOOL _sessionInterrupted = NO;
         [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
         [device unlockForConfiguration];
     } else {
-        AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
-            .temperature = [RNCameraUtils temperatureForWhiteBalance:self.whiteBalance],
-            .tint = 0,
-        };
-        AVCaptureWhiteBalanceGains rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
+        AVCaptureWhiteBalanceGains rgbGains;
+        if (self.whiteBalance == RNCameraWhiteBalanceCustom
+            && [self.customWhiteBalance objectForKey:@"temperature"]
+            && [self.customWhiteBalance objectForKey:@"tint"]) {
+            
+            float temperature = [self.customWhiteBalance[@"temperature"] floatValue];
+            float tint = [self.customWhiteBalance[@"tint"] floatValue];
+            
+            AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
+                .temperature = temperature,
+                .tint = tint,
+            };
+            rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
+            rgbGains.redGain += [self.customWhiteBalance[@"redGainOffset"] floatValue];
+            rgbGains.greenGain += [self.customWhiteBalance[@"greenGainOffset"] floatValue];
+            rgbGains.blueGain += [self.customWhiteBalance[@"blueGainOffset"] floatValue];
+        } else {
+            AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
+                .temperature = [RNCameraUtils temperatureForWhiteBalance:self.whiteBalance],
+                .tint = 0,
+            };
+            rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
+        }
+        
         __weak __typeof__(device) weakDevice = device;
         if ([device lockForConfiguration:&error]) {
             @try{
