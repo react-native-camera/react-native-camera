@@ -612,9 +612,8 @@ BOOL _sessionInterrupted = NO;
         return;
     }
 
-    if (self.whiteBalance == RNCameraWhiteBalanceAuto) {
+    if (self.whiteBalance == RNCameraWhiteBalanceAuto || ![device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]) {
         [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
-        [device unlockForConfiguration];
     } else {
         AVCaptureWhiteBalanceGains rgbGains;
         if (self.whiteBalance == RNCameraWhiteBalanceCustom
