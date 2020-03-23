@@ -628,9 +628,13 @@ BOOL _sessionInterrupted = NO;
                 .tint = tint,
             };
             rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
-            rgbGains.redGain += [self.customWhiteBalance[@"redGainOffset"] floatValue];
-            rgbGains.greenGain += [self.customWhiteBalance[@"greenGainOffset"] floatValue];
-            rgbGains.blueGain += [self.customWhiteBalance[@"blueGainOffset"] floatValue];
+            CGFloat redGain = rgbGains.redGain + [self.customWhiteBalance[@"redGainOffset"] floatValue];
+            CGFloat greenGain = rgbGains.greenGain + [self.customWhiteBalance[@"greenGainOffset"] floatValue];
+            CGFloat blueGain = rgbGains.blueGain + [self.customWhiteBalance[@"blueGainOffset"] floatValue];
+            
+            rgbGains.redGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, redGain));
+            rgbGains.greenGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, greenGain));
+            rgbGains.blueGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, blueGain));
         } else {
             AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
                 .temperature = [RNCameraUtils temperatureForWhiteBalance:self.whiteBalance],
