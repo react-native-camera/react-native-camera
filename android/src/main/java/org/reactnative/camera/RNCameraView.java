@@ -19,6 +19,7 @@ import com.google.zxing.Result;
 import org.reactnative.barcodedetector.RNBarcodeDetector;
 import org.reactnative.camera.tasks.*;
 import org.reactnative.camera.utils.RNFileUtils;
+import org.reactnative.camera.utils.ScanArea;
 import org.reactnative.facedetector.RNFaceDetector;
 
 import java.io.File;
@@ -73,6 +74,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private float mScanAreaHeight = 0.0f;
   private int mCameraViewWidth = 0;
   private int mCameraViewHeight = 0;
+  private ScanArea mScanArea = new ScanArea(mLimitScanArea, 0, 0, mScanAreaX, mScanAreaY, mScanAreaWidth, mScanAreaHeight, mCameraViewWidth, mCameraViewHeight, 0.0f);
 
   public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext, true);
@@ -159,7 +161,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         if (willCallBarCodeTask) {
           barCodeScannerTaskLock = true;
           BarCodeScannerAsyncTaskDelegate delegate = (BarCodeScannerAsyncTaskDelegate) cameraView;
-          new BarCodeScannerAsyncTask(delegate, mMultiFormatReader, data, width, height, mLimitScanArea, mScanAreaX, mScanAreaY, mScanAreaWidth, mScanAreaHeight, mCameraViewWidth, mCameraViewHeight, getAspectRatio().toFloat()).execute();
+          ScanArea mScanArea = new ScanArea(mLimitScanArea, width, height, mScanAreaX, mScanAreaY, mScanAreaWidth, mScanAreaHeight, mCameraViewWidth, mCameraViewHeight, getAspectRatio().toFloat());
+          new BarCodeScannerAsyncTask(delegate, mMultiFormatReader, data, mScanArea).execute();
         }
 
         if (willCallFaceTask) {
@@ -358,15 +361,16 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   // Limit Scan Area
   public void setRectOfInterest(float x, float y, float width, float height) {
-    this.mLimitScanArea = true;
-    this.mScanAreaX = x;
-    this.mScanAreaY = y;
-    this.mScanAreaWidth = width;
-    this.mScanAreaHeight = height;
+    mScanArea.setLimitScanArea(true);
+    mScanArea.setScanAreaX(x);
+    mScanArea.setScanAreaY(y);
+    mScanArea.setScanAreaWidth(width);
+    mScanArea.setScanAreaHeight(height);
   }
-    public void setCameraViewDimensions(int width, int height) {
-    this.mCameraViewWidth = width;
-    this.mCameraViewHeight = height;
+
+  public void setCameraViewDimensions(int width, int height) {
+    mScanArea.setCameraWidth(width);
+    mScanArea.setCameraHeight(height);
   }
 
   /**
