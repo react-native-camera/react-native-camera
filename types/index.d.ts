@@ -34,6 +34,13 @@ type WhiteBalance = Readonly<{
   auto: any;
   custom: any;
 }>;
+type CustomWhiteBalance = {
+  temperature: number;
+  tint: number;
+  redGainOffset?: number;
+  greenGainOffset?: number;
+  blueGainOffset?: number
+};
 type BarCodeType = Readonly<{
   aztec: any;
   code128: any;
@@ -148,7 +155,7 @@ export interface RNCameraProps {
   useCamera2Api?: boolean;
   exposure?: number;
   whiteBalance?: keyof WhiteBalance;
-  customWhiteBalance?: {temperature: number; tint: number; redGainOffset?: number; greenGainOffset?: number; blueGainOffset?: number };
+  customWhiteBalance?: CustomWhiteBalance;
 
   captureAudio?: boolean;
 
