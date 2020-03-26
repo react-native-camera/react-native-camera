@@ -39,8 +39,8 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
 
     Result result = null;
     boolean mLimitScanArea = mScanArea.getLimitScanArea();
-    int scanWidth = mLimitScanArea ? mScanArea.getScanWidth() : mWidth;
-    int scanHeight = mLimitScanArea ? mScanArea.getScanHeight() : mHeight;
+    int scanWidth = mLimitScanArea ? mScanArea.getCropArea("width") : mWidth;
+    int scanHeight = mLimitScanArea ? mScanArea.getCropArea("height") : mHeight;
     int left = mLimitScanArea ? mScanArea.getLeft() : 0;
     int top = mLimitScanArea ? mScanArea.getTop() : 0;
     PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(

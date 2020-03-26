@@ -68,13 +68,19 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   // Limit Android Scan Area
   private boolean mLimitScanArea = false;
-  private float mScanAreaX = 0.0f;
-  private float mScanAreaY = 0.0f;
-  private float mScanAreaWidth = 0.0f;
-  private float mScanAreaHeight = 0.0f;
-  private int mCameraViewWidth = 0;
-  private int mCameraViewHeight = 0;
-  private ScanArea mScanArea = new ScanArea(mLimitScanArea, 0, 0, mScanAreaX, mScanAreaY, mScanAreaWidth, mScanAreaHeight, mCameraViewWidth, mCameraViewHeight, 0.0f);
+  private HashMap<String, Float> mCoordinates = new HashMap<String, Float>() {{
+    put("x", 0.0f);
+    put("y", 0.0f);
+  }};
+  private HashMap<String, Float> mCroppingParameters = new HashMap<String, Float>() {{
+    put("width", 0.0f);
+    put("height", 0.0f);
+  }};
+  private HashMap<String, Integer> mCameraParameters = new HashMap<String, Integer>() {{
+    put("width", 0);
+    put("height", 0);
+  }}; 
+  private ScanArea mScanArea = new ScanArea(mLimitScanArea, mCoordinates, 0, 0, mCroppingParameters, mCameraParameters, 0.0f);
 
   public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext, true);
@@ -161,7 +167,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         if (willCallBarCodeTask) {
           barCodeScannerTaskLock = true;
           BarCodeScannerAsyncTaskDelegate delegate = (BarCodeScannerAsyncTaskDelegate) cameraView;
-          ScanArea mScanArea = new ScanArea(mLimitScanArea, width, height, mScanAreaX, mScanAreaY, mScanAreaWidth, mScanAreaHeight, mCameraViewWidth, mCameraViewHeight, getAspectRatio().toFloat());
+
+          Float aspectRatio = getAspectRatio().toFloat();
+          ScanArea mScanArea = new ScanArea(mLimitScanArea, mCoordinates, width, height, mCroppingParameters, mCameraParameters, aspectRatio);
           new BarCodeScannerAsyncTask(delegate, mMultiFormatReader, data, mScanArea).execute();
         }
 
@@ -362,15 +370,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   // Limit Scan Area
   public void setRectOfInterest(float x, float y, float width, float height) {
     mScanArea.setLimitScanArea(true);
-    mScanArea.setScanAreaX(x);
-    mScanArea.setScanAreaY(y);
-    mScanArea.setScanAreaWidth(width);
-    mScanArea.setScanAreaHeight(height);
+    mScanArea.setCoord(x, y);
+    mScanArea.setCropParams(width, height);
   }
 
   public void setCameraViewDimensions(int width, int height) {
-    mScanArea.setCameraWidth(width);
-    mScanArea.setCameraHeight(height);
+    mScanArea.setCam(width, height);
   }
 
   /**
