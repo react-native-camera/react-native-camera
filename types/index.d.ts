@@ -368,14 +368,18 @@ export interface Face {
   rollAngle?: number;
 }
 
-export interface TrackedTextFeature {
-  type: 'block' | 'line' | 'element';
+export interface TrackedTextFeatureRecursive {
+  type: "block" | "line" | "element";
   bounds: {
     size: Size;
     origin: Point;
   };
   value: string;
-  components: TrackedTextFeature[];
+  components?: TrackedTextFeatureRecursive[];
+}
+
+export interface TrackedTextFeature extends TrackedTextFeatureRecursive {
+  components: TrackedTextFeatureRecursive[];
 }
 
 interface TakePictureOptions {
