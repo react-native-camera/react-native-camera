@@ -937,24 +937,34 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      */
     private void chooseCamera() {
         if(_mCameraId == null){
-            int count = Camera.getNumberOfCameras();
-            if(count == 0){
-                //throw new RuntimeException("No camera available.");
-                mCameraId = INVALID_CAMERA_ID;
-                Log.w("CAMERA_1::", "getNumberOfCameras returned 0. No camera available.");
-                return;
-            }
 
-            for (int i = 0; i < count; i++) {
-                Camera.getCameraInfo(i, mCameraInfo);
-                if (mCameraInfo.facing == mFacing) {
-                    mCameraId = i;
+            try{
+                int count = Camera.getNumberOfCameras();
+                if(count == 0){
+                    //throw new RuntimeException("No camera available.");
+                    mCameraId = INVALID_CAMERA_ID;
+                    Log.w("CAMERA_1::", "getNumberOfCameras returned 0. No camera available.");
                     return;
                 }
+
+                for (int i = 0; i < count; i++) {
+                    Camera.getCameraInfo(i, mCameraInfo);
+                    if (mCameraInfo.facing == mFacing) {
+                        mCameraId = i;
+                        return;
+                    }
+                }
+                // no camera found, set the one we have
+                mCameraId = 0;
+                Camera.getCameraInfo(mCameraId, mCameraInfo);
             }
-            // no camera found, set the one we have
-            mCameraId = 0;
-            Camera.getCameraInfo(mCameraId, mCameraInfo);
+            // getCameraInfo may fail if hardware is unavailable
+            // and crash the whole app. Return INVALID_CAMERA_ID
+            // which will in turn fire a mount error event
+            catch(Exception e){
+                Log.e("CAMERA_1::", "chooseCamera failed.", e);
+                mCameraId = INVALID_CAMERA_ID;
+            }
         }
         else{
             try{
