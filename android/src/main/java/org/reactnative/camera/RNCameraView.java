@@ -19,7 +19,6 @@ import com.google.zxing.Result;
 import org.reactnative.barcodedetector.RNBarcodeDetector;
 import org.reactnative.camera.tasks.*;
 import org.reactnative.camera.utils.RNFileUtils;
-import org.reactnative.camera.utils.ScanArea;
 import org.reactnative.facedetector.RNFaceDetector;
 
 import java.io.File;
@@ -27,6 +26,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import android.graphics.Rect;
 
 public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate,
     BarcodeDetectorAsyncTaskDelegate, TextRecognizerAsyncTaskDelegate, PictureSavedDelegate {
@@ -67,20 +67,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private int mPaddingY;
 
   // Limit Android Scan Area
-  private boolean mLimitScanArea = false;
-  private HashMap<String, Float> mCoordinates = new HashMap<String, Float>() {{
-    put("x", 0.0f);
-    put("y", 0.0f);
-  }};
-  private HashMap<String, Float> mCroppingParameters = new HashMap<String, Float>() {{
-    put("width", 0.0f);
-    put("height", 0.0f);
-  }};
-  private HashMap<String, Integer> mCameraParameters = new HashMap<String, Integer>() {{
-    put("width", 0);
-    put("height", 0);
-  }}; 
-  private ScanArea mScanArea = new ScanArea(mLimitScanArea, mCoordinates, 0, 0, mCroppingParameters, mCameraParameters, 0.0f);
+  private Rect mRect = new Rect(0,0,0,0);
+  private boolean mLandscapeMode = false;
 
   public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext, true);
@@ -168,9 +156,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           barCodeScannerTaskLock = true;
           BarCodeScannerAsyncTaskDelegate delegate = (BarCodeScannerAsyncTaskDelegate) cameraView;
 
-          Float aspectRatio = getAspectRatio().toFloat();
-          ScanArea mScanArea = new ScanArea(mLimitScanArea, mCoordinates, width, height, mCroppingParameters, mCameraParameters, aspectRatio);
-          new BarCodeScannerAsyncTask(delegate, mMultiFormatReader, data, mScanArea).execute();
+          new BarCodeScannerAsyncTask(delegate, mMultiFormatReader, data, width, height, mRect, mLandscapeMode).execute(); 
         }
 
         if (willCallFaceTask) {
@@ -367,15 +353,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     }
   }
 
-  // Limit Scan Area
-  public void setRectOfInterest(float x, float y, float width, float height) {
-    mScanArea.setLimitScanArea(true);
-    mScanArea.setCoord(x, y);
-    mScanArea.setCropParams(width, height);
-  }
-
-  public void setCameraViewDimensions(int width, int height) {
-    mScanArea.setCam(width, height);
+  public void setRectOfInterest(int leftOffset, int topOffset, int width, int height, boolean landscapeMode) {
+    mRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
+    mLandscapeMode = landscapeMode;
   }
 
   /**

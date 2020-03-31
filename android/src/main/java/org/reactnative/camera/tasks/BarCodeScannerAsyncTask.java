@@ -6,8 +6,8 @@ import com.google.zxing.NotFoundException;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
-import org.reactnative.camera.utils.ScanArea;
 import android.util.Log;
+import android.graphics.Rect;
 
 public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Result> {
   private byte[] mImageData;
@@ -15,20 +15,25 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
   private int mHeight;
   private BarCodeScannerAsyncTaskDelegate mDelegate;
   private final MultiFormatReader mMultiFormatReader;
-  private ScanArea mScanArea;
+  private Rect mRect;
+  private boolean mLandscapeMode;
 
   public BarCodeScannerAsyncTask(
       BarCodeScannerAsyncTaskDelegate delegate,
       MultiFormatReader multiFormatReader,
       byte[] imageData,
-      ScanArea scanArea
+      int width,
+      int height,
+      Rect rect,
+      boolean landscapeMode
   ) {
-    mScanArea = scanArea;
-    mWidth = mScanArea.getWidth();
-    mHeight = mScanArea.getHeight();
-    mImageData = rotateImage(imageData,mWidth, mHeight);
+    mWidth = width;
+    mHeight = height;
+    mImageData = imageData;
     mDelegate = delegate;
     mMultiFormatReader = multiFormatReader;
+    mRect = rect;
+    mLandscapeMode = landscapeMode;
   }
 
   @Override
@@ -36,22 +41,17 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     if (isCancelled() || mDelegate == null) {
       return null;
     }
-
+    byte[] data = mLandscapeMode ? mImageData : rotateImage(mImageData, mWidth, mHeight);
     Result result = null;
-    boolean mLimitScanArea = mScanArea.getLimitScanArea();
-    int scanWidth = mLimitScanArea ? mScanArea.getCropArea("width") : mWidth;
-    int scanHeight = mLimitScanArea ? mScanArea.getCropArea("height") : mHeight;
-    int left = mLimitScanArea ? mScanArea.getLeft() : 0;
-    int top = mLimitScanArea ? mScanArea.getTop() : 0;
-    PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(
-      mImageData,
-      mHeight,
-      mWidth, 
-      mHeight - scanHeight - top,
-      left,
-      scanHeight,
-      scanWidth,
-      false
+     PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(
+       data,
+       mWidth,
+       mHeight,
+       mRect.left,
+       mRect.top,
+       mRect.width(),
+       mRect.height(),
+       false
     );
     BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
     try {
@@ -63,7 +63,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     }
     return result;
   }
-
+  
   private byte[] rotateImage(byte[]imageData,int width, int height) {
     byte[] rotated = new byte[imageData.length];
     for (int y = 0; y < height; y++) {
@@ -73,6 +73,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     }
     return rotated;
   }
+
   @Override
   protected void onPostExecute(Result result) {
     super.onPostExecute(result);
