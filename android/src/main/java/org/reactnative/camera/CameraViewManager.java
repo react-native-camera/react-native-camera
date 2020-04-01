@@ -204,12 +204,13 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "rectOfInterest")
   public void setRectOfInterest(RNCameraView view, ReadableMap coordinates) {
     if(coordinates != null){
-      int x = (int) coordinates.getInt("x");
-      int y = (int) coordinates.getInt("y");
+      int dataWidth = (int) coordinates.getInt("dataWidth");
+      int dataHeight = (int) coordinates.getInt("dataHeight");
+      int left = (int) coordinates.getInt("left");
+      int top = (int) coordinates.getInt("top");
       int width = (int) coordinates.getInt("width");
       int height = (int) coordinates.getInt("height");
-      boolean landscapeMode = (boolean) coordinates.getBoolean("landscapeMode");
-      view.setRectOfInterest(x, y, width, height, landscapeMode);
+      view.setRectOfInterest(dataWidth, dataHeight, left, top, width, height);
     }
   }
 }

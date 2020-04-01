@@ -67,8 +67,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private int mPaddingY;
 
   // Limit Android Scan Area
-  private Rect mRect = new Rect(0,0,0,0);
-  private boolean mLandscapeMode = false;
+  private Rect mRect = new Rect();
+  private int mWidth = 0;
+  private int mHeight = 0;
 
   public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext, true);
@@ -156,7 +157,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           barCodeScannerTaskLock = true;
           BarCodeScannerAsyncTaskDelegate delegate = (BarCodeScannerAsyncTaskDelegate) cameraView;
 
-          new BarCodeScannerAsyncTask(delegate, mMultiFormatReader, data, width, height, mRect, mLandscapeMode).execute(); 
+          int dataWidth = mWidth > 0 ? mWidth : width;
+          int dataHeight = mHeight > 0 ? mHeight : height;
+          new BarCodeScannerAsyncTask(delegate, mMultiFormatReader, data, dataWidth, dataHeight, mRect).execute(); 
         }
 
         if (willCallFaceTask) {
@@ -353,9 +356,10 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     }
   }
 
-  public void setRectOfInterest(int leftOffset, int topOffset, int width, int height, boolean landscapeMode) {
-    mRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
-    mLandscapeMode = landscapeMode;
+  public void setRectOfInterest(int dataWidth, int dataHeight, int left, int top, int width, int height) {
+    mWidth = dataWidth;
+    mHeight = dataHeight;
+    mRect = new Rect(left, top, left + width, top + height);
   }
 
   /**

@@ -11,29 +11,26 @@ import android.graphics.Rect;
 
 public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Result> {
   private byte[] mImageData;
-  private int mWidth;
-  private int mHeight;
+  private int mDataWidth;
+  private int mDataHeight;
   private BarCodeScannerAsyncTaskDelegate mDelegate;
   private final MultiFormatReader mMultiFormatReader;
   private Rect mRect;
-  private boolean mLandscapeMode;
 
   public BarCodeScannerAsyncTask(
       BarCodeScannerAsyncTaskDelegate delegate,
       MultiFormatReader multiFormatReader,
       byte[] imageData,
-      int width,
-      int height,
-      Rect rect,
-      boolean landscapeMode
+      int dataWidth,
+      int dataHeight,
+      Rect rect
   ) {
-    mWidth = width;
-    mHeight = height;
+    mDataWidth = dataWidth;
+    mDataHeight = dataHeight;
     mImageData = imageData;
     mDelegate = delegate;
     mMultiFormatReader = multiFormatReader;
-    mRect = rect;
-    mLandscapeMode = landscapeMode;
+    mRect = rect.isEmpty() ? new Rect(0, 0, mDataWidth, mDataHeight) : rect;
   }
 
   @Override
@@ -41,17 +38,18 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     if (isCancelled() || mDelegate == null) {
       return null;
     }
-    byte[] data = mLandscapeMode ? mImageData : rotateImage(mImageData, mWidth, mHeight);
     Result result = null;
-     PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(
-       data,
-       mWidth,
-       mHeight,
-       mRect.left,
-       mRect.top,
-       mRect.width(),
-       mRect.height(),
-       false
+    boolean landscapeMode = mDataWidth > mDataHeight;
+    byte[] data = landscapeMode ? mImageData : rotateImage(mImageData, mDataWidth, mDataHeight);
+    PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(
+      data,
+      mDataWidth,
+      mDataHeight,
+      mRect.left,
+      mRect.top,
+      mRect.width(),
+      mRect.height(),
+      false
     );
     BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
     try {
@@ -78,7 +76,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
   protected void onPostExecute(Result result) {
     super.onPostExecute(result);
     if (result != null) {
-      mDelegate.onBarCodeRead(result, mWidth, mHeight);
+      mDelegate.onBarCodeRead(result, mDataWidth, mDataHeight);
     }
     mDelegate.onBarCodeScanningTaskCompleted();
   }
