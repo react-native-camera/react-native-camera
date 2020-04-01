@@ -419,7 +419,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     exposure: PropTypes.number,
     whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    customWhiteBalance: PropTypes.shape({temperature: PropTypes.number, tint: PropTypes.number,
+    customWhiteBalance: PropTypes.shape({ temperature: PropTypes.number, tint: PropTypes.number,
       redGainOffset: PropTypes.number,
       greenGainOffset: PropTypes.number,
       blueGainOffset: PropTypes.number }),
