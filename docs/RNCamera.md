@@ -286,6 +286,16 @@ The idea is that you select the appropriate white balance setting for the type o
 
 Use the `whiteBalance` property to specify which white balance setting the camera should use.
 
+### iOS `customWhiteBalance`
+iOS only.
+Value: Object (e.g. `{temperature: 4000, tint: -10.0, redGainOffset: 0.0, greenGainOffset: 0.0, blueGainOffset: 0.0}`)
+
+Like the `whiteBalance` property the `customWhiteBalance` property allows you to control the color temperature in your photos by cooling down or warming up the colors.
+
+The difference is instead of using a pre defined white balance setting (e.g. auto, sunny, cloudy, ...) you can specifiy your own temperature, tint and rgb offset values.
+
+The rgb offset values are applied to the calculated device specific white balance gains for the given temperature and tint values.
+
 ### `exposure`
 Value: float from `0` to `1.0`, or `-1` (default) for auto.
 
