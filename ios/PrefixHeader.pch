@@ -1,0 +1,9 @@
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+#ifdef __cplusplus
+#include "opencv2/opencv.hpp"
+// include other opencv2 headers if needed.
+#endif
+
+#endif /* PrefixHeader_pch */

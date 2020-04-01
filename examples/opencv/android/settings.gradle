@@ -1,0 +1,9 @@
+rootProject.name = 'opencv'
+include ':react-native-svg'
+project(':react-native-svg').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-svg/android')
+include ':react-native-camera'
+project(':react-native-camera').projectDir = new File(rootProject.projectDir, '../../../android')
+include ':openCV4Library'
+project(':openCV4Library').projectDir = new File(rootProject.projectDir, '../../../android/openCV4Library')
+
+include ':app'
