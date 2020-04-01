@@ -2,7 +2,6 @@ package org.reactnative.camera.tasks;
 
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
@@ -16,6 +15,8 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
   private BarCodeScannerAsyncTaskDelegate mDelegate;
   private final MultiFormatReader mMultiFormatReader;
   private Rect mRect;
+  private boolean mAcceptableRect;
+  private String mOutOfBoundErrorMessage = "BarCodeScannerAsyncTask mRect dimensions are OutOfBounds, mRect set to Full Screen";
 
   public BarCodeScannerAsyncTask(
       BarCodeScannerAsyncTaskDelegate delegate,
@@ -30,14 +31,15 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     mImageData = imageData;
     mDelegate = delegate;
     mMultiFormatReader = multiFormatReader;
-    mRect = rect.isEmpty() ? new Rect(0, 0, mDataWidth, mDataHeight) : rect;
+    Rect defaultRect = new Rect(0, 0, mDataWidth, mDataHeight);
+    mAcceptableRect = defaultRect.contains(rect) && !rect.isEmpty();
+    mRect = mAcceptableRect ? rect : defaultRect;
   }
 
   @Override
   protected Result doInBackground(Void... ignored) {
-    if (isCancelled() || mDelegate == null) {
-      return null;
-    }
+    if (isCancelled() || mDelegate == null) { return null; }
+    if (!mAcceptableRect) { Log.w("CAMERA_1::", mOutOfBoundErrorMessage); }
     Result result = null;
     boolean landscapeMode = mDataWidth > mDataHeight;
     byte[] data = landscapeMode ? mImageData : rotateImage(mImageData, mDataWidth, mDataHeight);
@@ -54,8 +56,6 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
     try {
       result = mMultiFormatReader.decodeWithState(bitmap);
-    } catch (NotFoundException e) {
-      Log.w("CAMERA_1::", "BarCodeScannerAsyncTask doInBackground throws: ", e);
     } catch (Throwable t) {
       t.printStackTrace();
     }
