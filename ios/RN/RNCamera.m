@@ -7,7 +7,9 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 #import <MobileCoreServices/MobileCoreServices.h>
-#import  "RNSensorOrientationChecker.h"
+#import "RNSensorOrientationChecker.h"
+#import "RNCustomWhiteBalanceSettings.h"
+
 @interface RNCamera ()
 
 @property (nonatomic, weak) RCTBridge *bridge;
@@ -596,8 +598,15 @@ BOOL _sessionInterrupted = NO;
     [device unlockForConfiguration];
 }
 
-- (void)updateWhiteBalance
-{
+- (void)updateWhiteBalance {
+    if (self.customWhiteBalanceSettings != nil) {
+        [self applyCustomWhiteBalance];
+    } else {
+        [self applyDefaultWhiteBalance];
+    }
+}
+
+- (void)applyDefaultWhiteBalance {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
 
@@ -613,35 +622,16 @@ BOOL _sessionInterrupted = NO;
     }
 
     if (self.whiteBalance == RNCameraWhiteBalanceAuto || ![device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]) {
+        if (self.whiteBalance != RNCameraWhiteBalanceAuto) {
+            RCTLogWarn(@"%s: locked whitebalance mode ist note supported. Fallback to continuous auto white balance mode", __func__);
+        }
         [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
     } else {
-        AVCaptureWhiteBalanceGains rgbGains;
-        if (self.whiteBalance == RNCameraWhiteBalanceCustom
-            && [self.customWhiteBalance objectForKey:@"temperature"]
-            && [self.customWhiteBalance objectForKey:@"tint"]) {
-            
-            float temperature = [self.customWhiteBalance[@"temperature"] floatValue];
-            float tint = [self.customWhiteBalance[@"tint"] floatValue];
-            
-            AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
-                .temperature = temperature,
-                .tint = tint,
-            };
-            rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
-            CGFloat redGain = rgbGains.redGain + [self.customWhiteBalance[@"redGainOffset"] floatValue];
-            CGFloat greenGain = rgbGains.greenGain + [self.customWhiteBalance[@"greenGainOffset"] floatValue];
-            CGFloat blueGain = rgbGains.blueGain + [self.customWhiteBalance[@"blueGainOffset"] floatValue];
-            
-            rgbGains.redGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, redGain));
-            rgbGains.greenGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, greenGain));
-            rgbGains.blueGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, blueGain));
-        } else {
-            AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
-                .temperature = [RNCameraUtils temperatureForWhiteBalance:self.whiteBalance],
-                .tint = 0,
-            };
-            rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
-        }
+        AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
+            .temperature = [RNCameraUtils temperatureForWhiteBalance:self.whiteBalance],
+            .tint = 0,
+        };
+        AVCaptureWhiteBalanceGains rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
         
         __weak __typeof__(device) weakDevice = device;
         if ([device lockForConfiguration:&error]) {
@@ -660,6 +650,57 @@ BOOL _sessionInterrupted = NO;
         }
     }
 
+    [device unlockForConfiguration];
+}
+
+- (void)applyCustomWhiteBalance {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    if(device == nil) {
+        return;
+    }
+
+    NSError *error = nil;
+    if (![device lockForConfiguration:&error]) {
+        if (error) {
+            RCTLogError(@"%s: %@", __func__, error);
+        }
+        return;
+    }
+
+    if (![device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]) {
+        RCTLogWarn(@"%s: locked whitebalance mode ist note supported. Fallback to continuous auto white balance mode", __func__);
+        [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
+    } else {
+        AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
+            .temperature = self.customWhiteBalanceSettings.temperature,
+            .tint = self.customWhiteBalanceSettings.tint,
+        };
+        AVCaptureWhiteBalanceGains rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
+        CGFloat redGain = rgbGains.redGain + self.customWhiteBalanceSettings.redGainOffset;
+        CGFloat greenGain = rgbGains.greenGain + self.customWhiteBalanceSettings.greenGainOffset;
+        CGFloat blueGain = rgbGains.blueGain + self.customWhiteBalanceSettings.blueGainOffset;
+        
+        rgbGains.redGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, redGain));
+        rgbGains.greenGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, greenGain));
+        rgbGains.blueGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, blueGain));
+        
+        __weak __typeof__(device) weakDevice = device;
+        if ([device lockForConfiguration:&error]) {
+            @try{
+                [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:^(CMTime syncTime) {
+                    [weakDevice unlockForConfiguration];
+                }];
+            }
+            @catch(NSException *exception){
+                RCTLogError(@"Failed to set custom white balance: %@", exception);
+            }
+        } else {
+            if (error) {
+                RCTLogError(@"%s: %@", __func__, error);
+            }
+        }
+    }
+    
     [device unlockForConfiguration];
 }
 

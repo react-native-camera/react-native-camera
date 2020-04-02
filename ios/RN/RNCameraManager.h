@@ -32,7 +32,6 @@ typedef NS_ENUM(NSInteger, RNCameraAutoFocus) {
 };
 
 typedef NS_ENUM(NSInteger, RNCameraWhiteBalance) {
-    RNCameraWhiteBalanceCustom = -1,
     RNCameraWhiteBalanceAuto = 0,
     RNCameraWhiteBalanceSunny = 1,
     RNCameraWhiteBalanceCloudy = 2,

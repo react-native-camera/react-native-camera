@@ -32,7 +32,6 @@ type WhiteBalance = Readonly<{
   incandescent: any;
   fluorescent: any;
   auto: any;
-  custom: any;
 }>;
 type CustomWhiteBalance = {
   temperature: number;
@@ -154,9 +153,7 @@ export interface RNCameraProps {
   pendingAuthorizationView?: JSX.Element;
   useCamera2Api?: boolean;
   exposure?: number;
-  whiteBalance?: keyof WhiteBalance;
-  customWhiteBalance?: CustomWhiteBalance;
-
+  whiteBalance?: keyof WhiteBalance | CustomWhiteBalance;
   captureAudio?: boolean;
 
   onCameraReady?(): void;

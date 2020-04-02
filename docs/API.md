@@ -12,7 +12,6 @@ title: Work in progress
 - [`flashMode`](API.md#flashMode)
 - [`exposure`](API.md#exposure)
 - [`whiteBalance`](API.md#whiteBalance)
-- [`customWhiteBalance`](API.md#customWhiteBalance)
 - [`autoFocus`](API.md#autoFocus)
 - [`ratio`](API.md#ratio)
 - [`focusDepth`](API.md#focusDepth)
@@ -83,29 +82,6 @@ Determines the state of the camera flash. Has the following possible states.
 |   Type | Default Value | 
 |   ---- | --------      | 
 | object | `{ off: 1 }`  | 
-
----
-### `customWhiteBalance`
-
-This property allows more adjustments compared to the pre defined white balance (auto, sunny, cloudy, ...).
-If `customWhiteBalance` is used then the `whiteBalance` property has no effect.
-The rgb offset values are applied to the calculated device specific white balance gains for the given temperature and tint values.
- 
-```
-let CustomWhiteBalance = {
-    temperature: 4000,
-    tint: -10.0,
-    redGainOffset: 0.0,
-    greenGainOffset: 0.0,
-    blueGainOffset: 0.0
-};
-```
-
-|   Type | Default Value | 
-|   ---- | --------      | 
-| object | `undefined`  |
-
----
 
 ## Methods
 

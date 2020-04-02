@@ -8,6 +8,7 @@
 #import <React/RCTLog.h>
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
+#import "RNCustomWhiteBalanceSettings.h"
 
 @implementation RNCameraManager
 
@@ -51,7 +52,6 @@ RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
              @"AutoFocus" :
                  @{@"on" : @(RNCameraAutoFocusOn), @"off" : @(RNCameraAutoFocusOff)},
              @"WhiteBalance" : @{
-                     @"custom" : @(RNCameraWhiteBalanceCustom),
                      @"auto" : @(RNCameraWhiteBalanceAuto),
                      @"sunny" : @(RNCameraWhiteBalanceSunny),
                      @"cloudy" : @(RNCameraWhiteBalanceCloudy),
@@ -228,16 +228,21 @@ RCT_CUSTOM_VIEW_PROPERTY(maxZoom, NSNumber, RNCamera)
     [view updateZoom];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSInteger, RNCamera)
+RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, id, RNCamera)
 {
-    [view setWhiteBalance:[RCTConvert NSInteger:json]];
-    [view updateWhiteBalance];
-}
-
-RCT_CUSTOM_VIEW_PROPERTY(customWhiteBalance, NSDictionary *, RNCamera)
-{
-    [view setWhiteBalance:RNCameraWhiteBalanceCustom];
-    [view setCustomWhiteBalance:[RCTConvert NSDictionary:json]];
+    if ([json isKindOfClass: [NSDictionary class]]) {
+        NSDictionary *params = [RCTConvert NSDictionary:json];
+        RNCustomWhiteBalanceSettings *settings = [RNCustomWhiteBalanceSettings new];
+        settings.temperature = [params[@"temperature"] floatValue];
+        settings.tint = [params[@"tint"] floatValue];
+        settings.redGainOffset = [params[@"redGainOffset"] floatValue];
+        settings.greenGainOffset = [params[@"greenGainOffset"] floatValue];
+        settings.blueGainOffset = [params[@"blueGainOffset"] floatValue];
+        [view setCustomWhiteBalanceSettings:settings];
+    } else {
+        [view setCustomWhiteBalanceSettings:nil];
+        [view setWhiteBalance:[RCTConvert NSInteger:json]];
+    }
     [view updateWhiteBalance];
 }
 
