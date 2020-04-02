@@ -405,6 +405,36 @@ public class CameraModule extends ReactContextBaseJavaModule {
       });
   }
 
+  private WritableNativeMap getSizeMap(Size size) {
+    WritableNativeMap map = new WritableNativeMap();
+    map.putInt("width", size.getWidth());
+    map.putInt("height", size.getHeight());
+    return map;
+  }
+
+  @ReactMethod
+  public void getCameraSettings(final int viewTag, final Promise promise) {
+      final ReactApplicationContext context = getReactApplicationContext();
+      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+      uiManager.addUIBlock(new UIBlock() {
+          @Override
+          public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+              final RNCameraView cameraView;
+              try {
+                  cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
+                  WritableMap result = new WritableNativeMap();
+                  Size previewSize = cameraView.getPreviewSize();
+                  Size pictureSize = cameraView.getPictureSize();
+                  result.putMap("preview", getSizeMap(previewSize));
+                  result.putMap("picture", getSizeMap(pictureSize));
+                  promise.resolve(result);
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
+          }
+      });
+  }
+
   @ReactMethod
   public void checkIfRecordAudioPermissionsAreDefined(final Promise promise) {
       try {
