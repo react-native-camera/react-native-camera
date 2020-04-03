@@ -28,6 +28,9 @@
 float const THRESHOLD_MOVEMENT_DEFAULT = 5.0;
 float const THRESHOLD_EXPOSURE = 0.05;
 NSInteger const SAMPLE_SIZE = 30;
+dispatch_semaphore_t getISOSemaphore;
+dispatch_semaphore_t getExposureSemaphore;
+dispatch_semaphore_t getBrightnessSemaphore;
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -346,6 +349,10 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
     self.sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
 
     self.sensorOrientationChecker = [RCTSensorOrientationChecker new];
+
+    getISOSemaphore = dispatch_semaphore_create(0);
+    getExposureSemaphore = dispatch_semaphore_create(0);
+    getBrightnessSemaphore = dispatch_semaphore_create(0);
   }
   return self;
 }
@@ -530,6 +537,7 @@ RCT_EXPORT_METHOD(getFNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseR
 
 RCT_EXPORT_METHOD(getBrightness:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     NSLog(@"get brightness: %d", (int) self.previewBrightness);
+    dispatch_semaphore_wait(getBrightnessSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
     resolve([NSNumber numberWithInteger:self.previewBrightness]);
 }
 
@@ -538,10 +546,12 @@ RCT_EXPORT_METHOD(getIsMoving:(RCTPromiseResolveBlock)resolve reject:(RCTPromise
 }
 
 RCT_EXPORT_METHOD(getISO:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    dispatch_semaphore_wait(getISOSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
     resolve([NSNumber numberWithInt:[[self.previewISO objectAtIndex:0] intValue]]);
 }
 
 RCT_EXPORT_METHOD(getExposure:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    dispatch_semaphore_wait(getExposureSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
     resolve([NSNumber numberWithFloat:self.previewExposure]);
 }
 
@@ -741,16 +751,14 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)newFrame:(CMSampleBufferRef)sampleBuffer {
     if ([self.cameraEventEmitter hasListener]) {
-
         NSData *imageData = [self nsDataFromSampleBuffer:sampleBuffer];
 
-        if ([self.listOfPixelBuffer count] == 0 || [imageData length] == [[self.listOfPixelBuffer objectAtIndex:0] length]) {
-            [self.listOfPixelBuffer addObject:imageData];
-        } else {
+        // Reset array if the frame size changes
+        if ([self.listOfPixelBuffer count] != 0 && [imageData length] != [[self.listOfPixelBuffer objectAtIndex:0] length]) {
             [self.listOfPixelBuffer removeAllObjects];
-            [self.listOfPixelBuffer addObject:imageData];
         }
 
+        [self.listOfPixelBuffer addObject:imageData];
 
         if (self.listOfPixelBuffer.count >= SAMPLE_SIZE) {
             // Exposure time & ISO
@@ -761,9 +769,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             self.previewExposure = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifExposureTime] floatValue];
             self.previewISO = [NSArray arrayWithArray:[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifISOSpeedRatings]];
             // debug stuff
-//              self.previewFnumber = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifFNumber] floatValue];
-//              self.previewFocalLenght = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifFocalLength] floatValue];
-
+            // self.previewFnumber = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifFNumber] floatValue];
+            // self.previewFocalLenght = [[exifMetadata objectForKey:(NSString *) kCGImagePropertyExifFocalLength] floatValue];
 
             int coefficient = 1;
 
@@ -774,12 +781,11 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             if (self.previewBrightness > (int) 255*0.75) {
                 coefficient = -1;
             }
-            self.previewExposureRef = pow(2,  log((double) [[self.previewISO objectAtIndex:0] intValue]/100) / log((double) 2) + coefficient) * self.previewExposure;
+            self.previewExposureRef = pow(2, log((double) [[self.previewISO objectAtIndex:0] intValue]/100) / log((double) 2) + coefficient) * self.previewExposure;
 
             BOOL isLowLight = [self isTooDark:self.previewExposureRef];
 
             if (isLowLight) {
-
                 if (self.isLowLight == NO) {
                     self.isLowLight = isLowLight;
                     [self.cameraEventEmitter sendOnLowLightChange:YES];
@@ -798,7 +804,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                 self.imageIsMoving = NO;
             }
 
-
+            dispatch_semaphore_signal(getISOSemaphore);
+            dispatch_semaphore_signal(getExposureSemaphore);
+            dispatch_semaphore_signal(getBrightnessSemaphore);
 
             [self.listOfPixelBuffer removeAllObjects];
 
@@ -853,37 +861,27 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (float)computeImageMovement:(int)pixelSpacing
 {
-    NSArray* frames = [NSKeyedUnarchiver unarchiveObjectWithData:[NSKeyedArchiver archivedDataWithRootObject:self.listOfPixelBuffer]];
+    NSMutableArray *frames = [[NSMutableArray alloc] initWithArray:self.listOfPixelBuffer copyItems:YES];
     int numberOfFrames = (int) frames.count;
-
     long imageSize = [[frames objectAtIndex:0] length];
     float standardDeviation = 0.0;
     UInt8 *pixels;
 
     for (int i = 0; i < imageSize ; i+=pixelSpacing) {
-        float average = 0.0;
-        int deviationTotal = 0;
-        int subTotal = 0;
+        NSMutableArray *row = [[NSMutableArray alloc] init];
 
         for (int j = 0; j < numberOfFrames; j++) {
             pixels = (UInt8 *)[[frames objectAtIndex:j] bytes];
-            subTotal += pixels[i];
+            [row addObject:@(pixels[i])];
         }
 
-        average = (float) subTotal / numberOfFrames;
+        NSExpression *expression = [NSExpression expressionForFunction:@"stddev:" arguments:@[[NSExpression expressionForConstantValue:row]]];
+        NSNumber *stdDev = [expression expressionValueWithObject:nil context:nil];
 
-        for (int j = 0; j < numberOfFrames; j++) {
-            pixels = (UInt8 *)[[frames objectAtIndex:j] bytes];
-            deviationTotal += (double) pow((double) pixels[i] - average, 2);
-        }
-
-        float tempSTD = (float) sqrt((double) deviationTotal / (numberOfFrames - 1));
-        standardDeviation += tempSTD;
+        standardDeviation += [stdDev floatValue];
     }
 
-    int numberOfPixelProcessed = imageSize / pixelSpacing;
-
-    return (float) standardDeviation / numberOfPixelProcessed;
+    return (float) standardDeviation / (imageSize / pixelSpacing);
 }
 
 - (NSData *) nsDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer
@@ -986,68 +984,68 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
 
 - (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(AVCaptureManualExposureBracketedStillImageSettings *)bracketSettings error:(NSError *)error
 {
-            if (photoSampleBuffer) {
+    if (photoSampleBuffer) {
+        NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:photoSampleBuffer];
 
-              NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:photoSampleBuffer];
+        // Create image source
+        CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
 
-              // Create image source
-              CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
+        //get all the metadata in the image
+        NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
 
-              //get all the metadata in the image
-              NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
+        // Resize to HDR working resolution
+        NSDictionary *options = @{
+            @"kCGImageSourceCreateThumbnailFromImageAlways": @YES,
+            @"kCGImageSourceThumbnailMaxPixelSize": @2108
+        };
+        // create cgimage
+        CGImageRef rotatedCGImage = CGImageSourceCreateThumbnailAtIndex(source, 0, (CFDictionaryRef)options);
 
-              // Resize to HDR working resolution
-              NSDictionary *options = @{
-                  @"kCGImageSourceCreateThumbnailFromImageAlways": @YES,
-                  @"kCGImageSourceThumbnailMaxPixelSize": @2108
-              };
-              // create cgimage
-              CGImageRef rotatedCGImage = CGImageSourceCreateThumbnailAtIndex(source, 0, (CFDictionaryRef)options);
+        // Erase stupid TIFF stuff
+        [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
 
-              // Erase stupid TIFF stuff
-              [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
-
-              // Create destination thing
-              NSMutableData *rotatedImageData = [NSMutableData data];
-              CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)rotatedImageData, CGImageSourceGetType(source), 1, NULL);
-              CFRelease(source);
-              // add the image to the destination, reattaching metadata
-              CGImageDestinationAddImage(destination, rotatedCGImage, (CFDictionaryRef) imageMetadata);
-              // And write
-              CGImageDestinationFinalize(destination);
-              CFRelease(destination);
+        // Create destination thing
+        NSMutableData *rotatedImageData = [NSMutableData data];
+        CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)rotatedImageData, CGImageSourceGetType(source), 1, NULL);
+        CFRelease(source);
+        // add the image to the destination, reattaching metadata
+        CGImageDestinationAddImage(destination, rotatedCGImage, (CFDictionaryRef) imageMetadata);
+        // And write
+        CGImageDestinationFinalize(destination);
+        CFRelease(destination);
 
 
-              NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-              NSString *documentsDirectory = [paths firstObject];
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsDirectory = [paths firstObject];
 
-              NSFileManager *fileManager = [NSFileManager defaultManager];
-              Float64 exposureDuration = CMTimeGetSeconds(bracketSettings.exposureDuration);
-              Float64 iso = bracketSettings.ISO;
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        Float64 exposureDuration = CMTimeGetSeconds(bracketSettings.exposureDuration);
+        Float64 iso = bracketSettings.ISO;
 
-              NSString *exposureString = [NSString stringWithFormat: @"%lf_%lf", iso, exposureDuration];
+        NSString *exposureString = [NSString stringWithFormat: @"%lf_%lf", iso, exposureDuration];
 
-              NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[exposureString stringByAppendingString:[[NSUUID UUID] UUIDString]]] stringByAppendingPathExtension:@"jpg"];
+        NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[exposureString stringByAppendingString:[[NSUUID UUID] UUIDString]]] stringByAppendingPathExtension:@"jpg"];
 
-              [fileManager createFileAtPath:fullPath contents:rotatedImageData attributes:nil];
+        [fileManager createFileAtPath:fullPath contents:rotatedImageData attributes:nil];
 
-              [self.sources addObject:fullPath];
-              NSLog(@"Path %@", fullPath);
-              NSLog(@"NB captures: %lu", (unsigned long)self.sources.count);
-              if (self.sources.count == self.exposures.count) {
-                if (self.captureResolve) {
-                  self.captureResolve(self.sources);
-                  self.captureResolve = nil;
-                }
-              }
-              CGImageRelease(rotatedCGImage);
+        [self.sources addObject:fullPath];
+        NSLog(@"Path %@", fullPath);
+        NSLog(@"NB captures: %lu", (unsigned long)self.sources.count);
+        
+        if (self.sources.count == self.exposures.count) {
+            if (self.captureResolve) {
+                self.captureResolve(self.sources);
+                self.captureResolve = nil;
             }
-            else {
-              if (self.captureReject) {
-                self.captureReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
-                self.captureReject = nil;
-              }
-            }
+        }
+        
+        CGImageRelease(rotatedCGImage);
+    } else {
+        if (self.captureReject) {
+        self.captureReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
+        self.captureReject = nil;
+        }
+    }
 }
 
 - (void)captureStill:(NSInteger)target options:(NSDictionary *)options orientation:(AVCaptureVideoOrientation)orientation resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
@@ -1496,7 +1494,9 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
           @"velocity": [NSNumber numberWithDouble:velocity]
         };
 
-        [self.bridge.eventDispatcher sendInputEventWithName:@"zoomChanged" body:event];
+        // [self.bridge.eventDispatcher sendInputEventWithName:@"zoomChanged" body:event];
+        [self.bridge enqueueJSCall:@"RCTEventEmitter" method:@"receiveEvent" args:@[event[@"target"], RCTNormalizeInputEventName(@"zoomChanged"), event] completion:NULL];
+
 
         device.videoZoomFactor = zoomFactor;
         [device unlockForConfiguration];
