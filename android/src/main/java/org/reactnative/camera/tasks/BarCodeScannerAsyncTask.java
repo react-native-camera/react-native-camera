@@ -42,7 +42,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     if (!mAcceptableRect) { Log.w("CAMERA_1::", mOutOfBoundErrorMessage); }
     Result result = null;
     boolean landscapeMode = mDataWidth > mDataHeight;
-    byte[] data = landscapeMode ? mImageData : rotateImage(mImageData, mDataWidth, mDataHeight);
+    byte[] data = landscapeMode ? mImageData : rotateImage(mImageData, mDataHeight, mDataWidth);
     PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(
       data,
       mDataWidth,
