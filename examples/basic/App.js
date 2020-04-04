@@ -318,16 +318,14 @@ export default class CameraScreen extends React.Component {
         </View>
         <View
           style={{
-            flex: 0.5,
-            height: 72,
             backgroundColor: 'transparent',
-            flexDirection: 'row',
             justifyContent: 'space-around',
+            alignItems: 'flex-start',
+            margin: 6,
           }}
         >
           <View
             style={{
-              backgroundColor: 'transparent',
               flexDirection: 'row',
               justifyContent: 'space-around',
             }}
@@ -344,7 +342,6 @@ export default class CameraScreen extends React.Component {
           </View>
           <View
             style={{
-              backgroundColor: 'transparent',
               flexDirection: 'row',
               justifyContent: 'space-around',
             }}
@@ -465,9 +462,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
   },
   flipButton: {
-    flex: 0.3,
     height: 40,
-    marginHorizontal: 2,
+    marginHorizontal: 5,
     marginBottom: 10,
     marginTop: 10,
     borderRadius: 8,
