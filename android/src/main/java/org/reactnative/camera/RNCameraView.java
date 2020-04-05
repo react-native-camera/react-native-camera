@@ -247,9 +247,11 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mBgHandler.post(new Runnable() {
       @Override
       public void run() {
+        final File path = options.hasKey("path") ?  new File(options.getString("path"))  : cacheDirectory;
+        
         mPictureTakenPromises.add(promise);
         mPictureTakenOptions.put(promise, options);
-        mPictureTakenDirectories.put(promise, cacheDirectory);
+        mPictureTakenDirectories.put(promise, path);
 
         try {
           RNCameraView.super.takePicture(options);

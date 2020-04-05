@@ -180,7 +180,14 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 if (!mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave")) {
 
                     // Prepare file output
-                    File imageFile = new File(RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg"));
+                    File imageFile;
+                    if(mCacheDirectory.isDirectory()){
+
+                        imageFile = new File(RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg"));
+                    }
+                    else{
+                        imageFile=mCacheDirectory;
+                    }
                     imageFile.createNewFile();
                     FileOutputStream fOut = new FileOutputStream(imageFile);
 
