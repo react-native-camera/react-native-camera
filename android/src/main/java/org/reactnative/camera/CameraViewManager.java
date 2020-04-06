@@ -201,8 +201,8 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setShouldRecognizeText(textRecognizerEnabled);
   }
 
-  @ReactProp(name = "rectOfInterest")
-  public void setRectOfInterest(RNCameraView view, ReadableMap coordinates) {
+  @ReactProp(name = "planarLuminanceSourceParams")
+  public void setPlanarLuminanceSourceParams(RNCameraView view, ReadableMap coordinates) {
     if(coordinates != null){
       int dataWidth = (int) coordinates.getInt("dataWidth");
       int dataHeight = (int) coordinates.getInt("dataHeight");
@@ -210,7 +210,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
       int top = (int) coordinates.getInt("top");
       int width = (int) coordinates.getInt("width");
       int height = (int) coordinates.getInt("height");
-      view.setRectOfInterest(dataWidth, dataHeight, left, top, width, height);
+      view.setPlanarYUVLuminanceSourceParams(dataWidth, dataHeight, left, top, width, height);
     }
   }
 }

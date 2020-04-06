@@ -355,7 +355,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     }
   }
 
-  public void setRectOfInterest(int dataWidth, int dataHeight, int left, int top, int width, int height) {
+  public void setPlanarYUVLuminanceSourceParams(int dataWidth, int dataHeight, int left, int top, int width, int height) {
     mWidth = dataWidth;
     mHeight = dataHeight;
     mRect = new Rect(left, top, left + width, top + height);
