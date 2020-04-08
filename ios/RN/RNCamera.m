@@ -915,7 +915,13 @@ BOOL _sessionInterrupted = NO;
 
                     NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
 
-                    NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+                    NSString *path = nil;
+                    if (options[@"path"]) {
+                        path = options[@"path"];
+                    }
+                    else{
+                        path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+                    }
 
                     if (![options[@"doNotSave"] boolValue]) {
                         response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
@@ -1129,7 +1135,7 @@ BOOL _sessionInterrupted = NO;
                     device.activeVideoMinFrameDuration = CMTimeMake(1, (int32_t)desiredFPS);
                     device.activeVideoMaxFrameDuration = CMTimeMake(1, (int32_t)desiredFPS);
                     [device unlockForConfiguration];
-                } 
+                }
             } else {
                 RCTLog(@"We could not find a suitable format for this device.");
             }

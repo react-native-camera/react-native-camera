@@ -336,9 +336,19 @@ RCT_REMAP_METHOD(takePicture,
             RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
         } else {
 #if TARGET_IPHONE_SIMULATOR
+
             NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
+
             float quality = [options[@"quality"] floatValue];
-            NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+
+            NSString *path = nil;
+
+            if (options[@"path"]) {
+                path = options[@"path"];
+            }
+            else{
+                path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+            }
             UIImage *generatedPhoto = [RNImageUtils generatePhotoOfSize:CGSizeMake(200, 200)];
             BOOL useFastMode = options[@"fastMode"] && [options[@"fastMode"] boolValue];
             if (useFastMode) {
