@@ -760,16 +760,23 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                             sound.play(MediaActionSound.SHUTTER_CLICK);
                         }
 
-                        if (options.hasKey("pauseAfterCapture") && !options.getBoolean("pauseAfterCapture")) {
-                            camera.startPreview();
-                            mIsPreviewActive = true;
-                            if (mIsScanning) {
-                                camera.setPreviewCallback(Camera1.this);
+                        // our camera might have been released
+                        // when this callback fires, so make sure we have
+                        // exclusive access when restoring its preview
+                        synchronized(Camera1.this){
+                            if(camera != null){
+                                if (options.hasKey("pauseAfterCapture") && !options.getBoolean("pauseAfterCapture")) {
+                                    camera.startPreview();
+                                    mIsPreviewActive = true;
+                                    if (mIsScanning) {
+                                        camera.setPreviewCallback(Camera1.this);
+                                    }
+                                } else {
+                                    camera.stopPreview();
+                                    mIsPreviewActive = false;
+                                    camera.setPreviewCallback(null);
+                                }
                             }
-                        } else {
-                            camera.stopPreview();
-                            mIsPreviewActive = false;
-                            camera.setPreviewCallback(null);
                         }
 
                         isPictureCaptureInProgress.set(false);
