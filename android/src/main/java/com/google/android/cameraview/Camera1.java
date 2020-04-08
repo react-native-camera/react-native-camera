@@ -764,17 +764,17 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                         // when this callback fires, so make sure we have
                         // exclusive access when restoring its preview
                         synchronized(Camera1.this){
-                            if(camera != null){
+                            if(mCamera != null){
                                 if (options.hasKey("pauseAfterCapture") && !options.getBoolean("pauseAfterCapture")) {
-                                    camera.startPreview();
+                                    mCamera.startPreview();
                                     mIsPreviewActive = true;
                                     if (mIsScanning) {
-                                        camera.setPreviewCallback(Camera1.this);
+                                        mCamera.setPreviewCallback(Camera1.this);
                                     }
                                 } else {
-                                    camera.stopPreview();
+                                    mCamera.stopPreview();
                                     mIsPreviewActive = false;
-                                    camera.setPreviewCallback(null);
+                                    mCamera.setPreviewCallback(null);
                                 }
                             }
                         }
