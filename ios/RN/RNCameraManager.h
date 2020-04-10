@@ -55,6 +55,11 @@ typedef NS_ENUM(NSInteger, RNCameraVideoResolution) {
     RNCameraVideo288p = 4,
 };
 
+typedef NS_ENUM(NSInteger, RNCameraImageType) {
+    RNCameraImageTypeJPEG = 0,
+    RNCameraImageTypePNG = 1,
+};
+
 @interface RNCameraManager : RCTViewManager <RCTBridgeModule>
 
 + (NSDictionary *)validBarCodeTypes;
