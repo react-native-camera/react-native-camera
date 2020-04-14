@@ -102,5 +102,3 @@ export const conversionTables = tester => {
     });
   });
 };
-
-export const tests = [constants, conversionTables];
