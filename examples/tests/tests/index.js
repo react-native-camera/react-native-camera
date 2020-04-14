@@ -1,0 +1,1 @@
+export {tests} from './tests';
