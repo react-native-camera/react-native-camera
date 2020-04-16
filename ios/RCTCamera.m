@@ -85,8 +85,28 @@
 - (void)layoutSubviews
 {
   [super layoutSubviews];
-  self.manager.previewLayer.frame = self.bounds;
-  [self setBackgroundColor:[UIColor colorWithRed:0.05490196f green:0.04705883f blue:0.04705883f alpha:1.0f]]; // RGB(14,12,12,1) -> #0E0C0C
+
+  // We always use a 4/3 preset
+  float aspectRatio = 4.0/3.0;
+
+  if (self.bounds.size.height >= self.bounds.size.width) { // Vertical
+    float height = self.bounds.size.width * aspectRatio;
+    float paddingTop = (self.bounds.size.height - height);
+    self.manager.previewLayer.frame = CGRectMake(0, paddingTop, self.bounds.size.width, height);
+  } else { // Horizontal
+    float width = self.bounds.size.height * aspectRatio;
+
+    if (self.manager.previewLayer.connection.videoOrientation == AVCaptureVideoOrientationLandscapeRight) {
+      self.manager.previewLayer.frame = CGRectMake(self.bounds.size.width - width, 0, width, self.bounds.size.height);
+    } else {
+      self.manager.previewLayer.frame = CGRectMake(0, 0, width, self.bounds.size.height);
+    }
+  }
+
+  // DEBUG colors
+  //  [self setBackgroundColor:UIColor.redColor];
+  //  self.manager.previewLayer.backgroundColor = UIColor.blueColor.CGColor;
+
   [self.layer insertSublayer:self.manager.previewLayer atIndex:0];
 }
 
