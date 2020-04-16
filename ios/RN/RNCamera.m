@@ -825,11 +825,12 @@ BOOL _sessionInterrupted = NO;
                     imageTypeIdentifier = kUTTypePNG;
                     imageExtension = @".png";
                 }
-                
+
                 // Get final JPEG image and set compression
+                NSString *qualityKey = (__bridge NSString *)kCGImageDestinationLossyCompressionQuality;
                 if (imageType == RNCameraImageTypeJPEG) {
                     float quality = [options[@"quality"] floatValue];
-                    [metadata setObject:@(quality) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
+                    [metadata setObject:@(quality) forKey:qualityKey];
                 }
 
 
@@ -917,8 +918,17 @@ BOOL _sessionInterrupted = NO;
                     }
 
                 }
+                
+                CFDictionaryRef finalMetaData = nil;
+                if (writeExif) {
+                    finalMetaData = (__bridge CFDictionaryRef)metadata;
+                } else if (metadata[qualityKey]) {
+                    // In order to apply the desired compression quality,
+                    // it is necessary to specify the kCGImageDestinationLossyCompressionQuality in the metadata.
+                    finalMetaData = (__bridge CFDictionaryRef)@{qualityKey: metadata[qualityKey]};
+                }
 
-                CGImageDestinationAddImage(destination, takenImage.CGImage, writeExif ? ((__bridge CFDictionaryRef) metadata) : nil);
+                CGImageDestinationAddImage(destination, takenImage.CGImage, finalMetaData);
 
 
                 // write final image data with metadata to our destination
