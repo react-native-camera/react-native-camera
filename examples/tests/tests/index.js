@@ -13,15 +13,15 @@ export const tests = [
   (tester, render) => {
     const {describe} = tester;
 
-    const renderCamera = (props = {}) => (element) =>
-      render(
-        React.cloneElement(element, {
+    const renderCamera = (props = {}) => element =>
+      render({
+        Component: React.cloneElement(element, {
           style: {height: 100, width: 100},
           ratio: '16:9',
           ...props,
         }),
-        'onCameraReady',
-      );
+        waitFor: 'onCameraReady',
+      });
 
     describe('imports', () => imports(tester, renderCamera()));
 
@@ -49,8 +49,8 @@ export const tests = [
     describe('type="back"', () => {
       const props = {type: 'back'};
 
-      photos(tester, renderCamera(props), render);
-      videos(tester, renderCamera(props), render);
+      photos(tester, renderCamera(props));
+      videos(tester, renderCamera(props));
     });
   },
 ];
