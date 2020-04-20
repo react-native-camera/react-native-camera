@@ -27,20 +27,6 @@
   BOOL _previousIdleTimerDisabled;
 }
 
-// - (void)setOrientation:(NSInteger)orientation
-// {
-//   [self.manager changeOrientation:orientation];
-
-//   if (orientation == RCTCameraOrientationAuto) {
-//     [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
-//     [[NSNotificationCenter defaultCenter] addObserver:self  selector:@selector(orientationChanged:)    name:UIDeviceOrientationDidChangeNotification  object:nil];
-//   }
-//   else {
-//     [[NSNotificationCenter defaultCenter]removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
-//     [self changePreviewOrientation:orientation];
-//   }
-// }
-
 - (void)setOnFocusChanged:(BOOL)enabled
 {
   if (_onFocusChanged != enabled) {
@@ -148,68 +134,65 @@
 
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    // Update the touch state.
-    if ([[event touchesForView:self] count] > 1) {
-        _multipleTouches = YES;
-    }
-
+  // Update the touch state.
+  if ([[event touchesForView:self] count] > 1) {
+    _multipleTouches = YES;
+  }
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (!_onFocusChanged) return;
+  if (!_onFocusChanged) return;
 
-    BOOL allTouchesEnded = ([touches count] == [[event touchesForView:self] count]);
+  BOOL allTouchesEnded = ([touches count] == [[event touchesForView:self] count]);
 
-    // Do not conflict with zooming and etc.
-    if (allTouchesEnded && !_multipleTouches) {
-        UITouch *touch = [[event allTouches] anyObject];
-        CGPoint touchPoint = [touch locationInView:touch.view];
-        // Focus camera on this point
-        [self.manager focusAtThePoint:touchPoint];
+  // Do not conflict with zooming and etc.
+  if (allTouchesEnded && !_multipleTouches) {
+    UITouch *touch = [[event allTouches] anyObject];
+    CGPoint touchPoint = [touch locationInView:touch.view];
+    // Focus camera on this point
+    [self.manager focusAtThePoint:touchPoint];
 
-        if (self.camFocus)
-        {
-            [self.camFocus removeFromSuperview];
-        }
-        NSDictionary *event = @{
-          @"target": self.reactTag,
-          @"touchPoint": @{
-            @"x": [NSNumber numberWithDouble:touchPoint.x],
-            @"y": [NSNumber numberWithDouble:touchPoint.y]
-          }
-        };
-
-        // [self.bridge.eventDispatcher sendInputEventWithName:@"focusChanged" body:event];
-        [self.bridge enqueueJSCall:@"RCTEventEmitter" method:@"receiveEvent" args:@[event[@"target"], RCTNormalizeInputEventName(@"focusChanged"), event] completion:NULL];
-
-        // Show animated rectangle on the touched area
-        if (_defaultOnFocusComponent) {
-            self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-40, touchPoint.y-40, 80, 80)];
-            [self.camFocus setBackgroundColor:[UIColor clearColor]];
-            [self addSubview:self.camFocus];
-            [self.camFocus setNeedsDisplay];
-
-            [UIView beginAnimations:nil context:NULL];
-            [UIView setAnimationDuration:1.0];
-            [self.camFocus setAlpha:0.0];
-            [UIView commitAnimations];
-        }
+    if (self.camFocus)
+    {
+      [self.camFocus removeFromSuperview];
     }
+    NSDictionary *event = @{
+      @"target": self.reactTag,
+      @"touchPoint": @{
+        @"x": [NSNumber numberWithDouble:touchPoint.x],
+        @"y": [NSNumber numberWithDouble:touchPoint.y]
+      }
+    };
 
-    if (allTouchesEnded) {
-        _multipleTouches = NO;
+    [self.bridge enqueueJSCall:@"RCTEventEmitter" method:@"receiveEvent" args:@[event[@"target"], RCTNormalizeInputEventName(@"focusChanged"), event] completion:NULL];
+
+    // Show animated rectangle on the touched area
+    if (_defaultOnFocusComponent) {
+      self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-40, touchPoint.y-40, 80, 80)];
+      [self.camFocus setBackgroundColor:[UIColor clearColor]];
+      [self addSubview:self.camFocus];
+      [self.camFocus setNeedsDisplay];
+
+      [UIView beginAnimations:nil context:NULL];
+      [UIView setAnimationDuration:1.0];
+      [self.camFocus setAlpha:0.0];
+      [UIView commitAnimations];
     }
+  }
 
+  if (allTouchesEnded) {
+    _multipleTouches = NO;
+  }
 }
 
 
 -(void) handlePinchToZoomRecognizer:(UIPinchGestureRecognizer*)pinchRecognizer {
-    if (!_onZoomChanged) return;
+  if (!_onZoomChanged) return;
 
-    if (pinchRecognizer.state == UIGestureRecognizerStateChanged) {
-        [self.manager zoom:pinchRecognizer.velocity reactTag:self.reactTag];
-    }
+  if (pinchRecognizer.state == UIGestureRecognizerStateChanged) {
+    [self.manager zoom:pinchRecognizer.velocity reactTag:self.reactTag];
+  }
 }
 
 @end
