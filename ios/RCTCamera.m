@@ -64,7 +64,6 @@
 
 - (id)initWithManager:(RCTCameraManager*)manager bridge:(RCTBridge *)bridge
 {
-  
   if ((self = [super init])) {
     self.manager = manager;
     self.bridge = bridge;
@@ -89,18 +88,15 @@
   // We always use a 4/3 preset
   float aspectRatio = 4.0/3.0;
 
-  if (self.bounds.size.height >= self.bounds.size.width) { // Vertical
+  if (self.manager.previewLayer.connection.videoOrientation == AVCaptureVideoOrientationLandscapeRight) {
+    float width = self.bounds.size.height * aspectRatio;
+    self.manager.previewLayer.frame = CGRectMake(self.bounds.size.width - width, 0, width, self.bounds.size.height);
+  } else if (self.manager.previewLayer.connection.videoOrientation == AVCaptureVideoOrientationLandscapeLeft) {
+    self.manager.previewLayer.frame = CGRectMake(0, 0, width, self.bounds.size.height);
+  } else {
     float height = self.bounds.size.width * aspectRatio;
     float paddingTop = (self.bounds.size.height - height);
     self.manager.previewLayer.frame = CGRectMake(0, paddingTop, self.bounds.size.width, height);
-  } else { // Horizontal
-    float width = self.bounds.size.height * aspectRatio;
-
-    if (self.manager.previewLayer.connection.videoOrientation == AVCaptureVideoOrientationLandscapeRight) {
-      self.manager.previewLayer.frame = CGRectMake(self.bounds.size.width - width, 0, width, self.bounds.size.height);
-    } else {
-      self.manager.previewLayer.frame = CGRectMake(0, 0, width, self.bounds.size.height);
-    }
   }
 
   // DEBUG colors
@@ -130,13 +126,23 @@
   [UIApplication sharedApplication].idleTimerDisabled = _previousIdleTimerDisabled;
 }
 
-// - (void)orientationChanged:(NSNotification *)notification{
-//   UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-//   [self changePreviewOrientation:orientation];
-// }
 - (void)orientationChanged:(NSNotification *)notification {
   if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
-    self.manager.previewLayer.connection.videoOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    UIDeviceOrientation currentOrientation = [UIDevice currentDevice].orientation;
+
+    if (currentOrientation == UIDeviceOrientationFaceUp || currentOrientation == UIDeviceOrientationFaceDown) {
+      return;
+    }
+
+    if (currentOrientation == UIDeviceOrientationLandscapeLeft) {
+      self.manager.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeRight;
+    } else if (currentOrientation == UIDeviceOrientationLandscapeRight) {
+      self.manager.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeLeft;
+    } else {
+      self.manager.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationPortrait;
+    }
+
+    [self setNeedsLayout];
   }
 }
 
@@ -205,14 +211,5 @@
         [self.manager zoom:pinchRecognizer.velocity reactTag:self.reactTag];
     }
 }
-
-// - (void)changePreviewOrientation:(NSInteger)orientation
-// {
-//     dispatch_async(self.manager.sessionQueue, ^{
-//         if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
-//             self.manager.previewLayer.connection.videoOrientation = orientation;
-//         }
-//     });
-// }
 
 @end
