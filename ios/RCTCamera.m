@@ -73,9 +73,9 @@
 
   // We always use a 4/3 preset
   float aspectRatio = 4.0/3.0;
+  float width = self.bounds.size.height * aspectRatio;
 
   if (self.manager.previewLayer.connection.videoOrientation == AVCaptureVideoOrientationLandscapeRight) {
-    float width = self.bounds.size.height * aspectRatio;
     self.manager.previewLayer.frame = CGRectMake(self.bounds.size.width - width, 0, width, self.bounds.size.height);
   } else if (self.manager.previewLayer.connection.videoOrientation == AVCaptureVideoOrientationLandscapeLeft) {
     self.manager.previewLayer.frame = CGRectMake(0, 0, width, self.bounds.size.height);
