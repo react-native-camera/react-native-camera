@@ -128,21 +128,6 @@ static void findRects(const cv::Mat &openCVImage, vector<vector<cv::Point> > &re
                 @"y": @(rects[0][3].y)}
     }];
 
-//    cimage = [self correctPerspectiveForImage:cimage withRect:@{
-//        @"topLeft": @{
-//                @"x": @(rects[0][3].x),
-//                @"y": @(image.size.height - rects[0][3].y)},
-//        @"topRight": @{
-//                @"x": @(rects[0][0].x),
-//                @"y": @(image.size.height - rects[0][0].y)},
-//        @"bottomRight": @{
-//                @"x": @(rects[0][1].x),
-//                @"y": @(image.size.height - rects[0][1].y)},
-//        @"bottomLeft": @{
-//                @"x": @(rects[0][2].x),
-//                @"y": @(image.size.height - rects[0][2].y)}
-//    }];
-
     UIGraphicsBeginImageContext(CGSizeMake(cimage.extent.size.height, cimage.extent.size.width));
     [[UIImage imageWithCIImage:cimage scale:1.0 orientation:UIImageOrientationRight] drawInRect:CGRectMake(0, 0, cimage.extent.size.height, cimage.extent.size.width)];
     image = UIGraphicsGetImageFromCurrentImageContext();
