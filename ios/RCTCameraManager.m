@@ -932,64 +932,56 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
         //get all the metadata in the image
         NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
         //NSMutableDictionary *imageMetadata = [photo.metadata mutableCopy];
+        if (imageMetadata) {
+            // Resize to HDR working resolution
+            NSDictionary *options = @{
+                @"kCGImageSourceCreateThumbnailFromImageAlways": @YES,
+                @"kCGImageSourceThumbnailMaxPixelSize": @2108
+            };
+            // create cgimage
+            //CGImageRef rotatedCGImage = CGImageSourceCreateThumbnailAtIndex(source, 0, (CFDictionaryRef)options);
+            CGImageRef rotatedCGImage = photo.CGImageRepresentation;
+            // Erase stupid TIFF stuff
+            [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
 
-        // Resize to HDR working resolution
-        NSDictionary *options = @{
-            @"kCGImageSourceCreateThumbnailFromImageAlways": @YES,
-            @"kCGImageSourceThumbnailMaxPixelSize": @2108
-        };
-        // create cgimage
-        //CGImageRef rotatedCGImage = CGImageSourceCreateThumbnailAtIndex(source, 0, (CFDictionaryRef)options);
-        CGImageRef rotatedCGImage = photo.CGImageRepresentation;
-        // Erase stupid TIFF stuff
-        [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
+            // Create destination thing
+            NSMutableData *rotatedImageData = [NSMutableData data];
+            CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)rotatedImageData, CGImageSourceGetType(source), 1, NULL);
+            CFRelease(source);
+            // add the image to the destination, reattaching metadata
+            CGImageDestinationAddImage(destination, rotatedCGImage, (CFDictionaryRef) imageMetadata);
+            // And write
+            CGImageDestinationFinalize(destination);
+            CFRelease(destination);
 
-        // Create destination thing
-        NSMutableData *rotatedImageData = [NSMutableData data];
-        CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)rotatedImageData, CGImageSourceGetType(source), 1, NULL);
-        CFRelease(source);
-        // add the image to the destination, reattaching metadata
-        CGImageDestinationAddImage(destination, rotatedCGImage, (CFDictionaryRef) imageMetadata);
-        // And write
-        CGImageDestinationFinalize(destination);
-        CFRelease(destination);
+            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+            NSString *documentsDirectory = [paths firstObject];
 
+            NSFileManager *fileManager = [NSFileManager defaultManager];
+            AVCaptureBracketedStillImageSettings *setting = photo.bracketSettings;
 
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentsDirectory = [paths firstObject];
+            long index = photo.photoCount - 1;
 
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        AVCaptureBracketedStillImageSettings *setting = photo.bracketSettings;
+            NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSString stringWithFormat:@"%ld_9", photo.photoCount] stringByAppendingString:[[NSUUID UUID] UUIDString]]] stringByAppendingPathExtension:@"jpg"];
 
-        long index = photo.photoCount - 1;
-        //Float64 exposureDuration = [[self.exposures objectAtIndex:index] floatValue];
-        //Float64 iso = [photo.resolvedSettings.expectedPhotoCount]
-
-
-//        Float64 exposureDuration = CMTimeGetSeconds(setting.expo);
-//        Float64 iso = bracketSettings.ISO;
-//
-//        NSString *exposureString = [NSString stringWithFormat: @"%lf_%lf", iso, exposureDuration];
-//
-        NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSString stringWithFormat:@"%ld_9", photo.photoCount] stringByAppendingString:[[NSUUID UUID] UUIDString]]] stringByAppendingPathExtension:@"jpg"];
-
-        [fileManager createFileAtPath:fullPath contents:rotatedImageData attributes:nil];
-        [self.sources insertObject:fullPath atIndex:index];
-        //[self.sources addObject:fullPath];
-        NSLog(@"Path %@", fullPath);
-        NSLog(@"NB captures: %lu", (unsigned long)self.sources.count);
-        if (self.sources.count == self.exposures.count) {
-            if (self.captureResolve) {
-                self.captureResolve(self.sources);
-                self.captureResolve = nil;
+            [fileManager createFileAtPath:fullPath contents:rotatedImageData attributes:nil];
+            [self.sources insertObject:fullPath atIndex:index];
+            NSLog(@"Path %@", fullPath);
+            NSLog(@"NB captures: %lu", (unsigned long)self.sources.count);
+            if (self.sources.count == self.exposures.count) {
+                if (self.captureResolve) {
+                    self.captureResolve(self.sources);
+                    self.captureResolve = nil;
+                }
             }
         }
-        //CGImageRelease(rotatedCGImage);
-    } else {
-      if (self.captureReject) {
+
+        return;
+    }
+
+    if (self.captureReject) {
         self.captureReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
         self.captureReject = nil;
-      }
     }
 }
 
