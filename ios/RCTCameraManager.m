@@ -569,6 +569,17 @@ RCT_EXPORT_METHOD(resetLowLightProcess:(RCTPromiseResolveBlock)resolve reject:(R
     resolve(@"OK");
 }
 
+RCT_EXPORT_METHOD(getPreviewPosition:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    NSDictionary *dimensions = @{
+        @"top": @(self.previewLayer.frame.origin.y),
+        @"left": @(self.previewLayer.frame.origin.x),
+        @"width": @(self.previewLayer.frame.size.width),
+        @"height": @(self.previewLayer.frame.size.height)
+    };
+
+    resolve(dimensions);
+}
+
 
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
