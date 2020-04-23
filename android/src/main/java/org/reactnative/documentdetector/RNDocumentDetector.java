@@ -52,7 +52,7 @@ public class RNDocumentDetector {
         if (quadrilateral == null) return null;
 
         // points need to be transformed for pixels to be used in RN
-        Point[] transformedPoints = transformPoints(quadrilateral.getPoints(), scaleX, scaleY, landscapeHeight);
+        Point[] transformedPoints = transformPoints(quadrilateral.getPoints(), scaleX, scaleY, landscapeWidth);
         return new Document(transformedPoints);
     }
 
@@ -93,18 +93,19 @@ public class RNDocumentDetector {
      * Rotates points as axis are swapped (image always in landscape)
      *
      * +----------+      +--------+
-     * |          |      | 0  1   |
-     * | 0  1     |  =>  | 3  2   |
-     * | 3  2     |      |        |
+     * |     0  1 |      | 1  2   |
+     * |     3  2 |  =>  | 0  3   |
+     * |          |      |        |
      * +----------+      |        |
      *                   +--------+
      */
-    private Point[] transformPoints(Point[] points, double scaleX, double scaleY, double landscapeHeight) {
+    private Point[] transformPoints(Point[] points, double scaleX, double scaleY, double landscapeWidth) {
         return new Point[]{
-                new Point((landscapeHeight - points[3].y) * scaleY, points[3].x * scaleX),// top left
-                new Point((landscapeHeight - points[0].y) * scaleY, points[0].x * scaleX),// top right
-                new Point((landscapeHeight - points[1].y) * scaleY, points[1].x * scaleX),// bottom right
-                new Point((landscapeHeight - points[2].y) * scaleY, points[2].x * scaleX)// bottom left
+                new Point(points[1].y * scaleY, (landscapeWidth - points[1].x) * scaleX),
+                new Point(points[2].y * scaleY, (landscapeWidth - points[2].x) * scaleX),
+                new Point(points[3].y * scaleY, (landscapeWidth - points[3].x) * scaleX),
+                new Point(points[0].y * scaleY, (landscapeWidth - points[0].x) * scaleX),
+
         };
     }
 
