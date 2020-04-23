@@ -10,7 +10,8 @@ Pod::Spec.new do |s|
   s.license        = package['license']
   s.author         = package['author']
   s.homepage       = package['homepage']
-  s.source         = { :git => 'https://github.com/react-native-community/react-native-camera', :tag => "v#{s.version}" }
+  #s.source         = { :git => 'https://github.com/react-native-community/react-native-camera', :tag => "v#{s.version}" }
+  s.source         = { :git => 'https://github.com/frenberg/react-native-camera', :branch => "feature/documentscanner" }
 
   s.requires_arc   = true
   s.platform       = :ios, '9.0'
@@ -20,7 +21,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec "RN" do |ss|
-    ss.source_files = "ios/RN/**/*.{h,m}"
+    ss.source_files = "ios/RN/**/*.{h,m,mm}"
   end
 
   s.subspec "TextDetector" do |ss|
@@ -42,6 +43,13 @@ Pod::Spec.new do |s|
     ss.dependency 'react-native-camera/RCT'
     ss.dependency 'Firebase/MLVision'
     ss.dependency 'Firebase/MLVisionBarcodeModel'
+  end
+
+  s.subspec "DocumentDetector" do |ss|
+    ss.dependency 'react-native-camera/RN'
+    ss.dependency 'react-native-camera/RCT'
+    ss.dependency 'OpenCV'
+    # ss.prefix_header_file = 'ios/PrefixHeader.pch'
   end
 
   s.default_subspecs = "RN", "RCT"

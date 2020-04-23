@@ -1,6 +1,7 @@
 # React Native Camera [![Backers on Open Collective](https://opencollective.com/react-native-camera/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-camera/sponsors/badge.svg)](#sponsors) [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![npm downloads](https://img.shields.io/npm/dm/react-native-camera.svg)](https://www.npmjs.com/package/react-native-camera)
 
 ## Docs
+
 Follow our docs here [https://react-native-community.github.io/react-native-camera/](https://react-native-community.github.io/react-native-camera/)
 
 ## Sponsors
@@ -107,7 +108,7 @@ We recommend using the releases from npm, however if you need some features that
 
 To use the camera,
 
-1) On Android you must ask for camera permission:
+1. On Android you must ask for camera permission:
 
 ```java
   <uses-permission android:name="android.permission.CAMERA" />
@@ -123,15 +124,16 @@ To enable `video recording` feature you have to add the following code to the `A
 
 ![5j2jduk](https://cloud.githubusercontent.com/assets/2302315/22190752/6bc6ccd0-e0da-11e6-8e2f-6f22a3567a57.gif)
 
-2) On iOS, you must update Info.plist with a usage description for camera
+2. On iOS, you must update Info.plist with a usage description for camera
 
 ```xml
 ...
 <key>NSCameraUsageDescription</key>
 <string>Your own description of the purpose</string>
 ...
-	
+
 ```
+
 For more information on installation, please refer to [installation requirements](./docs/installation.md#requirements).
 
 For general introduction, please take a look into this [RNCamera](./docs/RNCamera.md).

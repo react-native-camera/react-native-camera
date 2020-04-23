@@ -18,6 +18,7 @@
 @property (nonatomic, strong) id textDetector;
 @property (nonatomic, strong) id faceDetector;
 @property (nonatomic, strong) id barcodeDetector;
+@property (nonatomic, strong) id documentDetector;
 
 @property (nonatomic, copy) RCTDirectEventBlock onCameraReady;
 @property (nonatomic, copy) RCTDirectEventBlock onAudioInterrupted;
@@ -31,12 +32,15 @@
 @property (nonatomic, copy) RCTDirectEventBlock onPictureSaved;
 @property (nonatomic, copy) RCTDirectEventBlock onRecordingStart;
 @property (nonatomic, copy) RCTDirectEventBlock onRecordingEnd;
+@property (nonatomic, copy) RCTDirectEventBlock onDocumentDetected;
 @property (nonatomic, assign) BOOL finishedReadingText;
 @property (nonatomic, assign) BOOL finishedDetectingFace;
 @property (nonatomic, assign) BOOL finishedDetectingBarcodes;
+@property (nonatomic, assign) BOOL finishedDetectingDocument;
 @property (nonatomic, copy) NSDate *startText;
 @property (nonatomic, copy) NSDate *startFace;
 @property (nonatomic, copy) NSDate *startBarcode;
+@property (nonatomic, copy) NSDate *startDocument;
 
 @property (nonatomic, copy) RCTDirectEventBlock onSubjectAreaChanged;
 @property (nonatomic, assign) BOOL isFocusedOnPoint;
@@ -62,12 +66,15 @@ BOOL _sessionInterrupted = NO;
         self.textDetector = [self createTextDetector];
         self.faceDetector = [self createFaceDetectorMlKit];
         self.barcodeDetector = [self createBarcodeDetectorMlKit];
+        self.documentDetector = [self createDocumentDetector];
         self.finishedReadingText = true;
         self.finishedDetectingFace = true;
         self.finishedDetectingBarcodes = true;
+        self.finishedDetectingDocument = true;
         self.startText = [NSDate date];
         self.startFace = [NSDate date];
         self.startBarcode = [NSDate date];
+        self.startDocument = [NSDate date];
 #if !(TARGET_IPHONE_SIMULATOR)
         self.previewLayer =
         [AVCaptureVideoPreviewLayer layerWithSession:self.session];
@@ -436,11 +443,9 @@ BOOL _sessionInterrupted = NO;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-
-    if(device == nil){
+if(device == nil){
         return;
     }
-
     if (![device lockForConfiguration:&error]) {
         if (error) {
             RCTLogError(@"%s: %@", __func__, error);
@@ -453,10 +458,8 @@ BOOL _sessionInterrupted = NO;
         float xValue = [self.autoFocusPointOfInterest[@"x"] floatValue];
         float yValue = [self.autoFocusPointOfInterest[@"y"] floatValue];
 
-        CGPoint autofocusPoint = CGPointMake(xValue, yValue);
+        CGPoint autofocusPoint = CGPointMake(xValue, yValue);        if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
 
-
-        if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
 
             [device setFocusPointOfInterest:autofocusPoint];
             [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
@@ -657,11 +660,9 @@ BOOL _sessionInterrupted = NO;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-
-    if(device == nil){
+if(device == nil){
         return;
     }
-
     if (![device lockForConfiguration:&error]) {
         if (error) {
             RCTLogError(@"%s: %@", __func__, error);
@@ -774,21 +775,24 @@ BOOL _sessionInterrupted = NO;
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
                 UIImage *takenImage = [UIImage imageWithData:imageData];
 
-
-                // Adjust/crop image based on preview dimensions
-                // TODO: This seems needed because iOS does not allow
-                // for aspect ratio settings, so this is the best we can get
-                // to mimic android's behaviour.
-                CGImageRef takenCGImage = takenImage.CGImage;
-                CGSize previewSize;
-                if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
-                    previewSize = CGSizeMake(self.previewLayer.frame.size.height, self.previewLayer.frame.size.width);
+                if ([self canDetectDocument] && [self.documentDetector isRealDetector]) {
+                    takenImage = [self.documentDetector getDocument:takenImage];
                 } else {
-                    previewSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
+                    // Adjust/crop image based on preview dimensions
+                    // TODO: This seems needed because iOS does not allow
+                    // for aspect ratio settings, so this is the best we can get
+                    // to mimic android's behaviour.
+                    CGImageRef takenCGImage = takenImage.CGImage;
+                    CGSize previewSize;
+                    if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
+                        previewSize = CGSizeMake(self.previewLayer.frame.size.height, self.previewLayer.frame.size.width);
+                    } else {
+                        previewSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
+                    }
+                    CGRect cropRect = CGRectMake(0, 0, CGImageGetWidth(takenCGImage), CGImageGetHeight(takenCGImage));
+                    CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
+                    takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
                 }
-                CGRect cropRect = CGRectMake(0, 0, CGImageGetWidth(takenCGImage), CGImageGetHeight(takenCGImage));
-                CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
-                takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
 
                 // apply other image settings
                 bool resetOrientation = NO;
@@ -803,8 +807,7 @@ BOOL _sessionInterrupted = NO;
                     takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
                     resetOrientation = YES;
                 }
-
-                // get image metadata so we can re-add it later
+// get image metadata so we can re-add it later
                 // make it mutable since we need to adjust quality/compression
                 CFDictionaryRef metaDict = CMCopyDictionaryOfAttachments(NULL, imageSampleBuffer, kCMAttachmentMode_ShouldPropagate);
 
@@ -919,31 +922,31 @@ BOOL _sessionInterrupted = NO;
 
                     if (![options[@"doNotSave"] boolValue]) {
                         response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
-                    }
-                    response[@"width"] = @(takenImage.size.width);
-                    response[@"height"] = @(takenImage.size.height);
+                }
+                response[@"width"] = @(takenImage.size.width);
+                response[@"height"] = @(takenImage.size.height);
 
-                    if ([options[@"base64"] boolValue]) {
-                        response[@"base64"] = [destData base64EncodedStringWithOptions:0];
-                    }
+                if ([options[@"base64"] boolValue]) {
+                    response[@"base64"] = [destData base64EncodedStringWithOptions:0];
+                }
 
-                    if ([options[@"exif"] boolValue]) {
-                        response[@"exif"] = metadata;
+                if ([options[@"exif"] boolValue]) {
+                    response[@"exif"] = metadata;
 
                         // No longer needed since we always get the photo metadata now
                         //[RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
                     }
 
-                    response[@"pictureOrientation"] = @([self.orientation integerValue]);
-                    response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
-                    self.orientation = nil;
-                    self.deviceOrientation = nil;
 
-                    if (useFastMode) {
-                        [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
-                    } else {
-                        resolve(response);
-                    }
+                response[@"pictureOrientation"] = @([self.orientation integerValue]);
+                response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
+                self.orientation = nil;
+                self.deviceOrientation = nil;
+
+                if (useFastMode) {
+                    [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
+                } else {
+                    resolve(response);}
                 }
                 else{
                     reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be saved", error);
@@ -1079,7 +1082,6 @@ BOOL _sessionInterrupted = NO;
         AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
          audioConnection.enabled = NO;
     }
-
     dispatch_async(self.sessionQueue, ^{
 
         // session preset might affect this, so we run this code
@@ -1129,7 +1131,7 @@ BOOL _sessionInterrupted = NO;
                     device.activeVideoMinFrameDuration = CMTimeMake(1, (int32_t)desiredFPS);
                     device.activeVideoMaxFrameDuration = CMTimeMake(1, (int32_t)desiredFPS);
                     [device unlockForConfiguration];
-                } 
+                }
             } else {
                 RCTLog(@"We could not find a suitable format for this device.");
             }
@@ -1288,10 +1290,9 @@ BOOL _sessionInterrupted = NO;
         // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
         // to avoid an exposure rack on some devices that can cause the first few
         // frames of the recorded output to be underexposed.
-        if (![self.faceDetector isRealDetector] && ![self.textDetector isRealDetector] && ![self.barcodeDetector isRealDetector]) {
+        if (![self.faceDetector isRealDetector] && ![self.textDetector isRealDetector] && ![self.barcodeDetector isRealDetector] && ![self.documentDetector isRealDetector]) {
             [self setupMovieFileCapture];
         }
-        [self setupOrDisableBarcodeScanner];
 
         _sessionInterrupted = NO;
         [self.session startRunning];
@@ -1907,6 +1908,10 @@ BOOL _sessionInterrupted = NO;
         [self setupOrDisableBarcodeDetector];
     }
 
+    if ([self.documentDetector isRealDetector]) {
+        [self setupOrDisableDocumentDetector];
+    }
+
     // reset preset to current default
     AVCaptureSessionPreset preset = [self getDefaultPreset];
     if (self.session.sessionPreset != preset) {
@@ -2130,13 +2135,61 @@ BOOL _sessionInterrupted = NO;
     self.videoDataOutput = nil;
 }
 
+# pragma mark - DocumentDetector
+- (id) createDocumentDetector
+{
+    Class documentScannerClass = NSClassFromString(@"RNDocumentScanner");
+    return [[documentScannerClass alloc] init];
+}
+
+- (void)setupOrDisableDocumentDetector
+{
+    if ([self canDetectDocument] && [self.documentDetector isRealDetector]) {
+        if (!self.videoDataOutput) {
+            self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+            if (![self.session canAddOutput:_videoDataOutput]) {
+                NSLog(@"Failed to setup video data output");
+                [self stopDocumentDetector];
+                return;
+            }
+            NSDictionary *rgbOutputSettings = [NSDictionary
+                                               dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
+                                               forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+            [self.videoDataOutput setVideoSettings:rgbOutputSettings];
+            [self.videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
+            [self.videoDataOutput setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey:@(kCVPixelFormatType_32BGRA)}];
+            [self.videoDataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
+            [self.session addOutput:_videoDataOutput];
+        }
+    } else {
+        [self stopDocumentDetector];
+    }
+
+}
+
+- (void)stopDocumentDetector
+{
+    if (self.videoDataOutput && !self.canDetectDocument) {
+        [self.session removeOutput:self.videoDataOutput];
+    }
+    self.videoDataOutput = nil;
+}
+
+- (void)onDocumentDetected:(NSDictionary *)event
+{
+    if (_onDocumentDetected && _session) {
+        _onDocumentDetected(event);
+    }
+}
+
+
 # pragma mark - mlkit
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
            fromConnection:(AVCaptureConnection *)connection
 {
-    if (![self.textDetector isRealDetector] && ![self.faceDetector isRealDetector] && ![self.barcodeDetector isRealDetector]) {
+    if (![self.textDetector isRealDetector] && ![self.faceDetector isRealDetector] && ![self.barcodeDetector isRealDetector] && ![self.documentDetector isRealDetector]) {
         NSLog(@"failing real check");
         return;
     }
@@ -2149,10 +2202,13 @@ BOOL _sessionInterrupted = NO;
     NSTimeInterval timePassedSinceSubmittingForText = [methodFinish timeIntervalSinceDate:self.startText];
     NSTimeInterval timePassedSinceSubmittingForFace = [methodFinish timeIntervalSinceDate:self.startFace];
     NSTimeInterval timePassedSinceSubmittingForBarcode = [methodFinish timeIntervalSinceDate:self.startBarcode];
+    NSTimeInterval timePassedSinceSubmittingForDocument = [methodFinish timeIntervalSinceDate:self.startDocument];
     BOOL canSubmitForTextDetection = timePassedSinceSubmittingForText > 0.5 && _finishedReadingText && self.canReadText && [self.textDetector isRealDetector];
     BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
     BOOL canSubmitForBarcodeDetection = timePassedSinceSubmittingForBarcode > 0.5 && _finishedDetectingBarcodes && self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
-    if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection) {
+    BOOL canSubmitForDocumentDetection = timePassedSinceSubmittingForDocument > 0.3 && _finishedDetectingDocument && self.canDetectDocument && [self.documentDetector isRealDetector];
+
+    if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection || canSubmitForDocumentDetection) {
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
         NSInteger position = self.videoCaptureDeviceInput.device.position;
         UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize position:position];
@@ -2188,6 +2244,21 @@ BOOL _sessionInterrupted = NO;
                 NSDictionary *eventBarcode = @{@"type" : @"barcode", @"barcodes" : barcodes};
                 [self onBarcodesDetected:eventBarcode];
                 self.finishedDetectingBarcodes = true;
+            }];
+        }
+        // find document
+        if (canSubmitForDocumentDetection) {
+            _finishedDetectingDocument = false;
+            self.startDocument = [NSDate date];
+            [self.documentDetector findDocumentInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSDictionary *document) {
+                NSDictionary *eventDocument;
+                if (document ==  nil) {
+                    eventDocument = @{@"type": @"document", @"document": [NSNull null]};
+                } else {
+                    eventDocument = @{@"type": @"document", @"document": document};
+                }
+                [self onDocumentDetected:eventDocument];
+                self.finishedDetectingDocument = true;
             }];
         }
     }

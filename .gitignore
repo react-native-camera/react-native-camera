@@ -22,6 +22,9 @@ DerivedData
 *.xcuserstate
 project.xcworkspace
 
+# CocoaPods
+Pods/
+
 # Android/IJ
 #
 *.iml

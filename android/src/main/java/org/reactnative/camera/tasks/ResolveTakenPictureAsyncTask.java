@@ -9,14 +9,21 @@ import android.os.AsyncTask;
 import androidx.exifinterface.media.ExifInterface;
 import android.util.Base64;
 
-import org.reactnative.camera.RNCameraViewHelper;
-import org.reactnative.camera.utils.RNFileUtils;
-
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableType;
 import com.facebook.react.bridge.WritableMap;
+
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.imgproc.Imgproc;
+import org.reactnative.camera.RNCameraViewHelper;
+import org.reactnative.camera.utils.RNFileUtils;
+import org.reactnative.documentdetector.Document;
+import org.reactnative.documentdetector.RNDocumentDetector;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,6 +33,7 @@ import java.io.IOException;
 
 public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, WritableMap> {
     private static final String ERROR_TAG = "E_TAKING_PICTURE_FAILED";
+    private final RNDocumentDetector mDocumentDetector;
     private Promise mPromise;
     private Bitmap mBitmap;
     private byte[] mImageData;
@@ -34,13 +42,14 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private int mDeviceOrientation;
     private PictureSavedDelegate mPictureSavedDelegate;
 
-    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate) {
+    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate, RNDocumentDetector documentDetector) {
         mPromise = promise;
         mOptions = options;
         mImageData = imageData;
         mCacheDirectory = cacheDirectory;
         mDeviceOrientation = deviceOrientation;
         mPictureSavedDelegate = delegate;
+        mDocumentDetector = documentDetector;
     }
 
     private int getQuality() {
@@ -81,6 +90,20 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
             inputStream = new ByteArrayInputStream(mImageData);
 
 
+            // If we use document detection feature the detector was passed to this constructor
+            if (mDocumentDetector != null) {
+                loadBitmap();
+                Document document = mDocumentDetector.detectCaptured(mImageData, mBitmap.getWidth(), mBitmap.getHeight());
+                if (document != null) {
+                    mBitmap = cropBitmapWithPerspectiveCorrection(mBitmap, document);
+                    // replace the byte array with the data from the cropped bitmap
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), outputStream);
+                    mImageData = outputStream.toByteArray();
+                }
+            }
+
+            WritableMap fileExifData = null;
             // Rotate the bitmap to the proper orientation if requested
             if(mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation")){
 
@@ -271,6 +294,51 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         }
 
         return null;
+    }
+
+    private Bitmap cropBitmapWithPerspectiveCorrection(Bitmap source, Document document) throws IllegalArgumentException {
+        if (document == null) return source;
+
+        Mat src = new Mat();
+        Utils.bitmapToMat(source, src);
+        Point tl = document.getTopLeft();
+        Point tr = document.getTopRight();
+        Point bl = document.getBottomLeft();
+        Point br = document.getBottomRight();
+
+        boolean ratioAlreadyApplied = tr.x * (src.size().width / 500) < src.size().width;
+        double ratio = ratioAlreadyApplied ? src.size().width / 500 : 1;
+
+        double widthA = Math.sqrt(Math.pow(br.x - bl.x, 2) + Math.pow(br.y - bl.y, 2));
+        double widthB = Math.sqrt(Math.pow(tr.x - tl.x, 2) + Math.pow(tr.y - tl.y, 2));
+
+        double dw = Math.max(widthA, widthB) * ratio;
+        int maxWidth = Double.valueOf(dw).intValue();
+
+        double heightA = Math.sqrt(Math.pow(tr.x - br.x, 2) + Math.pow(tr.y - br.y, 2));
+        double heightB = Math.sqrt(Math.pow(tl.x - bl.x, 2) + Math.pow(tl.y - bl.y, 2));
+
+        double dh = Math.max(heightA, heightB) * ratio;
+        int maxHeight = Double.valueOf(dh).intValue();
+
+        Mat doc = new Mat(maxHeight, maxWidth, CvType.CV_8UC4);
+
+        Mat src_mat = new Mat(4, 1, CvType.CV_32FC2);
+        Mat dst_mat = new Mat(4, 1, CvType.CV_32FC2);
+
+        src_mat.put(0, 0, tl.x * ratio, tl.y * ratio, tr.x * ratio, tr.y * ratio, br.x * ratio, br.y * ratio, bl.x * ratio,
+                bl.y * ratio);
+        dst_mat.put(0, 0, 0.0, 0.0, dw, 0.0, dw, dh, 0.0, dh);
+
+        Mat m = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
+
+        Imgproc.warpPerspective(src, doc, m, doc.size());
+
+        Bitmap bitmap = Bitmap.createBitmap(doc.cols(), doc.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(doc, bitmap);
+
+        m.release();
+        return bitmap;
     }
 
     private Bitmap rotateBitmap(Bitmap source, int angle) {

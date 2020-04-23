@@ -26,6 +26,7 @@ RCT_EXPORT_VIEW_PROPERTY(onRecordingEnd, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onTextRecognized, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onSubjectAreaChanged, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
+RCT_EXPORT_VIEW_PROPERTY(onDocumentDetected, RCTDirectEventBlock);
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -85,7 +86,7 @@ RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"onCameraReady", @"onAudioInterrupted", @"onAudioConnected", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureTaken", @"onPictureSaved", @"onRecordingStart", @"onRecordingEnd", @"onTextRecognized", @"onGoogleVisionBarcodesDetected", @"onSubjectAreaChanged"];
+    return @[@"onCameraReady", @"onAudioInterrupted", @"onAudioConnected", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureTaken", @"onPictureSaved", @"onRecordingStart", @"onRecordingEnd", @"onTextRecognized", @"onGoogleVisionBarcodesDetected", @"onSubjectAreaChanged", @"onDocumentDetected"];
 }
 
 + (NSDictionary *)validCodecTypes
@@ -311,6 +312,13 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RNCamera)
 RCT_CUSTOM_VIEW_PROPERTY(keepAudioSession, BOOL, RNCamera)
 {
     [view setKeepAudioSession:[RCTConvert BOOL:json]];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(documentScannerEnabled, BOOL, RNCamera)
+{
+
+    view.canDetectDocument = [RCTConvert BOOL:json];
+    [view setupOrDisableDocumentDetector];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(rectOfInterest, CGRect, RNCamera)

@@ -276,6 +276,15 @@ type PropsType = typeof View.props & {
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
+  onDocumentDetected?: ({
+    document: {
+      tl: { x: number, y: number },
+      tr: { x: number, y: number },
+      br: { x: number, y: number },
+      bl: { x: number, y: number },
+    },
+  }) => void,
+  documentScannerEnabled?: boolean,
   captureAudio?: boolean,
   keepAudioSession?: boolean,
   useCamera2Api?: boolean,
@@ -815,6 +824,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
             onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
             onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
             onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
+            onDocumentDetected={this._onObjectDetected(this.props.onDocumentDetected)}
             onPictureSaved={this._onPictureSaved}
             onSubjectAreaChanged={this._onSubjectAreaChanged}
           />
@@ -888,5 +898,6 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     onSubjectAreaChanged: true,
     renderToHardwareTextureAndroid: true,
     testID: true,
+    documentScannerEnabled: true,
   },
 });

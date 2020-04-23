@@ -8,7 +8,7 @@ React-navigation does not unmount components when switching between tabs. So whe
 
 ```jsx
 
-import { withNavigationFocus } from 'react-navigation' 
+import { withNavigationFocus } from 'react-navigation'
 
  render() {
     const { isFocused } = this.props

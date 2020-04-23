@@ -323,6 +323,14 @@ public class RNCameraViewHelper {
     });
   }
 
+  // Document detection event
+
+  public static void emitDocumentDetectedEvent(ViewGroup view, WritableMap data) {
+    DocumentDetectedEvent event = DocumentDetectedEvent.obtain(view.getId(), data);
+    ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  }
+
   // Utilities
 
   public static int getCorrectCameraRotation(int rotation, int facing, int cameraOrientation) {

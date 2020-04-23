@@ -1,0 +1,122 @@
+PODS:
+  - boost-for-react-native (1.63.0)
+  - DoubleConversion (1.1.6)
+  - Folly (2018.10.22.00):
+    - boost-for-react-native
+    - DoubleConversion
+    - glog
+  - glog (0.3.5)
+  - OpenCV (4.1.0)
+  - React (0.59.10):
+    - React/Core (= 0.59.10)
+  - react-native-camera/DocumentDetector (3.19.1):
+    - OpenCV
+    - React
+    - react-native-camera/RCT
+    - react-native-camera/RN
+  - react-native-camera/RCT (3.19.1):
+    - React
+  - react-native-camera/RN (3.19.1):
+    - React
+  - React/Core (0.59.10):
+    - yoga (= 0.59.10.React)
+  - React/CxxBridge (0.59.10):
+    - Folly (= 2018.10.22.00)
+    - React/Core
+    - React/cxxreact
+    - React/jsiexecutor
+  - React/cxxreact (0.59.10):
+    - boost-for-react-native (= 1.63.0)
+    - DoubleConversion
+    - Folly (= 2018.10.22.00)
+    - glog
+    - React/jsinspector
+  - React/DevSupport (0.59.10):
+    - React/Core
+    - React/RCTWebSocket
+  - React/fishhook (0.59.10)
+  - React/jsi (0.59.10):
+    - DoubleConversion
+    - Folly (= 2018.10.22.00)
+    - glog
+  - React/jsiexecutor (0.59.10):
+    - DoubleConversion
+    - Folly (= 2018.10.22.00)
+    - glog
+    - React/cxxreact
+    - React/jsi
+  - React/jsinspector (0.59.10)
+  - React/RCTAnimation (0.59.10):
+    - React/Core
+  - React/RCTBlob (0.59.10):
+    - React/Core
+  - React/RCTCameraRoll (0.59.10):
+    - React/Core
+    - React/RCTImage
+  - React/RCTImage (0.59.10):
+    - React/Core
+    - React/RCTNetwork
+  - React/RCTNetwork (0.59.10):
+    - React/Core
+  - React/RCTText (0.59.10):
+    - React/Core
+  - React/RCTWebSocket (0.59.10):
+    - React/Core
+    - React/fishhook
+    - React/RCTBlob
+  - RNSVG (12.0.3):
+    - React
+  - yoga (0.59.10.React)
+
+DEPENDENCIES:
+  - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
+  - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
+  - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - react-native-camera/DocumentDetector (from `../../../`)
+  - React/Core (from `../node_modules/react-native`)
+  - React/CxxBridge (from `../node_modules/react-native`)
+  - React/DevSupport (from `../node_modules/react-native`)
+  - React/RCTAnimation (from `../node_modules/react-native`)
+  - React/RCTCameraRoll (from `../node_modules/react-native`)
+  - React/RCTImage (from `../node_modules/react-native`)
+  - React/RCTNetwork (from `../node_modules/react-native`)
+  - React/RCTText (from `../node_modules/react-native`)
+  - React/RCTWebSocket (from `../node_modules/react-native`)
+  - RNSVG (from `../node_modules/react-native-svg`)
+  - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - boost-for-react-native
+    - OpenCV
+
+EXTERNAL SOURCES:
+  DoubleConversion:
+    :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
+  Folly:
+    :podspec: "../node_modules/react-native/third-party-podspecs/Folly.podspec"
+  glog:
+    :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
+  React:
+    :path: "../node_modules/react-native"
+  react-native-camera:
+    :path: "../../../"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
+  yoga:
+    :path: "../node_modules/react-native/ReactCommon/yoga"
+
+SPEC CHECKSUMS:
+  boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
+  DoubleConversion: bb338842f62ab1d708ceb63ec3d999f0f3d98ecd
+  Folly: de497beb10f102453a1afa9edbf8cf8a251890de
+  glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
+  OpenCV: 52cd4d72ff29e2be83421477aec5447320b7fb19
+  React: 36d0768f9e93be2473b37e7fa64f92c1d5341eef
+  react-native-camera: 97925db4388c7282b8307ad6baf35ad4713960f1
+  RNSVG: 7e16ddfc6e00d5aa69c9eb83e699bcce5dcb85d4
+  yoga: 684513b14b03201579ba3cee20218c9d1298b0cc
+
+PODFILE CHECKSUM: 0049f59e282c7b3909912e1aca012b8c9f0ff71c
+
+COCOAPODS: 1.6.0

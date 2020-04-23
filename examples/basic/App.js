@@ -11,6 +11,48 @@ import {
 } from 'react-native';
 // eslint-disable-next-line import/no-unresolved
 import { RNCamera } from 'react-native-camera';
+import Svg, { Polygon } from 'react-native-svg';
+
+/**
+ * translate image coords to view coords
+ */
+const translate = document => {
+  const { tl, tr, br, bl } = document;
+  const { width, height } = Dimensions.get('window');
+  const imgWidth = 0.75 * height; // images are 4:3, or handle odd devices
+  const factor = imgWidth / width;
+  const deltaX = (imgWidth - width) / 2;
+
+  tl.x = tl.x * factor - deltaX;
+  tr.x = tr.x * factor - deltaX;
+  br.x = br.x * factor - deltaX;
+  bl.x = bl.x * factor - deltaX;
+
+  return { tl, tr, br, bl };
+};
+
+const DocumentOverlay = ({ document }) => {
+  if (!document) return null;
+  const { tl, tr, br, bl } = translate(document);
+
+  return (
+    <Svg
+      style={{
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+      }}
+      pointerEvents="none"
+    >
+      <Polygon
+        points={`${tl.x},${tl.y} ${tr.x},${tr.y} ${br.x},${br.y} ${bl.x},${bl.y}`}
+        fill="rgba(102, 153, 51, .3)"
+        stroke="rgba(102, 153, 51, .9)"
+        strokeWidth={7}
+      />
+    </Svg>
+  );
+};
 
 const flashModeOrder = {
   off: 'on',
@@ -55,6 +97,7 @@ export default class CameraScreen extends React.Component {
     canDetectFaces: false,
     canDetectText: false,
     canDetectBarcode: false,
+    canDetectDocument: false,
     faces: [],
     textBlocks: [],
     barcodes: [],
@@ -248,6 +291,14 @@ export default class CameraScreen extends React.Component {
 
   barcodeRecognized = ({ barcodes }) => this.setState({ barcodes });
 
+  documentDetected = ({ document }) => this.setState({ document }, () => console.log(document));
+
+  renderDocument = () => (
+    <View style={styles.facesContainer} pointerEvents="none">
+      <DocumentOverlay document={this.state.document} />
+    </View>
+  );
+
   renderBarcodes = () => (
     <View style={styles.facesContainer} pointerEvents="none">
       {this.state.barcodes.map(this.renderBarcode)}
@@ -272,7 +323,7 @@ export default class CameraScreen extends React.Component {
   );
 
   renderCamera() {
-    const { canDetectFaces, canDetectText, canDetectBarcode } = this.state;
+    const { canDetectFaces, canDetectText, canDetectBarcode, canDetectDocument } = this.state;
 
     const drawFocusRingPosition = {
       top: this.state.autoFocusPoint.drawRectPosition.y - 32,
@@ -309,6 +360,8 @@ export default class CameraScreen extends React.Component {
         onFacesDetected={canDetectFaces ? this.facesDetected : null}
         onTextRecognized={canDetectText ? this.textRecognized : null}
         onGoogleVisionBarcodesDetected={canDetectBarcode ? this.barcodeRecognized : null}
+        onDocumentDetected={this.documentDetected}
+        documentScannerEnabled={canDetectDocument}
       >
         <View style={StyleSheet.absoluteFill}>
           <View style={[styles.autoFocusBox, drawFocusRingPosition]} />
@@ -316,22 +369,8 @@ export default class CameraScreen extends React.Component {
             <View style={{ flex: 1 }} />
           </TouchableWithoutFeedback>
         </View>
-        <View
-          style={{
-            flex: 0.5,
-            height: 72,
-            backgroundColor: 'transparent',
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: 'transparent',
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-            }}
-          >
+        <View>
+          <View style={styles.flipButtonRow}>
             <TouchableOpacity style={styles.flipButton} onPress={this.toggleFacing.bind(this)}>
               <Text style={styles.flipText}> FLIP </Text>
             </TouchableOpacity>
@@ -342,13 +381,7 @@ export default class CameraScreen extends React.Component {
               <Text style={styles.flipText}> WB: {this.state.whiteBalance} </Text>
             </TouchableOpacity>
           </View>
-          <View
-            style={{
-              backgroundColor: 'transparent',
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-            }}
-          >
+          <View style={styles.flipButtonRow}>
             <TouchableOpacity onPress={this.toggle('canDetectFaces')} style={styles.flipButton}>
               <Text style={styles.flipText}>
                 {!canDetectFaces ? 'Detect Faces' : 'Detecting Faces'}
@@ -362,6 +395,13 @@ export default class CameraScreen extends React.Component {
             <TouchableOpacity onPress={this.toggle('canDetectBarcode')} style={styles.flipButton}>
               <Text style={styles.flipText}>
                 {!canDetectBarcode ? 'Detect Barcode' : 'Detecting Barcode'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.flipButtonRow}>
+            <TouchableOpacity onPress={this.toggle('canDetectDocument')} style={styles.flipButton}>
+              <Text style={styles.flipText}>
+                {!canDetectDocument ? 'Detect Document' : 'Detecting Document'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -449,6 +489,7 @@ export default class CameraScreen extends React.Component {
         {!!canDetectFaces && this.renderLandmarks()}
         {!!canDetectText && this.renderTextBlocks()}
         {!!canDetectBarcode && this.renderBarcodes()}
+        {!!canDetectDocument && this.renderDocument()}
       </RNCamera>
     );
   }
@@ -464,8 +505,13 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     backgroundColor: '#000',
   },
+  flipButtonRow: {
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
   flipButton: {
-    flex: 0.3,
+    flex: 1,
     height: 40,
     marginHorizontal: 2,
     marginBottom: 10,

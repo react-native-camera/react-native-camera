@@ -1,0 +1,63 @@
+platform :ios, '10.3'
+
+target 'opencv' do
+  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+  # use_frameworks!
+
+  # Pods for opencv
+  pod 'React', :path => '../node_modules/react-native', :subspecs => [
+    'Core',
+    'CxxBridge', # Include this for RN >= 0.47
+    'DevSupport', # Include this to enable In-App Devmenu if RN >= 0.43
+    'RCTText',
+    'RCTNetwork',
+    'RCTWebSocket', # Needed for debugging
+    'RCTAnimation', # Needed for FlatList and animations running on native UI thread
+    'RCTImage', # Needed for RNSVG
+    'RCTCameraRoll' # Needed to save images
+    # Add any other subspecs you want to use in your project
+  ]
+  # Explicitly include Yoga if you are using RN >= 0.42.0
+  pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
+
+  # Third party deps podspec link
+  pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
+  pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
+  pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
+
+  pod 'react-native-camera', :path => '../../../', :subspecs => [
+    'DocumentDetector'
+  ]
+
+  pod 'RNSVG', :path => '../node_modules/react-native-svg'
+
+end
+
+
+post_install do |installer|
+  HEADER_PREFIX = %{#ifndef PrefixHeader_pch
+  #define PrefixHeader_pch
+
+  #ifdef __cplusplus
+  #include "opencv2/opencv.hpp"
+  // include other opencv2 headers if needed.
+  #endif
+
+  #endif /* PrefixHeader_pch */
+  }
+
+  installer.pods_project.targets.each do |target|
+    if target.name == 'react-native-camera'
+      config = target.build_configurations[0]
+      prefix_header_file = "Pods/#{config.build_settings['GCC_PREFIX_HEADER']}"
+      tmp_file = "temp.pch"
+      File.open(tmp_file, 'w') do |fo|
+        fo.puts HEADER_PREFIX
+        File.foreach(prefix_header_file) do |li|
+          fo.puts li
+        end
+      end
+      File.rename(tmp_file, prefix_header_file)
+    end
+  end
+end

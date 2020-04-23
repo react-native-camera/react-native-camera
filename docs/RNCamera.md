@@ -51,7 +51,7 @@ class ExampleApp extends PureComponent {
     );
   }
 
-  takePicture = async() => {
+  takePicture = async () => {
     if (this.camera) {
       const options = { quality: 0.5, base64: true };
       const data = await this.camera.takePictureAsync(options);
@@ -217,8 +217,8 @@ On iOS, focusing will not change the exposure automatically unless autoExposure 
 Hint:
 for portrait orientation, apply 90° clockwise rotation + translation: [Example](https://gist.github.com/Craigtut/6632a9ac7cfff55e74fb561862bc4edb)
 
-
 ### iOS `onSubjectAreaChanged`
+
 iOS only.
 
 if autoFocusPointOfInterest is set, this event will be fired when a substancial change is detected with the following object: `{ nativeEvent: { prevPoint: { x: number; y: number; } } }`
@@ -392,7 +392,6 @@ iOS only. Function to be called when the camera audio session is interrupted or 
 
 iOS only. Function to be called when the camera audio session is connected. This will be fired the first time the camera is mounted with `captureAudio={true}`, and any time the audio device connection is established. Note that this event might not always fire after an interruption due to iOS' behavior. For example, if the audio was already interrupted before the camera was mounted, this event will only fire once a recording is attempted.
 
-
 ### `onPictureTaken`
 
 Function to be called when native code emit onPictureTaken event, when camera has taken a picture, but before all extra processing happens. This can be useful to allow the UI to take other pictures while the processing of the current picture is still taking place.
@@ -409,7 +408,6 @@ Event will contain the following fields:
 ### `onRecordingEnd`
 
 Function to be called when native code stops recording video, but before all video processing takes place. This event will only fire after a successful video recording, and it will not fire if video recording fails (use the error returned from `recordAsync` instead).
-
 
 ### Bar Code Related props
 
@@ -486,6 +484,7 @@ Like `onBarCodeRead`, but using Firebase MLKit to scan barcodes. More info can b
 Like `barCodeTypes`, but applies to the Firebase MLKit barcode detector.
 Example: `<RNCamera googleVisionBarcodeType={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeType.DATA_MATRIX} />`
 Available settings:
+
 - CODE_128
 - CODE_39
 - CODE_93
@@ -546,6 +545,14 @@ RNCamera uses the Firebase MLKit for Text Recognition, you can read more info ab
 
 Method to be called when text is detected. Receives a Text Recognized Event object. The interesting value of this object is the `textBlocks` value, which is an array of TextBlock objects.
 
+### Document Detection Related props (iOS)
+
+RNCamera on iOS uses the CIRectangleFeature of CIDetector, you can read more info about it [here](https://developer.apple.com/documentation/coreimage/cidetector?language=objc).
+
+#### `onDocumentDetected`
+
+Method to be called when a document is detected. Receives a Document Detected Event object. The event object contains position and extents of the document as well as coordinates of all corners. When a still image is captured it will be cropped to the document extents.
+
 ## Component instance methods
 
 ### `takePictureAsync([options]): Promise`
@@ -563,12 +570,13 @@ Supported options:
 - `mirrorImage` (boolean true or false). Use this with `true` if you want the resulting rendered picture to be mirrored (inverted in the vertical axis). If no value is specified `mirrorImage:false` is used.
 
 - `writeExif`: (boolean or object, defaults to true). Setting this to a boolean indicates if the image exif should be preserved after capture, or removed. Setting it to an object, merges any data with the final exif output. This is useful, for example, to add GPS metadata (note that GPS info is correctly transalted from double values to the EXIF format, so there's no need to read the EXIF protocol).
+
 ```js
 writeExif = {
-  "GPSLatitude": latitude,
-  "GPSLongitude": longitude,
-  "GPSAltitude": altitude
-}
+  GPSLatitude: latitude,
+  GPSLongitude: longitude,
+  GPSAltitude: altitude,
+};
 ```
 
 - `exif` (boolean true or false) Use this with `true` if you want a exif data map of the picture taken on the return data of your promise. If no value is specified `exif:false` is used.
@@ -715,6 +723,7 @@ Read more about [react-native-barcode-mask](https://github.com/shahnawaz/react-n
 ### @nartc/react-native-barcode-mask
 
 A rewritten version of `react-native-barcode-mask` using `Hooks` and `Reanimated`. If you're already using `react-native-reanimated` (`react-navigation` dependency) then you might benefit from this rewritten component.
+
 - Customizable
 - Provide custom hook to "scan barcode within finder area"
 

@@ -22,7 +22,7 @@ type Orientation = Readonly<{
 }>;
 type OrientationNumber = 1 | 2 | 3 | 4;
 type AutoFocus = Readonly<{ on: any; off: any }>;
-type VideoStabilization = Readonly<{off: any, standard: any, cinematic: any, auto: any}>;
+type VideoStabilization = Readonly<{ off: any; standard: any; cinematic: any; auto: any }>;
 type FlashMode = Readonly<{ on: any; off: any; torch: any; auto: any }>;
 type CameraType = Readonly<{ front: any; back: any }>;
 type WhiteBalance = Readonly<{
@@ -139,7 +139,7 @@ export interface RNCameraProps {
   pictureSize?: string;
 
   /* iOS only */
-  onSubjectAreaChanged?: (event: { nativeEvent: { prevPoint: { x: number; y: number; } } }) => void;
+  onSubjectAreaChanged?: (event: { nativeEvent: { prevPoint: { x: number; y: number } } }) => void;
   type?: keyof CameraType;
   flashMode?: keyof FlashMode;
   notAuthorizedView?: JSX.Element;
@@ -156,15 +156,15 @@ export interface RNCameraProps {
   }): void;
   onMountError?(error: { message: string }): void;
 
-  onPictureTaken?(): void,
+  onPictureTaken?(): void;
   onRecordingStart?(event: {
     nativeEvent: {
       uri: string;
       videoOrientation: number;
       deviceOrientation: number;
-    }
-  }): void,
-  onRecordingEnd?(): void,
+    };
+  }): void;
+  onRecordingEnd?(): void;
 
   /** iOS only */
   onAudioInterrupted?(): void;
@@ -192,12 +192,12 @@ export interface RNCameraProps {
      * @description For Android use `{ width: number, height: number, origin: Array<Point<string>> }`
      * @description For iOS use `{ origin: Point<string>, size: Size<string> }`
      */
-    bounds: { width: number, height: number, origin: Array<Point<string>> } | { origin: Point<string>; size: Size<string> };
+    bounds:
+      | { width: number; height: number; origin: Array<Point<string>> }
+      | { origin: Point<string>; size: Size<string> };
   }): void;
 
-  onGoogleVisionBarcodesDetected?(event: {
-    barcodes: Barcode[];
-  }): void;
+  onGoogleVisionBarcodesDetected?(event: { barcodes: Barcode[] }): void;
 
   // -- FACE DETECTION PROPS
 
@@ -209,6 +209,8 @@ export interface RNCameraProps {
   trackingEnabled?: boolean;
 
   onTextRecognized?(response: { textBlocks: TrackedTextFeature[] }): void;
+  onDocumentDetected?(response: { document: Document }): void;
+  documentScannerEnabled?: boolean;
   // -- ANDROID ONLY PROPS
   /** Android only */
   ratio?: string;
@@ -242,6 +244,21 @@ export interface RNCameraProps {
   keepAudioSession?: boolean;
 }
 
+interface DocumentCorners {
+  /** Top Left corner coords */
+  tl: Point<number>;
+  /** Top Right corner coords */
+  tr: Point<number>;
+  /** Bottom Right corner coords */
+  br: Point<number>;
+  /** Bottom Left corner coords */
+  bl: Point<number>;
+}
+
+export interface Document {
+  document: DocumentCorners;
+}
+
 interface Point<T = number> {
   x: T;
   y: T;
@@ -262,7 +279,7 @@ export interface Barcode {
   type: BarcodeType;
   format?: string;
   addresses?: {
-    addressesType?: "UNKNOWN" | "Work" | "Home";
+    addressesType?: 'UNKNOWN' | 'Work' | 'Home';
     addressLines?: string[];
   }[];
   emails?: Email[];
@@ -272,9 +289,9 @@ export interface Barcode {
     firstName?: string;
     lastName?: string;
     middleName?: string;
-    prefix?:string;
-    pronounciation?:string;
-    suffix?:string;
+    prefix?: string;
+    pronounciation?: string;
+    suffix?: string;
     formattedName?: string;
   };
   phone?: Phone;
@@ -313,29 +330,29 @@ export interface Barcode {
 }
 
 export type BarcodeType =
-  |"EMAIL"
-  |"PHONE"
-  |"CALENDAR_EVENT"
-  |"DRIVER_LICENSE"
-  |"GEO"
-  |"SMS"
-  |"CONTACT_INFO"
-  |"WIFI"
-  |"TEXT"
-  |"ISBN"
-  |"PRODUCT"
-  |"URL"
+  | 'EMAIL'
+  | 'PHONE'
+  | 'CALENDAR_EVENT'
+  | 'DRIVER_LICENSE'
+  | 'GEO'
+  | 'SMS'
+  | 'CONTACT_INFO'
+  | 'WIFI'
+  | 'TEXT'
+  | 'ISBN'
+  | 'PRODUCT'
+  | 'URL';
 
 export interface Email {
   address?: string;
   body?: string;
   subject?: string;
-  emailType?: "UNKNOWN" | "Work" | "Home";
+  emailType?: 'UNKNOWN' | 'Work' | 'Home';
 }
 
 export interface Phone {
   number?: string;
-  phoneType?: "UNKNOWN" | "Work" | "Home" | "Fax" | "Mobile";
+  phoneType?: 'UNKNOWN' | 'Work' | 'Home' | 'Fax' | 'Mobile';
 }
 
 export interface Face {
