@@ -64,19 +64,19 @@ namespace winrt::ReactNativeCameraCPP {
             auto const& propertyValue = pair.second;
             if (!propertyValue.IsNull()) {
                 if (propertyName == "torchMode") {
-                    UpdateTorchMode(static_cast<int>(propertyValue.Double()));
+                    UpdateTorchMode(static_cast<int>(propertyValue.AsDouble()));
                 }
                 if (propertyName == "flashMode") {
-                    UpdateFlashMode(static_cast<int>(propertyValue.Double()));
+                    UpdateFlashMode(static_cast<int>(propertyValue.AsDouble()));
                 }
                 else if (propertyName == "type") {
-                    UpdateDeviceType(static_cast<int>(propertyValue.Double()));
+                    UpdateDeviceType(static_cast<int>(propertyValue.AsDouble()));
                 }
                 else if (propertyName == "keepAwake") {
-                    UpdateKeepAwake(propertyValue.Boolean());
+                    UpdateKeepAwake(propertyValue.AsBoolean());
                 }
                 else if (propertyName == "aspect") {
-                    UpdateAspect(static_cast<int>(propertyValue.Double()));
+                    UpdateAspect(static_cast<int>(propertyValue.AsDouble()));
                 }
             }
         }
@@ -90,7 +90,7 @@ namespace winrt::ReactNativeCameraCPP {
             const auto& titleValue = options.at(L"title");
             if (titleValue.Type() == JSValueType::String)
             {
-                auto titleString = titleValue.String();
+                auto titleString = titleValue.AsString();
                 props.Title(winrt::to_hstring(titleString));
             }
             else
@@ -117,11 +117,11 @@ namespace winrt::ReactNativeCameraCPP {
                 found = true;
                 if (valueIsInt)
                 {
-                    value = static_cast<int>(searchValue.Int64());
+                    value = static_cast<int>(searchValue.AsInt64());
                 }
                 else
                 {
-                    value = static_cast<int>(searchValue.Double());
+                    value = static_cast<int>(searchValue.AsDouble());
                 }
             }
         }
@@ -145,18 +145,14 @@ namespace winrt::ReactNativeCameraCPP {
             auto encoding = winrt::ImageEncodingProperties().CreateJpeg();
             auto randomStream = winrt::InMemoryRandomAccessStream();
             co_await mediaCapture.CapturePhotoToStreamAsync(encoding, randomStream);
-            int target;
-            if (!TryGetValueAsInt(options, L"target", target))
-            {
-                result.Reject(L"target parameter not specified.");
-                return;
-            }
+            int target = ReactCameraContants::CameraCaptureTargetDisk;
+            TryGetValueAsInt(options, L"target", target);
             if (target == ReactCameraContants::CameraCaptureTargetMemory)
             {
                 // In memeory returns a base64 string for the captured image
                 auto string = co_await GetBase64DataAsync(randomStream);
                 JSValueObject jsObject;
-                jsObject["data"] = winrt::to_string(string);
+                jsObject["base64"] = winrt::to_string(string);
                 result.Resolve(jsObject);
             }
             else
@@ -176,7 +172,7 @@ namespace winrt::ReactNativeCameraCPP {
 
                 co_await UpdateFilePropertiesAsync(storageFile, options);
                 JSValueObject jsObject;
-                jsObject["path"] = winrt::to_string(storageFile.Path());
+                jsObject["uri"] = winrt::to_string(storageFile.Path());
                 result.Resolve(jsObject);
             }
         }
@@ -209,7 +205,7 @@ namespace winrt::ReactNativeCameraCPP {
             if (searchAudio != options.end())
             {
                 const auto& audioValue = options.at(L"audio");
-                mediaCapture.AudioDeviceController().Muted(static_cast<bool>(audioValue.Boolean()));
+                mediaCapture.AudioDeviceController().Muted(audioValue.AsBoolean());
             }
 
             int totalSeconds = INT_MAX;
