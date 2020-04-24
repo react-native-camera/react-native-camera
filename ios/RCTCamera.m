@@ -70,14 +70,15 @@
 - (void)layoutSubviews
 {
   [super layoutSubviews];
+  AVCaptureVideoOrientation orientation = [self getVideoOrientation];
 
   // We always use a 4/3 preset
   float aspectRatio = 4.0/3.0;
   float width = self.bounds.size.height * aspectRatio;
 
-  if (self.manager.previewLayer.connection.videoOrientation == AVCaptureVideoOrientationLandscapeRight) {
+  if (orientation == AVCaptureVideoOrientationLandscapeRight) {
     self.manager.previewLayer.frame = CGRectMake(self.bounds.size.width - width, 0, width, self.bounds.size.height);
-  } else if (self.manager.previewLayer.connection.videoOrientation == AVCaptureVideoOrientationLandscapeLeft) {
+  } else if (orientation == AVCaptureVideoOrientationLandscapeLeft) {
     self.manager.previewLayer.frame = CGRectMake(0, 0, width, self.bounds.size.height);
   } else {
     float height = self.bounds.size.width * aspectRatio;
@@ -86,8 +87,8 @@
   }
 
   // DEBUG colors
-  //  [self setBackgroundColor:UIColor.redColor];
-  //  self.manager.previewLayer.backgroundColor = UIColor.blueColor.CGColor;
+  // [self setBackgroundColor:UIColor.redColor];
+  // self.manager.previewLayer.backgroundColor = UIColor.blueColor.CGColor;
 
   [self.layer insertSublayer:self.manager.previewLayer atIndex:0];
 }
@@ -112,23 +113,34 @@
   [UIApplication sharedApplication].idleTimerDisabled = _previousIdleTimerDisabled;
 }
 
+- (AVCaptureVideoOrientation)getVideoOrientation
+{
+  UIDeviceOrientation currentOrientation = [UIDevice currentDevice].orientation;
+
+  switch (currentOrientation) {
+    case UIDeviceOrientationFaceUp:
+    case UIDeviceOrientationFaceDown:
+      return self.manager.previewLayer.connection.videoOrientation;
+
+    case UIDeviceOrientationLandscapeLeft:
+      return AVCaptureVideoOrientationLandscapeRight;
+
+    case UIDeviceOrientationLandscapeRight:
+      return AVCaptureVideoOrientationLandscapeLeft;
+
+    default:
+      return AVCaptureVideoOrientationPortrait;
+  }
+}
+
 - (void)orientationChanged:(NSNotification *)notification {
   if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
-    UIDeviceOrientation currentOrientation = [UIDevice currentDevice].orientation;
+    AVCaptureVideoOrientation orientation = [self getVideoOrientation];
 
-    if (currentOrientation == UIDeviceOrientationFaceUp || currentOrientation == UIDeviceOrientationFaceDown) {
-      return;
+    if (orientation != self.manager.previewLayer.connection.videoOrientation) {
+      self.manager.previewLayer.connection.videoOrientation = orientation;
+      [self setNeedsLayout];
     }
-
-    if (currentOrientation == UIDeviceOrientationLandscapeLeft) {
-      self.manager.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeRight;
-    } else if (currentOrientation == UIDeviceOrientationLandscapeRight) {
-      self.manager.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeLeft;
-    } else {
-      self.manager.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationPortrait;
-    }
-
-    [self setNeedsLayout];
   }
 }
 
