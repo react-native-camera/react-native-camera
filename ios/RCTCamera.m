@@ -72,9 +72,7 @@
 {
   [super layoutSubviews];
   AVCaptureVideoOrientation orientation = [self getVideoOrientation];
-  NSLog(@"getVideoOrientation: %ld", orientation);
-  NSLog(@"connection.videoOrientation: %ld", self.manager.previewLayer.connection.videoOrientation);
-
+    
   // We always use a 4/3 preset
   float aspectRatio = 4.0/3.0;
   float width = self.bounds.size.height * aspectRatio;
@@ -123,6 +121,7 @@
   switch (currentOrientation) {
     case UIDeviceOrientationFaceUp:
     case UIDeviceOrientationFaceDown:
+    case UIDeviceOrientationPortraitUpsideDown:
       return self.manager.previewLayer.connection.videoOrientation;
 
     case UIDeviceOrientationLandscapeLeft:
@@ -130,9 +129,6 @@
 
     case UIDeviceOrientationLandscapeRight:
       return AVCaptureVideoOrientationLandscapeLeft;
-
-    case UIDeviceOrientationPortraitUpsideDown:
-      return AVCaptureVideoOrientationPortraitUpsideDown;
 
     default:
       return AVCaptureVideoOrientationPortrait;
@@ -149,7 +145,6 @@
 
       if (orientation != self.manager.previewLayer.connection.videoOrientation) {
         self.manager.previewLayer.connection.videoOrientation = orientation;
-        [self setNeedsLayout];
       }
     }
 }
