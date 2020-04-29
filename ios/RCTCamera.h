@@ -7,5 +7,6 @@
 @interface RCTCamera : UIView
 
 - (id)initWithManager:(RCTCameraManager*)manager bridge:(RCTBridge *)bridge;
+- (AVCaptureVideoOrientation)getVideoOrientation;
 
 @end
