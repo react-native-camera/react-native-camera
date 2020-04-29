@@ -651,7 +651,7 @@ RCT_EXPORT_METHOD(getPreviewPosition:(RCTPromiseResolveBlock)resolve reject:(RCT
         NSLog(@"Capture preparation ready: %@", prepared ? @"YES" : @"NO");
     }];
 
-    self.previewLayer.connection.videoOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    self.previewLayer.connection.videoOrientation = [self.camera getVideoOrientation];
     [self.session startRunning];
   });
 }

@@ -63,6 +63,7 @@
     _onZoomChanged = NO;
     _previousIdleTimerDisabled = [UIApplication sharedApplication].idleTimerDisabled;
     [[NSNotificationCenter defaultCenter] addObserver:self  selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification  object:nil];
+    [self updateOrientation];
   }
   return self;
 }
@@ -71,6 +72,8 @@
 {
   [super layoutSubviews];
   AVCaptureVideoOrientation orientation = [self getVideoOrientation];
+  NSLog(@"getVideoOrientation: %ld", orientation);
+  NSLog(@"connection.videoOrientation: %ld", self.manager.previewLayer.connection.videoOrientation);
 
   // We always use a 4/3 preset
   float aspectRatio = 4.0/3.0;
@@ -128,20 +131,27 @@
     case UIDeviceOrientationLandscapeRight:
       return AVCaptureVideoOrientationLandscapeLeft;
 
+    case UIDeviceOrientationPortraitUpsideDown:
+      return AVCaptureVideoOrientationPortraitUpsideDown;
+
     default:
       return AVCaptureVideoOrientationPortrait;
   }
 }
 
 - (void)orientationChanged:(NSNotification *)notification {
-  if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
-    AVCaptureVideoOrientation orientation = [self getVideoOrientation];
+    [self updateOrientation];
+}
 
-    if (orientation != self.manager.previewLayer.connection.videoOrientation) {
-      self.manager.previewLayer.connection.videoOrientation = orientation;
-      [self setNeedsLayout];
+-(void)updateOrientation {
+    if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
+      AVCaptureVideoOrientation orientation = [self getVideoOrientation];
+
+      if (orientation != self.manager.previewLayer.connection.videoOrientation) {
+        self.manager.previewLayer.connection.videoOrientation = orientation;
+        [self setNeedsLayout];
+      }
     }
-  }
 }
 
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
