@@ -292,6 +292,12 @@ Value: float from `0` to `1.0`, or `-1` (default) for auto.
 
 Sets the camera's exposure value.
 
+### `useNativeZoom`
+
+Boolean to turn on native pinch to zoom. Works with the `maxZoom` property on iOS.
+
+Warning: The Android Touch-Event-System causes childviews to catch the touch events. Therefore avoid using screenfilling touchables inside of the cameraview.
+
 ### `zoom`
 
 Value: float from `0` to `1.0`
