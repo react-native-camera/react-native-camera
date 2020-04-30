@@ -215,6 +215,12 @@ RCT_CUSTOM_VIEW_PROPERTY(focusDepth, NSNumber, RNCamera)
     [view updateFocusDepth];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(useNativeZoom, BOOL, RNCamera)
+{
+    view.useNativeZoom=[RCTConvert BOOL:json];
+    [view setupOrDisablePinchZoom];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(zoom, NSNumber, RNCamera)
 {
     [view setZoom:[RCTConvert CGFloat:json]];

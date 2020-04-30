@@ -13,6 +13,7 @@
 @property (nonatomic, weak) RCTBridge *bridge;
 @property (nonatomic,strong) RNSensorOrientationChecker * sensorOrientationChecker;
 
+@property (nonatomic,strong) UIPinchGestureRecognizer *pinchGestureRecognizer;
 @property (nonatomic, strong) RCTPromiseResolveBlock videoRecordedResolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock videoRecordedReject;
 @property (nonatomic, strong) id textDetector;
@@ -93,6 +94,26 @@ BOOL _sessionInterrupted = NO;
 
     }
     return self;
+}
+
+-(void) handlePinchToZoomRecognizer:(UIPinchGestureRecognizer*)pinchRecognizer {
+    const CGFloat pinchVelocityDividerFactor = 5.0f;
+
+    if (pinchRecognizer.state == UIGestureRecognizerStateChanged) {
+        AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+        if(device == nil){
+            return;
+        }
+        NSError *error = nil;
+        if ([device lockForConfiguration:&error]) {
+            CGFloat desiredZoomFactor = device.videoZoomFactor + atan2f(pinchRecognizer.velocity, pinchVelocityDividerFactor);
+            // Check if desiredZoomFactor fits required range from 1.0 to activeFormat.videoMaxZoomFactor
+            device.videoZoomFactor = MAX(1.0, MIN(desiredZoomFactor, device.activeFormat.videoMaxZoomFactor));
+            [device unlockForConfiguration];
+        } else {
+            NSLog(@"error: %@", error);
+        }
+    }
 }
 
 - (void)onReady:(NSDictionary *)event
@@ -1702,6 +1723,20 @@ BOOL _sessionInterrupted = NO;
             [strongSelf.previewLayer.connection setVideoOrientation:videoOrientation];
         }
     });
+}
+-(UIPinchGestureRecognizer*)createUIPinchGestureRecognizer
+{
+    return [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchToZoomRecognizer:)];
+}
+- (void)setupOrDisablePinchZoom
+{
+    if([self useNativeZoom]){
+        self.pinchGestureRecognizer=[self createUIPinchGestureRecognizer];
+        [self addGestureRecognizer:self.pinchGestureRecognizer];
+    }else{
+        [self removeGestureRecognizer:self.pinchGestureRecognizer];
+        self.pinchGestureRecognizer=nil;
+    }
 }
 
 # pragma mark - AVCaptureMetadataOutput
