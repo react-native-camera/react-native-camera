@@ -95,6 +95,15 @@ BOOL _sessionInterrupted = NO;
     }
     return self;
 }
+-(float) getMaxZoomFactor:(AVCaptureDevice*)device {
+    float maxZoom;
+    if(self.maxZoom > 1){
+        maxZoom = MIN(self.maxZoom, device.activeFormat.videoMaxZoomFactor);
+    }else{
+        maxZoom = device.activeFormat.videoMaxZoomFactor;
+    }
+    return maxZoom;
+}
 
 -(void) handlePinchToZoomRecognizer:(UIPinchGestureRecognizer*)pinchRecognizer {
     const CGFloat pinchVelocityDividerFactor = 5.0f;
@@ -603,13 +612,7 @@ BOOL _sessionInterrupted = NO;
         return;
     }
 
-    float maxZoom;
-    if(self.maxZoom > 1){
-        maxZoom = MIN(self.maxZoom, device.activeFormat.videoMaxZoomFactor);
-    }
-    else{
-        maxZoom = device.activeFormat.videoMaxZoomFactor;
-    }
+    float maxZoom = [self getMaxZoomFactor:device];
 
     device.videoZoomFactor = (maxZoom - 1) * self.zoom + 1;
 
