@@ -7,6 +7,9 @@ import android.graphics.Color;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import androidx.core.content.ContextCompat;
+
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.os.AsyncTask;
 import com.facebook.react.bridge.*;
@@ -36,11 +39,14 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private Promise mVideoRecordedPromise;
   private List<String> mBarCodeTypes = null;
 
+  private ScaleGestureDetector mScaleGestureDetector;
+
   private boolean mIsPaused = false;
   private boolean mIsNew = true;
   private boolean invertImageData = false;
   private Boolean mIsRecording = false;
   private Boolean mIsRecordingInterrupted = false;
+  private boolean mUseNativeZoom=false;
 
   // Concurrency lock for scanners to avoid flooding the runtime
   public volatile boolean barCodeScannerTaskLock = false;
@@ -364,9 +370,26 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     this.mScanAreaWidth = width;
     this.mScanAreaHeight = height;
   }
-    public void setCameraViewDimensions(int width, int height) {
+  public void setCameraViewDimensions(int width, int height) {
     this.mCameraViewWidth = width;
     this.mCameraViewHeight = height;
+  }
+
+  public void setUseNativeZoom(boolean useNativeZoom){
+    if(!mUseNativeZoom && useNativeZoom){
+      mScaleGestureDetector = new ScaleGestureDetector(mThemedReactContext,onScaleGestureListener);
+    }else{
+      mScaleGestureDetector=null;
+    }
+    mUseNativeZoom=useNativeZoom;
+  }
+
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+    if(mUseNativeZoom) {
+      mScaleGestureDetector.onTouchEvent(event);
+    }
+    return true;
   }
 
   /**
@@ -561,6 +584,17 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
       });
   }
+  private void onZoom(float scale){
+    float currentZoom=getZoom();
+    float nextZoom=currentZoom+(scale-1.0f);
+
+    if(nextZoom > currentZoom){
+      setZoom(Math.min(nextZoom,1.0f));
+    }else{
+      setZoom(Math.max(nextZoom,0.0f));
+    }
+
+  }
 
   private boolean hasCameraPermissions() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -570,4 +604,25 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       return true;
     }
   }
+
+  private ScaleGestureDetector.OnScaleGestureListener onScaleGestureListener = new ScaleGestureDetector.OnScaleGestureListener() {
+
+    @Override
+    public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
+      onZoom(scaleGestureDetector.getScaleFactor());
+      return true;
+    }
+
+    @Override
+    public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
+      onZoom(scaleGestureDetector.getScaleFactor());
+      return true;
+    }
+
+    @Override
+    public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
+    }
+
+  };
+
 }
