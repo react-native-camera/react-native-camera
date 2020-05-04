@@ -145,6 +145,7 @@
 
       if (orientation != self.manager.previewLayer.connection.videoOrientation) {
         self.manager.previewLayer.connection.videoOrientation = orientation;
+        [self setNeedsLayout];
       }
     }
 }
