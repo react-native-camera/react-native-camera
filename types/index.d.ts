@@ -170,7 +170,8 @@ export interface RNCameraProps {
   /** iOS only */
   onAudioInterrupted?(): void;
   onAudioConnected?(): void;
-
+  /** Use native pinch to zoom implementation*/
+  useNativeZoom?:boolean;
   /** Value: float from 0 to 1.0 */
   zoom?: number;
   /** iOS only. float from 0 to any. Locks the max zoom value to the provided value

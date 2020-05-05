@@ -247,6 +247,7 @@ type Rect = {
 
 type PropsType = typeof View.props & {
   zoom?: number,
+  useNativeZoom?:boolean,
   maxZoom?: number,
   ratio?: string,
   focusDepth?: number,
@@ -389,6 +390,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
   static propTypes = {
     ...ViewPropTypes,
     zoom: PropTypes.number,
+    useNativeZoom:PropTypes.bool,
     maxZoom: PropTypes.number,
     ratio: PropTypes.string,
     focusDepth: PropTypes.number,
@@ -439,6 +441,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
   static defaultProps: Object = {
     zoom: 0,
+    useNativeZoom:false,
     maxZoom: 0,
     ratio: '4:3',
     focusDepth: 0,
