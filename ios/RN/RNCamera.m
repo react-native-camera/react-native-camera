@@ -114,7 +114,7 @@ BOOL _sessionInterrupted = NO;
             return;
         }
         NSError *error = nil;
-        float maxZoom = [self getMaxZoomFactor:device]
+        float maxZoom = [self getMaxZoomFactor:device];
         if ([device lockForConfiguration:&error]) {
             CGFloat desiredZoomFactor = device.videoZoomFactor + atan2f(pinchRecognizer.velocity, pinchVelocityDividerFactor);
             // Check if desiredZoomFactor fits required range from 1.0 to activeFormat.videoMaxZoomFactor
