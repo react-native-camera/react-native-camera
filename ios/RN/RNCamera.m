@@ -117,14 +117,14 @@ BOOL _sessionInterrupted = NO;
           
 }
 -(void)handleDoubleTap:(UITapGestureRecognizer*)doubleTapRecognizer {
-    [self handleTouch:tapRecognizer isDoubleTap:true]
+    [self handleTouch:doubleTapRecognizer isDoubleTap:true];
 }
 -(void)handleTap:(UITapGestureRecognizer*)tapRecognizer {
-    [self handleTouch:tapRecognizer isDoubleTap:false]
+    [self handleTouch:tapRecognizer isDoubleTap:false];
 }
 -(void)handleTouch:(UITapGestureRecognizer*)tapRecognizer isDoubleTap:(BOOL)isDoubleTap{
     if (tapRecognizer.state == UIGestureRecognizerStateRecognized) {
-        CGRect location = [tapRecognizer locationInView:self]
+        CGPoint location = [tapRecognizer locationInView:self];
         NSDictionary *tapEvent = [NSMutableDictionary dictionaryWithDictionary:@{
             @"isDoubleTab":@{isDoubleTap},
             @"touchOrigin": @{
@@ -132,7 +132,7 @@ BOOL _sessionInterrupted = NO;
                 @"y": @(location.y)
             }
         }];
-        [self onTouch:tapEvent]
+        [self onTouch:tapEvent];
     }
 }
 -(float) getMaxZoomFactor:(AVCaptureDevice*)device {
