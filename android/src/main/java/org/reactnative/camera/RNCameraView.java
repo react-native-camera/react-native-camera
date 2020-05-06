@@ -65,6 +65,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private boolean mShouldGoogleDetectBarcodes = false;
   private boolean mShouldScanBarCodes = false;
   private boolean mShouldRecognizeText = false;
+  private boolean mShouldDetectTouches = false:
   private int mFaceDetectorMode = RNFaceDetector.FAST_MODE;
   private int mFaceDetectionLandmarks = RNFaceDetector.NO_LANDMARKS;
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
@@ -378,6 +379,16 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     this.mCameraViewHeight = height;
   }
 
+
+  public void setShouldDetectTouches(boolean shouldDetectTouches) {
+    if(!mShouldDetectTouches && shouldDetectTouches){
+      mGestureDetector=new GestureDetector(mThemedReactContext,onGestureListener);
+    }else{
+      mGestureDetector=null;
+    }
+    this.mShouldDetectTouches = shouldDetectTouches;
+  }
+
   public void setUseNativeZoom(boolean useNativeZoom){
     if(!mUseNativeZoom && useNativeZoom){
       mScaleGestureDetector = new ScaleGestureDetector(mThemedReactContext,onScaleGestureListener);
@@ -392,7 +403,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     if(mUseNativeZoom) {
       mScaleGestureDetector.onTouchEvent(event);
     }
-    mGestureDetector.onTouchEvent(event);
+    if(mShouldDetectTouches){
+      mGestureDetector.onTouchEvent(event);
+    }
     return true;
   }
 
