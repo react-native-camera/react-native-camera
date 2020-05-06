@@ -25,6 +25,7 @@
 @property (nonatomic, copy) RCTDirectEventBlock onAudioConnected;
 @property (nonatomic, copy) RCTDirectEventBlock onMountError;
 @property (nonatomic, copy) RCTDirectEventBlock onBarCodeRead;
+@property (nonatomic, copy) RCTDirectEventBlock onTouch;
 @property (nonatomic, copy) RCTDirectEventBlock onTextRecognized;
 @property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onGoogleVisionBarcodesDetected;
@@ -172,6 +173,12 @@ BOOL _sessionInterrupted = NO;
 {
     if (_onRecordingEnd) {
         _onRecordingEnd(event);
+    }
+}
+- (void)onTouch:(NSDictionary *)event
+{
+    if (_onTouch) {
+        _onTouch(event);
     }
 }
 
