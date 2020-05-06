@@ -8,13 +8,11 @@
 #import <React/UIView+React.h>
 
 #import <AVFoundation/AVFoundation.h>
-#import "CameraFocusSquare.h"
 
 @interface RCTCamera ()
 
 @property (nonatomic, weak) RCTCameraManager *manager;
 @property (nonatomic, weak) RCTBridge *bridge;
-@property (nonatomic, strong) RCTCameraFocusSquare *camFocus;
 
 @end
 
@@ -194,33 +192,6 @@
     CGPoint touchPoint = [touch locationInView:touch.view];
     // Focus camera on this point
     [self.manager focusAtThePoint:touchPoint];
-
-    if (self.camFocus)
-    {
-      [self.camFocus removeFromSuperview];
-    }
-    NSDictionary *event = @{
-      @"target": self.reactTag,
-      @"touchPoint": @{
-        @"x": [NSNumber numberWithDouble:touchPoint.x],
-        @"y": [NSNumber numberWithDouble:touchPoint.y]
-      }
-    };
-
-    [self.bridge enqueueJSCall:@"RCTEventEmitter" method:@"receiveEvent" args:@[event[@"target"], RCTNormalizeInputEventName(@"focusChanged"), event] completion:NULL];
-
-    // Show animated rectangle on the touched area
-    if (_defaultOnFocusComponent) {
-      self.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-40, touchPoint.y-40, 80, 80)];
-      [self.camFocus setBackgroundColor:[UIColor clearColor]];
-      [self addSubview:self.camFocus];
-      [self.camFocus setNeedsDisplay];
-
-      [UIView beginAnimations:nil context:NULL];
-      [UIView setAnimationDuration:1.0];
-      [self.camFocus setAlpha:0.0];
-      [UIView commitAnimations];
-    }
   }
 
   if (allTouchesEnded) {
