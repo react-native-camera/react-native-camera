@@ -104,14 +104,14 @@ BOOL _sessionInterrupted = NO;
 }
 -(UITapGestureRecognizer*)createDoubleTapGestureRecognizer
 {
-    UITapGestureRecognizer *doubleTapGestureRecognizer =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap)];
+    UITapGestureRecognizer *doubleTapGestureRecognizer =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
     doubleTapGestureRecognizer.numberOfTapsRequired = 2;
     return doubleTapGestureRecognizer;
           
 }
 -(UITapGestureRecognizer*)createTapGestureRecognizer
 {
-    UITapGestureRecognizer *tapGestureRecognizer =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap)];
+    UITapGestureRecognizer *tapGestureRecognizer =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     tapGestureRecognizer.numberOfTapsRequired = 1;
     return doubleTapGestureRecognizer;
           
