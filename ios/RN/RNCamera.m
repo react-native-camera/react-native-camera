@@ -113,7 +113,7 @@ BOOL _sessionInterrupted = NO;
 {
     UITapGestureRecognizer *tapGestureRecognizer =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     tapGestureRecognizer.numberOfTapsRequired = 1;
-    return doubleTapGestureRecognizer;
+    return tapGestureRecognizer;
           
 }
 -(void)handleDoubleTap:(UITapGestureRecognizer*)doubleTapRecognizer {
