@@ -261,6 +261,7 @@ type PropsType = typeof View.props & {
   onPictureSaved?: Function,
   onRecordingStart?: Function,
   onRecordingEnd?: Function,
+  onTouch?: Function,
   onGoogleVisionBarcodesDetected?: ({ barcodes: Array<TrackedBarcodeFeature> }) => void,
   onSubjectAreaChanged?: ({ nativeEvent: { prevPoint: {| x: number, y: number |} } }) => void,
   faceDetectionMode?: number,
@@ -404,6 +405,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     onPictureSaved: PropTypes.func,
     onRecordingStart: PropTypes.func,
     onRecordingEnd: PropTypes.func,
+    onTouch: PropTypes.func,
     onGoogleVisionBarcodesDetected: PropTypes.func,
     onFacesDetected: PropTypes.func,
     onTextRecognized: PropTypes.func,
@@ -635,7 +637,11 @@ export default class Camera extends React.Component<PropsType, StateType> {
       this.props.onAudioInterrupted();
     }
   };
-
+  _onTouch = () => {
+    if (this.props.onTouch) {
+      this.props.onTouch();
+    }
+  };
   _onAudioConnected = () => {
     if (this.props.onAudioConnected) {
       this.props.onAudioConnected();
@@ -810,6 +816,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
               this.props.onGoogleVisionBarcodesDetected,
             )}
             onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
+            onTouch={this._onTouch}
             onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
             onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
             onPictureSaved={this._onPictureSaved}
@@ -838,6 +845,10 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
     if (props.onFacesDetected) {
       newProps.faceDetectorEnabled = true;
+    }
+
+    if (props.onTouch) {
+      newProps.touchDetectorEnabled = true;
     }
 
     if (props.onTextRecognized) {
@@ -869,6 +880,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     accessibilityLabel: true,
     accessibilityLiveRegion: true,
     barCodeScannerEnabled: true,
+    touchDetectorEnabled:true,
     googleVisionBarcodeDetectorEnabled: true,
     faceDetectorEnabled: true,
     textRecognizerEnabled: true,
@@ -880,6 +892,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     onAudioConnected: true,
     onPictureSaved: true,
     onFaceDetected: true,
+    onTouch:true,
     onLayout: true,
     onMountError: true,
     onSubjectAreaChanged: true,
