@@ -77,15 +77,39 @@
   float aspectRatio = 4.0/3.0;
   float width = self.bounds.size.height * aspectRatio;
 
-  if (orientation == AVCaptureVideoOrientationLandscapeRight) {
-    self.manager.previewLayer.frame = CGRectMake(self.bounds.size.width - width, 0, width, self.bounds.size.height);
-  } else if (orientation == AVCaptureVideoOrientationLandscapeLeft) {
-    self.manager.previewLayer.frame = CGRectMake(0, 0, width, self.bounds.size.height);
-  } else {
-    float height = self.bounds.size.width * aspectRatio;
-    float paddingTop = (self.bounds.size.height - height);
-    self.manager.previewLayer.frame = CGRectMake(0, paddingTop, self.bounds.size.width, height);
+  UIEdgeInsets notchInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
+
+  if (@available(iOS 11.0, *)) {
+    notchInsets = self.safeAreaInsets;
   }
+
+  float paddingLeft = 0;
+  float paddingTop = 0;
+  float previewWidth = 0;
+  float previewHeight = 0;
+
+  if (orientation == AVCaptureVideoOrientationLandscapeRight) {
+    previewWidth = width;
+    previewHeight = self.bounds.size.height;
+    paddingLeft = notchInsets.left + self.bounds.size.width - width;
+
+    if (width / self.bounds.size.width < 0.8f) {
+      paddingLeft = notchInsets.left + ((self.bounds.size.width - width) / 2);
+    }
+  } else if (orientation == AVCaptureVideoOrientationLandscapeLeft) {
+    previewWidth = width;
+    previewHeight = self.bounds.size.height;
+
+    if (width / self.bounds.size.width < 0.8f) {
+      paddingLeft = (self.bounds.size.width - width - notchInsets.right) / 2;
+    }
+  } else {
+    previewWidth = self.bounds.size.width;
+    previewHeight = self.bounds.size.width * aspectRatio;
+    paddingTop = (self.bounds.size.height - previewHeight);
+  }
+
+  self.manager.previewLayer.frame = CGRectMake(paddingLeft, paddingTop, previewWidth, previewHeight);
 
   // DEBUG colors
   // [self setBackgroundColor:UIColor.redColor];
