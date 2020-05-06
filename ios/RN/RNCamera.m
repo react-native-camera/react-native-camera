@@ -126,7 +126,7 @@ BOOL _sessionInterrupted = NO;
     if (tapRecognizer.state == UIGestureRecognizerStateRecognized) {
         CGPoint location = [tapRecognizer locationInView:self];
         NSDictionary *tapEvent = [NSMutableDictionary dictionaryWithDictionary:@{
-            @"isDoubleTab":@{isDoubleTap},
+            @"isDoubleTab":@(isDoubleTap),
             @"touchOrigin": @{
                 @"x": @(location.x),
                 @"y": @(location.y)
