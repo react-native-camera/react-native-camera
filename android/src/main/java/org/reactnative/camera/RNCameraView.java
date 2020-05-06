@@ -8,6 +8,7 @@ import android.media.CamcorderProfile;
 import android.os.Build;
 import androidx.core.content.ContextCompat;
 
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -40,6 +41,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private List<String> mBarCodeTypes = null;
 
   private ScaleGestureDetector mScaleGestureDetector;
+  private GestureDetector mGestureDetector;
+
 
   private boolean mIsPaused = false;
   private boolean mIsNew = true;
@@ -389,6 +392,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     if(mUseNativeZoom) {
       mScaleGestureDetector.onTouchEvent(event);
     }
+    mGestureDetector.onTouchEvent(event);
     return true;
   }
 
@@ -604,7 +608,19 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       return true;
     }
   }
+  private GestureDetector.SimpleOnGestureListener onGestureListener = new GestureDetector.SimpleOnGestureListener(){
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+      RNCameraViewHelper.emitTouchEvent(RNCameraView.this,false,(int)e.getX(),(int)e.getY());
+      return true;
+    }
 
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+      RNCameraViewHelper.emitTouchEvent(RNCameraView.this,true,(int)e.getX(),(int)e.getY());
+      return true;
+    }
+  };
   private ScaleGestureDetector.OnScaleGestureListener onScaleGestureListener = new ScaleGestureDetector.OnScaleGestureListener() {
 
     @Override
