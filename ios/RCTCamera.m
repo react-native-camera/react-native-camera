@@ -92,14 +92,14 @@
     paddingLeft = notchInsets.left + self.bounds.size.width - width;
 
     if (width / self.bounds.size.width < 0.8f) {
-      paddingLeft = notchInsets.left + ((self.bounds.size.width - width) / 2);
+      paddingLeft = notchInsets.left + roundf((self.bounds.size.width - width) / 2);
     }
   } else if (orientation == AVCaptureVideoOrientationLandscapeLeft) {
     previewWidth = width;
     previewHeight = self.bounds.size.height;
 
     if (width / self.bounds.size.width < 0.8f) {
-      paddingLeft = (self.bounds.size.width - width - notchInsets.right) / 2;
+      paddingLeft = roundf((self.bounds.size.width - width - notchInsets.right) / 2);
     }
   } else {
     previewWidth = self.bounds.size.width;
