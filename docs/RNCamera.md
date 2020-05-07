@@ -431,6 +431,16 @@ Event will contain the following fields:
 
 Function to be called when native code stops recording video, but before all video processing takes place. This event will only fire after a successful video recording, and it will not fire if video recording fails (use the error returned from `recordAsync` instead).
 
+### `onTouch`
+
+Function to be called when a touch within the camera view is recognized.
+Event will contain the following fields:
+
+- `touchOrigin`
+  - `x`
+  - `y`
+- `isDoubleTap` tells if touch is a double tap (First touch of double tap is also recognized with `isDoubleTap` set to `false`)
+
 ### Bar Code Related props
 
 ### `onBarCodeRead`
