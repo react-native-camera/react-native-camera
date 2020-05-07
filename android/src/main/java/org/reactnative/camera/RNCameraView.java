@@ -3,11 +3,14 @@ package org.reactnative.camera;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import androidx.core.content.ContextCompat;
 
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -621,16 +624,22 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       return true;
     }
   }
+  private int scalePosition(float raw){
+    Resources resources = getResources();
+    Configuration config = resources.getConfiguration();
+    DisplayMetrics dm = resources.getDisplayMetrics();
+    return (int)(raw/ dm.density);
+  }
   private GestureDetector.SimpleOnGestureListener onGestureListener = new GestureDetector.SimpleOnGestureListener(){
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-      RNCameraViewHelper.emitTouchEvent(RNCameraView.this,false,(int)e.getX(),(int)e.getY());
+      RNCameraViewHelper.emitTouchEvent(RNCameraView.this,false,scalePosition(e.getX()),scalePosition(e.getY()));
       return true;
     }
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
-      RNCameraViewHelper.emitTouchEvent(RNCameraView.this,true,(int)e.getX(),(int)e.getY());
+      RNCameraViewHelper.emitTouchEvent(RNCameraView.this,true,scalePosition(e.getX()),scalePosition(e.getY()));
       return true;
     }
   };
