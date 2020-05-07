@@ -65,7 +65,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private boolean mShouldGoogleDetectBarcodes = false;
   private boolean mShouldScanBarCodes = false;
   private boolean mShouldRecognizeText = false;
-  private boolean mShouldDetectTouches = false:
+  private boolean mShouldDetectTouches = false;
   private int mFaceDetectorMode = RNFaceDetector.FAST_MODE;
   private int mFaceDetectionLandmarks = RNFaceDetector.NO_LANDMARKS;
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
