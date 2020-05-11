@@ -1,43 +1,39 @@
-version: 2
-executorType: docker
-jobs:
-  build-app:
-    resource_class: medium
-    environment:
-      - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx3072m -XX:+HeapDumpOnOutOfMemoryError"'
-      - REACT_NATIVE_MAX_WORKERS: 2
-      - ANDROID_BUILD_TOOLS_VERSION: '28.0.3'
-    working_directory: ~/app
-    docker:
-      - image: reactnativecommunity/react-native-android
+version: 2.1
+
+orbs:
+  react-native: react-native-community/react-native@4.4.0
+
+commands:
+  checkout-attach-workspace:
+    description: "Checkout and attach workspace"
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v1-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - v1-npm
-      - run:
-          name: Install Dependencies
-          command: yarn install --ignore-engines
-      - save_cache:
-          key: v1-npm
-          paths:
-            - node_modules/
-      - save_cache:
-          key: v1-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules/
+      - attach_workspace:
+            at: .
+
+jobs:
+  install:
+    executor: react-native/linux_js
+    steps:
+        - checkout-attach-workspace
+        - react-native/yarn_install
+        - persist_to_workspace:
+            root: .
+            paths:
+              - node_modules
+
+  lint:
+    executor: react-native/linux_android
+    steps:
+      - checkout-attach-workspace
       - run:
           name: Lint
           command: yarn lint
-      - restore_cache:
-          keys: 
-            - v1-gradle-{{ checksum "android/gradle/wrapper/gradle-wrapper.properties" }}-{{ checksum "examples/basic/android/gradle/wrapper/gradle-wrapper.properties" }}
-            - v1-gradle-wrapper
-      - restore_cache:
-          keys:
-            - v1-gradle-cache-{{ checksum "android/build.gradle" }}-{{ checksum "examples/basic/android/build.gradle" }}
-            - v1-gradle-cache
+
+  build-app:
+    executor: react-native/linux_android
+    steps:
+      - checkout-attach-workspace
       - run:
           name: Run Checks
           command: |
@@ -48,32 +44,13 @@ jobs:
       - run:
           name: Run Yarn to Generate react.gradle
           command: cd examples/basic/android && yarn
-      - run:
-          name: Build Sample App
-          command: |
-            cd examples/basic/android && chmod +x ./gradlew && ./gradlew clean && ./gradlew build
-      - store_artifacts:
-          path: examples/basic/android/app/build/reports
-          destination: app
-      - save_cache:
-          key: v1-gradle-wrapper-{{ checksum "examples/basic/android/gradle/wrapper/gradle-wrapper.properties" }}
-          paths:
-            - ~/.gradle/wrapper
-      - save_cache:
-          key: v1-gradle-cache-{{ checksum "examples/basic/android/build.gradle" }}
-          paths:
-            - ~/.gradle/caches
-      - deploy:
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              yarn ci:publish
-            fi
+      - react-native/android_build:
+          project_path: ./examples/basic/android
+  
   deploy-docs:
-    working_directory: ~/app
-    docker:
-      - image: circleci/node:8.11.1
+    executor: react-native/linux_js
     steps:
-      - checkout
+      - checkout-attach-workspace
       - run:
           name: Deploying to GitHub Pages
           command: |
@@ -81,12 +58,46 @@ jobs:
             git config --global user.name "${GH_NAME}"
             echo "machine github.com login $GH_NAME password $GH_TOKEN_DOCS" > ~/.netrc
             cd website && yarn install && GIT_USER=${GH_NAME} yarn run publish-gh-pages
+
+  publish-version:
+    executor: react-native/linux_js
+    steps:
+      - checkout-attach-workspace
+      - run:
+          name: Run semantic-release
+          command: yarn ci:publish
+
 workflows:
   version: 2
-  build-and-deploy-docs:
+
+  develop:
     jobs:
-      - build-app
-      - deploy-docs:
+      - install:
+          filters:
+            branches:
+              ignore: master
+      
+      - lint:
+          requires:
+            - install  
+
+      - build-app:
+          requires:
+            - install  
+  
+  release:
+    jobs:
+      - install:
           filters:
             branches:
               only: master
+  
+      - deploy-docs:
+          requires:
+            - install
+
+      - publish-version:
+          requires:
+            - install
+
+
