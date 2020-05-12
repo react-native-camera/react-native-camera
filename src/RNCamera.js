@@ -261,7 +261,8 @@ type PropsType = typeof View.props & {
   onPictureSaved?: Function,
   onRecordingStart?: Function,
   onRecordingEnd?: Function,
-  onTouch?: Function,
+  onTap?: Function,
+  onDoubleTap?: Function,
   onGoogleVisionBarcodesDetected?: ({ barcodes: Array<TrackedBarcodeFeature> }) => void,
   onSubjectAreaChanged?: ({ nativeEvent: { prevPoint: {| x: number, y: number |} } }) => void,
   faceDetectionMode?: number,
@@ -405,7 +406,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
     onPictureSaved: PropTypes.func,
     onRecordingStart: PropTypes.func,
     onRecordingEnd: PropTypes.func,
-    onTouch: PropTypes.func,
+    onTap: PropTypes.func,
+    onDoubleTap: PropTypes.func,
     onGoogleVisionBarcodesDetected: PropTypes.func,
     onFacesDetected: PropTypes.func,
     onTextRecognized: PropTypes.func,
@@ -638,8 +640,11 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
   _onTouch = ({ nativeEvent }: EventCallbackArgumentsType) => {
-    if (this.props.onTouch) {
-      this.props.onTouch(nativeEvent);
+    if (this.props.onTap && !nativeEvent.isDoubleTap) {
+      this.props.onTap(nativeEvent.touchOrigin);
+    }
+    if (this.props.onDoubleTap && nativeEvent.isDoubleTap){
+      this.props.onTap(nativeEvent.touchOrigin);
     }
   };
   _onAudioConnected = () => {
@@ -847,7 +852,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
       newProps.faceDetectorEnabled = true;
     }
 
-    if (props.onTouch) {
+    if (props.onTap || props.onDoubleTap) {
       newProps.touchDetectorEnabled = true;
     }
 

@@ -397,13 +397,13 @@ class Camera extends Component{
     }
   }
 
-  onTapToFocus = (event) => {
+  onTapToFocus = (touchOrigin) => {
 
     if(!this.cameraStyle || this.state.takingPic){
       return;
     }
 
-    const {x, y} = event.touchOrigin;
+    const {x, y} = touchOrigin;
     let {width, height, top, left} = this.cameraStyle;
 
     // compensate for top/left changes
@@ -637,7 +637,7 @@ class Camera extends Component{
               zoom={zoom}
               maxZoom={MAX_ZOOM}
               useNativeZoom={true}
-              onTouch={this.onTapToFocus}
+              onTap={this.onTapToFocus}
               whiteBalance={WB_OPTIONS[wb]}
               autoFocusPointOfInterest={this.state.focusCoords}
               androidCameraPermissionOptions={{

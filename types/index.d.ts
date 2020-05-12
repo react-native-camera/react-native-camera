@@ -170,7 +170,8 @@ export interface RNCameraProps {
   /** iOS only */
   onAudioInterrupted?(): void;
   onAudioConnected?(): void;
-  onTouch?({ touchOrigin: Point, isDoubleTap: boolean }):void;
+  onTap?(origin:Point):void;
+  onDoubleTap?(origin:Point):void;
   /** Use native pinch to zoom implementation*/
   useNativeZoom?:boolean;
   /** Value: float from 0 to 1.0 */
