@@ -397,46 +397,46 @@ class Camera extends Component{
     }
   }
 
-  onTapToFocus = (event) => {
+  onTapToFocus = (touchOrigin) => {
 
     if(!this.cameraStyle || this.state.takingPic){
       return;
     }
 
-    const {pageX, pageY} = event.nativeEvent;
+    const {x, y} = touchOrigin;
     let {width, height, top, left} = this.cameraStyle;
 
     // compensate for top/left changes
-    let pageX2 = pageX - left;
-    let pageY2 = pageY - top;
+    let pageX2 = x - left;
+    let pageY2 = y - top;
 
     // normalize coords as described by https://gist.github.com/Craigtut/6632a9ac7cfff55e74fb561862bc4edb
     const x0 = pageX2 / width;
     const y0 = pageY2 / height;
 
-    let x = x0;
-    let y = y0;
+    let computedX = x0;
+    let computedY = y0;
 
     // if portrait, need to apply a transform because RNCamera always measures coords in landscape mode
     // with the home button on the right. If the phone is rotated with the home button to the left
     // we will have issues here, and we have no way to detect that orientation!
     // TODO: Fix this, however, that orientation should never be used due to camera positon
     if(this.state.orientation.isPortrait){
-      x = y0;
-      y = -x0 + 1;
+      computedX = y0;
+      computedY = -x0 + 1;
     }
 
     this.setState({
       focusCoords: {
-        x: x,
-        y: y,
+        x: computedX,
+        y: computedY,
         autoExposure: true
       },
       touchCoords: {
         x: pageX2 - 50,
         y: pageY2 - 50
       }
-    });
+    },this.onSetFocus);
 
     // remove focus rectangle
     if(this.focusTimeout){
@@ -446,14 +446,12 @@ class Camera extends Component{
 
   }
 
-  onTapToFocusOut = () => {
-    if(this.state.touchCoords){
-      this.focusTimeout = setTimeout(()=>{
-        if(this.mounted){
+  onSetFocus = () => {
+      this.focusTimeout = setTimeout(() => {
+        if (this.mounted) {
           this.setState({touchCoords: null});
         }
       }, 1500);
-    }
   }
 
   onPinchStart = () => {
@@ -638,6 +636,8 @@ class Camera extends Component{
               flashMode={flashMode}
               zoom={zoom}
               maxZoom={MAX_ZOOM}
+              useNativeZoom={true}
+              onTap={this.onTapToFocus}
               whiteBalance={WB_OPTIONS[wb]}
               autoFocusPointOfInterest={this.state.focusCoords}
               androidCameraPermissionOptions={{
@@ -666,21 +666,6 @@ class Camera extends Component{
                 </View>
               }
             >
-              <TouchableOpacity
-                activeOpacity={0.5}
-                style={flex1}
-                onPressIn={this.onTapToFocus}
-                onPressOut={this.onTapToFocusOut}
-                onLongPress={this.takePictureLong}
-                delayLongPress={1500}
-              >
-                <ZoomView
-                  onPinchProgress={this.onPinchProgress}
-                  onPinchStart={this.onPinchStart}
-                  onPinchEnd={this.onPinchEnd}
-                  style={flex1}
-                >
-
                   {this.state.touchCoords ?
                     <View style={{
                       borderWidth: 2,
@@ -693,8 +678,6 @@ class Camera extends Component{
                     }}>
                     </View>
                   : null}
-                </ZoomView>
-              </TouchableOpacity>
             </RNCamera>
 
             {!takingPic && !recording && !this.state.spinnerVisible && cameraReady ?

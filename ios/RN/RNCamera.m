@@ -25,6 +25,7 @@
 @property (nonatomic, copy) RCTDirectEventBlock onAudioConnected;
 @property (nonatomic, copy) RCTDirectEventBlock onMountError;
 @property (nonatomic, copy) RCTDirectEventBlock onBarCodeRead;
+@property (nonatomic, copy) RCTDirectEventBlock onTouch;
 @property (nonatomic, copy) RCTDirectEventBlock onTextRecognized;
 @property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onGoogleVisionBarcodesDetected;
@@ -76,6 +77,12 @@ BOOL _sessionInterrupted = NO;
         self.previewLayer.needsDisplayOnBoundsChange = YES;
 #endif
         self.rectOfInterest = CGRectMake(0, 0, 1.0, 1.0);
+       
+        UITapGestureRecognizer * tapHandler=[self createTapGestureRecognizer];
+        [self addGestureRecognizer:tapHandler];
+        UITapGestureRecognizer * doubleTabHandler=[self createDoubleTapGestureRecognizer];
+        [self addGestureRecognizer:doubleTabHandler];
+
         self.autoFocus = -1;
         self.exposure = -1;
         self.presetCamera = AVCaptureDevicePositionUnspecified;
@@ -94,6 +101,39 @@ BOOL _sessionInterrupted = NO;
 
     }
     return self;
+}
+-(UITapGestureRecognizer*)createDoubleTapGestureRecognizer
+{
+    UITapGestureRecognizer *doubleTapGestureRecognizer =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
+    doubleTapGestureRecognizer.numberOfTapsRequired = 2;
+    return doubleTapGestureRecognizer;
+          
+}
+-(UITapGestureRecognizer*)createTapGestureRecognizer
+{
+    UITapGestureRecognizer *tapGestureRecognizer =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+    tapGestureRecognizer.numberOfTapsRequired = 1;
+    return tapGestureRecognizer;
+          
+}
+-(void)handleDoubleTap:(UITapGestureRecognizer*)doubleTapRecognizer {
+    [self handleTouch:doubleTapRecognizer isDoubleTap:true];
+}
+-(void)handleTap:(UITapGestureRecognizer*)tapRecognizer {
+    [self handleTouch:tapRecognizer isDoubleTap:false];
+}
+-(void)handleTouch:(UITapGestureRecognizer*)tapRecognizer isDoubleTap:(BOOL)isDoubleTap{
+    if (tapRecognizer.state == UIGestureRecognizerStateRecognized) {
+        CGPoint location = [tapRecognizer locationInView:self];
+        NSDictionary *tapEvent = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"isDoubleTab":@(isDoubleTap),
+            @"touchOrigin": @{
+                @"x": @(location.x),
+                @"y": @(location.y)
+            }
+        }];
+        [self onTouch:tapEvent];
+    }
 }
 -(float) getMaxZoomFactor:(AVCaptureDevice*)device {
     float maxZoom;
@@ -172,6 +212,12 @@ BOOL _sessionInterrupted = NO;
 {
     if (_onRecordingEnd) {
         _onRecordingEnd(event);
+    }
+}
+- (void)onTouch:(NSDictionary *)event
+{
+    if (_onTouch) {
+        _onTouch(event);
     }
 }
 
