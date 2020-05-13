@@ -377,6 +377,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     @Override
     public ArrayList<int[]> getSupportedPreviewFpsRange() {
+        Log.e("CAMERA_2:: ", "getSupportedPreviewFpsRange is not currently supported for Camera2");
         ArrayList<int[]> validValues = new ArrayList<int[]>();
         return validValues;
     }
