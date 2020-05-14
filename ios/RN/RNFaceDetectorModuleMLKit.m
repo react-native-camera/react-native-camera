@@ -5,6 +5,7 @@
 
 static const NSString *kModeOptionName = @"mode";
 static const NSString *kDetectLandmarksOptionName = @"detectLandmarks";
+static const NSString *kDetectContoursOptionName = @"detectContours";
 static const NSString *kRunClassificationsOptionName = @"runClassifications";
 
 @implementation RNFaceDetectorModuleMLKit
@@ -62,7 +63,11 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
         if (options[kDetectLandmarksOptionName]) {
             newOptions.landmarkMode = [options[kDetectLandmarksOptionName] integerValue];
         }
-        
+
+        if (options[kDetectContoursOptionName]) {
+            newOptions.contourMode = [options[kDetectContoursOptionName] integerValue];
+        }
+
         if (options[kModeOptionName]) {
             newOptions.performanceMode = [options[kModeOptionName] integerValue];
         }

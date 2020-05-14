@@ -2048,6 +2048,11 @@ BOOL _sessionInterrupted = NO;
     [self.faceDetector setLandmarksMode:requestedLandmarks queue:self.sessionQueue];
 }
 
+- (void)updateFaceDetectionContours:(id)requestedContours
+{
+    [self.faceDetector setContoursMode:requestedContours queue:self.sessionQueue];
+}
+
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications
 {
     [self.faceDetector setClassificationMode:requestedClassifications queue:self.sessionQueue];

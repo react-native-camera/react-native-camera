@@ -12,6 +12,11 @@
       RNFaceDetectNoLandmarks = FIRVisionFaceDetectorLandmarkModeNone
   };
 
+  typedef NS_ENUM(NSInteger, RNFaceDetectionContours) {
+      RNFaceDetectAllContours = FIRVisionFaceDetectorContourModeAll,
+      RNFaceDetectNoContours = FIRVisionFaceDetectorContourModeNone
+  };
+
   typedef NS_ENUM(NSInteger, RNFaceDetectionClassifications) {
       RNFaceRunAllClassifications = FIRVisionFaceDetectorClassificationModeAll,
       RNFaceRunNoClassifications = FIRVisionFaceDetectorClassificationModeNone
@@ -26,6 +31,7 @@
   -(BOOL)isRealDetector;
   -(void)setTracking:(id)json queue:(dispatch_queue_t)sessionQueue;
   -(void)setLandmarksMode:(id)json queue:(dispatch_queue_t)sessionQueue;
+  -(void)setContoursMode:(id)json queue:(dispatch_queue_t)sessionQueue;
   -(void)setPerformanceMode:(id)json queue:(dispatch_queue_t)sessionQueue;
   -(void)setClassificationMode:(id)json queue:(dispatch_queue_t)sessionQueue;
   -(void)findFacesInFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float)scaleY completed:(postRecognitionBlock)completed;

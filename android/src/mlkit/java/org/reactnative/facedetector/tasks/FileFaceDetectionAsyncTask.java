@@ -28,6 +28,7 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, Void> {
 
   private static final String MODE_OPTION_KEY = "mode";
   private static final String DETECT_LANDMARKS_OPTION_KEY = "detectLandmarks";
+  private static final String DETECT_CONTOURS_OPTION_KEY = "detectContours";
   private static final String RUN_CLASSIFICATIONS_OPTION_KEY = "runClassifications";
 
   private String mUri;
@@ -160,6 +161,10 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, Void> {
 
     if(options.hasKey(DETECT_LANDMARKS_OPTION_KEY)) {
       detector.setLandmarkType(options.getInt(DETECT_LANDMARKS_OPTION_KEY));
+    }
+
+    if(options.hasKey(DETECT_CONTOURS_OPTION_KEY)) {
+      detector.setContourType(options.getInt(DETECT_CONTOURS_OPTION_KEY));
     }
 
     return detector;

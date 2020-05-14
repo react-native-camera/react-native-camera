@@ -187,6 +187,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setFaceDetectionLandmarks(landmarks);
   }
 
+  @ReactProp(name = "faceDetectionContours")
+  public void setFaceDetectionContours(RNCameraView view, int contours) {
+    view.setFaceDetectionContours(contours);
+  }
+
   @ReactProp(name = "faceDetectionClassifications")
   public void setFaceDetectionClassifications(RNCameraView view, int classifications) {
     view.setFaceDetectionClassifications(classifications);

@@ -18,6 +18,7 @@
     self.options = [[FIRVisionFaceDetectorOptions alloc] init];
     self.options.performanceMode = FIRVisionFaceDetectorPerformanceModeFast;
     self.options.landmarkMode = FIRVisionFaceDetectorLandmarkModeNone;
+    self.options.contourMode = FIRVisionFaceDetectorContourModeNone;
     self.options.classificationMode = FIRVisionFaceDetectorClassificationModeNone;
     
     self.vision = [FIRVision vision];
@@ -41,6 +42,10 @@
              @"Landmarks" : @{
                      @"all" : @(RNFaceDetectAllLandmarks),
                      @"none" : @(RNFaceDetectNoLandmarks)
+                     },
+             @"Contours" : @{
+                     @"all" : @(RNFaceDetectAllContours),
+                     @"none" : @(RNFaceDetectNoContours)
                      },
              @"Classifications" : @{
                      @"all" : @(RNFaceRunAllClassifications),
@@ -77,7 +82,21 @@
     }
 }
 
-- (void)setPerformanceMode:(id)json queue:(dispatch_queue_t)sessionQueue 
+- (void)setContoursMode:(id)json queue:(dispatch_queue_t)sessionQueue
+{
+    long requestedValue = [RCTConvert NSInteger:json];
+    if (requestedValue != self.options.contourMode) {
+        if (sessionQueue) {
+            dispatch_async(sessionQueue, ^{
+                self.options.contourMode = requestedValue;
+                self.faceRecognizer =
+                [self.vision faceDetectorWithOptions:self.options];
+            });
+        }
+    }
+}
+
+- (void)setPerformanceMode:(id)json queue:(dispatch_queue_t)sessionQueue
 {
     long requestedValue = [RCTConvert NSInteger:json];
     if (requestedValue != self.options.performanceMode) {
@@ -130,7 +149,7 @@
     NSMutableArray *result = [[NSMutableArray alloc] init];
     for (FIRVisionFace *face in faces) {
         NSMutableDictionary *resultDict =
-        [[NSMutableDictionary alloc] initWithCapacity:20];
+        [[NSMutableDictionary alloc] initWithCapacity:21];
         // Boundaries of face in image
         NSDictionary *bounds = [self processBounds:face.frame];
         [resultDict setObject:bounds forKey:@"bounds"];
@@ -222,7 +241,12 @@
             [resultDict setObject:[self processPoint:noseBase.position]
                            forKey:@"noseBasePosition"];
         }
-        
+
+        if (self.options.contourMode == FIRVisionFaceDetectorContourModeAll) {
+            NSDictionary *contours = [self processContours:face];
+            [resultDict setObject:contours forKey:@"contours"];
+        }
+
         // If classification was enabled:
         if (face.hasSmilingProbability) {
             CGFloat smileProb = face.smilingProbability;
@@ -256,7 +280,40 @@
     return boundsDict;
 }
 
-- (NSDictionary *)processPoint:(FIRVisionPoint *)point 
+- (NSDictionary *)processContours:(FIRVisionFace *)face {
+    NSDictionary *contours = @{
+        @"all" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeAll]],
+        @"face" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeFace]],
+        @"leftEye" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeLeftEye]],
+        @"leftEyebrowTop" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeLeftEyebrowTop]],
+        @"leftEyebrowBottom" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeLeftEyebrowBottom]],
+        @"rightEye" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeRightEye]],
+        @"rightEyebrowTop" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeRightEyebrowTop]],
+        @"rightEyebrowBottom" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeRightEyebrowBottom]],
+        @"upperLipTop" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeUpperLipTop]],
+        @"upperLipBottom" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeUpperLipBottom]],
+        @"lowerLipTop" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeLowerLipTop]],
+        @"lowerLipBottom" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeLowerLipBottom]],
+        @"noseBridge" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeNoseBridge]],
+        @"noseBottom" : [self contourToPoints:[face contourOfType:FIRFaceContourTypeNoseBottom]],
+    };
+    return contours;
+}
+
+- (NSArray *)contourToPoints:(FIRVisionFaceContour *)visionFaceContour {
+    NSMutableArray *pointsFormatted = [[NSMutableArray alloc] init];
+    if (visionFaceContour == nil) {
+        return pointsFormatted;
+    }
+
+    for (FIRVisionPoint *point in visionFaceContour.points) {
+        [pointsFormatted addObject:[self processPoint:point]];
+    }
+
+    return pointsFormatted;
+}
+
+- (NSDictionary *)processPoint:(FIRVisionPoint *)point
 {
     float originX = [point.x floatValue] * _scaleX;
     float originY = [point.y floatValue] * _scaleY;
@@ -299,7 +356,12 @@
 {
     return;
 }
-- (void)setLandmarksMode:(id)json:(dispatch_queue_t)sessionQueue 
+- (void)setLandmarksMode:(id)json:(dispatch_queue_t)sessionQueue
+{
+    return;
+}
+
+- (void)setContoursMode:(id)json:(dispatch_queue_t)sessionQueue
 {
     return;
 }
@@ -319,6 +381,7 @@
     return @{
              @"Mode" : @{},
              @"Landmarks" : @{},
+             @"Contours" : @{},
              @"Classifications" : @{}
              };
 }
