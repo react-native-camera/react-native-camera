@@ -1,8 +1,11 @@
 /* eslint-disable no-console */
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Slider } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Slider, Dimensions } from 'react-native';
 // eslint-disable-next-line import/no-unresolved
 import { RNCamera } from 'react-native-camera';
+
+const cameraRatio = 4 / 3;
+const windowWidth = Dimensions.get('window').width;
 
 const flashModeOrder = {
   off: 'on',
@@ -30,7 +33,7 @@ export default class CameraScreen extends React.Component {
     depth: 0,
     type: 'back',
     whiteBalance: 'auto',
-    ratio: '16:9',
+    ratio: '4:3',
     recordOptions: {
       mute: false,
       maxDuration: 5,
@@ -118,11 +121,15 @@ export default class CameraScreen extends React.Component {
   renderFace = ({ bounds, faceID, rollAngle, yawAngle }) => (
     <View
       key={faceID}
-      transform={[
-        { perspective: 600 },
-        { rotateZ: `${rollAngle.toFixed(0)}deg` },
-        { rotateY: `${yawAngle.toFixed(0)}deg` },
-      ]}
+      transform={
+        rollAngle != null && yawAngle != null
+          ? [
+              { perspective: 600 },
+              { rotateZ: `${rollAngle.toFixed(0)}deg` },
+              { rotateY: `${yawAngle.toFixed(0)}deg` },
+            ]
+          : undefined
+      }
       style={[
         styles.face,
         {
@@ -133,8 +140,8 @@ export default class CameraScreen extends React.Component {
       ]}
     >
       <Text style={styles.faceText}>ID: {faceID}</Text>
-      <Text style={styles.faceText}>rollAngle: {rollAngle.toFixed(0)}</Text>
-      <Text style={styles.faceText}>yawAngle: {yawAngle.toFixed(0)}</Text>
+      {rollAngle != null && <Text style={styles.faceText}>rollAngle: {rollAngle.toFixed(0)}</Text>}
+      {yawAngle != null && <Text style={styles.faceText}>yawAngle: {yawAngle.toFixed(0)}</Text>}
     </View>
   );
 
@@ -168,6 +175,51 @@ export default class CameraScreen extends React.Component {
     );
   }
 
+  renderContoursOfFace(face) {
+    const { contours } = face;
+    return (
+      <>
+        {Object.keys(contours).map(contourKey => {
+          if (contourKey === 'all' || !contours[contourKey] || !contours[contourKey].length) {
+            return null;
+          }
+          const points = contours[contourKey];
+          const l = points.length;
+          return (
+            <>
+              {points.map((point: Point, i) => (
+                <View
+                  key={`face-pt-${contourKey}-${i}`}
+                  style={{
+                    position: 'absolute',
+                    top: point.y,
+                    left: point.x,
+                    backgroundColor: `rgba(${Math.floor((255 * i) / l)}, ${Math.floor(
+                      (255 * (l - i)) / l,
+                    )}, 0, 0.8)`,
+                    width: 5,
+                    height: 5,
+                  }}
+                />
+              ))}
+              <Text
+                style={{
+                  position: 'absolute',
+                  top: points[0].y,
+                  left: points[0].x,
+                  fontSize: 8,
+                  color: 'white',
+                }}
+              >
+                {contourKey}
+              </Text>
+            </>
+          );
+        })}
+      </>
+    );
+  }
+
   renderFaces = () => (
     <View style={styles.facesContainer} pointerEvents="none">
       {this.state.faces.map(this.renderFace)}
@@ -177,6 +229,12 @@ export default class CameraScreen extends React.Component {
   renderLandmarks = () => (
     <View style={styles.facesContainer} pointerEvents="none">
       {this.state.faces.map(this.renderLandmarksOfFace)}
+    </View>
+  );
+
+  renderContours = () => (
+    <View style={styles.facesContainer} pointerEvents="none">
+      {this.state.faces.map(this.renderContoursOfFace)}
     </View>
   );
 
@@ -242,7 +300,8 @@ export default class CameraScreen extends React.Component {
           this.camera = ref;
         }}
         style={{
-          flex: 1,
+          width: windowWidth,
+          height: windowWidth * cameraRatio,
         }}
         type={this.state.type}
         flashMode={this.state.flash}
@@ -260,12 +319,17 @@ export default class CameraScreen extends React.Component {
         }}
         faceDetectionLandmarks={
           RNCamera.Constants.FaceDetection.Landmarks
-            ? RNCamera.Constants.FaceDetection.Landmarks.all
+            ? RNCamera.Constants.FaceDetection.Landmarks.none
             : undefined
         }
         faceDetectionClassifications={
           RNCamera.Constants.FaceDetection.Classifications
-            ? RNCamera.Constants.FaceDetection.Classifications.all
+            ? RNCamera.Constants.FaceDetection.Classifications.none
+            : undefined
+        }
+        faceDetectionContours={
+          RNCamera.Constants.FaceDetection.Contours
+            ? RNCamera.Constants.FaceDetection.Contours.all
             : undefined
         }
         onFacesDetected={canDetectFaces ? this.facesDetected : null}
@@ -401,6 +465,7 @@ export default class CameraScreen extends React.Component {
         </View>
         {!!canDetectFaces && this.renderFaces()}
         {!!canDetectFaces && this.renderLandmarks()}
+        {!!canDetectFaces && this.renderContours()}
         {!!canDetectText && this.renderTextBlocks()}
         {!!canDetectBarcode && this.renderBarcodes()}
       </RNCamera>
