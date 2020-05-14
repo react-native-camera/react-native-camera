@@ -552,6 +552,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   }
 
+  getSupportedPreviewFpsRange = async (): Promise<[]> => {
+    if (Platform.OS === 'android') {
+      return await CameraManager.getSupportedPreviewFpsRange(this._cameraHandle);
+    } else {
+      throw new Error('getSupportedPreviewFpsRange is not supported on iOS');
+    }
+  };
+
   getAvailablePictureSizes = async (): string[] => {
     //$FlowFixMe
     return await CameraManager.getAvailablePictureSizes(this.props.ratio, this._cameraHandle);

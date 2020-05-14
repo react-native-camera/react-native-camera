@@ -20,6 +20,7 @@ import com.google.android.cameraview.Size;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.List;
@@ -421,5 +422,32 @@ public class CameraModule extends ReactContextBaseJavaModule {
           e.printStackTrace();
       }
       promise.resolve(false);
+  }
+
+  @ReactMethod
+  public void getSupportedPreviewFpsRange(final int viewTag, final Promise promise) {
+      final ReactApplicationContext context = getReactApplicationContext();
+      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+      uiManager.addUIBlock(new UIBlock() {
+          @Override
+          public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+              final RNCameraView cameraView;
+
+              try {
+                  cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
+                  WritableArray result = Arguments.createArray();
+                  ArrayList<int[]> ranges = cameraView.getSupportedPreviewFpsRange();
+                  for (int[] range : ranges) {
+                      WritableMap m = new WritableNativeMap();
+                      m.putInt("MAXIMUM_FPS", range[0]);
+                      m.putInt("MINIMUM_FPS", range[1]);
+                      result.pushMap(m);
+                  }
+                  promise.resolve(result);
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
+          }
+      });
   }
 }
