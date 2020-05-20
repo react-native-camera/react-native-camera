@@ -114,6 +114,16 @@
   // self.manager.previewLayer.backgroundColor = UIColor.blueColor.CGColor;
 
   [self.layer insertSublayer:self.manager.previewLayer atIndex:0];
+    
+  if ([self.manager.cameraEventEmitter hasListener]) {
+    NSDictionary *dimensions = @{
+      @"top": @(self.manager.previewLayer.frame.origin.y),
+      @"left": @(self.manager.previewLayer.frame.origin.x),
+      @"width": @(self.manager.previewLayer.frame.size.width),
+      @"height": @(self.manager.previewLayer.frame.size.height)
+    };
+    [self.manager.cameraEventEmitter sendOnDimensionChange:dimensions];
+  }
 }
 
 - (void)insertReactSubview:(UIView *)view atIndex:(NSInteger)atIndex

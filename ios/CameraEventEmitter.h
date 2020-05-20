@@ -15,5 +15,6 @@
 - (BOOL)hasListener;
 - (void)sendOnLowLightChange:(BOOL)isLowLight;
 - (void)sendOnMovementChange:(BOOL)isMoving;
+- (void)sendOnDimensionChange:(NSDictionary *)dimensions;
 
 @end

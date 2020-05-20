@@ -12,7 +12,6 @@
 #import "RCTSensorOrientationChecker.h"
 #import <ImageIO/CGImageProperties.h>
 #import <Accelerate/Accelerate.h>
-#import "CameraEventEmitter.h"
 #include <math.h>
 
 
@@ -20,7 +19,7 @@
 
 @property (strong, nonatomic) RCTSensorOrientationChecker * sensorOrientationChecker;
 @property (assign, nonatomic) NSInteger* flashMode;
-@property (strong, nonatomic) CameraEventEmitter *cameraEventEmitter;
+
 @end
 
 @implementation RCTCameraManager

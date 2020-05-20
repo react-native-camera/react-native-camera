@@ -1,5 +1,6 @@
 #import <React/RCTViewManager.h>
 #import <AVFoundation/AVFoundation.h>
+#import "CameraEventEmitter.h"
 
 @class RCTCamera;
 
@@ -93,6 +94,7 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, assign) float lastDiff;
 @property (nonatomic, strong) NSMutableArray *avrgPixelBuffer;
 @property (nonatomic, assign) BOOL isLowLight;
+@property (strong, nonatomic) CameraEventEmitter *cameraEventEmitter;
 
 
 - (void)changeOrientation:(NSInteger)orientation;

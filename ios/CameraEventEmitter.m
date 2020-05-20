@@ -43,7 +43,7 @@ RCT_EXPORT_MODULE();
 }
 
 - (NSArray<NSString *> *)supportedEvents {
-    return @[@"onLowLightChange", @"onMovementChange"];
+    return @[@"onLowLightChange", @"onMovementChange", @"onDimensionChange"];
 }
 
 - (void)sendOnLowLightChange:(BOOL)isLowLight {
@@ -55,6 +55,12 @@ RCT_EXPORT_MODULE();
 - (void)sendOnMovementChange:(BOOL)isMoving {
     if(hasListeners) {
         [self sendEventWithName:@"onMovementChange" body:isMoving? @YES: @NO];
+    }
+}
+
+- (void)sendOnDimensionChange:(NSDictionary *)dimensions {
+    if(hasListeners) {
+        [self sendEventWithName:@"onDimensionChange" body:dimensions];
     }
 }
 
