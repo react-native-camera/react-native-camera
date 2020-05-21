@@ -43,7 +43,7 @@ RCT_EXPORT_MODULE();
 }
 
 - (NSArray<NSString *> *)supportedEvents {
-    return @[@"onLowLightChange", @"onMovementChange", @"onDimensionChange"];
+    return @[@"onLowLightChange", @"onMovementChange", @"onCameraDimensionChange"];
 }
 
 - (void)sendOnLowLightChange:(BOOL)isLowLight {
@@ -60,7 +60,7 @@ RCT_EXPORT_MODULE();
 
 - (void)sendOnDimensionChange:(NSDictionary *)dimensions {
     if(hasListeners) {
-        [self sendEventWithName:@"onDimensionChange" body:dimensions];
+        [self sendEventWithName:@"onCameraDimensionChange" body:dimensions];
     }
 }
 
