@@ -144,6 +144,8 @@ public class FaceDetectorUtils {
     newBounds.merge(faceBounds);
     newBounds.putMap("origin", translatedMirroredOrigin);
 
+    // FIXME: mirroring will place leftCheek on the right cheek, as seen on the preview
+    // mirroring follows face rotation on Y axis correctly, but also flips the whole face horizontally
     for (String landmarkName : landmarkNames) {
       ReadableMap landmark = face.hasKey(landmarkName) ? face.getMap(landmarkName) : null;
       if (landmark != null) {
@@ -152,6 +154,7 @@ public class FaceDetectorUtils {
       }
     }
 
+    // FIXME: same exact problem as landmarks position
     ReadableMap contours = face.hasKey("contours") ? face.getMap("contours") : null;
     if (contours != null) {
       WritableMap newContours = Arguments.createMap();
