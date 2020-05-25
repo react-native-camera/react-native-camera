@@ -34,7 +34,8 @@
   -(void)setContoursMode:(id)json queue:(dispatch_queue_t)sessionQueue;
   -(void)setPerformanceMode:(id)json queue:(dispatch_queue_t)sessionQueue;
   -(void)setClassificationMode:(id)json queue:(dispatch_queue_t)sessionQueue;
+  -(void)setDetectorOptions:(FIRVisionFaceDetectorOptions *)options;
   -(void)findFacesInFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float)scaleY completed:(postRecognitionBlock)completed;
   +(NSDictionary *)constants;
 
-  @end 
+  @end

@@ -81,6 +81,7 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
 
         Class faceDetectorManagerClassMlkit = NSClassFromString(@"FaceDetectorManagerMlkit");
         id faceDetector = [[faceDetectorManagerClassMlkit alloc] init];
+        [faceDetector setDetectorOptions:newOptions];
         [faceDetector findFacesInFrame:rotatedImage scaleX:1 scaleY:1 completed:^(NSArray * faces) {
             resolve(@{
                         @"faces" : faces,

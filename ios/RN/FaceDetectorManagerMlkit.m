@@ -124,6 +124,24 @@
     }
 }
 
+- (void)setDetectorOptions:(FIRVisionFaceDetectorOptions *)options
+{
+    if (options.landmarkMode != nil && self.options.landmarkMode != options.landmarkMode) {
+        self.options.landmarkMode = options.landmarkMode;
+    }
+    if (options.classificationMode != nil && self.options.classificationMode != options.classificationMode) {
+        self.options.classificationMode = options.classificationMode;
+    }
+    if (options.performanceMode != nil && self.options.performanceMode != options.performanceMode) {
+        self.options.performanceMode = options.performanceMode;
+    }
+    if (options.contourMode != nil && self.options.contourMode != options.contourMode) {
+        self.options.contourMode = options.contourMode;
+    }
+    self.faceRecognizer =
+    [self.vision faceDetectorWithOptions:self.options];
+}
+
 - (void)findFacesInFrame:(UIImage *)uiImage
                   scaleX:(float)scaleX
                   scaleY:(float)scaleY
