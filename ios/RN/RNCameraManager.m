@@ -27,6 +27,8 @@ RCT_EXPORT_VIEW_PROPERTY(onRecordingEnd, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onTextRecognized, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onSubjectAreaChanged, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
+RCT_EXPORT_VIEW_PROPERTY(onTouch, RCTDirectEventBlock);
+
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -86,7 +88,7 @@ RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"onCameraReady", @"onAudioInterrupted", @"onAudioConnected", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureTaken", @"onPictureSaved", @"onRecordingStart", @"onRecordingEnd", @"onTextRecognized", @"onGoogleVisionBarcodesDetected", @"onSubjectAreaChanged"];
+    return @[@"onCameraReady", @"onAudioInterrupted", @"onAudioConnected", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureTaken", @"onPictureSaved", @"onRecordingStart", @"onRecordingEnd", @"onTextRecognized", @"onGoogleVisionBarcodesDetected", @"onSubjectAreaChanged",@"onTouch"];
 }
 
 + (NSDictionary *)validCodecTypes
@@ -214,6 +216,12 @@ RCT_CUSTOM_VIEW_PROPERTY(focusDepth, NSNumber, RNCamera)
 {
     [view setFocusDepth:[RCTConvert float:json]];
     [view updateFocusDepth];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(useNativeZoom, BOOL, RNCamera)
+{
+    view.useNativeZoom=[RCTConvert BOOL:json];
+    [view setupOrDisablePinchZoom];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(zoom, NSNumber, RNCamera)
@@ -349,9 +357,19 @@ RCT_REMAP_METHOD(takePicture,
             RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
         } else {
 #if TARGET_IPHONE_SIMULATOR
+
             NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
+
             float quality = [options[@"quality"] floatValue];
-            NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+
+            NSString *path = nil;
+
+            if (options[@"path"]) {
+                path = options[@"path"];
+            }
+            else{
+                path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+            }
             UIImage *generatedPhoto = [RNImageUtils generatePhotoOfSize:CGSizeMake(200, 200)];
             BOOL useFastMode = options[@"fastMode"] && [options[@"fastMode"] boolValue];
             if (useFastMode) {

@@ -15,6 +15,7 @@
 @property (nonatomic, weak) RCTBridge *bridge;
 @property (nonatomic,strong) RNSensorOrientationChecker * sensorOrientationChecker;
 
+@property (nonatomic,strong) UIPinchGestureRecognizer *pinchGestureRecognizer;
 @property (nonatomic, strong) RCTPromiseResolveBlock videoRecordedResolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock videoRecordedReject;
 @property (nonatomic, strong) id textDetector;
@@ -26,6 +27,7 @@
 @property (nonatomic, copy) RCTDirectEventBlock onAudioConnected;
 @property (nonatomic, copy) RCTDirectEventBlock onMountError;
 @property (nonatomic, copy) RCTDirectEventBlock onBarCodeRead;
+@property (nonatomic, copy) RCTDirectEventBlock onTouch;
 @property (nonatomic, copy) RCTDirectEventBlock onTextRecognized;
 @property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onGoogleVisionBarcodesDetected;
@@ -77,6 +79,12 @@ BOOL _sessionInterrupted = NO;
         self.previewLayer.needsDisplayOnBoundsChange = YES;
 #endif
         self.rectOfInterest = CGRectMake(0, 0, 1.0, 1.0);
+       
+        UITapGestureRecognizer * tapHandler=[self createTapGestureRecognizer];
+        [self addGestureRecognizer:tapHandler];
+        UITapGestureRecognizer * doubleTabHandler=[self createDoubleTapGestureRecognizer];
+        [self addGestureRecognizer:doubleTabHandler];
+
         self.autoFocus = -1;
         self.exposure = -1;
         self.presetCamera = AVCaptureDevicePositionUnspecified;
@@ -95,6 +103,69 @@ BOOL _sessionInterrupted = NO;
 
     }
     return self;
+}
+-(UITapGestureRecognizer*)createDoubleTapGestureRecognizer
+{
+    UITapGestureRecognizer *doubleTapGestureRecognizer =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
+    doubleTapGestureRecognizer.numberOfTapsRequired = 2;
+    return doubleTapGestureRecognizer;
+          
+}
+-(UITapGestureRecognizer*)createTapGestureRecognizer
+{
+    UITapGestureRecognizer *tapGestureRecognizer =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+    tapGestureRecognizer.numberOfTapsRequired = 1;
+    return tapGestureRecognizer;
+          
+}
+-(void)handleDoubleTap:(UITapGestureRecognizer*)doubleTapRecognizer {
+    [self handleTouch:doubleTapRecognizer isDoubleTap:true];
+}
+-(void)handleTap:(UITapGestureRecognizer*)tapRecognizer {
+    [self handleTouch:tapRecognizer isDoubleTap:false];
+}
+-(void)handleTouch:(UITapGestureRecognizer*)tapRecognizer isDoubleTap:(BOOL)isDoubleTap{
+    if (tapRecognizer.state == UIGestureRecognizerStateRecognized) {
+        CGPoint location = [tapRecognizer locationInView:self];
+        NSDictionary *tapEvent = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"isDoubleTab":@(isDoubleTap),
+            @"touchOrigin": @{
+                @"x": @(location.x),
+                @"y": @(location.y)
+            }
+        }];
+        [self onTouch:tapEvent];
+    }
+}
+-(float) getMaxZoomFactor:(AVCaptureDevice*)device {
+    float maxZoom;
+    if(self.maxZoom > 1){
+        maxZoom = MIN(self.maxZoom, device.activeFormat.videoMaxZoomFactor);
+    }else{
+        maxZoom = device.activeFormat.videoMaxZoomFactor;
+    }
+    return maxZoom;
+}
+
+-(void) handlePinchToZoomRecognizer:(UIPinchGestureRecognizer*)pinchRecognizer {
+    const CGFloat pinchVelocityDividerFactor = 5.0f;
+
+    if (pinchRecognizer.state == UIGestureRecognizerStateChanged) {
+        AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+        if(device == nil){
+            return;
+        }
+        NSError *error = nil;
+        float maxZoom = [self getMaxZoomFactor:device];
+        if ([device lockForConfiguration:&error]) {
+            CGFloat desiredZoomFactor = device.videoZoomFactor + atan2f(pinchRecognizer.velocity, pinchVelocityDividerFactor);
+            // Check if desiredZoomFactor fits required range from 1.0 to activeFormat.videoMaxZoomFactor
+            device.videoZoomFactor = MAX(1.0, MIN(desiredZoomFactor, maxZoom));
+            [device unlockForConfiguration];
+        } else {
+            NSLog(@"error: %@", error);
+        }
+    }
 }
 
 - (void)onReady:(NSDictionary *)event
@@ -143,6 +214,12 @@ BOOL _sessionInterrupted = NO;
 {
     if (_onRecordingEnd) {
         _onRecordingEnd(event);
+    }
+}
+- (void)onTouch:(NSDictionary *)event
+{
+    if (_onTouch) {
+        _onTouch(event);
     }
 }
 
@@ -508,14 +585,14 @@ BOOL _sessionInterrupted = NO;
 - (void)updateZoom {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     [self lockDevice:device andApplySettings:^{
-        float maxZoom;
-        if(self.maxZoom > 1) {
-            maxZoom = MIN(self.maxZoom, device.activeFormat.videoMaxZoomFactor);
-        } else{
-            maxZoom = device.activeFormat.videoMaxZoomFactor;
-        }
-        device.videoZoomFactor = (maxZoom - 1) * self.zoom + 1;
+        float maxZoom = [self getMaxZoomFactor:device];
+         device.videoZoomFactor = (maxZoom - 1) * self.zoom + 1;
     }];
+
+    float maxZoom = [self getMaxZoomFactor:device];
+
+        
+   
 }
 
 - (void)updateWhiteBalance {
@@ -840,7 +917,13 @@ BOOL _sessionInterrupted = NO;
 
                     NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
 
-                    NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+                    NSString *path = nil;
+                    if (options[@"path"]) {
+                        path = options[@"path"];
+                    }
+                    else{
+                        path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+                    }
 
                     if (![options[@"doNotSave"] boolValue]) {
                         response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
@@ -1054,7 +1137,7 @@ BOOL _sessionInterrupted = NO;
                     device.activeVideoMinFrameDuration = CMTimeMake(1, (int32_t)desiredFPS);
                     device.activeVideoMaxFrameDuration = CMTimeMake(1, (int32_t)desiredFPS);
                     [device unlockForConfiguration];
-                } 
+                }
             } else {
                 RCTLog(@"We could not find a suitable format for this device.");
             }
@@ -1621,6 +1704,20 @@ BOOL _sessionInterrupted = NO;
             [strongSelf.previewLayer.connection setVideoOrientation:videoOrientation];
         }
     });
+}
+-(UIPinchGestureRecognizer*)createUIPinchGestureRecognizer
+{
+    return [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchToZoomRecognizer:)];
+}
+- (void)setupOrDisablePinchZoom
+{
+    if([self useNativeZoom]){
+        self.pinchGestureRecognizer=[self createUIPinchGestureRecognizer];
+        [self addGestureRecognizer:self.pinchGestureRecognizer];
+    }else{
+        [self removeGestureRecognizer:self.pinchGestureRecognizer];
+        self.pinchGestureRecognizer=nil;
+    }
 }
 
 # pragma mark - AVCaptureMetadataOutput

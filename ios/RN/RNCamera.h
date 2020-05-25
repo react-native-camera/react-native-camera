@@ -49,6 +49,8 @@
 @property(nonatomic, assign) BOOL canDetectBarcodes;
 @property(nonatomic, assign) BOOL captureAudio;
 @property(nonatomic, assign) BOOL keepAudioSession;
+@property(nonatomic, assign) BOOL useNativeZoom;
+
 @property(nonatomic, assign) CGRect rectOfInterest;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property(assign, nonatomic)
@@ -92,6 +94,7 @@
 - (void)stopRecording;
 - (void)resumePreview;
 - (void)pausePreview;
+- (void)setupOrDisablePinchZoom;
 - (void)setupOrDisableBarcodeScanner;
 - (void)setupOrDisableTextDetector;
 - (void)setupOrDisableFaceDetector;
@@ -105,6 +108,7 @@
 - (void)onRecordingStart:(NSDictionary *)event;
 - (void)onRecordingEnd:(NSDictionary *)event;
 - (void)onText:(NSDictionary *)event;
+- (void)onTouch:(NSDictionary *)event;
 - (void)onBarcodesDetected:(NSDictionary *)event;
 - (bool)isRecording;
 - (void)onSubjectAreaChanged:(NSDictionary *)event;

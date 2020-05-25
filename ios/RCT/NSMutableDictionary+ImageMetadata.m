@@ -9,9 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <ImageIO/ImageIO.h>
 
-@interface NSMutableDictionary(ImageMetadata)
-- (void)mergeMetadata:(NSDictionary *)inputMetadata;
-@end
+#import "NSMutableDictionary+ImageMetadata.h"
 
 @implementation NSMutableDictionary(ImageMetadata)
 
