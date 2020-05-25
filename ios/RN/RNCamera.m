@@ -586,13 +586,8 @@ BOOL _sessionInterrupted = NO;
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     [self lockDevice:device andApplySettings:^{
         float maxZoom = [self getMaxZoomFactor:device];
-         device.videoZoomFactor = (maxZoom - 1) * self.zoom + 1;
-    }];
-
-    float maxZoom = [self getMaxZoomFactor:device];
-
-        
-   
+        device.videoZoomFactor = (maxZoom - 1) * self.zoom + 1;
+    }];   
 }
 
 - (void)updateWhiteBalance {
