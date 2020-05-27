@@ -1,68 +1,126 @@
 #pragma once
 #include <pch.h>
+
 #include "NativeModules.h"
-#include "JSValueTreeWriter.h"
+
 #include "CameraRotationHelper.h"
+#include "JSValueTreeWriter.h"
 #include "ReactCameraConstants.h"
 
 namespace winrt::ReactNativeCameraCPP {
-    struct ReactCameraView : winrt::Windows::UI::Xaml::Controls::GridT <ReactCameraView> {
-    public:
-        ReactCameraView() = default;
-        ~ReactCameraView();
-        void SetContext(winrt::Microsoft::ReactNative::IReactContext const &reactContext);
-        void Initialize();
-        void UpdateProperties(winrt::Microsoft::ReactNative::IJSValueReader const &propertyMapReader);
-        
-        winrt::Windows::Foundation::IAsyncAction TakePictureAsync(std::map<std::wstring, winrt::Microsoft::ReactNative::JSValue> const& options,
-            winrt::Microsoft::ReactNative::ReactPromise<winrt::Microsoft::ReactNative::JSValueObject> &result);
-        winrt::Windows::Foundation::IAsyncAction RecordAsync(std::map<std::wstring, winrt::Microsoft::ReactNative::JSValue> const& options, winrt::Microsoft::ReactNative::ReactPromise<winrt::Microsoft::ReactNative::JSValueObject>& result);
+struct ReactCameraView : winrt::Windows::UI::Xaml::Controls::GridT<ReactCameraView> {
+ public:
+  ReactCameraView() = default;
+  ~ReactCameraView();
+  void SetContext(winrt::Microsoft::ReactNative::IReactContext const &reactContext);
+  void Initialize();
+  void UpdateProperties(winrt::Microsoft::ReactNative::IJSValueReader const &propertyMapReader) noexcept;
 
-    public:
-        static winrt::com_ptr<ReactCameraView> Create();
+  winrt::Windows::Foundation::IAsyncAction TakePictureAsync(
+      winrt::Microsoft::ReactNative::JSValueObject const &options,
+      winrt::Microsoft::ReactNative::ReactPromise<winrt::Microsoft::ReactNative::JSValueObject> const &result) noexcept;
+  winrt::Windows::Foundation::IAsyncAction RecordAsync(
+      winrt::Microsoft::ReactNative::JSValueObject const &options,
+      winrt::Microsoft::ReactNative::ReactPromise<winrt::Microsoft::ReactNative::JSValueObject> const &result) noexcept;
+  winrt::Windows::Foundation::IAsyncAction StopRecordAsync() noexcept;
+  winrt::Windows::Foundation::IAsyncAction IsRecordingAsync(
+      winrt::Microsoft::ReactNative::ReactPromise<bool> const &result) noexcept;
+  winrt::Windows::Foundation::IAsyncAction PausePreviewAsync() noexcept;
+  winrt::Windows::Foundation::IAsyncAction ResumePreviewAsync() noexcept;
 
-    private:
-        void UpdateKeepAwake(bool keepAwake);
-        void UpdateTorchMode(int torchMode);
-        void UpdateFlashMode(int flashMode);
-        void UpdateAspect(int aspect);
-        fire_and_forget UpdateDeviceType(int type);
+ public:
+  static winrt::com_ptr<ReactCameraView> Create();
 
-        winrt::Windows::Foundation::IAsyncAction InitializeAsync();
-        winrt::Windows::Foundation::IAsyncAction CleanupMediaCaptureAsync();
-        winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Devices::Enumeration::DeviceInformation> FindCameraDeviceByPanelAsync();
-        winrt::Windows::Foundation::IAsyncOperation<winrt::hstring> GetBase64DataAsync(winrt::Windows::Storage::Streams::IRandomAccessStream stream);
-        winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::StorageFile> GetOutputStorageFileAsync(int type, int target);
-        winrt::Windows::Foundation::IAsyncAction DelayStopRecording(int totalRecordingInSecs);
-        winrt::Windows::Foundation::IAsyncAction WaitAndStopRecording();
-        winrt::Windows::Foundation::IAsyncAction UpdatePreviewOrientationAsync();
-        winrt::Windows::Foundation::IAsyncAction UpdateFilePropertiesAsync(winrt::Windows::Storage::StorageFile storageFile,
-            std::map<std::wstring, winrt::Microsoft::ReactNative::JSValue> const& options);
+ private:
+  void UpdateKeepAwake(bool keepAwake);
+  void UpdateFlashMode(int flashMode);
+  void UpdateAutoFocus(int focusMode);
+  void UpdateWhiteBalance(int whiteBalance);
+  void UpdateMirrorVideo(bool mirrorVideo);
+  void UpdateAspect(int aspect);
+  void UpdateDefaultVideoQuality(int videoQuality);
 
-        void OnOrientationChanged(const bool updatePreview);
-        void OnApplicationSuspending();
-        void OnApplicationResuming();
-        winrt::Windows::Foundation::IAsyncAction OnUnloaded();
+  fire_and_forget UpdateDeviceId(std::string cameraId);
+  fire_and_forget UpdateDeviceType(int type);
 
-        bool TryGetValueAsInt(std::map<std::wstring, winrt::Microsoft::ReactNative::JSValue> const& options, const std::wstring key, int& value);
+  winrt::Windows::Foundation::IAsyncAction InitializeAsync();
 
-        winrt::Microsoft::ReactNative::IReactContext m_reactContext{ nullptr };
-        winrt::Windows::UI::Xaml::Controls::CaptureElement m_childElement;
+  winrt::Windows::Foundation::IAsyncAction UpdateMediaStreamPropertiesAsync();
+  winrt::Windows::Foundation::IAsyncAction UpdateMediaStreamPropertiesAsync(int videoQuality);
 
-        handle m_signal{ CreateEvent(nullptr, true, false, nullptr) };
-        winrt::Windows::Media::Capture::LowLagMediaRecording m_mediaRecording{ nullptr};
-        winrt::ReactNativeCameraCPP::CameraRotationHelper m_rotationHelper{nullptr};
-        winrt::Windows::System::Display::DisplayRequest m_displayRequest{ nullptr };
+  winrt::Windows::Foundation::IAsyncAction CleanupMediaCaptureAsync();
+  winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Devices::Enumeration::DeviceInformation>
+  FindCameraDeviceAsync();
+  winrt::Windows::Foundation::IAsyncOperation<winrt::hstring> GetBase64DataAsync(
+      winrt::Windows::Storage::Streams::IRandomAccessStream stream);
+  winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::StorageFile> GetOutputStorageFileAsync(
+      int type,
+      int target);
+  void DelayStopRecording(float totalRecordingInSecs);
+  winrt::Windows::Foundation::IAsyncAction WaitAndStopRecording();
+  winrt::Windows::Foundation::IAsyncAction UpdatePreviewOrientationAsync();
+  winrt::Windows::Foundation::IAsyncAction UpdateFilePropertiesAsync(
+      winrt::Windows::Storage::StorageFile storageFile,
+      winrt::Microsoft::ReactNative::JSValueObject const &options);
 
-        winrt::event_token m_rotationEventToken{};
-        winrt::Windows::UI::Xaml::Application::Suspending_revoker m_applicationSuspendingEventToken;
-        winrt::Windows::UI::Xaml::Application::Resuming_revoker m_applicationResumingEventToken;
-        winrt::Windows::UI::Xaml::FrameworkElement::Unloaded_revoker m_unloadedEventToken;
+  void OnOrientationChanged(const bool updatePreview);
+  void OnApplicationSuspending();
+  void OnApplicationResuming();
+  winrt::Windows::Foundation::IAsyncAction OnUnloaded();
 
-        bool m_isInitialized{ false };
-        bool m_keepAwake{ false };
-        int m_torchMode{ ReactCameraContants::CameraTorchModeOff };
-        int m_flashMode{ ReactCameraContants::CameraFlashModeOff };
-        winrt::Windows::Devices::Enumeration::Panel m_panelType{ winrt::Windows::Devices::Enumeration::Panel::Unknown };
-    };
-} // namespace winrt::ReactNativeVideoCPP
+  winrt::Microsoft::ReactNative::JSValueObject GetExifObject(
+      winrt::Windows::Graphics::Imaging::BitmapPropertySet const &properties) noexcept;
+
+  bool TryGetValueAsInt(
+      winrt::Microsoft::ReactNative::JSValueObject const &options,
+      const std::string key,
+      int &value,
+      const int defaultValue) noexcept;
+
+  bool TryGetValueAsBool(
+      winrt::Microsoft::ReactNative::JSValueObject const &options,
+      const std::string key,
+      bool &value,
+      const bool defaultValue) noexcept;
+
+  bool TryGetValueAsFloat(
+      winrt::Microsoft::ReactNative::JSValueObject const &options,
+      const std::string key,
+      float &value,
+      const float defaultValue) noexcept;
+
+  winrt::Microsoft::ReactNative::IReactContext m_reactContext{nullptr};
+  winrt::Windows::UI::Xaml::Controls::CaptureElement m_childElement;
+
+  handle m_signal{CreateEvent(nullptr, true, false, nullptr)};
+  winrt::Windows::Media::Capture::LowLagMediaRecording m_mediaRecording{nullptr};
+  winrt::ReactNativeCameraCPP::CameraRotationHelper m_rotationHelper{nullptr};
+  winrt::Windows::System::Display::DisplayRequest m_displayRequest{nullptr};
+
+  winrt::Windows::System::Threading::ThreadPoolTimer m_recordTimer{nullptr};
+
+  winrt::event_token m_rotationEventToken{};
+  winrt::Windows::UI::Xaml::Application::Suspending_revoker m_applicationSuspendingEventToken;
+  winrt::Windows::UI::Xaml::Application::Resuming_revoker m_applicationResumingEventToken;
+  winrt::Windows::UI::Xaml::FrameworkElement::Unloaded_revoker m_unloadedEventToken;
+
+  bool m_isInitialized{false};
+  bool m_keepAwake{false};
+  bool m_isRecording{false};
+  int m_flashMode{ReactCameraConstants::CameraFlashModeOff};
+  int m_whiteBalance{ReactCameraConstants::CameraWhiteBalanceAuto};
+  int m_focusMode{ReactCameraConstants::CameraAutoFocusOn};
+  bool m_isPreview{false};
+  bool m_mirrorVideo{false};
+
+  std::string m_cameraId;
+
+  winrt::Windows::Devices::Enumeration::Panel m_panelType{winrt::Windows::Devices::Enumeration::Panel::Unknown};
+
+  winrt::Windows::Foundation::Collections::IVectorView<winrt::Windows::Media::MediaProperties::IMediaEncodingProperties>
+      m_availableVideoEncodingProperties;
+
+  int m_defaultVideoQuality{ReactCameraConstants::CameraVideoQualityAuto};
+
+};
+} // namespace winrt::ReactNativeCameraCPP

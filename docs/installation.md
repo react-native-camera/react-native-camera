@@ -4,6 +4,7 @@ title: Installation
 ---
 
 This document is split into two main sections:
+
 1. Required installation steps for basic usage of `react-native-camera`
 2. Additional installation steps for usage of Face Detection/Text Recognition/BarCode with [MLKit](https://developers.google.com/ml-kit)
 
@@ -40,16 +41,16 @@ _These steps assume installation for iOS/Android. To install it with Windows, se
 
 3. Append the following lines to `android/settings.gradle`:
 
-  ```gradle
-  include ':react-native-camera'
-  project(':react-native-camera').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-camera/android')
-  ```
+```gradle
+include ':react-native-camera'
+project(':react-native-camera').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-camera/android')
+```
 
 4. Insert the following lines in `android/app/build.gradle` inside the dependencies block:
 
-  ```gradle
-  implementation project(':react-native-camera')
-  ```
+```gradle
+implementation project(':react-native-camera')
+```
 
 ## iOS - other required steps
 
@@ -76,38 +77,39 @@ Add permissions with usage descriptions to your app `Info.plist`:
 <details>
   <summary>Additional information in case of problems</summary>
 
-  You might need to adjust your Podfile following the example below:
+You might need to adjust your Podfile following the example below:
 
-  ```ruby
-  target 'yourTargetName' do
-    # See http://facebook.github.io/react-native/docs/integration-with-existing-apps.html#configuring-cocoapods-dependencies
-    pod 'React', :path => '../node_modules/react-native', :subspecs => [
-      'Core',
-      'CxxBridge', # Include this for RN >= 0.47
-      'DevSupport', # Include this to enable In-App Devmenu if RN >= 0.43
-      'RCTText',
-      'RCTNetwork',
-      'RCTWebSocket', # Needed for debugging
-      'RCTAnimation', # Needed for FlatList and animations running on native UI thread
-      # Add any other subspecs you want to use in your project
-    ]
+```ruby
+target 'yourTargetName' do
+  # See http://facebook.github.io/react-native/docs/integration-with-existing-apps.html#configuring-cocoapods-dependencies
+  pod 'React', :path => '../node_modules/react-native', :subspecs => [
+    'Core',
+    'CxxBridge', # Include this for RN >= 0.47
+    'DevSupport', # Include this to enable In-App Devmenu if RN >= 0.43
+    'RCTText',
+    'RCTNetwork',
+    'RCTWebSocket', # Needed for debugging
+    'RCTAnimation', # Needed for FlatList and animations running on native UI thread
+    # Add any other subspecs you want to use in your project
+  ]
 
-    # Explicitly include Yoga if you are using RN >= 0.42.0
-    pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
+  # Explicitly include Yoga if you are using RN >= 0.42.0
+  pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
 
-    # Third party deps podspec link
-    pod 'react-native-camera', path: '../node_modules/react-native-camera'
+  # Third party deps podspec link
+  pod 'react-native-camera', path: '../node_modules/react-native-camera'
 
-  end
+end
 
-  post_install do |installer|
-    installer.pods_project.targets.each do |target|
-      if target.name == "React"
-        target.remove_from_project
-      end
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    if target.name == "React"
+      target.remove_from_project
     end
   end
-  ```
+end
+```
+
 </details>
 
 ## Android - other required steps
@@ -141,18 +143,19 @@ android {
 <details>
   <summary>Additional information in case of problems</summary>
 
-  1. Make sure you use `JDK >= 1.7` and your `buildToolsVersion >= 25.0.2`
+1. Make sure you use `JDK >= 1.7` and your `buildToolsVersion >= 25.0.2`
 
-  2. Make sure you have jitpack added in `android/build.gradle`
+2. Make sure you have jitpack added in `android/build.gradle`
 
-  ```gradle
-  allprojects {
-      repositories {
-          maven { url "https://www.jitpack.io" }
-          maven { url "https://maven.google.com" }
-      }
-  }
-  ```
+```gradle
+allprojects {
+    repositories {
+        maven { url "https://www.jitpack.io" }
+        maven { url "https://maven.google.com" }
+    }
+}
+```
+
 </details>
 
 # Additional installation steps
@@ -170,7 +173,7 @@ If you want any of these optional features, you will need to use CocoaPods.
 
 Add dependency towards `react-native-camera` in your `Podfile` with `subspecs` using one of the following:
 
-* For Face Detection:
+- For Face Detection:
 
 ```ruby
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
@@ -178,7 +181,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 ]
 ```
 
-* For Text Recognition:
+- For Text Recognition:
 
 ```ruby
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
@@ -186,7 +189,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 ]
 ```
 
-* For BarCode Recognition:
+- For BarCode Recognition:
 
 ```ruby
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
@@ -194,7 +197,7 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 ]
 ```
 
-* For all possible detections:
+- For all possible detections:
 
 ```ruby
 pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
@@ -231,10 +234,9 @@ In short, you would need to
 <details>
   <summary>Additional information in case of problems</summary>
 
-  - If you have issues with duplicate symbols you will need to enable dead code stripping option in your Xcode (Target > Build Settings > search for "Dead code stripping") [see here](https://github.com/firebase/quickstart-ios/issues/487#issuecomment-415313053).
-  - If you are using `pod Firebase/Core` with a version set below 5.13 you might want to add `pod 'GoogleAppMeasurement', '~> 5.3.0'` to your podfile
-</details>
-
+- If you have issues with duplicate symbols you will need to enable dead code stripping option in your Xcode (Target > Build Settings > search for "Dead code stripping") [see here](https://github.com/firebase/quickstart-ios/issues/487#issuecomment-415313053).
+- If you are using `pod Firebase/Core` with a version set below 5.13 you might want to add `pod 'GoogleAppMeasurement', '~> 5.3.0'` to your podfile
+  </details>
 
 ## Android
 
@@ -291,157 +293,165 @@ apply plugin: 'com.google.gms.google-services'
   <summary>Additional information in case of problems</summary>
   The current Android library defaults to the below values for the Google SDK and Libraries,
 
-  ```gradle
-  def DEFAULT_COMPILE_SDK_VERSION             = 26
-  def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
-  def DEFAULT_TARGET_SDK_VERSION              = 26
-  def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
-  def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
-  ```
+```gradle
+def DEFAULT_COMPILE_SDK_VERSION             = 26
+def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
+def DEFAULT_TARGET_SDK_VERSION              = 26
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
+def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
+```
 
-  You can override this settings by adding a Project-wide gradle configuration properties for
-  use by all modules in your ReactNative project by adding the below to `android/build.gradle`
-  file,
+You can override this settings by adding a Project-wide gradle configuration properties for
+use by all modules in your ReactNative project by adding the below to `android/build.gradle`
+file,
 
-  ```gradle
-  buildscript {...}
+```gradle
+buildscript {...}
 
-  allprojects {...}
+allprojects {...}
 
-  /**
-  * Project-wide gradle configuration properties for use by all modules
-  */
-  ext {
-      compileSdkVersion           = 26
-      targetSdkVersion            = 26
-      buildToolsVersion           = "26.0.2"
-      googlePlayServicesVersion   = "12.0.1"
-      googlePlayServicesVisionVersion = "15.0.2"
-      supportLibVersion           = "27.1.0"
-  }
-  ```
+/**
+* Project-wide gradle configuration properties for use by all modules
+*/
+ext {
+    compileSdkVersion           = 26
+    targetSdkVersion            = 26
+    buildToolsVersion           = "26.0.2"
+    googlePlayServicesVersion   = "12.0.1"
+    googlePlayServicesVisionVersion = "15.0.2"
+    supportLibVersion           = "27.1.0"
+}
+```
 
-  The above settings in the ReactNative project over-rides the values present in the `react-native-camera`
-  module. For your reference below is the `android/build.gradle` file of the module.
+The above settings in the ReactNative project over-rides the values present in the `react-native-camera`
+module. For your reference below is the `android/build.gradle` file of the module.
 
-  ```gradle
-  def safeExtGet(prop, fallback) {
-      rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
-  }
+```gradle
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
 
-  buildscript {
-    repositories {
-      google()
-      maven {
-        url 'https://maven.google.com'
-      }
-      jcenter()
-    }
-
-    dependencies {
-      classpath 'com.android.tools.build:gradle:3.3.1'
-    }
-  }
-
-  apply plugin: 'com.android.library'
-
-  android {
-    compileSdkVersion safeExtGet('compileSdkVersion', 28)
-    buildToolsVersion safeExtGet('buildToolsVersion', '28.0.3')
-
-    defaultConfig {
-      minSdkVersion safeExtGet('minSdkVersion', 16)
-      targetSdkVersion safeExtGet('targetSdkVersion', 28)
-    }
-
-    flavorDimensions "react-native-camera"
-
-    productFlavors {
-      general {
-        dimension "react-native-camera"
-      }
-      mlkit {
-        dimension "react-native-camera"
-      }
-    }
-
-    sourceSets {
-      main {
-        java.srcDirs = ['src/main/java']
-      }
-      general {
-        java.srcDirs = ['src/general/java']
-      }
-      mlkit {
-        java.srcDirs = ['src/mlkit/java']
-      }
-    }
-
-    lintOptions {
-      abortOnError false
-      warning 'InvalidPackage'
-    }
-  }
-
+buildscript {
   repositories {
     google()
+    maven {
+      url 'https://maven.google.com'
+    }
     jcenter()
-    maven {
-    url 'https://maven.google.com'
-    }
-    maven { url "https://jitpack.io" }
-    maven {
-      // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-      url "$rootDir/../node_modules/react-native/android"
-    }
   }
 
   dependencies {
-    def googlePlayServicesVisionVersion = safeExtGet('googlePlayServicesVisionVersion', safeExtGet('googlePlayServicesVersion', '17.0.2'))
-
-    implementation 'com.facebook.react:react-native:+'
-    implementation "com.google.zxing:core:3.3.3"
-    implementation "com.drewnoakes:metadata-extractor:2.11.0"
-    generalImplementation "com.google.android.gms:play-services-vision:$googlePlayServicesVisionVersion"
-    implementation "com.android.support:exifinterface:${safeExtGet('supportLibVersion', '28.0.0')}"
-    implementation "com.android.support:support-annotations:${safeExtGet('supportLibVersion', '28.0.0')}"
-    implementation "com.android.support:support-v4:${safeExtGet('supportLibVersion', '28.0.0')}"
-    mlkitImplementation "com.google.firebase:firebase-ml-vision:${safeExtGet('firebase-ml-vision', '19.0.3')}"
-    mlkitImplementation "com.google.firebase:firebase-ml-vision-face-model:${safeExtGet('firebase-ml-vision-face-model', '17.0.2')}"
+    classpath 'com.android.tools.build:gradle:3.3.1'
   }
-  ```
+}
 
-  If you are using a version of `googlePlayServicesVersion` that does not have `play-services-vision`, you can specify a different version of `play-services-vision` by adding `googlePlayServicesVisionVersion` to the project-wide properties
+apply plugin: 'com.android.library'
 
-  ```gradle
-  ext {
-      compileSdkVersion           = 26
-      targetSdkVersion            = 26
-      buildToolsVersion           = "26.0.2"
-      googlePlayServicesVersion   = "16.0.1"
-      googlePlayServicesVisionVersion = "15.0.2"
-      supportLibVersion           = "27.1.0"
+android {
+  compileSdkVersion safeExtGet('compileSdkVersion', 28)
+  buildToolsVersion safeExtGet('buildToolsVersion', '28.0.3')
+
+  defaultConfig {
+    minSdkVersion safeExtGet('minSdkVersion', 16)
+    targetSdkVersion safeExtGet('targetSdkVersion', 28)
   }
-  ```
+
+  flavorDimensions "react-native-camera"
+
+  productFlavors {
+    general {
+      dimension "react-native-camera"
+    }
+    mlkit {
+      dimension "react-native-camera"
+    }
+  }
+
+  sourceSets {
+    main {
+      java.srcDirs = ['src/main/java']
+    }
+    general {
+      java.srcDirs = ['src/general/java']
+    }
+    mlkit {
+      java.srcDirs = ['src/mlkit/java']
+    }
+  }
+
+  lintOptions {
+    abortOnError false
+    warning 'InvalidPackage'
+  }
+}
+
+repositories {
+  google()
+  jcenter()
+  maven {
+  url 'https://maven.google.com'
+  }
+  maven { url "https://jitpack.io" }
+  maven {
+    // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+    url "$rootDir/../node_modules/react-native/android"
+  }
+}
+
+dependencies {
+  def googlePlayServicesVisionVersion = safeExtGet('googlePlayServicesVisionVersion', safeExtGet('googlePlayServicesVersion', '17.0.2'))
+
+  implementation 'com.facebook.react:react-native:+'
+  implementation "com.google.zxing:core:3.3.3"
+  implementation "com.drewnoakes:metadata-extractor:2.11.0"
+  generalImplementation "com.google.android.gms:play-services-vision:$googlePlayServicesVisionVersion"
+  implementation "com.android.support:exifinterface:${safeExtGet('supportLibVersion', '28.0.0')}"
+  implementation "com.android.support:support-annotations:${safeExtGet('supportLibVersion', '28.0.0')}"
+  implementation "com.android.support:support-v4:${safeExtGet('supportLibVersion', '28.0.0')}"
+  mlkitImplementation "com.google.firebase:firebase-ml-vision:${safeExtGet('firebase-ml-vision', '19.0.3')}"
+  mlkitImplementation "com.google.firebase:firebase-ml-vision-face-model:${safeExtGet('firebase-ml-vision-face-model', '17.0.2')}"
+}
+```
+
+If you are using a version of `googlePlayServicesVersion` that does not have `play-services-vision`, you can specify a different version of `play-services-vision` by adding `googlePlayServicesVisionVersion` to the project-wide properties
+
+```gradle
+ext {
+    compileSdkVersion           = 26
+    targetSdkVersion            = 26
+    buildToolsVersion           = "26.0.2"
+    googlePlayServicesVersion   = "16.0.1"
+    googlePlayServicesVisionVersion = "15.0.2"
+    supportLibVersion           = "27.1.0"
+}
+```
+
 </details>
 
 # Windows
 
-## Windows RNW C++/WinRT details
+## Manual linking for RNW 0.62
+
 1. `yarn install react-native-camera`
 2. Link the library as described below:
-   windows/myapp.sln
-     Add the ReactNativeCamera project to your solution.
-     Open the solution in Visual Studio 2019
-     Right-click Solution icon in Solution Explorer > Add > Existing Project Select node_modules\react-native-camera\windows\ReactNativeCameraCPP\ReactNativeCameraCPP.vcxproj
-   windows/myapp/myapp.vcxproj
-     Add a reference to ReactNativeCameraCPP to your main application project. From Visual Studio 2019:
-     Right-click main application project > Add > Reference... Check ReactNativeCameraCPP from Solution Projects.
-3. Modify files below to add the Camera package providers to your main application project
-   pch.h
-     Add #include "winrt/ReactNativeCameraCPP.h".
-  app.cpp
-     Add PackageProviders().Append(winrt::ReactNativeCameraCPP::ReactPackageProvider()); before InitializeComponent();
-3. Add the capabilities (permissions) for the webcam and microphone as described here: [docs.microsoft / audio-video-camera](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/simple-camera-preview-access#add-capability-declarations-to-the-app-manifest)
+   1. Add the _ReactNativeCameraCPP_ project to your solution (eg. `windows\yourapp.sln`)
+      1. Open your solution in Visual Studio 2019
+      2. Right-click Solution icon in Solution Explorer > Add > Existing Project...
+      3. Select `node_modules\react-native-camera\windows\ReactNativeCameraCPP\ReactNativeCameraCPP.vcxproj`
+   2. Add a reference to _ReactNativeCameraCPP_ to your main application project (eg. `windows\yourapp\yourapp.vcxproj`)
+      1. Open your solution in Visual Studio 2019
+      2. Right-click main application project > Add > Reference...
+      3. Check _ReactNativeCameraCPP_ from Solution Projects
+3. Modify files below to add the package providers to your main application project
+   1. `pch.h`
+      1. Add `#include "winrt/ReactNativeCameraCPP.h"`
+   2. `App.cpp`
+      1. Add `PackageProviders().Append(winrt::ReactNativeCameraCPP::ReactPackageProvider());` before `InitializeComponent();`
+4. Add the capabilities (permissions) for the webcam and microphone as described here: [Add capability declarations to the app manifest](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/simple-camera-preview-access#add-capability-declarations-to-the-app-manifest)
+5. If you plan on capturing images to the Pictures Library, or videos to the Videos Library, be sure to enable those capabilities too
+
+## Manual linking for RNW 0.61
+
+Follow the same manual steps for RNW 0.62 above, but for step 2 substitute _ReactNativeCameraCPP61_ for _ReactNativeCameraCPP_.
 
 Follow the [Q & A](QA.md) section if you are having compilation issues.
