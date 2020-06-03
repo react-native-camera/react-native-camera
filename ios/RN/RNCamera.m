@@ -2285,16 +2285,16 @@ BOOL _sessionInterrupted = NO;
 
             switch ([self.barcodeDetector detectionMode]) {
                 case RNCameraGoogleVisionBarcodeModeNormal:
-                    invertImageData = false;
+                    self.invertImageData = false;
                     break;
                 case RNCameraGoogleVisionBarcodeModeAlternate:
-                    invertImageData = !invertImageData;
+                    self.invertImageData = !self.invertImageData;
                     break;
                 case RNCameraGoogleVisionBarcodeModeInverted:
-                    invertImageData = true;
+                    self.invertImageData = true;
                     break;
                 default:
-                    invertImageData = false;
+                    self.invertImageData = false;
                     break;
             }
 
