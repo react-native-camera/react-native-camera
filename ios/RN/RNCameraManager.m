@@ -82,7 +82,7 @@ RCT_EXPORT_VIEW_PROPERTY(onTouch, RCTDirectEventBlock);
              @"GoogleVisionBarcodeDetection": @{
                  @"BarcodeType": [[self class] barcodeDetectorConstants],
              },
-             @"googleVisionBarcodeMode" : @{
+             @"GoogleVisionBarcodeMode" : @{
                      @"NORMAL" : @(RNCameraGoogleVisionBarcodeModeNormal),
                      @"ALTERNATE" : @(RNCameraGoogleVisionBarcodeModeAlternate),
                      @"INVERTED" : @(RNCameraGoogleVisionBarcodeModeInverted),
