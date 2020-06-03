@@ -27,6 +27,11 @@
   return true;
 }
 
+-(NSInteger)detectionMode
+{
+    return self.setMode;
+}
+
 + (NSDictionary *)constants
 {
     return @{

@@ -2280,6 +2280,27 @@ BOOL _sessionInterrupted = NO;
         if (canSubmitForBarcodeDetection) {
             _finishedDetectingBarcodes = false;
             self.startBarcode = [NSDate date];
+
+            BOOL invertImageData = false;
+            switch ([self.barcodeDetector detectionMode]) {
+                case RNCameraGoogleVisionBarcodeModeNormal:
+                    invertImageData = false;
+                    break;
+                case RNCameraGoogleVisionBarcodeModeAlternate:
+                    invertImageData = !invertImageData;
+                    break;
+                case RNCameraGoogleVisionBarcodeModeInverted:
+                    invertImageData = true;
+                    break;
+                default:
+                    invertImageData = false;
+                    break;
+            }
+
+            if (invertImageData) {
+                image = [RNImageUtils inverseColors:image];
+            }
+            
             [self.barcodeDetector findBarcodesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * barcodes) {
                 NSDictionary *eventBarcode = @{@"type" : @"barcode", @"barcodes" : barcodes};
                 [self onBarcodesDetected:eventBarcode];
