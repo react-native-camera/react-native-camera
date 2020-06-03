@@ -6,6 +6,7 @@
 @property(nonatomic, strong) FIRVisionBarcodeDetector *barcodeRecognizer;
 @property(nonatomic, strong) FIRVision *vision;
 @property(nonatomic, assign) FIRVisionBarcodeFormat setOption;
+@property(nonatomic, assign) NSInteger setMode;
 @property(nonatomic, assign) float scaleX;
 @property(nonatomic, assign) float scaleY;
 @end
@@ -61,6 +62,12 @@
           });
       }
   }
+}
+
+-(void)setMode:(id)json queue:(dispatch_queue_t)sessionQueue
+{
+    NSInteger requestedValue = [RCTConvert NSInteger:json];
+    self.setMode = requestedValue;
 }
 
 - (void)findBarcodesInFrame:(UIImage *)uiImage
