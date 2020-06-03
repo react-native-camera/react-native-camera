@@ -462,7 +462,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     googleVisionBarcodeType: ((CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeType || {})
       .None,
     googleVisionBarcodeMode: ((CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeMode || {})
-      .NORMAL,
+      .ALTERNATE,
     faceDetectionLandmarks: ((CameraManager.FaceDetection || {}).Landmarks || {}).none,
     faceDetectionClassifications: ((CameraManager.FaceDetection || {}).Classifications || {}).none,
     permissionDialogTitle: '',
