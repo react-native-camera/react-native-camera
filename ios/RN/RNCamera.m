@@ -2284,7 +2284,7 @@ BOOL _sessionInterrupted = NO;
             self.startBarcode = [NSDate date];
 
             // Check for the barcode detection mode (Normal, Alternate, Inverted)
-            switch ([self.barcodeDetector detectionMode]) {
+            switch ([self.barcodeDetector fetchDetectionMode]) {
                 case RNCameraGoogleVisionBarcodeModeNormal:
                     self.invertImageData = false;
                     break;

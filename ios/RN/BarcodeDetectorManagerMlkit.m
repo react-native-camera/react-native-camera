@@ -6,7 +6,7 @@
 @property(nonatomic, strong) FIRVisionBarcodeDetector *barcodeRecognizer;
 @property(nonatomic, strong) FIRVision *vision;
 @property(nonatomic, assign) FIRVisionBarcodeFormat setOption;
-@property(nonatomic, assign) NSInteger setMode;
+@property(nonatomic, assign) NSInteger detectionMode;
 @property(nonatomic, assign) float scaleX;
 @property(nonatomic, assign) float scaleY;
 @end
@@ -27,9 +27,9 @@
   return true;
 }
 
--(NSInteger)detectionMode
+-(NSInteger)fetchDetectionMode
 {
-    return self.setMode;
+    return self.detectionMode;
 }
 
 + (NSDictionary *)constants
@@ -72,7 +72,7 @@
 -(void)setMode:(id)json queue:(dispatch_queue_t)sessionQueue
 {
     NSInteger requestedValue = [RCTConvert NSInteger:json];
-    self.setMode = requestedValue;
+    self.detectionMode = requestedValue;
 }
 
 - (void)findBarcodesInFrame:(UIImage *)uiImage
