@@ -25,7 +25,7 @@
 @property(nonatomic, strong) id runtimeErrorHandlingObserver;
 @property(nonatomic, strong) NSArray *barCodeTypes;
 @property(nonatomic, strong) NSArray *googleVisionBarcodeTypes;
-@property(nonatomic, strong) NSArray *googleVisionBarcodeMode;
+@property(nonatomic, strong) NSInteger *googleVisionBarcodeMode;
 
 @property(nonatomic, assign) NSInteger presetCamera;
 @property(nonatomic, copy) NSString *cameraId; // copy required for strings/pointers

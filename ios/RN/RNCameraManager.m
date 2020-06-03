@@ -302,7 +302,7 @@ RCT_CUSTOM_VIEW_PROPERTY(googleVisionBarcodeType, NSString, RNCamera)
     [view updateGoogleVisionBarcodeType:json];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(googleVisionBarcodeMode, NSString, RNCamera)
+RCT_CUSTOM_VIEW_PROPERTY(googleVisionBarcodeMode, NSInteger, RNCamera)
 {
     [view updateGoogleVisionBarcodeMode:json];
 }
