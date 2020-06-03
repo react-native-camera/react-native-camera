@@ -362,6 +362,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     VideoCodec: CameraManager.VideoCodec,
     BarCodeType: CameraManager.BarCodeType,
     GoogleVisionBarcodeDetection: CameraManager.GoogleVisionBarcodeDetection,
+    GoogleVisionBarcodeMode: CameraManager.GoogleVisionBarcodeMode,
     FaceDetection: CameraManager.FaceDetection,
     CameraStatus,
     RecordAudioPermissionStatus: RecordAudioPermissionStatusEnum,
@@ -379,6 +380,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
   static ConversionTables = {
     type: CameraManager.Type,
     flashMode: CameraManager.FlashMode,
+    googleVisionBarcodeMode: CameraManager.GoogleVisionBarcodeMode,
     exposure: CameraManager.Exposure,
     autoFocus: CameraManager.AutoFocus,
     whiteBalance: CameraManager.WhiteBalance,
