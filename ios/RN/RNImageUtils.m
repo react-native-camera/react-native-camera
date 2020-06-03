@@ -115,7 +115,7 @@
     response[@"exif"] = metadata;
 }
 
-+ (UIImage *)inverseColors:(UIImage *)image
++ (UIImage *)invertColors:(UIImage *)image
 {
     CIImage *inputCIImage = [[CIImage alloc] initWithImage:image];
 

@@ -43,6 +43,7 @@
 @property (nonatomic, copy) RCTDirectEventBlock onSubjectAreaChanged;
 @property (nonatomic, assign) BOOL isFocusedOnPoint;
 @property (nonatomic, assign) BOOL isExposedOnPoint;
+@property (nonatomic, assign) BOOL invertImageData;
 
 @end
 
@@ -89,6 +90,7 @@ BOOL _sessionInterrupted = NO;
         self.cameraId = nil;
         self.isFocusedOnPoint = NO;
         self.isExposedOnPoint = NO;
+        self.invertImageData = false;
         _recordRequested = NO;
         _sessionInterrupted = NO;
 
@@ -2281,7 +2283,6 @@ BOOL _sessionInterrupted = NO;
             _finishedDetectingBarcodes = false;
             self.startBarcode = [NSDate date];
 
-            BOOL invertImageData = false;
             switch ([self.barcodeDetector detectionMode]) {
                 case RNCameraGoogleVisionBarcodeModeNormal:
                     invertImageData = false;
@@ -2298,7 +2299,7 @@ BOOL _sessionInterrupted = NO;
             }
 
             if (invertImageData) {
-                image = [RNImageUtils inverseColors:image];
+                image = [RNImageUtils invertColors:image];
             }
             
             [self.barcodeDetector findBarcodesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * barcodes) {
