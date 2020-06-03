@@ -2298,7 +2298,7 @@ BOOL _sessionInterrupted = NO;
                     break;
             }
 
-            if (invertImageData) {
+            if (self.invertImageData) {
                 image = [RNImageUtils invertColors:image];
             }
             
