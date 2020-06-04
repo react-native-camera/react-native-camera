@@ -43,6 +43,7 @@
 @property (nonatomic, copy) RCTDirectEventBlock onSubjectAreaChanged;
 @property (nonatomic, assign) BOOL isFocusedOnPoint;
 @property (nonatomic, assign) BOOL isExposedOnPoint;
+@property (nonatomic, assign) BOOL invertImageData;
 
 @end
 
@@ -89,6 +90,7 @@ BOOL _sessionInterrupted = NO;
         self.cameraId = nil;
         self.isFocusedOnPoint = NO;
         self.isExposedOnPoint = NO;
+        self.invertImageData = false;
         _recordRequested = NO;
         _sessionInterrupted = NO;
 
@@ -2175,6 +2177,11 @@ BOOL _sessionInterrupted = NO;
     [self.barcodeDetector setType:requestedTypes queue:self.sessionQueue];
 }
 
+- (void)updateGoogleVisionBarcodeMode:(id)requestedMode
+{
+    [self.barcodeDetector setMode:requestedMode queue:self.sessionQueue];
+}
+
 - (void)onBarcodesDetected:(NSDictionary *)event
 {
     if (_onGoogleVisionBarcodesDetected && _session) {
@@ -2275,6 +2282,27 @@ BOOL _sessionInterrupted = NO;
         if (canSubmitForBarcodeDetection) {
             _finishedDetectingBarcodes = false;
             self.startBarcode = [NSDate date];
+
+            // Check for the barcode detection mode (Normal, Alternate, Inverted)
+            switch ([self.barcodeDetector fetchDetectionMode]) {
+                case RNCameraGoogleVisionBarcodeModeNormal:
+                    self.invertImageData = false;
+                    break;
+                case RNCameraGoogleVisionBarcodeModeAlternate:
+                    self.invertImageData = !self.invertImageData;
+                    break;
+                case RNCameraGoogleVisionBarcodeModeInverted:
+                    self.invertImageData = true;
+                    break;
+                default:
+                    self.invertImageData = false;
+                    break;
+            }
+
+            if (self.invertImageData) {
+                image = [RNImageUtils invertColors:image];
+            }
+            
             [self.barcodeDetector findBarcodesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * barcodes) {
                 NSDictionary *eventBarcode = @{@"type" : @"barcode", @"barcodes" : barcodes};
                 [self onBarcodesDetected:eventBarcode];

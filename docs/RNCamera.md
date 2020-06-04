@@ -20,7 +20,7 @@ class ExampleApp extends PureComponent {
     return (
       <View style={styles.container}>
         <RNCamera
-          ref={ref => {
+          ref={(ref) => {
             this.camera = ref;
           }}
           style={styles.preview}
@@ -144,7 +144,7 @@ class ExampleApp extends PureComponent {
     );
   }
 
-  takePicture = async function(camera) {
+  takePicture = async function (camera) {
     const options = { quality: 0.5, base64: true };
     const data = await camera.takePictureAsync(options);
     //  eslint-disable-next-line
@@ -436,6 +436,7 @@ Function to be called when native code stops recording video, but before all vid
 Function to be called when a touch within the camera view is recognized.
 The function is also called on the first touch of double tap.
 Event will contain the following fields:
+
 - `x`
 - `y`
 
@@ -443,6 +444,7 @@ Event will contain the following fields:
 
 Function to be called when a double touch within the camera view is recognized.
 Event will contain the following fields:
+
 - `x`
 - `y`
 
@@ -537,7 +539,7 @@ Available settings:
 - DATA_MATRIX
 - ALL
 
-### `Android` `googleVisionBarcodeMode`
+### `googleVisionBarcodeMode`
 
 Change the mode in order to scan "inverted" barcodes. You can either change it to `alternate`, which will inverted the image data every second screen and be able to read both normal and inverted barcodes, or `inverted`, which will only read inverted barcodes. Default is `normal`, which only reads "normal" barcodes. Note: this property only applies to the Google Vision barcode detector.
 Example: `<RNCamera googleVisionBarcodeMode={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeMode.ALTERNATE} />`
