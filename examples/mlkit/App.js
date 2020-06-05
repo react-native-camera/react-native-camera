@@ -87,14 +87,14 @@ export default class CameraScreen extends React.Component {
     });
   }
 
-  takePicture = async function () {
+  takePicture = async function() {
     if (this.camera) {
       const data = await this.camera.takePictureAsync();
       console.warn('takePicture ', data);
     }
   };
 
-  takeVideo = async function () {
+  takeVideo = async function() {
     if (this.camera) {
       try {
         const promise = this.camera.recordAsync(this.state.recordOptions);
@@ -111,7 +111,7 @@ export default class CameraScreen extends React.Component {
     }
   };
 
-  toggle = (value) => () => this.setState((prevState) => ({ [value]: !prevState[value] }));
+  toggle = value => () => this.setState(prevState => ({ [value]: !prevState[value] }));
 
   facesDetected = ({ faces }) => this.setState({ faces });
 
@@ -139,7 +139,7 @@ export default class CameraScreen extends React.Component {
   );
 
   renderLandmarksOfFace(face) {
-    const renderLandmark = (position) =>
+    const renderLandmark = position =>
       position && (
         <View
           style={[
@@ -204,7 +204,7 @@ export default class CameraScreen extends React.Component {
     </React.Fragment>
   );
 
-  textRecognized = (object) => {
+  textRecognized = object => {
     const { textBlocks } = object;
     this.setState({ textBlocks });
   };
@@ -238,7 +238,7 @@ export default class CameraScreen extends React.Component {
     const { canDetectFaces, canDetectText, canDetectBarcode } = this.state;
     return (
       <RNCamera
-        ref={(ref) => {
+        ref={ref => {
           this.camera = ref;
         }}
         style={{
@@ -272,7 +272,9 @@ export default class CameraScreen extends React.Component {
         onTextRecognized={canDetectText ? this.textRecognized : null}
         onGoogleVisionBarcodesDetected={canDetectBarcode ? this.barcodeRecognized : null}
         googleVisionBarcodeType={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeType.ALL}
-        googleVisionBarcodeMode={RNCamera.Constants.GoogleVisionBarcodeMode.ALTERNATE}
+        googleVisionBarcodeMode={
+          RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeMode.ALTERNATE
+        }
       >
         <View
           style={{
