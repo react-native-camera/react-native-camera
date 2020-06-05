@@ -286,6 +286,12 @@ The idea is that you select the appropriate white balance setting for the type o
 
 Use the `whiteBalance` property to specify which white balance setting the camera should use.
 
+On iOS it's also possible to specify custom temperature, tint and rgb offset values instead of using one of the presets (auto, sunny, ...): 
+
+Value: Object (e.g. `{temperature: 4000, tint: -10.0, redGainOffset: 0.0, greenGainOffset: 0.0, blueGainOffset: 0.0}`)
+
+The rgb offset values are applied to the calculated device specific white balance gains for the given temperature and tint values.
+
 ### `exposure`
 
 Value: float from `0` to `1.0`, or `-1` (default) for auto.

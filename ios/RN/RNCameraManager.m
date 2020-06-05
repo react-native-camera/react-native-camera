@@ -8,6 +8,7 @@
 #import <React/RCTLog.h>
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
+#import "RNCustomWhiteBalanceSettings.h"
 
 @implementation RNCameraManager
 
@@ -240,9 +241,21 @@ RCT_CUSTOM_VIEW_PROPERTY(maxZoom, NSNumber, RNCamera)
     [view updateZoom];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSInteger, RNCamera)
+RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, id, RNCamera)
 {
-    [view setWhiteBalance:[RCTConvert NSInteger:json]];
+    if ([json isKindOfClass: [NSDictionary class]]) {
+        NSDictionary *params = [RCTConvert NSDictionary:json];
+        RNCustomWhiteBalanceSettings *settings = [RNCustomWhiteBalanceSettings new];
+        settings.temperature = [params[@"temperature"] floatValue];
+        settings.tint = [params[@"tint"] floatValue];
+        settings.redGainOffset = [params[@"redGainOffset"] floatValue];
+        settings.greenGainOffset = [params[@"greenGainOffset"] floatValue];
+        settings.blueGainOffset = [params[@"blueGainOffset"] floatValue];
+        [view setCustomWhiteBalanceSettings:settings];
+    } else {
+        [view setCustomWhiteBalanceSettings:nil];
+        [view setWhiteBalance:[RCTConvert NSInteger:json]];
+    }
     [view updateWhiteBalance];
 }
 

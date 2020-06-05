@@ -95,8 +95,6 @@ torch: 'off'
 | ------ | ------------- |
 | object | `{ off: 1 }`  |
 
----
-
 ## Methods
 
 ## takePictureAsync()
