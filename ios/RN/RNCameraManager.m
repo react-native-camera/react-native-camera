@@ -82,13 +82,13 @@ RCT_EXPORT_VIEW_PROPERTY(onTouch, RCTDirectEventBlock);
              @"VideoStabilization": [[self class] validVideoStabilizationModes],
              @"GoogleVisionBarcodeDetection": @{
                  @"BarcodeType": [[self class] barcodeDetectorConstants],
-             },
-             @"GoogleVisionBarcodeMode" : @{
+                 @"BarcodeMode": @{
                      @"NORMAL" : @(RNCameraGoogleVisionBarcodeModeNormal),
                      @"ALTERNATE" : @(RNCameraGoogleVisionBarcodeModeAlternate),
                      @"INVERTED" : @(RNCameraGoogleVisionBarcodeModeInverted),
                      },
-             };
+             },
+    };
 }
 
 - (NSArray<NSString *> *)supportedEvents
