@@ -464,7 +464,7 @@ Event contains the following fields
 
 - `data` - a textual representation of the barcode, if available
 - `rawData` - The raw data encoded in the barcode, if available
-- `uri`: (iOS only) string representing the path to the image saved on your app's cache directory
+- `uri`: (iOS only) string representing the path to the image saved on your app's cache directory. Applicable only for `onGoogleVisionBarcodesDetected`.
 - `type` - the type of the barcode detected
 - `bounds` -
 
