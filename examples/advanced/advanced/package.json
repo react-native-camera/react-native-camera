@@ -10,14 +10,15 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-community/slider": "^3.0.0",
+    "native-base": "2.13.8",
     "react": "16.11.0",
     "react-native": "0.61.4",
+    "react-native-camera": "^3.28.0",
+    "react-native-gesture-handler": "1.5.0",
     "react-navigation": "4.0.10",
     "react-navigation-stack": "1.10.3",
-    "native-base": "2.13.8",
-    "react-native-gesture-handler": "1.5.0",
-    "underscore": "1.9.1",
-    "react-native-camera": "*"
+    "underscore": "1.9.1"
   },
   "devDependencies": {
     "@babel/core": "7.7.2",

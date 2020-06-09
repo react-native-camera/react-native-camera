@@ -9,6 +9,7 @@ import {
   AppState,
   TouchableOpacity
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import _ from 'underscore';
 import { Container, Button, Text, Icon, Footer, FooterTab, Spinner, H2, connectStyle, Toast } from 'native-base';
 import { RNCamera } from 'react-native-camera';
@@ -50,8 +51,17 @@ const WB_OPTIONS_MAP = {
   2: "CL",
   3: "SH",
   4: "IN",
-  5: "FL"
+  5: "FL",
+  6: "CW"
 }
+
+const CUSTOM_WB_OPTIONS_MAP = {
+  temperature:      {label: "Temp.", min: 1000, max: 10000, steps: 500},
+  tint:             {label: "Tint", min: -20, max: 20, steps: 0.5},
+  redGainOffset:    {label: "Red", min: -1.0, max: 1.0, steps: 0.05},
+  greenGainOffset:  {label: "Green", min: -1.0, max: 1.0, steps: 0.05},
+  blueGainOffset:   {label: "Blue", min: -1.0, max: 1.0, steps: 0.05},
+};
 
 const getCameraType = (type) => {
 
@@ -95,6 +105,7 @@ const styles = StyleSheet.create({
 
   buttonsView: {
     flex: 1,
+    backgroundColor: 'black',
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
@@ -111,6 +122,31 @@ const styles = StyleSheet.create({
   ratioButton: {
     width: 100 * conf.theme.variables.sizeScaling
   },
+
+  customWBView: {
+    backgroundColor: '#00000080',
+    flex: 1,
+    width: '100%',
+    height: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
+
+  customWBViewButton: {
+    backgroundColor: 'transparent',
+    alignSelf: 'center',
+    width: '25%',
+  },
+
+  customWBViewText: {
+    color: 'white',
+  },
+
+  customWBViewSlider: {
+    flex: 2,
+    marginRight: 6,
+  },
 })
 
 
@@ -120,8 +156,16 @@ const defaultCameraOptions = {
   flashMode: 'off', // on, auto, off, torch
   wb: 0,
   zoom: 0, // 0-1
-  focusCoords: undefined
-}
+  focusCoords: undefined,
+  currentCustomWBOption: "temperature",
+  customWhiteBalance: {
+    temperature: 6000,
+    tint: 0.0,
+    redGainOffset: 0.0,
+    greenGainOffset: 0.0,
+    blueGainOffset: 0.0,
+  },
+};
 
 function parseRatio(str){
   let [p1, p2] = str.split(":");
@@ -601,6 +645,35 @@ class Camera extends Component{
 
     this.cameraStyle = cameraStyle;
 
+    let whiteBalance;
+    let customWBView;
+    if (wb >= WB_OPTIONS.length) {
+      let currentOption = this.state.currentCustomWBOption;
+      let currentValue = this.state.customWhiteBalance[currentOption];
+      let options = CUSTOM_WB_OPTIONS_MAP[currentOption]
+      customWBView = (
+        <View style={styles.customWBView}>
+          <Button style={styles.customWBViewButton} onPress={this.changeCustomWBOption}>
+            <Text style={styles.customWBViewText}>{options.label}</Text>
+          </Button>
+          <Slider
+            style={styles.customWBViewSlider}
+            value={currentValue}
+            step={options.steps}
+            minimumValue={options.min}
+            maximumValue={options.max}
+            minimumTrackTintColor="#FFFFFF"
+            maximumTrackTintColor="#000000"
+            onValueChange={this.changeCustomWBOptionValue}
+          />
+          <Text style={[styles.customWBViewText, {minWidth: '15%'}]}>{currentValue.toFixed(1)}</Text>
+        </View>
+      );
+      whiteBalance = this.state.customWhiteBalance;
+    } else {
+      whiteBalance = WB_OPTIONS[wb];
+    }
+
     return (
 
       <Container fullBlack>
@@ -638,7 +711,7 @@ class Camera extends Component{
               maxZoom={MAX_ZOOM}
               useNativeZoom={true}
               onTap={this.onTapToFocus}
-              whiteBalance={WB_OPTIONS[wb]}
+              whiteBalance={whiteBalance}
               autoFocusPointOfInterest={this.state.focusCoords}
               androidCameraPermissionOptions={{
                 title: 'Permission to use camera',
@@ -701,6 +774,7 @@ class Camera extends Component{
                       />
                     </View>
                   : null}
+                  {customWBView}
                   <View style={styles.buttonsView}>
                     <Button
                       transparent
@@ -877,9 +951,28 @@ class Camera extends Component{
 
 
   changeWB = () => {
+    // The custom white balance feature is only available on iOS (#2774)
+    const numberOfOptions = IS_IOS ? Object.keys(WB_OPTIONS_MAP).length : WB_OPTIONS.length;
     this.setState({
-      wb: (this.state.wb + 1) % WB_OPTIONS.length
-    })
+      wb: (this.state.wb + 1) % numberOfOptions
+    });
+  }
+
+  changeCustomWBOption = () => {
+    const optionKeys = Object.keys(CUSTOM_WB_OPTIONS_MAP);
+    let currentOptionIndex = optionKeys.indexOf(this.state.currentCustomWBOption);
+    let nextOptionIndex = (currentOptionIndex + 1) % optionKeys.length;
+    this.setState({
+      currentCustomWBOption: optionKeys[nextOptionIndex]
+    });
+  }
+
+  changeCustomWBOptionValue = (value) => {
+    let customWhiteBalance = {...this.state.customWhiteBalance};
+    customWhiteBalance[this.state.currentCustomWBOption] = value;
+    this.setState({
+      customWhiteBalance: customWhiteBalance
+    });
   }
 
   toggleRatio = () => {
