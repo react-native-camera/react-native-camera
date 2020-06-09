@@ -1,5 +1,6 @@
 #import "BarcodeDetectorManagerMlkit.h"
 #import <React/RCTConvert.h>
+#import "RNFileSystem.h"
 #if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
 
 @interface BarcodeDetectorManagerMlkit ()
@@ -13,7 +14,7 @@
 
 @implementation BarcodeDetectorManagerMlkit
 
-- (instancetype)init 
+- (instancetype)init
 {
   if (self = [super init]) {
     self.vision = [FIRVision vision];
@@ -22,7 +23,7 @@
   return self;
 }
 
-- (BOOL)isRealDetector 
+- (BOOL)isRealDetector
 {
   return true;
 }
@@ -52,7 +53,7 @@
             };
 }
 
-- (void)setType:(id)json queue:(dispatch_queue_t)sessionQueue 
+- (void)setType:(id)json queue:(dispatch_queue_t)sessionQueue
 {
   NSInteger requestedValue = [RCTConvert NSInteger:json];
   if (self.setOption != requestedValue) {
@@ -78,7 +79,7 @@
 - (void)findBarcodesInFrame:(UIImage *)uiImage
                   scaleX:(float)scaleX
                   scaleY:(float)scaleY
-               completed:(void (^)(NSArray *result))completed 
+               completed:(void (^)(NSArray *result))completed
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
@@ -89,12 +90,12 @@
             if (error != nil || barcodes == nil) {
                 completed(emptyResult);
             } else {
-                completed([self processBarcodes:barcodes]);
+                completed([self processBarcodes:barcodes imageContainingBarcodes:uiImage]);
             }
         }];
 }
 
-- (NSArray *)processBarcodes:(NSArray *)barcodes
+- (NSArray *)processBarcodes:(NSArray *)barcodes imageContainingBarcodes:(UIImage *)imageContainingBarcodes
 {
     NSMutableArray *result = [[NSMutableArray alloc] init];
     for (FIRVisionBarcode *barcode in barcodes) {
@@ -103,15 +104,20 @@
         // Boundaries of a barcode in image
         NSDictionary *bounds = [self processBounds:barcode.frame];
         [resultDict setObject:bounds forKey:@"bounds"];
-        
+
         // TODO send points to javascript - implement on android at the same time
         // Point[] corners = barcode.getCornerPoints();
-        
+
         NSString *rawValue = barcode.rawValue;
         NSString *displayValue = barcode.displayValue;
         [resultDict setObject:rawValue forKey:@"dataRaw"];
         [resultDict setObject:displayValue forKey:@"data"];
-        
+
+        // Store the image to app cache and return the uri
+        NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+        [UIImageJPEGRepresentation(imageContainingBarcodes, 1.0) writeToFile:path atomically:YES];
+        [resultDict setObject:path forKey:@"uri"];
+
         FIRVisionBarcodeValueType valueType = barcode.valueType;
         [resultDict setObject:[self getType:barcode.valueType] forKey:@"type"];
 
@@ -136,7 +142,6 @@
                             break;
                     }
                     [resultDict setObject:encryptionTypeString forKey:@"encryptionType"];
-                    
                 }
                 break;
             case FIRVisionBarcodeValueTypeURL:
@@ -177,7 +182,6 @@
                         [phones addObject:[self processPhone:phone]];
                     }
                     [resultDict setObject:phones forKey:@"phones"];
-                    
                 }
                 if(barcode.contactInfo.urls) {[resultDict setObject:barcode.contactInfo.urls forKey:@"urls"]; }
                 if(barcode.contactInfo.organization) {[resultDict setObject:barcode.contactInfo.organization forKey:@"organization"]; }
@@ -370,7 +374,7 @@
     return [dateFormatter stringFromDate:date];
 }
 
-- (NSDictionary *)processBounds:(CGRect)bounds 
+- (NSDictionary *)processBounds:(CGRect)bounds
 {
     float width = bounds.size.width * _scaleX;
     float height = bounds.size.height * _scaleY;
@@ -384,12 +388,11 @@
 }
 
 
-- (NSDictionary *)processPoint:(FIRVisionPoint *)point 
+- (NSDictionary *)processPoint:(FIRVisionPoint *)point
 {
     float originX = [point.x floatValue] * _scaleX;
     float originY = [point.y floatValue] * _scaleY;
     NSDictionary *pointDict = @{
-                                
                                 @"x" : @(originX),
                                 @"y" : @(originY)
                                 };
@@ -449,3 +452,4 @@
 
 @end
 #endif
+
