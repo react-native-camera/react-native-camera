@@ -2105,7 +2105,9 @@ BOOL _sessionInterrupted = NO;
 
 - (void)updateGoogleVisionBarcodeMode:(id)requestedMode
 {
-    [self.barcodeDetector setMode:requestedMode queue:self.sessionQueue];
+    if ([self.barcodeDetector isRealDetector]) {
+        [self.barcodeDetector setMode:requestedMode queue:self.sessionQueue];
+    }
 }
 
 - (void)onBarcodesDetected:(NSDictionary *)event
