@@ -8,10 +8,10 @@ title: Work in progress
 [**wip**]
 
 - [`zoom`](API.md#zoom)
-- [`maxZoom`](API.md#maxZoom)
+- [`maxZoom`](API.md#maxzoom)
 - [`type`](API.md#type)
-- [`cameraId`](API.md#cameraId)
-- [`flashMode`](API.md#flashMode)
+- [`cameraId`](API.md#cameraid)
+- [`flashMode`](API.md#flashmode)
 - [`exposure`](API.md#exposure)
 - [`whiteBalance`](API.md#whiteBalance)
 - [`autoFocus`](API.md#autoFocus)
@@ -22,16 +22,16 @@ title: Work in progress
 
 ## Methods Index
 
-- [`takePictureAsync`](<API.md#takePictureAsync()>)
-- [`recordAsync`](API.md#recordAsync)
-- [`refreshAuthorizationStatus`](API.md#refreshAuthorizationStatus)
-- [`stopRecording`](API.md#stopRecording)
-- [`pausePreview`](API.md#pausePreview)
-- [`resumePreview`](API.md#resumePreview)
-- [`getAvailablePictureSizes`](API.md#getAvailablePictureSizes)
-- [`getSupportedRatiosAsync`](API.md#getSupportedRatiosAsync)
-- [`isRecording`](API.md#isRecording)
-- [`getSupportedPreviewFpsRange`](API.md#getSupportedPreviewFpsRange`)
+- [`takePictureAsync`](API.md#takepictureasync)
+- [`recordAsync`](API.md#recordasync)
+- [`refreshAuthorizationStatus`](API.md#refreshauthorizationstatus)
+- [`stopRecording`](API.md#stoprecording)
+- [`pausePreview`](API.md#pausepreview)
+- [`resumePreview`](API.md#resumepreview)
+- [`getAvailablePictureSizes`](API.md#getavailablepicturesizes)
+- [`getSupportedRatiosAsync`](API.md#getsupportedratiosasync-android-only)
+- [`isRecording`](API.md#isrecording-ios-only)
+- [`getSupportedPreviewFpsRange`](API.md#getsupportedpreviewfpsrange-android-only)
 
 ## Props
 
