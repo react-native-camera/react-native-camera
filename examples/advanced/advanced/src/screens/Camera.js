@@ -645,7 +645,8 @@ class Camera extends Component{
 
     this.cameraStyle = cameraStyle;
 
-    let whiteBalance = wb >= WB_OPTIONS.length ? this.state.customWhiteBalance : WB_OPTIONS[wb];
+    let isCustomWhiteBalance = wb >= WB_OPTIONS.length;
+    let whiteBalance = isCustomWhiteBalance ? this.state.customWhiteBalance : WB_OPTIONS[wb];
     const { currentCustomWBOption } = this.state;
     let customWhiteBalanceValue = this.state.customWhiteBalance[currentCustomWBOption];
     let customWhiteBalanceOption = CUSTOM_WB_OPTIONS_MAP[currentCustomWBOption]
@@ -750,7 +751,7 @@ class Camera extends Component{
                       />
                     </View>
                   : null}
-                  {wb >= WB_OPTIONS.length && (
+                  {isCustomWhiteBalance && (
                     <View style={styles.customWBView}>
                       <Button style={styles.customWBViewButton} onPress={this.changeCustomWBOption}>
                         <Text style={styles.customWBViewText}>
