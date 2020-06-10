@@ -645,34 +645,10 @@ class Camera extends Component{
 
     this.cameraStyle = cameraStyle;
 
-    let whiteBalance;
-    let customWBView;
-    if (wb >= WB_OPTIONS.length) {
-      let currentOption = this.state.currentCustomWBOption;
-      let currentValue = this.state.customWhiteBalance[currentOption];
-      let options = CUSTOM_WB_OPTIONS_MAP[currentOption]
-      customWBView = (
-        <View style={styles.customWBView}>
-          <Button style={styles.customWBViewButton} onPress={this.changeCustomWBOption}>
-            <Text style={styles.customWBViewText}>{options.label}</Text>
-          </Button>
-          <Slider
-            style={styles.customWBViewSlider}
-            value={currentValue}
-            step={options.steps}
-            minimumValue={options.min}
-            maximumValue={options.max}
-            minimumTrackTintColor="#FFFFFF"
-            maximumTrackTintColor="#000000"
-            onValueChange={this.changeCustomWBOptionValue}
-          />
-          <Text style={[styles.customWBViewText, {minWidth: '15%'}]}>{currentValue.toFixed(1)}</Text>
-        </View>
-      );
-      whiteBalance = this.state.customWhiteBalance;
-    } else {
-      whiteBalance = WB_OPTIONS[wb];
-    }
+    let whiteBalance = wb >= WB_OPTIONS.length ? this.state.customWhiteBalance : WB_OPTIONS[wb];
+    const { currentCustomWBOption } = this.state;
+    let customWhiteBalanceValue = this.state.customWhiteBalance[currentCustomWBOption];
+    let customWhiteBalanceOption = CUSTOM_WB_OPTIONS_MAP[currentCustomWBOption]
 
     return (
 
