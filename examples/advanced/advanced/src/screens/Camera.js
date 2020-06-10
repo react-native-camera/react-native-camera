@@ -750,7 +750,28 @@ class Camera extends Component{
                       />
                     </View>
                   : null}
-                  {customWBView}
+                  {wb >= WB_OPTIONS.length && (
+                    <View style={styles.customWBView}>
+                      <Button style={styles.customWBViewButton} onPress={this.changeCustomWBOption}>
+                        <Text style={styles.customWBViewText}>
+                          {customWhiteBalanceOption.label}
+                        </Text>
+                      </Button>
+                      <Slider
+                        style={styles.customWBViewSlider}
+                        value={customWhiteBalanceValue}
+                        step={customWhiteBalanceOption.steps}
+                        minimumValue={customWhiteBalanceOption.min}
+                        maximumValue={customWhiteBalanceOption.max}
+                        minimumTrackTintColor="#FFFFFF"
+                        maximumTrackTintColor="#000000"
+                        onValueChange={this.changeCustomWBOptionValue}
+                      />
+                      <Text style={[styles.customWBViewText, {minWidth: '15%'}]}>
+                        {customWhiteBalanceValue.toFixed(1)}
+                      </Text>
+                    </View>
+                  )}
                   <View style={styles.buttonsView}>
                     <Button
                       transparent
