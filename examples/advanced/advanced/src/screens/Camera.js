@@ -968,11 +968,12 @@ class Camera extends Component{
   }
 
   changeCustomWBOptionValue = (value) => {
-    let customWhiteBalance = {...this.state.customWhiteBalance};
-    customWhiteBalance[this.state.currentCustomWBOption] = value;
-    this.setState({
-      customWhiteBalance: customWhiteBalance
-    });
+    this.setState((state) => ({
+      customWhiteBalance: {
+        ...state.customWhiteBalance,
+        [state.currentCustomWBOption]: value,
+      },
+    }));
   }
 
   toggleRatio = () => {
