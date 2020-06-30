@@ -37,10 +37,8 @@
 @property (nonatomic, copy) RCTDirectEventBlock onRecordingEnd;
 @property (nonatomic, assign) BOOL finishedReadingText;
 @property (nonatomic, assign) BOOL finishedDetectingFace;
-@property (nonatomic, assign) BOOL finishedDetectingBarcodes;
 @property (nonatomic, copy) NSDate *startText;
 @property (nonatomic, copy) NSDate *startFace;
-@property (nonatomic, copy) NSDate *startBarcode;
 
 @property (nonatomic, copy) RCTDirectEventBlock onSubjectAreaChanged;
 @property (nonatomic, assign) BOOL isFocusedOnPoint;
@@ -69,10 +67,8 @@ BOOL _sessionInterrupted = NO;
         self.barcodeDetector = [self createBarcodeDetectorMlKit];
         self.finishedReadingText = true;
         self.finishedDetectingFace = true;
-        self.finishedDetectingBarcodes = true;
         self.startText = [NSDate date];
         self.startFace = [NSDate date];
-        self.startBarcode = [NSDate date];
 #if !(TARGET_IPHONE_SIMULATOR)
         self.previewLayer =
         [AVCaptureVideoPreviewLayer layerWithSession:self.session];
@@ -92,7 +88,7 @@ BOOL _sessionInterrupted = NO;
         self.cameraId = nil;
         self.isFocusedOnPoint = NO;
         self.isExposedOnPoint = NO;
-        self.invertImageData = false;
+        self.invertImageData = true;
         _recordRequested = NO;
         _sessionInterrupted = NO;
 
@@ -2174,10 +2170,9 @@ BOOL _sessionInterrupted = NO;
     NSDate *methodFinish = [NSDate date];
     NSTimeInterval timePassedSinceSubmittingForText = [methodFinish timeIntervalSinceDate:self.startText];
     NSTimeInterval timePassedSinceSubmittingForFace = [methodFinish timeIntervalSinceDate:self.startFace];
-    NSTimeInterval timePassedSinceSubmittingForBarcode = [methodFinish timeIntervalSinceDate:self.startBarcode];
     BOOL canSubmitForTextDetection = timePassedSinceSubmittingForText > 0.5 && _finishedReadingText && self.canReadText && [self.textDetector isRealDetector];
     BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
-    BOOL canSubmitForBarcodeDetection = timePassedSinceSubmittingForBarcode > 0.5 && _finishedDetectingBarcodes && self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
+    BOOL canSubmitForBarcodeDetection = self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
     if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection) {
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
         NSInteger position = self.videoCaptureDeviceInput.device.position;
@@ -2208,9 +2203,6 @@ BOOL _sessionInterrupted = NO;
         }
         // find barcodes
         if (canSubmitForBarcodeDetection) {
-            _finishedDetectingBarcodes = false;
-            self.startBarcode = [NSDate date];
-
             // Check for the barcode detection mode (Normal, Alternate, Inverted)
             switch ([self.barcodeDetector fetchDetectionMode]) {
                 case RNCameraGoogleVisionBarcodeModeNormal:
@@ -2234,7 +2226,6 @@ BOOL _sessionInterrupted = NO;
             [self.barcodeDetector findBarcodesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * barcodes) {
                 NSDictionary *eventBarcode = @{@"type" : @"barcode", @"barcodes" : barcodes};
                 [self onBarcodesDetected:eventBarcode];
-                self.finishedDetectingBarcodes = true;
             }];
         }
     }
