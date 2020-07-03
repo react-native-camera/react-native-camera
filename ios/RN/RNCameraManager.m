@@ -8,6 +8,7 @@
 #import <React/RCTLog.h>
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
+#import "RNCustomWhiteBalanceSettings.h"
 
 @implementation RNCameraManager
 
@@ -26,6 +27,8 @@ RCT_EXPORT_VIEW_PROPERTY(onRecordingEnd, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onTextRecognized, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onSubjectAreaChanged, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
+RCT_EXPORT_VIEW_PROPERTY(onTouch, RCTDirectEventBlock);
+
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -83,13 +86,18 @@ RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
              @"VideoStabilization": [[self class] validVideoStabilizationModes],
              @"GoogleVisionBarcodeDetection": @{
                  @"BarcodeType": [[self class] barcodeDetectorConstants],
-             }
-             };
+                 @"BarcodeMode": @{
+                     @"NORMAL" : @(RNCameraGoogleVisionBarcodeModeNormal),
+                     @"ALTERNATE" : @(RNCameraGoogleVisionBarcodeModeAlternate),
+                     @"INVERTED" : @(RNCameraGoogleVisionBarcodeModeInverted),
+                     },
+             },
+    };
 }
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"onCameraReady", @"onAudioInterrupted", @"onAudioConnected", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureTaken", @"onPictureSaved", @"onRecordingStart", @"onRecordingEnd", @"onTextRecognized", @"onGoogleVisionBarcodesDetected", @"onSubjectAreaChanged"];
+    return @[@"onCameraReady", @"onAudioInterrupted", @"onAudioConnected", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureTaken", @"onPictureSaved", @"onRecordingStart", @"onRecordingEnd", @"onTextRecognized", @"onGoogleVisionBarcodesDetected", @"onSubjectAreaChanged",@"onTouch"];
 }
 
 + (NSDictionary *)validCodecTypes
@@ -219,6 +227,12 @@ RCT_CUSTOM_VIEW_PROPERTY(focusDepth, NSNumber, RNCamera)
     [view updateFocusDepth];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(useNativeZoom, BOOL, RNCamera)
+{
+    view.useNativeZoom=[RCTConvert BOOL:json];
+    [view setupOrDisablePinchZoom];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(zoom, NSNumber, RNCamera)
 {
     [view setZoom:[RCTConvert CGFloat:json]];
@@ -231,9 +245,21 @@ RCT_CUSTOM_VIEW_PROPERTY(maxZoom, NSNumber, RNCamera)
     [view updateZoom];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSInteger, RNCamera)
+RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, id, RNCamera)
 {
-    [view setWhiteBalance:[RCTConvert NSInteger:json]];
+    if ([json isKindOfClass: [NSDictionary class]]) {
+        NSDictionary *params = [RCTConvert NSDictionary:json];
+        RNCustomWhiteBalanceSettings *settings = [RNCustomWhiteBalanceSettings new];
+        settings.temperature = [params[@"temperature"] floatValue];
+        settings.tint = [params[@"tint"] floatValue];
+        settings.redGainOffset = [params[@"redGainOffset"] floatValue];
+        settings.greenGainOffset = [params[@"greenGainOffset"] floatValue];
+        settings.blueGainOffset = [params[@"blueGainOffset"] floatValue];
+        [view setCustomWhiteBalanceSettings:settings];
+    } else {
+        [view setCustomWhiteBalanceSettings:nil];
+        [view setWhiteBalance:[RCTConvert NSInteger:json]];
+    }
     [view updateWhiteBalance];
 }
 
@@ -291,6 +317,11 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RNCamera)
 RCT_CUSTOM_VIEW_PROPERTY(googleVisionBarcodeType, NSString, RNCamera)
 {
     [view updateGoogleVisionBarcodeType:json];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(googleVisionBarcodeMode, NSInteger, RNCamera)
+{
+    [view updateGoogleVisionBarcodeMode:json];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(googleVisionBarcodeDetectorEnabled, BOOL, RNCamera)

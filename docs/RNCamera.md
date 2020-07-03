@@ -20,7 +20,7 @@ class ExampleApp extends PureComponent {
     return (
       <View style={styles.container}>
         <RNCamera
-          ref={ref => {
+          ref={(ref) => {
             this.camera = ref;
           }}
           style={styles.preview}
@@ -144,7 +144,7 @@ class ExampleApp extends PureComponent {
     );
   }
 
-  takePicture = async function(camera) {
+  takePicture = async function (camera) {
     const options = { quality: 0.5, base64: true };
     const data = await camera.takePictureAsync(options);
     //  eslint-disable-next-line
@@ -286,11 +286,23 @@ The idea is that you select the appropriate white balance setting for the type o
 
 Use the `whiteBalance` property to specify which white balance setting the camera should use.
 
+On iOS it's also possible to specify custom temperature, tint and rgb offset values instead of using one of the presets (auto, sunny, ...): 
+
+Value: Object (e.g. `{temperature: 4000, tint: -10.0, redGainOffset: 0.0, greenGainOffset: 0.0, blueGainOffset: 0.0}`)
+
+The rgb offset values are applied to the calculated device specific white balance gains for the given temperature and tint values.
+
 ### `exposure`
 
 Value: float from `0` to `1.0`, or `-1` (default) for auto.
 
 Sets the camera's exposure value.
+
+### `useNativeZoom`
+
+Boolean to turn on native pinch to zoom. Works with the `maxZoom` property on iOS.
+
+Warning: The Android Touch-Event-System causes childviews to catch the touch events. Therefore avoid using screenfilling touchables inside of the cameraview.
 
 ### `zoom`
 
@@ -425,6 +437,23 @@ Event will contain the following fields:
 
 Function to be called when native code stops recording video, but before all video processing takes place. This event will only fire after a successful video recording, and it will not fire if video recording fails (use the error returned from `recordAsync` instead).
 
+### `onTap`
+
+Function to be called when a touch within the camera view is recognized.
+The function is also called on the first touch of double tap.
+Event will contain the following fields:
+
+- `x`
+- `y`
+
+### `onDoubleTap`
+
+Function to be called when a double touch within the camera view is recognized.
+Event will contain the following fields:
+
+- `x`
+- `y`
+
 ### Bar Code Related props
 
 ### `onBarCodeRead`
@@ -435,6 +464,7 @@ Event contains the following fields
 
 - `data` - a textual representation of the barcode, if available
 - `rawData` - The raw data encoded in the barcode, if available
+- `uri`: (iOS only) string representing the path to the image saved on your app's cache directory. Applicable only for `onGoogleVisionBarcodesDetected`.
 - `type` - the type of the barcode detected
 - `bounds` -
 
@@ -516,7 +546,7 @@ Available settings:
 - DATA_MATRIX
 - ALL
 
-### `Android` `googleVisionBarcodeMode`
+### `googleVisionBarcodeMode`
 
 Change the mode in order to scan "inverted" barcodes. You can either change it to `alternate`, which will inverted the image data every second screen and be able to read both normal and inverted barcodes, or `inverted`, which will only read inverted barcodes. Default is `normal`, which only reads "normal" barcodes. Note: this property only applies to the Google Vision barcode detector.
 Example: `<RNCamera googleVisionBarcodeMode={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeMode.ALTERNATE} />`

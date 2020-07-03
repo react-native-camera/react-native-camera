@@ -5,7 +5,7 @@
 #import <React/RCTUtils.h>
 #import <React/RCTLog.h>
 #import <React/UIView+React.h>
-#import "NSMutableDictionary+ImageMetadata.m"
+#import "NSMutableDictionary+ImageMetadata.h"
 #import <AssetsLibrary/ALAssetsLibrary.h>
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>

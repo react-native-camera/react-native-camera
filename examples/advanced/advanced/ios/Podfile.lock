@@ -182,13 +182,15 @@ PODS:
     - React-cxxreact (= 0.61.4)
     - React-jsi (= 0.61.4)
   - React-jsinspector (0.61.4)
-  - react-native-camera (3.9.0):
+  - react-native-camera (3.28.0):
     - React
-    - react-native-camera/RCT (= 3.9.0)
-    - react-native-camera/RN (= 3.9.0)
-  - react-native-camera/RCT (3.9.0):
+    - react-native-camera/RCT (= 3.28.0)
+    - react-native-camera/RN (= 3.28.0)
+  - react-native-camera/RCT (3.28.0):
     - React
-  - react-native-camera/RN (3.9.0):
+  - react-native-camera/RN (3.28.0):
+    - React
+  - react-native-slider (3.0.0):
     - React
   - React-RCTActionSheet (0.61.4):
     - React-Core/RCTActionSheetHeaders (= 0.61.4)
@@ -247,6 +249,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-camera (from `../node_modules/react-native-camera`)
+  - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
   - React-RCTBlob (from `../node_modules/react-native/Libraries/Blob`)
@@ -262,7 +265,7 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
     - boost-for-react-native
 
 EXTERNAL SOURCES:
@@ -296,6 +299,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
+  react-native-slider:
+    :path: "../node_modules/@react-native-community/slider"
   React-RCTActionSheet:
     :path: "../node_modules/react-native/Libraries/ActionSheetIOS"
   React-RCTAnimation:
@@ -337,7 +342,8 @@ SPEC CHECKSUMS:
   React-jsi: ca921f4041505f9d5197139b2d09eeb020bb12e8
   React-jsiexecutor: 8dfb73b987afa9324e4009bdce62a18ce23d983c
   React-jsinspector: d15478d0a8ada19864aa4d1cc1c697b41b3fa92f
-  react-native-camera: 8ad12cae113fd60b07236983532acc8e595c0fc3
+  react-native-camera: 17d755c4334e77dad0ec6337faaded5274f18464
+  react-native-slider: 05f11678260cb27c3d00a2dd1558b623be3ec8d2
   React-RCTActionSheet: 7369b7c85f99b6299491333affd9f01f5a130c22
   React-RCTAnimation: d07be15b2bd1d06d89417eb0343f98ffd2b099a7
   React-RCTBlob: 8e0b23d95c9baa98f6b0e127e07666aaafd96c34
@@ -353,4 +359,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 27b3847fe4d98bb58146c377f86ebed45b40a77d
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.9.1

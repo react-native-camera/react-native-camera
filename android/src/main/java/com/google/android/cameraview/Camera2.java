@@ -376,6 +376,13 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     }
 
     @Override
+    public ArrayList<int[]> getSupportedPreviewFpsRange() {
+        Log.e("CAMERA_2:: ", "getSupportedPreviewFpsRange is not currently supported for Camera2");
+        ArrayList<int[]> validValues = new ArrayList<int[]>();
+        return validValues;
+    }
+
+    @Override
     void setCameraId(String id) {
         if(!ObjectUtils.equals(_mCameraId, id)){
             _mCameraId = id;
@@ -562,7 +569,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     }
 
     @Override
-    boolean record(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int orientation) {
+    boolean record(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int orientation, int fps) {
         if (!mIsRecording) {
             setUpMediaRecorder(path, maxDuration, maxFileSize, recordAudio, profile);
             try {

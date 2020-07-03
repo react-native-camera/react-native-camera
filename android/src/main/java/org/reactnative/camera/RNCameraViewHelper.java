@@ -244,7 +244,19 @@ public class RNCameraViewHelper {
       }
      });
   }
+  // Touch event
+  public static void emitTouchEvent(final ViewGroup view, final boolean isDoubleTap, final int x, final int y) {
 
+    final ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.runOnNativeModulesQueueThread(new Runnable() {
+      @Override
+      public void run() {
+        TouchEvent event = TouchEvent.obtain(view.getId(), isDoubleTap, x, y);
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+    });
+
+  }
   // Face detection events
 
   public static void emitFacesDetectedEvent(final ViewGroup view, final WritableArray data) {
