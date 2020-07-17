@@ -35,5 +35,6 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="ReactPackageProvider.idl" />
+    <Midl Include="CameraRotationHelper.idl" />
   </ItemGroup>
 </Project>
