@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 
 import org.reactnative.camera.utils.ImageDimensions;
@@ -69,15 +70,14 @@ public class TextRecognizerAsyncTask extends android.os.AsyncTask<Void, Void, Vo
       return null;
     }
 
-    ImageMetadata metadata = new ImageMetadata.Builder()
-            .setWidth(mWidth)
-            .setHeight(mHeight)
-            .setFormat(ImageMetadata.IMAGE_FORMAT_YV12)
-            .setRotation(getFirebaseRotation())
-            .build();
-    TextRecognizer detector = .getInstance().getOnDeviceTextRecognizer();
+    TextRecognizer detector = TextRecognition.getClient();
 
-    Image image = Image.fromByteArray(mImageData, metadata);
+    InputImage image = InputImage.fromByteArray(mImageData,
+          mWidth,
+          mHeight,
+          mRotation,
+          InputImage.IMAGE_FORMAT_YV12
+    );
     detector.process(image)
             .addOnSuccessListener(new OnSuccessListener<Text>() {
               @Override
@@ -98,28 +98,6 @@ public class TextRecognizerAsyncTask extends android.os.AsyncTask<Void, Void, Vo
                     });
 
     return null;
-  }
-
-  private int getFirebaseRotation(){
-    int result;
-    switch (mRotation) {
-      case 0:
-        result = ImageMetadata.ROTATION_0;
-        break;
-      case 90:
-        result = ImageMetadata.ROTATION_90;
-        break;
-      case 180:
-        result = ImageMetadata.ROTATION_180;
-        break;
-      case -90:
-        result = ImageMetadata.ROTATION_270;
-        break;
-      default:
-        result = ImageMetadata.ROTATION_0;
-        Log.e(TAG, "Bad rotation value: " + mRotation);
-    }
-    return result;
   }
 
   private WritableArray serializeEventData(List<Text.TextBlock> textBlocks) {
