@@ -1580,11 +1580,15 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     private void pauseMediaRecorder() {
-        // mMediaRecorder.pause();
+        if (Build.VERSION.SDK_INT >= 24) {
+            mMediaRecorder.pause();
+        }
     }
 
     private void resumeMediaRecorder() {
-        // mMediaRecorder.resume();
+        if (Build.VERSION.SDK_INT >= 24) {
+            mMediaRecorder.resume();
+        }
     }
 
     @Override
