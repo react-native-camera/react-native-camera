@@ -31,6 +31,4 @@ target 'mlkit' do
     'LabelDetectorMLKit',
   ]
 
-  pod 'Firebase/Core'
-
 end
