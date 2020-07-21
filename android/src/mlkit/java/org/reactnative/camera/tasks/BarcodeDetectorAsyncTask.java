@@ -67,15 +67,14 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
       return null;
     }
 
-    final ImageMetadata metadata = new ImageMetadata.Builder()
-            .setWidth(mWidth)
-            .setHeight(mHeight)
-            .setFormat(ImageMetadata.IMAGE_FORMAT_YV12)
-            .setRotation(getFirebaseRotation())
-            .build();
-    Image image = Image.fromByteArray(mImageData, metadata);
+    InputImage image = InputImage.fromByteArray(mImageData,
+            mWidth,
+            mHeight,
+            mRotation,
+            InputImage.IMAGE_FORMAT_YV12
+    );
 
-    BarcodeDetector barcode = mBarcodeDetector.getDetector();
+    BarcodeScanner barcode = mBarcodeDetector.getDetector();
     barcode.process(image)
             .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
               @Override
@@ -94,29 +93,6 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
             });
     return null;
   }
-
-  private int getFirebaseRotation(){
-    int result;
-    switch (mRotation) {
-      case 0:
-        result = ImageMetadata.ROTATION_0;
-        break;
-      case 90:
-        result = ImageMetadata.ROTATION_90;
-        break;
-      case 180:
-        result = ImageMetadata.ROTATION_180;
-        break;
-      case -90:
-        result = ImageMetadata.ROTATION_270;
-        break;
-      default:
-        result = ImageMetadata.ROTATION_0;
-        Log.e(TAG, "Bad rotation value: " + mRotation);
-    }
-    return result;
-  }
-
 
   private WritableArray serializeEventData(List<Barcode> barcodes) {
     WritableArray barcodesList = Arguments.createArray();
@@ -262,7 +238,7 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
             emailsList.pushMap(emailData);
           }
           serializedBarcode.putArray("emails", emailsList);
-          String[] urls = barcode.getContactInfo().getUrls();
+          List<String> urls = barcode.getContactInfo().getUrls();
           WritableArray urlsList = Arguments.createArray();
           for (String urlContact : urls) {
             urlsList.pushString(urlContact);

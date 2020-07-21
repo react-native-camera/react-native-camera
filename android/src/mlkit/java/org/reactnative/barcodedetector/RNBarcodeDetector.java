@@ -5,7 +5,8 @@ import android.util.Log;
 
 import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
-import com.google.mlkit.vision.barcode.BarcodeDetectorOptions;
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
+import com.google.mlkit.vision.barcode.BarcodeScanning;
 
 
 public class RNBarcodeDetector {
@@ -15,13 +16,13 @@ public class RNBarcodeDetector {
     public static int INVERTED_MODE = 2;
     public static int ALL_FORMATS = Barcode.FORMAT_ALL_FORMATS;
 
-    private BarcodeDetector mBarcodeDetector = null;
-    private BarcodeDetectorOptions.Builder  mBuilder;
+    private BarcodeScanner mBarcodeScanner = null;
+    private BarcodeScannerOptions.Builder  mBuilder;
 
     private int mBarcodeType = Barcode.FORMAT_ALL_FORMATS;
 
     public RNBarcodeDetector(Context context) {
-        mBuilder = new BarcodeDetectorOptions.Builder().setBarcodeFormats(mBarcodeType);
+        mBuilder = new BarcodeScannerOptions.Builder().setBarcodeFormats(mBarcodeType);
     }
 
     public boolean isOperational() {
@@ -29,12 +30,12 @@ public class RNBarcodeDetector {
         return true;
     }
 
-    public BarcodeDetector getDetector() {
+    public BarcodeScanner getDetector() {
 
-        if (mBarcodeDetector == null) {
-            createBarcodeDetector();
+        if (mBarcodeScanner == null) {
+            createBarcodeScanner();
         }
-        return mBarcodeDetector;
+        return mBarcodeScanner;
     }
 
     public void setBarcodeType(int barcodeType) {
@@ -47,20 +48,18 @@ public class RNBarcodeDetector {
 
 
     public void release() {
-        if (mBarcodeDetector != null) {
+        if (mBarcodeScanner != null) {
             try {
-                mBarcodeDetector.close();
+                mBarcodeScanner.close();
             } catch (Exception e) {
-                Log.e("RNCamera", "Attempt to close BarcodeDetector failed");
+                Log.e("RNCamera", "Attempt to close BarcodeScanner failed");
             }
-            mBarcodeDetector = null;
+            mBarcodeScanner = null;
         }
     }
 
-    private void createBarcodeDetector() {
-        BarcodeDetectorOptions options = mBuilder.build();
-        mBarcodeDetector = .getInstance()
-                .getVisionBarcodeDetector(options);
-
+    private void createBarcodeScanner() {
+        BarcodeScannerOptions options = mBuilder.build();
+        mBarcodeScanner = BarcodeScanning.getClient(options);
     }
 }
