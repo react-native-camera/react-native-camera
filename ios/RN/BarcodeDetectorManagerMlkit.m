@@ -85,7 +85,7 @@
     self.scaleY = scaleY;
     MLKVisionImage *image = [[MLKVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
-    [_barcodeRecognizer detectInImage:image
+    [_barcodeRecognizer processImage:image
         completion:^(NSArray<MLKBarcode *> *barcodes, NSError *error) {
             if (error != nil || barcodes == nil) {
                 completed(emptyResult);
