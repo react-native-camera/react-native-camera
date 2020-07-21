@@ -10,8 +10,8 @@ import com.facebook.react.bridge.WritableMap;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode;
-import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
-import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.common.InputImage;
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata;
 
 import org.reactnative.barcodedetector.BarcodeFormatUtils;
