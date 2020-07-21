@@ -2,7 +2,7 @@
 #if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
 
 @interface TextDetectorManager ()
-@property(nonatomic, strong) FIRVisionTextRecognizer *textRecognizer;
+@property(nonatomic, strong) MLKTextRecognizer *textRecognizer;
 @property(nonatomic, assign) float scaleX;
 @property(nonatomic, assign) float scaleY;
 @end
@@ -12,7 +12,7 @@
 - (instancetype)init
 {
   if (self = [super init]) {
-    FIRVision *vision = [FIRVision vision];
+    MLK *vision = [MLK vision];
     self.textRecognizer = [vision onDeviceTextRecognizer];
   }
   return self;
@@ -30,7 +30,7 @@
     MLKVisionImage *image = [[MLKVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *textBlocks = [[NSMutableArray alloc] init];
     [_textRecognizer processImage:image
-                       completion:^(FIRVisionText *_Nullable result,
+                       completion:^(MLKText *_Nullable result,
                                     NSError *_Nullable error) {
                            if (error != nil || result == nil) {
                                completed(textBlocks);
@@ -43,7 +43,7 @@
 - (NSArray *)processBlocks:(NSArray *)features
 {
   NSMutableArray *textBlocks = [[NSMutableArray alloc] init];
-  for (FIRVisionTextBlock *textBlock in features) {
+  for (MLKTextBlock *textBlock in features) {
       NSDictionary *textBlockDict = 
       @{@"type": @"block", @"value" : textBlock.text, @"bounds" : [self processBounds:textBlock.frame], @"components" : [self processLine:textBlock.lines]};
       [textBlocks addObject:textBlockDict];
@@ -54,7 +54,7 @@
 -(NSArray *)processLine:(NSArray *)lines
 {
   NSMutableArray *lineBlocks = [[NSMutableArray alloc] init];
-  for (FIRVisionTextLine *textLine in lines) {
+  for (MLKTextLine *textLine in lines) {
         NSDictionary *textLineDict = 
         @{@"type": @"line", @"value" : textLine.text, @"bounds" : [self processBounds:textLine.frame], @"components" : [self processElement:textLine.elements]};
         [lineBlocks addObject:textLineDict];
@@ -65,7 +65,7 @@
 -(NSArray *)processElement:(NSArray *)elements 
 {
   NSMutableArray *elementBlocks = [[NSMutableArray alloc] init];
-  for (FIRVisionTextElement *textElement in elements) {
+  for (MLKTextElement *textElement in elements) {
         NSDictionary *textElementDict = 
         @{@"type": @"element", @"value" : textElement.text, @"bounds" : [self processBounds:textElement.frame]};
         [elementBlocks addObject:textElementDict];

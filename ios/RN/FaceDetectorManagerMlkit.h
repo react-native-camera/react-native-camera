@@ -3,18 +3,18 @@
 #if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
   #import <FirebaseMLVision/FirebaseMLVision.h>
   typedef NS_ENUM(NSInteger, RNFaceDetectionMode) {
-      RNFaceDetectionFastMode = FIRVisionFaceDetectorPerformanceModeFast,
-      RNFaceDetectionAccurateMode = FIRVisionFaceDetectorPerformanceModeAccurate
+      RNFaceDetectionFastMode = MLKFaceDetectorPerformanceModeFast,
+      RNFaceDetectionAccurateMode = MLKFaceDetectorPerformanceModeAccurate
   };
 
   typedef NS_ENUM(NSInteger, RNFaceDetectionLandmarks) {
-      RNFaceDetectAllLandmarks = FIRVisionFaceDetectorLandmarkModeAll,
-      RNFaceDetectNoLandmarks = FIRVisionFaceDetectorLandmarkModeNone
+      RNFaceDetectAllLandmarks = MLKFaceDetectorLandmarkModeAll,
+      RNFaceDetectNoLandmarks = MLKFaceDetectorLandmarkModeNone
   };
 
   typedef NS_ENUM(NSInteger, RNFaceDetectionClassifications) {
-      RNFaceRunAllClassifications = FIRVisionFaceDetectorClassificationModeAll,
-      RNFaceRunNoClassifications = FIRVisionFaceDetectorClassificationModeNone
+      RNFaceRunAllClassifications = MLKFaceDetectorClassificationModeAll,
+      RNFaceRunNoClassifications = MLKFaceDetectorClassificationModeNone
   };
 #endif
 

@@ -58,7 +58,7 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
             reject(@"E_FACE_DETECTION_FAILED", [NSString stringWithFormat:@"The file does not exist. Given path: `%@`.", path], nil);
             return;
         }
-        FIRVisionFaceDetectorOptions *newOptions = [[FIRVisionFaceDetectorOptions alloc] init];
+        MLKFaceDetectorOptions *newOptions = [[MLKFaceDetectorOptions alloc] init];
         if (options[kDetectLandmarksOptionName]) {
             newOptions.landmarkMode = [options[kDetectLandmarksOptionName] integerValue];
         }

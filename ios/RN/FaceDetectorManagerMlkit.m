@@ -3,9 +3,9 @@
 #if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
 
 @interface FaceDetectorManagerMlkit ()
-@property(nonatomic, strong) FIRVisionFaceDetector *faceRecognizer;
-@property(nonatomic, strong) FIRVision *vision;
-@property(nonatomic, strong) FIRVisionFaceDetectorOptions *options;
+@property(nonatomic, strong) MLKFaceDetector *faceRecognizer;
+@property(nonatomic, strong) MLK *vision;
+@property(nonatomic, strong) MLKFaceDetectorOptions *options;
 @property(nonatomic, assign) float scaleX;
 @property(nonatomic, assign) float scaleY;
 @end
@@ -15,12 +15,12 @@
 - (instancetype)init 
 {
   if (self = [super init]) {
-    self.options = [[FIRVisionFaceDetectorOptions alloc] init];
-    self.options.performanceMode = FIRVisionFaceDetectorPerformanceModeFast;
-    self.options.landmarkMode = FIRVisionFaceDetectorLandmarkModeNone;
-    self.options.classificationMode = FIRVisionFaceDetectorClassificationModeNone;
+    self.options = [[MLKFaceDetectorOptions alloc] init];
+    self.options.performanceMode = MLKFaceDetectorPerformanceModeFast;
+    self.options.landmarkMode = MLKFaceDetectorLandmarkModeNone;
+    self.options.classificationMode = MLKFaceDetectorClassificationModeNone;
     
-    self.vision = [FIRVision vision];
+    self.vision = [MLK vision];
     self.faceRecognizer = [_vision faceDetectorWithOptions:_options];
   }
   return self;
@@ -116,7 +116,7 @@
     NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
     [_faceRecognizer
      processImage:image
-     completion:^(NSArray<FIRVisionFace *> *faces, NSError *error) {
+     completion:^(NSArray<MLKFace *> *faces, NSError *error) {
          if (error != nil || faces == nil) {
              completed(emptyResult);
          } else {
@@ -128,7 +128,7 @@
 - (NSArray *)processFaces:(NSArray *)faces 
 {
     NSMutableArray *result = [[NSMutableArray alloc] init];
-    for (FIRVisionFace *face in faces) {
+    for (MLKFace *face in faces) {
         NSMutableDictionary *resultDict =
         [[NSMutableDictionary alloc] initWithCapacity:20];
         // Boundaries of face in image
@@ -153,70 +153,70 @@
         // If landmark detection was enabled (mouth, ears, eyes, cheeks, and
         // nose available):
         /** Midpoint of the left ear tip and left ear lobe. */
-        FIRVisionFaceLandmark *leftEar =
+        MLKFaceLandmark *leftEar =
         [face landmarkOfType:FIRFaceLandmarkTypeLeftEar];
         if (leftEar != nil) {
             [resultDict setObject:[self processPoint:leftEar.position]
                            forKey:@"leftEarPosition"];
         }
         /** Midpoint of the right ear tip and right ear lobe. */
-        FIRVisionFaceLandmark *rightEar =
+        MLKFaceLandmark *rightEar =
         [face landmarkOfType:FIRFaceLandmarkTypeRightEar];
         if (rightEar != nil) {
             [resultDict setObject:[self processPoint:rightEar.position]
                            forKey:@"rightEarPosition"];
         }
         /** Center of the bottom lip. */
-        FIRVisionFaceLandmark *mouthBottom =
+        MLKFaceLandmark *mouthBottom =
         [face landmarkOfType:FIRFaceLandmarkTypeMouthBottom];
         if (mouthBottom != nil) {
             [resultDict setObject:[self processPoint:mouthBottom.position]
                            forKey:@"bottomMouthPosition"];
         }
         /** Right corner of the mouth */
-        FIRVisionFaceLandmark *mouthRight =
+        MLKFaceLandmark *mouthRight =
         [face landmarkOfType:FIRFaceLandmarkTypeMouthRight];
         if (mouthRight != nil) {
             [resultDict setObject:[self processPoint:mouthRight.position]
                            forKey:@"rightMouthPosition"];
         }
         /** Left corner of the mouth */
-        FIRVisionFaceLandmark *mouthLeft =
+        MLKFaceLandmark *mouthLeft =
         [face landmarkOfType:FIRFaceLandmarkTypeMouthLeft];
         if (mouthLeft != nil) {
             [resultDict setObject:[self processPoint:mouthLeft.position]
                            forKey:@"leftMouthPosition"];
         }
         /** Left eye. */
-        FIRVisionFaceLandmark *eyeLeft =
+        MLKFaceLandmark *eyeLeft =
         [face landmarkOfType:FIRFaceLandmarkTypeLeftEye];
         if (eyeLeft != nil) {
             [resultDict setObject:[self processPoint:eyeLeft.position]
                            forKey:@"leftEyePosition"];
         }
         /** Right eye. */
-        FIRVisionFaceLandmark *eyeRight =
+        MLKFaceLandmark *eyeRight =
         [face landmarkOfType:FIRFaceLandmarkTypeRightEye];
         if (eyeRight != nil) {
             [resultDict setObject:[self processPoint:eyeRight.position]
                            forKey:@"rightEyePosition"];
         }
         /** Left cheek. */
-        FIRVisionFaceLandmark *cheekLeft =
+        MLKFaceLandmark *cheekLeft =
         [face landmarkOfType:FIRFaceLandmarkTypeLeftCheek];
         if (cheekLeft != nil) {
             [resultDict setObject:[self processPoint:cheekLeft.position]
                            forKey:@"leftCheekPosition"];
         }
         /** Right cheek. */
-        FIRVisionFaceLandmark *cheekRight =
+        MLKFaceLandmark *cheekRight =
         [face landmarkOfType:FIRFaceLandmarkTypeRightCheek];
         if (cheekRight != nil) {
             [resultDict setObject:[self processPoint:cheekRight.position]
                            forKey:@"rightCheekPosition"];
         }
         /** Midpoint between the nostrils where the nose meets the face. */
-        FIRVisionFaceLandmark *noseBase =
+        MLKFaceLandmark *noseBase =
         [face landmarkOfType:FIRFaceLandmarkTypeNoseBase];
         if (noseBase != nil) {
             [resultDict setObject:[self processPoint:noseBase.position]
@@ -256,7 +256,7 @@
     return boundsDict;
 }
 
-- (NSDictionary *)processPoint:(FIRVisionPoint *)point 
+- (NSDictionary *)processPoint:(MLKPoint *)point 
 {
     float originX = [point.x floatValue] * _scaleX;
     float originY = [point.y floatValue] * _scaleY;
