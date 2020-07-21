@@ -44,6 +44,7 @@ import android.util.SparseIntArray;
 import android.view.Surface;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Build;
 
 import com.facebook.react.bridge.ReadableMap;
 
@@ -617,6 +618,16 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             }
             startCaptureSession();
         }
+    }
+
+    @Override
+    void pauseRecording() {
+        pauseMediaRecorder();
+    }
+
+    @Override
+    void resumeRecording() {
+        resumeMediaRecorder();
     }
 
     @Override
@@ -1426,6 +1437,18 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         // @TODO: implement videoOrientation and deviceOrientation calculation
         mCallback.onVideoRecorded(mVideoPath, 0, 0);
         mVideoPath = null;
+    }
+
+    private void pauseMediaRecorder() {
+        if (Build.VERSION.SDK_INT >= 24) {
+            mMediaRecorder.pause();
+        }
+    }
+
+    private void resumeMediaRecorder() {
+        if (Build.VERSION.SDK_INT >= 24) {
+            mMediaRecorder.resume();
+        }
     }
 
     /**

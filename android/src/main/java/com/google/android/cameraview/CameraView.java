@@ -635,6 +635,14 @@ public class CameraView extends FrameLayout {
         mImpl.stopRecording();
     }
 
+    public void pauseRecording() {
+        mImpl.pauseRecording();
+    }
+
+    public void resumeRecording() {
+        mImpl.resumeRecording();
+    }
+
     public void resumePreview() {
         mImpl.resumePreview();
     }
