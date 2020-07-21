@@ -853,6 +853,16 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     @Override
+    void pauseRecording() {
+        pauseMediaRecorder();
+    }
+
+    @Override
+    void resumeRecording() {
+        resumeMediaRecorder();
+    }
+
+    @Override
     int getCameraOrientation() {
         return mCameraInfo.orientation;
     }
@@ -1567,6 +1577,14 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             mCallback.onVideoRecorded(mVideoPath, mOrientation != Constants.ORIENTATION_AUTO ? mOrientation : deviceOrientation, deviceOrientation);
             mVideoPath = null;
         }
+    }
+
+    private void pauseMediaRecorder() {
+        // mMediaRecorder.pause();
+    }
+
+    private void resumeMediaRecorder() {
+        // mMediaRecorder.resume();
     }
 
     @Override

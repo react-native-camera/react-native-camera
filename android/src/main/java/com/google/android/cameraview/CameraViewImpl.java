@@ -105,6 +105,10 @@ abstract class CameraViewImpl {
 
     abstract void stopRecording();
 
+    abstract void pauseRecording();
+
+    abstract void resumeRecording();
+
     abstract int getCameraOrientation();
 
     abstract void setDisplayOrientation(int displayOrientation);
