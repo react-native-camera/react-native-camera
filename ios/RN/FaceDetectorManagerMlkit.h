@@ -1,7 +1,8 @@
 
 #import <UIKit/UIKit.h>
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
-  #import <FirebaseMLVision/FirebaseMLVision.h>
+// #if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+//   #import <FirebaseMLVision/FirebaseMLVision.h>
+  @import MLKit;
   typedef NS_ENUM(NSInteger, RNFaceDetectionMode) {
       RNFaceDetectionFastMode = MLKFaceDetectorPerformanceModeFast,
       RNFaceDetectionAccurateMode = MLKFaceDetectorPerformanceModeAccurate
@@ -16,7 +17,7 @@
       RNFaceRunAllClassifications = MLKFaceDetectorClassificationModeAll,
       RNFaceRunNoClassifications = MLKFaceDetectorClassificationModeNone
   };
-#endif
+// #endif
 
   @interface FaceDetectorManagerMlkit : NSObject
   typedef void(^postRecognitionBlock)(NSArray *faces);

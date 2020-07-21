@@ -1,6 +1,7 @@
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
-  #import <FirebaseMLVision/FirebaseMLVision.h>
-#endif
+// #if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+//   #import <FirebaseMLVision/FirebaseMLVision.h>
+  @import MLKit;
+// #endif
   @interface TextDetectorManager : NSObject
   typedef void(^postRecognitionBlock)(NSArray *textBlocks);
 
