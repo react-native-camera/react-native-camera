@@ -13,11 +13,10 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.google.android.cameraview.CameraView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.mlkit.vision.common.InputImage;
-import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata;
-import com.google.firebase.ml.vision.text.FirebaseVisionText;
-import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
+import com.google.firebase.ml.vision.common.ImageMetadata;
+import com.google.firebase.ml.vision.text.Text;
+import com.google.firebase.ml.vision.text.TextRecognizer;
 
 import org.reactnative.camera.utils.ImageDimensions;
 
@@ -71,20 +70,20 @@ public class TextRecognizerAsyncTask extends android.os.AsyncTask<Void, Void, Vo
       return null;
     }
 
-    FirebaseVisionImageMetadata metadata = new FirebaseVisionImageMetadata.Builder()
+    ImageMetadata metadata = new ImageMetadata.Builder()
             .setWidth(mWidth)
             .setHeight(mHeight)
-            .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_YV12)
+            .setFormat(ImageMetadata.IMAGE_FORMAT_YV12)
             .setRotation(getFirebaseRotation())
             .build();
-    FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance().getOnDeviceTextRecognizer();
+    TextRecognizer detector = .getInstance().getOnDeviceTextRecognizer();
 
-    FirebaseVisionImage image = FirebaseVisionImage.fromByteArray(mImageData, metadata);
+    Image image = Image.fromByteArray(mImageData, metadata);
     detector.processImage(image)
-            .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+            .addOnSuccessListener(new OnSuccessListener<Text>() {
               @Override
-              public void onSuccess(FirebaseVisionText firebaseVisionText) {
-                List<FirebaseVisionText.TextBlock> textBlocks = firebaseVisionText.getTextBlocks();
+              public void onSuccess(Text Text) {
+                List<Text.TextBlock> textBlocks = Text.getTextBlocks();
                 WritableArray serializedData = serializeEventData(textBlocks);
                 mDelegate.onTextRecognized(serializedData);
                 mDelegate.onTextRecognizerTaskCompleted();
@@ -106,27 +105,27 @@ public class TextRecognizerAsyncTask extends android.os.AsyncTask<Void, Void, Vo
     int result;
     switch (mRotation) {
       case 0:
-        result = FirebaseVisionImageMetadata.ROTATION_0;
+        result = ImageMetadata.ROTATION_0;
         break;
       case 90:
-        result = FirebaseVisionImageMetadata.ROTATION_90;
+        result = ImageMetadata.ROTATION_90;
         break;
       case 180:
-        result = FirebaseVisionImageMetadata.ROTATION_180;
+        result = ImageMetadata.ROTATION_180;
         break;
       case -90:
-        result = FirebaseVisionImageMetadata.ROTATION_270;
+        result = ImageMetadata.ROTATION_270;
         break;
       default:
-        result = FirebaseVisionImageMetadata.ROTATION_0;
+        result = ImageMetadata.ROTATION_0;
         Log.e(TAG, "Bad rotation value: " + mRotation);
     }
     return result;
   }
 
-  private WritableArray serializeEventData(List<FirebaseVisionText.TextBlock> textBlocks) {
+  private WritableArray serializeEventData(List<Text.TextBlock> textBlocks) {
     WritableArray textBlocksList = Arguments.createArray();
-    for (FirebaseVisionText.TextBlock block: textBlocks) {
+    for (Text.TextBlock block: textBlocks) {
       WritableMap serializedTextBlock = serializeBloc(block);
       if (mImageDimensions.getFacing() == CameraView.FACING_FRONT) {
         serializedTextBlock = rotateTextX(serializedTextBlock);
@@ -137,10 +136,10 @@ public class TextRecognizerAsyncTask extends android.os.AsyncTask<Void, Void, Vo
     return textBlocksList;
   }
 
-  private WritableMap serializeBloc(FirebaseVisionText.TextBlock block) {
+  private WritableMap serializeBloc(Text.TextBlock block) {
     WritableMap encodedText = Arguments.createMap();
     WritableArray lines = Arguments.createArray();
-    for (FirebaseVisionText.Line line : block.getLines()) {
+    for (Text.Line line : block.getLines()) {
       lines.pushMap(serializeLine(line));
     }
     encodedText.putArray("components", lines);
@@ -155,10 +154,10 @@ public class TextRecognizerAsyncTask extends android.os.AsyncTask<Void, Void, Vo
     return encodedText;
   }
 
-  private WritableMap serializeLine(FirebaseVisionText.Line line) {
+  private WritableMap serializeLine(Text.Line line) {
     WritableMap encodedText = Arguments.createMap();
     WritableArray lines = Arguments.createArray();
-    for (FirebaseVisionText.Element element : line.getElements()) {
+    for (Text.Element element : line.getElements()) {
       lines.pushMap(serializeElement(element));
     }
     encodedText.putArray("components", lines);
@@ -173,7 +172,7 @@ public class TextRecognizerAsyncTask extends android.os.AsyncTask<Void, Void, Vo
     return encodedText;
   }
 
-  private WritableMap serializeElement(FirebaseVisionText.Element element) {
+  private WritableMap serializeElement(Text.Element element) {
     WritableMap encodedText = Arguments.createMap();
 
     encodedText.putString("value", element.getText());
