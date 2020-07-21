@@ -78,7 +78,7 @@ public class TextRecognizerAsyncTask extends android.os.AsyncTask<Void, Void, Vo
     TextRecognizer detector = .getInstance().getOnDeviceTextRecognizer();
 
     Image image = Image.fromByteArray(mImageData, metadata);
-    detector.processImage(image)
+    detector.process(image)
             .addOnSuccessListener(new OnSuccessListener<Text>() {
               @Override
               public void onSuccess(Text Text) {

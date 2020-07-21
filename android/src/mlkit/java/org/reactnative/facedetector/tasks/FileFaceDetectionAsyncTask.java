@@ -98,7 +98,7 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, Void> {
     try {
       Image image = Image.fromFilePath(mContext, Uri.parse(mUri));
       FaceDetector detector = mRNFaceDetector.getDetector();
-      detector.detectInImage(image)
+      detector.process(image)
               .addOnSuccessListener(
                       new OnSuccessListener<List<Face>>() {
                         @Override

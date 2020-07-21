@@ -73,7 +73,7 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
     Image image = Image.fromByteArray(mImageData, metadata);
 
     FaceDetector detector = mFaceDetector.getDetector();
-    detector.detectInImage(image)
+    detector.process(image)
             .addOnSuccessListener(
                     new OnSuccessListener<List<Face>>() {
                       @Override

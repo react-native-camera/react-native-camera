@@ -76,7 +76,7 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
     Image image = Image.fromByteArray(mImageData, metadata);
 
     BarcodeDetector barcode = mBarcodeDetector.getDetector();
-    barcode.detectInImage(image)
+    barcode.process(image)
             .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
               @Override
               public void onSuccess(List<Barcode> barcodes) {
