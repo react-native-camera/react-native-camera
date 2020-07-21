@@ -16,8 +16,8 @@ import com.facebook.react.bridge.WritableMap;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.mlkit.vision.common.InputImage;
-import com.google.firebase.ml.vision.face.Face;
-import com.google.firebase.ml.vision.face.FaceDetector;
+import com.google.mlkit.vision.face.Face;
+import com.google.mlkit.vision.face.FaceDetector;
 
 import java.io.File;
 import java.io.IOException;

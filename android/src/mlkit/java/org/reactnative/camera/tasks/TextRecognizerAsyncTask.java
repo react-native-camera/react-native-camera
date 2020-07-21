@@ -14,9 +14,9 @@ import com.google.android.cameraview.CameraView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.mlkit.vision.common.InputImage;
-import com.google.firebase.ml.vision.common.ImageMetadata;
-import com.google.firebase.ml.vision.text.Text;
-import com.google.firebase.ml.vision.text.TextRecognizer;
+import com.google.mlkit.vision.common.ImageMetadata;
+import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognizer;
 
 import org.reactnative.camera.utils.ImageDimensions;
 

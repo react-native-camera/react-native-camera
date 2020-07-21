@@ -3,8 +3,8 @@ package org.reactnative.facedetector;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.firebase.ml.vision.face.FaceDetector;
-import com.google.firebase.ml.vision.face.FaceDetectorOptions;
+import com.google.mlkit.vision.face.FaceDetector;
+import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 
 public class RNFaceDetector {

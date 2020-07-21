@@ -1,7 +1,7 @@
 package org.reactnative.barcodedetector;
 
 import android.util.SparseArray;
-import com.google.firebase.ml.vision.barcode.Barcode;
+import com.google.mlkit.vision.barcode.Barcode;
 
 import java.util.Collections;
 import java.util.HashMap;

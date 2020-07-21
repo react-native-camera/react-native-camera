@@ -3,9 +3,9 @@ package org.reactnative.facedetector;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
-import com.google.firebase.ml.vision.common.Point;
-import com.google.firebase.ml.vision.face.Face;
-import com.google.firebase.ml.vision.face.FaceLandmark;
+import com.google.mlkit.vision.common.Point;
+import com.google.mlkit.vision.face.Face;
+import com.google.mlkit.vision.face.FaceLandmark;
 
 public class FaceDetectorUtils {
   private static final String[] landmarkNames = {

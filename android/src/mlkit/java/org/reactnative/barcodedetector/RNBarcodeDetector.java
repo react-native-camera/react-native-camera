@@ -3,9 +3,9 @@ package org.reactnative.barcodedetector;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.firebase.ml.vision.barcode.Barcode;
+import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
-import com.google.firebase.ml.vision.barcode.BarcodeDetectorOptions;
+import com.google.mlkit.vision.barcode.BarcodeDetectorOptions;
 
 
 public class RNBarcodeDetector {
