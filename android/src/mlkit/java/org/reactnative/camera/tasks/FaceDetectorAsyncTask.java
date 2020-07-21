@@ -9,7 +9,6 @@ import com.google.android.cameraview.CameraView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.common.ImageMetadata;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetector;
 
