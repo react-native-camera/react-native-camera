@@ -3,20 +3,21 @@ package org.reactnative.facedetector;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 
 public class RNFaceDetector {
-  public static int ALL_CLASSIFICATIONS = FaceDetectorOptions.ALL_CLASSIFICATIONS;
-  public static int NO_CLASSIFICATIONS = FaceDetectorOptions.NO_CLASSIFICATIONS;
-  public static int ALL_LANDMARKS = FaceDetectorOptions.ALL_LANDMARKS;
-  public static int NO_LANDMARKS = FaceDetectorOptions.NO_LANDMARKS;
-  public static int ACCURATE_MODE = FaceDetectorOptions.ACCURATE;
-  public static int FAST_MODE = FaceDetectorOptions.FAST;
+  public static int ALL_CLASSIFICATIONS = FaceDetectorOptions.CLASSIFICATION_MODE_ALL;
+  public static int NO_CLASSIFICATIONS = FaceDetectorOptions.CLASSIFICATION_MODE_NONE;
+  public static int ALL_LANDMARKS = FaceDetectorOptions.LANDMARK_MODE_ALL;
+  public static int NO_LANDMARKS = FaceDetectorOptions.LANDMARK_MODE_NONE;
+  public static int ACCURATE_MODE = FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE;
+  public static int FAST_MODE = FaceDetectorOptions.PERFORMANCE_MODE_FAST;
   // TODO contours detection is possible for MLKit-based face detector, implement this feature
-  public static int ALL_CONTOURS = FaceDetectorOptions.ALL_CONTOURS;
-  public static int NO_CONTOURS = FaceDetectorOptions.NO_CONTOURS;
+  public static int ALL_CONTOURS = FaceDetectorOptions.CONTOUR_MODE_ALL;
+  public static int NO_CONTOURS = FaceDetectorOptions.CONTOUR_MODE_NONE;
 
   private FaceDetector mFaceDetector = null;
   private FaceDetectorOptions.Builder mBuilder;
@@ -91,6 +92,6 @@ public class RNFaceDetector {
 
   private void createFaceDetector() {
     FaceDetectorOptions options = mBuilder.build();
-    mFaceDetector = .getInstance().getVisionFaceDetector(options);
+    mFaceDetector = FaceDetection.getClient(options);
   }
 }
