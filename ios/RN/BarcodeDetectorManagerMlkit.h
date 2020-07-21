@@ -1,7 +1,8 @@
 
 #import <UIKit/UIKit.h>
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
-  #import <FirebaseMLVision/FirebaseMLVision.h>
+#if __has_include(<MLKitBarcodeScanning/MLKitBarcodeScanning.h>)
+  #import <MLKitVision/MLKitVision.h>
+  #import <MLKitBarcodeScanning/MLKitBarcodeScanning.h>
 #endif
 
 @interface BarcodeDetectorManagerMlkit : NSObject
