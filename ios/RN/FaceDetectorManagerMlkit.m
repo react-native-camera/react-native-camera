@@ -4,7 +4,6 @@
 
 @interface FaceDetectorManagerMlkit ()
 @property(nonatomic, strong) MLKFaceDetector *faceRecognizer;
-@property(nonatomic, strong) MLK *vision;
 @property(nonatomic, strong) MLKFaceDetectorOptions *options;
 @property(nonatomic, assign) float scaleX;
 @property(nonatomic, assign) float scaleY;
@@ -19,9 +18,8 @@
     self.options.performanceMode = MLKFaceDetectorPerformanceModeFast;
     self.options.landmarkMode = MLKFaceDetectorLandmarkModeNone;
     self.options.classificationMode = MLKFaceDetectorClassificationModeNone;
-    
-    self.vision = [MLK vision];
-    self.faceRecognizer = [_vision faceDetectorWithOptions:_options];
+
+    self.faceRecognizer = [MLKFaceDetector faceDetectorWithOptions:options];
   }
   return self;
 }
@@ -57,7 +55,7 @@
           dispatch_async(sessionQueue, ^{
               self.options.trackingEnabled = requestedValue;
               self.faceRecognizer =
-              [self.vision faceDetectorWithOptions:self.options];
+              [MLKFaceDetector faceDetectorWithOptions:self.options];
           });
       }
   }
@@ -71,7 +69,7 @@
             dispatch_async(sessionQueue, ^{
                 self.options.landmarkMode = requestedValue;
                 self.faceRecognizer =
-                [self.vision faceDetectorWithOptions:self.options];
+                [MLKFaceDetector faceDetectorWithOptions:self.options];
             });
         }
     }
@@ -85,7 +83,7 @@
             dispatch_async(sessionQueue, ^{
                 self.options.performanceMode = requestedValue;
                 self.faceRecognizer =
-                [self.vision faceDetectorWithOptions:self.options];
+                [MLKFaceDetector faceDetectorWithOptions:self.options];
             });
         }
     }

@@ -5,7 +5,6 @@
 
 @interface BarcodeDetectorManagerMlkit ()
 @property(nonatomic, strong) MLKBarcodeScanner *barcodeRecognizer;
-@property(nonatomic, strong) MLK *vision;
 @property(nonatomic, assign) MLKBarcodeFormat setOption;
 @property(nonatomic, assign) NSInteger detectionMode;
 @property(nonatomic, assign) float scaleX;
@@ -17,8 +16,7 @@
 - (instancetype)init
 {
   if (self = [super init]) {
-    self.vision = [MLK vision];
-    self.barcodeRecognizer = [_vision barcodeDetector];
+    self.barcodeRecognizer = [MLKBarcodeScanner barcodeScanner];
   }
   return self;
 }
@@ -64,7 +62,7 @@
               [[MLKBarcodeScannerOptions alloc]
               initWithFormats: requestedValue];
               self.barcodeRecognizer =
-              [self.vision barcodeDetectorWithOptions:options];
+              [MLKBarcodeScanner barcodeScannerWithOptions:options]
           });
       }
   }
@@ -84,6 +82,7 @@
     self.scaleX = scaleX;
     self.scaleY = scaleY;
     MLKVisionImage *image = [[MLKVisionImage alloc] initWithImage:uiImage];
+    image.orientation = uiImage.imageOrientation;
     NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
     [_barcodeRecognizer processImage:image
         completion:^(NSArray<MLKBarcode *> *barcodes, NSError *error) {

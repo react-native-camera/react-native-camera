@@ -12,8 +12,8 @@
 - (instancetype)init
 {
   if (self = [super init]) {
-    MLK *vision = [MLK vision];
-    self.textRecognizer = [vision onDeviceTextRecognizer];
+    self.textRecognizer = [MLKTextRecognizer textRecognizer];
+
   }
   return self;
 }
@@ -28,6 +28,7 @@
     self.scaleX = scaleX;
     self.scaleY = scaleY;
     MLKVisionImage *image = [[MLKVisionImage alloc] initWithImage:uiImage];
+    image.orientation = uiImage.imageOrientation;
     NSMutableArray *textBlocks = [[NSMutableArray alloc] init];
     [_textRecognizer processImage:image
                        completion:^(MLKText *_Nullable result,
