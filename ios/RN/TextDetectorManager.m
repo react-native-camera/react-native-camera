@@ -27,7 +27,7 @@
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
-    FIRVisionImage *image = [[FIRVisionImage alloc] initWithImage:uiImage];
+    MLKVisionImage *image = [[MLKVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *textBlocks = [[NSMutableArray alloc] init];
     [_textRecognizer processImage:image
                        completion:^(FIRVisionText *_Nullable result,

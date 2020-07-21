@@ -4,7 +4,7 @@
 #if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
 
 @interface BarcodeDetectorManagerMlkit ()
-@property(nonatomic, strong) FIRVisionBarcodeDetector *barcodeRecognizer;
+@property(nonatomic, strong) MLKBarcodeScanner *barcodeRecognizer;
 @property(nonatomic, strong) FIRVision *vision;
 @property(nonatomic, assign) FIRVisionBarcodeFormat setOption;
 @property(nonatomic, assign) NSInteger detectionMode;
@@ -60,8 +60,8 @@
       if (sessionQueue) {
           dispatch_async(sessionQueue, ^{
               self.setOption = requestedValue;
-              FIRVisionBarcodeDetectorOptions *options =
-              [[FIRVisionBarcodeDetectorOptions alloc]
+              MLKBarcodeScannerOptions *options =
+              [[MLKBarcodeScannerOptions alloc]
               initWithFormats: requestedValue];
               self.barcodeRecognizer =
               [self.vision barcodeDetectorWithOptions:options];
@@ -83,7 +83,7 @@
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
-    FIRVisionImage *image = [[FIRVisionImage alloc] initWithImage:uiImage];
+    MLKVisionImage *image = [[MLKVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
     [_barcodeRecognizer detectInImage:image
         completion:^(NSArray<FIRVisionBarcode *> *barcodes, NSError *error) {

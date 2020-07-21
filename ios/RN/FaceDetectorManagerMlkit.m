@@ -112,7 +112,7 @@
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
-    FIRVisionImage *image = [[FIRVisionImage alloc] initWithImage:uiImage];
+    MLKVisionImage *image = [[MLKVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
     [_faceRecognizer
      processImage:image
