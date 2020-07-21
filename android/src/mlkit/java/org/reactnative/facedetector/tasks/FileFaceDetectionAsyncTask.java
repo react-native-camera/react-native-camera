@@ -15,9 +15,9 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.face.FirebaseVisionFace;
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.face.Face;
+import com.google.mlkit.vision.face.FaceDetector;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,13 +96,13 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
     try {
-      FirebaseVisionImage image = FirebaseVisionImage.fromFilePath(mContext, Uri.parse(mUri));
-      FirebaseVisionFaceDetector detector = mRNFaceDetector.getDetector();
-      detector.detectInImage(image)
+      InputImage image = InputImage.fromFilePath(mContext, Uri.parse(mUri));
+      FaceDetector detector = mRNFaceDetector.getDetector();
+      detector.process(image)
               .addOnSuccessListener(
-                      new OnSuccessListener<List<FirebaseVisionFace>>() {
+                      new OnSuccessListener<List<Face>>() {
                         @Override
-                        public void onSuccess(List<FirebaseVisionFace> faces) {
+                        public void onSuccess(List<Face> faces) {
                           serializeEventData(faces);
                         }
                       })
@@ -122,11 +122,11 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, Void> {
     return null;
   }
 
-  private void serializeEventData(List<FirebaseVisionFace> faces) {
+  private void serializeEventData(List<Face> faces) {
     WritableMap result = Arguments.createMap();
     WritableArray facesArray = Arguments.createArray();
 
-    for(FirebaseVisionFace face : faces) {
+    for(Face face : faces) {
       WritableMap encodedFace = FaceDetectorUtils.serializeFace(face);
       encodedFace.putDouble("yawAngle", (-encodedFace.getDouble("yawAngle") + 360) % 360);
       encodedFace.putDouble("rollAngle", (-encodedFace.getDouble("rollAngle") + 360) % 360);

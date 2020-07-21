@@ -72,7 +72,7 @@ android {
 <application ...>
 ...
   <meta-data
-      android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+      android:name="com.google.mlkit.vision.DEPENDENCIES"
       android:value="ocr" />
   <!-- To use multiple models, list all needed models: android:value="ocr, face, barcode" -->
 </application>

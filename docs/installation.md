@@ -284,8 +284,8 @@ apply plugin: 'com.google.gms.google-services'
 <application ...>
 ...
   <meta-data
-      android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-      android:value="ocr, face" /> <!-- choose models that you will use -->
+      android:name="com.google.mlkit.vision.DEPENDENCIES"
+      android:value="ocr" /> <!-- choose models that you will use -->
 </application>
 ```
 

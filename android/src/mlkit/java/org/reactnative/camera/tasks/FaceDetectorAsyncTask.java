@@ -8,10 +8,9 @@ import com.facebook.react.bridge.WritableMap;
 import com.google.android.cameraview.CameraView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata;
-import com.google.firebase.ml.vision.face.FirebaseVisionFace;
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.face.Face;
+import com.google.mlkit.vision.face.FaceDetector;
 
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.facedetector.FaceDetectorUtils;
@@ -65,20 +64,18 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
     if (isCancelled() || mDelegate == null || mFaceDetector == null) {
       return null;
     }
-    FirebaseVisionImageMetadata metadata = new FirebaseVisionImageMetadata.Builder()
-            .setWidth(mWidth)
-            .setHeight(mHeight)
-            .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_YV12)
-            .setRotation(getFirebaseRotation())
-            .build();
-    FirebaseVisionImage image = FirebaseVisionImage.fromByteArray(mImageData, metadata);
-
-    FirebaseVisionFaceDetector detector = mFaceDetector.getDetector();
-    detector.detectInImage(image)
+    InputImage image = InputImage.fromByteArray(mImageData,
+            mWidth,
+            mHeight,
+            mRotation,
+            InputImage.IMAGE_FORMAT_YV12
+    );
+    FaceDetector detector = mFaceDetector.getDetector();
+    detector.process(image)
             .addOnSuccessListener(
-                    new OnSuccessListener<List<FirebaseVisionFace>>() {
+                    new OnSuccessListener<List<Face>>() {
                       @Override
-                      public void onSuccess(List<FirebaseVisionFace> faces) {
+                      public void onSuccess(List<Face> faces) {
                         WritableArray facesList = serializeEventData(faces);
                         mDelegate.onFacesDetected(facesList);
                         mDelegate.onFaceDetectingTaskCompleted();
@@ -95,35 +92,10 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
     return null;
   }
 
-  private int getFirebaseRotation(){
-    int result;
-    switch (mRotation) {
-      case 0:
-        result = FirebaseVisionImageMetadata.ROTATION_0;
-        break;
-      case 90:
-        result = FirebaseVisionImageMetadata.ROTATION_90;
-        break;
-      case 180:
-        result = FirebaseVisionImageMetadata.ROTATION_180;
-        break;
-      case 270:
-        result = FirebaseVisionImageMetadata.ROTATION_270;
-        break;
-      case -90:
-        result = FirebaseVisionImageMetadata.ROTATION_270;
-        break;
-      default:
-        result = FirebaseVisionImageMetadata.ROTATION_0;
-        Log.e(TAG, "Bad rotation value: " + mRotation);
-    }
-    return result;
-  }
-
-  private WritableArray serializeEventData(List<FirebaseVisionFace> faces) {
+  private WritableArray serializeEventData(List<Face> faces) {
     WritableArray facesList = Arguments.createArray();
 
-    for (FirebaseVisionFace face : faces) {
+    for (Face face : faces) {
       WritableMap serializedFace = FaceDetectorUtils.serializeFace(face, mScaleX, mScaleY, mWidth, mHeight, mPaddingLeft, mPaddingTop);
       if (mImageDimensions.getFacing() == CameraView.FACING_FRONT) {
         serializedFace = FaceDetectorUtils.rotateFaceX(serializedFace, mImageDimensions.getWidth(), mScaleX);
