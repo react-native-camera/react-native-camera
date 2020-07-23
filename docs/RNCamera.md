@@ -20,7 +20,7 @@ class ExampleApp extends PureComponent {
     return (
       <View style={styles.container}>
         <RNCamera
-          ref={(ref) => {
+          ref={ref => {
             this.camera = ref;
           }}
           style={styles.preview}
@@ -144,7 +144,7 @@ class ExampleApp extends PureComponent {
     );
   }
 
-  takePicture = async function (camera) {
+  takePicture = async function(camera) {
     const options = { quality: 0.5, base64: true };
     const data = await camera.takePictureAsync(options);
     //  eslint-disable-next-line
@@ -286,7 +286,7 @@ The idea is that you select the appropriate white balance setting for the type o
 
 Use the `whiteBalance` property to specify which white balance setting the camera should use.
 
-On iOS it's also possible to specify custom temperature, tint and rgb offset values instead of using one of the presets (auto, sunny, ...): 
+On iOS it's also possible to specify custom temperature, tint and rgb offset values instead of using one of the presets (auto, sunny, ...):
 
 Value: Object (e.g. `{temperature: 4000, tint: -10.0, redGainOffset: 0.0, greenGainOffset: 0.0, blueGainOffset: 0.0}`)
 
@@ -550,6 +550,13 @@ Available settings:
 
 Change the mode in order to scan "inverted" barcodes. You can either change it to `alternate`, which will inverted the image data every second screen and be able to read both normal and inverted barcodes, or `inverted`, which will only read inverted barcodes. Default is `normal`, which only reads "normal" barcodes. Note: this property only applies to the Google Vision barcode detector.
 Example: `<RNCamera googleVisionBarcodeMode={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeMode.ALTERNATE} />`
+
+### `detectedImageInEvent`
+
+When `detectedImageInEvent` is `false` (default), `onBarCodeRead` / `onBarcodesDetected` only gives metadata, but not the image (bytes/base64) itself.
+
+When `detectedImageInEvent` is `true`, `onBarCodeRead` / `onGoogleVisionBarcodesDetected` will fill the `image` field inside the object given to the callback handler.
+It contains raw image bytes in JPEG format (quality 100) as Base64-encoded string.
 
 ### Face Detection Related props
 
