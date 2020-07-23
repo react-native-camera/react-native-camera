@@ -2,6 +2,13 @@
 
 #include <functional>
 
+#include <winrt/Windows.Media.Devices.h>
+#include <winrt/Windows.Media.MediaProperties.h>
+
+#include "JSValue.h"
+
+#define BarcodeReadEvent L"onBarCodeRead"
+
 namespace winrt::ReactNativeCameraCPP {
 class ReactCameraConstants {
  public:
@@ -36,15 +43,14 @@ class ReactCameraConstants {
   static const int CameraWhiteBalanceSunny = (int)winrt::Windows::Media::Devices::ColorTemperaturePreset::Daylight;
   static const int CameraWhiteBalanceCloudy = (int)winrt::Windows::Media::Devices::ColorTemperaturePreset::Cloudy;
   static const int CameraWhiteBalanceShadow = (int)winrt::Windows::Media::Devices::ColorTemperaturePreset::Candlelight;
-  static const int CameraWhiteBalanceIncandescent = (int)winrt::Windows::Media::Devices::ColorTemperaturePreset::Tungsten;
+  static const int CameraWhiteBalanceIncandescent =
+      (int)winrt::Windows::Media::Devices::ColorTemperaturePreset::Tungsten;
   static const int CameraWhiteBalanceFluorescent =
       (int)winrt::Windows::Media::Devices::ColorTemperaturePreset::Fluorescent;
-  static const int CameraVideoQualityAuto =
-      (int)winrt::Windows::Media::MediaProperties::VideoEncodingQuality::Auto;
+  static const int CameraVideoQualityAuto = (int)winrt::Windows::Media::MediaProperties::VideoEncodingQuality::Auto;
   static const int CameraVideoQuality2160P =
       (int)winrt::Windows::Media::MediaProperties::VideoEncodingQuality::Uhd2160p;
-  static const int CameraVideoQuality1080P =
-      (int)winrt::Windows::Media::MediaProperties::VideoEncodingQuality::HD1080p;
+  static const int CameraVideoQuality1080P = (int)winrt::Windows::Media::MediaProperties::VideoEncodingQuality::HD1080p;
   static const int CameraVideoQuality720P = (int)winrt::Windows::Media::MediaProperties::VideoEncodingQuality::HD720p;
   static const int CameraVideoQualityWVGA = (int)winrt::Windows::Media::MediaProperties::VideoEncodingQuality::Wvga;
   static const int CameraVideoQualityVGA = (int)winrt::Windows::Media::MediaProperties::VideoEncodingQuality::Vga;
@@ -55,16 +61,35 @@ class ReactCameraConstants {
   static const int MediaTypeMP4 = 2;
   static const int MediaTypeWMV = 3;
 
+  static const int BarcodeReadIntervalMinMS = 200;
+  static const int BarcodeReadIntervalMS = 500;
+  static const int BarcodeReadTimeoutMS = 5000;
+
   static winrt::Microsoft::ReactNative::JSValueObject GetAspectConstants() noexcept {
     return winrt::Microsoft::ReactNative::JSValueObject{
-        {"stretch", CameraAspectStretch},
-        {"fit", CameraAspectFit},
-        {"fill", CameraAspectFill}
-    };
+        {"stretch", CameraAspectStretch}, {"fit", CameraAspectFit}, {"fill", CameraAspectFill}};
   }
 
   static winrt::Microsoft::ReactNative::JSValue GetBarcodeConstants() noexcept {
-    return winrt::Microsoft::ReactNative::JSValue::EmptyObject.Copy();
+    return winrt::Microsoft::ReactNative::JSValueObject{
+        {"aztec", "AZTEC"}, // winrt::ZXing::BarcodeType::AZTEC
+        {"codabar", "CODABAR"}, // winrt::ZXing::BarcodeType::CODABAR
+        {"code39", "CODE_39"}, // winrt::ZXing::BarcodeType::CODE_39
+        {"code93", "CODE_93"}, // winrt::ZXing::BarcodeType::CODE_93
+        {"code128", "CODE_128"}, // winrt::ZXing::BarcodeType::CODE_128
+        {"datamatrix", "DATA_MATRIX"}, // winrt::ZXing::BarcodeType::DATA_MATRIX
+        {"ean8", "EAN_8"}, // winrt::ZXing::BarcodeType::EAN_8
+        {"ean13", "EAN_13"}, // winrt::ZXing::BarcodeType::EAN_13
+        {"interleaved2of5", "ITF"}, // winrt::ZXing::BarcodeType::ITF
+        {"maxicode", "MAXICODE"}, // winrt::ZXing::BarcodeType::MAXICODE
+        {"pdf417", "PDF_417"}, // winrt::ZXing::BarcodeType::PDF_417
+        {"qr", "QR_CODE"}, // winrt::ZXing::BarcodeType::QR_CODE
+        {"rss14", "RSS_14"}, // winrt::ZXing::BarcodeType::RSS_14
+        {"rssexpanded", "RSS_EXPANDED"}, // winrt::ZXing::BarcodeType::RSS_EXPANDED
+        {"upc_a", "UPC_A"}, // winrt::ZXing::BarcodeType::UPC_A
+        {"upc_e", "UPC_E"}, // winrt::ZXing::BarcodeType::UPC_E
+        {"upc_ean", "UPC_EAN_EXTENSION"}, // winrt::ZXing::BarcodeType::UPC_EAN_EXTENSION
+    };
   }
 
   static winrt::Microsoft::ReactNative::JSValueObject GetFaceDetectionConstants() noexcept {

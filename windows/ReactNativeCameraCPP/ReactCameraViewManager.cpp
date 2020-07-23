@@ -1,6 +1,7 @@
 #include "pch.h"
-#include "ReactCameraViewManager.h"
+
 #include "ReactCameraConstants.h"
+#include "ReactCameraViewManager.h"
 
 #include <iomanip>
 
@@ -59,8 +60,9 @@ IMapView<hstring, ViewManagerPropertyType> ReactCameraViewManager::NativeProps()
   nativeProps.Insert(L"whiteBalance", ViewManagerPropertyType::Number);
   nativeProps.Insert(L"torchMode", ViewManagerPropertyType::Number);
   nativeProps.Insert(L"flashMode", ViewManagerPropertyType::Number);
-  //        nativeProps.Insert(L"barcodeScannerEnabled", ViewManagerPropertyType::Boolean);
-  //        nativeProps.Insert(L"barCodeTypes", ViewManagerPropertyType::Array);
+  nativeProps.Insert(L"barCodeScannerEnabled", ViewManagerPropertyType::Boolean);
+  nativeProps.Insert(L"barCodeTypes", ViewManagerPropertyType::Array);
+  nativeProps.Insert(L"barCodeReadIntervalMS", ViewManagerPropertyType::Number);
   nativeProps.Insert(L"keepAwake", ViewManagerPropertyType::Boolean);
   nativeProps.Insert(L"mirrorVideo", ViewManagerPropertyType::Boolean);
   nativeProps.Insert(L"defaultVideoQuality", ViewManagerPropertyType::Number);
@@ -74,6 +76,20 @@ void ReactCameraViewManager::UpdateProperties(
   if (auto reactCameraView = view.try_as<ReactNativeCameraCPP::ReactCameraView>()) {
     reactCameraView->UpdateProperties(propertyMapReader);
   }
+}
+
+// IViewManagerWithExportedEventTypeConstants
+ConstantProviderDelegate ReactCameraViewManager::ExportedCustomBubblingEventTypeConstants() noexcept {
+  return nullptr;
+}
+
+ConstantProviderDelegate ReactCameraViewManager::ExportedCustomDirectEventTypeConstants() noexcept {
+  return [](winrt::Microsoft::ReactNative::IJSValueWriter const &constantWriter) {
+    constantWriter.WritePropertyName(BarcodeReadEvent);
+    constantWriter.WriteObjectBegin();
+    WriteProperty(constantWriter, L"registrationName", BarcodeReadEvent);
+    constantWriter.WriteObjectEnd();
+  };
 }
 
 void ReactCameraViewManager::RemoveViewFromList(winrt::com_ptr<ReactNativeCameraCPP::ReactCameraView> view) {
@@ -124,7 +140,7 @@ IAsyncAction ReactCameraViewManager::StopRecordAsync(int viewTag) noexcept {
 
 IAsyncAction ReactCameraViewManager::IsRecordingAsync(
     int viewTag,
-    winrt::Microsoft::ReactNative::ReactPromise<bool> const& result) noexcept {
+    winrt::Microsoft::ReactNative::ReactPromise<bool> const &result) noexcept {
   auto capturedPromise = result;
 
   auto index = co_await FindCamera(viewTag);
@@ -173,7 +189,7 @@ IAsyncAction ReactCameraViewManager::CheckMediaCapturePermissionAsync(
 }
 
 winrt::IAsyncAction ReactCameraViewManager::GetCameraIdsAsync(
-    winrt::ReactPromise<winrt::JSValueArray> const& result) noexcept {
+    winrt::ReactPromise<winrt::JSValueArray> const &result) noexcept {
   auto capturedPromise = result;
 
   auto allVideoDevices = co_await winrt::DeviceInformation::FindAllAsync(winrt::DeviceClass::VideoCapture);
@@ -211,7 +227,7 @@ IAsyncOperation<int> ReactCameraViewManager::FindCamera(int viewTag) noexcept {
     co_await resume_background();
     index++;
   }
-  co_return - 1;
+  co_return -1;
 }
 
 } // namespace winrt::ReactNativeCameraCPP::implementation

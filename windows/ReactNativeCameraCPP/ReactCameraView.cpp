@@ -42,7 +42,9 @@ ReactCameraView::~ReactCameraView() {
 
 void ReactCameraView::Initialize() {
   m_childElement = winrt::CaptureElement();
+
   Children().Append(m_childElement);
+
   // RNW does not support DropView yet, so we need to manually register to Unloaded event and remove self
   // from the static view list
   m_unloadedEventToken = Unloaded(winrt::auto_revoke, [ref = get_weak()](auto const &, auto const &) {
@@ -80,6 +82,12 @@ void ReactCameraView::UpdateProperties(IJSValueReader const &propertyMapReader) 
         UpdateAspect(propertyValue.AsInt32());
       } else if (propertyName == "defaultVideoQuality") {
         UpdateDefaultVideoQuality(propertyValue.AsInt32());
+      } else if (propertyName == "barCodeScannerEnabled") {
+        UpdateBarcodeScannerEnabled(propertyValue.AsBoolean());
+      } else if (propertyName == "barCodeTypes") {
+        UpdateBarcodeTypes(propertyValue.AsArray());
+      } else if (propertyName == "barCodeReadIntervalMS") {
+        UpdateBarcodeReadIntervalMS(propertyValue.AsInt32());
       }
     }
   }
@@ -108,14 +116,13 @@ IAsyncAction ReactCameraView::TakePictureAsync(
 
   if (!m_isInitialized) {
     capturedPromise.Reject(L"Media device is not initialized.");
-    return;
+    co_return;
   }
 
-  #ifdef RNW61
-  // Necessary to switch to the UI thread in RNW61
+  StopBarcodeScanner();
+
   auto dispatcher = Dispatcher();
   co_await resume_foreground(dispatcher);
-  #endif
 
   if (auto mediaCapture = m_childElement.Source()) {
     // Default with no options is to save the image to the temp folder and return the uri
@@ -168,7 +175,8 @@ IAsyncAction ReactCameraView::TakePictureAsync(
 
     // Add additional metadata to what the camera provided
     auto photoOrientation = m_rotationHelper.GetConvertedCameraCaptureOrientation();
-    auto photoOrientationValue = winrt::BitmapTypedValue(winrt::box_value(photoOrientation), winrt::PropertyType::UInt16);
+    auto photoOrientationValue =
+        winrt::BitmapTypedValue(winrt::box_value(photoOrientation), winrt::PropertyType::UInt16);
     capturedProperties.Insert(hstring(L"System.Photo.Orientation"), photoOrientationValue);
 
     // Get transform options
@@ -228,7 +236,7 @@ IAsyncAction ReactCameraView::TakePictureAsync(
       if (writeExif) {
         co_await encoder.BitmapProperties().SetPropertiesAsync(capturedProperties);
       }
-      
+
       co_await encoder.FlushAsync();
 
       // Get base64-encoded data to return
@@ -284,10 +292,9 @@ IAsyncAction ReactCameraView::TakePictureAsync(
     capturedPromise.Reject(L"Media device is not initialized.");
   }
 
-  #ifdef RNW61
-  // Necessary to switch back to bacground thread in RNW61
   co_await resume_background();
-  #endif
+
+  StartBarcodeScanner();
 }
 
 IAsyncAction ReactCameraView::RecordAsync(
@@ -301,11 +308,10 @@ IAsyncAction ReactCameraView::RecordAsync(
     co_return;
   }
 
-  #ifdef RNW61
-  // Necessary to switch to the UI thread in RNW61
+  StopBarcodeScanner();
+
   auto dispatcher = Dispatcher();
   co_await resume_foreground(dispatcher);
-  #endif
 
   if (auto mediaCapture = m_childElement.Source()) {
     int quality;
@@ -405,10 +411,9 @@ IAsyncAction ReactCameraView::RecordAsync(
     capturedPromise.Reject("No media capture device found");
   }
 
-  #ifdef RNW61
-  // Necessary to switch back to bacground thread in RNW61
   co_await resume_background();
-  #endif
+
+  StartBarcodeScanner();
 }
 
 IAsyncAction ReactCameraView::StopRecordAsync() noexcept {
@@ -436,12 +441,17 @@ IAsyncAction ReactCameraView::PausePreviewAsync() noexcept {
     co_return;
   }
 
+  auto dispatcher = Dispatcher();
+  co_await resume_foreground(dispatcher);
+
   if (auto mediaCapture = m_childElement.Source()) {
     if (m_isPreview) {
       co_await mediaCapture.StopPreviewAsync();
       m_isPreview = false;
     }
   }
+
+  co_await resume_background();
 }
 
 IAsyncAction ReactCameraView::ResumePreviewAsync() noexcept {
@@ -449,12 +459,17 @@ IAsyncAction ReactCameraView::ResumePreviewAsync() noexcept {
     co_return;
   }
 
+  auto dispatcher = Dispatcher();
+  co_await resume_foreground(dispatcher);
+
   if (auto mediaCapture = m_childElement.Source()) {
     if (!m_isPreview) {
       co_await mediaCapture.StartPreviewAsync();
       m_isPreview = true;
     }
   }
+
+  co_await resume_background();
 }
 
 // start a timer to end the recording after the specified time
@@ -475,10 +490,12 @@ IAsyncAction ReactCameraView::WaitAndStopRecording() {
   // Switch to UI thread to stop recording
   auto dispatcher = Dispatcher();
   co_await resume_foreground(dispatcher);
+
   co_await m_mediaRecording.StopAsync();
 
   // Reset stream to default
   co_await UpdateMediaStreamPropertiesAsync();
+
   co_await resume_background();
 }
 
@@ -558,7 +575,7 @@ void ReactCameraView::UpdateWhiteBalance(int whiteBalance) {
 
 void ReactCameraView::UpdateMirrorVideo(bool mirrorVideo) {
   m_mirrorVideo = mirrorVideo;
-  m_childElement.FlowDirection(mirrorVideo ? winrt::FlowDirection::RightToLeft :winrt::FlowDirection::LeftToRight);
+  m_childElement.FlowDirection(mirrorVideo ? winrt::FlowDirection::RightToLeft : winrt::FlowDirection::LeftToRight);
 }
 
 void ReactCameraView::UpdateAspect(int aspect) {
@@ -583,6 +600,62 @@ void ReactCameraView::UpdateDefaultVideoQuality(int videoQuality) {
     m_defaultVideoQuality = videoQuality;
     auto asyncOp = UpdateMediaStreamPropertiesAsync();
   }
+}
+
+void ReactCameraView::UpdateBarcodeScannerEnabled(bool barcodeScannerEnabled) {
+  m_barcodeScannerEnabled = barcodeScannerEnabled;
+  if (m_barcodeScannerEnabled) {
+    StartBarcodeScanner();
+  } else {
+    StopBarcodeScanner();
+  }
+}
+
+void ReactCameraView::UpdateBarcodeTypes(winrt::JSValueArray const &barcodeTypes) {
+  m_barcodeTypes.clear();
+
+  for (size_t i = 0; i < barcodeTypes.size(); i++) {
+    auto barCodeTypeStr = barcodeTypes[i].AsString();
+    if (barCodeTypeStr == "AZTEC") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::AZTEC);
+    } else if (barCodeTypeStr == "CODABAR") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::CODABAR);
+    } else if (barCodeTypeStr == "CODE_39") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::CODE_39);
+    } else if (barCodeTypeStr == "CODE_93") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::CODE_93);
+    } else if (barCodeTypeStr == "CODE_128") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::CODE_128);
+    } else if (barCodeTypeStr == "DATA_MATRIX") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::DATA_MATRIX);
+    } else if (barCodeTypeStr == "EAN_8") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::EAN_8);
+    } else if (barCodeTypeStr == "EAN_13") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::EAN_13);
+    } else if (barCodeTypeStr == "ITF") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::ITF);
+    } else if (barCodeTypeStr == "MAXICODE") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::MAXICODE);
+    } else if (barCodeTypeStr == "PDF_417") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::PDF_417);
+    } else if (barCodeTypeStr == "QR_CODE") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::QR_CODE);
+    } else if (barCodeTypeStr == "RSS_14") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::RSS_14);
+    } else if (barCodeTypeStr == "RSS_EXPANDED") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::RSS_EXPANDED);
+    } else if (barCodeTypeStr == "UPC_A") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::UPC_A);
+    } else if (barCodeTypeStr == "UPC_E") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::UPC_E);
+    } else if (barCodeTypeStr == "UPC_EAN_EXTENSION") {
+      m_barcodeTypes.push_back(winrt::ZXing::BarcodeType::UPC_EAN_EXTENSION);
+    }
+  }
+}
+
+void ReactCameraView::UpdateBarcodeReadIntervalMS(int barcodeReadIntervalMS) {
+  m_barcodeReadIntervalMS = std::max<int>(ReactCameraConstants::BarcodeReadIntervalMinMS, barcodeReadIntervalMS);
 }
 
 // Intialization takes care few things below:
@@ -610,6 +683,7 @@ IAsyncAction ReactCameraView::InitializeAsync() {
       UpdateWhiteBalance(m_whiteBalance);
       UpdateKeepAwake(m_keepAwake);
       UpdateMirrorVideo(m_mirrorVideo);
+      UpdateBarcodeScannerEnabled(m_barcodeScannerEnabled);
 
       co_await mediaCapture.StartPreviewAsync();
       m_isPreview = true;
@@ -662,7 +736,8 @@ IAsyncAction ReactCameraView::UpdateMediaStreamPropertiesAsync(int videoQuality)
       if (auto videoEncodingProperties = mediaEncodingProperties.try_as<winrt::VideoEncodingProperties>()) {
         auto resolution = videoEncodingProperties.Width() * videoEncodingProperties.Height();
         auto frameRate = videoEncodingProperties.FrameRate().Denominator() > 0
-            ? videoEncodingProperties.FrameRate().Numerator() / videoEncodingProperties.FrameRate().Denominator() : 0;
+            ? videoEncodingProperties.FrameRate().Numerator() / videoEncodingProperties.FrameRate().Denominator()
+            : 0;
 
         // Save the best encoding for later, in case the target cannot be found
         if (bestProperties == nullptr || (resolution >= bestResolution && frameRate >= bestFrameRate)) {
@@ -671,17 +746,16 @@ IAsyncAction ReactCameraView::UpdateMediaStreamPropertiesAsync(int videoQuality)
           bestFrameRate = frameRate;
         }
 
-        bool resolutionMatch =
-            (videoQuality == ReactCameraConstants::CameraVideoQuality2160P &&
+        bool resolutionMatch = (videoQuality == ReactCameraConstants::CameraVideoQuality2160P &&
                                 videoEncodingProperties.Width() == 3840 && videoEncodingProperties.Height() == 2160) ||
-            (videoQuality == ReactCameraConstants::CameraVideoQuality1080P &&
-             videoEncodingProperties.Width() == 1920 && videoEncodingProperties.Height() == 1080) ||
-            (videoQuality == ReactCameraConstants::CameraVideoQuality720P &&
-             videoEncodingProperties.Width() == 1280 && videoEncodingProperties.Height() == 720) ||
-            (videoQuality == ReactCameraConstants::CameraVideoQualityWVGA &&
-             videoEncodingProperties.Width() == 800 && videoEncodingProperties.Height() == 480) ||
-            (videoQuality == ReactCameraConstants::CameraVideoQualityVGA &&
-             videoEncodingProperties.Width() == 640 && videoEncodingProperties.Height() == 480);
+            (videoQuality == ReactCameraConstants::CameraVideoQuality1080P && videoEncodingProperties.Width() == 1920 &&
+             videoEncodingProperties.Height() == 1080) ||
+            (videoQuality == ReactCameraConstants::CameraVideoQuality720P && videoEncodingProperties.Width() == 1280 &&
+             videoEncodingProperties.Height() == 720) ||
+            (videoQuality == ReactCameraConstants::CameraVideoQualityWVGA && videoEncodingProperties.Width() == 800 &&
+             videoEncodingProperties.Height() == 480) ||
+            (videoQuality == ReactCameraConstants::CameraVideoQualityVGA && videoEncodingProperties.Width() == 640 &&
+             videoEncodingProperties.Height() == 480);
 
         // Save this encoding if it:
         // 1. Has the correct resolution AND
@@ -700,9 +774,9 @@ IAsyncAction ReactCameraView::UpdateMediaStreamPropertiesAsync(int videoQuality)
     }
 
     if (foundProperties) {
-      co_await mediaCapture.VideoDeviceController().SetMediaStreamPropertiesAsync(winrt::MediaStreamType::VideoPreview, foundProperties);
+      co_await mediaCapture.VideoDeviceController().SetMediaStreamPropertiesAsync(
+          winrt::MediaStreamType::VideoPreview, foundProperties);
     }
-
   }
   co_return;
 }
@@ -711,6 +785,7 @@ IAsyncAction ReactCameraView::CleanupMediaCaptureAsync() {
   if (m_isInitialized) {
     SetEvent(m_signal.get()); // In case recording is still going on
     if (auto mediaCapture = m_childElement.Source()) {
+      StopBarcodeScanner();
 
       if (m_isPreview) {
         co_await mediaCapture.StopPreviewAsync();
@@ -748,8 +823,7 @@ IAsyncOperation<winrt::DeviceInformation> ReactCameraView::FindCameraDeviceAsync
   if (targetDevice == nullptr) {
     for (auto cameraDeviceInfo : allVideoDevices) {
       if (cameraDeviceInfo.IsEnabled()) {
-        if (
-            cameraDeviceInfo.EnclosureLocation() != nullptr &&
+        if (cameraDeviceInfo.EnclosureLocation() != nullptr &&
             cameraDeviceInfo.EnclosureLocation().Panel() == m_panelType) {
           // Device matches the panel requested (front/back/etc), take it
           targetDevice = cameraDeviceInfo;
@@ -776,6 +850,77 @@ IAsyncOperation<winrt::DeviceInformation> ReactCameraView::FindCameraDeviceAsync
 
   // Return whichever device we've found
   co_return targetDevice;
+}
+
+void ReactCameraView::StartBarcodeScanner() {
+  if (m_barcodeScannerEnabled && !m_barcodeScanTimer) {
+    m_barcodeScanTimer = winrt::Windows::System::Threading::ThreadPoolTimer::CreatePeriodicTimer(
+        [ref = this->get_strong()](const winrt::Windows::System::Threading::ThreadPoolTimer) noexcept {
+          auto asyncOp = ref->ScanForBarcodeAsync();
+          asyncOp.wait_for(std::chrono::milliseconds(ReactCameraConstants::BarcodeReadTimeoutMS));
+        },
+        std::chrono::milliseconds(m_barcodeReadIntervalMS));
+  }
+}
+
+void ReactCameraView::StopBarcodeScanner() {
+  if (m_barcodeScanTimer) {
+    m_barcodeScanTimer.Cancel();
+    m_barcodeScanTimer = nullptr;
+  }
+}
+
+winrt::Windows::Foundation::IAsyncAction ReactCameraView::ScanForBarcodeAsync() {
+  if (!m_isInitialized || !m_barcodeScannerEnabled || !m_isPreview) {
+    co_return;
+  }
+
+  StopBarcodeScanner();
+
+  auto dispatcher = Dispatcher();
+  co_await resume_foreground(dispatcher);
+
+  try {
+    if (auto mediaCapture = m_childElement.Source()) {
+      // Capture the image
+      auto lowLagCapture = co_await mediaCapture.PrepareLowLagPhotoCaptureAsync(
+          winrt::ImageEncodingProperties().CreateUncompressed(winrt::MediaPixelFormat::Bgra8));
+      auto capturedPhoto = co_await lowLagCapture.CaptureAsync();
+
+      auto softwareBitmap = capturedPhoto.Frame().SoftwareBitmap();
+
+      co_await lowLagCapture.FinishAsync();
+
+      if (softwareBitmap) {
+        // Try to read barcode
+        winrt::array_view<winrt::ZXing::BarcodeType const> barcodeTypes{m_barcodeTypes};
+        auto barcodeReader = barcodeTypes.size() > 0 ? winrt::ZXing::BarcodeReader(true, true, barcodeTypes)
+                                                     : winrt::ZXing::BarcodeReader(true, true);
+        auto barcodeResult = barcodeReader.Read(softwareBitmap, 0, 0);
+
+        auto control = this->get_strong().try_as<winrt::FrameworkElement>();
+
+        if (barcodeResult && m_reactContext && control) {
+          m_reactContext.DispatchEvent(
+              control,
+              BarcodeReadEvent,
+              [barcodeResult](winrt::Microsoft::ReactNative::IJSValueWriter const &eventDataWriter) noexcept {
+                auto result = winrt::JSValueObject();
+                result["data"] = winrt::to_string(barcodeResult.Text());
+                result["type"] = winrt::to_string(barcodeResult.Format());
+                result.WriteTo(eventDataWriter);
+              });
+        }
+      }
+    }
+  } catch (...) {
+      // We can't do anything since this is running in it's own thread,
+      // there's no way to report the exception, and we want the code to cleanup here
+  }
+
+  co_await resume_background();
+
+  StartBarcodeScanner();
 }
 
 // update preview if display orientation changes.
@@ -838,7 +983,7 @@ IAsyncOperation<winrt::StorageFile> ReactCameraView::GetOutputStorageFileAsync(i
       ext = ".wmv";
       break;
   }
-  
+
   auto now = winrt::clock::now();
   auto ttnow = winrt::clock::to_time_t(now);
   struct tm time;
@@ -878,7 +1023,7 @@ void ReactCameraView::SetContext(winrt::Microsoft::ReactNative::IReactContext co
   m_reactContext = reactContext;
 }
 
-winrt::JSValueObject ReactCameraView::GetExifObject(winrt::BitmapPropertySet const& properties) noexcept {
+winrt::JSValueObject ReactCameraView::GetExifObject(winrt::BitmapPropertySet const &properties) noexcept {
   winrt::JSValueObject exifObject;
 
   for (auto it : properties) {

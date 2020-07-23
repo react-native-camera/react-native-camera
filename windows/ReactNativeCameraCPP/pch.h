@@ -5,11 +5,11 @@
 #include <winrt/Windows.Devices.Sensors.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Graphics.Display.h>
 #include <winrt/Windows.Graphics.Imaging.h>
 #include <winrt/Windows.Media.Capture.h>
 #include <winrt/Windows.Media.Devices.h>
 #include <winrt/Windows.Media.MediaProperties.h>
-#include <winrt/Windows.Media.Mediaproperties.h>
 #include <winrt/Windows.Security.Cryptography.h>
 #include <winrt/Windows.Storage.FileProperties.h>
 #include <winrt/Windows.Storage.Streams.h>
@@ -27,5 +27,4 @@
 
 #include "winrt/Microsoft.ReactNative.h"
 
-#include "JSValueTreeWriter.h"
-#include "ReactCameraView.h"
+#include "winrt/ZXing.h"
