@@ -39,7 +39,7 @@ type CustomWhiteBalance = {
   tint: number;
   redGainOffset?: number;
   greenGainOffset?: number;
-  blueGainOffset?: number
+  blueGainOffset?: number;
 };
 type BarCodeType = Readonly<{
   aztec: any;
@@ -139,6 +139,33 @@ export interface Constants {
   VideoStabilization: VideoStabilization;
 }
 
+export interface BarCodeReadEvent {
+  data: string;
+  rawData?: string;
+  type: keyof BarCodeType;
+  /**
+   * @description For Android use `{ width: number, height: number, origin: Array<Point<string>> }`
+   * @description For iOS use `{ origin: Point<string>, size: Size<string> }`
+   */
+  bounds:
+    | { width: number; height: number; origin: Array<Point<string>> }
+    | { origin: Point<string>; size: Size<string> };
+  /**
+   * Raw image bytes in JPEG format (quality 100) as Base64-encoded string, only provided if `detectedImageInEvent=true`.
+   */
+  image: string;
+}
+
+export interface GoogleVisionBarcodesDetectedEvent {
+  type: string;
+  barcodes: Barcode[];
+  target: number;
+  /**
+   * Raw image bytes in JPEG format (quality 100) as Base64-encoded string, only provided if `detectedImageInEvent=true`.
+   */
+  image?: string;
+}
+
 export interface RNCameraProps {
   children?: ReactNode | FaCC;
 
@@ -177,10 +204,10 @@ export interface RNCameraProps {
   /** iOS only */
   onAudioInterrupted?(): void;
   onAudioConnected?(): void;
-  onTap?(origin:Point):void;
-  onDoubleTap?(origin:Point):void;
+  onTap?(origin: Point): void;
+  onDoubleTap?(origin: Point): void;
   /** Use native pinch to zoom implementation*/
-  useNativeZoom?:boolean;
+  useNativeZoom?: boolean;
   /** Value: float from 0 to 1.0 */
   zoom?: number;
   /** iOS only. float from 0 to any. Locks the max zoom value to the provided value
@@ -192,23 +219,12 @@ export interface RNCameraProps {
   focusDepth?: number;
 
   // -- BARCODE PROPS
+  detectedImageInEvent?: boolean;
   barCodeTypes?: Array<keyof BarCodeType>;
   googleVisionBarcodeType?: Constants['GoogleVisionBarcodeDetection']['BarcodeType'];
   googleVisionBarcodeMode?: Constants['GoogleVisionBarcodeDetection']['BarcodeMode'];
-  onBarCodeRead?(event: {
-    data: string;
-    rawData?: string;
-    type: keyof BarCodeType;
-    /**
-     * @description For Android use `{ width: number, height: number, origin: Array<Point<string>> }`
-     * @description For iOS use `{ origin: Point<string>, size: Size<string> }`
-     */
-    bounds:
-      | { width: number; height: number; origin: Array<Point<string>> }
-      | { origin: Point<string>; size: Size<string> };
-  }): void;
-
-  onGoogleVisionBarcodesDetected?(event: { barcodes: Barcode[] }): void;
+  onBarCodeRead?(event: BarCodeReadEvent): void;
+  onGoogleVisionBarcodesDetected?(event: GoogleVisionBarcodesDetectedEvent): void;
 
   // limiting scan area
   rectOfInterest?: Point;

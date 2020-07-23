@@ -152,6 +152,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setBarCodeTypes(result);
   }
 
+  @ReactProp(name = "detectedImageInEvent")
+  public void setDetectedImageInEvent(RNCameraView view, boolean detectedImageInEvent) {
+    view.setDetectedImageInEvent(detectedImageInEvent);
+  }
+
   @ReactProp(name = "barCodeScannerEnabled")
   public void setBarCodeScanning(RNCameraView view, boolean barCodeScannerEnabled) {
     view.setShouldScanBarCodes(barCodeScannerEnabled);
