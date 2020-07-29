@@ -21,8 +21,10 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
     EVENT_ON_FACES_DETECTED("onFacesDetected"),
     EVENT_ON_BARCODES_DETECTED("onGoogleVisionBarcodesDetected"),
+    EVENT_ON_LABELS_DETECTED("onLabelsDetected"),
     EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
     EVENT_ON_BARCODE_DETECTION_ERROR("onGoogleVisionBarcodeDetectionError"),
+    EVENT_ON_LABEL_DETECTION_ERROR("onLabelDetectionError"),
     EVENT_ON_TEXT_RECOGNIZED("onTextRecognized"),
     EVENT_ON_PICTURE_TAKEN("onPictureTaken"),
     EVENT_ON_PICTURE_SAVED("onPictureSaved"),
@@ -215,6 +217,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "textRecognizerEnabled")
   public void setTextRecognizing(RNCameraView view, boolean textRecognizerEnabled) {
     view.setShouldRecognizeText(textRecognizerEnabled);
+  }
+
+  @ReactProp(name = "labelDetectorEnabled")
+  public void setLabelDetecting(RNCameraView view, boolean labelDetectorEnabled) {
+    view.setShouldDetectLabels(labelDetectorEnabled);
   }
 
   /**---limit scan area addition---**/

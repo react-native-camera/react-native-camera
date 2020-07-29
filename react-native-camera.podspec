@@ -42,6 +42,12 @@ Pod::Spec.new do |s|
     ss.dependency 'GoogleMLKit/BarcodeScanning'
   end
 
+  s.subspec "LabelDetectorMLKit" do |ss|
+    ss.dependency 'react-native-camera/RN'
+    ss.dependency 'react-native-camera/RCT'
+    ss.dependency 'GoogleMLKit/ImageLabeling'
+  end
+
   s.default_subspecs = "RN", "RCT"
 
   s.preserve_paths = 'LICENSE', 'README.md', 'package.json', 'index.js'

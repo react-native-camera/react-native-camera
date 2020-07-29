@@ -20,6 +20,7 @@
 @property (nonatomic, strong) RCTPromiseRejectBlock videoRecordedReject;
 @property (nonatomic, strong) id textDetector;
 @property (nonatomic, strong) id faceDetector;
+@property (nonatomic, strong) id labelDetector;
 @property (nonatomic, strong) id barcodeDetector;
 
 @property (nonatomic, copy) RCTDirectEventBlock onCameraReady;
@@ -30,6 +31,7 @@
 @property (nonatomic, copy) RCTDirectEventBlock onTouch;
 @property (nonatomic, copy) RCTDirectEventBlock onTextRecognized;
 @property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
+@property (nonatomic, copy) RCTDirectEventBlock onLabelsDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onGoogleVisionBarcodesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onPictureTaken;
 @property (nonatomic, copy) RCTDirectEventBlock onPictureSaved;
@@ -37,8 +39,10 @@
 @property (nonatomic, copy) RCTDirectEventBlock onRecordingEnd;
 @property (nonatomic, assign) BOOL finishedReadingText;
 @property (nonatomic, assign) BOOL finishedDetectingFace;
+@property (nonatomic, assign) BOOL finishedDetectingLabel;
 @property (nonatomic, copy) NSDate *startText;
 @property (nonatomic, copy) NSDate *startFace;
+@property (nonatomic, copy) NSDate *startLabel;
 
 @property (nonatomic, copy) RCTDirectEventBlock onSubjectAreaChanged;
 @property (nonatomic, assign) BOOL isFocusedOnPoint;
@@ -65,10 +69,13 @@ BOOL _sessionInterrupted = NO;
         self.textDetector = [self createTextDetector];
         self.faceDetector = [self createFaceDetectorMlKit];
         self.barcodeDetector = [self createBarcodeDetectorMlKit];
+        self.labelDetector = [self createLabelDetectorMlKit];
         self.finishedReadingText = true;
         self.finishedDetectingFace = true;
+        self.finishedDetectingLabel = true;
         self.startText = [NSDate date];
         self.startFace = [NSDate date];
+        self.startLabel = [NSDate date];
 #if !(TARGET_IPHONE_SIMULATOR)
         self.previewLayer =
         [AVCaptureVideoPreviewLayer layerWithSession:self.session];
@@ -1016,6 +1023,9 @@ BOOL _sessionInterrupted = NO;
         if ([self.barcodeDetector isRealDetector]) {
             [self stopBarcodeDetection];
         }
+        if ([self.labelDetector isRealDetector]) {
+            [self stopLabelDetection];
+        }
         [self setupMovieFileCapture];
     }
 
@@ -1289,7 +1299,7 @@ BOOL _sessionInterrupted = NO;
         // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
         // to avoid an exposure rack on some devices that can cause the first few
         // frames of the recorded output to be underexposed.
-        if (![self.faceDetector isRealDetector] && ![self.textDetector isRealDetector] && ![self.barcodeDetector isRealDetector]) {
+        if (![self.faceDetector isRealDetector] && ![self.textDetector isRealDetector] && ![self.barcodeDetector isRealDetector] && ![self.labelDetector isRealDetector]) {
             [self setupMovieFileCapture];
         }
         [self setupOrDisableBarcodeScanner];
@@ -1314,6 +1324,9 @@ BOOL _sessionInterrupted = NO;
         }
         if ([self.barcodeDetector isRealDetector]) {
             [self stopBarcodeDetection];
+        }
+        if ([self.labelDetector isRealDetector]) {
+            [self stopLabelDetection];
         }
         [self.previewLayer removeFromSuperlayer];
         [self.session commitConfiguration];
@@ -1906,7 +1919,7 @@ BOOL _sessionInterrupted = NO;
     self.orientation = nil;
     self.isRecordingInterrupted = NO;
 
-    if ([self.textDetector isRealDetector] || [self.faceDetector isRealDetector]) {
+    if ([self.textDetector isRealDetector] || [self.faceDetector isRealDetector] || [self.labelDetector isRealDetector]) {
         [self cleanupMovieFileCapture];
     }
 
@@ -1920,6 +1933,10 @@ BOOL _sessionInterrupted = NO;
 
     if ([self.barcodeDetector isRealDetector]) {
         [self setupOrDisableBarcodeDetector];
+    }
+
+    if ([self.labelDetector isRealDetector]) {
+        [self setupOrDisableLabelDetector];
     }
 
     // reset preset to current default
@@ -2152,6 +2169,61 @@ BOOL _sessionInterrupted = NO;
     self.videoDataOutput = nil;
 }
 
+# pragma mark - LabelDetectorMlkit
+
+-(id)createLabelDetectorMlKit
+{
+    Class labelDetectorManagerClassMlkit = NSClassFromString(@"LabelDetectorManagerMlkit");
+    return [[labelDetectorManagerClassMlkit alloc] init];
+}
+
+- (void)setupOrDisableLabelDetector
+{
+    if (self.canDetectLabels && [self.labelDetector isRealDetector]){
+        AVCaptureSessionPreset preset = [self getDefaultPresetVideo];
+
+        self.session.sessionPreset = preset;
+        if (!self.videoDataOutput) {
+            self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+            if (![self.session canAddOutput:_videoDataOutput]) {
+                NSLog(@"Failed to setup video data output");
+                [self stopLabelDetection];
+                return;
+            }
+
+            NSDictionary *rgbOutputSettings = [NSDictionary
+                dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
+                                forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+            [self.videoDataOutput setVideoSettings:rgbOutputSettings];
+            [self.videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
+            [self.videoDataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
+            [self.session addOutput:_videoDataOutput];
+        }
+    } else {
+        [self stopLabelDetection];
+    }
+}
+
+- (void)stopLabelDetection
+{
+    if (self.videoDataOutput && !self.canReadText) {
+        [self.session removeOutput:self.videoDataOutput];
+    }
+    self.videoDataOutput = nil;
+    AVCaptureSessionPreset preset = [self getDefaultPreset];
+    if (self.session.sessionPreset != preset) {
+        [self updateSessionPreset: preset];
+    }
+}
+
+- (void)onLabelsDetected:(NSDictionary *)event
+{
+    if (_onLabelsDetected && _session) {
+        _onLabelsDetected(event);
+    }
+}
+
+
 # pragma mark - mlkit
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
@@ -2170,10 +2242,12 @@ BOOL _sessionInterrupted = NO;
     NSDate *methodFinish = [NSDate date];
     NSTimeInterval timePassedSinceSubmittingForText = [methodFinish timeIntervalSinceDate:self.startText];
     NSTimeInterval timePassedSinceSubmittingForFace = [methodFinish timeIntervalSinceDate:self.startFace];
+    NSTimeInterval timePassedSinceSubmittingForLabel = [methodFinish timeIntervalSinceDate:self.startLabel];
     BOOL canSubmitForTextDetection = timePassedSinceSubmittingForText > 0.5 && _finishedReadingText && self.canReadText && [self.textDetector isRealDetector];
     BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
     BOOL canSubmitForBarcodeDetection = self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
-    if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection) {
+    BOOL canSubmitForLabelDetection = timePassedSinceSubmittingForLabel > 0.5 && _finishedDetectingLabel && self.canDetectLabels && [self.labelDetector isRealDetector];
+    if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection || canSubmitForLabelDetection) {
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
         NSInteger position = self.videoCaptureDeviceInput.device.position;
         UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize position:position];
@@ -2226,6 +2300,16 @@ BOOL _sessionInterrupted = NO;
             [self.barcodeDetector findBarcodesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * barcodes) {
                 NSDictionary *eventBarcode = @{@"type" : @"barcode", @"barcodes" : barcodes};
                 [self onBarcodesDetected:eventBarcode];
+            }];
+        }
+        // find labels
+        if (canSubmitForLabelDetection) {
+            _finishedDetectingLabel = false;
+            self.startLabel = [NSDate date];
+            [self.labelDetector findLabelsInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * labels) {
+                NSDictionary *eventLabel = @{@"type" : @"label", @"labels" : labels};
+                [self onLabelsDetected:eventLabel];
+                self.finishedDetectingLabel = true;
             }];
         }
     }
