@@ -40,9 +40,11 @@ export default class CameraScreen extends React.Component {
     canDetectFaces: false,
     canDetectText: false,
     canDetectBarcode: false,
+    canDetectLabels: false,
     faces: [],
     textBlocks: [],
     barcodes: [],
+    labels: [],
   };
 
   toggleFacing() {
@@ -234,8 +236,24 @@ export default class CameraScreen extends React.Component {
     </React.Fragment>
   );
 
+  labelsDetected = ({ labels = [] }) => this.setState({ labels });
+
+  renderLabels = () => (
+    <View style={styles.labelsContainer} pointerEvents="none">
+      {this.state.labels.sort((a, b) => b.confidence - a.confidence).map(this.renderLabel)}
+    </View>
+  );
+
+  renderLabel = ({ text, confidence }) => (
+    <React.Fragment key={text}>
+      <View>
+        <Text style={[styles.labelText]}>{`${text} ${confidence.toFixed(2)}`}</Text>
+      </View>
+    </React.Fragment>
+  );
+
   renderCamera() {
-    const { canDetectFaces, canDetectText, canDetectBarcode } = this.state;
+    const { canDetectFaces, canDetectText, canDetectBarcode, canDetectLabels } = this.state;
     return (
       <RNCamera
         ref={ref => {
@@ -271,6 +289,7 @@ export default class CameraScreen extends React.Component {
         onFacesDetected={canDetectFaces ? this.facesDetected : null}
         onTextRecognized={canDetectText ? this.textRecognized : null}
         onGoogleVisionBarcodesDetected={canDetectBarcode ? this.barcodeRecognized : null}
+        onLabelsDetected={canDetectLabels ? this.labelsDetected : null}
         googleVisionBarcodeType={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeType.ALL}
         googleVisionBarcodeMode={
           RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeMode.ALTERNATE
@@ -306,18 +325,23 @@ export default class CameraScreen extends React.Component {
             }}
           >
             <TouchableOpacity onPress={this.toggle('canDetectFaces')} style={styles.flipButton}>
-              <Text style={styles.flipText}>
+              <Text style={styles.detectText}>
                 {!canDetectFaces ? 'Detect Faces' : 'Detecting Faces'}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={this.toggle('canDetectText')} style={styles.flipButton}>
-              <Text style={styles.flipText}>
+              <Text style={styles.detectText}>
                 {!canDetectText ? 'Detect Text' : 'Detecting Text'}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={this.toggle('canDetectBarcode')} style={styles.flipButton}>
-              <Text style={styles.flipText}>
+              <Text style={styles.detectText}>
                 {!canDetectBarcode ? 'Detect Barcode' : 'Detecting Barcode'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={this.toggle('canDetectLabels')} style={styles.flipButton}>
+              <Text style={styles.detectText}>
+                {!canDetectLabels ? 'Detect Labels' : 'Detecting Labels'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -403,6 +427,7 @@ export default class CameraScreen extends React.Component {
         {!!canDetectFaces && this.renderLandmarks()}
         {!!canDetectText && this.renderTextBlocks()}
         {!!canDetectBarcode && this.renderBarcodes()}
+        {!!canDetectLabels && this.renderLabels()}
       </RNCamera>
     );
   }
@@ -435,6 +460,16 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 15,
   },
+  detectText: {
+    color: 'white',
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  labelText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
   zoomText: {
     position: 'absolute',
     bottom: 70,
@@ -450,6 +485,15 @@ const styles = StyleSheet.create({
     right: 0,
     left: 0,
     top: 0,
+  },
+  labelsContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    left: 0,
+    top: 0,
+    paddingTop: 150,
+    alignItems: 'center',
   },
   face: {
     padding: 10,

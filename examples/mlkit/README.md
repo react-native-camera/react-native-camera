@@ -10,6 +10,8 @@ Face Recognition: draws polygons around faces and red circles on top of face lan
 
 Text Recognition: draws polygons around text blocks and recognized within them.
 
+Label Detection: lists detected labels with confidence levels.
+
 ### Setup
 
 1. Run `yarn install`.
