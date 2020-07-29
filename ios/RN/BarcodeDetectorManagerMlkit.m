@@ -170,7 +170,7 @@
                                              @"middleName" : name.middle ? name.middle : @"",
                                              @"lastName" : name.last ? name.last : @"",
                                              @"prefix" : name.prefix ? name.prefix : @"",
-                                             @"pronounciation" : name.pronounciation ? name.pronounciation : @"",
+                                             @"pronunciation" : name.pronunciation ? name.pronunciation : @"",
                                              @"suffix" : name.suffix ? name.suffix : @"",
                                              };
                     [resultDict setObject:nameObject forKey:@"name"];
