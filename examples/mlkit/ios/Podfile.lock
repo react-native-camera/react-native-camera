@@ -1,189 +1,170 @@
 PODS:
   - boost-for-react-native (1.63.0)
   - DoubleConversion (1.1.6)
-  - Firebase/Core (5.16.0):
-    - Firebase/CoreOnly
-    - FirebaseAnalytics (= 5.5.0)
-  - Firebase/CoreOnly (5.16.0):
-    - FirebaseCore (= 5.2.0)
-  - Firebase/MLVision (5.16.0):
-    - Firebase/CoreOnly
-    - FirebaseMLVision (= 0.14.0)
-  - Firebase/MLVisionBarcodeModel (5.16.0):
-    - Firebase/CoreOnly
-    - FirebaseMLVisionBarcodeModel (= 0.14.0)
-  - Firebase/MLVisionFaceModel (5.16.0):
-    - Firebase/CoreOnly
-    - FirebaseMLVisionFaceModel (= 0.14.0)
-  - Firebase/MLVisionTextModel (5.16.0):
-    - Firebase/CoreOnly
-    - FirebaseMLVisionTextModel (= 0.14.0)
-  - FirebaseAnalytics (5.5.0):
-    - FirebaseCore (~> 5.2)
-    - FirebaseInstanceID (~> 3.4)
-    - GoogleAppMeasurement (= 5.5.0)
-    - GoogleUtilities/AppDelegateSwizzler (~> 5.2)
-    - GoogleUtilities/MethodSwizzler (~> 5.2)
-    - GoogleUtilities/Network (~> 5.2)
-    - "GoogleUtilities/NSData+zlib (~> 5.2)"
-    - nanopb (~> 0.3)
-  - FirebaseCore (5.2.0):
-    - GoogleUtilities/Logger (~> 5.2)
-  - FirebaseInstanceID (3.4.0):
-    - FirebaseCore (~> 5.2)
-    - GoogleUtilities/Environment (~> 5.3)
-    - GoogleUtilities/UserDefaults (~> 5.3)
-  - FirebaseMLCommon (0.14.0):
-    - FirebaseCore (~> 5.2)
-    - FirebaseInstanceID (~> 3.4)
-    - GoogleUtilities/UserDefaults (~> 5.3)
-    - GTMSessionFetcher/Core (~> 1.1)
-  - FirebaseMLVision (0.14.0):
-    - FirebaseCore (~> 5.2)
-    - FirebaseMLCommon (~> 0.14)
-    - GoogleAPIClientForREST/Core (~> 1.3)
-    - GoogleAPIClientForREST/Vision (~> 1.3)
-    - GoogleMobileVision/Detector (~> 1.4)
-  - FirebaseMLVisionBarcodeModel (0.14.0):
-    - GoogleMobileVision/BarcodeDetector (~> 1.4)
-  - FirebaseMLVisionFaceModel (0.14.0):
-    - GoogleMobileVision/FaceDetector (~> 1.4)
-  - FirebaseMLVisionTextModel (0.14.0):
-    - GoogleMobileVision/TextDetector (~> 1.4)
   - Folly (2018.10.22.00):
     - boost-for-react-native
     - DoubleConversion
     - glog
   - glog (0.3.5)
-  - GoogleAPIClientForREST/Core (1.3.8):
-    - GTMSessionFetcher (>= 1.1.7)
-  - GoogleAPIClientForREST/Vision (1.3.8):
-    - GoogleAPIClientForREST/Core
-    - GTMSessionFetcher (>= 1.1.7)
-  - GoogleAppMeasurement (5.5.0):
-    - GoogleUtilities/AppDelegateSwizzler (~> 5.2)
-    - GoogleUtilities/MethodSwizzler (~> 5.2)
-    - GoogleUtilities/Network (~> 5.2)
-    - "GoogleUtilities/NSData+zlib (~> 5.2)"
-    - nanopb (~> 0.3)
-  - GoogleMobileVision/BarcodeDetector (1.5.0):
-    - GoogleMobileVision/Detector (~> 1.5)
-  - GoogleMobileVision/Detector (1.5.0):
+  - GoogleDataTransport (7.1.0):
+    - nanopb (~> 1.30905.0)
+  - GoogleMLKit/BarcodeScanning (0.62.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitBarcodeScanning (~> 0.62.0)
+  - GoogleMLKit/FaceDetection (0.62.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitFaceDetection (~> 0.62.0)
+  - GoogleMLKit/ImageLabeling (0.62.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitImageLabeling (~> 0.62.0)
+  - GoogleMLKit/MLKitCore (0.62.0):
+    - MLKitCommon (~> 0.62.0)
+  - GoogleMLKit/TextRecognition (0.62.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitTextRecognition (~> 0.62.0)
+  - GoogleToolboxForMac/DebugUtils (2.2.2):
+    - GoogleToolboxForMac/Defines (= 2.2.2)
+  - GoogleToolboxForMac/Defines (2.2.2)
+  - GoogleToolboxForMac/Logger (2.2.2):
+    - GoogleToolboxForMac/Defines (= 2.2.2)
+  - "GoogleToolboxForMac/NSData+zlib (2.2.2)":
+    - GoogleToolboxForMac/Defines (= 2.2.2)
+  - "GoogleToolboxForMac/NSDictionary+URLArguments (2.2.2)":
+    - GoogleToolboxForMac/DebugUtils (= 2.2.2)
+    - GoogleToolboxForMac/Defines (= 2.2.2)
+    - "GoogleToolboxForMac/NSString+URLArguments (= 2.2.2)"
+  - "GoogleToolboxForMac/NSString+URLArguments (2.2.2)"
+  - GoogleUtilities/Environment (6.7.1):
+    - PromisesObjC (~> 1.2)
+  - GoogleUtilities/Logger (6.7.1):
+    - GoogleUtilities/Environment
+  - GoogleUtilities/UserDefaults (6.7.1):
+    - GoogleUtilities/Logger
+  - GoogleUtilitiesComponents (1.0.0):
+    - GoogleUtilities/Logger
+  - GTMSessionFetcher/Core (1.4.0)
+  - MLKitBarcodeScanning (0.62.0):
+    - MLKitCommon (~> 0.62)
+    - MLKitVision (~> 0.62)
+  - MLKitCommon (0.62.0):
+    - GoogleDataTransport (~> 7.0)
+    - GoogleToolboxForMac/Logger (~> 2.1)
+    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
+    - "GoogleToolboxForMac/NSDictionary+URLArguments (~> 2.1)"
+    - GoogleUtilities/UserDefaults (~> 6.0)
+    - GoogleUtilitiesComponents (~> 1.0)
+    - GTMSessionFetcher/Core (~> 1.1)
+    - Protobuf (~> 3.12)
+  - MLKitFaceDetection (0.62.0):
+    - MLKitCommon (~> 0.62)
+    - MLKitVision (~> 0.62)
+  - MLKitImageLabeling (0.62.0):
+    - MLKitCommon (~> 0.62)
+    - MLKitImageLabelingCommon (~> 0.62)
+    - MLKitVision (~> 0.62)
+    - MLKitVisionKit (~> 0.62)
+  - MLKitImageLabelingCommon (0.62.0):
+    - MLKitCommon (~> 0.62)
+    - MLKitVision (~> 0.62)
+  - MLKitObjectDetectionCommon (0.62.0):
+    - MLKitCommon (~> 0.62)
+    - MLKitVision (~> 0.62)
+  - MLKitTextRecognition (0.62.0):
+    - MLKitCommon (~> 0.62)
+    - MLKitVision (~> 0.62)
+  - MLKitVision (0.62.0):
     - GoogleToolboxForMac/Logger (~> 2.1)
     - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
     - GTMSessionFetcher/Core (~> 1.1)
-    - Protobuf (~> 3.1)
-  - GoogleMobileVision/FaceDetector (1.5.0):
-    - GoogleMobileVision/Detector (~> 1.5)
-  - GoogleMobileVision/TextDetector (1.5.0):
-    - GoogleMobileVision/Detector (~> 1.5)
-  - GoogleToolboxForMac/Defines (2.2.0)
-  - GoogleToolboxForMac/Logger (2.2.0):
-    - GoogleToolboxForMac/Defines (= 2.2.0)
-  - "GoogleToolboxForMac/NSData+zlib (2.2.0)":
-    - GoogleToolboxForMac/Defines (= 2.2.0)
-  - GoogleUtilities/AppDelegateSwizzler (5.3.7):
-    - GoogleUtilities/Environment
-    - GoogleUtilities/Logger
-    - GoogleUtilities/Network
-  - GoogleUtilities/Environment (5.3.7)
-  - GoogleUtilities/Logger (5.3.7):
-    - GoogleUtilities/Environment
-  - GoogleUtilities/MethodSwizzler (5.3.7):
-    - GoogleUtilities/Logger
-  - GoogleUtilities/Network (5.3.7):
-    - GoogleUtilities/Logger
-    - "GoogleUtilities/NSData+zlib"
-    - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (5.3.7)"
-  - GoogleUtilities/Reachability (5.3.7):
-    - GoogleUtilities/Logger
-  - GoogleUtilities/UserDefaults (5.3.7):
-    - GoogleUtilities/Logger
-  - GTMSessionFetcher (1.2.1):
-    - GTMSessionFetcher/Full (= 1.2.1)
-  - GTMSessionFetcher/Core (1.2.1)
-  - GTMSessionFetcher/Full (1.2.1):
-    - GTMSessionFetcher/Core (= 1.2.1)
-  - nanopb (0.3.901):
-    - nanopb/decode (= 0.3.901)
-    - nanopb/encode (= 0.3.901)
-  - nanopb/decode (0.3.901)
-  - nanopb/encode (0.3.901)
-  - Protobuf (3.7.0)
-  - React (0.59.1):
-    - React/Core (= 0.59.1)
-  - react-native-camera/BarcodeDetectorMLKit (2.2.2):
-    - Firebase/MLVision
-    - Firebase/MLVisionBarcodeModel
+    - MLKitCommon (~> 0.62)
+    - Protobuf (~> 3.12)
+  - MLKitVisionKit (0.62.0):
+    - MLKitCommon (~> 0.62)
+    - MLKitImageLabelingCommon (~> 0.62)
+    - MLKitObjectDetectionCommon (~> 0.62)
+    - MLKitVision (~> 0.62)
+  - nanopb (1.30905.0):
+    - nanopb/decode (= 1.30905.0)
+    - nanopb/encode (= 1.30905.0)
+  - nanopb/decode (1.30905.0)
+  - nanopb/encode (1.30905.0)
+  - PromisesObjC (1.2.9)
+  - Protobuf (3.12.0)
+  - React (0.59.10):
+    - React/Core (= 0.59.10)
+  - react-native-camera/BarcodeDetectorMLKit (3.35.0):
+    - GoogleMLKit/BarcodeScanning
     - React
     - react-native-camera/RCT
     - react-native-camera/RN
-  - react-native-camera/FaceDetectorMLKit (2.2.2):
-    - Firebase/MLVision
-    - Firebase/MLVisionFaceModel
+  - react-native-camera/FaceDetectorMLKit (3.35.0):
+    - GoogleMLKit/FaceDetection
     - React
     - react-native-camera/RCT
     - react-native-camera/RN
-  - react-native-camera/RCT (2.2.2):
-    - React
-  - react-native-camera/RN (2.2.2):
-    - React
-  - react-native-camera/TextDetector (2.2.2):
-    - Firebase/MLVision
-    - Firebase/MLVisionTextModel
+  - react-native-camera/LabelDetectorMLKit (3.35.0):
+    - GoogleMLKit/ImageLabeling
     - React
     - react-native-camera/RCT
     - react-native-camera/RN
-  - React/Core (0.59.1):
-    - yoga (= 0.59.1.React)
-  - React/CxxBridge (0.59.1):
+  - react-native-camera/RCT (3.35.0):
+    - React
+  - react-native-camera/RN (3.35.0):
+    - React
+  - react-native-camera/TextDetector (3.35.0):
+    - GoogleMLKit/TextRecognition
+    - React
+    - react-native-camera/RCT
+    - react-native-camera/RN
+  - React/Core (0.59.10):
+    - yoga (= 0.59.10.React)
+  - React/CxxBridge (0.59.10):
     - Folly (= 2018.10.22.00)
     - React/Core
     - React/cxxreact
     - React/jsiexecutor
-  - React/cxxreact (0.59.1):
+  - React/cxxreact (0.59.10):
     - boost-for-react-native (= 1.63.0)
     - DoubleConversion
     - Folly (= 2018.10.22.00)
     - glog
     - React/jsinspector
-  - React/DevSupport (0.59.1):
+  - React/DevSupport (0.59.10):
     - React/Core
     - React/RCTWebSocket
-  - React/fishhook (0.59.1)
-  - React/jsi (0.59.1):
+  - React/fishhook (0.59.10)
+  - React/jsi (0.59.10):
     - DoubleConversion
     - Folly (= 2018.10.22.00)
     - glog
-  - React/jsiexecutor (0.59.1):
+  - React/jsiexecutor (0.59.10):
     - DoubleConversion
     - Folly (= 2018.10.22.00)
     - glog
     - React/cxxreact
     - React/jsi
-  - React/jsinspector (0.59.1)
-  - React/RCTAnimation (0.59.1):
+  - React/jsinspector (0.59.10)
+  - React/RCTAnimation (0.59.10):
     - React/Core
-  - React/RCTBlob (0.59.1):
+  - React/RCTBlob (0.59.10):
     - React/Core
-  - React/RCTNetwork (0.59.1):
+  - React/RCTNetwork (0.59.10):
     - React/Core
-  - React/RCTText (0.59.1):
+  - React/RCTText (0.59.10):
     - React/Core
-  - React/RCTWebSocket (0.59.1):
+  - React/RCTWebSocket (0.59.10):
     - React/Core
     - React/fishhook
     - React/RCTBlob
-  - yoga (0.59.1.React)
+  - yoga (0.59.10.React)
 
 DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
-  - Firebase/Core
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - react-native-camera/BarcodeDetectorMLKit (from `../../../`)
   - react-native-camera/FaceDetectorMLKit (from `../../../`)
+  - react-native-camera/LabelDetectorMLKit (from `../../../`)
   - react-native-camera/TextDetector (from `../../../`)
   - React/Core (from `../node_modules/react-native`)
   - React/CxxBridge (from `../node_modules/react-native`)
@@ -195,24 +176,25 @@ DEPENDENCIES:
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
     - boost-for-react-native
-    - Firebase
-    - FirebaseAnalytics
-    - FirebaseCore
-    - FirebaseInstanceID
-    - FirebaseMLCommon
-    - FirebaseMLVision
-    - FirebaseMLVisionBarcodeModel
-    - FirebaseMLVisionFaceModel
-    - FirebaseMLVisionTextModel
-    - GoogleAPIClientForREST
-    - GoogleAppMeasurement
-    - GoogleMobileVision
+    - GoogleDataTransport
+    - GoogleMLKit
     - GoogleToolboxForMac
     - GoogleUtilities
+    - GoogleUtilitiesComponents
     - GTMSessionFetcher
+    - MLKitBarcodeScanning
+    - MLKitCommon
+    - MLKitFaceDetection
+    - MLKitImageLabeling
+    - MLKitImageLabelingCommon
+    - MLKitObjectDetectionCommon
+    - MLKitTextRecognition
+    - MLKitVision
+    - MLKitVisionKit
     - nanopb
+    - PromisesObjC
     - Protobuf
 
 EXTERNAL SOURCES:
@@ -232,29 +214,30 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: bb338842f62ab1d708ceb63ec3d999f0f3d98ecd
-  Firebase: 749a8ff4962f9d8c79dda1966de20f6f77583d67
-  FirebaseAnalytics: d35d47c03c50c73c14a7fd31463c5775843e78a9
-  FirebaseCore: ea2d1816723ef21492b8e9113303e1350db5e08c
-  FirebaseInstanceID: 97ea7a5dca9afd72c79bfcdddb7a44aa1cbb42a1
-  FirebaseMLCommon: d8a789e36a7faa175b1a5d1139e7fc7323c8db7b
-  FirebaseMLVision: 07c0da3ceaa5ecde621528a985748d6098a84388
-  FirebaseMLVisionBarcodeModel: 7ae6e777c4c268505f08761afdfb64613c41204d
-  FirebaseMLVisionFaceModel: 8c80355e22cfcf100ad2ac9c618536d19daf266b
-  FirebaseMLVisionTextModel: c6b3bf6129cb97cba51f8f90e80b40a66228dfa1
   Folly: de497beb10f102453a1afa9edbf8cf8a251890de
   glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
-  GoogleAPIClientForREST: 5447a194eae517986cafe6421a5330b80b820591
-  GoogleAppMeasurement: 621f3bc6211d5ba548debe01fafad30cf5ab6859
-  GoogleMobileVision: a1f93108b3527d67339e2de80e1db76645f9e8b9
-  GoogleToolboxForMac: ff31605b7d66400dcec09bed5861689aebadda4d
-  GoogleUtilities: 111a012f4c3a29c9e7c954c082fafd6ee3c999c0
-  GTMSessionFetcher: 32aeca0aa144acea523e1c8e053089dec2cb98ca
-  nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
-  Protobuf: 7a877b7f3e5964e3fce995e2eb323dbc6831bb5a
-  React: 1d605e098d69bdf08960787f3446f0a9dc2e2ccf
-  react-native-camera: 9c50d7def800895e7991ccda6203929553ceec9c
-  yoga: 128daf064cacaede0c3bb27424b6b4c71052e6cd
+  GoogleDataTransport: af0c79193dc59acd37630b4833d0dc6912ae6bd5
+  GoogleMLKit: b753199bd6be50b49d55ffe0c60ad19a8aec56f9
+  GoogleToolboxForMac: 800648f8b3127618c1b59c7f97684427630c5ea3
+  GoogleUtilities: e121a3867449ce16b0e35ddf1797ea7a389ffdf2
+  GoogleUtilitiesComponents: a69c0b3b369ba443e988141e75ef49d9010b1c80
+  GTMSessionFetcher: 6f5c8abbab8a9bce4bb3f057e317728ec6182b10
+  MLKitBarcodeScanning: 111a08148e542f6deb5a49294c4d8b2436a0daf9
+  MLKitCommon: 9890ef9e9c374f53a48e435a4c6ce208c8b16a1e
+  MLKitFaceDetection: 9e89118a072bee6c7c3e4319c7c95ed393ffd16d
+  MLKitImageLabeling: 6db831e7820daa5b756fb5bfbcb52ef814269d35
+  MLKitImageLabelingCommon: 63910a359a2aaf1db0ac690cc809e9b5894d502a
+  MLKitObjectDetectionCommon: 7211f3ed1ffdaf31aee377979ed9bbf0f57d89e4
+  MLKitTextRecognition: 8dd0aa91588d3b15bfa4d2546a077c1bd2e8544a
+  MLKitVision: 6f0f4e5168becf2bb2e053ddfe26da2a27cc4906
+  MLKitVisionKit: 04ea6daf52feeef6778059b24ed7e95298277ee8
+  nanopb: c43f40fadfe79e8b8db116583945847910cbabc9
+  PromisesObjC: b48e0338dbbac2207e611750777895f7a5811b75
+  Protobuf: 2793fcd0622a00b546c60e7cbbcc493e043e9bb9
+  React: 36d0768f9e93be2473b37e7fa64f92c1d5341eef
+  react-native-camera: 90ac3ddebb968711a4a0ad4aaf5c219c0a834cbe
+  yoga: 684513b14b03201579ba3cee20218c9d1298b0cc
 
-PODFILE CHECKSUM: ea5c4e2c8f2c607fe7c1cd69dc26067aef6c2ce1
+PODFILE CHECKSUM: 1104028fea44e9e9f51f181120a7cac032c04156
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.9.3
