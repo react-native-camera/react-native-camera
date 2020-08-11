@@ -1,5 +1,8 @@
 #pragma once
-#include "pch.h"
+
+#include "NativeModules.h"
+
+#include "ReactCameraView.h"
 
 namespace winrt::ReactNativeCameraCPP::implementation {
 
@@ -7,7 +10,8 @@ struct ReactCameraViewManager : winrt::implements<
                                     ReactCameraViewManager,
                                     winrt::Microsoft::ReactNative::IViewManager,
                                     winrt::Microsoft::ReactNative::IViewManagerWithReactContext,
-                                    winrt::Microsoft::ReactNative::IViewManagerWithNativeProperties> {
+                                    winrt::Microsoft::ReactNative::IViewManagerWithNativeProperties,
+                                    winrt::Microsoft::ReactNative::IViewManagerWithExportedEventTypeConstants> {
  public:
   ReactCameraViewManager();
 
@@ -27,6 +31,11 @@ struct ReactCameraViewManager : winrt::implements<
   void UpdateProperties(
       winrt::Windows::UI::Xaml::FrameworkElement const &view,
       winrt::Microsoft::ReactNative::IJSValueReader const &propertyMapReader) noexcept;
+
+  // IViewManagerWithExportedEventTypeConstants
+  winrt::Microsoft::ReactNative::ConstantProviderDelegate ExportedCustomBubblingEventTypeConstants() noexcept;
+
+  winrt::Microsoft::ReactNative::ConstantProviderDelegate ExportedCustomDirectEventTypeConstants() noexcept;
 
   static winrt::Windows::Foundation::IAsyncAction TakePictureAsync(
       winrt::Microsoft::ReactNative::JSValueObject const &options,

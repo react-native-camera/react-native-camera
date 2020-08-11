@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
+
 #include "CameraRotationHelper.h"
+
 #include "CameraRotationHelper.g.cpp"
 
 namespace winrt {

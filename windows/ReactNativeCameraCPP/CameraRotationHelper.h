@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include "winrt/Windows.Graphics.Display.h"
-
 #include "CameraRotationHelper.g.h"
 
 // This is a Cpp/WinRT implementation of the Camera Rotation Helper class(C#) on MSDN:

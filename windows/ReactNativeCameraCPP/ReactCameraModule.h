@@ -1,20 +1,12 @@
 #pragma once
 
-#include "pch.h"
-
 #include <functional>
 #include <sstream>
 #include <system_error>
 
-#include <winrt/Windows.Devices.Enumeration.h>
-#include <winrt/Windows.Devices.Sensors.h>
-#include <winrt/Windows.Media.Mediaproperties.h>
-#include <winrt/Windows.Storage.Streams.h>
-#include <winrt/Windows.UI.Core.h>
-
+#include "JSValue.h"
 #include "NativeModules.h"
 
-#include "JSValueTreeWriter.h"
 #include "ReactCameraConstants.h"
 #include "ReactCameraViewManager.h"
 
@@ -23,7 +15,7 @@ using namespace winrt::Microsoft::ReactNative;
 #ifdef RNW61
 #define JSVALUEOBJECTPARAMETER
 #else
-#define JSVALUEOBJECTPARAMETER const&
+#define JSVALUEOBJECTPARAMETER const &
 #endif
 
 namespace winrt {
@@ -89,16 +81,16 @@ struct RNCameraModule {
 
   REACT_METHOD(stopRecording)
   void stopRecording(int viewTag) noexcept {
-    auto asyncOp =
-        winrt::ReactNativeCameraCPP::implementation::ReactCameraViewManager::StopRecordAsync(viewTag);
+    auto asyncOp = winrt::ReactNativeCameraCPP::implementation::ReactCameraViewManager::StopRecordAsync(viewTag);
   }
 
   REACT_METHOD(isRecording)
   void isRecording(int viewTag, winrt::Microsoft::ReactNative::ReactPromise<bool> const &result) noexcept {
-    auto asyncOp = winrt::ReactNativeCameraCPP::implementation::ReactCameraViewManager::IsRecordingAsync(viewTag, result);
+    auto asyncOp =
+        winrt::ReactNativeCameraCPP::implementation::ReactCameraViewManager::IsRecordingAsync(viewTag, result);
     asyncOp.Completed(MakeAsyncActionCompletedHandler(result));
   }
-  
+
   REACT_METHOD(pausePreview)
   void pausePreview(int viewTag) noexcept {
     auto asyncOp = winrt::ReactNativeCameraCPP::implementation::ReactCameraViewManager::PausePreviewAsync(viewTag);
@@ -128,8 +120,8 @@ struct RNCameraModule {
   }
 
   REACT_METHOD(getCameraIds)
-  void getCameraIds(winrt::Microsoft::ReactNative::ReactPromise<winrt::Microsoft::ReactNative::JSValueArray> const
-                        &result) noexcept {
+  void getCameraIds(
+      winrt::Microsoft::ReactNative::ReactPromise<winrt::Microsoft::ReactNative::JSValueArray> const &result) noexcept {
     auto asyncOp = winrt::ReactNativeCameraCPP::implementation::ReactCameraViewManager::GetCameraIdsAsync(result);
     asyncOp.Completed(MakeAsyncActionCompletedHandler(result));
   }
