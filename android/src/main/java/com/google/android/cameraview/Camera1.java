@@ -1145,7 +1145,6 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             public void run() {
                 synchronized(Camera1.this){
                     if (mCamera != null) {
-                        Camera.Parameters parameters = null;
 
                         // do not create a new object, use existing.
                         Camera.Parameters parameters = mCameraParameters;
