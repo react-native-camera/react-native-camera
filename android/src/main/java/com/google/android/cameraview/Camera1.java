@@ -1189,17 +1189,9 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             public void run() {
                 synchronized(Camera1.this){
                     if (mCamera != null) {
-                        Camera.Parameters parameters = null;
 
-                        // This might crash on some devices if the camera is not
-                        // available/locked, with a RuntimeException("getParameters failed (empty parameters)")
-                        try{
-                            parameters = mCamera.getParameters();
-                        }
-                        catch(Exception e){
-                            Log.e("CAMERA_1::", "setFocusArea.getParameters failed", e);
-                            parameters = null;
-                        }
+                        // do not create a new object, use existing.
+                        Camera.Parameters parameters = mCameraParameters;
 
                         if (parameters == null) return;
 
@@ -1294,14 +1286,9 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 if (mCamera != null) {
                     mCamera.cancelAutoFocus();
 
-                    Camera.Parameters parameters = null;
-                    try{
-                        parameters = mCamera.getParameters();
-                    }
-                    catch(Exception e){
-                        Log.e("CAMERA_1::", "resetFocus.getParameters failed", e);
-                        parameters = null;
-                    }
+                    // do not create a new object, use existing.
+                    Camera.Parameters parameters = mCameraParameters;
+
                     if (parameters == null) return;
 
                     if (parameters.getFocusMode() != Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) {
