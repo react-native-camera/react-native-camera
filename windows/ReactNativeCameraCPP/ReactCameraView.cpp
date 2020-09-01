@@ -353,7 +353,7 @@ IAsyncAction ReactCameraView::RecordAsync(
     mediaCapture.AudioDeviceController().Muted(muteAudio);
 
     float maxDurationInSeconds;
-    TryGetValueAsFloat(capturedOptions, "maxDuration", maxDurationInSeconds, FLT_MAX);
+    TryGetValueAsFloat(capturedOptions, "maxDuration", maxDurationInSeconds, 0.0f);
 
     // Default with no options is to save the video to the temp folder and return the uri
     // This follows the expectations of RNCamera without requiring extra app capabilities
@@ -475,7 +475,9 @@ IAsyncAction ReactCameraView::ResumePreviewAsync() noexcept {
 // start a timer to end the recording after the specified time
 void ReactCameraView::DelayStopRecording(float totalRecordingInSecs) {
   ResetEvent(m_signal.get());
-  std::chrono::duration<int, std::milli> secs(static_cast<int>(1000 * totalRecordingInSecs));
+  auto totalRecordingInMs = static_cast<int32_t>(1000 * totalRecordingInSecs);
+
+  std::chrono::duration<int32_t, std::milli> secs(totalRecordingInMs <= 0 ? INT32_MAX : totalRecordingInMs);
   m_recordTimer = winrt::Windows::System::Threading::ThreadPoolTimer::CreateTimer(
       [this](const winrt::Windows::System::Threading::ThreadPoolTimer) noexcept { SetEvent(m_signal.get()); }, secs);
 }
