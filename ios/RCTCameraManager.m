@@ -918,6 +918,30 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 //    //NSLog(@"Video Output: dropped an buffer");
 //}
 
+- (CGImageRef) downsampleImage:(CGImageRef)image
+                       maxSize:(int)size
+{
+    float width = CGImageGetWidth(image);
+    float height = CGImageGetHeight(image);
+    float scale = size / MAX(width, height);
+    
+    if (scale >= 1) return CGImageCreateCopy(image);
+    
+    float newWidth = roundf(width * scale);
+    float newHeight = roundf(height * scale);
+    
+    CGContextRef context = CGBitmapContextCreate(nil, newWidth, newHeight, CGImageGetBitsPerComponent(image), CGImageGetBytesPerRow(image), CGImageGetColorSpace(image), CGImageGetBitmapInfo(image));
+    CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
+    
+    CGRect rect = CGRectMake(0, 0, newWidth, newHeight);    
+    CGContextDrawImage(context, rect, image);
+        
+    CGImageRef resizedCGImage = CGBitmapContextCreateImage(context);      
+    CGContextRelease(context);
+    
+    return resizedCGImage;
+}
+
 - (void)captureOutput:(AVCapturePhotoOutput *)output
 didFinishProcessingPhoto:(AVCapturePhoto *)photo
                 error:(NSError *)error
@@ -930,25 +954,18 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
 
         //get all the metadata in the image
         NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
-        //NSMutableDictionary *imageMetadata = [photo.metadata mutableCopy];
         if (imageMetadata) {
-            // Resize to HDR working resolution
-            NSDictionary *options = @{
-                @"kCGImageSourceCreateThumbnailFromImageAlways": @YES,
-                @"kCGImageSourceThumbnailMaxPixelSize": @2108
-            };
-            // create cgimage
-            //CGImageRef rotatedCGImage = CGImageSourceCreateThumbnailAtIndex(source, 0, (CFDictionaryRef)options);
-            CGImageRef rotatedCGImage = photo.CGImageRepresentation;
+            // resize cgimage
+            CGImageRef resizedCGImage = [self downsampleImage:photo.CGImageRepresentation maxSize:2108];
             // Erase stupid TIFF stuff
             [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
 
             // Create destination thing
-            NSMutableData *rotatedImageData = [NSMutableData data];
-            CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)rotatedImageData, CGImageSourceGetType(source), 1, NULL);
+            NSMutableData *resizedImageData = [NSMutableData data];
+            CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)resizedImageData, CGImageSourceGetType(source), 1, NULL);
             CFRelease(source);
             // add the image to the destination, reattaching metadata
-            CGImageDestinationAddImage(destination, rotatedCGImage, (CFDictionaryRef) imageMetadata);
+            CGImageDestinationAddImage(destination, resizedCGImage, (CFDictionaryRef) imageMetadata);
             // And write
             CGImageDestinationFinalize(destination);
             CFRelease(destination);
@@ -957,14 +974,14 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
             NSString *documentsDirectory = [paths firstObject];
 
             NSFileManager *fileManager = [NSFileManager defaultManager];
-            AVCaptureBracketedStillImageSettings *setting = photo.bracketSettings;
 
             long index = photo.photoCount - 1;
 
             NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSString stringWithFormat:@"%ld_9", photo.photoCount] stringByAppendingString:[[NSUUID UUID] UUIDString]]] stringByAppendingPathExtension:@"jpg"];
 
-            [fileManager createFileAtPath:fullPath contents:rotatedImageData attributes:nil];
+            [fileManager createFileAtPath:fullPath contents:resizedImageData attributes:nil];
             [self.sources insertObject:fullPath atIndex:index];
+
             NSLog(@"Path %@", fullPath);
             NSLog(@"NB captures: %lu", (unsigned long)self.sources.count);
             if (self.sources.count == self.exposures.count) {
@@ -972,7 +989,8 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
                     self.captureResolve(self.sources);
                     self.captureResolve = nil;
                 }
-            }
+            }         
+            CGImageRelease(resizedCGImage);
         }
 
         return;
@@ -993,25 +1011,20 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
         CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
 
         //get all the metadata in the image
-        NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
-
-        // Resize to HDR working resolution
-        NSDictionary *options = @{
-            @"kCGImageSourceCreateThumbnailFromImageAlways": @YES,
-            @"kCGImageSourceThumbnailMaxPixelSize": @2108
-        };
+        NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];  
         // create cgimage
-        CGImageRef rotatedCGImage = CGImageSourceCreateThumbnailAtIndex(source, 0, (CFDictionaryRef)options);
-
+        CGImageRef rotatedCGImage = CGImageSourceCreateImageAtIndex(source, 0, nil);
+        // resize cgimage
+        CGImageRef resizedCGImage = [self downsampleImage:rotatedCGImage maxSize:2108];      
         // Erase stupid TIFF stuff
         [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
 
         // Create destination thing
-        NSMutableData *rotatedImageData = [NSMutableData data];
-        CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)rotatedImageData, CGImageSourceGetType(source), 1, NULL);
+        NSMutableData *resizedImageData = [NSMutableData data];
+        CGImageDestinationRef destination = CGImageDestinationCreateWithData((CFMutableDataRef)resizedImageData, CGImageSourceGetType(source), 1, NULL);
         CFRelease(source);
         // add the image to the destination, reattaching metadata
-        CGImageDestinationAddImage(destination, rotatedCGImage, (CFDictionaryRef) imageMetadata);
+        CGImageDestinationAddImage(destination, resizedCGImage, (CFDictionaryRef) imageMetadata);
         // And write
         CGImageDestinationFinalize(destination);
         CFRelease(destination);
@@ -1028,7 +1041,7 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
 
         NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[exposureString stringByAppendingString:[[NSUUID UUID] UUIDString]]] stringByAppendingPathExtension:@"jpg"];
 
-        [fileManager createFileAtPath:fullPath contents:rotatedImageData attributes:nil];
+        [fileManager createFileAtPath:fullPath contents:resizedImageData attributes:nil];
 
         [self.sources addObject:fullPath];
         NSLog(@"Path %@", fullPath);
@@ -1042,6 +1055,7 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
         }
         
         CGImageRelease(rotatedCGImage);
+        CGImageRelease(resizedCGImage);
     } else {
         if (self.captureReject) {
         self.captureReject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
