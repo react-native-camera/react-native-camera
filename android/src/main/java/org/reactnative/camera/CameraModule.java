@@ -247,6 +247,9 @@ public class CameraModule extends ReactContextBaseJavaModule {
                     cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
                     if (cameraView.isCameraOpened()) {
                         cameraView.resumePreview();
+                    } else {
+                        cameraView.start();
+                        cameraView.resumePreview();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
