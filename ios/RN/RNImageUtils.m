@@ -126,10 +126,13 @@
 
     // A UIImage initialized directly from CIImage has its CGImage property set to NULL. So it has
     // to be converted to a CGImage first.
-    CIContext *context = [CIContext context];
+    static CIContext *context = nil; if (!context) context = [CIContext contextWithOptions:nil];
     CGImageRef outputCGImage = [context createCGImage:outputCIImage fromRect:[outputCIImage extent]];
 
     UIImage *outputUIImage = [UIImage imageWithCGImage:outputCGImage];
+
+    CGImageRelease(outputCGImage);
+
     return outputUIImage;
 }
 
