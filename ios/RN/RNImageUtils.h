@@ -18,6 +18,7 @@
 + (NSString *)writeImage:(NSData *)image toPath:(NSString *)path;
 + (UIImage *) scaleImage:(UIImage*)image toWidth:(NSInteger)width;
 + (void)updatePhotoMetadata:(CMSampleBufferRef)imageSampleBuffer withAdditionalData:(NSDictionary *)additionalData inResponse:(NSMutableDictionary *)response;
++ (UIImage *)invertColors:(UIImage *)image;
 
 @end
 

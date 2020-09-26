@@ -1,24 +1,27 @@
 {
   "name": "mlkit",
   "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "jest"
-  },
   "dependencies": {
-    "react": "16.8.3",
-    "react-native": "0.59.1"
+    "react": "16.13.1",
+    "react-native": "0.63.2"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
     "@babel/runtime": "^7.6.2",
     "babel-jest": "^24.9.0",
     "jest": "^24.9.0",
-    "metro-react-native-babel-preset": "^0.56.1",
-    "react-test-renderer": "16.8.3"
+    "metro-react-native-babel-preset": "0.59.0",
+    "react-test-renderer": "16.13.1"
   },
   "jest": {
     "preset": "react-native"
+  },
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "clear": "react-native start --reset-cache",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest"
   }
 }

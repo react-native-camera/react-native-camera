@@ -22,6 +22,7 @@ import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.media.MediaActionSound;
 import android.os.Build;
 import android.os.Handler;
 import androidx.collection.SparseArrayCompat;
@@ -82,6 +83,9 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     Camera mCamera;
 
+    // do not instantiate this every time since it allocates unnecessary resources
+    MediaActionSound sound = new MediaActionSound();
+
     private Camera.Parameters mCameraParameters;
 
     private final Camera.CameraInfo mCameraInfo = new Camera.CameraInfo();
@@ -122,6 +126,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     private int mWhiteBalance;
 
     private boolean mIsScanning;
+
+    private Boolean mPlaySoundOnCapture = false;
 
     private boolean mustUpdateSurface;
     private boolean surfaceWasDestroyed;
@@ -457,31 +463,55 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         return mPictureSizes.sizes(ratio);
     }
 
+    // Returns the best available size match for a given
+    // width and height
+    // returns the biggest available size
+    private Size getBestSizeMatch(int desiredWidth, int desiredHeight, SortedSet<Size> sizes) {
+        if(sizes == null || sizes.isEmpty()){
+            return null;
+        }
+
+        Size result = sizes.last();
+
+        // iterate from smallest to largest, and stay with the closest-biggest match
+        if(desiredWidth != 0 && desiredHeight != 0){
+            for (Size size : sizes) {
+                if (desiredWidth <= size.getWidth() && desiredHeight <= size.getHeight()) {
+                    result = size;
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+
     @Override
     void setPictureSize(Size size) {
-        if (size == null) {
-            if (mAspectRatio == null) {
-                return;
-            }
-          SortedSet<Size> sizes = mPictureSizes.sizes(mAspectRatio);
-          if(sizes != null && !sizes.isEmpty())
-          {
-            mPictureSize = sizes.last();
-          }
-        } else {
-          mPictureSize = size;
-        }
-        synchronized(this){
-            if (mCameraParameters != null && mCamera != null) {
-                mCameraParameters.setPictureSize(mPictureSize.getWidth(), mPictureSize.getHeight());
-                try{
-                    mCamera.setParameters(mCameraParameters);
-                }
-                catch(RuntimeException e ) {
-                    Log.e("CAMERA_1::", "setParameters failed", e);
-                }
 
-            }
+        // if no changes, don't do anything
+        if(size == null && mPictureSize == null){
+            return;
+        }
+        else if(size != null && size.equals(mPictureSize)){
+            return;
+        }
+
+        mPictureSize = size;
+
+        // if camera is opened, request parameters update
+        if (isCameraOpened()) {
+            mBgHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized(Camera1.this){
+                        if(mCamera != null){
+                            adjustCameraParameters();
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -750,16 +780,27 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                         // this shouldn't be needed and messes up autoFocusPointOfInterest
                         // camera.cancelAutoFocus();
 
-                        if (options.hasKey("pauseAfterCapture") && !options.getBoolean("pauseAfterCapture")) {
-                            camera.startPreview();
-                            mIsPreviewActive = true;
-                            if (mIsScanning) {
-                                camera.setPreviewCallback(Camera1.this);
+                        if(mPlaySoundOnCapture){
+                            sound.play(MediaActionSound.SHUTTER_CLICK);
+                        }
+
+                        // our camera might have been released
+                        // when this callback fires, so make sure we have
+                        // exclusive access when restoring its preview
+                        synchronized(Camera1.this){
+                            if(mCamera != null){
+                                if (options.hasKey("pauseAfterCapture") && !options.getBoolean("pauseAfterCapture")) {
+                                    mCamera.startPreview();
+                                    mIsPreviewActive = true;
+                                    if (mIsScanning) {
+                                        mCamera.setPreviewCallback(Camera1.this);
+                                    }
+                                } else {
+                                    mCamera.stopPreview();
+                                    mIsPreviewActive = false;
+                                    mCamera.setPreviewCallback(null);
+                                }
                             }
-                        } else {
-                            camera.stopPreview();
-                            mIsPreviewActive = false;
-                            camera.setPreviewCallback(null);
                         }
 
                         isPictureCaptureInProgress.set(false);
@@ -784,7 +825,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     @Override
-    boolean record(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int orientation) {
+    boolean record(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int orientation, int fps) {
 
         // make sure compareAndSet is last because we are setting it
         if (!isPictureCaptureInProgress.get() && mIsRecording.compareAndSet(false, true)) {
@@ -792,7 +833,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mOrientation = orientation;
             }
             try {
-                setUpMediaRecorder(path, maxDuration, maxFileSize, recordAudio, profile);
+                setUpMediaRecorder(path, maxDuration, maxFileSize, recordAudio, profile, fps);
                 mMediaRecorder.prepare();
                 mMediaRecorder.start();
 
@@ -833,6 +874,16 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 updateSurface();
             }
         }
+    }
+
+    @Override
+    void pauseRecording() {
+        pauseMediaRecorder();
+    }
+
+    @Override
+    void resumeRecording() {
+        resumeMediaRecorder();
     }
 
     @Override
@@ -927,24 +978,34 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      */
     private void chooseCamera() {
         if(_mCameraId == null){
-            int count = Camera.getNumberOfCameras();
-            if(count == 0){
-                //throw new RuntimeException("No camera available.");
-                mCameraId = INVALID_CAMERA_ID;
-                Log.w("CAMERA_1::", "getNumberOfCameras returned 0. No camera available.");
-                return;
-            }
 
-            for (int i = 0; i < count; i++) {
-                Camera.getCameraInfo(i, mCameraInfo);
-                if (mCameraInfo.facing == mFacing) {
-                    mCameraId = i;
+            try{
+                int count = Camera.getNumberOfCameras();
+                if(count == 0){
+                    //throw new RuntimeException("No camera available.");
+                    mCameraId = INVALID_CAMERA_ID;
+                    Log.w("CAMERA_1::", "getNumberOfCameras returned 0. No camera available.");
                     return;
                 }
+
+                for (int i = 0; i < count; i++) {
+                    Camera.getCameraInfo(i, mCameraInfo);
+                    if (mCameraInfo.facing == mFacing) {
+                        mCameraId = i;
+                        return;
+                    }
+                }
+                // no camera found, set the one we have
+                mCameraId = 0;
+                Camera.getCameraInfo(mCameraId, mCameraInfo);
             }
-            // no camera found, set the one we have
-            mCameraId = 0;
-            Camera.getCameraInfo(mCameraId, mCameraInfo);
+            // getCameraInfo may fail if hardware is unavailable
+            // and crash the whole app. Return INVALID_CAMERA_ID
+            // which will in turn fire a mount error event
+            catch(Exception e){
+                Log.e("CAMERA_1::", "chooseCamera failed.", e);
+                mCameraId = INVALID_CAMERA_ID;
+            }
         }
         else{
             try{
@@ -997,6 +1058,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             if (mAspectRatio == null) {
                 mAspectRatio = Constants.DEFAULT_ASPECT_RATIO;
             }
+
             adjustCameraParameters();
             mCamera.setDisplayOrientation(calcDisplayOrientation(mDisplayOrientation));
             mCallback.onCameraOpened();
@@ -1024,17 +1086,37 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             mAspectRatio = chooseAspectRatio();
             sizes = mPreviewSizes.sizes(mAspectRatio);
         }
-        Size size = chooseOptimalSize(sizes);
 
-        // Always re-apply camera parameters
-        mPictureSize = mPictureSizes.sizes(mAspectRatio).last();
+        // make sure both preview and picture size are always
+        // valid for the currently chosen camera and aspect ratio
+        Size size = chooseOptimalSize(sizes);
+        Size pictureSize = null;
+
+        // do not alter mPictureSize
+        // since it may be valid for other camera/aspect ratio updates
+        // just make sure we get the right and most suitable value
+        if(mPictureSize != null){
+            pictureSize = getBestSizeMatch(
+                mPictureSize.getWidth(),
+                mPictureSize.getHeight(),
+                mPictureSizes.sizes(mAspectRatio)
+            );
+        }
+        else{
+            pictureSize = getBestSizeMatch(
+                0,
+                0,
+                mPictureSizes.sizes(mAspectRatio)
+            );
+        }
+
         boolean needsToStopPreview = mIsPreviewActive;
         if (needsToStopPreview) {
             mCamera.stopPreview();
             mIsPreviewActive = false;
         }
         mCameraParameters.setPreviewSize(size.getWidth(), size.getHeight());
-        mCameraParameters.setPictureSize(mPictureSize.getWidth(), mPictureSize.getHeight());
+        mCameraParameters.setPictureSize(pictureSize.getWidth(), pictureSize.getHeight());
         if (mOrientation != Constants.ORIENTATION_AUTO) {
             mCameraParameters.setRotation(calcCameraRotation(orientationEnumToRotation(mOrientation)));
         } else {
@@ -1048,6 +1130,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         setZoomInternal(mZoom);
         setWhiteBalanceInternal(mWhiteBalance);
         setScanningInternal(mIsScanning);
+        setPlaySoundInternal(mPlaySoundOnCapture);
+
         try{
             mCamera.setParameters(mCameraParameters);
         }
@@ -1090,7 +1174,6 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         if (mCamera != null) {
             mCamera.release();
             mCamera = null;
-            mPictureSize = null;
             mCallback.onCameraClosed();
 
             // reset these flags
@@ -1106,17 +1189,9 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             public void run() {
                 synchronized(Camera1.this){
                     if (mCamera != null) {
-                        Camera.Parameters parameters = null;
 
-                        // This might crash on some devices if the camera is not
-                        // available/locked, with a RuntimeException("getParameters failed (empty parameters)")
-                        try{
-                            parameters = mCamera.getParameters();
-                        }
-                        catch(Exception e){
-                            Log.e("CAMERA_1::", "setFocusArea.getParameters failed", e);
-                            parameters = null;
-                        }
+                        // do not create a new object, use existing.
+                        Camera.Parameters parameters = mCameraParameters;
 
                         if (parameters == null) return;
 
@@ -1211,14 +1286,9 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 if (mCamera != null) {
                     mCamera.cancelAutoFocus();
 
-                    Camera.Parameters parameters = null;
-                    try{
-                        parameters = mCamera.getParameters();
-                    }
-                    catch(Exception e){
-                        Log.e("CAMERA_1::", "resetFocus.getParameters failed", e);
-                        parameters = null;
-                    }
+                    // do not create a new object, use existing.
+                    Camera.Parameters parameters = mCameraParameters;
+
                     if (parameters == null) return;
 
                     if (parameters.getFocusMode() != Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) {
@@ -1316,6 +1386,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             final List<String> modes = mCameraParameters.getSupportedFocusModes();
             if (autoFocus && modes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
                 mCameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            } else if (mIsScanning && modes.contains(Camera.Parameters.FOCUS_MODE_MACRO)) {
+                mCameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
             } else if (modes.contains(Camera.Parameters.FOCUS_MODE_FIXED)) {
                 mCameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
             } else if (modes.contains(Camera.Parameters.FOCUS_MODE_INFINITY)) {
@@ -1426,13 +1498,49 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         }
     }
 
+    private void setPlaySoundInternal(boolean playSoundOnCapture){
+        mPlaySoundOnCapture = playSoundOnCapture;
+        if(mCamera != null){
+            try{
+                // Always disable shutter sound, and play our own.
+                // This is because not all devices honor this value when set to true
+                boolean res = mCamera.enableShutterSound(false);
+
+                // if we fail to disable the shutter sound
+                // set mPlaySoundOnCapture to false since it means
+                // we cannot change it and the system will play it
+                // playing the sound ourselves also makes it consistent with Camera2
+                if(!res){
+                    mPlaySoundOnCapture = false;
+                }
+            }
+            catch(Exception ex){
+                Log.e("CAMERA_1::", "setPlaySoundInternal failed", ex);
+                mPlaySoundOnCapture = false;
+            }
+        }
+    }
+
+    @Override
+    void setPlaySoundOnCapture(boolean playSoundOnCapture) {
+        if (playSoundOnCapture == mPlaySoundOnCapture) {
+            return;
+        }
+        setPlaySoundInternal(playSoundOnCapture);
+    }
+
+    @Override
+    public boolean getPlaySoundOnCapture(){
+        return mPlaySoundOnCapture;
+    }
+
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         Camera.Size previewSize = mCameraParameters.getPreviewSize();
         mCallback.onFramePreview(data, previewSize.width, previewSize.height, mDeviceOrientation);
     }
 
-    private void setUpMediaRecorder(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile) {
+    private void setUpMediaRecorder(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int fps) {
 
         mMediaRecorder = new MediaRecorder();
         mCamera.unlock();
@@ -1454,7 +1562,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             camProfile = CamcorderProfile.get(mCameraId, CamcorderProfile.QUALITY_HIGH);
         }
         camProfile.videoBitRate = profile.videoBitRate;
-        setCamcorderProfile(camProfile, recordAudio);
+        setCamcorderProfile(camProfile, recordAudio, fps);
 
         mMediaRecorder.setOrientationHint(calcCameraRotation(mOrientation != Constants.ORIENTATION_AUTO ? orientationEnumToRotation(mOrientation) : mDeviceOrientation));
 
@@ -1504,9 +1612,41 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         }
     }
 
-    private void setCamcorderProfile(CamcorderProfile profile, boolean recordAudio) {
+    private void pauseMediaRecorder() {
+        if (Build.VERSION.SDK_INT >= 24) {
+            mMediaRecorder.pause();
+        }
+    }
+
+    private void resumeMediaRecorder() {
+        if (Build.VERSION.SDK_INT >= 24) {
+            mMediaRecorder.resume();
+        }
+    }
+
+    @Override
+    public ArrayList<int[]> getSupportedPreviewFpsRange() {
+      return (ArrayList<int[]>) mCameraParameters.getSupportedPreviewFpsRange();
+    }
+
+    private boolean isCompatibleWithDevice(int fps) {
+        ArrayList<int[]> validValues;
+        validValues = getSupportedPreviewFpsRange();
+        int accurate_fps = fps * 1000;
+        for(int[] row : validValues) {
+            boolean is_included = accurate_fps >= row[0] && accurate_fps <= row[1];
+            boolean greater_then_zero = accurate_fps > 0;
+            boolean compatible_with_device = is_included && greater_then_zero;
+            if (compatible_with_device) return true;
+        }
+        Log.w("CAMERA_1::", "fps (framePerSecond) received an unsupported value and will be ignored.");
+        return false;
+    }
+
+    private void setCamcorderProfile(CamcorderProfile profile, boolean recordAudio, int fps) {
+        int compatible_fps = isCompatibleWithDevice(fps) ? fps : profile.videoFrameRate;
         mMediaRecorder.setOutputFormat(profile.fileFormat);
-        mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
+        mMediaRecorder.setVideoFrameRate(compatible_fps);
         mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
         mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
         mMediaRecorder.setVideoEncoder(profile.videoCodec);

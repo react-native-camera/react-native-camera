@@ -28,6 +28,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_PICTURE_SAVED("onPictureSaved"),
     EVENT_ON_RECORDING_START("onRecordingStart"),
     EVENT_ON_RECORDING_END("onRecordingEnd"),
+    EVENT_ON_TOUCH("onTouch"),
     EVENT_ON_DOCUMENT_DETECTED("onDocumentDetected");
 
     private final String mName;
@@ -120,6 +121,10 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setZoom(zoom);
   }
 
+  @ReactProp(name = "useNativeZoom")
+  public void setUseNativeZoom(RNCameraView view, boolean useNativeZoom) {
+    view.setUseNativeZoom(useNativeZoom);
+  }
   @ReactProp(name = "whiteBalance")
   public void setWhiteBalance(RNCameraView view, int whiteBalance) {
     view.setWhiteBalance(whiteBalance);
@@ -128,6 +133,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "pictureSize")
   public void setPictureSize(RNCameraView view, String size) {
     view.setPictureSize(size.equals("None") ? null : Size.parse(size));
+  }
+
+  @ReactProp(name = "playSoundOnCapture")
+  public void setPlaySoundOnCapture(RNCameraView view, boolean playSoundOnCapture) {
+    view.setPlaySoundOnCapture(playSoundOnCapture);
   }
 
   @ReactProp(name = "barCodeTypes")
@@ -142,6 +152,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setBarCodeTypes(result);
   }
 
+  @ReactProp(name = "detectedImageInEvent")
+  public void setDetectedImageInEvent(RNCameraView view, boolean detectedImageInEvent) {
+    view.setDetectedImageInEvent(detectedImageInEvent);
+  }
+
   @ReactProp(name = "barCodeScannerEnabled")
   public void setBarCodeScanning(RNCameraView view, boolean barCodeScannerEnabled) {
     view.setShouldScanBarCodes(barCodeScannerEnabled);
@@ -152,9 +167,9 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setUsingCamera2Api(useCamera2Api);
   }
 
-  @ReactProp(name = "playSoundOnCapture")
-  public void setPlaySoundOnCapture(RNCameraView view, boolean playSoundOnCapture) {
-    view.setPlaySoundOnCapture(playSoundOnCapture);
+  @ReactProp(name = "touchDetectorEnabled")
+  public void setTouchDetectorEnabled(RNCameraView view, boolean touchDetectorEnabled) {
+    view.setShouldDetectTouches(touchDetectorEnabled);
   }
 
   @ReactProp(name = "faceDetectorEnabled")
@@ -201,6 +216,28 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   public void setTextRecognizing(RNCameraView view, boolean textRecognizerEnabled) {
     view.setShouldRecognizeText(textRecognizerEnabled);
   }
+
+  /**---limit scan area addition---**/
+  @ReactProp(name = "rectOfInterest")
+  public void setRectOfInterest(RNCameraView view, ReadableMap coordinates) {
+    if(coordinates != null){
+      float x = (float) coordinates.getDouble("x");
+      float y = (float) coordinates.getDouble("y");
+      float width = (float) coordinates.getDouble("width");
+      float height = (float) coordinates.getDouble("height");
+      view.setRectOfInterest(x, y, width, height);
+    }
+  }
+
+  @ReactProp(name = "cameraViewDimensions")
+  public void setCameraViewDimensions(RNCameraView view, ReadableMap dimensions) {
+    if(dimensions != null){
+      int cameraViewWidth = (int) dimensions.getDouble("width");
+      int cameraViewHeight = (int) dimensions.getDouble("height");
+      view.setCameraViewDimensions(cameraViewWidth, cameraViewHeight);
+    }
+  }
+  /**---limit scan area addition---**/
 
   @ReactProp(name = "documentScannerEnabled")
   public void setDocumentDetection(RNCameraView view, boolean documentScannerEnabled) {

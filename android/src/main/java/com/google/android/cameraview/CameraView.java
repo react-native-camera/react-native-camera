@@ -126,7 +126,7 @@ public class CameraView extends FrameLayout {
         // Internal setup
         final PreviewImpl preview = createPreviewImpl(context);
         mCallbacks = new CallbackBridge();
-        if (fallbackToOldApi || Build.VERSION.SDK_INT < 21) {
+        if (fallbackToOldApi || Build.VERSION.SDK_INT < 21 || Camera2.isLegacy(context)) {
             mImpl = new Camera1(mCallbacks, preview, mBgHandler);
         } else if (Build.VERSION.SDK_INT < 23) {
             mImpl = new Camera2(mCallbacks, preview, context, mBgHandler);
@@ -256,6 +256,7 @@ public class CameraView extends FrameLayout {
         state.focusDepth = getFocusDepth();
         state.zoom = getZoom();
         state.whiteBalance = getWhiteBalance();
+        state.playSoundOnCapture = getPlaySoundOnCapture();
         state.scanning = getScanning();
         state.pictureSize = getPictureSize();
         return state;
@@ -278,6 +279,7 @@ public class CameraView extends FrameLayout {
         setFocusDepth(ss.focusDepth);
         setZoom(ss.zoom);
         setWhiteBalance(ss.whiteBalance);
+        setPlaySoundOnCapture(ss.playSoundOnCapture);
         setScanning(ss.scanning);
         setPictureSize(ss.pictureSize);
     }
@@ -290,7 +292,7 @@ public class CameraView extends FrameLayout {
         boolean wasOpened = isCameraOpened();
         Parcelable state = onSaveInstanceState();
 
-        if (useCamera2) {
+        if (useCamera2 && !Camera2.isLegacy(mContext)) {
             if (wasOpened) {
                 stop();
             }
@@ -311,7 +313,9 @@ public class CameraView extends FrameLayout {
             }
             mImpl = new Camera1(mCallbacks, mImpl.mPreview, mBgHandler);
         }
-        start();
+        if(wasOpened){
+            start();
+        }
     }
 
     /**
@@ -319,17 +323,20 @@ public class CameraView extends FrameLayout {
      * {@link Activity#onResume()}.
      */
     public void start() {
-        if (!mImpl.start()) {
-            if (mImpl.getView() != null) {
-                this.removeView(mImpl.getView());
-            }
-            //store the state and restore this state after fall back to Camera1
-            Parcelable state = onSaveInstanceState();
-            // Camera2 uses legacy hardware layer; fall back to Camera1
-            mImpl = new Camera1(mCallbacks, createPreviewImpl(getContext()), mBgHandler);
-            onRestoreInstanceState(state);
-            mImpl.start();
-        }
+        mImpl.start();
+
+        // this fallback is no longer needed and was too buggy/slow
+        // if (!mImpl.start()) {
+        //     if (mImpl.getView() != null) {
+        //         this.removeView(mImpl.getView());
+        //     }
+        //     //store the state and restore this state after fall back to Camera1
+        //     Parcelable state = onSaveInstanceState();
+        //     // Camera2 uses legacy hardware layer; fall back to Camera1
+        //     mImpl = new Camera1(mCallbacks, createPreviewImpl(getContext()), mBgHandler);
+        //     onRestoreInstanceState(state);
+        //     mImpl.start();
+        // }
     }
 
     /**
@@ -524,6 +531,10 @@ public class CameraView extends FrameLayout {
         mImpl.setFlash(flash);
     }
 
+    public ArrayList<int[]> getSupportedPreviewFpsRange() {
+      return mImpl.getSupportedPreviewFpsRange();
+    }
+
     /**
      * Gets the current flash mode.
      *
@@ -585,6 +596,14 @@ public class CameraView extends FrameLayout {
       return mImpl.getWhiteBalance();
     }
 
+    public void setPlaySoundOnCapture(boolean playSoundOnCapture) {
+      mImpl.setPlaySoundOnCapture(playSoundOnCapture);
+    }
+
+    public boolean getPlaySoundOnCapture() {
+      return mImpl.getPlaySoundOnCapture();
+    }
+
     public void setScanning(boolean isScanning) { mImpl.setScanning(isScanning);}
 
     public boolean getScanning() { return mImpl.getScanning(); }
@@ -608,12 +627,20 @@ public class CameraView extends FrameLayout {
      * fires {@link Callback#onRecordingStart(CameraView, String, int, int)} and {@link Callback#onRecordingEnd(CameraView)}.
      */
     public boolean record(String path, int maxDuration, int maxFileSize,
-                          boolean recordAudio, CamcorderProfile profile, int orientation) {
-        return mImpl.record(path, maxDuration, maxFileSize, recordAudio, profile, orientation);
+                          boolean recordAudio, CamcorderProfile profile, int orientation, int fps) {
+        return mImpl.record(path, maxDuration, maxFileSize, recordAudio, profile, orientation, fps);
     }
 
     public void stopRecording() {
         mImpl.stopRecording();
+    }
+
+    public void pauseRecording() {
+        mImpl.pauseRecording();
+    }
+
+    public void resumeRecording() {
+        mImpl.resumeRecording();
     }
 
     public void resumePreview() {
@@ -736,6 +763,8 @@ public class CameraView extends FrameLayout {
 
         int whiteBalance;
 
+        boolean playSoundOnCapture;
+
         boolean scanning;
 
         Size pictureSize;
@@ -752,6 +781,7 @@ public class CameraView extends FrameLayout {
             focusDepth = source.readFloat();
             zoom = source.readFloat();
             whiteBalance = source.readInt();
+            playSoundOnCapture = source.readByte() != 0;
             scanning = source.readByte() != 0;
             pictureSize = source.readParcelable(loader);
         }
@@ -772,6 +802,7 @@ public class CameraView extends FrameLayout {
             out.writeFloat(focusDepth);
             out.writeFloat(zoom);
             out.writeInt(whiteBalance);
+            out.writeByte((byte) (playSoundOnCapture ? 1 : 0));
             out.writeByte((byte) (scanning ? 1 : 0));
             out.writeParcelable(pictureSize, flags);
         }

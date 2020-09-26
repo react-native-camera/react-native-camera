@@ -14,7 +14,7 @@ buildscript {
 
     dependencies {
       //noinspection GradleDependency
-      classpath("com.android.tools.build:gradle:3.5.2")
+      classpath("com.android.tools.build:gradle:3.6.3")
     }
   }
 }
@@ -38,18 +38,6 @@ android {
     }
     mlkit {
       dimension "react-native-camera"
-    }
-  }
-
-  sourceSets {
-    main {
-      java.srcDirs = ['src/main/java']
-    }
-    general {
-      java.srcDirs = ['src/general/java']
-    }
-    mlkit {
-      java.srcDirs = ['src/mlkit/java']
     }
   }
 
@@ -78,7 +66,8 @@ repositories {
 dependencies {
   def googlePlayServicesVisionVersion = safeExtGet('googlePlayServicesVisionVersion', safeExtGet('googlePlayServicesVersion', '17.0.2'))
 
-  implementation 'com.facebook.react:react-native:+'
+  //noinspection GradleDynamicVersion
+  implementation 'com.facebook.react:react-native:+'  // From node_modules
   implementation "com.google.zxing:core:3.3.3"
   implementation "com.drewnoakes:metadata-extractor:2.11.0"
   generalImplementation "com.google.android.gms:play-services-vision:$googlePlayServicesVisionVersion"

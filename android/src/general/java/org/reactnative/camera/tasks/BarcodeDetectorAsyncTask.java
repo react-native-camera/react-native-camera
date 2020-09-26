@@ -29,19 +29,18 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, S
   private int mPaddingTop;
 
   public BarcodeDetectorAsyncTask(
-      BarcodeDetectorAsyncTaskDelegate delegate,
-      RNBarcodeDetector barcodeDetector,
-      byte[] imageData,
-      int width,
-      int height,
-      int rotation,
-      float density,
-      int facing,
-      int viewWidth,
-      int viewHeight,
-      int viewPaddingLeft,
-      int viewPaddingTop
-  ) {
+          BarcodeDetectorAsyncTaskDelegate delegate,
+          RNBarcodeDetector barcodeDetector,
+          byte[] imageData,
+          int width,
+          int height,
+          int rotation,
+          float density,
+          int facing,
+          int viewWidth,
+          int viewHeight,
+          int viewPaddingLeft,
+          int viewPaddingTop) {
     mImageData = imageData;
     mWidth = width;
     mHeight = height;
@@ -73,7 +72,7 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, S
       mDelegate.onBarcodeDetectionError(mBarcodeDetector);
     } else {
       if (barcodes.size() > 0) {
-        mDelegate.onBarcodesDetected(serializeEventData(barcodes));
+        mDelegate.onBarcodesDetected(serializeEventData(barcodes), mWidth, mHeight, mImageData);
       }
       mDelegate.onBarcodeDetectingTaskCompleted();
     }
