@@ -208,7 +208,7 @@ Use the `autoFocus` property to specify the auto focus setting of your camera. `
 Values: Object `{ x: 0.5, y: 0.5 }`.
 Values (iOS): Object `{ x: 0.5, y: 0.5, autoExposure }`.
 
-Setting this property causes the auto focus feature of the camera to attempt to focus on the part of the image at this coordiate.
+Setting this property causes the auto focus feature of the camera to attempt to focus on the part of the image at this coordinate.
 
 Coordinates values are measured as floats from `0` to `1.0`. `{ x: 0, y: 0 }` will focus on the top left of the image, `{ x: 1, y: 1 }` will be the bottom right. Values are based on landscape mode with the home button on the right—this applies even if the device is in portrait mode.
 
@@ -286,6 +286,24 @@ The idea is that you select the appropriate white balance setting for the type o
 
 Use the `whiteBalance` property to specify which white balance setting the camera should use.
 
+On iOS it's also possible to specify custom temperature, tint and rgb offset values instead of using one of the presets (auto, sunny, ...):
+
+Value: Object (e.g. `{temperature: 4000, tint: -10.0, redGainOffset: 0.0, greenGainOffset: 0.0, blueGainOffset: 0.0}`)
+
+The rgb offset values are applied to the calculated device specific white balance gains for the given temperature and tint values.
+
+### `exposure`
+
+Value: float from `0` to `1.0`, or `-1` (default) for auto.
+
+Sets the camera's exposure value.
+
+### `useNativeZoom`
+
+Boolean to turn on native pinch to zoom. Works with the `maxZoom` property on iOS.
+
+Warning: The Android Touch-Event-System causes childviews to catch the touch events. Therefore avoid using screenfilling touchables inside of the cameraview.
+
 ### `zoom`
 
 Value: float from `0` to `1.0`
@@ -324,9 +342,19 @@ By default a `Camera not authorized` message will be displayed when access to th
 
 By default a <ActivityIndicator> will be displayed while the component is waiting for the user to grant/deny access to the camera, if set displays the passed react element instead of the default one.
 
-#### `iOS` `rectOfInterest`
+#### `rectOfInterest`
 
 An `{x: , y:, width:, height: }` object which defines the rect of interst as normalized coordinates from `(0,0)` top left corner to `(1,1)` bottom right corner.
+
+Note: Must also provide cameraViewDimensions prop for Android device
+
+### `Android` `cameraViewDimensions`
+
+An `{width:, height: }` object which defines the width and height of the cameraView. This prop is used to adjust the effect of Aspect Raio for rectOfInterest area on Android
+
+### `Android` `playSoundOnCapture`
+
+Boolean to turn on or off the camera's shutter sound (default false). Note that in some countries, the shutter sound cannot be turned off.
 
 ### `iOS` `videoStabilizationMode`
 
@@ -364,6 +392,14 @@ This option specifies the quality of the video to be taken. The possible values 
 
 If nothing is passed the device's highest camera quality will be used as default.
 Note: This solve the flicker video recording issue for iOS
+
+### `pictureSize`
+
+This prop has a different behaviour for Android and iOS and should rarely be set.
+
+For Android, this prop attempts to control the camera sensor capture resolution, similar to how `ratio` behaves. This is useful for cases where a low resolution image is required, and makes further resizing less intensive on the device's memory. The list of possible values can be requested with `getAvailablePictureSizes`, and the value should be set in the format of `<width>x<height>`. Internally, the native code will attempt to get the best suited resolution for the given `pictureSize` value if the provided value is invalid, and will default to the highest resolution available.
+
+For iOS, this prop controls the internal camera preset value and should rarely be changed. However, this value can be set to setup the sensor to match the video recording's quality in order to prevent flickering. The list of valid values can be gathered from https://developer.apple.com/documentation/avfoundation/avcapturesessionpreset and can also be requested with `getAvailablePictureSizes`.
 
 ### Native Event callbacks props
 
@@ -409,6 +445,23 @@ Event will contain the following fields:
 
 Function to be called when native code stops recording video, but before all video processing takes place. This event will only fire after a successful video recording, and it will not fire if video recording fails (use the error returned from `recordAsync` instead).
 
+### `onTap`
+
+Function to be called when a touch within the camera view is recognized.
+The function is also called on the first touch of double tap.
+Event will contain the following fields:
+
+- `x`
+- `y`
+
+### `onDoubleTap`
+
+Function to be called when a double touch within the camera view is recognized.
+Event will contain the following fields:
+
+- `x`
+- `y`
+
 ### Bar Code Related props
 
 ### `onBarCodeRead`
@@ -419,6 +472,7 @@ Event contains the following fields
 
 - `data` - a textual representation of the barcode, if available
 - `rawData` - The raw data encoded in the barcode, if available
+- `uri`: (iOS only) string representing the path to the image saved on your app's cache directory. Applicable only for `onGoogleVisionBarcodesDetected`.
 - `type` - the type of the barcode detected
 - `bounds` -
 
@@ -500,10 +554,17 @@ Available settings:
 - DATA_MATRIX
 - ALL
 
-### `Android` `googleVisionBarcodeMode`
+### `googleVisionBarcodeMode`
 
 Change the mode in order to scan "inverted" barcodes. You can either change it to `alternate`, which will inverted the image data every second screen and be able to read both normal and inverted barcodes, or `inverted`, which will only read inverted barcodes. Default is `normal`, which only reads "normal" barcodes. Note: this property only applies to the Google Vision barcode detector.
 Example: `<RNCamera googleVisionBarcodeMode={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeMode.ALTERNATE} />`
+
+### `detectedImageInEvent`
+
+When `detectedImageInEvent` is `false` (default), `onBarCodeRead` / `onBarcodesDetected` only gives metadata, but not the image (bytes/base64) itself.
+
+When `detectedImageInEvent` is `true`, `onBarCodeRead` / `onGoogleVisionBarcodesDetected` will fill the `image` field inside the object given to the callback handler.
+It contains raw image bytes in JPEG format (quality 100) as Base64-encoded string.
 
 ### Face Detection Related props
 
@@ -590,6 +651,8 @@ writeExif = {
 - `pauseAfterCapture` (boolean true or false). If true, pause the preview layer immediately after capturing the image. You will need to call `cameraRef.resumePreview()` before using the camera again. If no value is specified `pauseAfterCapture:false` is used.
 
 - `orientation` (string or number). Specifies the orientation that us used for taking the picture. Possible values: `"portrait"`, `"portraitUpsideDown"`, `"landscapeLeft"` or `"landscapeRight"`.
+
+- `path` (file path on disk). Specifies the path on disk to save picture to.
 
 The promise will be fulfilled with an object with some of the following properties:
 

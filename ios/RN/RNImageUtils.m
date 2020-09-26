@@ -115,5 +115,26 @@
     response[@"exif"] = metadata;
 }
 
++ (UIImage *)invertColors:(UIImage *)image
+{
+    CIImage *inputCIImage = [[CIImage alloc] initWithImage:image];
+
+    // Invert colors
+    CIFilter *filterColorInvert = [CIFilter filterWithName:@"CIColorInvert"];
+    [filterColorInvert setValue:inputCIImage forKey:kCIInputImageKey];
+    CIImage *outputCIImage = [filterColorInvert valueForKey:kCIOutputImageKey];
+
+    // A UIImage initialized directly from CIImage has its CGImage property set to NULL. So it has
+    // to be converted to a CGImage first.
+    static CIContext *context = nil; if (!context) context = [CIContext contextWithOptions:nil];
+    CGImageRef outputCGImage = [context createCGImage:outputCIImage fromRect:[outputCIImage extent]];
+
+    UIImage *outputUIImage = [UIImage imageWithCGImage:outputCGImage];
+
+    CGImageRelease(outputCGImage);
+
+    return outputUIImage;
+}
+
 @end
 
