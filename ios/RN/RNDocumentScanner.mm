@@ -42,13 +42,9 @@ vector<cv::Point> selectCorners(vector<cv::Point> &points) {
     return result;
 }
 
-bool isRectLargeEnough(const vector<cv::Point> &v, cv::Size2f &size) {
-    cv::Point tl = v[0];
-    cv::Point tr = v[1];
-    cv::Point br = v[2];
-    cv::Point bl = v[3];
+bool isRectLargeEnough(const vector<cv::Point> &quad, const cv::Size2f &size) {
+    cv::Point tl = quad[0], tr = quad[1], br = quad[2], bl = quad[3];
 
-    
     double w1 = hypot(tr.x - tl.x, tr.y - tl.y);
     double w2 = hypot(br.x - bl.x, br.y - bl.y);
     double w = max(w1, w2);
@@ -60,16 +56,35 @@ bool isRectLargeEnough(const vector<cv::Point> &v, cv::Size2f &size) {
     return w*h > .15*size.area();
 }
 
-static void findRects(const cv::Mat &openCVImage, vector<vector<cv::Point> > &rects, cv::Size2f &size) {
-    Mat gray, canned, _unused;
-    cvtColor(openCVImage, gray, COLOR_RGBA2GRAY, 4);
+bool hasFourDifferentPoints(const vector<cv::Point> &quad) {
+    cv::Point tl = quad[0], tr = quad[1], br = quad[2], bl = quad[3];
+    return tl.x != tr.x && tl.y != bl.y && tr.y != br.y && bl.x != br.x;
+}
+
+void scalePoints(vector<cv::Point> &p, const float &ratio) {
+    for (int i=0; i<p.size(); i++) {
+        p[i].x = ratio * p[i].x;
+        p[i].y = ratio * p[i].y;
+    }
+}
+
+static void findRects(const cv::Mat &openCVImage, vector<vector<cv::Point>> &rects, const cv::Size2f &size) {
+    float ratio = size.height > 500 ? size.height / 500.0F : 1;
+    int height = round(size.height / ratio);
+    int width = round(size.width / ratio);
+    cv::Size2f rszdSize = Size2f(width, height);
+
+    Mat resized, gray, canned, _unused;
+
+    resize(openCVImage, resized, cv::Size(width, height));
+    cvtColor(resized, gray, COLOR_RGBA2GRAY, 4);
     GaussianBlur(gray, gray, cv::Size(5, 5), 0);
     double thresholdHigh = threshold(gray, _unused, 0, 255, THRESH_BINARY|THRESH_OTSU);
     Canny(gray, canned, .25 * thresholdHigh, thresholdHigh);
-    
+
     vector<vector<cv::Point>> contours;
     findContours(canned, contours, RETR_EXTERNAL, CHAIN_APPROX_TC89_KCOS);
-    
+
     // filter elements with < 4 points
     contours.erase(remove_if(begin(contours), end(contours), hasTooFewPoints), end(contours));
     
@@ -77,7 +92,7 @@ static void findRects(const cv::Mat &openCVImage, vector<vector<cv::Point> > &re
     sort(contours.begin(), contours.end(), compareContourAreas);
     
     // keep first 5 (should be biggest)
-    if (contours.size() > 5) contours.resize(5);
+    if (contours.size() > 20) contours.resize(20);
     
     for (int i = 0; i < contours.size(); i++) {
         vector<cv::Point> approximation, quad;
@@ -87,10 +102,44 @@ static void findRects(const cv::Mat &openCVImage, vector<vector<cv::Point> > &re
         approxPolyDP(contours[i], approximation, 0.1 * perimeter, true);
         
         quad = selectCorners(approximation);
-        if (isRectLargeEnough(quad, size)) {
+        if (hasFourDifferentPoints(quad) && isRectLargeEnough(quad, rszdSize)) {
+            scalePoints(quad, ratio); // scale back to original dims
             rects.push_back(quad);
         }
     }
+
+}
+
+static void correctPerspective(cv::Mat &src, cv::Mat &doc, vector<cv::Point> &rect)
+{
+    cv::Point2f tl = cv::Point2f(rect[0].x, rect[0].y);
+    cv::Point2f tr = cv::Point2f(rect[1].x, rect[1].y);
+    cv::Point2f br = cv::Point2f(rect[2].x, rect[2].y);
+    cv::Point2f bl = cv::Point2f(rect[3].x, rect[3].y);
+
+    double widthA = hypot(br.x - bl.x, br.y - bl.y);
+    double widthB = hypot(tr.x - tl.x, tr.y - tl.y);
+    double width = max(widthA, widthB);
+    int maxWidth = round(width);
+
+    double heightA = hypot(tr.x - br.x, tr.y - br.y);
+    double heightB = hypot(tl.x - bl.x, tl.y - bl.y);
+    double height = max(heightA, heightB);
+    int maxHeight = round(height);
+
+    doc = Mat(maxHeight, maxWidth, CV_8UC4);
+
+    const Point2f src_pts[4] = {tl, tr, br, bl};
+    
+    cv::Point2f dtl = cv::Point2f(0.0, 0.0);
+    cv::Point2f dtr = cv::Point2f(width, 0.0);
+    cv::Point2f dbr = cv::Point2f(width, height);
+    cv::Point2f dbl = cv::Point2f(0.0, height);
+    const Point2f dst_pts[4] = {dtl, dtr, dbr, dbl};
+
+    Mat m = getPerspectiveTransform(src_pts, dst_pts);
+
+    warpPerspective(src, doc, m, doc.size());
 }
 
 
@@ -99,39 +148,32 @@ static void findRects(const cv::Mat &openCVImage, vector<vector<cv::Point> > &re
     return true;
 }
 
+- (UIImage *)normalizedImage:(UIImage *)image {
+    if ([image imageOrientation] == UIImageOrientationUp) return image;
+
+    UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
+    [image drawInRect:(CGRect){0, 0, image.size}];
+    UIImage *normalizedImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return normalizedImage;
+}
+
 - (UIImage *)getDocument:(UIImage *)image
 {
-    CGSize imgSize = image.size;
-    Size2f size = Size2f(imgSize.height, imgSize.width);
-    vector<vector<cv::Point>> rects;
-
+    image = [self normalizedImage:image];
+    
     Mat openCVImage;
     UIImageToMat(image, openCVImage, true);
-        
+
+    vector<vector<cv::Point>> rects;
+    Size2f size = Size2f(openCVImage.cols, openCVImage.rows);
     findRects(openCVImage, rects, size);
-    
+
     if (rects.size() == 0) return image;
-
-    CIImage *cimage = [[CIImage alloc] initWithCGImage:image.CGImage];
-    cimage = [self correctPerspectiveForImage:cimage withRect:@{
-        @"topLeft": @{
-                @"x": @(rects[0][0].x),
-                @"y": @(rects[0][0].y)},
-        @"topRight": @{
-                @"x": @(rects[0][1].x),
-                @"y": @(rects[0][1].y)},
-        @"bottomRight": @{
-                @"x": @(rects[0][2].x),
-                @"y": @(rects[0][2].y)},
-        @"bottomLeft": @{
-                @"x": @(rects[0][3].x),
-                @"y": @(rects[0][3].y)}
-    }];
-
-    UIGraphicsBeginImageContext(CGSizeMake(cimage.extent.size.height, cimage.extent.size.width));
-    [[UIImage imageWithCIImage:cimage scale:1.0 orientation:UIImageOrientationRight] drawInRect:CGRectMake(0, 0, cimage.extent.size.height, cimage.extent.size.width)];
-    image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
+    
+    Mat doc;
+    correctPerspective(openCVImage, doc, rects[0]);
+    image = MatToUIImage(doc);
 
     return image;
 }
@@ -143,45 +185,27 @@ static void findRects(const cv::Mat &openCVImage, vector<vector<cv::Point> > &re
                   completed:(postDetectionBlock)completed
 {
     CGSize imgSize = image.size;
-    Size2f size = Size2f(imgSize.height, imgSize.width);
+    Size2f size = Size2f(imgSize.width, imgSize.height);
     vector<vector<cv::Point>> rects;
 
     Mat openCVImage;
     UIImageToMat(image, openCVImage, true);
-        
+
     findRects(openCVImage, rects, size);
     
     if (rects.size() == 0) return completed(nil);
-    
-    
+
     return completed(@{
-                @"tl": @{@"x": [NSNumber numberWithFloat:rects[0][3].x * scaleX],
-                         @"y": [NSNumber numberWithFloat:(image.size.height - rects[0][3].y) * scaleY]},
-                @"tr": @{@"x": [NSNumber numberWithFloat:rects[0][0].x * scaleX],
-                         @"y": [NSNumber numberWithFloat:(image.size.height - rects[0][0].y) * scaleY]},
-                @"br": @{@"x": [NSNumber numberWithFloat:rects[0][1].x * scaleX],
-                         @"y": [NSNumber numberWithFloat:(image.size.height - rects[0][1].y) * scaleY]},
-                @"bl": @{@"x": [NSNumber numberWithFloat:rects[0][2].x * scaleX],
-                         @"y": [NSNumber numberWithFloat:(image.size.height - rects[0][2].y) * scaleY]}
-                });
+            @"tl": @{@"x": [NSNumber numberWithFloat:rects[0][0].x * scaleX],
+                     @"y": [NSNumber numberWithFloat:rects[0][0].y * scaleY]},
+            @"tr": @{@"x": [NSNumber numberWithFloat:rects[0][1].x * scaleX],
+                     @"y": [NSNumber numberWithFloat:rects[0][1].y * scaleY]},
+            @"br": @{@"x": [NSNumber numberWithFloat:rects[0][2].x * scaleX],
+                     @"y": [NSNumber numberWithFloat:rects[0][2].y * scaleY]},
+            @"bl": @{@"x": [NSNumber numberWithFloat:rects[0][3].x * scaleX],
+                     @"y": [NSNumber numberWithFloat:rects[0][3].y * scaleY]}
+            });
 
-}
-
-- (CIImage *)correctPerspectiveForImage:(CIImage *)image withRect:(NSDictionary *)rect
-{
-    CGPoint newLeft = CGPointMake([rect[@"topLeft"][@"x"] floatValue], [rect[@"topLeft"][@"y"] floatValue]);
-    CGPoint newRight = CGPointMake([rect[@"topRight"][@"x"] floatValue], [rect[@"topRight"][@"y"] floatValue]);
-    CGPoint newBottomRight = CGPointMake([rect[@"bottomRight"][@"x"] floatValue], [rect[@"bottomRight"][@"y"] floatValue]);
-    CGPoint newBottomLeft = CGPointMake([rect[@"bottomLeft"][@"x"] floatValue], [rect[@"bottomLeft"][@"y"] floatValue]);
-
-    NSDictionary *rectangleCoordinates = @{
-        @"inputTopLeft": [CIVector vectorWithCGPoint:newLeft],
-        @"inputTopRight": [CIVector vectorWithCGPoint:newRight],
-        @"inputBottomLeft": [CIVector vectorWithCGPoint:newBottomLeft],
-        @"inputBottomRight": [CIVector vectorWithCGPoint:newBottomRight]
-    };
-
-    return [image imageByApplyingFilter:@"CIPerspectiveCorrection" withInputParameters:rectangleCoordinates];
 }
 
 @end
