@@ -12,14 +12,12 @@ import android.util.Base64;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.ReadableType;
 import com.facebook.react.bridge.WritableMap;
 
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
-import org.opencv.imgproc.Imgproc;
 import org.reactnative.camera.RNCameraViewHelper;
 import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.documentdetector.Document;
@@ -30,6 +28,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import static android.graphics.Bitmap.Config.ARGB_8888;
+import static android.graphics.Bitmap.createBitmap;
+import static java.lang.Math.hypot;
+import static java.lang.Math.max;
+import static org.opencv.android.Utils.matToBitmap;
+import static org.opencv.core.CvType.CV_32FC2;
+import static org.opencv.core.CvType.CV_8UC4;
+import static org.opencv.imgproc.Imgproc.getPerspectiveTransform;
+import static org.opencv.imgproc.Imgproc.warpPerspective;
 
 public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, WritableMap> {
     private static final String ERROR_TAG = "E_TAKING_PICTURE_FAILED";
@@ -311,33 +319,33 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         boolean ratioAlreadyApplied = tr.x * (src.size().width / 500) < src.size().width;
         double ratio = ratioAlreadyApplied ? src.size().width / 500 : 1;
 
-        double widthA = Math.sqrt(Math.pow(br.x - bl.x, 2) + Math.pow(br.y - bl.y, 2));
-        double widthB = Math.sqrt(Math.pow(tr.x - tl.x, 2) + Math.pow(tr.y - tl.y, 2));
+        double widthA = hypot(br.x - bl.x, br.y - bl.y);
+        double widthB = hypot(tr.x - tl.x, tr.y - tl.y);
 
-        double dw = Math.max(widthA, widthB) * ratio;
+        double dw = max(widthA, widthB) * ratio;
         int maxWidth = Double.valueOf(dw).intValue();
 
-        double heightA = Math.sqrt(Math.pow(tr.x - br.x, 2) + Math.pow(tr.y - br.y, 2));
-        double heightB = Math.sqrt(Math.pow(tl.x - bl.x, 2) + Math.pow(tl.y - bl.y, 2));
+        double heightA = hypot(tr.x - br.x, tr.y - br.y);
+        double heightB = hypot(tl.x - bl.x, tl.y - bl.y);
 
-        double dh = Math.max(heightA, heightB) * ratio;
+        double dh = max(heightA, heightB) * ratio;
         int maxHeight = Double.valueOf(dh).intValue();
 
-        Mat doc = new Mat(maxHeight, maxWidth, CvType.CV_8UC4);
+        Mat doc = new Mat(maxHeight, maxWidth, CV_8UC4);
 
-        Mat src_mat = new Mat(4, 1, CvType.CV_32FC2);
-        Mat dst_mat = new Mat(4, 1, CvType.CV_32FC2);
+        Mat src_mat = new Mat(4, 1, CV_32FC2);
+        Mat dst_mat = new Mat(4, 1, CV_32FC2);
 
         src_mat.put(0, 0, tl.x * ratio, tl.y * ratio, tr.x * ratio, tr.y * ratio, br.x * ratio, br.y * ratio, bl.x * ratio,
                 bl.y * ratio);
         dst_mat.put(0, 0, 0.0, 0.0, dw, 0.0, dw, dh, 0.0, dh);
 
-        Mat m = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
+        Mat m = getPerspectiveTransform(src_mat, dst_mat);
 
-        Imgproc.warpPerspective(src, doc, m, doc.size());
+        warpPerspective(src, doc, m, doc.size());
 
-        Bitmap bitmap = Bitmap.createBitmap(doc.cols(), doc.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(doc, bitmap);
+        Bitmap bitmap = createBitmap(doc.cols(), doc.rows(), ARGB_8888);
+        matToBitmap(doc, bitmap);
 
         m.release();
         return bitmap;
@@ -346,7 +354,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private Bitmap rotateBitmap(Bitmap source, int angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+        return createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
     private Bitmap resizeBitmap(Bitmap bm, int newWidth) {
@@ -360,7 +368,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private Bitmap flipHorizontally(Bitmap source) {
         Matrix matrix = new Matrix();
         matrix.preScale(-1.0f, 1.0f);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+        return createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
     // Get rotation degrees from Exif orientation enum
