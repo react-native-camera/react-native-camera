@@ -129,6 +129,19 @@
 {
     NSMutableArray *result = [[NSMutableArray alloc] init];
     for (FIRVisionFace *face in faces) {
+
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Test Message" 
+                                                  message:@"This is a sample"
+                                                 delegate:nil
+                                        cancelButtonTitle:@"OK" 
+                                        otherButtonTitles:nil];
+        [alert show];
+        [alert release];
+
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
         NSMutableDictionary *resultDict =
         [[NSMutableDictionary alloc] initWithCapacity:20];
         // Boundaries of face in image
