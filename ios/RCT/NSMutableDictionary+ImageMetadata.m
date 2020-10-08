@@ -37,6 +37,8 @@
   [formatter setDateFormat:@"yyyy:MM:dd"];
   [gps setObject:[formatter stringFromDate:date] forKey:(NSString *)kCGImagePropertyGPSDateStamp];
 
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: we have GPS latitude, longitude and altitude
   // Latitude
   double latitude = [[coords objectForKey:@"latitude"] doubleValue];
   if (latitude < 0) {

@@ -28,7 +28,8 @@
     UIGraphicsEndImageContext();
     return image;
 }
-
+// ========================================== <<<<<<<<<<<<<<<<<<<<<<<<<   check from here
+// todo: use this to crop face
 + (UIImage *)cropImage:(UIImage *)image toRect:(CGRect)rect
 {
     CGImageRef takenCGImage = image.CGImage;
@@ -37,7 +38,8 @@
     CGImageRelease(cropCGImage);
     return image;
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: why flip the image?
 + (UIImage *)mirrorImage:(UIImage *)image
 {
     UIImageOrientation flippedOrientation = UIImageOrientationUpMirrored;
@@ -60,14 +62,16 @@
     UIImage * flippedImage = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:flippedOrientation];
     return flippedImage;
 }
-
+// ========================================== <<<<<<<<<<<<<<<<<<<<<<<<<   check from here
+// todo: use this to save image to file path
 + (NSString *)writeImage:(NSData *)image toPath:(NSString *)path
 {
     [image writeToFile:path atomically:YES];
     NSURL *fileURL = [NSURL fileURLWithPath:path];
     return [fileURL absoluteString];
 }
-
+// ========================================== <<<<<<<<<<<<<<<<<<<<<<<<<   check from here
+// todo: use this to scale image to the size we want
 + (UIImage *) scaleImage:(UIImage*)image toWidth:(NSInteger)width
 {
     width /= [UIScreen mainScreen].scale; // prevents image from being incorrectly resized on retina displays
@@ -105,7 +109,8 @@
     }
     
     NSDictionary *gps = metadata[(NSString *)kCGImagePropertyGPSDictionary];
-    
+            // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: there is GPS info in the image metadata
     if (gps) {
         for (NSString *gpsKey in gps) {
             metadata[[@"GPS" stringByAppendingString:gpsKey]] = gps[gpsKey];
@@ -114,7 +119,8 @@
     
     response[@"exif"] = metadata;
 }
-
+// ========================================== <<<<<<<<<<<<<<<<<<<<<<<<<   check from here
+// todo: check if can convert to grayscale
 + (UIImage *)invertColors:(UIImage *)image
 {
     CIImage *inputCIImage = [[CIImage alloc] initWithImage:image];

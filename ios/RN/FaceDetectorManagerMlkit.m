@@ -112,6 +112,25 @@
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
+
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    // int control = 1;
+        NSData *imageData = UIImagePNGRepresentation(uiImage);
+         NSLog(@"%d", [imageData length] );
+        // NSString * base64String = [imageData base64EncodedStringWithOptions:0];
+        // NSLog((@"%@", base64String));
+        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Test Message" 
+        //                                           message:@"This is a sample"
+        //                                          delegate:nil
+        //                                 cancelButtonTitle:@"OK" 
+        //                                 otherButtonTitles:nil];
+        // [alert show];
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+
+
     FIRVisionImage *image = [[FIRVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
     [_faceRecognizer
@@ -128,17 +147,28 @@
 - (NSArray *)processFaces:(NSArray *)faces 
 {
     NSMutableArray *result = [[NSMutableArray alloc] init];
+
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    // int control = 1;
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     for (FIRVisionFace *face in faces) {
 
 // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    // if (control == 1) {
+    // NSString * facedata =  [face   description];
 
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Test Message" 
-                                                  message:@"This is a sample"
-                                                 delegate:nil
-                                        cancelButtonTitle:@"OK" 
-                                        otherButtonTitles:nil];
-        [alert show];
-       
+    //     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Test Message" 
+    //                                               message:facedata
+    //                                              delegate:nil
+    //                                     cancelButtonTitle:@"OK" 
+    //                                     otherButtonTitles:nil];
+    //     [alert show];
+    //     NSLog((@"speechVoices:%@", facedata));
+        
+
+    // }
+    // control = 2;
+
 
 // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

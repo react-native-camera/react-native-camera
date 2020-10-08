@@ -71,6 +71,8 @@
 - (void)updateExposure;
 - (void)updatePictureSize;
 - (void)updateCaptureAudio;
+    // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // imnportant: props of the model
 // Face Detection props
 - (void)updateTrackingEnabled:(id)requestedTracking;
 - (void)updateFaceDetectionMode:(id)requestedMode;

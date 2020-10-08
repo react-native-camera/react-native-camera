@@ -20,7 +20,8 @@ static NSDictionary *defaultDetectorOptions = nil;
     }
     return self;
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // expose the face detector module to react bridge
 RCT_EXPORT_MODULE(RNFaceDetector);
 
 @synthesize bridge = _bridge;
@@ -39,17 +40,20 @@ RCT_EXPORT_MODULE(RNFaceDetector);
 {
     return [FaceDetectorManagerMlkit constants];
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // expose the background task detectFaces to react bridge
 RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
+            // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: check where the options uri come from 
     NSString *uri = options[@"uri"];
     if (uri == nil) {
         reject(@"E_FACE_DETECTION_FAILED", @"You must define a URI.", nil);
         return;
     }
-    
+    // convert uri into native system path
     NSURL *url = [NSURL URLWithString:uri];
     NSString *path = [url.path stringByStandardizingPath];
     
@@ -70,13 +74,17 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
         if (options[kRunClassificationsOptionName]) {
             newOptions.classificationMode = [options[kRunClassificationsOptionName] integerValue];
         }
-
+        // get image from path...
         UIImage *image = [[UIImage alloc] initWithContentsOfFile:path];
         UIImage *rotatedImage = [RNImageUtils forceUpOrientation:image];
-
+                // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: why inject the class here, not other?
         Class faceDetectorManagerClassMlkit = NSClassFromString(@"FaceDetectorManagerMlkit");
         id faceDetector = [[faceDetectorManagerClassMlkit alloc] init];
+        // detect face in frame, 
+        // todo: why scale 1x1, why rotate image
         [faceDetector findFacesInFrame:rotatedImage scaleX:1 scaleY:1 completed:^(NSArray * faces) {
+            // todo: resolve faces and image info, where will it go? to react bridge?
             resolve(@{
                         @"faces" : faces,
                         @"image" : @{
@@ -117,6 +125,8 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
 }
 
 @end
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: why need this else of implementation
 #else
 @implementation RNFaceDetectorModuleMLKit
 
@@ -136,7 +146,8 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
 {
     return @{};
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: implement a custom face detector
 RCT_EXPORT_MODULE(RNFaceDetector);
 
 @end

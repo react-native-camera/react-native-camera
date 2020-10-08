@@ -3,8 +3,12 @@
 #import "RNImageUtils.h"
 #import "RNFileSystem.h"
 #import <React/RCTEventDispatcher.h>
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: check to use RCTLog so that can log to react debug window
 #import <React/RCTLog.h>
 #import <React/RCTUtils.h>
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: check UIView bridge of react
 #import <React/UIView+React.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "RNSensorOrientationChecker.h"
@@ -19,6 +23,8 @@
 @property (nonatomic, strong) RCTPromiseResolveBlock videoRecordedResolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock videoRecordedReject;
 @property (nonatomic, strong) id textDetector;
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: declare facerecognition id struct class pointer
 @property (nonatomic, strong) id faceDetector;
 @property (nonatomic, strong) id barcodeDetector;
 
@@ -63,13 +69,18 @@ BOOL _sessionInterrupted = NO;
         self.sessionQueue = dispatch_queue_create("cameraQueue", DISPATCH_QUEUE_SERIAL);
         self.sensorOrientationChecker = [RNSensorOrientationChecker new];
         self.textDetector = [self createTextDetector];
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: change to custom buider for face detector class
         self.faceDetector = [self createFaceDetectorMlKit];
+        // todo: init custom face recognition
         self.barcodeDetector = [self createBarcodeDetectorMlKit];
         self.finishedReadingText = true;
         self.finishedDetectingFace = true;
         self.startText = [NSDate date];
         self.startFace = [NSDate date];
 #if !(TARGET_IPHONE_SIMULATOR)
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // here is the sublayer of preview camera
         self.previewLayer =
         [AVCaptureVideoPreviewLayer layerWithSession:self.session];
         self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
@@ -242,7 +253,8 @@ BOOL _sessionInterrupted = NO;
     [self setBackgroundColor:[UIColor blackColor]];
     [self.layer insertSublayer:self.previewLayer atIndex:0];
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // here is how to render subview to react: insert at the index
 - (void)insertReactSubview:(UIView *)view atIndex:(NSInteger)atIndex
 {
     [self insertSubview:view atIndex:atIndex + 1]; // is this + 1 really necessary?
@@ -257,7 +269,7 @@ BOOL _sessionInterrupted = NO;
     return;
 }
 
-
+// move back to superview
 - (void)willMoveToSuperview:(nullable UIView *)newSuperview;
 {
     if(newSuperview != nil){
@@ -341,7 +353,15 @@ BOOL _sessionInterrupted = NO;
 
     return preset;
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: check what happens to the lock device, how to disable back and gesture response
+        //         self.navigationController.navigationBar.userInteractionEnabled = NO;
+        // self.navigationController.navigationBar.tintColor = [UIColor lightGrayColor];
+        // // You wrap it an 'if' statement so it doesn't crash
+        // if ([self.navigationController respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
+        // // disable the interactivePopGestureRecognizer
+        //     self.navigationController.interactivePopGestureRecognizer.enabled = NO;
+        // }
 - (void)lockDevice:(AVCaptureDevice *)device andApplySettings:(void (^)(void))applySettings {
     NSError *error = nil;
 
@@ -407,7 +427,8 @@ BOOL _sessionInterrupted = NO;
 
     self.isFocusedOnPoint = NO;
     self.isExposedOnPoint = NO;
-
+            // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // important: this is how to remove observers
     // cleanup listeners if we had any
     if(previousDevice != nil){
 
@@ -1987,7 +2008,8 @@ BOOL _sessionInterrupted = NO;
 }
 
 # pragma mark - FaceDetectorMlkit
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+// todo: inject swift class to here ....
 -(id)createFaceDetectorMlKit
 {
     Class faceDetectorManagerClassMlkit = NSClassFromString(@"FaceDetectorManagerMlkit");
@@ -2052,7 +2074,8 @@ BOOL _sessionInterrupted = NO;
 {
     [self.faceDetector setClassificationMode:requestedClassifications queue:self.sessionQueue];
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: response to onFacesDetectedevent
 - (void)onFacesDetected:(NSDictionary *)event
 {
     if (_onFacesDetected && _session) {
@@ -2166,7 +2189,8 @@ BOOL _sessionInterrupted = NO;
 }
 
 # pragma mark - mlkit
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: get the AVframe buffer, do something
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
            fromConnection:(AVCaptureConnection *)connection
@@ -2189,6 +2213,8 @@ BOOL _sessionInterrupted = NO;
     if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection) {
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
         NSInteger position = self.videoCaptureDeviceInput.device.position;
+                // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // image from buffer camera, with utilities
         UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize position:position];
         // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
         float scaleX = _previewLayer.frame.size.width / image.size.width;
@@ -2204,13 +2230,20 @@ BOOL _sessionInterrupted = NO;
                 self.finishedReadingText = true;
             }];
         }
+
+
         // find face features
         if (canSubmitForFaceDetection) {
             _finishedDetectingFace = false;
             self.startFace = [NSDate date];
+                    // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+            // detect face in frame: faces returned as array of object
+            // todo: output to debug
             [self.faceDetector findFacesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * faces) {
                 NSDictionary *eventFace = @{@"type" : @"face", @"faces" : faces};
+                // call onfacedetected
                 [self onFacesDetected:eventFace];
+                // stop detect
                 self.finishedDetectingFace = true;
             }];
         }

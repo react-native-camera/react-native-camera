@@ -27,7 +27,8 @@ RCT_EXPORT_MODULE();
     self.presetCamera = ((NSNumber *)props[@"type"]).integerValue;
     return [self view];
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // draw subview camera for this session
 - (UIView *)view
 {
   self.session = [AVCaptureSession new];
@@ -377,7 +378,8 @@ RCT_EXPORT_METHOD(checkAudioAuthorizationStatus:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
   [self setOrientation:orientation];
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // capture image task, all the infor is in obtions
 RCT_EXPORT_METHOD(capture:(NSDictionary *)options
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
@@ -470,7 +472,8 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
         NSLog(@"error: %@", error);
     }
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // start the camera session
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
@@ -502,7 +505,8 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
       [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
       self.metadataOutput = metadataOutput;
     }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // what to do with self manager do dispatch and restart
     __weak RCTCameraManager *weakSelf = self;
     [self setRuntimeErrorHandlingObserver:[NSNotificationCenter.defaultCenter addObserverForName:AVCaptureSessionRuntimeErrorNotification object:self.session queue:nil usingBlock:^(NSNotification *note) {
       RCTCameraManager *strongSelf = weakSelf;
@@ -611,7 +615,8 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
         [self captureStill:target options:options orientation:orientation resolve:resolve reject:reject];
     }
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: check there is hue, saturation... how about grey
 - (void)captureStill:(NSInteger)target options:(NSDictionary *)options orientation:(AVCaptureVideoOrientation)orientation resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
   dispatch_async(self.sessionQueue, ^{
@@ -646,6 +651,8 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
       [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
 
         if (imageDataSampleBuffer) {
+                  // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // this is jpeg image output
           NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
 
           // Create image source
@@ -671,6 +678,8 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
             bool rotated = false;
             //see http://www.impulseadventure.com/photo/exif-orientation.html
             if (metadataOrientation == 6) {
+                      // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // image have this support rotate function with angle
               rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:270];
               rotated = true;
             } else if (metadataOrientation == 3) {
@@ -740,23 +749,30 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
   });
 }
 
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: the target code integer decide where to save the image, where to find all the code
 - (void)saveImage:(NSData*)imageData imageSize:(CGSize)imageSize target:(NSInteger)target metadata:(NSDictionary *)metadata resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
   NSString *responseString;
 
   if (target == RCTCameraCaptureTargetMemory) {
+            // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // the data is base64 image
     resolve(@{@"data":[imageData base64EncodedStringWithOptions:0]});
     return;
   }
 
   else if (target == RCTCameraCaptureTargetDisk) {
+            // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // the image is saved in document dir
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths firstObject];
 
     NSFileManager *fileManager = [NSFileManager defaultManager];
+    // save to document dir with jpg format
     NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"jpg"];
 
     [fileManager createFileAtPath:fullPath contents:imageData attributes:nil];
+    // resolve to thread with the path after writing
     responseString = fullPath;
   }
 
@@ -782,7 +798,8 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
   }
   resolve(@{@"path":responseString, @"width":[NSNumber numberWithFloat:imageSize.width], @"height":[NSNumber numberWithFloat:imageSize.height]});
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // support function to rotate the image by angle
 - (CGImageRef)newCGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
 {
   CGFloat angleInRadians = angle * (M_PI / 180);
@@ -790,15 +807,18 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
   CGFloat height = CGImageGetHeight(imgRef);
 
   CGRect imgRect = CGRectMake(0, 0, width, height);
+          // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // config the affine transformation
   CGAffineTransform transform = CGAffineTransformMakeRotation(angleInRadians);
   CGRect rotatedRect = CGRectApplyAffineTransform(imgRect, transform);
-
+  // config the context: color space RGB... how about grey?
   CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
   CGContextRef bmContext = CGBitmapContextCreate(NULL, rotatedRect.size.width, rotatedRect.size.height, 8, 0, colorSpace, (CGBitmapInfo) kCGImageAlphaPremultipliedFirst);
 
   if (self.mirrorImage) {
     CGAffineTransform transform = CGAffineTransformMakeTranslation(rotatedRect.size.width, 0.0);
     transform = CGAffineTransformScale(transform, -1.0, 1.0);
+    // use the configed context to the transform image
     CGContextConcatCTM(bmContext, transform);
   }
 
@@ -806,7 +826,8 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
   CGContextSetInterpolationQuality(bmContext, kCGInterpolationNone);
 
   CGColorSpaceRelease(colorSpace);
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: check why these code?
   CGContextTranslateCTM(bmContext, +(rotatedRect.size.width/2), +(rotatedRect.size.height/2));
   CGContextRotateCTM(bmContext, angleInRadians);
   CGContextTranslateCTM(bmContext, -(rotatedRect.size.width/2), -(rotatedRect.size.height/2));
@@ -854,6 +875,8 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
     if (self.mirrorVideo) {
         [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoMirrored:YES];
     }
+            // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // the frame output is saved to this temp url
     //Create temporary URL to record to
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
     NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
@@ -917,7 +940,8 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
      @"height":[NSNumber numberWithFloat:videoHeight],
      @"size":[NSNumber numberWithLongLong:captureOutput.recordedFileSize],
   }];
-
+          // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // the videoTarget code will decide where the camera will save to
   if (self.videoTarget == RCTCameraCaptureTargetCameraRoll) {
     ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
     if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputFileURL]) {
@@ -976,7 +1000,8 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 }
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // automatic qr code supported
   for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
     for (id barcodeType in self.barCodeTypes) {
       if ([metadata.type isEqualToString:barcodeType] && metadata.stringValue) {
