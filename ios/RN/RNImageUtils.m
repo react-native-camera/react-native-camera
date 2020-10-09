@@ -6,7 +6,7 @@
 //
 
 #import "RNImageUtils.h"
-
+#import <React/RCTLog.h>
 @implementation RNImageUtils
 
 + (UIImage *)generatePhotoOfSize:(CGSize)size
@@ -32,6 +32,9 @@
 // todo: use this to crop face
 + (UIImage *)cropImage:(UIImage *)image toRect:(CGRect)rect
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNImageUtiles > cropImage");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     CGImageRef takenCGImage = image.CGImage;
     CGImageRef cropCGImage = CGImageCreateWithImageInRect(takenCGImage, rect);
     image = [UIImage imageWithCGImage:cropCGImage scale:image.scale orientation:image.imageOrientation];
@@ -59,6 +62,9 @@
         default:
             break;
     }
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNImageUtiles > mirrorImage flip image");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     UIImage * flippedImage = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:flippedOrientation];
     return flippedImage;
 }
@@ -68,12 +74,18 @@
 {
     [image writeToFile:path atomically:YES];
     NSURL *fileURL = [NSURL fileURLWithPath:path];
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNImageUtiles > writeImage success path = %@",path);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     return [fileURL absoluteString];
 }
 // ========================================== <<<<<<<<<<<<<<<<<<<<<<<<<   check from here
 // todo: use this to scale image to the size we want
 + (UIImage *) scaleImage:(UIImage*)image toWidth:(NSInteger)width
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNImageUtiles > scaleImage toWidth: %d",width);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     width /= [UIScreen mainScreen].scale; // prevents image from being incorrectly resized on retina displays
     float scaleRatio = (float) width / (float) image.size.width;
     CGSize size = CGSizeMake(width, roundf(image.size.height * scaleRatio));
@@ -116,13 +128,22 @@
             metadata[[@"GPS" stringByAppendingString:gpsKey]] = gps[gpsKey];
         }
     }
-    
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNImageUtiles > updatePhotoMetadata metadata: %@",metadata);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     response[@"exif"] = metadata;
 }
 // ========================================== <<<<<<<<<<<<<<<<<<<<<<<<<   check from here
 // todo: check if can convert to grayscale
+// https://stackoverflow.com/questions/4627840/changing-rgb-color-image-to-grayscale-image-using-objective-c
+// https://stackoverflow.com/questions/20149708/convert-an-array-to-a-one-channel-image
+// https://stackoverflow.com/questions/39221007/how-to-convert-uiimagepicker-image-into-a-byte-array-objective-c/39221412#39221412
+// https://stackoverflow.com/questions/33768066/get-pixel-data-as-array-from-uiimage-cgimage-in-swift
 + (UIImage *)invertColors:(UIImage *)image
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNImageUtiles > invertColors");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     CIImage *inputCIImage = [[CIImage alloc] initWithImage:image];
 
     // Invert colors

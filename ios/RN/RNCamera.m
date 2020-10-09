@@ -4,7 +4,7 @@
 #import "RNFileSystem.h"
 #import <React/RCTEventDispatcher.h>
         // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
-        // todo: check to use RCTLog so that can log to react debug window
+        // todo: check to use RCTLog so that can log to react debug window: only logwarn does
 #import <React/RCTLog.h>
 #import <React/RCTUtils.h>
         // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
@@ -111,6 +111,10 @@ BOOL _sessionInterrupted = NO;
 
 
     }
+                    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > initwithbridge");  //only warn or error get response from react log.
+        // RCTLogInfo(@"face detection result: %@", result ) ;
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   
     return self;
 }
 -(UITapGestureRecognizer*)createDoubleTapGestureRecognizer
@@ -182,6 +186,10 @@ BOOL _sessionInterrupted = NO;
     if (_onCameraReady) {
         _onCameraReady(nil);
     }
+                    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > onReady");  //only warn or error get response from react log.
+        // RCTLogInfo(@"face detection result: %@", result ) ;
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   
 }
 
 - (void)onMountingError:(NSDictionary *)event
@@ -200,9 +208,13 @@ BOOL _sessionInterrupted = NO;
 
 - (void)onPictureTaken:(NSDictionary *)event
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > onPictureTaken");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   
     if (_onPictureTaken) {
         _onPictureTaken(event);
     }
+    
 }
 
 - (void)onPictureSaved:(NSDictionary *)event
@@ -214,6 +226,9 @@ BOOL _sessionInterrupted = NO;
 
 - (void)onRecordingStart:(NSDictionary *)event
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > onRecordingStart");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     if (_onRecordingStart) {
         _onRecordingStart(event);
     }
@@ -241,6 +256,9 @@ BOOL _sessionInterrupted = NO;
 
 - (void)onSubjectAreaChanged:(NSDictionary *)event
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > onSubjectAreaChanged");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     if (_onSubjectAreaChanged) {
         _onSubjectAreaChanged(event);
     }
@@ -248,6 +266,9 @@ BOOL _sessionInterrupted = NO;
 
 - (void)layoutSubviews
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > layoutSubviews");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     [super layoutSubviews];
     self.previewLayer.frame = self.bounds;
     [self setBackgroundColor:[UIColor blackColor]];
@@ -257,6 +278,9 @@ BOOL _sessionInterrupted = NO;
         // here is how to render subview to react: insert at the index
 - (void)insertReactSubview:(UIView *)view atIndex:(NSInteger)atIndex
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > insertReactSubview");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     [self insertSubview:view atIndex:atIndex + 1]; // is this + 1 really necessary?
     [super insertReactSubview:view atIndex:atIndex];
     return;
@@ -264,6 +288,9 @@ BOOL _sessionInterrupted = NO;
 
 - (void)removeReactSubview:(UIView *)subview
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > removeReactSubview");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     [subview removeFromSuperview];
     [super removeReactSubview:subview];
     return;
@@ -272,6 +299,9 @@ BOOL _sessionInterrupted = NO;
 // move back to superview
 - (void)willMoveToSuperview:(nullable UIView *)newSuperview;
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > willMoveToSuperView");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     if(newSuperview != nil){
 
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -397,7 +427,7 @@ BOOL _sessionInterrupted = NO;
 
     if (self.flashMode == RNCameraFlashModeTorch) {
         if (![device hasTorch] || ![device isTorchModeSupported:AVCaptureTorchModeOn]) {
-            RCTLogWarn(@"%s: device doesn't support torch mode", __func__);
+            RCTLogInfo(@"%s: device doesn't support torch mode", __func__);
             return;
         }
         [self lockDevice:device andApplySettings:^{
@@ -406,7 +436,7 @@ BOOL _sessionInterrupted = NO;
         }];
     } else {
         if (![device hasFlash] || ![device isFlashModeSupported:self.flashMode]) {
-            RCTLogWarn(@"%s: device doesn't support flash mode", __func__);
+            RCTLogInfo(@"%s: device doesn't support flash mode", __func__);
             return;
         }
 
@@ -512,6 +542,9 @@ BOOL _sessionInterrupted = NO;
 
 - (void)updateAutoFocusPointOfInterest
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > updateAutoFocusPointOfInterest");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     [self lockDevice:device andApplySettings:^{
         if ([self.autoFocusPointOfInterest objectForKey:@"x"] && [self.autoFocusPointOfInterest objectForKey:@"y"]) {
@@ -533,7 +566,7 @@ BOOL _sessionInterrupted = NO;
                     device.subjectAreaChangeMonitoringEnabled = YES;
                 }
             } else {
-                RCTLogWarn(@"AutoFocusPointOfInterest not supported");
+                RCTLogInfo(@"AutoFocusPointOfInterest not supported");
             }
 
             if([self.autoFocusPointOfInterest objectForKey:@"autoExposure"]){
@@ -547,7 +580,7 @@ BOOL _sessionInterrupted = NO;
                         self.isExposedOnPoint = YES;
 
                     } else {
-                        RCTLogWarn(@"AutoExposurePointOfInterest not supported");
+                        RCTLogInfo(@"AutoExposurePointOfInterest not supported");
                     }
                 }
                 else{
@@ -592,7 +625,7 @@ BOOL _sessionInterrupted = NO;
     }
 
     if (![device respondsToSelector:@selector(isLockingFocusWithCustomLensPositionSupported)] || ![device isLockingFocusWithCustomLensPositionSupported]) {
-        RCTLogWarn(@"%s: Setting focusDepth isn't supported for this camera device", __func__);
+        RCTLogInfo(@"%s: Setting focusDepth isn't supported for this camera device", __func__);
         return;
     }
 
@@ -622,7 +655,7 @@ BOOL _sessionInterrupted = NO;
     [self lockDevice:device andApplySettings:^{
         if (self.whiteBalance == RNCameraWhiteBalanceAuto || ![device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]) {
             if (self.whiteBalance != RNCameraWhiteBalanceAuto) {
-                RCTLogWarn(@"%s: locked whitebalance mode ist note supported. Fallback to continuous auto white balance mode", __func__);
+                RCTLogInfo(@"%s: locked whitebalance mode ist note supported. Fallback to continuous auto white balance mode", __func__);
             }
             [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
         } else {
@@ -646,7 +679,7 @@ BOOL _sessionInterrupted = NO;
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     [self lockDevice:device andApplySettings:^{
         if (![device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]) {
-            RCTLogWarn(@"%s: locked whitebalance mode ist note supported. Fallback to continuous auto white balance mode", __func__);
+            RCTLogInfo(@"%s: locked whitebalance mode ist note supported. Fallback to continuous auto white balance mode", __func__);
             [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
         } else {
             AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
@@ -761,6 +794,9 @@ BOOL _sessionInterrupted = NO;
 
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > takePicture");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     // if video device is not set, reject
     if(self.videoCaptureDeviceInput == nil || !self.session.isRunning){
         reject(@"E_IMAGE_CAPTURE_FAILED", @"Camera is not ready.", nil);
@@ -928,7 +964,9 @@ BOOL _sessionInterrupted = NO;
                     }
 
                 }
-
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > onPictureTaken : metadata = %@",metadata);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
                 CGImageDestinationAddImage(destination, takenImage.CGImage, writeExif ? ((__bridge CFDictionaryRef) metadata) : nil);
 
 
@@ -946,6 +984,9 @@ BOOL _sessionInterrupted = NO;
                     }
 
                     if (![options[@"doNotSave"] boolValue]) {
+                        // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > onPictureTaken : will save to path %@",path);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
                         response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
                     }
                     response[@"width"] = @(takenImage.size.width);
@@ -1071,7 +1112,7 @@ BOOL _sessionInterrupted = NO;
 
     if (self.videoStabilizationMode != 0) {
         if (connection.isVideoStabilizationSupported == NO) {
-            RCTLogWarn(@"%s: Video Stabilization is not supported on this device.", __func__);
+            RCTLogInfo(@"%s: Video Stabilization is not supported on this device.", __func__);
         } else {
             [connection setPreferredVideoStabilizationMode:self.videoStabilizationMode];
         }
@@ -1181,11 +1222,11 @@ BOOL _sessionInterrupted = NO;
                         [self.movieFileOutput setOutputSettings:@{AVVideoCodecKey:videoCodecType} forConnection:connection];
                     }
                 } else {
-                    RCTLogWarn(@"Video Codec %@ is not available.", videoCodecType);
+                    RCTLogInfo(@"Video Codec %@ is not available.", videoCodecType);
                 }
             }
             else {
-                RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
+                RCTLogInfo(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
             }
         }
 
@@ -1261,7 +1302,7 @@ BOOL _sessionInterrupted = NO;
                 _recordRequested = NO;
             }
             else{
-                RCTLogWarn(@"Video is not recording.");
+                RCTLogInfo(@"Video is not recording.");
             }
         }
     });
@@ -1279,6 +1320,9 @@ BOOL _sessionInterrupted = NO;
 
 - (void)startSession
 {
+    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > startSession");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
 #if TARGET_IPHONE_SIMULATOR
     [self onReady:nil];
     return;
@@ -1307,6 +1351,9 @@ BOOL _sessionInterrupted = NO;
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
             stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
+            // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > startsession > dispatch > add StillImageOutput");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
             [self.session addOutput:stillImageOutput];
             [stillImageOutput setHighResolutionStillImageOutputEnabled:YES];
             self.stillImageOutput = stillImageOutput;
@@ -1329,6 +1376,9 @@ BOOL _sessionInterrupted = NO;
 
 - (void)stopSession
 {
+    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > stopSession");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
 #if TARGET_IPHONE_SIMULATOR
     return;
 #endif
@@ -1378,7 +1428,7 @@ BOOL _sessionInterrupted = NO;
         AVCaptureDeviceInput *audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
 
         if (error || audioDeviceInput == nil) {
-            RCTLogWarn(@"%s: %@", __func__, error);
+            RCTLogInfo(@"%s: %@", __func__, error);
         }
 
         else{
@@ -1388,7 +1438,7 @@ BOOL _sessionInterrupted = NO;
             BOOL setActive = [[AVAudioSession sharedInstance] setActive:YES error:&error];
 
             if (!setActive) {
-                RCTLogWarn(@"Audio device could not set active: %s: %@", __func__, error);
+                RCTLogInfo(@"Audio device could not set active: %s: %@", __func__, error);
             }
 
             else if ([self.session canAddInput:audioDeviceInput]) {
@@ -1450,7 +1500,7 @@ BOOL _sessionInterrupted = NO;
             BOOL setInactive = [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&error];
 
             if (!setInactive) {
-                RCTLogWarn(@"Audio device could not set inactive: %s: %@", __func__, error);
+                RCTLogInfo(@"Audio device could not set inactive: %s: %@", __func__, error);
             }
         }
 
@@ -1659,6 +1709,9 @@ BOOL _sessionInterrupted = NO;
 // session interrupted events
 - (void)sessionWasInterrupted:(NSNotification *)notification
 {
+    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > sessionWasInterrupted");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     // Mark session interruption
     _sessionInterrupted = YES;
 
@@ -1760,6 +1813,10 @@ BOOL _sessionInterrupted = NO;
     if (_metadataOutput == nil) {
         return;
     }
+    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+   
+    RCTLogInfo(@"RNCamera > updateRectOfInterest rect { origin: %f-%f ; size: %f-%f}",_rectOfInterest.origin.x,_rectOfInterest.origin.y,_rectOfInterest.size.width,_rectOfInterest.size.height);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     [_metadataOutput setRectOfInterest: _rectOfInterest];
 }
 
@@ -2033,6 +2090,10 @@ BOOL _sessionInterrupted = NO;
             NSDictionary *rgbOutputSettings = [NSDictionary
                 dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
                                 forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+                // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"rgboutputsettings: %@", rgbOutputSettings);  //only warn or error get response from react log.
+        // RCTLogInfo(@"face detection result: %@", result ) ;
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                    
             [self.videoDataOutput setVideoSettings:rgbOutputSettings];
             [self.videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
             [self.videoDataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
@@ -2075,7 +2136,8 @@ BOOL _sessionInterrupted = NO;
     [self.faceDetector setClassificationMode:requestedClassifications queue:self.sessionQueue];
 }
         // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
-        // todo: response to onFacesDetectedevent
+        // todo: response to onFacesDetectedevent; this is the function from react props, 
+        // 
 - (void)onFacesDetected:(NSDictionary *)event
 {
     if (_onFacesDetected && _session) {
@@ -2211,8 +2273,16 @@ BOOL _sessionInterrupted = NO;
     BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
     BOOL canSubmitForBarcodeDetection = self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
     if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection) {
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        //todo: what is size and position for? to draw face rectangle? nope
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
         NSInteger position = self.videoCaptureDeviceInput.device.position;
+
+
+    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        // RCTLogInfo(@"previewSize: width = %f, height = %f at position = %d", previewSize.width, previewSize.height,position);  //only warn or error get response from react log.
+        // RCTLogInfo(@"face detection result: %@", result ) ;
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                 // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
         // image from buffer camera, with utilities
         UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize position:position];
@@ -2238,10 +2308,12 @@ BOOL _sessionInterrupted = NO;
             self.startFace = [NSDate date];
                     // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
             // detect face in frame: faces returned as array of object
-            // todo: output to debug
+            // todo: change the facedetectormanagerMlkit to return face image upon complete, so that we can go further
             [self.faceDetector findFacesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * faces) {
                 NSDictionary *eventFace = @{@"type" : @"face", @"faces" : faces};
-                // call onfacedetected
+                // call onfacedetected from the react props component
+                // todo: change the function params so that it pass the face image data to that function
+                // or call the face recognition function
                 [self onFacesDetected:eventFace];
                 // stop detect
                 self.finishedDetectingFace = true;

@@ -2,7 +2,7 @@
 #if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
 #import "RNFileSystem.h"
 #import "RNImageUtils.h"
-
+#import <React/RCTLog.h>
 static const NSString *kModeOptionName = @"mode";
 static const NSString *kDetectLandmarksOptionName = @"detectLandmarks";
 static const NSString *kRunClassificationsOptionName = @"runClassifications";
@@ -48,6 +48,9 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
 {
             // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
         // todo: check where the options uri come from 
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"FaceDetectorModuleMlkit > exportMethod detectFaces: options = %@",options);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     NSString *uri = options[@"uri"];
     if (uri == nil) {
         reject(@"E_FACE_DETECTION_FAILED", @"You must define a URI.", nil);
@@ -56,12 +59,17 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
     // convert uri into native system path
     NSURL *url = [NSURL URLWithString:uri];
     NSString *path = [url.path stringByStandardizingPath];
-    
+    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"FaceDetectorModuleMlkit > exportMethod detectFaces: path = %@",path);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     @try {
         if (![fileManager fileExistsAtPath:path]) {
             reject(@"E_FACE_DETECTION_FAILED", [NSString stringWithFormat:@"The file does not exist. Given path: `%@`.", path], nil);
             return;
         }
+    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"FaceDetectorModuleMlkit > exportMethod detectFaces: file existed at the given path");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^         
         FIRVisionFaceDetectorOptions *newOptions = [[FIRVisionFaceDetectorOptions alloc] init];
         if (options[kDetectLandmarksOptionName]) {
             newOptions.landmarkMode = [options[kDetectLandmarksOptionName] integerValue];
@@ -78,9 +86,12 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
         UIImage *image = [[UIImage alloc] initWithContentsOfFile:path];
         UIImage *rotatedImage = [RNImageUtils forceUpOrientation:image];
                 // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
-        // todo: why inject the class here, not other?
+        // inject the facedetector class to bridge and run
         Class faceDetectorManagerClassMlkit = NSClassFromString(@"FaceDetectorManagerMlkit");
         id faceDetector = [[faceDetectorManagerClassMlkit alloc] init];
+            // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"FaceDetectorModuleMlkit > exportMethod detectFaces: init faceDetector, findFacesInFrame");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
         // detect face in frame, 
         // todo: why scale 1x1, why rotate image
         [faceDetector findFacesInFrame:rotatedImage scaleX:1 scaleY:1 completed:^(NSArray * faces) {

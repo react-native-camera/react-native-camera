@@ -336,20 +336,37 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
 
     self.sensorOrientationChecker = [RCTSensorOrientationChecker new];
   }
+  // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RCTCameraManager > init ");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
   return self;
 }
 
 RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
   __block NSString *mediaType = AVMediaTypeVideo;
-
+  // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogWarn(@"RCTCameraManager > checkDeviceAuthorizationStatus Video");  //only warn or error get response from react log.
+  // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
   [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
     if (!granted) {
+       // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RCTCameraManager > checkDeviceAuthorizationStatus Video rejected ");  //only warn or error get response from react log.
+  // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
       resolve(@(granted));
     }
     else {
+       // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RCTCameraManager > checkDeviceAuthorizationStatus Video granted");  //only warn or error get response from react log.
+  // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
       mediaType = AVMediaTypeAudio;
+       // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogWarn(@"RCTCameraManager > checkDeviceAuthorizationStatus Audio");  //only warn or error get response from react log.
+  // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
       [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+         // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RCTCameraManager > checkDeviceAuthorizationStatus Audio granted");  //only warn or error get response from react log.
+  // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         resolve(@(granted));
       }];
     }
@@ -619,6 +636,9 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
         // todo: check there is hue, saturation... how about grey
 - (void)captureStill:(NSInteger)target options:(NSDictionary *)options orientation:(AVCaptureVideoOrientation)orientation resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
+   // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RCTCameraManager > captureStill with orientation ");  //only warn or error get response from react log.
+  // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
   dispatch_async(self.sessionQueue, ^{
 #if TARGET_IPHONE_SIMULATOR
       CGSize size = CGSizeMake(720, 1280);
@@ -753,7 +773,10 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
         // todo: the target code integer decide where to save the image, where to find all the code
 - (void)saveImage:(NSData*)imageData imageSize:(CGSize)imageSize target:(NSInteger)target metadata:(NSDictionary *)metadata resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
   NSString *responseString;
-
+ // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RCTCameraManager > saveImage targetcode = %d ",target);  //only warn or error get response from react log.
+        RCTLogInfo(@"RCTCameraManager > saveImage all targetcode  : RCTCameraCaptureTargetMemory = %d ; RCTCameraCaptureTargetDisk = %d; RCTCameraCaptureTargetTemp = %d; RCTCameraCaptureTargetCameraRol=%d",RCTCameraCaptureTargetMemory,RCTCameraCaptureTargetDisk, RCTCameraCaptureTargetTemp,RCTCameraCaptureTargetCameraRoll);  //only warn or error get response from react log.
+  // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
   if (target == RCTCameraCaptureTargetMemory) {
             // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
         // the data is base64 image
@@ -766,7 +789,9 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
         // the image is saved in document dir
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths firstObject];
-
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ RCTLogInfo(@"RCTCameraManager > saveImage documentsDirectory = %@ ",documentsDirectory);
+ // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     NSFileManager *fileManager = [NSFileManager defaultManager];
     // save to document dir with jpg format
     NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]] stringByAppendingPathExtension:@"jpg"];
@@ -802,6 +827,9 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
         // support function to rotate the image by angle
 - (CGImageRef)newCGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
 {
+  // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ RCTLogInfo(@"RCTCameraManager > newCGImageRotatedByAngle  angle = %f ",angle);
+ // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
   CGFloat angleInRadians = angle * (M_PI / 180);
   CGFloat width = CGImageGetWidth(imgRef);
   CGFloat height = CGImageGetHeight(imgRef);
@@ -841,6 +869,9 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
 
 -(void)captureVideo:(NSInteger)target options:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
+  // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ RCTLogInfo(@"RCTCameraManager > captureVideo ");
+ // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     AVCaptureVideoOrientation orientation = options[@"orientation"] != nil ? [options[@"orientation"] integerValue] : self.orientation;
     if (orientation == RCTCameraOrientationAuto) {
         [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
@@ -888,7 +919,9 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
           return;
         }
     }
-
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ RCTLogInfo(@"RCTCameraManager > captureVideo recordingtoOutputFile = %@ ",outputPath);
+ // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     //Start recording
     [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
 
@@ -1022,7 +1055,8 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
             }
           }
         };
-
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< check this
+ // trigger app event: why pass the dict event info with bounds?
         [self.bridge.eventDispatcher sendAppEventWithName:@"CameraBarCodeRead" body:event];
       }
     }

@@ -4,7 +4,6 @@
 #import <React/RCTLog.h>
 #import <React/RCTUtils.h>
 #import <React/RCTEventDispatcher.h>
-
 #import <React/UIView+React.h>
 
 #import <AVFoundation/AVFoundation.h>
@@ -63,7 +62,9 @@
 
 - (id)initWithManager:(RCTCameraManager*)manager bridge:(RCTBridge *)bridge
 {
-  
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RCTCamera > initWithManager ");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
   if ((self = [super init])) {
     self.manager = manager;
     self.bridge = bridge;

@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <ImageIO/ImageIO.h>
-
+#import <React/RCTLog.h>
 #import "NSMutableDictionary+ImageMetadata.h"
 
 @implementation NSMutableDictionary(ImageMetadata)
@@ -84,7 +84,9 @@
     [gps setObject:@"T" forKey:(NSString *)kCGImagePropertyGPSTrackRef];
     [gps setObject:[NSNumber numberWithFloat:heading] forKey:(NSString *)kCGImagePropertyGPSTrack];
   }
-
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"NSMutable+ImageMetadata > getGPSDictionary gps: %@",gps);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
   return gps;
 }
 @end

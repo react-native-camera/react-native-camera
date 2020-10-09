@@ -1,4 +1,5 @@
 #import "TextDetectorManager.h"
+#import <React/RCTLog.h>
 #if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
 
 @interface TextDetectorManager ()
