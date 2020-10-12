@@ -49,4 +49,5 @@ Pod::Spec.new do |s|
   s.preserve_paths = 'LICENSE', 'README.md', 'package.json', 'index.js'
 
   s.dependency 'React-Core'
+  s.dependency 'TensorFlowLiteSwift'
 end
