@@ -17,6 +17,8 @@
 + (UIImage *)forceUpOrientation:(UIImage *)image;
 + (NSString *)writeImage:(NSData *)image toPath:(NSString *)path;
 + (UIImage *) scaleImage:(UIImage*)image toWidth:(NSInteger)width;
++ (UIImage *)scaleImage:(UIImage *)image convertToSize:(CGSize)size; 
++ (UIImage *)scaleToRect:(UIImage *)image atX:(float)x atY:(float)y withSize:(CGRect)size ;
 + (void)updatePhotoMetadata:(CMSampleBufferRef)imageSampleBuffer withAdditionalData:(NSDictionary *)additionalData inResponse:(NSMutableDictionary *)response;
 + (UIImage *)invertColors:(UIImage *)image;
 
