@@ -363,6 +363,9 @@ RCT_REMAP_METHOD(takePicture,
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCameraManager > takePicture ");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
         RNCamera *view = viewRegistry[reactTag];
         if (![view isKindOfClass:[RNCamera class]]) {
@@ -402,9 +405,16 @@ RCT_REMAP_METHOD(takePicture,
             if (useFastMode) {
                 [view onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
             } else {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCameraManager > takePicture response:%@",response);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
                 resolve(response);
             }
 #else
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCameraManager > takePicture view takePicture with options = %@",options);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+ 
             [view takePicture:options resolve:resolve reject:reject];
 #endif
         }

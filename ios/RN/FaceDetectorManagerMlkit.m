@@ -307,6 +307,10 @@
 
 - (NSDictionary *)processBounds:(CGRect)bounds 
 {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"FaceDetectorManagerMlkit > processBounds");  //only warn or error get response from react log.
+// todo: check scaleX, scaleY
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     float width = bounds.size.width * _scaleX;
     float height = bounds.size.height * _scaleY;
     float originX = bounds.origin.x * _scaleX;

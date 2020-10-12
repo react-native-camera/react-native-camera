@@ -26,6 +26,11 @@
         // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
         // todo: declare facerecognition id struct class pointer
 @property (nonatomic, strong) id faceDetector;
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+@property (nonatomic, strong) NSMutableArray *facesDetected;
+
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   
+
 @property (nonatomic, strong) id barcodeDetector;
 
 @property (nonatomic, copy) RCTDirectEventBlock onCameraReady;
@@ -72,6 +77,8 @@ BOOL _sessionInterrupted = NO;
         // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
         // todo: change to custom buider for face detector class
         self.faceDetector = [self createFaceDetectorMlKit];
+        // init faces save
+            self.facesDetected = [[NSMutableArray alloc] init];
         // todo: init custom face recognition
         self.barcodeDetector = [self createBarcodeDetectorMlKit];
         self.finishedReadingText = true;
@@ -209,7 +216,7 @@ BOOL _sessionInterrupted = NO;
 - (void)onPictureTaken:(NSDictionary *)event
 {
 // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"RNCamera > onPictureTaken");  //only warn or error get response from react log.
+        RCTLogInfo(@"RNCamera > onPictureTaken event=%@",event);  //only warn or error get response from react log.
 // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   
     if (_onPictureTaken) {
         _onPictureTaken(event);
@@ -827,12 +834,28 @@ BOOL _sessionInterrupted = NO;
 
                 [self onPictureTaken:@{}];
 
-
+ // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        //todo: why Jpeg, diff from captureOutput with faces bounds ???
                 // get JPEG image data
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
                 UIImage *takenImage = [UIImage imageWithData:imageData];
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ RCTLogWarn(@"RNCamera > takePicture getJPEGImage >  imageinfo: width=%f height=%f,  scale=%f",takenImage.size.width,takenImage.size.height,takenImage.scale);  //only warn or error get response from react log.
+        // RCTLogInfo(@"RNCamera > takePicture create UIImage same with captureOutput ...");  //only warn or error get response from react log.
+        // CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
+        // NSInteger position = self.videoCaptureDeviceInput.device.position;
 
+        // // image from buffer camera, with utilities
+        // UIImage *takenImage = [RNCameraUtils convertBufferToUIImage:imageSampleBuffer previewSize:previewSize position:position];
+        // // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
+        // float scaleX = _previewLayer.frame.size.width / takenImage.size.width;
+        // float scaleY = _previewLayer.frame.size.height / takenImage.size.height;
 
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+       
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > takePicture adjust image");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
                 // Adjust/crop image based on preview dimensions
                 // TODO: This seems needed because iOS does not allow
                 // for aspect ratio settings, so this is the best we can get
@@ -841,18 +864,133 @@ BOOL _sessionInterrupted = NO;
                 CGSize previewSize;
                 if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
                     previewSize = CGSizeMake(self.previewLayer.frame.size.height, self.previewLayer.frame.size.width);
+                        RCTLogInfo(@"RNCamera > takePicture isPortrait=true");  //only warn or error get response from react log.
+                    // previewSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
                 } else {
                     previewSize = CGSizeMake(self.previewLayer.frame.size.width, self.previewLayer.frame.size.height);
+                    // previewSize = CGSizeMake(self.previewLayer.frame.size.height, self.previewLayer.frame.size.width);
                 }
                 CGRect cropRect = CGRectMake(0, 0, CGImageGetWidth(takenCGImage), CGImageGetHeight(takenCGImage));
                 CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
                 takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
 
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+                    // // cropRect = CGRectMake(0, 0, 400, 400);            //try with smaller crop
+                    // // previewSize = CGSizeMake( 40, 40);                   //try with smaller preview
+                    // CGImageRef croppedCGImage = CGImageCreateWithImageInRect(takenCGImage, croppedSize);
+                    // UIImage *image = [[UIImage alloc] initWithCGImage:takenCGImage];
+                    // takenImage = image;
+                    // CGImageRelease(croppedCGImage);
+
+// let heightInPoints = image.size.height
+// let heightInPixels = heightInPoints * image.scale
+
+// let widthInPoints = image.size.width
+// let widthInPixels = widthInPoints * image.scale
+       
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+
+
+
                 // apply other image settings
                 bool resetOrientation = NO;
-                if ([options[@"mirrorImage"] boolValue]) {
-                    takenImage = [RNImageUtils mirrorImage:takenImage];
+                // if ([options[@"mirrorImage"] boolValue]) {
+                //     takenImage = [RNImageUtils mirrorImage:takenImage];
+                // }
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// todo: dlfjal;sdjf;lashjdfl;ashjdfl;ajsdlkkkkkjfklasjflajdlfjasldfj;lashjdfl;ashdl;fasl;djflkasjdflasjdlfajsl;dfjlas;djflasjdflasjdlfjasldfjasljdlfajsdl;asjd;fljasdl
+                // scale down CIImage
+    // float bufferWidth = CVPixelBufferGetWidth(imageBuffer);
+    // float bufferHeight = CVPixelBufferGetHeight(imageBuffer);
+    // float scale = scale = bufferHeight>bufferWidth ? 720 / bufferWidth : 720 / bufferHeight;;
+    // if (position == 1) {
+    //     scale = bufferHeight>bufferWidth ? 400 / bufferWidth : 400 / bufferHeight;
+    // }
+    //   // convert to UIImage and crop to preview aspect ratio
+    // NSDictionary *contextOptions = @{kCIContextUseSoftwareRenderer : @(false)};
+    // CIContext *temporaryContext = [CIContext contextWithOptions:contextOptions];
+    // CGImageRef videoImage;
+    // CGRect boundingRect;
+    // if (curOrientation == UIInterfaceOrientationLandscapeLeft || curOrientation == UIInterfaceOrientationLandscapeRight) {
+    //     boundingRect = CGRectMake(0, 0, bufferWidth*scale, bufferHeight*scale);
+    // } else {
+    //     boundingRect = CGRectMake(0, 0, bufferHeight*scale, bufferWidth*scale);
+    // }
+    // videoImage = [temporaryContext createCGImage:ciImage fromRect:boundingRect];
+    // CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, boundingRect);
+    // CGImageRef croppedCGImage = CGImageCreateWithImageInRect(videoImage, croppedSize);
+    // UIImage *image = [[UIImage alloc] initWithCGImage:videoImage];
+    // CGImageRelease(videoImage);
+    // CGImageRelease(croppedCGImage);
+
+
+        //  RCTLogInfo(@"RNCamera > takePicture current detectedfaces: %@",self.facesDetected );  //only warn or error get response from react log.
+// todo: get face0, get bound, cropt it
+                NSDictionary *myFace = [self.facesDetected firstObject ];
+                float cameraWitdhResolution = 720.000000;
+                float cameraHeightResolution = 960.000000;
+                CGSize reSize = CGSizeMake(cameraWitdhResolution, cameraHeightResolution);
+                // CGSize reSize = CGSizeMake(cameraHeightResolution, cameraWitdhResolution);
+                takenImage = [RNImageUtils scaleImage:takenImage convertToSize:reSize];
+                RCTLogWarn(@"RNCamera > takePicture scale down >  imageinfo: width=%f height=%f,  scale=%f",takenImage.size.width,takenImage.size.height,takenImage.scale);  //only warn or error get response from react log.
+        // PixelXDimension = 3088;
+        // PixelYDimension = 2316;
+                // float previewWidth = self.previewLayer.frame.size.height; //2316.000000
+                // float previewHeight = self.previewLayer.frame.size.width; //3088.000000
+                // float yScale = 3088/ cameraHeightResolution;
+                // float xScale = 2316 / cameraWitdhResolution;
+                // RCTLogInfo(@"RNCamera > takePicture previewWidth:%f x previewHeight:$f",previewWidth,previewHeight);
+                if (myFace){
+                  
+                    // myx = [ [[myFace valueForKey:@"bounds" ] valueForKey:@"origin"] valueForKey:@"x" ];
+                     RCTLogInfo(@"RNCamera > takePicture myFace: %@",myFace[@"bounds"]);  //only warn or error get response from react log.
+                    float boundX = [myFace [@"bounds"] [@"origin"] [@"x"] floatValue];
+                    float boundY = [myFace [@"bounds"] [@"origin"] [@"y"] floatValue];
+                    float boundW =  [myFace[@"bounds"][@"size"][@"width"] floatValue];
+                    float boundH = [myFace[@"bounds"][@"size"][@"height"] floatValue];
+                    float midFace = [myFace [@"bounds"] [@"origin"] [@"x"] floatValue] +  [myFace[@"bounds"][@"size"][@"width"] floatValue] /2;
+                    if (midFace < cameraWitdhResolution /2 ){
+                        boundX = cameraWitdhResolution - boundW - boundX;
+                    // } else {
+                    //     boundX = [myFace [@"bounds"] [@"origin"] [@"x"] floatValue];
+                    }
+                
+RCTLogInfo(@"RNCamera > takePicture myFace to crop: x=%f, y=%f,     width=%f, height=%f",
+   boundX,
+    [myFace [@"bounds"] [@"origin"] [@"y"] floatValue] , 
+    [myFace[@"bounds"][@"size"][@"width"] floatValue] , 
+    [myFace[@"bounds"][@"size"][@"height"] floatValue] );  //only warn or error get response from react log.                    
+                        cropRect = CGRectMake(boundX - 10, 
+                            boundY -10, 
+                            boundW +10, 
+                            boundH +10);
+                    
+                    // CGRect cropRect = CGRectMake( [myFace [@"bounds"] [@"origin"] [@"x"] floatValue] * xScale, 
+                    //     [myFace [@"bounds"] [@"origin"] [@"y"] floatValue] * yScale, 
+                    //     [myFace[@"bounds"][@"size"][@"width"] floatValue] * xScale, 
+                    //     [myFace[@"bounds"][@"size"][@"height"] floatValue] * yScale);
+                    // cropRect = CGRectMake(0,0,1000,2000);
+                    // CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
+                    // takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
+                    // //   RCTLogInfo(@"RNCamera > takePicture imageorientation: %@",takenImage.imageOrientation); 
+                    takenImage = [RNImageUtils cropImage:takenImage toRect:cropRect];
+                    // cropRect = CGRectMake(0, 0, CGImageGetWidth(takenImage.CGImage), CGImageGetHeight(takenImage.CGImage));
+                    // CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
+                    // takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
                 }
+ RCTLogInfo(@"RNCamera > takePicture cropImage > imageinfo: width=%f height=%f,  scale=%f",takenImage.size.width,takenImage.size.height,takenImage.scale);  //only warn or error get response from react log.
+// todo: rotate if needed
+
+
+
+        // RCTLogInfo(@"RNCamera > takePicture force mirrorImage");  //only warn or error get response from react log.
+        // if (![options[@"mirrorImage"] boolValue]) {
+        //             takenImage = [RNImageUtils mirrorImage:takenImage];
+        //         }
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
                 if ([options[@"forceUpOrientation"] boolValue]) {
                     takenImage = [RNImageUtils forceUpOrientation:takenImage];
                     resetOrientation = YES;
@@ -861,11 +999,12 @@ BOOL _sessionInterrupted = NO;
                     takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
                     resetOrientation = YES;
                 }
+ RCTLogInfo(@"RNCamera > takePicture scaleImage > imageinfo: width=%f height=%f,  scale=%f",takenImage.size.width,takenImage.size.height,takenImage.scale);  //only warn or error get response from react log.
 
                 // get image metadata so we can re-add it later
                 // make it mutable since we need to adjust quality/compression
                 CFDictionaryRef metaDict = CMCopyDictionaryOfAttachments(NULL, imageSampleBuffer, kCMAttachmentMode_ShouldPropagate);
-
+                 
                 CFMutableDictionaryRef mutableMetaDict = CFDictionaryCreateMutableCopy(NULL, 0, metaDict);
 
                 // release the meta dict now that we've copied it
@@ -965,7 +1104,7 @@ BOOL _sessionInterrupted = NO;
 
                 }
 // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"RNCamera > onPictureTaken : metadata = %@",metadata);  //only warn or error get response from react log.
+        RCTLogInfo(@"RNCamera > takePicture : metadata = %@",metadata);  //only warn or error get response from react log.
 // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
                 CGImageDestinationAddImage(destination, takenImage.CGImage, writeExif ? ((__bridge CFDictionaryRef) metadata) : nil);
 
@@ -985,7 +1124,7 @@ BOOL _sessionInterrupted = NO;
 
                     if (![options[@"doNotSave"] boolValue]) {
                         // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"RNCamera > onPictureTaken : will save to path %@",path);  //only warn or error get response from react log.
+        RCTLogInfo(@"RNCamera > takePicture : will save to path %@",path);  //only warn or error get response from react log.
 // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
                         response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
                     }
@@ -1011,6 +1150,9 @@ BOOL _sessionInterrupted = NO;
                     if (useFastMode) {
                         [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
                     } else {
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > takePicture : response %@",response);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
                         resolve(response);
                     }
                 }
@@ -1020,6 +1162,9 @@ BOOL _sessionInterrupted = NO;
 
                 // release image resource
                 @try{
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > takePicture : release resource");  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
                     CFRelease(destination);
                 }
                 @catch(NSException *exception){
@@ -2091,7 +2236,7 @@ BOOL _sessionInterrupted = NO;
                 dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
                                 forKey:(id)kCVPixelBufferPixelFormatTypeKey];
                 // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"rgboutputsettings: %@", rgbOutputSettings);  //only warn or error get response from react log.
+        RCTLogInfo(@"RNCamera > setupOrDisableFaceDetector  rgboutputsettings: %@", rgbOutputSettings);  //only warn or error get response from react log.
         // RCTLogInfo(@"face detection result: %@", result ) ;
 // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                    
             [self.videoDataOutput setVideoSettings:rgbOutputSettings];
@@ -2290,6 +2435,7 @@ BOOL _sessionInterrupted = NO;
         float scaleX = _previewLayer.frame.size.width / image.size.width;
         float scaleY = _previewLayer.frame.size.height / image.size.height;
 
+
         // find text features
         if (canSubmitForTextDetection) {
             _finishedReadingText = false;
@@ -2315,6 +2461,11 @@ BOOL _sessionInterrupted = NO;
                 // todo: change the function params so that it pass the face image data to that function
                 // or call the face recognition function
                 [self onFacesDetected:eventFace];
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+                self.facesDetected = faces;
+        RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceDetection save faces : %@",self.facesDetected);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
                 // stop detect
                 self.finishedDetectingFace = true;
             }];

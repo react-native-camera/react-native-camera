@@ -37,9 +37,12 @@
 // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     CGImageRef takenCGImage = image.CGImage;
     CGImageRef cropCGImage = CGImageCreateWithImageInRect(takenCGImage, rect);
-    image = [UIImage imageWithCGImage:cropCGImage scale:image.scale orientation:image.imageOrientation];
+    // image = [UIImage imageWithCGImage:cropCGImage scale:image.scale orientation:image.imageOrientation];
+    image = [UIImage imageWithCGImage:cropCGImage];
+
     CGImageRelease(cropCGImage);
     return image;
+
 }
         // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
         // todo: why flip the image?
@@ -96,6 +99,42 @@
     UIGraphicsEndImageContext();
     return [UIImage imageWithCGImage:[newImage CGImage]  scale:1.0 orientation:(newImage.imageOrientation)];
 }
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
++ (UIImage *)scaleImage:(UIImage *)image convertToSize:(CGSize)size {
+    RCTLogInfo(@"RNImageUtiles > scaleImage convertToSize ...."); 
+    // UIGraphicsBeginImageContext(size);
+      UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
+    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
+    UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();    
+    UIGraphicsEndImageContext();
+    return [UIImage imageWithCGImage:[destImage CGImage]  scale:1.0 orientation:(destImage.imageOrientation)];
+    // return destImage;
+
+    // CGFloat scale = MAX(size.width/image.size.width, size.height/image.size.height);
+    // CGFloat width = image.size.width * scale;
+    // CGFloat height = image.size.height * scale;
+    // CGRect imageRect = CGRectMake((size.width - width)/2.0f,
+    //                               (size.height - height)/2.0f,
+    //                               width,
+    //                               height);
+
+    // UIGraphicsBeginImageContextWithOptions(size, NO, 0);
+    // [image drawInRect:imageRect];
+    // UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    // UIGraphicsEndImageContext();
+    // return newImage;
+
+}
+
++ (UIImage *)scaleToRect:(UIImage *)image atX:(float)x atY:(float)y withSize:(CGSize)size {
+    RCTLogInfo(@"RNImageUtiles > scaleImage convertToSize ...."); 
+    UIGraphicsBeginImageContext(size);
+    [image drawInRect:CGRectMake(x, y, size.width, size.height)];
+    UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();    
+    UIGraphicsEndImageContext();
+    return destImage;
+}
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 
 + (UIImage *)forceUpOrientation:(UIImage *)image
 {
