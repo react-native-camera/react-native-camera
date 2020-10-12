@@ -18,6 +18,8 @@
 		422FD30525346AEB0069E2BC /* EventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422FD30425346AEB0069E2BC /* EventEmitter.swift */; };
 		422FD30825346B230069E2BC /* MyEventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422FD30725346B230069E2BC /* MyEventEmitter.swift */; };
 		422FD30B25346B710069E2BC /* MyEventEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 422FD30A25346B710069E2BC /* MyEventEmitter.m */; };
+		422FD5BB253477770069E2BC /* Event.m in Sources */ = {isa = PBXBuildFile; fileRef = 422FD5BA253477770069E2BC /* Event.m */; };
+		422FD7DD2534C75F0069E2BC /* mymodel.tflite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 422FD7DC2534C75F0069E2BC /* mymodel.tflite */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */; };
 		7162BE672013EAA100FE51FF /* RNCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFCC2013C7BF006EB75A /* RNCamera.m */; };
 		7162BE682013EAA400FE51FF /* RNCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFC92013C7AE006EB75A /* RNCameraManager.m */; };
@@ -32,12 +34,13 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		4107012D1ACB723B00C6AA39 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 8;
 			dstPath = "include/$(PRODUCT_NAME)";
-			dstSubfolderSpec = 16;
+			dstSubfolderSpec = 7;
 			files = (
+				422FD7DD2534C75F0069E2BC /* mymodel.tflite in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -61,6 +64,10 @@
 		422FD30425346AEB0069E2BC /* EventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEmitter.swift; sourceTree = "<group>"; };
 		422FD30725346B230069E2BC /* MyEventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEventEmitter.swift; sourceTree = "<group>"; };
 		422FD30A25346B710069E2BC /* MyEventEmitter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyEventEmitter.m; sourceTree = "<group>"; };
+		422FD5B9253477770069E2BC /* Event.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Event.h; sourceTree = "<group>"; };
+		422FD5BA253477770069E2BC /* Event.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Event.m; sourceTree = "<group>"; };
+		422FD739253491890069E2BC /* MyModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyModel.h; sourceTree = "<group>"; };
+		422FD7DC2534C75F0069E2BC /* mymodel.tflite */ = {isa = PBXFileReference; lastKnownFileType = file; path = mymodel.tflite; sourceTree = "<group>"; };
 		454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+ImageMetadata.m"; sourceTree = "<group>"; };
 		71C7FFC82013C7AE006EB75A /* RNCameraManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNCameraManager.h; sourceTree = "<group>"; };
 		71C7FFC92013C7AE006EB75A /* RNCameraManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNCameraManager.m; sourceTree = "<group>"; };
@@ -95,6 +102,7 @@
 		410701241ACB719800C6AA39 = {
 			isa = PBXGroup;
 			children = (
+				422FD7DC2534C75F0069E2BC /* mymodel.tflite */,
 				714166162013E1B600EE9FCC /* RN */,
 				714166152013E19D00EE9FCC /* RCT */,
 				410701301ACB723B00C6AA39 /* Products */,
@@ -133,6 +141,9 @@
 				1354413A2487FF390024C19F /* BarcodeDetectorManagerMlkit.m */,
 				422FD2FE25346A190069E2BC /* MyModel.swift */,
 				422FD30125346A930069E2BC /* MyModel.m */,
+				422FD739253491890069E2BC /* MyModel.h */,
+				422FD5B9253477770069E2BC /* Event.h */,
+				422FD5BA253477770069E2BC /* Event.m */,
 				F8393BEA21469C0000AB1995 /* RNSensorOrientationChecker.h */,
 				F8393BEB21469C0000AB1995 /* RNSensorOrientationChecker.m */,
 				422FD30425346AEB0069E2BC /* EventEmitter.swift */,
@@ -222,6 +233,7 @@
 				71C7FFD62013C824006EB75A /* RNFileSystem.m in Sources */,
 				A7D02BC9243627E100C0EDE6 /* RNCustomWhiteBalanceSettings.m in Sources */,
 				422FD30B25346B710069E2BC /* MyEventEmitter.m in Sources */,
+				422FD5BB253477770069E2BC /* Event.m in Sources */,
 				422FD30225346A930069E2BC /* MyModel.m in Sources */,
 				422FD30825346B230069E2BC /* MyEventEmitter.swift in Sources */,
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,

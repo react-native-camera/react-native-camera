@@ -13,6 +13,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "RNSensorOrientationChecker.h"
 #import "RNCustomWhiteBalanceSettings.h"
+#import "MyModel.h"
 
 @interface RNCamera ()
 
@@ -28,7 +29,7 @@
 @property (nonatomic, strong) id faceDetector;
 // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 @property (nonatomic, strong) NSMutableArray *facesDetected;
-
+@property (nonatomic, strong) id myInterpreter;
 // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   
 
 @property (nonatomic, strong) id barcodeDetector;
@@ -74,9 +75,13 @@ BOOL _sessionInterrupted = NO;
         self.sessionQueue = dispatch_queue_create("cameraQueue", DISPATCH_QUEUE_SERIAL);
         self.sensorOrientationChecker = [RNSensorOrientationChecker new];
         self.textDetector = [self createTextDetector];
+
         // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
         // todo: change to custom buider for face detector class
         self.faceDetector = [self createFaceDetectorMlKit];
+        // Class myModel = NSClassFromString(@"MyModel");
+        self.myInterpreter = [[MyModel alloc] init];
+      
         // init faces save
             self.facesDetected = [[NSMutableArray alloc] init];
         // todo: init custom face recognition
@@ -2434,7 +2439,10 @@ RCTLogInfo(@"RNCamera > takePicture myFace to crop: x=%f, y=%f,     width=%f, he
         // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
         float scaleX = _previewLayer.frame.size.width / image.size.width;
         float scaleY = _previewLayer.frame.size.height / image.size.height;
-
+ // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        RCTLogInfo(@"RNCamera > captureOutput > image size: width = %f, height = %f ", image.size.width, image.size.height);  //only warn or error get response from react log.
+        RCTLogInfo(@"RNCamera > captureOutput > _previewLayer size: width = %f, height = %f ", _previewLayer.frame.size.width, _previewLayer.frame.size.height);
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         // find text features
         if (canSubmitForTextDetection) {
@@ -2457,6 +2465,9 @@ RCTLogInfo(@"RNCamera > takePicture myFace to crop: x=%f, y=%f,     width=%f, he
             // todo: change the facedetectormanagerMlkit to return face image upon complete, so that we can go further
             [self.faceDetector findFacesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * faces) {
                 NSDictionary *eventFace = @{@"type" : @"face", @"faces" : faces};
+                
+                [self.myInterpreter runModelWithFrame:image scaleX:scaleX scaleY:scaleY ];
+                     RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceDetection myInterpreter runModelWithFrame");
                 // call onfacedetected from the react props component
                 // todo: change the function params so that it pass the face image data to that function
                 // or call the face recognition function
