@@ -13,6 +13,11 @@
 		2647D6742256BBE8007D2F91 /* RNFaceDetectorModuleMLKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 2647D6722256BBE8007D2F91 /* RNFaceDetectorModuleMLKit.m */; };
 		4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */; };
+		422FD2FF25346A190069E2BC /* MyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422FD2FE25346A190069E2BC /* MyModel.swift */; };
+		422FD30225346A930069E2BC /* MyModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 422FD30125346A930069E2BC /* MyModel.m */; };
+		422FD30525346AEB0069E2BC /* EventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422FD30425346AEB0069E2BC /* EventEmitter.swift */; };
+		422FD30825346B230069E2BC /* MyEventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422FD30725346B230069E2BC /* MyEventEmitter.swift */; };
+		422FD30B25346B710069E2BC /* MyEventEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 422FD30A25346B710069E2BC /* MyEventEmitter.m */; };
 		454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */; };
 		7162BE672013EAA100FE51FF /* RNCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFCC2013C7BF006EB75A /* RNCamera.m */; };
 		7162BE682013EAA400FE51FF /* RNCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFC92013C7AE006EB75A /* RNCameraManager.m */; };
@@ -50,6 +55,12 @@
 		410701481ACB732B00C6AA39 /* RCTCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCamera.m; sourceTree = "<group>"; };
 		410701491ACB732B00C6AA39 /* RCTCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTCameraManager.h; sourceTree = "<group>"; };
 		4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCameraManager.m; sourceTree = "<group>"; };
+		422FD2FD25346A190069E2BC /* RNCamera-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RNCamera-Bridging-Header.h"; sourceTree = "<group>"; };
+		422FD2FE25346A190069E2BC /* MyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyModel.swift; sourceTree = "<group>"; };
+		422FD30125346A930069E2BC /* MyModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyModel.m; sourceTree = "<group>"; };
+		422FD30425346AEB0069E2BC /* EventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEmitter.swift; sourceTree = "<group>"; };
+		422FD30725346B230069E2BC /* MyEventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEventEmitter.swift; sourceTree = "<group>"; };
+		422FD30A25346B710069E2BC /* MyEventEmitter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyEventEmitter.m; sourceTree = "<group>"; };
 		454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+ImageMetadata.m"; sourceTree = "<group>"; };
 		71C7FFC82013C7AE006EB75A /* RNCameraManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNCameraManager.h; sourceTree = "<group>"; };
 		71C7FFC92013C7AE006EB75A /* RNCameraManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNCameraManager.m; sourceTree = "<group>"; };
@@ -64,8 +75,8 @@
 		9FE592B11CA3CBF500788287 /* RCTSensorOrientationChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTSensorOrientationChecker.h; sourceTree = "<group>"; };
 		9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTSensorOrientationChecker.m; sourceTree = "<group>"; };
 		A7D02BC7243627E100C0EDE6 /* RNCustomWhiteBalanceSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNCustomWhiteBalanceSettings.h; sourceTree = "<group>"; };
-		C5627D22245D10A100B761CF /* NSMutableDictionary+ImageMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+ImageMetadata.h"; sourceTree = "<group>"; };
 		A7D02BC8243627E100C0EDE6 /* RNCustomWhiteBalanceSettings.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNCustomWhiteBalanceSettings.m; sourceTree = "<group>"; };
+		C5627D22245D10A100B761CF /* NSMutableDictionary+ImageMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+ImageMetadata.h"; sourceTree = "<group>"; };
 		F8393BEA21469C0000AB1995 /* RNSensorOrientationChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSensorOrientationChecker.h; sourceTree = "<group>"; };
 		F8393BEB21469C0000AB1995 /* RNSensorOrientationChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSensorOrientationChecker.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -120,8 +131,13 @@
 			children = (
 				135441392487FF390024C19F /* BarcodeDetectorManagerMlkit.h */,
 				1354413A2487FF390024C19F /* BarcodeDetectorManagerMlkit.m */,
+				422FD2FE25346A190069E2BC /* MyModel.swift */,
+				422FD30125346A930069E2BC /* MyModel.m */,
 				F8393BEA21469C0000AB1995 /* RNSensorOrientationChecker.h */,
 				F8393BEB21469C0000AB1995 /* RNSensorOrientationChecker.m */,
+				422FD30425346AEB0069E2BC /* EventEmitter.swift */,
+				422FD30725346B230069E2BC /* MyEventEmitter.swift */,
+				422FD30A25346B710069E2BC /* MyEventEmitter.m */,
 				2647D66F2256BBD5007D2F91 /* FaceDetectorManagerMlkit.h */,
 				2647D6702256BBD5007D2F91 /* FaceDetectorManagerMlkit.m */,
 				71C7FFD42013C824006EB75A /* RNFileSystem.h */,
@@ -138,6 +154,7 @@
 				71C7FFCC2013C7BF006EB75A /* RNCamera.m */,
 				A7D02BC7243627E100C0EDE6 /* RNCustomWhiteBalanceSettings.h */,
 				A7D02BC8243627E100C0EDE6 /* RNCustomWhiteBalanceSettings.m */,
+				422FD2FD25346A190069E2BC /* RNCamera-Bridging-Header.h */,
 			);
 			path = RN;
 			sourceTree = "<group>";
@@ -172,6 +189,7 @@
 				TargetAttributes = {
 					4107012E1ACB723B00C6AA39 = {
 						CreatedOnToolsVersion = 6.2;
+						LastSwiftMigration = 1200;
 					};
 				};
 			};
@@ -203,7 +221,11 @@
 				454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */,
 				71C7FFD62013C824006EB75A /* RNFileSystem.m in Sources */,
 				A7D02BC9243627E100C0EDE6 /* RNCustomWhiteBalanceSettings.m in Sources */,
+				422FD30B25346B710069E2BC /* MyEventEmitter.m in Sources */,
+				422FD30225346A930069E2BC /* MyModel.m in Sources */,
+				422FD30825346B230069E2BC /* MyEventEmitter.swift in Sources */,
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,
+				422FD30525346AEB0069E2BC /* EventEmitter.swift in Sources */,
 				4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */,
 				1354413B2487FF390024C19F /* BarcodeDetectorManagerMlkit.m in Sources */,
 				F8393BEC21469C0000AB1995 /* RNSensorOrientationChecker.m in Sources */,
@@ -213,6 +235,7 @@
 				9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */,
 				2647D6712256BBD5007D2F91 /* FaceDetectorManagerMlkit.m in Sources */,
 				71C7FFD32013C817006EB75A /* RNImageUtils.m in Sources */,
+				422FD2FF25346A190069E2BC /* MyModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,6 +298,7 @@
 					"$(SRCROOT)/../../react-native/React/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -282,6 +306,9 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "RN/RNCamera-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -323,12 +350,15 @@
 					"$(SRCROOT)/../../react-native/React/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "RN/RNCamera-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
