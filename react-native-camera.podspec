@@ -50,4 +50,5 @@ Pod::Spec.new do |s|
 
   s.dependency 'React-Core'
   s.dependency 'TensorFlowLiteSwift'
+  s.dependency 'TensorFlowLiteObjC'
 end
