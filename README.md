@@ -5,7 +5,7 @@
 We are looking for maintainers for this package, or to deprecated this in favor of expo-camera, it nobody want to maintain this
 
 ## Docs
-Follow our docs here [https://react-native-community.github.io/react-native-camera/](https://react-native-community.github.io/react-native-camera/)
+Follow our docs here [https://react-native-camera.github.io/react-native-camera/](https://react-native-camera.github.io/react-native-camera/)
 
 ## Sponsors
 
