@@ -879,6 +879,9 @@ BOOL _sessionInterrupted = NO;
                 CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
                 takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
 
+                   RCTLogInfo(@"RNCamera > takePicture convert to grayscale");
+                takenImage = [RNCameraUtils convertImageToGrayScale:takenImage];
+
 // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -972,19 +975,10 @@ RCTLogInfo(@"RNCamera > takePicture myFace to crop: x=%f, y=%f,     width=%f, he
                             boundY -10, 
                             boundW +10, 
                             boundH +10);
-                    
-                    // CGRect cropRect = CGRectMake( [myFace [@"bounds"] [@"origin"] [@"x"] floatValue] * xScale, 
-                    //     [myFace [@"bounds"] [@"origin"] [@"y"] floatValue] * yScale, 
-                    //     [myFace[@"bounds"][@"size"][@"width"] floatValue] * xScale, 
-                    //     [myFace[@"bounds"][@"size"][@"height"] floatValue] * yScale);
-                    // cropRect = CGRectMake(0,0,1000,2000);
-                    // CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
-                    // takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
-                    // //   RCTLogInfo(@"RNCamera > takePicture imageorientation: %@",takenImage.imageOrientation); 
-                    takenImage = [RNImageUtils cropImage:takenImage toRect:cropRect];
-                    // cropRect = CGRectMake(0, 0, CGImageGetWidth(takenImage.CGImage), CGImageGetHeight(takenImage.CGImage));
-                    // CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
-                    // takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
+                   
+                    // takenImage = [RNImageUtils cropImage:takenImage toRect:cropRect];
+
+                  
                 }
  RCTLogInfo(@"RNCamera > takePicture cropImage > imageinfo: width=%f height=%f,  scale=%f",takenImage.size.width,takenImage.size.height,takenImage.scale);  //only warn or error get response from react log.
 // todo: rotate if needed

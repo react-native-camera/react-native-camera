@@ -23,6 +23,6 @@
 
 // Text and Face detector utilities
 + (UIImage *)convertBufferToUIImage:(CMSampleBufferRef)sampleBuffer previewSize:(CGSize)previewSize position:(NSInteger)position;
-
++ (UIImage *)convertImageToGrayScale:(UIImage *)image;
 @end
 
