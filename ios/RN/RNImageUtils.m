@@ -201,6 +201,11 @@
 
     return outputUIImage;
 }
-
++ (NSData *)getArrayOfImage:(UIImage *)image
+{
+     // input data preparation...
+   NSData *inputData = [[NSMutableData alloc] initWithLength:41216]; ; // Should be initialized
+   return inputData;
+}
 @end
 

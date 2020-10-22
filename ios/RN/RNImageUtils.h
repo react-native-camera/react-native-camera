@@ -21,6 +21,6 @@
 + (UIImage *)scaleToRect:(UIImage *)image atX:(float)x atY:(float)y withSize:(CGRect)size ;
 + (void)updatePhotoMetadata:(CMSampleBufferRef)imageSampleBuffer withAdditionalData:(NSDictionary *)additionalData inResponse:(NSMutableDictionary *)response;
 + (UIImage *)invertColors:(UIImage *)image;
-
++ (NSData *)getArrayOfImage:(UIImage *)image;
 @end
 

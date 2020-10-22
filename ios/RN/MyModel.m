@@ -11,6 +11,7 @@
 #import <React/RCTEventDispatcher.h>
 #import <React/RCTEventEmitter.h>
 #import <React/RCTLog.h>
+#import "RNImageUtils.h"
 #import "TFLTensorFlowLite.h"
 @import TensorFlowLite;
 
@@ -220,7 +221,8 @@
 
    
   // input data preparation...
-   NSData *inputData = [[NSMutableData alloc] initWithLength:41216]; ; // Should be initialized
+  //  NSData *inputData = [[NSMutableData alloc] initWithLength:41216]; ; // Should be initialized
+   NSData *inputData = [RNImageUtils getArrayOfImage:uiImage];
 
   
 
