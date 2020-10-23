@@ -19,7 +19,7 @@
   @property(nonatomic, strong) TFLInterpreter *interpreter;
   - (instancetype)init;
   -(NSArray *)runModelWithFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float)scaleY ;
-
+ - (NSData *)ImagePreprocess:(UIImage *)faceImage    ;
   // -(BOOL)isRealDetector;
   // -(void)setTracking:(id)json queue:(dispatch_queue_t)sessionQueue;
   // -(void)setLandmarksMode:(id)json queue:(dispatch_queue_t)sessionQueue;

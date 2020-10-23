@@ -220,9 +220,10 @@
 
 
    
-  // input data preparation...
+    // input data preparation...
   //  NSData *inputData = [[NSMutableData alloc] initWithLength:41216]; ; // Should be initialized
-   NSData *inputData = [RNImageUtils getArrayOfImage:uiImage];
+  //  NSData *inputData = [RNImageUtils getArrayOfImage:uiImage];
+    NSData *inputData = [self ImagePreprocess:uiImage];
 
   
 
@@ -267,5 +268,16 @@
   
 }
 
-
+  - (NSData *)ImagePreprocess:(UIImage *)faceImage               
+{
+  int faceX = 0;
+  int faceY = 0;
+  int width = 112;
+  int height = 112;
+    CGRect cropRect = CGRectMake(faceX, faceY, width,height);
+    faceImage = [RNImageUtils cropImage:faceImage toRect:cropRect];
+    faceImage = [RNImageUtils convertImageToGrayScale:faceImage] ;
+    NSData *imageData = [RNImageUtils getArrayOfImage:faceImage];
+  return imageData
+}
 @end
