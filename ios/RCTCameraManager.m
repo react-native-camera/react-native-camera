@@ -975,12 +975,12 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
 
             NSFileManager *fileManager = [NSFileManager defaultManager];
 
-            long index = photo.photoCount - 1;
+            long index = self.sources.count + 1;
 
-            NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSString stringWithFormat:@"%ld_9", photo.photoCount] stringByAppendingString:[[NSUUID UUID] UUIDString]]] stringByAppendingPathExtension:@"jpg"];
+            NSString *fullPath = [[documentsDirectory stringByAppendingPathComponent:[[NSString stringWithFormat:@"%ld_9", index] stringByAppendingString:[[NSUUID UUID] UUIDString]]] stringByAppendingPathExtension:@"jpg"];
 
             [fileManager createFileAtPath:fullPath contents:resizedImageData attributes:nil];
-            [self.sources insertObject:fullPath atIndex:index];
+            [self.sources addObject:fullPath];
 
             NSLog(@"Path %@", fullPath);
             NSLog(@"NB captures: %lu", (unsigned long)self.sources.count);
@@ -1105,14 +1105,14 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
 
       int itemsRemaining = [self.exposures count];
       NSLog(@"bracket: nb of exposures -> %lu", itemsRemaining);
-      int j = 0;
 
       while(itemsRemaining) {
-          NSRange range = NSMakeRange(j, MIN(self.stillImageOutput.maxBracketedCapturePhotoCount, itemsRemaining));
+          NSUInteger length = MIN(self.stillImageOutput.maxBracketedCapturePhotoCount, itemsRemaining);
+          NSUInteger startIndex = itemsRemaining - length;
+          NSRange range = NSMakeRange(startIndex, length);
           NSArray *subarray = [self.exposures subarrayWithRange:range];
           [exposuresBrackets addObject:subarray];
           itemsRemaining-=range.length;
-          j+=range.length;
       }
 
       self.exposureBrackets = exposuresBrackets;
