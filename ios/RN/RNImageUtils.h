@@ -22,5 +22,12 @@
 + (void)updatePhotoMetadata:(CMSampleBufferRef)imageSampleBuffer withAdditionalData:(NSDictionary *)additionalData inResponse:(NSMutableDictionary *)response;
 + (UIImage *)invertColors:(UIImage *)image;
 + (NSData *)getArrayOfImage:(UIImage *)image;
++ (void)printData:(UInt8*)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow;
++ (void)rawDataCopyWithImage:(UIImage*)image;
++ (void)rawDataCopyWithImageRef:(CGImageRef )imageRef width:(NSInteger) imgWidth height:(NSInteger )imgHeight  ;
++ (void)rawDataDrawWithImage:(UIImage*)image;
++ (UIImage *)convertImageToGrayScale:(UIImage *)image;
++ (UIImage*)loadImage;
+
 @end
 
