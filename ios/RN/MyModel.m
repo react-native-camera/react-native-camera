@@ -197,7 +197,7 @@
 
 
         NSData *imageData = UIImagePNGRepresentation(uiImage);
-        NSLog(@"image data length : %d, width=%d, height=%d", [imageData length],width,height );
+        NSLog(@"runModelWithFrame > image data length : %d, width=%d, height=%d, scale=%f x %f", [imageData length],width,height,scaleX,scaleY );
         
   // [RNImageUtils rawDataCopyWithImage:uiImage];
             
@@ -235,9 +235,9 @@
   //  NSData *originData = inputData;
   //  NSData *inputData = [RNImageUtils getArrayOfImage:uiImage];
   RCTLogInfo(@"MyModel > runModelWithFrame > imagePreProcess...");
-    NSData *inputData = [self ImagePreprocess:uiImage];
-    RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
-    NSData *originData = [self OriginalImageData:uiImage];
+  NSData *inputData = [self ImagePreprocess:uiImage];
+  RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
+  NSData *originData = [self OriginalImageData:uiImage];
 
   
 
@@ -283,6 +283,45 @@
 
   
 }
+
+  - (NSArray *)runModelWithFrame:(UIImage *)uiImage scaleX:(float)scaleX scaleY:(float)scaleY faces: (NSDictionary *)eventFace             
+{
+    CGImageRef imageRef = [uiImage CGImage];
+    NSUInteger width = CGImageGetWidth(imageRef);
+    NSUInteger height = CGImageGetHeight(imageRef);
+    NSData *imageData = UIImagePNGRepresentation(uiImage);
+    NSLog(@"runModelWithFrame > image data length : %d, width=%d, height=%d, scale=%f x %f", [imageData length],width,height,scaleX,scaleY );
+    // NSLog(@"runModelWithFrame > faces: %@", eventFace);
+    // if ([eventFace forKey:@"faces"])
+    if ([eventFace[@"faces"] count] < 1) {
+       NSLog(@"runModelWithFrame > emptyface");
+      return imageData;
+    }
+    else {
+      NSDictionary *firstFace = eventFace[@"faces"][0] ;
+      //  NSLog(@"runModelWithFrame > faces: %@", eventFace);
+        // NSLog(@"runModelWithFrame > first face: %@", firstFace);
+        int faceX = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"x"] floatValue];
+        int faceY = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
+        int faceWidth = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
+        int faceHeight = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
+        NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
+        //crop image to the face location
+        uiImage = [RNImageUtils cropImage:uiImage toRect:CGRectMake(faceX, faceY, faceWidth + faceX, faceHeight+faceY)];
+        // scale to input size
+        // uiImage = [RNImageUtils scaleImage:uiImage convertToSize:CGSizeMake(112, 112) ];
+        // print out to check
+        CGImageRef imageRef = [uiImage CGImage];
+        NSUInteger width = CGImageGetWidth(imageRef);
+        NSUInteger height = CGImageGetHeight(imageRef);
+        NSData *imageData = UIImagePNGRepresentation(uiImage);
+        NSLog(@"runModelWithFrame > crop image data length = %d, width=%d, height=%d", [imageData length],width,height);
+        [RNImageUtils rawDataDrawWithImage:uiImage ];
+    }
+    
+    return imageData;
+}
+
 - (void)findFacesInFrame:(UIImage *)uiImage
                   scaleX:(float)scaleX
                   scaleY:(float)scaleY
@@ -305,31 +344,40 @@
   }
   - (NSData *)ImagePreprocess:(UIImage *)faceImage               
 {
+   RCTLogInfo(@"MyModel > imagePreProcess...");
   int faceX = 0;
   int faceY = 0;
   int width = 112;
   int height = 112;
-    CGRect cropRect = CGRectMake(faceX, faceY, width,height);
-    faceImage = [RNImageUtils cropImage:faceImage toRect:cropRect];
+    // CGRect cropRect = CGRectMake(faceX, faceY, width,height);
+    //  RCTLogInfo(@"MyModel > imagePreProcess > cropImage");
+    // faceImage = [RNImageUtils cropImage:faceImage toRect:cropRect];
+     RCTLogInfo(@"MyModel > imagePreProcess > convertImageToGrayScale");
     faceImage = [RNImageUtils convertImageToGrayScale:faceImage] ;
+    // [RNImageUtils rawDataCopyWithImage:uiImage];
+    RCTLogInfo(@"MyModel > imagePreProcess > getArrayOfImage");
     NSData *imageData = [RNImageUtils getArrayOfImage:faceImage];
   return imageData;
 }
 
   - (NSData *)OriginalImageData :(UIImage *)faceImage                
 {
+  RCTLogInfo(@"MyModel > OriginalImageData...");
 // get image from a location, preprocess and return
   NSMutableData *originalImageData = [[NSMutableData alloc] initWithLength:1] ; // demo data
-  int maxLength = 41216; //92*112*4-bytes
+  // int maxLength = 41216; //92*112*4-bytes; float	4 byte
+  int maxLength = 50176; //112*112*4-bytes; float	4 byte
   int faceX = 0;
   int faceY = 0;
   int width = 112;
-  int height = 92;
+  int height = 112;
     CGRect cropRect = CGRectMake(faceX, faceY, width,height);
+      RCTLogInfo(@"MyModel > cropImage 112*112 ...");
     faceImage = [RNImageUtils cropImage:faceImage toRect:cropRect];
     // faceImage = [RNImageUtils scaleImage:faceImage convertToSize: CGSizeMake(width, height)];
+      RCTLogInfo(@"MyModel > convertImageToGrayScale...");
     faceImage = [RNImageUtils convertImageToGrayScale:faceImage] ;
-     [RNImageUtils rawDataCopyWithImage:faceImage];
+    //  [RNImageUtils rawDataCopyWithImage:faceImage];
      NSData *imageData = UIImagePNGRepresentation(faceImage);
       NSUInteger len = [imageData length];
      Byte *byteData= (Byte*)malloc(len);
@@ -351,7 +399,7 @@
   int last = maxLength - [originalImageData length];
   [originalImageData appendBytes:[imageData bytes] length:last  ];
   NSData * result = originalImageData;
-  free(byteData);
+  // free(byteData);
   RCTLogInfo(@"MyModel > OriginalImageData result bytes length  ...%d",[result length]);
   return result;
 }
