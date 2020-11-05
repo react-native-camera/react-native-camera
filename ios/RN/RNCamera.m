@@ -880,9 +880,19 @@ BOOL _sessionInterrupted = NO;
                 CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
                 takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
 
+            // [self.faceDetector findFacesInFrame:takenImage scaleX:scaleX scaleY:scaleY completed:^(NSArray * faces) {
+            //     NSDictionary *eventFace = @{@"type" : @"face", @"faces" : faces};
+                
+                
+            //          RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceDetection myInterpreter runModelWithFrame");
+            //     [self.myInterpreter runModelWithFrame:image scaleX:scaleX scaleY:scaleY faces:eventFace];
 
-                  RCTLogInfo(@"RNCamera > takePicture convert to grayscale");
-                takenImage = [RNImageUtils convertImageToGrayScale:takenImage];
+            //     self.finishedDetectingFace = true;
+            // }];
+
+
+
+
 
                 // apply other image settings
                 bool resetOrientation = NO;
@@ -907,49 +917,40 @@ BOOL _sessionInterrupted = NO;
                 // float yScale = 3088/ cameraHeightResolution;
                 // float xScale = 2316 / cameraWitdhResolution;
                 // RCTLogInfo(@"RNCamera > takePicture previewWidth:%f x previewHeight:$f",previewWidth,previewHeight);
-                if (myFace){
+                // if (myFace){
                   
-                    // myx = [ [[myFace valueForKey:@"bounds" ] valueForKey:@"origin"] valueForKey:@"x" ];
-                     RCTLogInfo(@"RNCamera > takePicture myFace: %@",myFace[@"bounds"]);  //only warn or error get response from react log.
-                    float boundX = [myFace [@"bounds"] [@"origin"] [@"x"] floatValue];
-                    float boundY = [myFace [@"bounds"] [@"origin"] [@"y"] floatValue];
-                    float boundW =  [myFace[@"bounds"][@"size"][@"width"] floatValue];
-                    float boundH = [myFace[@"bounds"][@"size"][@"height"] floatValue];
-                    float midFace = [myFace [@"bounds"] [@"origin"] [@"x"] floatValue] +  [myFace[@"bounds"][@"size"][@"width"] floatValue] /2;
-                    if (midFace < cameraWitdhResolution /2 ){
-                        boundX = cameraWitdhResolution - boundW - boundX;
-                    // } else {
-                    //     boundX = [myFace [@"bounds"] [@"origin"] [@"x"] floatValue];
-                    }
+                //     // myx = [ [[myFace valueForKey:@"bounds" ] valueForKey:@"origin"] valueForKey:@"x" ];
+                //      RCTLogInfo(@"RNCamera > takePicture myFace: %@",myFace[@"bounds"]);  //only warn or error get response from react log.
+                //     float boundX = [myFace [@"bounds"] [@"origin"] [@"x"] floatValue];
+                //     float boundY = [myFace [@"bounds"] [@"origin"] [@"y"] floatValue];
+                //     float boundW =  [myFace[@"bounds"][@"size"][@"width"] floatValue];
+                //     float boundH = [myFace[@"bounds"][@"size"][@"height"] floatValue];
+                //     float midFace = [myFace [@"bounds"] [@"origin"] [@"x"] floatValue] +  [myFace[@"bounds"][@"size"][@"width"] floatValue] /2;
+                //     if (midFace < cameraWitdhResolution /2 ){
+                //         boundX = cameraWitdhResolution - boundW - boundX;
+                //     // } else {
+                //     //     boundX = [myFace [@"bounds"] [@"origin"] [@"x"] floatValue];
+                //     }
                 
-RCTLogInfo(@"RNCamera > takePicture myFace to crop: x=%f, y=%f,     width=%f, height=%f",
-   boundX,
-    [myFace [@"bounds"] [@"origin"] [@"y"] floatValue] , 
-    [myFace[@"bounds"][@"size"][@"width"] floatValue] , 
-    [myFace[@"bounds"][@"size"][@"height"] floatValue] );  //only warn or error get response from react log.                    
-                        cropRect = CGRectMake(boundX - 10, 
-                            boundY -10, 
-                            boundW +10, 
-                            boundH +10);
-                    
-                    // CGRect cropRect = CGRectMake( [myFace [@"bounds"] [@"origin"] [@"x"] floatValue] * xScale, 
-                    //     [myFace [@"bounds"] [@"origin"] [@"y"] floatValue] * yScale, 
-                    //     [myFace[@"bounds"][@"size"][@"width"] floatValue] * xScale, 
-                    //     [myFace[@"bounds"][@"size"][@"height"] floatValue] * yScale);
-                    // cropRect = CGRectMake(0,0,1000,2000);
-                    // CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
-                    // takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
-                    // //   RCTLogInfo(@"RNCamera > takePicture imageorientation: %@",takenImage.imageOrientation); 
-
-
-                    // takenImage = [RNImageUtils cropImage:takenImage toRect:cropRect];
-
-
-
-                    // cropRect = CGRectMake(0, 0, CGImageGetWidth(takenImage.CGImage), CGImageGetHeight(takenImage.CGImage));
-                    // CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
-                    // takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
+                    RCTLogInfo(@"RNCamera > takePicture myFace to crop: x=%f, y=%f,     width=%f, height=%f",
+                    boundX,
+                        [myFace [@"bounds"] [@"origin"] [@"y"] floatValue] , 
+                        [myFace[@"bounds"][@"size"][@"width"] floatValue] , 
+                        [myFace[@"bounds"][@"size"][@"height"] floatValue] );  //only warn or error get response from react log.                    
+                                            cropRect = CGRectMake(boundX - 10, 
+                                                boundY -10, 
+                                                boundW +10, 
+                                                boundH +10);
+                            int faceX = (int) [[[myFace valueForKeyPath:@"bounds.origin"] objectForKey:@"x"] floatValue];
+                            int faceY = (int) [[[myFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
+                            int faceWidth = (int) [[[myFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
+                            int faceHeight = (int) [[[myFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
+                            NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
                 }
+    
+
+
+    // [RNImageUtils cropImage:uiImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
  RCTLogInfo(@"RNCamera > takePicture cropImage > imageinfo: width=%f height=%f,  scale=%f",takenImage.size.width,takenImage.size.height,takenImage.scale);  //only warn or error get response from react log.
 // todo: rotate if needed
 
@@ -2179,6 +2180,8 @@ RCTLogInfo(@"RNCamera > takePicture myFace to crop: x=%f, y=%f,     width=%f, he
 }
 
 # pragma mark - FaceDetectorMlkit
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+// todo: inject swift class to here ....
 -(id)createFaceDetectorMlKit
 {
     Class faceDetectorManagerClassMlkit = NSClassFromString(@"FaceDetectorManagerMlkit");
@@ -2247,7 +2250,9 @@ RCTLogInfo(@"RNCamera > takePicture myFace to crop: x=%f, y=%f,     width=%f, he
 {
     [self.faceDetector setClassificationMode:requestedClassifications queue:self.sessionQueue];
 }
-
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: response to onFacesDetectedevent; this is the function from react props, 
+        // 
 - (void)onFacesDetected:(NSDictionary *)event
 {
     if (_onFacesDetected && _session) {
@@ -2383,8 +2388,17 @@ RCTLogInfo(@"RNCamera > takePicture myFace to crop: x=%f, y=%f,     width=%f, he
     BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
     BOOL canSubmitForBarcodeDetection = self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
     if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection) {
+        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        //todo: what is size and position for? to draw face rectangle? nope
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
         NSInteger position = self.videoCaptureDeviceInput.device.position;
+
+
+    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        // RCTLogInfo(@"previewSize: width = %f, height = %f at position = %d", previewSize.width, previewSize.height,position);  //only warn or error get response from react log.
+        // RCTLogInfo(@"face detection result: %@", result ) ;
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
         // image from buffer camera, with utilities
         UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize position:position];
         // take care of the fact that preview dimensions differ from the ones of the image that we submit for text detection
@@ -2405,19 +2419,31 @@ RCTLogInfo(@"RNCamera > takePicture myFace to crop: x=%f, y=%f,     width=%f, he
                 self.finishedReadingText = true;
             }];
         }
+
+
         // find face features
         if (canSubmitForFaceDetection) {
             _finishedDetectingFace = false;
             self.startFace = [NSDate date];
+                    // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
             // detect face in frame: faces returned as array of object
+            // todo: change the facedetectormanagerMlkit to return face image upon complete, so that we can go further
             [self.faceDetector findFacesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * faces) {
                 NSDictionary *eventFace = @{@"type" : @"face", @"faces" : faces};
-                //run model with frame and face detected
-                RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceDetection myInterpreter runModelWithFrame");
+                
+                
+                     RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceDetection myInterpreter runModelWithFrame");
                 [self.myInterpreter runModelWithFrame:image scaleX:scaleX scaleY:scaleY faces:eventFace];
                 // [self.myInterpreter runModelWithFrame:image scaleX:scaleX scaleY:scaleY ];
+                // call onfacedetected from the react props component
+                // todo: change the function params so that it pass the face image data to that function
+                // or call the face recognition function
                 [self onFacesDetected:eventFace];
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
                 self.facesDetected = faces;
+        // RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceDetection save faces : %@",self.facesDetected);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
                 // stop detect
                 RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceDetection finishDetectingFace ");
                 self.finishedDetectingFace = true;

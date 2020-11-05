@@ -274,99 +274,37 @@
   return newImage;
 }
 
-+ (void)rawDataCopyWithImageRef:(CGImageRef )imageRef width:(NSInteger) imgWidth height:(NSInteger )imgHeight 
-{
-    CGDataProviderRef dataProvider = CGImageGetDataProvider(imageRef);
-    
-    __block CFDataRef dataRef;
-    dataRef = CGDataProviderCopyData(dataProvider);
-    
-    UInt8* buffer = (UInt8*)CFDataGetBytePtr(dataRef);
-    size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
-    RCTLogInfo(@"RNImageUtils > rawDataCopyWithImageRef > print buffer data... width*height*bytesPerRow = %d * %d * %d",
-        imgWidth,imgHeight,bytesPerRow);
-    [self printData:buffer width:imgWidth height:imgHeight bytesPerRow:bytesPerRow];
-   
-
-}
 
 
 
 + (NSData *)getArrayOfImage:(UIImage *)image
 {
-//     NSMutableData *result = [[NSMutableData alloc] initWithLength:1] ; // demo data
-//    int maxLength = 50176; //112*112*4-bytes; float	4 byte
-//   int faceX = 0;
-//   int faceY = 0;
-//   int width = 112;
-//   int height = 112;
-//     CGRect cropRect = CGRectMake(faceX, faceY, width,height);
-//     // image = [self cropImage:image toRect:cropRect];
-
-
-//     // [self rawDataCopyWithImage:image];
+     RCTLogInfo(@"RNImageUtils > getArrayOfImage ...");
+    CGImageRef imageRef = [image CGImage];
+    NSUInteger width = CGImageGetWidth(imageRef);
+    NSUInteger height = CGImageGetHeight(imageRef);
     
-//      NSData *imageData = UIImagePNGRepresentation(image);
-//       NSUInteger len = [imageData length];
-//      Byte *byteData= (Byte*)malloc(len);
-//      memcpy(byteData, [imageData bytes], len);
-//      RCTLogInfo(@"RNImageUtils > getArrayOfImage image bytes length  ...%d",len);
-//   for (int i = 0; i < 2; i++)
-//   {
-//       // [originalImageData replaceBytesInRange:NSMakeRange(i*len, i*len+len) withBytes:(const void *)byteData length:len ];
-//     [result appendBytes:[imageData bytes] length:len ];
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    unsigned char *rawData = (unsigned char*) calloc(height * width * 4, sizeof(unsigned char));
+    NSUInteger bytesPerPixel = 4;
+    NSUInteger bytesPerRow = bytesPerPixel * width;
+    NSUInteger bitsPerComponent = 8;
+    CGContextRef context = CGBitmapContextCreate(rawData, width, height,
+                                                 bitsPerComponent, bytesPerRow, colorSpace,
+                                                 kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
+    //  [self printData:rawData width:width height:height bytesPerRow:bytesPerRow];
+    NSData * data = [self RGBImageDataToGrayScaleArray:rawData width:width height:height bytesPerRow:bytesPerRow];
 
-
-  
-//   }
-//   int last = maxLength - [result length];
-//   [result appendBytes:[imageData bytes] length:last  ];
-//     [result resetBytesInRange:NSMakeRange(0, 50176)];
-//   free(byteData);
-//    return result;
-
-
-
-
-//  CGRect imageRect = CGRectMake(0, 0, image.size.width, image.size.height);
- 
-//   // Grayscale color space
-//   CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
- 
-//   // Create bitmap content with current image size and grayscale colorspace 8 bpp,  
-//   CGContextRef context = CGBitmapContextCreate(nil, image.size.width, image.size.height, 8, 0, colorSpace, kCGImageAlphaNone);
- 
-//   // Draw image into current context, with specified rectangle
-//   // using previously defined context (with grayscale colorspace)
-//   CGContextDrawImage(context, imageRect, [image CGImage]);
- 
-//   // Create bitmap image info from pixel data in current context
-//   CGImageRef imageRef = CGBitmapContextCreateImage(context);
-
-
-
-  CGImageRef  imageRef = image.CGImage;
-
-      CGDataProviderRef dataProvider = CGImageGetDataProvider(imageRef);
-    
-    __block CFDataRef dataRef;
-    dataRef = CGDataProviderCopyData(dataProvider);
-    
-    UInt8* buffer = (UInt8*)CFDataGetBytePtr(dataRef);
-    size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
-     RCTLogInfo(@"RNImageUtils > getArrayOfImage > CGColorSpaceCreateDeviceGray print buffer data... width*height*bytesPerRow = %d * %d * %d",
-        image.size.width,image.size.height,bytesPerRow);
-    [self rawDataCopyWithImageRef:imageRef width:image.size.width height:image.size.height];
-    NSMutableData *result = [self RGBImageDataToGrayScaleArray:buffer width:image.size.width height:image.size.height bytesPerRow:bytesPerRow];
-
-  // Release colorspace, context and bitmap information
-//   CGColorSpaceRelease(colorSpace);
-//   CGContextRelease(context);
-  CFRelease(imageRef);
-  //todo : remove this after debug
-  result = [[NSMutableData alloc] initWithLength:50176] ;
-  [result resetBytesInRange:NSMakeRange(0, 50176)];
-  return result;
+    // NSUInteger size = [data length] / sizeof(float);
+    NSUInteger size = [data length] ;
+    RCTLogInfo(@" gray rawData size: %d",size);
+    rawData = (unsigned char*) [data bytes];
+    // [self printGrayData:rawData width:width height:height bytesPerRow:bytesPerRow];
+    CGColorSpaceRelease(colorSpace);
+    CGContextRelease(context);
+    // free(rawData);  
+    return data;
 }
 
 
@@ -416,9 +354,10 @@
     // [self printGrayData:rawData width:width height:height bytesPerRow:bytesPerRow];
     CGColorSpaceRelease(colorSpace);
     CGContextRelease(context);
-    // free(rawData);
-  
+    // free(rawData);  
 }
+
+
 //  CGImageRef  imageRef = image.CGImage;
 // size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
 + (void)printData:(UInt8*)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow
