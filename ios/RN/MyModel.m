@@ -235,9 +235,9 @@
   //  NSData *originData = inputData;
   //  NSData *inputData = [RNImageUtils getArrayOfImage:uiImage];
   RCTLogInfo(@"MyModel > runModelWithFrame > imagePreProcess...");
-  NSData *inputData = [self ImagePreprocess:uiImage];
-  RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
-  NSData *originData = [self OriginalImageData:uiImage];
+    NSData *inputData = [self ImagePreprocess:uiImage];
+    RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
+    NSData *originData = [self OriginalImageData:uiImage];
 
   
 
@@ -306,16 +306,25 @@
         int faceWidth = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
         int faceHeight = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
         NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
-        //crop image to the face location
-        uiImage = [RNImageUtils cropImage:uiImage toRect:CGRectMake(faceX, faceY, faceWidth + faceX, faceHeight+faceY)];
-        // scale to input size
-        // uiImage = [RNImageUtils scaleImage:uiImage convertToSize:CGSizeMake(112, 112) ];
-        // print out to check
-        CGImageRef imageRef = [uiImage CGImage];
-        NSUInteger width = CGImageGetWidth(imageRef);
-        NSUInteger height = CGImageGetHeight(imageRef);
+        // uiImage = [RNImageUtils cropImage:uiImage toRect:CGRectMake(faceX, faceY, faceWidth , faceHeight)];
+        // NSLog(@"runModelWithFrame > crop image to face width=%d, height=%d", 
+        //       CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
+        int maxLength = faceHeight;
+        if (faceHeight < faceWidth) {
+          maxLength = faceWidth;
+        }
+        uiImage = [RNImageUtils cropImage:uiImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
+        NSLog(@"runModelWithFrame > crop image to face width=%d, height=%d", 
+              CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
+        uiImage = [RNImageUtils scaleImage:uiImage convertToSize:CGSizeMake(112, 112) ];
+        // uiImage = [RNImageUtils scaleImage:uiImage convertToSize:CGSizeMake(37, 37) ];
+        
+        // CGImageRef imageRef = [uiImage CGImage];
+        // NSUInteger width = CGImageGetWidth(imageRef);
+        // NSUInteger height = CGImageGetHeight(imageRef);
         NSData *imageData = UIImagePNGRepresentation(uiImage);
-        NSLog(@"runModelWithFrame > crop image data length = %d, width=%d, height=%d", [imageData length],width,height);
+        NSLog(@"runModelWithFrame > scaled image data length = %d, width=%d, height=%d", 
+              [imageData length],CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
         [RNImageUtils rawDataDrawWithImage:uiImage ];
     }
     

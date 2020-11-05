@@ -44,6 +44,35 @@
     CGImageRelease(cropCGImage);
     return image;
 
+    //  CGRect rect = CGRectMake(xCo,yCo,width,height);
+
+    //     // Create bitmap image from original image data,
+    //     // using rectangle to specify desired crop area
+
+    //     UIImage *image = [UIImage imageNamed:@"abc.png"];
+
+
+    //     CGImageRef imageRef = CGImageCreateWithImageInRect([image CGImage], rect);
+
+    //     UIImage *img = [UIImage imageWithCGImage:imageRef]; 
+
+    //     CGImageRelease(imageRef);
+
+
+    //     // Create and show the new image from bitmap data
+
+    //     imageView = [[UIImageView alloc] initWithImage:img];
+
+    //     [imageView setFrame:CGRectMake(110, 600, width, height)];
+
+    //     imageView.image=img;
+
+    //     [[self view] addSubview:imageView];
+
+    //     [imageView release];
+
+
+
 }
         // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
         // todo: why flip the image?
@@ -101,14 +130,23 @@
     return [UIImage imageWithCGImage:[newImage CGImage]  scale:1.0 orientation:(newImage.imageOrientation)];
 }
 // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// + (UIImage *)scaleImage:(UIImage *)image convertToSize:(CGSize)size {
+//     // RCTLogInfo(@"RNImageUtiles > scaleImage convertToSize ...."); 
+//     UIGraphicsBeginImageContext(size);
+//     UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
+//     [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
+//     UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();    
+//     UIGraphicsEndImageContext();
+//     return [UIImage imageWithCGImage:[destImage CGImage]  scale:1.0 orientation:(destImage.imageOrientation)];
+// }
 + (UIImage *)scaleImage:(UIImage *)image convertToSize:(CGSize)size {
     // RCTLogInfo(@"RNImageUtiles > scaleImage convertToSize ...."); 
     UIGraphicsBeginImageContext(size);
-    UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
+    // UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
     [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
     UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();    
     UIGraphicsEndImageContext();
-    return [UIImage imageWithCGImage:[destImage CGImage]  scale:1.0 orientation:(destImage.imageOrientation)];
+    return destImage;
 }
 
 + (UIImage *)scaleToRect:(UIImage *)image atX:(float)x atY:(float)y withSize:(CGSize)size {
@@ -145,16 +183,24 @@
     }
     
     NSDictionary *gps = metadata[(NSString *)kCGImagePropertyGPSDictionary];
-
+            // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+        // todo: there is GPS info in the image metadata
     if (gps) {
         for (NSString *gpsKey in gps) {
             metadata[[@"GPS" stringByAppendingString:gpsKey]] = gps[gpsKey];
         }
     }
-
+// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        // RCTLogInfo(@"RNImageUtiles > updatePhotoMetadata metadata: %@",metadata);  //only warn or error get response from react log.
+// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     response[@"exif"] = metadata;
 }
-
+// ========================================== <<<<<<<<<<<<<<<<<<<<<<<<<   check from here
+// todo: check if can convert to grayscale
+// https://stackoverflow.com/questions/4627840/changing-rgb-color-image-to-grayscale-image-using-objective-c
+// https://stackoverflow.com/questions/20149708/convert-an-array-to-a-one-channel-image
+// https://stackoverflow.com/questions/39221007/how-to-convert-uiimagepicker-image-into-a-byte-array-objective-c/39221412#39221412
+// https://stackoverflow.com/questions/33768066/get-pixel-data-as-array-from-uiimage-cgimage-in-swift
 + (UIImage *)invertColors:(UIImage *)image
 {
 // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -183,12 +229,25 @@
 + (UIImage *) convertImageToGrayScale:(UIImage *)image
 {
     //   RCTLogInfo(@"RNImageUtils > convertImageToGrayScale > input image data...");
+//   [self rawDataCopyWithImageRef:image.CGImage width:image.size.width height:image.size.height];
+//   [self rawDataDrawWithImage:image];
+//   [self rawDataCopyWithImage:image];
+  
   // Create image rectangle with current image width/height
   CGRect imageRect = CGRectMake(0, 0, image.size.width, image.size.height);
+ 
   // Grayscale color space
   CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
+ 
   // Create bitmap content with current image size and grayscale colorspace 8 bpp,  
+  //bitsPerComponent The number of bits to use for each component of a pixel in memory. 
+//For example, for a 32-bit pixel (4*8 bits; 4 byte) format and an RGB color space, you would specify a value of 8 bits per component.
+//graycontext = CGContextRef CGBitmapContextCreate(
+        //void *data, size_t width, size_t height, 
+        //size_t bitsPerComponent, size_t bytesPerRow (0 for automatically.), 
+        //CGColorSpaceRef space, uint32_t bitmapInfo);
   CGContextRef context = CGBitmapContextCreate(nil, image.size.width, image.size.height, 8, 0, colorSpace, kCGImageAlphaNone);
+ 
   // Draw image into current context, with specified rectangle
   // using previously defined context (with grayscale colorspace)
   CGContextDrawImage(context, imageRect, [image CGImage]);
@@ -196,17 +255,21 @@
   // Create bitmap image info from pixel data in current context
   CGImageRef imageRef = CGBitmapContextCreateImage(context);
   // todo: output this imageRef, including size, to be converted into array
-  RCTLogInfo(@"RNImageUtils > convertImageToGrayScale > print grayscale imageRef bitmap...");
+       RCTLogInfo(@"RNImageUtils > convertImageToGrayScale > print grayscale imageRef bitmap...");
+//   [self rawDataCopyWithImageRef:imageRef width:image.size.width height:image.size.height];
+ // yGray = 0.2126 * R + 0.7152 * G + 0.0722 * B
   // Create a new UIImage object  
   UIImage *newImage = [UIImage imageWithCGImage:imageRef];
     // todo: output this imageRef, including size, to be converted into array
-  RCTLogInfo(@"RNImageUtils > convertImageToGrayScale > print grayscale newgrayImage bitmap...");
+       RCTLogInfo(@"RNImageUtils > convertImageToGrayScale > print grayscale newgrayImage bitmap...");
 //   [self rawDataCopyWithImageRef:newImage.CGImage width:image.size.width height:image.size.height];
-  [self rawDataCopyWithImage:newImage];
+   [self rawDataCopyWithImage:newImage];
+//  [self rawDataDrawWithImage:newImage ];
   // Release colorspace, context and bitmap information
   CGColorSpaceRelease(colorSpace);
   CGContextRelease(context);
   CFRelease(imageRef);
+ 
   // Return the new grayscale image
   return newImage;
 }
@@ -231,6 +294,57 @@
 
 + (NSData *)getArrayOfImage:(UIImage *)image
 {
+//     NSMutableData *result = [[NSMutableData alloc] initWithLength:1] ; // demo data
+//    int maxLength = 50176; //112*112*4-bytes; float	4 byte
+//   int faceX = 0;
+//   int faceY = 0;
+//   int width = 112;
+//   int height = 112;
+//     CGRect cropRect = CGRectMake(faceX, faceY, width,height);
+//     // image = [self cropImage:image toRect:cropRect];
+
+
+//     // [self rawDataCopyWithImage:image];
+    
+//      NSData *imageData = UIImagePNGRepresentation(image);
+//       NSUInteger len = [imageData length];
+//      Byte *byteData= (Byte*)malloc(len);
+//      memcpy(byteData, [imageData bytes], len);
+//      RCTLogInfo(@"RNImageUtils > getArrayOfImage image bytes length  ...%d",len);
+//   for (int i = 0; i < 2; i++)
+//   {
+//       // [originalImageData replaceBytesInRange:NSMakeRange(i*len, i*len+len) withBytes:(const void *)byteData length:len ];
+//     [result appendBytes:[imageData bytes] length:len ];
+
+
+  
+//   }
+//   int last = maxLength - [result length];
+//   [result appendBytes:[imageData bytes] length:last  ];
+//     [result resetBytesInRange:NSMakeRange(0, 50176)];
+//   free(byteData);
+//    return result;
+
+
+
+
+//  CGRect imageRect = CGRectMake(0, 0, image.size.width, image.size.height);
+ 
+//   // Grayscale color space
+//   CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
+ 
+//   // Create bitmap content with current image size and grayscale colorspace 8 bpp,  
+//   CGContextRef context = CGBitmapContextCreate(nil, image.size.width, image.size.height, 8, 0, colorSpace, kCGImageAlphaNone);
+ 
+//   // Draw image into current context, with specified rectangle
+//   // using previously defined context (with grayscale colorspace)
+//   CGContextDrawImage(context, imageRect, [image CGImage]);
+ 
+//   // Create bitmap image info from pixel data in current context
+//   CGImageRef imageRef = CGBitmapContextCreateImage(context);
+
+
+
   CGImageRef  imageRef = image.CGImage;
 
       CGDataProviderRef dataProvider = CGImageGetDataProvider(imageRef);
@@ -276,7 +390,6 @@
     return buffer;
 }
 
-// get raw bitmap data from UIImage sung a context to draw imageRef
 + (void)rawDataDrawWithImage:(UIImage*)image
 {
     RCTLogInfo(@"RNImageUtils > rawDataDrawWithImage ...");
@@ -294,18 +407,20 @@
                                                  kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
     CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
     //  [self printData:rawData width:width height:height bytesPerRow:bytesPerRow];
-    // get array data as grayscale image
     NSData * data = [self RGBImageDataToGrayScaleArray:rawData width:width height:height bytesPerRow:bytesPerRow];
-    // print out the data for testing
-    NSUInteger size = [data length] / sizeof(float);
+
+    // NSUInteger size = [data length] / sizeof(float);
+    NSUInteger size = [data length] ;
     RCTLogInfo(@" gray rawData size: %d",size);
     rawData = (unsigned char*) [data bytes];
-    [self printGrayData:rawData width:width height:height bytesPerRow:bytesPerRow];
+    // [self printGrayData:rawData width:width height:height bytesPerRow:bytesPerRow];
     CGColorSpaceRelease(colorSpace);
-    CGContextRelease(context);  
+    CGContextRelease(context);
+    // free(rawData);
+  
 }
-
-
+//  CGImageRef  imageRef = image.CGImage;
+// size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
 + (void)printData:(UInt8*)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow
 {
     RCTLogInfo(@"RNImageUtils > printData ...");
@@ -333,15 +448,23 @@
     {
         for (NSInteger y=0; y<height; y++)
         {
+            // ピクセルのポインタを取得する
             UInt8*  pixelPtr = data + (int)(y) * bytesPerRow + (int)(x) * 4;
+            
+            // 色情報を取得する
+            // UInt8 r = *(pixelPtr + 2);  // 赤
+            // UInt8 g = *(pixelPtr + 1);  // 緑
+            // UInt8 b = *(pixelPtr + 0);  // 青
+            
+            // NSLog(@"x:%ld y:%ld gray=%d", (long)x, (long)y, *pixelPtr);
             float fReadValue = 0;
             memcpy(&fReadValue, pixelPtr, sizeof(fReadValue));
+           
+            
             NSLog(@"x:%ld y:%ld gray=%f", (long)x, (long)y, fReadValue);
         }
     }
 }
-
-// convert image rawdata into grayscale data
 + (NSData *) RGBImageDataToGrayScaleArray:(UInt8 *)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow
 {
     NSMutableData *result = [[NSMutableData alloc] initWithLength:0] ; // demo data
@@ -361,6 +484,10 @@
             // float yGray = (0.2126 * r + 0.7152 * g + 0.0722 * b );
             float yGray = (0.2126 * r + 0.7152 * g + 0.0722 * b )/255;
             [result appendBytes:&yGray length:sizeof(float)];
+                //  NSMutableData *result = [[NSMutableData alloc] initWithLength:1] ; // demo data
+    // float z = // yGray = 0.2126 * R + 0.7152 * G + 0.0722 * B
+    // normalize: z/255
+    // [result appendBytes:&z length:sizeof(float)];
         }
     }
     return result;
@@ -370,7 +497,7 @@
 {
     return [UIImage imageNamed:@"colorpattern.jpg"];
 }
-
+// https://gist.github.com/3ign0n/43dd799c33331c3de603 
 + (void)testGetPixelDataFromCGImageRefExample {
     
     UIImage *image = [self loadImage];
