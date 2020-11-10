@@ -7,20 +7,18 @@
 #import "TFLTensorFlowLite.h"
 @import TensorFlowLite;
 
-// @interface FaceDetectorManagerMlkit ()
-// @property(nonatomic, strong) FIRVisionFaceDetector *faceRecognizer;
-// @property(nonatomic, strong) FIRVision *vision;
-// @property(nonatomic, strong) FIRVisionFaceDetectorOptions *options;
-// @property(nonatomic, assign) float scaleX;
-// @property(nonatomic, assign) float scaleY;
-// @end
 @interface MyModel : NSObject
   // typedef void(^postRecognitionBlock)(NSArray *faces);
   @property(nonatomic, strong) TFLInterpreter *interpreter;
   - (instancetype)init;
   -(NSArray *)runModelWithFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float)scaleY ;
- - (NSData *)ImagePreprocess:(UIImage *)faceImage    ;
-  // -(BOOL)isRealDetector;
+
+  - (NSArray *)runModelWithFrame:(UIImage *)uiImage scaleX:(float)scaleX scaleY:(float)scaleY faces: (NSDictionary *)eventFace ;
+  typedef void(^postRecognitionBlock)(NSArray *faces);
+ -(void)findFacesInFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float)scaleY completed:(postRecognitionBlock)completed;
+  - (NSData *)ImagePreprocess:(UIImage *)faceImage  scaleX:(float)scaleX scaleY:(float)scaleY faces: (NSDictionary *)eventFace    ;
+
+  -(BOOL)isRealVerifier;
   // -(void)setTracking:(id)json queue:(dispatch_queue_t)sessionQueue;
   // -(void)setLandmarksMode:(id)json queue:(dispatch_queue_t)sessionQueue;
   // -(void)setPerformanceMode:(id)json queue:(dispatch_queue_t)sessionQueue;

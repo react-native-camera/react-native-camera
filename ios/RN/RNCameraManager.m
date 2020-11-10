@@ -18,9 +18,10 @@ RCT_EXPORT_VIEW_PROPERTY(onAudioInterrupted, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onAudioConnected, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onMountError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
-// ========================================== <<<<<<<<<<<<<<<<<<<<<<<<<   check from here
-// todo: onfacedetected funtions.. ....
 RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
+// new: onFacesVerified
+RCT_EXPORT_VIEW_PROPERTY(onFacesVerified, RCTDirectEventBlock);
+
 RCT_EXPORT_VIEW_PROPERTY(onGoogleVisionBarcodesDetected, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPictureTaken, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
@@ -95,7 +96,7 @@ RCT_EXPORT_VIEW_PROPERTY(onTouch, RCTDirectEventBlock);
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"onCameraReady", @"onAudioInterrupted", @"onAudioConnected", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureTaken", @"onPictureSaved", @"onRecordingStart", @"onRecordingEnd", @"onTextRecognized", @"onGoogleVisionBarcodesDetected", @"onSubjectAreaChanged",@"onTouch"];
+    return @[@"onCameraReady", @"onAudioInterrupted", @"onAudioConnected", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onFacesVerified", @"onPictureTaken", @"onPictureSaved", @"onRecordingStart", @"onRecordingEnd", @"onTextRecognized", @"onGoogleVisionBarcodesDetected", @"onSubjectAreaChanged",@"onTouch"];
 }
 
 + (NSDictionary *)validCodecTypes
@@ -279,6 +280,12 @@ RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
     view.canDetectFaces = [RCTConvert BOOL:json];
     [view setupOrDisableFaceDetector];
 }
+// added
+RCT_CUSTOM_VIEW_PROPERTY(faceVerifyEnabled, BOOL, RNCamera)
+{
+    view.canVerifyFaces = [RCTConvert BOOL:json];
+    [view setupOrDisableFaceVerifier];
+}
 
 RCT_CUSTOM_VIEW_PROPERTY(trackingEnabled, BOOL, RNCamera)
 {
@@ -363,9 +370,7 @@ RCT_REMAP_METHOD(takePicture,
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"RNCameraManager > takePicture ");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        RCTLogInfo(@"RNCameraManager remapmethod > takePicture ");  
     [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
         RNCamera *view = viewRegistry[reactTag];
         if (![view isKindOfClass:[RNCamera class]]) {

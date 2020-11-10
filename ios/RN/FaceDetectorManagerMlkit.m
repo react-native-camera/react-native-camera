@@ -24,9 +24,6 @@
     self.vision = [FIRVision vision];
     self.faceRecognizer = [_vision faceDetectorWithOptions:_options];
   }
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        // RCTLogInfo(@"FaceDetectorManagerMlkit > init");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
   return self;
 }
 
@@ -55,9 +52,6 @@
 
 - (void)setTracking:(id)json queue:(dispatch_queue_t)sessionQueue 
 {
-    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        // RCTLogInfo(@"FaceDetectorManagerMlkit > setTracking");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
   BOOL requestedValue = [RCTConvert BOOL:json];
   if (requestedValue != self.options.trackingEnabled) {
       if (sessionQueue) {
@@ -72,9 +66,9 @@
 
 - (void)setLandmarksMode:(id)json queue:(dispatch_queue_t)sessionQueue 
 {
-    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        // RCTLogInfo(@"FaceDetectorManagerMlkit > setLandmarksMode");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
+    
+        // RCTLogInfo(@"FaceDetectorManagerMlkit > setLandmarksMode");  
+
     long requestedValue = [RCTConvert NSInteger:json];
     if (requestedValue != self.options.landmarkMode) {
         if (sessionQueue) {
@@ -122,40 +116,15 @@
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
-
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    // int control = 1;
         NSData *imageData = UIImagePNGRepresentation(uiImage);
-        // NSLog(@"image data length : %d", [imageData length] );
-        // RCTLogError(@"image data length : %d", [imageData length] );
-        // RCTLogWarn(@"image data length : %d", [imageData length] );
-        // RCTLog(@"image data length : %d", [imageData length] ) ;
-        // RCTLogTrace(@"image data length : %d", [imageData length] );
-        // RCTLogInfo(@"image data length : %d", [imageData length] ) ;
-        // RCTLogAdvice(@"advice from bridge", @"image data length : %d", [imageData length] );
         NSString * base64String = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-       
-        // NSLog((@"%@", base64String));
-        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Test Message" 
-        //                                           message:@"This is a sample"
-        //                                          delegate:nil
-        //                                 cancelButtonTitle:@"OK" 
-        //                                 otherButtonTitles:nil];
-        // [alert show];
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"FaceDetectorManagerMlkit > findFacesInFrame");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
-
-
-
+        RCTLogInfo(@"FaceDetectorManagerMlkit > findFacesInFrame");  
 
     FIRVisionImage *image = [[FIRVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
     [_faceRecognizer
      processImage:image
      completion:^(NSArray<FIRVisionFace *> *faces, NSError *error) {
-
          if (error != nil || faces == nil ) {
              completed(emptyResult);
          } else {
@@ -163,35 +132,18 @@
              if (size < 1) {
                  completed(emptyResult);
              }
-                     // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
-        // todo: call other function, with the image included to cut faces, return face image or recognize image.
-            //  completed([self processFaces:faces]);
-            completed([self processFaces:faces inImage:base64String]);
+             completed([self processFaces:faces]);
+            // completed([self processFaces:faces inImage:base64String]);
          }
      }];
 }
 - (NSArray *)processFaces:(NSArray *)faces inImage:(NSString *)base64Image
 {
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"FaceDetectorManagerMlkit > processFaces");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     NSMutableArray *result = [[NSMutableArray alloc] init];
-
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-            // NSLog(@"faces length : %d", [faces count] );
-        // RCTLogError(@"faces length : %d", [faces count]  );
-        // RCTLogWarn(@"faces length : %d", [faces count] );
-        // RCTLog(@"faces length : %d", [faces count]  ) ;
-        // RCTLogTrace(@"faces length : %d", [faces count] );
         RCTLogInfo(@"faces length : %d", [faces count]  ) ;
-        // RCTLogAdvice(@"advice from bridge", @"faces length : %d", [faces count] );
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     for (FIRVisionFace *face in faces) {
         NSMutableDictionary *resultDict =
         [[NSMutableDictionary alloc] initWithCapacity:20];
-        //set imaga data
-        // [resultDict setObject:base64Image forKey:@"base64"];
-        // Boundaries of face in image
         NSDictionary *bounds = [self processBounds:face.frame];
         [resultDict setObject:bounds forKey:@"bounds"];
         // If face tracking was enabled:
@@ -300,34 +252,14 @@
         }
         [result addObject:resultDict];
     }
-    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        // NSLog(@"face detection result: %@", result);
-        // RCTLogError(@"face detection result: %@", result );
-        RCTLogInfo(@"processFaces result: %@", result);  //only warn or error get response from react log.
-        // RCTLog(@"face detection result: %@", result) ;
-        // RCTLogTrace(@"face detection result: %@", result);
-        // RCTLogInfo(@"face detection result: %@", result ) ;
-        // RCTLogAdvice(@"advice from bridge", @"face detection result: %@", result );
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+        RCTLogInfo(@"processFaces result: %@", result); 
     return result;
 }
 - (NSArray *)processFaces:(NSArray *)faces 
 {
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"FaceDetectorManagerMlkit > processFaces");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
+        RCTLogInfo(@"FaceDetectorManagerMlkit > processFaces"); 
     NSMutableArray *result = [[NSMutableArray alloc] init];
-
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-            // NSLog(@"faces length : %d", [faces count] );
-        // RCTLogError(@"faces length : %d", [faces count]  );
-        // RCTLogWarn(@"faces length : %d", [faces count] );
-        // RCTLog(@"faces length : %d", [faces count]  ) ;
-        // RCTLogTrace(@"faces length : %d", [faces count] );
         RCTLogInfo(@"faces length : %d", [faces count]  ) ;
-        // RCTLogAdvice(@"advice from bridge", @"faces length : %d", [faces count] );
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     for (FIRVisionFace *face in faces) {
         NSMutableDictionary *resultDict =
         [[NSMutableDictionary alloc] initWithCapacity:20];
@@ -440,25 +372,13 @@
         }
         [result addObject:resultDict];
     }
-    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        // NSLog(@"face detection result: %@", result);
-        // RCTLogError(@"face detection result: %@", result );
-        RCTLogInfo(@"processFaces result: %@", result);  //only warn or error get response from react log.
-        // RCTLog(@"face detection result: %@", result) ;
-        // RCTLogTrace(@"face detection result: %@", result);
-        // RCTLogInfo(@"face detection result: %@", result ) ;
-        // RCTLogAdvice(@"advice from bridge", @"face detection result: %@", result );
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+        RCTLogInfo(@"processFaces result: %@", result); 
     return result;
 }
 
 - (NSDictionary *)processBounds:(CGRect)bounds 
 {
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"FaceDetectorManagerMlkit > processBounds");  //only warn or error get response from react log.
-// todo: check scaleX, scaleY
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        RCTLogInfo(@"FaceDetectorManagerMlkit > processBounds");  
     float width = bounds.size.width * _scaleX;
     float height = bounds.size.height * _scaleY;
     float originX = bounds.origin.x * _scaleX;
@@ -491,9 +411,6 @@
 @implementation FaceDetectorManagerMlkit
 
 - (instancetype)init {
-    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"FaceDetectorManagerMlkit > init without FirebaseMLVision");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     self = [super init];
     return self;
 }
@@ -507,9 +424,7 @@
                        scaleY:(float)scaleY
                        completed:(void (^)(NSArray *result))completed;
 {
-    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"FaceDetectorManagerMlkit > findFacesInFrame (without FirebaseMLVision) : not yet implemented");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
+        RCTLogInfo(@"FaceDetectorManagerMlkit > findFacesInFrame (without FirebaseMLVision) : not yet implemented");  
     NSLog(@"FaceDetector not installed, stub used!");
     NSArray *features = @[ @"Error, Face Detector not installed" ];
     return features;

@@ -47,6 +47,9 @@
 @property(nonatomic, assign) BOOL isDetectingFaces;
 @property(nonatomic, assign) BOOL canReadText;
 @property(nonatomic, assign) BOOL canDetectFaces;
+// added
+@property(nonatomic, assign) BOOL canVerifyFaces;
+
 @property(nonatomic, assign) BOOL canDetectBarcodes;
 @property(nonatomic, assign) BOOL captureAudio;
 @property(nonatomic, assign) BOOL keepAudioSession;
@@ -102,6 +105,9 @@
 - (void)setupOrDisableBarcodeScanner;
 - (void)setupOrDisableTextDetector;
 - (void)setupOrDisableFaceDetector;
+//added
+- (void)setupOrDisableFaceVerifier;
+
 - (void)setupOrDisableBarcodeDetector;
 - (void)onReady:(NSDictionary *)event;
 - (void)onMountingError:(NSDictionary *)event;

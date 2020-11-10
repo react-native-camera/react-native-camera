@@ -29,50 +29,14 @@
     UIGraphicsEndImageContext();
     return image;
 }
-// ========================================== <<<<<<<<<<<<<<<<<<<<<<<<<   check from here
-// todo: use this to crop face
+
 + (UIImage *)cropImage:(UIImage *)image toRect:(CGRect)rect
 {
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        // RCTLogInfo(@"RNImageUtiles > cropImage");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     CGImageRef takenCGImage = image.CGImage;
     CGImageRef cropCGImage = CGImageCreateWithImageInRect(takenCGImage, rect);
-    // image = [UIImage imageWithCGImage:cropCGImage scale:image.scale orientation:image.imageOrientation];
     image = [UIImage imageWithCGImage:cropCGImage];
-
     CGImageRelease(cropCGImage);
     return image;
-
-    //  CGRect rect = CGRectMake(xCo,yCo,width,height);
-
-    //     // Create bitmap image from original image data,
-    //     // using rectangle to specify desired crop area
-
-    //     UIImage *image = [UIImage imageNamed:@"abc.png"];
-
-
-    //     CGImageRef imageRef = CGImageCreateWithImageInRect([image CGImage], rect);
-
-    //     UIImage *img = [UIImage imageWithCGImage:imageRef]; 
-
-    //     CGImageRelease(imageRef);
-
-
-    //     // Create and show the new image from bitmap data
-
-    //     imageView = [[UIImageView alloc] initWithImage:img];
-
-    //     [imageView setFrame:CGRectMake(110, 600, width, height)];
-
-    //     imageView.image=img;
-
-    //     [[self view] addSubview:imageView];
-
-    //     [imageView release];
-
-
-
 }
         // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
         // todo: why flip the image?
@@ -95,30 +59,42 @@
         default:
             break;
     }
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        // RCTLogInfo(@"RNImageUtiles > mirrorImage flip image");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     UIImage * flippedImage = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:flippedOrientation];
     return flippedImage;
 }
-// ========================================== <<<<<<<<<<<<<<<<<<<<<<<<<   check from here
-// todo: use this to save image to file path
+
+//todo: check 
+// NSString \*path = nil;
+
+//             if (options[@"path"]) {
+//                 path = options[@"path"];
+//             }
+//             else{
+//                 path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+//             }
+//             UIImage *generatedPhoto = [RNImageUtils generatePhotoOfSize:CGSizeMake(200, 200)];
+
+//              [view onPictureTaken:@{}];
+
+//             NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
+//             if (![options[@"doNotSave"] boolValue]) {
+//                 response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
+//             }
+//             response[@"width"] = @(generatedPhoto.size.width);
+//             response[@"height"] = @(generatedPhoto.size.height);
+//             if ([options[@"base64"] boolValue]) {
+//                 response[@"base64"] = [photoData base64EncodedStringWithOptions:0];
+//             }
 + (NSString *)writeImage:(NSData *)image toPath:(NSString *)path
 {
     [image writeToFile:path atomically:YES];
     NSURL *fileURL = [NSURL fileURLWithPath:path];
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        // RCTLogInfo(@"RNImageUtiles > writeImage success path = %@",path);  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     return [fileURL absoluteString];
 }
-// ========================================== <<<<<<<<<<<<<<<<<<<<<<<<<   check from here
-// todo: use this to scale image to the size we want
+
+
 + (UIImage *) scaleImage:(UIImage*)image toWidth:(NSInteger)width
 {
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        // RCTLogInfo(@"RNImageUtiles > scaleImage toWidth: %d",width);  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     width /= [UIScreen mainScreen].scale; // prevents image from being incorrectly resized on retina displays
     float scaleRatio = (float) width / (float) image.size.width;
     CGSize size = CGSizeMake(width, roundf(image.size.height * scaleRatio));
@@ -129,16 +105,7 @@
     UIGraphicsEndImageContext();
     return [UIImage imageWithCGImage:[newImage CGImage]  scale:1.0 orientation:(newImage.imageOrientation)];
 }
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// + (UIImage *)scaleImage:(UIImage *)image convertToSize:(CGSize)size {
-//     // RCTLogInfo(@"RNImageUtiles > scaleImage convertToSize ...."); 
-//     UIGraphicsBeginImageContext(size);
-//     UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
-//     [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
-//     UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();    
-//     UIGraphicsEndImageContext();
-//     return [UIImage imageWithCGImage:[destImage CGImage]  scale:1.0 orientation:(destImage.imageOrientation)];
-// }
+
 + (UIImage *)scaleImage:(UIImage *)image convertToSize:(CGSize)size {
     // RCTLogInfo(@"RNImageUtiles > scaleImage convertToSize ...."); 
     UIGraphicsBeginImageContext(size);
@@ -157,7 +124,7 @@
     UIGraphicsEndImageContext();
     return destImage;
 }
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
 
 + (UIImage *)forceUpOrientation:(UIImage *)image
 {
@@ -183,29 +150,18 @@
     }
     
     NSDictionary *gps = metadata[(NSString *)kCGImagePropertyGPSDictionary];
-            // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+            
         // todo: there is GPS info in the image metadata
     if (gps) {
         for (NSString *gpsKey in gps) {
             metadata[[@"GPS" stringByAppendingString:gpsKey]] = gps[gpsKey];
         }
     }
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        // RCTLogInfo(@"RNImageUtiles > updatePhotoMetadata metadata: %@",metadata);  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     response[@"exif"] = metadata;
 }
-// ========================================== <<<<<<<<<<<<<<<<<<<<<<<<<   check from here
-// todo: check if can convert to grayscale
-// https://stackoverflow.com/questions/4627840/changing-rgb-color-image-to-grayscale-image-using-objective-c
-// https://stackoverflow.com/questions/20149708/convert-an-array-to-a-one-channel-image
-// https://stackoverflow.com/questions/39221007/how-to-convert-uiimagepicker-image-into-a-byte-array-objective-c/39221412#39221412
-// https://stackoverflow.com/questions/33768066/get-pixel-data-as-array-from-uiimage-cgimage-in-swift
+
 + (UIImage *)invertColors:(UIImage *)image
 {
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        // RCTLogInfo(@"RNImageUtiles > invertColors");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
     CIImage *inputCIImage = [[CIImage alloc] initWithImage:image];
 
     // Invert colors
@@ -225,14 +181,9 @@
     return outputUIImage;
 }
 
-
+// todo: check if useless: remove this
 + (UIImage *) convertImageToGrayScale:(UIImage *)image
 {
-    //   RCTLogInfo(@"RNImageUtils > convertImageToGrayScale > input image data...");
-//   [self rawDataCopyWithImageRef:image.CGImage width:image.size.width height:image.size.height];
-//   [self rawDataDrawWithImage:image];
-//   [self rawDataCopyWithImage:image];
-  
   // Create image rectangle with current image width/height
   CGRect imageRect = CGRectMake(0, 0, image.size.width, image.size.height);
  
@@ -254,14 +205,10 @@
  
   // Create bitmap image info from pixel data in current context
   CGImageRef imageRef = CGBitmapContextCreateImage(context);
-  // todo: output this imageRef, including size, to be converted into array
-       RCTLogInfo(@"RNImageUtils > convertImageToGrayScale > print grayscale imageRef bitmap...");
-//   [self rawDataCopyWithImageRef:imageRef width:image.size.width height:image.size.height];
- // yGray = 0.2126 * R + 0.7152 * G + 0.0722 * B
+  
   // Create a new UIImage object  
   UIImage *newImage = [UIImage imageWithCGImage:imageRef];
-    // todo: output this imageRef, including size, to be converted into array
-       RCTLogInfo(@"RNImageUtils > convertImageToGrayScale > print grayscale newgrayImage bitmap...");
+    
 //   [self rawDataCopyWithImageRef:newImage.CGImage width:image.size.width height:image.size.height];
    [self rawDataCopyWithImage:newImage];
 //  [self rawDataDrawWithImage:newImage ];
@@ -276,7 +223,7 @@
 
 
 
-
+// get grayscale array data from image
 + (NSData *)getArrayOfImage:(UIImage *)image
 {
      RCTLogInfo(@"RNImageUtils > getArrayOfImage ...");
@@ -293,10 +240,9 @@
                                                  bitsPerComponent, bytesPerRow, colorSpace,
                                                  kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
     CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
-    //  [self printData:rawData width:width height:height bytesPerRow:bytesPerRow];
-    NSData * data = [self RGBImageDataToGrayScaleArray:rawData width:width height:height bytesPerRow:bytesPerRow];
 
-    // NSUInteger size = [data length] / sizeof(float);
+    // convert to grayscale
+    NSData * data = [self RGBImageDataToGrayScaleArray:rawData width:width height:height bytesPerRow:bytesPerRow];
     NSUInteger size = [data length] ;
     RCTLogInfo(@" gray rawData size: %d",size);
     rawData = (unsigned char*) [data bytes];
@@ -309,7 +255,7 @@
 
 
 
-
+// demo function to get raw data from image using provider
 + (UInt8 *)rawDataCopyWithImage:(UIImage*)image
 {
     RCTLogInfo(@"RNImageUtils > rawDataCopyWithImage ...");
@@ -321,13 +267,14 @@
     
     UInt8* buffer = (UInt8*)CFDataGetBytePtr(dataRef);
     size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
-
+    // print it out
     [self printData:buffer width:image.size.width height:image.size.height bytesPerRow:bytesPerRow];
     
     CFRelease(dataRef);
     return buffer;
 }
 
+// demo function to get raw data from image by draw it out with pixel bitmap context
 + (void)rawDataDrawWithImage:(UIImage*)image
 {
     RCTLogInfo(@"RNImageUtils > rawDataDrawWithImage ...");
@@ -343,23 +290,31 @@
     CGContextRef context = CGBitmapContextCreate(rawData, width, height,
                                                  bitsPerComponent, bytesPerRow, colorSpace,
                                                  kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
-    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
-    //  [self printData:rawData width:width height:height bytesPerRow:bytesPerRow];
-    NSData * data = [self RGBImageDataToGrayScaleArray:rawData width:width height:height bytesPerRow:bytesPerRow];
 
+
+
+    // after fill/draw image in the context, rawData will be filled
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
+    // print it out
+    //  [self printData:rawData width:width height:height bytesPerRow:bytesPerRow];
+    // get grayscale array data from that raw data
+    NSData * data = [self RGBImageDataToGrayScaleArray:rawData width:width height:height bytesPerRow:bytesPerRow];
     // NSUInteger size = [data length] / sizeof(float);
     NSUInteger size = [data length] ;
     RCTLogInfo(@" gray rawData size: %d",size);
     rawData = (unsigned char*) [data bytes];
     // [self printGrayData:rawData width:width height:height bytesPerRow:bytesPerRow];
+
+
+
     CGColorSpaceRelease(colorSpace);
-    CGContextRelease(context);
-    // free(rawData);  
+    CGContextRelease(context); 
 }
 
 
 //  CGImageRef  imageRef = image.CGImage;
 // size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
+// print RGB values from image data 
 + (void)printData:(UInt8*)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow
 {
     RCTLogInfo(@"RNImageUtils > printData ...");
@@ -380,6 +335,7 @@
     }
 }
 
+// print grayscale array data 
  + (void)printGrayData:(UInt8 *)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow
 {
     RCTLogInfo(@"RNImageUtils > printGrayData ...");
@@ -387,23 +343,14 @@
     {
         for (NSInteger y=0; y<height; y++)
         {
-            // ピクセルのポインタを取得する
             UInt8*  pixelPtr = data + (int)(y) * bytesPerRow + (int)(x) * 4;
-            
-            // 色情報を取得する
-            // UInt8 r = *(pixelPtr + 2);  // 赤
-            // UInt8 g = *(pixelPtr + 1);  // 緑
-            // UInt8 b = *(pixelPtr + 0);  // 青
-            
-            // NSLog(@"x:%ld y:%ld gray=%d", (long)x, (long)y, *pixelPtr);
             float fReadValue = 0;
             memcpy(&fReadValue, pixelPtr, sizeof(fReadValue));
-           
-            
             NSLog(@"x:%ld y:%ld gray=%f", (long)x, (long)y, fReadValue);
         }
     }
 }
+// get grayscale array data, converted from RGB image data
 + (NSData *) RGBImageDataToGrayScaleArray:(UInt8 *)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow
 {
     NSMutableData *result = [[NSMutableData alloc] initWithLength:0] ; // demo data
@@ -412,21 +359,12 @@
     {
         for (NSInteger y=0; y<height; y++)
         {
-            // ピクセルのポインタを取得する
             UInt8*  pixelPtr = data + (int)(y) * bytesPerRow + (int)(x) * 4;
-            
-            // 色情報を取得する
             UInt8 r = *(pixelPtr + 2);  // 赤
             UInt8 g = *(pixelPtr + 1);  // 緑
             UInt8 b = *(pixelPtr + 0);  // 青
-            
-            // float yGray = (0.2126 * r + 0.7152 * g + 0.0722 * b );
             float yGray = (0.2126 * r + 0.7152 * g + 0.0722 * b )/255;
             [result appendBytes:&yGray length:sizeof(float)];
-                //  NSMutableData *result = [[NSMutableData alloc] initWithLength:1] ; // demo data
-    // float z = // yGray = 0.2126 * R + 0.7152 * G + 0.0722 * B
-    // normalize: z/255
-    // [result appendBytes:&z length:sizeof(float)];
         }
     }
     return result;

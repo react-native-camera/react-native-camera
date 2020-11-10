@@ -23,11 +23,13 @@
 + (UIImage *)invertColors:(UIImage *)image;
 + (NSData *)getArrayOfImage:(UIImage *)image;
 + (void)printData:(UInt8*)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow;
-+ (void)rawDataCopyWithImage:(UIImage*)image;
++ (void)printGrayData:(UInt8*)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow;
++ (UInt8 *)rawDataCopyWithImage:(UIImage*)image;
 + (void)rawDataCopyWithImageRef:(CGImageRef )imageRef width:(NSInteger) imgWidth height:(NSInteger )imgHeight  ;
 + (void)rawDataDrawWithImage:(UIImage*)image;
 + (UIImage *)convertImageToGrayScale:(UIImage *)image;
 + (UIImage*)loadImage;
++ (NSData *) RGBImageDataToGrayScaleArray:(UInt8 *)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow;
 
 @end
 
