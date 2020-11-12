@@ -48,6 +48,8 @@
 @property (nonatomic, copy) RCTDirectEventBlock onRecordingEnd;
 @property (nonatomic, assign) BOOL finishedReadingText;
 @property (nonatomic, assign) BOOL finishedDetectingFace;
+@property (nonatomic, assign) BOOL finishedVerifyingFace;
+
 @property (nonatomic, copy) NSDate *startText;
 @property (nonatomic, copy) NSDate *startFace;
 
@@ -76,12 +78,15 @@ BOOL _sessionInterrupted = NO;
         self.textDetector = [self createTextDetector];
         self.faceDetector = [self createFaceDetectorMlKit];
         //added
-        self.myInterpreter = [[MyModel alloc] init];
+        // self.myInterpreter = [[MyModel alloc] init];
+        self.myInterpreter = [self createFaceVerifier];
         self.faceVerifier = _myInterpreter;
         self.facesDetected = [[NSMutableArray alloc] init];
         self.barcodeDetector = [self createBarcodeDetectorMlKit];
         self.finishedReadingText = true;
         self.finishedDetectingFace = true;
+        self.finishedVerifyingFace = true;
+        
         self.startText = [NSDate date];
         self.startFace = [NSDate date];
 #if !(TARGET_IPHONE_SIMULATOR)
@@ -820,8 +825,8 @@ BOOL _sessionInterrupted = NO;
                 takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
 
 
-                  RCTLogInfo(@"RNCamera > takePicture convert to grayscale");
-                takenImage = [RNImageUtils convertImageToGrayScale:takenImage];
+                //   RCTLogInfo(@"RNCamera > takePicture convert to grayscale");
+                // takenImage = [RNImageUtils convertImageToGrayScale:takenImage];
 
                 // apply other image settings
                 bool resetOrientation = NO;
@@ -832,27 +837,27 @@ BOOL _sessionInterrupted = NO;
     //  RCTLogInfo(@"RNCamera > takePicture current detectedfaces: %@",self.facesDetected );  
 
         // cut face, resize
-            float cameraWitdhResolution = 720.000000;
-            float cameraHeightResolution = 960.000000;
-            CGSize reSize = CGSizeMake(cameraWitdhResolution, cameraHeightResolution);
-            takenImage = [RNImageUtils scaleImage:takenImage convertToSize:reSize];
-        RCTLogInfo(@"RNCamera > takePicture scale down >  imageinfo: width=%f height=%f,  scale=%f",
-                                    takenImage.size.width,takenImage.size.height,takenImage.scale);  
-            NSDictionary *myFace = [self.facesDetected firstObject ];
-            if (myFace){
-        RCTLogInfo(@"RNCamera > takePicture firstface = myFace: %@",myFace[@"bounds"]);  
-                float faceX = [[[myFace valueForKeyPath:@"bounds.origin"] objectForKey:@"x"] floatValue];
-                float faceY =  [[[myFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
-                float faceWidth =  [[[myFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
-                float faceHeight = [[[myFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
-                NSLog(@"face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
-                float maxLength = faceWidth;
-                if (faceHeight > faceWidth)
-                {
-                    maxLength = faceHeight;
-                }
-                [RNImageUtils cropImage:takenImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
-            }
+        //     float cameraWitdhResolution = 720.000000;
+        //     float cameraHeightResolution = 960.000000;
+        //     CGSize reSize = CGSizeMake(cameraWitdhResolution, cameraHeightResolution);
+        //     takenImage = [RNImageUtils scaleImage:takenImage convertToSize:reSize];
+        // RCTLogInfo(@"RNCamera > takePicture scale down >  imageinfo: width=%f height=%f,  scale=%f",
+        //                             takenImage.size.width,takenImage.size.height,takenImage.scale);  
+        //     NSDictionary *myFace = [self.facesDetected firstObject ];
+        //     if (myFace){
+        // RCTLogInfo(@"RNCamera > takePicture firstface = myFace: %@",myFace[@"bounds"]);  
+        //         float faceX = [[[myFace valueForKeyPath:@"bounds.origin"] objectForKey:@"x"] floatValue];
+        //         float faceY =  [[[myFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
+        //         float faceWidth =  [[[myFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
+        //         float faceHeight = [[[myFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
+        //         NSLog(@"face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
+        //         float maxLength = faceWidth;
+        //         if (faceHeight > faceWidth)
+        //         {
+        //             maxLength = faceHeight;
+        //         }
+        //         [RNImageUtils cropImage:takenImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
+        //     }
         RCTLogInfo(@"RNCamera > takePicture cropImage > imageinfo: width=%f height=%f,  scale=%f",
                                     takenImage.size.width,takenImage.size.height,takenImage.scale);  
         // todo: rescale 
@@ -865,7 +870,8 @@ BOOL _sessionInterrupted = NO;
                     takenImage = [RNImageUtils scaleImage:takenImage toWidth:[options[@"width"] integerValue]];
                     resetOrientation = YES;
                 }
- RCTLogInfo(@"RNCamera > takePicture scaleImage > imageinfo: width=%f height=%f,  scale=%f",takenImage.size.width,takenImage.size.height,takenImage.scale);  //only warn or error get response from react log.
+        RCTLogInfo(@"RNCamera > takePicture scaleImage > imageinfo: width=%f height=%f,  scale=%f",
+                        takenImage.size.width,takenImage.size.height,takenImage.scale);  
 
                 // get image metadata so we can re-add it later
                 // make it mutable since we need to adjust quality/compression
@@ -1852,8 +1858,9 @@ BOOL _sessionInterrupted = NO;
     [self updateRectOfInterest];
 }
 
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects
-       fromConnection:(AVCaptureConnection *)connection
+- (void)captureOutput:(AVCaptureOutput *)captureOutput 
+        didOutputMetadataObjects:(NSArray *)metadataObjects
+        fromConnection:(AVCaptureConnection *)connection
 {
     for(AVMetadataObject *metadata in metadataObjects) {
         if([metadata isKindOfClass:[AVMetadataMachineReadableCodeObject class]]) {
@@ -1939,7 +1946,10 @@ BOOL _sessionInterrupted = NO;
     }
 }
 
-- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput 
+        didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL 
+        fromConnections:(NSArray *)connections 
+        error:(NSError *)error
 {
     BOOL success = YES;
     if ([error code] != noErr) {
@@ -2070,6 +2080,13 @@ BOOL _sessionInterrupted = NO;
 {
     Class faceDetectorManagerClassMlkit = NSClassFromString(@"FaceDetectorManagerMlkit");
     return [[faceDetectorManagerClassMlkit alloc] init];
+}
+
+
+-(id)createFaceVerifier
+{
+    Class myModel = NSClassFromString(@"MyModel");
+    return [[myModel alloc] init];
 }
 
 - (void)setupOrDisableFaceDetector
@@ -2307,7 +2324,7 @@ BOOL _sessionInterrupted = NO;
     NSTimeInterval timePassedSinceSubmittingForFace = [methodFinish timeIntervalSinceDate:self.startFace];
     BOOL canSubmitForTextDetection = timePassedSinceSubmittingForText > 0.5 && _finishedReadingText && self.canReadText && [self.textDetector isRealDetector];
     BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
-    BOOL canSubmitForFaceVerification = timePassedSinceSubmittingForFace > 0.5 && _finishedVerifyingFace && self.canVerifyFaces && [self.faceVerifier isRealVerifier];
+    // BOOL canSubmitForFaceVerification = timePassedSinceSubmittingForFace > 0.5 && _finishedVerifyingFace && self.canVerifyFaces && [self.faceVerifier isRealVerifier];
     BOOL canSubmitForBarcodeDetection = self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
     if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection) {
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
@@ -2343,7 +2360,32 @@ BOOL _sessionInterrupted = NO;
                 NSDictionary *eventFace = @{@"type" : @"face", @"faces" : faces};              
                      RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceDetection myInterpreter runModelWithFrame");
                      // verify the face with interpreter
-                [self.myInterpreter runModelWithFrame:image scaleX:scaleX scaleY:scaleY faces:eventFace];
+                
+                // todo: convert this boolean value to a function which check and read the user image from URL
+                RCTLogInfo(@"get user image....");
+                BOOL getMyImage = true;
+                if(getMyImage ) {
+                    RCTLogInfo(@"preprocess and run model with image image....");
+                    
+                    // get image from bundle...
+                    //todo: change to read from url
+                    // UIImage * myImage = [UIImage imageNamed:@"true_img.png"];
+                    // [self.myInterpreter runModelWithFrame:image scaleX:scaleX scaleY:scaleY faces:eventFace];
+                    [self.myInterpreter findFacesInFrame:image 
+                                        scaleX:scaleX scaleY:scaleY faces:eventFace 
+                                        completed:^(float result){
+                                            // NSDictionary *eventVerify = @{@"type" : @"Verified", 
+                                            //                             @"result" : [[NSNumber numberWithFloat:result] stringValue]};
+                                            NSDictionary *eventVerify = @{@"type" : @"Verified", 
+                                                                        @"result" : @(result)};
+                                            RCTLogInfo(@"findFacesInFrame result : %f",result);
+                                            [self onFacesVerified:eventVerify];
+                                            self.finishedVerifyingFace = true;
+                                        }];
+                }
+                else{
+                    RCTLogInfo(@"can't find user image: take picture or ignore ?");
+                }
 
 // todo: convert to callback function in mymodel runmodelwithframe...
 
@@ -2351,12 +2393,12 @@ BOOL _sessionInterrupted = NO;
                 self.facesDetected = faces;
                 // stop detect
                 self.finishedDetectingFace = true;
-                self.finishedVerifyingFace = true;
+                // self.finishedVerifyingFace = true;
             }];
         }
-        if(canSubmitForFaceVerification){
-             RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceVerification ... ");
-        }
+        // if(canSubmitForFaceVerification){
+        //      RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceVerification ... ");
+        // }
         // find barcodes
         if (canSubmitForBarcodeDetection) {
             // Check for the barcode detection mode (Normal, Alternate, Inverted)

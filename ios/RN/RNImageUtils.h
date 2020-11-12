@@ -28,8 +28,8 @@
 + (void)rawDataCopyWithImageRef:(CGImageRef )imageRef width:(NSInteger) imgWidth height:(NSInteger )imgHeight  ;
 + (void)rawDataDrawWithImage:(UIImage*)image;
 + (UIImage *)convertImageToGrayScale:(UIImage *)image;
-+ (UIImage*)loadImage;
++ (UIImage*)loadImage :(NSString *) imageName;
 + (NSData *) RGBImageDataToGrayScaleArray:(UInt8 *)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow;
-
++ (NSString *) applicationDocumentsDirectory ;
 @end
 

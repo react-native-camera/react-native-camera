@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { number } from 'prop-types';
 import {
   findNodeHandle,
   Platform,
@@ -272,13 +272,23 @@ type PropsType = typeof View.props & {
   barCodeTypes?: Array<string>,
   googleVisionBarcodeType?: number,
   googleVisionBarcodeMode?: number,
-  whiteBalance?: number | string | {temperature: number, tint: number, redGainOffset?: number, greenGainOffset?: number, blueGainOffset?: number },
+  whiteBalance?:
+    | number
+    | string
+    | {
+        temperature: number,
+        tint: number,
+        redGainOffset?: number,
+        greenGainOffset?: number,
+        blueGainOffset?: number,
+      },
   faceDetectionLandmarks?: number,
   autoFocus?: string | boolean | number,
   autoFocusPointOfInterest?: { x: number, y: number },
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
+  onFacesVerified?: ({ result: Array<TrackedFaceFeature> }) => void,
   captureAudio?: boolean,
   keepAudioSession?: boolean,
   useCamera2Api?: boolean,
@@ -412,6 +422,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     onDoubleTap: PropTypes.func,
     onGoogleVisionBarcodesDetected: PropTypes.func,
     onFacesDetected: PropTypes.func,
+    onFacesVerified: PropTypes.func,
     onTextRecognized: PropTypes.func,
     onSubjectAreaChanged: PropTypes.func,
     trackingEnabled: PropTypes.bool,
@@ -425,11 +436,17 @@ export default class Camera extends React.Component<PropsType, StateType> {
     cameraId: PropTypes.string,
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     exposure: PropTypes.number,
-    whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number,
-      PropTypes.shape({ temperature: PropTypes.number, tint: PropTypes.number,
+    whiteBalance: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+      PropTypes.shape({
+        temperature: PropTypes.number,
+        tint: PropTypes.number,
         redGainOffset: PropTypes.number,
         greenGainOffset: PropTypes.number,
-        blueGainOffset: PropTypes.number })]),
+        blueGainOffset: PropTypes.number,
+      }),
+    ]),
     autoFocus: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
     autoFocusPointOfInterest: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number }),
     permissionDialogTitle: PropTypes.string,
@@ -708,7 +725,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
-  _onSubjectAreaChanged = e => {
+  _onSubjectAreaChanged = (e) => {
     if (this.props.onSubjectAreaChanged) {
       this.props.onSubjectAreaChanged(e);
     }
@@ -845,6 +862,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
             onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
             onTouch={this._onTouch}
             onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
+            onFacesVerified={this._onObjectDetected(this.props.onFacesVerified)}
             onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
             onPictureSaved={this._onPictureSaved}
             onSubjectAreaChanged={this._onSubjectAreaChanged}
@@ -918,6 +936,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     onAudioConnected: true,
     onPictureSaved: true,
     onFaceDetected: true,
+    onFacesVerified: true,
     onTouch: true,
     onLayout: true,
     onMountError: true,

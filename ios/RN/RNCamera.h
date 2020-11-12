@@ -74,7 +74,7 @@
 - (void)updateExposure;
 - (void)updatePictureSize;
 - (void)updateCaptureAudio;
-    // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
+   
         // imnportant: props of the model
 // Face Detection props
 - (void)updateTrackingEnabled:(id)requestedTracking;
@@ -113,6 +113,7 @@
 - (void)onMountingError:(NSDictionary *)event;
 - (void)onCodeRead:(NSDictionary *)event;
 - (void)onFacesDetected:(NSDictionary *)event;
+- (void)onFacesVerified:(NSDictionary *)event;
 - (void)onPictureTaken:(NSDictionary *)event;
 - (void)onPictureSaved:(NSDictionary *)event;
 - (void)onRecordingStart:(NSDictionary *)event;

@@ -244,7 +244,7 @@
     // convert to grayscale
     NSData * data = [self RGBImageDataToGrayScaleArray:rawData width:width height:height bytesPerRow:bytesPerRow];
     NSUInteger size = [data length] ;
-    RCTLogInfo(@" gray rawData size: %d",size);
+    // RCTLogInfo(@" gray rawData size: %d",size);
     rawData = (unsigned char*) [data bytes];
     // [self printGrayData:rawData width:width height:height bytesPerRow:bytesPerRow];
     CGColorSpaceRelease(colorSpace);
@@ -369,15 +369,29 @@
     }
     return result;
 }
-
-+ (UIImage*)loadImage
-{
-    return [UIImage imageNamed:@"colorpattern.jpg"];
++ (NSString *)applicationDocumentsDirectory {
+    return [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
 }
++ (UIImage*)loadImage:(NSString *) imageName
+{
+    // NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: @"http://myurl/mypic.jpg"]];
+    // cell.image = [UIImage imageWithData: imageData];
+    // [imageData release];
+
+    // return [UIImage imageNamed:@"colorpattern.jpg"];
+
+   
+    NSString *workSpacePath=[[self applicationDocumentsDirectory] stringByAppendingPathComponent:@"your image-name"];
+    UIImageView *myimage=[[UIImageView alloc] initWithFrame:CGRectMake(0,0,20,20)];
+    return [UIImage imageWithData:[NSData dataWithContentsOfFile:workSpacePath]];    
+    // [self.view addSubView:myimage];
+    // [myimage release];
+}
+
 // https://gist.github.com/3ign0n/43dd799c33331c3de603 
 + (void)testGetPixelDataFromCGImageRefExample {
     
-    UIImage *image = [self loadImage];
+    UIImage *image = [self loadImage:@"myimage.png"];
     [self rawDataCopyWithImage:image];
     [self rawDataDrawWithImage:image];
 }
