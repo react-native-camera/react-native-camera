@@ -992,7 +992,7 @@ BOOL _sessionInterrupted = NO;
                         // todo: change to documentDirectoryPath
                         // path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] 
                         //                     stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
-                        path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] 
+                        path = [RNFileSystem generatePathInDirectory:[[RNFileSystem documentDirectoryPath] 
                                             stringByAppendingPathComponent:@"myImage"] withExtension:@".png"];
                     }
 
