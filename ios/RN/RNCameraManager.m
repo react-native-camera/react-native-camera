@@ -274,7 +274,7 @@ RCT_CUSTOM_VIEW_PROPERTY(pictureSize, NSString *, RNCamera)
     [view updatePictureSize];
 }
 
-
+//todo: bridge to pass in face location as above
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
 {
     view.canDetectFaces = [RCTConvert BOOL:json];
@@ -285,6 +285,16 @@ RCT_CUSTOM_VIEW_PROPERTY(faceVerifyEnabled, BOOL, RNCamera)
 {
     view.canVerifyFaces = [RCTConvert BOOL:json];
     [view setupOrDisableFaceVerifier];
+}
+// added
+RCT_CUSTOM_VIEW_PROPERTY(IdentityFileLocation, NSString , RNCamera)
+{
+    // [view setPictureSize:[[self class] pictureSizes][[RCTConvert NSString:json]]];
+    // [view updatePictureSize];
+    NSString * myLocation = [RCTConvert NSString:json];
+    RCTLogInfo(@"RNCameraManager > IdentityFileLocation = %@",myLocation);  
+    // todo: why error?
+    [view setIdentityFileLocation:myLocation];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(trackingEnabled, BOOL, RNCamera)

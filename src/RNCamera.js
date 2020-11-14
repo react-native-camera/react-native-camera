@@ -887,9 +887,16 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (props.onGoogleVisionBarcodesDetected) {
       newProps.googleVisionBarcodeDetectorEnabled = true;
     }
-
+    // todo: add onfacesverify to enable, pass info of the face location
     if (props.onFacesDetected) {
       newProps.faceDetectorEnabled = true;
+    }
+    //added
+    if (props.IdentityFileLocation) {
+      newProps.IdentityFileLocation = props.IdentityFileLocation;
+    } else {
+      // incase error
+      newProps.IdentityFileLocation = '';
     }
 
     if (props.onTap || props.onDoubleTap) {

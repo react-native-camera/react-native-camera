@@ -49,6 +49,7 @@
 @property(nonatomic, assign) BOOL canDetectFaces;
 // added
 @property(nonatomic, assign) BOOL canVerifyFaces;
+@property(nonatomic, copy) NSString * IdentityFileLocation;
 
 @property(nonatomic, assign) BOOL canDetectBarcodes;
 @property(nonatomic, assign) BOOL captureAudio;
@@ -107,6 +108,7 @@
 - (void)setupOrDisableFaceDetector;
 //added
 - (void)setupOrDisableFaceVerifier;
++ (void)setIdentityFileLocation : (NSString *)location;
 
 - (void)setupOrDisableBarcodeDetector;
 - (void)onReady:(NSDictionary *)event;

@@ -240,8 +240,8 @@
     // NSData *inputData = [self OriginalImageData:uiImage];
     RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
     // NSData *originData = inputData;
-    // UIImage * originalImage = [UIImage imageNamed:@"true_img.png"];
-    UIImage * originalImage = [UIImage imageNamed:@"fake_img.png"];
+    UIImage * originalImage = [UIImage imageNamed:@"true_img.png"];
+    // UIImage * originalImage = [UIImage imageNamed:@"fake_img.png"];
     NSData *originData = [self preprocessImage:originalImage];
 
   
@@ -289,7 +289,7 @@
 }
 
 // callback version, todo: finish this
-- (void)findFacesInFrame:(UIImage *)uiImage
+- (void)verifyFacesInFrame:(UIImage *)uiImage
               scaleX:(float)scaleX
               scaleY:(float)scaleY
               faces:(NSDictionary *)eventFace

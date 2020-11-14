@@ -871,7 +871,7 @@ BOOL _sessionInterrupted = NO;
                     resetOrientation = YES;
                 }
         RCTLogInfo(@"RNCamera > takePicture scaleImage > imageinfo: width=%f height=%f,  scale=%f",
-                        takenImage.size.width,takenImage.size.height,takenImage.scale);  
+                                    takenImage.size.width,takenImage.size.height,takenImage.scale);  
 
                 // get image metadata so we can re-add it later
                 // make it mutable since we need to adjust quality/compression
@@ -989,7 +989,11 @@ BOOL _sessionInterrupted = NO;
                         path = options[@"path"];
                     }
                     else{
-                        path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+                        // todo: change to documentDirectoryPath
+                        // path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] 
+                        //                     stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+                        path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] 
+                                            stringByAppendingPathComponent:@"myImage"] withExtension:@".png"];
                     }
 
                     if (![options[@"doNotSave"] boolValue]) {
@@ -1792,10 +1796,12 @@ BOOL _sessionInterrupted = NO;
         }
     });
 }
+
 -(UIPinchGestureRecognizer*)createUIPinchGestureRecognizer
 {
     return [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchToZoomRecognizer:)];
 }
+
 - (void)setupOrDisablePinchZoom
 {
     if([self useNativeZoom]){
@@ -2115,34 +2121,41 @@ BOOL _sessionInterrupted = NO;
         [self stopFaceDetection];
     }
 }
+
 - (void)setupOrDisableFaceVerifier
 {
     if (self.canVerifyFaces && [self.faceVerifier isRealVerifier]){
-        AVCaptureSessionPreset preset = [self getDefaultPresetVideo];
+        NSLog(@"setupFaceVerifier");
+        // AVCaptureSessionPreset preset = [self getDefaultPresetVideo];
 
-        self.session.sessionPreset = preset;
-        if (!self.videoDataOutput) {
-            self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
-            if (![self.session canAddOutput:_videoDataOutput]) {
-                NSLog(@"Failed to setup video data output");
-                [self stopFaceVerification];
-                return;
-            }
+        // self.session.sessionPreset = preset;
+        // if (!self.videoDataOutput) {
+        //     self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+        //     if (![self.session canAddOutput:_videoDataOutput]) {
+        //         NSLog(@"Failed to setup video data output");
+                // [self stopFaceVerification];
+        //         return;
+        //     }
 
-            NSDictionary *rgbOutputSettings = [NSDictionary
-                dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
-                                forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+        //     NSDictionary *rgbOutputSettings = [NSDictionary
+        //         dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
+        //                         forKey:(id)kCVPixelBufferPixelFormatTypeKey];
                
-        RCTLogInfo(@"RNCamera > setupOrDisableFaceVerifier  rgboutputsettings: %@", rgbOutputSettings);                
-            [self.videoDataOutput setVideoSettings:rgbOutputSettings];
-            [self.videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
-            [self.videoDataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
-            [self.session addOutput:_videoDataOutput];
-        }
+        // RCTLogInfo(@"RNCamera > setupOrDisableFaceVerifier  rgboutputsettings: %@", rgbOutputSettings);                
+        //     [self.videoDataOutput setVideoSettings:rgbOutputSettings];
+        //     [self.videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
+        //     [self.videoDataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
+        //     [self.session addOutput:_videoDataOutput];
+        // }
     } else {
         [self stopFaceVerification];
+        // NSLog(@"disableFaceVerifier");
     }
 }
++ (void)setIdentityFileLocation : (NSString *)location{
+    self.IdentityFileLocation = location;
+}
+
 - (void)stopFaceDetection
 {
     if (self.videoDataOutput && !self.canReadText) {
@@ -2156,14 +2169,15 @@ BOOL _sessionInterrupted = NO;
 }
 - (void)stopFaceVerification
 {
-    if (self.videoDataOutput && !self.canReadText) {
-        [self.session removeOutput:self.videoDataOutput];
-    }
-    self.videoDataOutput = nil;
-    AVCaptureSessionPreset preset = [self getDefaultPreset];
-    if (self.session.sessionPreset != preset) {
-        [self updateSessionPreset: preset];
-    }
+    // if (self.videoDataOutput && !self.canReadText) {
+    //     [self.session removeOutput:self.videoDataOutput];
+    // }
+    // self.videoDataOutput = nil;
+    // AVCaptureSessionPreset preset = [self getDefaultPreset];
+    // if (self.session.sessionPreset != preset) {
+    //     [self updateSessionPreset: preset];
+    // }
+     NSLog(@"stopFaceVerification");
 }
 - (void)updateTrackingEnabled:(id)requestedTracking
 {
@@ -2185,14 +2199,13 @@ BOOL _sessionInterrupted = NO;
     [self.faceDetector setClassificationMode:requestedClassifications queue:self.sessionQueue];
 }
        
-        
-     
 - (void)onFacesDetected:(NSDictionary *)event
 {
     if (_onFacesDetected && _session) {
         _onFacesDetected(event);
     }
 }
+
 - (void)onFacesVerified:(NSDictionary *)event
 {
     if (_onFacesVerified && _session) {
@@ -2308,11 +2321,13 @@ BOOL _sessionInterrupted = NO;
 # pragma mark - mlkit
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
-           fromConnection:(AVCaptureConnection *)connection
+    fromConnection:(AVCaptureConnection *)connection
 {
-    if (![self.textDetector isRealDetector] && ![self.faceDetector isRealDetector] && ![self.barcodeDetector isRealDetector]) {
-        NSLog(@"failing real check");
-        return;
+    if (![self.textDetector isRealDetector] && 
+        ![self.faceDetector isRealDetector] && 
+        ![self.barcodeDetector isRealDetector]) {
+            NSLog(@"failing real check");
+            return;
     }
 
     // Do not submit image for text/face recognition too often:
@@ -2322,10 +2337,16 @@ BOOL _sessionInterrupted = NO;
     NSDate *methodFinish = [NSDate date];
     NSTimeInterval timePassedSinceSubmittingForText = [methodFinish timeIntervalSinceDate:self.startText];
     NSTimeInterval timePassedSinceSubmittingForFace = [methodFinish timeIntervalSinceDate:self.startFace];
-    BOOL canSubmitForTextDetection = timePassedSinceSubmittingForText > 0.5 && _finishedReadingText && self.canReadText && [self.textDetector isRealDetector];
-    BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
+    BOOL canSubmitForTextDetection = timePassedSinceSubmittingForText > 0.5 && 
+                                    _finishedReadingText && self.canReadText && 
+                                    [self.textDetector isRealDetector];
+    BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && 
+                                    _finishedDetectingFace && 
+                                    self.canDetectFaces && 
+                                    [self.faceDetector isRealDetector];
     // BOOL canSubmitForFaceVerification = timePassedSinceSubmittingForFace > 0.5 && _finishedVerifyingFace && self.canVerifyFaces && [self.faceVerifier isRealVerifier];
     BOOL canSubmitForBarcodeDetection = self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
+
     if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection) {
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
         NSInteger position = self.videoCaptureDeviceInput.device.position;
@@ -2355,6 +2376,7 @@ BOOL _sessionInterrupted = NO;
         // find face features
         if (canSubmitForFaceDetection) {
             _finishedDetectingFace = false;
+            _finishedVerifyingFace = false;
             self.startFace = [NSDate date];
             [self.faceDetector findFacesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * faces) {
                 NSDictionary *eventFace = @{@"type" : @"face", @"faces" : faces};              
@@ -2363,15 +2385,17 @@ BOOL _sessionInterrupted = NO;
                 
                 // todo: convert this boolean value to a function which check and read the user image from URL
                 RCTLogInfo(@"get user image....");
+                RCTLogInfo(@"IdentityFileLocation = %@",self.IdentityFileLocation);
                 BOOL getMyImage = true;
                 if(getMyImage ) {
                     RCTLogInfo(@"preprocess and run model with image image....");
+
                     
                     // get image from bundle...
                     //todo: change to read from url
                     // UIImage * myImage = [UIImage imageNamed:@"true_img.png"];
                     // [self.myInterpreter runModelWithFrame:image scaleX:scaleX scaleY:scaleY faces:eventFace];
-                    [self.myInterpreter findFacesInFrame:image 
+                    [self.myInterpreter verifyFacesInFrame:image 
                                         scaleX:scaleX scaleY:scaleY faces:eventFace 
                                         completed:^(float result){
                                             // NSDictionary *eventVerify = @{@"type" : @"Verified", 

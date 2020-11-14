@@ -12,6 +12,7 @@
 + (BOOL)ensureDirExistsWithPath:(NSString *)path;
 + (NSString *)generatePathInDirectory:(NSString *)directory withExtension:(NSString *)extension;
 + (NSString *)cacheDirectoryPath;
++ (NSString *)documentDirectoryPath;
 
 @end
 

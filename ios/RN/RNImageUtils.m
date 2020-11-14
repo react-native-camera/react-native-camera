@@ -87,8 +87,11 @@
 //             }
 + (NSString *)writeImage:(NSData *)image toPath:(NSString *)path
 {
+    RCTLogInfo(@"RNImageUtils > writeImage : will save to path %@",path);  
+    // overide by default
     [image writeToFile:path atomically:YES];
     NSURL *fileURL = [NSURL fileURLWithPath:path];
+    RCTLogInfo(@"RNImageUtils > writeImage : apsoluteString %@",[fileURL absoluteString]);  
     return [fileURL absoluteString];
 }
 
@@ -384,8 +387,12 @@
     NSString *workSpacePath=[[self applicationDocumentsDirectory] stringByAppendingPathComponent:@"your image-name"];
     UIImageView *myimage=[[UIImageView alloc] initWithFrame:CGRectMake(0,0,20,20)];
     return [UIImage imageWithData:[NSData dataWithContentsOfFile:workSpacePath]];    
-    // [self.view addSubView:myimage];
-    // [myimage release];
+  
+    //  NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] 
+    //                                                         stringByAppendingPathComponent:@"Camera"] 
+    //                                 withExtension:@".jpg"];
+    // NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
+    //  response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
 }
 
 // https://gist.github.com/3ign0n/43dd799c33331c3de603 
