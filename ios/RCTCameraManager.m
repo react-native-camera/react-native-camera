@@ -251,6 +251,7 @@ RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera) {
 
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:captureDevice];
         self.videoCaptureDeviceInput = captureDeviceInput;
+        [self initCaptureDeviceConfiguration];
         [self setFlashMode];
       }
       else
@@ -262,6 +263,32 @@ RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera) {
     });
   }
   [self initializeCaptureSessionInput:AVMediaTypeVideo];
+}
+
+
+- (void)initCaptureDeviceConfiguration {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    NSError *error = nil;
+
+    if ([device lockForConfiguration:&error])
+    {
+        [device setAutomaticallyAdjustsVideoHDREnabled:FALSE];
+        if(device.activeFormat.isVideoHDRSupported)
+        {
+            [device setVideoHDREnabled:FALSE];
+        }
+        if (@available(iOS 13.0, *)) {
+            if (device.activeFormat.isGlobalToneMappingSupported)
+            {
+                [device setGlobalToneMappingEnabled:TRUE];
+            }
+        }
+        [device unlockForConfiguration];
+    }
+    else
+    {
+        NSLog(@"%@", error);
+    }
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(flashMode, NSInteger, RCTCamera) {
@@ -722,6 +749,7 @@ RCT_EXPORT_METHOD(getPreviewPosition:(RCTPromiseResolveBlock)resolve reject:(RCT
       }
       else if (type == AVMediaTypeVideo) {
         self.videoCaptureDeviceInput = captureDeviceInput;
+        [self initCaptureDeviceConfiguration];
         [self setFlashMode];
       }
       [self.metadataOutput setMetadataObjectTypes:self.metadataOutput.availableMetadataObjectTypes];
@@ -933,10 +961,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     CGContextRef context = CGBitmapContextCreate(nil, newWidth, newHeight, CGImageGetBitsPerComponent(image), CGImageGetBytesPerRow(image), CGImageGetColorSpace(image), CGImageGetBitmapInfo(image));
     CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
     
-    CGRect rect = CGRectMake(0, 0, newWidth, newHeight);    
+    CGRect rect = CGRectMake(0, 0, newWidth, newHeight);
     CGContextDrawImage(context, rect, image);
         
-    CGImageRef resizedCGImage = CGBitmapContextCreateImage(context);      
+    CGImageRef resizedCGImage = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
     
     return resizedCGImage;
@@ -989,7 +1017,7 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
                     self.captureResolve(self.sources);
                     self.captureResolve = nil;
                 }
-            }         
+            }
             CGImageRelease(resizedCGImage);
         }
 
@@ -1011,11 +1039,11 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
         CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
 
         //get all the metadata in the image
-        NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];  
+        NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
         // create cgimage
         CGImageRef rotatedCGImage = CGImageSourceCreateImageAtIndex(source, 0, nil);
         // resize cgimage
-        CGImageRef resizedCGImage = [self downsampleImage:rotatedCGImage maxSize:2108];      
+        CGImageRef resizedCGImage = [self downsampleImage:rotatedCGImage maxSize:2108];
         // Erase stupid TIFF stuff
         [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
 
@@ -1144,7 +1172,12 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
         }
 
         AVCapturePhotoBracketSettings *settings = [AVCapturePhotoBracketSettings photoBracketSettingsWithRawPixelFormatType:0 processedFormat:nil bracketedSettings:bracketedStillImageSettings];
-        //settings.autoVirtualDeviceFusionEnabled = FALSE;
+        
+        NSLog(@"globalToneMappingSupported: %d", device.activeFormat.globalToneMappingSupported);
+        NSLog(@"globalToneMappingEnabled: %d", device.globalToneMappingEnabled);
+        NSLog(@"automaticallyAdjustsVideoHDREnabled: %d", device.automaticallyAdjustsVideoHDREnabled);
+        NSLog(@"videoHDREnabled: %d", device.videoHDREnabled);
+        
         [self.stillImageOutput capturePhotoWithSettings:settings delegate:self];
     } else {
         NSLog(@"bracket: jobs done");
