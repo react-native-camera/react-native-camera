@@ -1172,12 +1172,6 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
         }
 
         AVCapturePhotoBracketSettings *settings = [AVCapturePhotoBracketSettings photoBracketSettingsWithRawPixelFormatType:0 processedFormat:nil bracketedSettings:bracketedStillImageSettings];
-        
-        NSLog(@"globalToneMappingSupported: %d", device.activeFormat.globalToneMappingSupported);
-        NSLog(@"globalToneMappingEnabled: %d", device.globalToneMappingEnabled);
-        NSLog(@"automaticallyAdjustsVideoHDREnabled: %d", device.automaticallyAdjustsVideoHDREnabled);
-        NSLog(@"videoHDREnabled: %d", device.videoHDREnabled);
-        
         [self.stillImageOutput capturePhotoWithSettings:settings delegate:self];
     } else {
         NSLog(@"bracket: jobs done");
