@@ -79,8 +79,8 @@ BOOL _sessionInterrupted = NO;
         self.faceDetector = [self createFaceDetectorMlKit];
         //added
         // self.myInterpreter = [[MyModel alloc] init];
-        self.myInterpreter = [self createFaceVerifier];
-        self.faceVerifier = _myInterpreter;
+        // self.myInterpreter = [self createFaceVerifier];
+        // self.faceVerifier = _myInterpreter;
         self.facesDetected = [[NSMutableArray alloc] init];
         self.barcodeDetector = [self createBarcodeDetectorMlKit];
         self.finishedReadingText = true;
@@ -306,6 +306,7 @@ BOOL _sessionInterrupted = NO;
         // after mount to set the camera's default, and that will already
         // this method
         // [self initializeCaptureSessionInput];
+        RCTLogInfo(@"RNCamera > willMoveToSuperview  ...."); 
         [self startSession];
     }
     else{
@@ -393,7 +394,9 @@ BOOL _sessionInterrupted = NO;
 
 -(void)updateType
 {
+    RCTLogInfo(@"RNCamera > updateType  ...."); 
     [self initializeCaptureSessionInput];
+    RCTLogInfo(@"RNCamera > updateType  : startsession..."); 
     [self startSession]; // will already check if session is running
 }
 
@@ -985,22 +988,31 @@ BOOL _sessionInterrupted = NO;
                     NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
 
                     NSString *path = nil;
+                    NSString *fileName = nil;
                     if (options[@"path"]) {
-                        path = options[@"path"];
+                        path = options[@"path"]; //  path: 'User'
+                        if(options[@'user'] ) {
+                            fileName = [options[@'user'] stringByAppendingString:@'png'];//, user: 'UserID'   
+                            path = [RNFileSystem generatePathInDirectory:[[RNFileSystem documentDirectoryPath] 
+                                                stringByAppendingPathComponent:path] withFileName:fileName];          
+                        }else{
+                            // if(options[@'user'] == (id)[NSNull null] || options[@'user'].length == 0 ) {
+                            reject(@"E_USER_NOT_PROVIDED", @"option path=<folderName> requires option user=<userID>.", nil);
+                            return;
+                        }
                     }
                     else{
-                        // todo: change to documentDirectoryPath
-                        // path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] 
-                        //                     stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
-                        path = [RNFileSystem generatePathInDirectory:[[RNFileSystem documentDirectoryPath] 
-                                            stringByAppendingPathComponent:@"myImage"] withExtension:@".png"];
+                        // default
+                        path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] 
+                                            stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg" ];
+                       
                     }
-
                     if (![options[@"doNotSave"] boolValue]) {
                         
         RCTLogInfo(@"RNCamera > takePicture : will save to path %@",path);  
- 
+                        // response[@"path"] = path;
                         response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
+                        //todo: run face detection and cut the face, save to other image name
                     }
                     response[@"width"] = @(takenImage.size.width);
                     response[@"height"] = @(takenImage.size.height);
@@ -1337,7 +1349,34 @@ BOOL _sessionInterrupted = NO;
 - (void)startSession
 {
     
-        RCTLogInfo(@"RNCamera > startSession");  
+    RCTLogInfo(@"RNCamera > startSession");  
+    if([self checkModelFileExistInDocumentDir:_ModelFileName]){
+        NSLog(@"model exist in DocumentDir %@", _ModelFileName);
+        if(!self.myInterpreter && _ModelFileName){
+            NSLog(@"model init %@", _ModelFileName);
+            self.myInterpreter = [self createFaceVerifier];
+            self.faceVerifier = _myInterpreter;
+        }
+        
+        // [self downloadModelFile: _ModelFileName fromURL:_ModelURL];
+    }else{
+        //  downloadModelFile:(NSString *)modelFileName fromURL:(NSString *)URL  _ModelURL, _ModelFileName
+        [self downloadModelFile: _ModelFileName fromURL:_ModelURL];
+        // + (void)CopyFile :(NSString *)fileName fromPath:(NSString *)originPath toPath:(NSString *)destPath
+        // [RNFileSystem CopyFile:_ModelFileName 
+        //                 fromPath:[[NSBundle mainBundle] resourcePath]
+        //                 toPath:[RNFileSystem documentDirectoryPath]];
+        // if([self checkModelFileExistInDocumentDir:_ModelFileName]){
+        //     NSLog(@"success copy model %@ to documentDir ", _ModelFileName);
+        //     self.myInterpreter = [self createFaceVerifier];
+        //     self.faceVerifier = _myInterpreter;
+        // }else{
+        //     NSLog(@"copy not success");
+        //     // [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
+        // }
+    }
+    // self.myInterpreter = [self createFaceVerifier];
+    // self.faceVerifier = _myInterpreter;
 #if TARGET_IPHONE_SIMULATOR
     [self onReady:nil];
     return;
@@ -1530,9 +1569,29 @@ BOOL _sessionInterrupted = NO;
 
 - (void)initializeCaptureSessionInput
 {
-
+    // if([self checkModelFileExistInDocumentDir:_ModelFileName]){
+    //     NSLog(@"model exist in DocumentDir %@", _ModelFileName);
+    //     // [self downloadModelFile: _ModelFileName fromURL:_ModelURL];
+    // }else{
+    //     //  downloadModelFile:(NSString *)modelFileName fromURL:(NSString *)URL  _ModelURL, _ModelFileName
+    //     [self downloadModelFile: _ModelFileName fromURL:_ModelURL];
+    //     // + (void)CopyFile :(NSString *)fileName fromPath:(NSString *)originPath toPath:(NSString *)destPath
+    //     [RNFileSystem CopyFile:_ModelFileName 
+    //                     fromPath:[[NSBundle mainBundle] resourcePath]
+    //                     toPath:[RNFileSystem documentDirectoryPath]];
+    //     if([self checkModelFileExistInDocumentDir:_ModelFileName]){
+    //         NSLog(@"success copy model %@ to documentDir ", _ModelFileName);
+    //     }else{
+    //         NSLog(@"copy not success");
+    //         // [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
+    //     }
+    // }
+    // self.myInterpreter = [self createFaceVerifier];
+    // self.faceVerifier = _myInterpreter;
     dispatch_async(self.sessionQueue, ^{
+        RCTLogInfo(@"RNCamera > dispatch initializeCaptureSessionInput ...."); 
 
+        
         // Do all camera initialization in the session queue
         // to prevent it from
         AVCaptureDevice *captureDevice = [self getDevice];
@@ -2087,14 +2146,6 @@ BOOL _sessionInterrupted = NO;
     Class faceDetectorManagerClassMlkit = NSClassFromString(@"FaceDetectorManagerMlkit");
     return [[faceDetectorManagerClassMlkit alloc] init];
 }
-
-
--(id)createFaceVerifier
-{
-    Class myModel = NSClassFromString(@"MyModel");
-    return [[myModel alloc] init];
-}
-
 - (void)setupOrDisableFaceDetector
 {
     if (self.canDetectFaces && [self.faceDetector isRealDetector]){
@@ -2122,38 +2173,81 @@ BOOL _sessionInterrupted = NO;
     }
 }
 
+
+-(id)createFaceVerifier
+{
+    Class myModel = NSClassFromString(@"MyModel");
+    return [[myModel alloc] initWithPath:[[RNFileSystem documentDirectoryPath] 
+                                                        stringByAppendingPathComponent:_ModelFileName]];
+}
+- (BOOL) checkModelFileExistInDocumentDir:(NSString *) modelFileName{
+    // [RNFileSystem checkExistedFilesInDocumentDir];
+    BOOL exist;
+    NSString *path = [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:modelFileName];
+    RCTLogInfo(@"RNCamera > checkModelFileExistInDocumentDir %@",path); 
+    exist = [[NSFileManager defaultManager] fileExistsAtPath:path];
+    return exist;
+}
+- (void) downloadModelFile:(NSString *)modelFileName fromURL:(NSString *)URL  {
+//   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSLog(@"Downloading Started");
+        NSString *urlToDownload = [URL stringByAppendingPathComponent:modelFileName];
+        RCTLogInfo(@"RNCamera > downloadModelFile url=%@",urlToDownload); 
+        NSURL  *url = [NSURL URLWithString:urlToDownload];
+        NSData *urlData = [NSData dataWithContentsOfURL:url];
+        if ( urlData )
+        {
+            // NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+            // NSString  *documentsDirectory = [paths objectAtIndex:0];
+            NSString  *documentsDirectory = [RNFileSystem documentDirectoryPath];
+            NSString  *filePath = [NSString stringWithFormat:@"%@/%@", documentsDirectory,modelFileName];
+            //saving is done on main thread
+            // dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(_sessionQueue, ^{
+                [urlData writeToFile:filePath atomically:YES];
+                NSURL *fileURL = [NSURL fileURLWithPath:filePath];
+                RCTLogInfo(@"RNImageUtils > model file writed : apsoluteString %@",[fileURL absoluteString]);  
+                NSLog(@"File Saved ! path: %@",[fileURL absoluteString]);
+                [RNFileSystem checkExistedFilesInDocumentDir];
+                self.myInterpreter = [self createFaceVerifier];
+                self.faceVerifier = _myInterpreter;
+                // return true;
+            });
+        }else{
+            RCTLogInfo(@"RNCamera > downloadModelFile could not get data from url %@",urlToDownload); 
+        }
+
+    // });
+}
 - (void)setupOrDisableFaceVerifier
 {
-    if (self.canVerifyFaces && [self.faceVerifier isRealVerifier]){
+    RCTLogInfo(@"RNCamera > setupOrDisableFaceVerifier init model interpreter");  
+
+    if (self.canVerifyFaces ){
         NSLog(@"setupFaceVerifier");
-        // AVCaptureSessionPreset preset = [self getDefaultPresetVideo];
-
-        // self.session.sessionPreset = preset;
-        // if (!self.videoDataOutput) {
-        //     self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
-        //     if (![self.session canAddOutput:_videoDataOutput]) {
-        //         NSLog(@"Failed to setup video data output");
-                // [self stopFaceVerification];
-        //         return;
-        //     }
-
-        //     NSDictionary *rgbOutputSettings = [NSDictionary
-        //         dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
-        //                         forKey:(id)kCVPixelBufferPixelFormatTypeKey];
-               
-        // RCTLogInfo(@"RNCamera > setupOrDisableFaceVerifier  rgboutputsettings: %@", rgbOutputSettings);                
-        //     [self.videoDataOutput setVideoSettings:rgbOutputSettings];
-        //     [self.videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
-        //     [self.videoDataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
-        //     [self.session addOutput:_videoDataOutput];
-        // }
     } else {
         [self stopFaceVerification];
-        // NSLog(@"disableFaceVerifier");
     }
 }
+// added
 + (void)setIdentityFileLocation : (NSString *)location{
     self.IdentityFileLocation = location;
+}
+// added
++ (void)setIdentityFilePath : (NSString *)path{
+    self.IdentityFilePath= path;
+}
+// added
++ (void)setIdentity : (NSString *)userID{
+    self.Identity = userID;
+} 
+// added
++ (void)setModelURL : (NSString *)modelURL{
+    self.ModelURL= modelURL;
+}
+// added
++ (void)setModelFileName : (NSString *)modelFileName{
+    self.ModelFileName= modelFileName;
 }
 
 - (void)stopFaceDetection
@@ -2169,14 +2263,6 @@ BOOL _sessionInterrupted = NO;
 }
 - (void)stopFaceVerification
 {
-    // if (self.videoDataOutput && !self.canReadText) {
-    //     [self.session removeOutput:self.videoDataOutput];
-    // }
-    // self.videoDataOutput = nil;
-    // AVCaptureSessionPreset preset = [self getDefaultPreset];
-    // if (self.session.sessionPreset != preset) {
-    //     [self updateSessionPreset: preset];
-    // }
      NSLog(@"stopFaceVerification");
 }
 - (void)updateTrackingEnabled:(id)requestedTracking
@@ -2323,6 +2409,20 @@ BOOL _sessionInterrupted = NO;
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     fromConnection:(AVCaptureConnection *)connection
 {
+    // [RNFileSystem checkExistedFilesInDocumentDir];
+    // if([self checkModelFileExistInDocumentDir:_ModelFileName]){
+    //     NSLog(@"model %@ exist in DocumentDir", _ModelFileName);
+    // }else{
+    //     [RNFileSystem CopyFile:_ModelFileName 
+    //                     fromPath:[[NSBundle mainBundle] resourcePath]
+    //                     toPath:[RNFileSystem documentDirectoryPath]];
+    //     if([self checkModelFileExistInDocumentDir:_ModelFileName]){
+    //         NSLog(@"success copy model %@ to documentDir ", _ModelFileName);
+    //     }else{
+    //         NSLog(@"copy not success");
+    //         // [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
+    //     }
+    // }
     if (![self.textDetector isRealDetector] && 
         ![self.faceDetector isRealDetector] && 
         ![self.barcodeDetector isRealDetector]) {
@@ -2372,57 +2472,61 @@ BOOL _sessionInterrupted = NO;
             }];
         }
 
-
         // find face features
         if (canSubmitForFaceDetection) {
             _finishedDetectingFace = false;
             _finishedVerifyingFace = false;
             self.startFace = [NSDate date];
             [self.faceDetector findFacesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * faces) {
-                NSDictionary *eventFace = @{@"type" : @"face", @"faces" : faces};              
-                     RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceDetection myInterpreter runModelWithFrame");
-                     // verify the face with interpreter
-                
-                // todo: convert this boolean value to a function which check and read the user image from URL
-                RCTLogInfo(@"get user image....");
-                RCTLogInfo(@"IdentityFileLocation = %@",self.IdentityFileLocation);
-                BOOL getMyImage = true;
-                if(getMyImage ) {
-                    RCTLogInfo(@"preprocess and run model with image image....");
+                NSDictionary *eventFace = @{@"type" : @"face", @"faces" : faces};   
+                // verify the face with interpreter
+                if(_canVerifyFaces){
+                    RCTLogInfo(@"props: IdentityFileLocation: %@; IdentityFilePath: %@; Identity: %@",
+                                    _IdentityFileLocation, _IdentityFilePath, _Identity);
+                    RCTLogInfo(@"props: modelURL: %@; modelFileName: %@",
+                                    _ModelURL, _ModelFileName);
 
-                    
-                    // get image from bundle...
-                    //todo: change to read from url
-                    // UIImage * myImage = [UIImage imageNamed:@"true_img.png"];
-                    // [self.myInterpreter runModelWithFrame:image scaleX:scaleX scaleY:scaleY faces:eventFace];
-                    [self.myInterpreter verifyFacesInFrame:image 
-                                        scaleX:scaleX scaleY:scaleY faces:eventFace 
-                                        completed:^(float result){
-                                            // NSDictionary *eventVerify = @{@"type" : @"Verified", 
-                                            //                             @"result" : [[NSNumber numberWithFloat:result] stringValue]};
-                                            NSDictionary *eventVerify = @{@"type" : @"Verified", 
-                                                                        @"result" : @(result)};
-                                            RCTLogInfo(@"findFacesInFrame result : %f",result);
-                                            [self onFacesVerified:eventVerify];
-                                            self.finishedVerifyingFace = true;
-                                        }];
+                    // RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceDetection myInterpreter runModelWithFrame");
+                    // RCTLogInfo(@"get user image....");
+                    // RCTLogInfo(@"check myImage folder: file exist?");
+                    // RCTLogInfo([RNFileSystem checkExistFilesInDir:@"myImage"] ? @"Yes" : @"No");
+                    RCTLogInfo([RNFileSystem checkExistFilesInDir:_Identity] ? @"Yes" : @"No");
+                    RCTLogInfo(@"IdentityFileLocation = %@",self.IdentityFileLocation);
+                    if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:_Identity]){
+                        RCTLogInfo(@"IdentityFile existed  %@",_Identity);
+                    }else{
+                         [RNFileSystem CopyFile:_Identity 
+                            fromPath: [[NSBundle mainBundle] resourcePath]
+                            toPath:[[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath]] ;        
+                    }
+                    BOOL getMyImage = true;
+                    if(getMyImage ) {
+                        RCTLogInfo(@"preprocess and run model with image image....");  
+                       
+                        // get image from bundle...
+                        //todo: change to read from url
+                        // UIImage * myImage = [UIImage imageNamed:@"true_img.png"];
+                        // [self.myInterpreter runModelWithFrame:image scaleX:scaleX scaleY:scaleY faces:eventFace];
+                        [self.myInterpreter verifyFacesInFrame:image 
+                                            scaleX:scaleX scaleY:scaleY faces:eventFace 
+                                            identity:_Identity
+                                            identityFolder:_IdentityFilePath
+                                            completed:^(float result){
+                                                NSDictionary *eventVerify = @{@"type" : @"Verified", @"result" : @(result)};
+                                                RCTLogInfo(@"findFacesInFrame result : %@",eventVerify);
+                                                [self onFacesVerified:eventVerify];
+                                                self.finishedVerifyingFace = true;
+                        }];
+                    }else{
+                        RCTLogInfo(@"can't find user image: take picture or ignore ?");
+                    }
                 }
-                else{
-                    RCTLogInfo(@"can't find user image: take picture or ignore ?");
-                }
-
-// todo: convert to callback function in mymodel runmodelwithframe...
-
                 [self onFacesDetected:eventFace];
                 self.facesDetected = faces;
                 // stop detect
                 self.finishedDetectingFace = true;
-                // self.finishedVerifyingFace = true;
             }];
         }
-        // if(canSubmitForFaceVerification){
-        //      RCTLogInfo(@"RNCamera > captureOutput canSubmitForFaceVerification ... ");
-        // }
         // find barcodes
         if (canSubmitForBarcodeDetection) {
             // Check for the barcode detection mode (Normal, Alternate, Inverted)

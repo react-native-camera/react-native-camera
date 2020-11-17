@@ -108,6 +108,8 @@ type PictureOptions = {
   fixOrientation?: boolean,
   forceUpOrientation?: boolean,
   pauseAfterCapture?: boolean,
+  // image name
+  fileName?: String,
 };
 
 type TrackedFaceFeature = FaceFeature & {
@@ -534,7 +536,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (!options.quality) {
       options.quality = 1;
     }
-
+    // if(!options.fileName){
+    //   options.fileName = '';
+    // }
     if (options.orientation) {
       if (typeof options.orientation !== 'number') {
         const { orientation } = options;
@@ -892,11 +896,19 @@ export default class Camera extends React.Component<PropsType, StateType> {
       newProps.faceDetectorEnabled = true;
     }
     //added
-    if (props.IdentityFileLocation) {
-      newProps.IdentityFileLocation = props.IdentityFileLocation;
-    } else {
-      // incase error
-      newProps.IdentityFileLocation = '';
+    if (props.onFacesVerified) {
+      newProps.faceVerifyEnabled = true;
+      // console.info(`faceVerifyEnabled: please make sure to have the model in bundle; and provide props: IdentityFileLocation`);
+      if (props.IdentityFileLocation) {
+        newProps.IdentityFileLocation = props.IdentityFileLocation;
+      } else {
+        console.warn('IdentityFileLocation is null');
+        newProps.IdentityFileLocation = '';
+      }
+      newProps.path = props.path;
+      newProps.user = props.user;
+      newProps.modelURL = props.modelURL;
+      newProps.modelFileName = props.modelFileName;
     }
 
     if (props.onTap || props.onDoubleTap) {

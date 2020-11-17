@@ -280,23 +280,51 @@ RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
     view.canDetectFaces = [RCTConvert BOOL:json];
     [view setupOrDisableFaceDetector];
 }
+
 // added
-RCT_CUSTOM_VIEW_PROPERTY(faceVerifyEnabled, BOOL, RNCamera)
+RCT_CUSTOM_VIEW_PROPERTY(path, NSString, RNCamera)
 {
-    view.canVerifyFaces = [RCTConvert BOOL:json];
-    [view setupOrDisableFaceVerifier];
+    NSString * path =[RCTConvert NSString:json];
+    // [view setupOrDisableFaceVerifier];
+    RCTLogInfo(@"RNCameraManager > IdentityFile path = %@",path);  
+    [view setIdentityFilePath:path];
+}
+// added
+RCT_CUSTOM_VIEW_PROPERTY(user, NSString, RNCamera)
+{
+    NSString * user =[RCTConvert NSString:json];
+    // [view setupOrDisableFaceVerifier];
+    RCTLogInfo(@"RNCameraManager > user = %@",user);  
+    [view setIdentity:user];
 }
 // added
 RCT_CUSTOM_VIEW_PROPERTY(IdentityFileLocation, NSString , RNCamera)
 {
-    // [view setPictureSize:[[self class] pictureSizes][[RCTConvert NSString:json]]];
-    // [view updatePictureSize];
     NSString * myLocation = [RCTConvert NSString:json];
     RCTLogInfo(@"RNCameraManager > IdentityFileLocation = %@",myLocation);  
-    // todo: why error?
     [view setIdentityFileLocation:myLocation];
 }
-
+// added
+RCT_CUSTOM_VIEW_PROPERTY(modelURL, NSString , RNCamera)
+{
+    NSString * modelURL = [RCTConvert NSString:json];
+    RCTLogInfo(@"RNCameraManager > modelURL = %@",modelURL);  
+    [view setModelURL:modelURL];
+}
+// added
+RCT_CUSTOM_VIEW_PROPERTY(modelFileName, NSString , RNCamera)
+{
+    NSString * modelFileName = [RCTConvert NSString:json];
+    RCTLogInfo(@"RNCameraManager > modelFileName = %@",modelFileName);  
+    [view setModelFileName:modelFileName];
+}
+// added
+RCT_CUSTOM_VIEW_PROPERTY(faceVerifyEnabled, BOOL, RNCamera)
+{
+    view.canVerifyFaces = [RCTConvert BOOL:json];
+    RCTLogInfo(@"RNCameraManager > faceVerifyEnabled setupVerifier");  
+    [view setupOrDisableFaceVerifier];
+}
 RCT_CUSTOM_VIEW_PROPERTY(trackingEnabled, BOOL, RNCamera)
 {
     [view updateTrackingEnabled:json];
@@ -386,6 +414,7 @@ RCT_REMAP_METHOD(takePicture,
         if (![view isKindOfClass:[RNCamera class]]) {
             RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
         } else {
+            // simulator
 #if TARGET_IPHONE_SIMULATOR
 
             NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
@@ -396,6 +425,7 @@ RCT_REMAP_METHOD(takePicture,
 
             if (options[@"path"]) {
                 path = options[@"path"];
+               
             }
             else{
                 path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
@@ -411,7 +441,9 @@ RCT_REMAP_METHOD(takePicture,
             NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
             if (![options[@"doNotSave"] boolValue]) {
                 response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
+                
             }
+            
             response[@"width"] = @(generatedPhoto.size.width);
             response[@"height"] = @(generatedPhoto.size.height);
             if ([options[@"base64"] boolValue]) {

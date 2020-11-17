@@ -49,7 +49,17 @@
 @property(nonatomic, assign) BOOL canDetectFaces;
 // added
 @property(nonatomic, assign) BOOL canVerifyFaces;
+// added
 @property(nonatomic, copy) NSString * IdentityFileLocation;
+// added
+@property(nonatomic, copy) NSString * IdentityFilePath;
+// added
+@property(nonatomic, copy) NSString * Identity;
+// added
+@property(nonatomic, copy) NSString * ModelURL;
+// added
+@property(nonatomic, copy) NSString * ModelFileName;
+
 
 @property(nonatomic, assign) BOOL canDetectBarcodes;
 @property(nonatomic, assign) BOOL captureAudio;
@@ -109,6 +119,14 @@
 //added
 - (void)setupOrDisableFaceVerifier;
 + (void)setIdentityFileLocation : (NSString *)location;
+// added
++ (void)setIdentityFilePath : (NSString *)path;
+// added
++ (void)setIdentity : (NSString *)userID;
+// added
++ (void)setModelURL : (NSString *)modelURL;
+// added
++ (void)setModelFileName : (NSString *)modelFileName;
 
 - (void)setupOrDisableBarcodeDetector;
 - (void)onReady:(NSDictionary *)event;
@@ -126,4 +144,7 @@
 - (bool)isRecording;
 - (void)onSubjectAreaChanged:(NSDictionary *)event;
 
+
+- (BOOL) checkModelFileExistInDocumentDir:(NSString *) modelFileName;
+- (void) downloadModelFile:(NSString *)modelFileName fromURL:(NSString *)URL; 
 @end

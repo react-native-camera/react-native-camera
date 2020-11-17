@@ -38,8 +38,7 @@
     CGImageRelease(cropCGImage);
     return image;
 }
-        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
-        // todo: why flip the image?
+
 + (UIImage *)mirrorImage:(UIImage *)image
 {
     UIImageOrientation flippedOrientation = UIImageOrientationUpMirrored;
@@ -63,28 +62,6 @@
     return flippedImage;
 }
 
-//todo: check 
-// NSString \*path = nil;
-
-//             if (options[@"path"]) {
-//                 path = options[@"path"];
-//             }
-//             else{
-//                 path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
-//             }
-//             UIImage *generatedPhoto = [RNImageUtils generatePhotoOfSize:CGSizeMake(200, 200)];
-
-//              [view onPictureTaken:@{}];
-
-//             NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
-//             if (![options[@"doNotSave"] boolValue]) {
-//                 response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
-//             }
-//             response[@"width"] = @(generatedPhoto.size.width);
-//             response[@"height"] = @(generatedPhoto.size.height);
-//             if ([options[@"base64"] boolValue]) {
-//                 response[@"base64"] = [photoData base64EncodedStringWithOptions:0];
-//             }
 + (NSString *)writeImage:(NSData *)image toPath:(NSString *)path
 {
     RCTLogInfo(@"RNImageUtils > writeImage : will save to path %@",path);  
@@ -229,7 +206,7 @@
 // get grayscale array data from image
 + (NSData *)getArrayOfImage:(UIImage *)image
 {
-     RCTLogInfo(@"RNImageUtils > getArrayOfImage ...");
+    RCTLogInfo(@"RNImageUtils > getArrayOfImage ...");
     CGImageRef imageRef = [image CGImage];
     NSUInteger width = CGImageGetWidth(imageRef);
     NSUInteger height = CGImageGetHeight(imageRef);
@@ -247,6 +224,13 @@
     // convert to grayscale
     NSData * data = [self RGBImageDataToGrayScaleArray:rawData width:width height:height bytesPerRow:bytesPerRow];
     NSUInteger size = [data length] ;
+    if(size != 50176) {
+        void * bytes = malloc(50176);
+        data = [NSData dataWithBytes:bytes length:50176];
+        // free(bytes);
+        // data = [NSMutableData dataWithCapacity:50176];
+        
+    }
     // RCTLogInfo(@" gray rawData size: %d",size);
     rawData = (unsigned char*) [data bytes];
     // [self printGrayData:rawData width:width height:height bytesPerRow:bytesPerRow];
@@ -375,24 +359,9 @@
 + (NSString *)applicationDocumentsDirectory {
     return [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
 }
-+ (UIImage*)loadImage:(NSString *) imageName
++ (UIImage*)loadImage:(NSString *) imagePath
 {
-    // NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: @"http://myurl/mypic.jpg"]];
-    // cell.image = [UIImage imageWithData: imageData];
-    // [imageData release];
-
-    // return [UIImage imageNamed:@"colorpattern.jpg"];
-
-   
-    NSString *workSpacePath=[[self applicationDocumentsDirectory] stringByAppendingPathComponent:@"your image-name"];
-    UIImageView *myimage=[[UIImageView alloc] initWithFrame:CGRectMake(0,0,20,20)];
-    return [UIImage imageWithData:[NSData dataWithContentsOfFile:workSpacePath]];    
-  
-    //  NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] 
-    //                                                         stringByAppendingPathComponent:@"Camera"] 
-    //                                 withExtension:@".jpg"];
-    // NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
-    //  response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
+    return [UIImage imageWithContentsOfFile:imagePath];
 }
 
 // https://gist.github.com/3ign0n/43dd799c33331c3de603 

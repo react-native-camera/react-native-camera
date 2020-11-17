@@ -13,98 +13,19 @@
 #import <React/RCTLog.h>
 #import "MyModel.h"
 #import "RNImageUtils.h"
+#import "RNFileSystem.h"
 #import "RNCameraUtils.h"
 #import "TFLTensorFlowLite.h"
 @import TensorFlowLite;
 
-// @interface MyModel : NSObject
-  
-//   @property(nonatomic, strong) TFLInterpreter *interpreter;
-//   - (instancetype)init;
-//   -(NSArray *)runModelWithFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float)scaleY ;
-// @end
 @implementation MyModel
-
-// RCT_EXTERN_MODULE(MyModel, NSObject);
-// RCT_EXTERN_MODULE(ReactNativeEventEmitter, RCTEventEmitter);
-
-// RCT_EXTERN_METHOD(supportedEvents);
-// RCT_EXTERN_METHOD(loadmodel);
-////expose the method to get result
-// RCT_EXTERN_METHOD(getmodel: (RCTResponseSenderBlock)callback);
-// RCT_EXTERN_METHOD(doInterprete);
-// RCT_EXTERN_METHOD(testEvent);
-// RCT_EXTERN_METHOD(supportedEvents)
-
-// RCT_EXTERN_METHOD(addEvent:(NSString *)name location:(NSString *)location date:(nonnull NSNumber *)date)
-// - (dispatch_queue_t)methodQueue
-// {
-//   return dispatch_queue_create("com.facebook.React.AsyncLocalStorageQueue", DISPATCH_QUEUE_SERIAL);
-// }
-// RCT_EXPORT_METHOD(doSomethingExpensive:(NSString *)param callback:(RCTResponseSenderBlock)callback)
-// {
-//   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//     // Call long-running code on background thread
- 
-    
-//     NSString *greeting =   @"Welcome, you an administrator.";
-// //    ...
-//     // You can invoke callback from any thread/queue
-//     callback(@[greeting]);
-//   });
-// }
-
-////{
-////  backgroundQueue = dispatch_queue_create("anynameisok", NULL);
-////  dispatch_async(backgroundQueue, ^{
-////    NSLog(@"processing background");
-////    // dispatch a event to the app , through the bridge, with a name, and a body
-////    [self.bridge.eventDispatcher sendAppEventWithName:@"backgroundProgress" body:@{@"status": @"Loading"}];
-////    // sleep 5 second as if running codes...
-////    [NSThread sleepForTimeInterval:5];
-////    NSLog(@"slept");
-////    // notify system that task completed
-////    dispatch_async(dispatch_get_main_queue(), ^{
-////      NSLog(@"Done processing; main thread");
-////        // dispatch a event to the app , through the bridge, with a name, and a body
-////      [self.bridge.eventDispatcher sendAppEventWithName:@"backgroundProgress" body:@{@"status": @"Done"}];
-////    });
-////  });
-////}
-//
-//
-//
-// + (BOOL)requiresMainQueueSetup
-// {
-// //  return YES;  // only do this if your module initialization relies on calling UIKit!
-//    return NO;
-// }
-// @end
-
-
-//@implementation MyModelManager
-//
-//RCT_EXPORT_MODULE();
-//
-//- (NSArray<NSString *> *)supportedEvents
-//{
-//  return @[@"EventReminder"];
-//}
-//
-//- (void)calendarEventReminderReceived:(NSNotification *)notification
-//{
-//  NSString *eventName = notification.userInfo[@"name"];
-//  [self sendEventWithName:@"EventReminder" body:@{@"name": eventName}];
-//}
-//
-//  NSError *error ;
-
 - (instancetype)init 
 {
   if (self = [super init]) {
-    // todo: how to init with a downloaded/URL path model??
     NSString *modelPath = [[NSBundle mainBundle] pathForResource:@"mymodel"
                                                       ofType:@"tflite"];
+    // NSString *modelPath = [[NSBundle mainBundle] pathForResource:@"anyfile"
+    //                                                   ofType:@"tflite"];                                                  
     NSError *error;
       // Initialize an interpreter with the model.
     TFLInterpreter *myinterpreter = [[TFLInterpreter alloc] initWithModelPath:modelPath error:&error];
@@ -114,6 +35,26 @@
       RCTLogWarn(@"MyModel > init error ...");
       
     }
+    self.interpreter = myinterpreter;
+    // self.faceRecognizer = [_vision faceDetectorWithOptions:_options];
+  }
+        RCTLogInfo(@"MyModel > init finish"); 
+  return self;
+}
+
+- (instancetype)initWithPath :(NSString *)modelPath
+{
+  if (self = [super init]) {                                               
+    NSError *error;
+      // Initialize an interpreter with the model.
+    TFLInterpreter *myinterpreter = [[TFLInterpreter alloc] initWithModelPath:modelPath error:&error];
+                      
+    if (error != nil) { 
+    /* Error handling... */ 
+      RCTLogWarn(@"MyModel > init error ...");
+      
+    }
+    RCTLogWarn(@"MyModel > init success with %@",modelPath);
     self.interpreter = myinterpreter;
     // self.faceRecognizer = [_vision faceDetectorWithOptions:_options];
   }
@@ -293,6 +234,8 @@
               scaleX:(float)scaleX
               scaleY:(float)scaleY
               faces:(NSDictionary *)eventFace
+              identity:(NSString *)identityFileName
+              identityFolder:(NSString *)identityFolderName
               completed:(void (^)(float result))completed {
     NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
     // [_faceRecognizer  processImage:image completion:^(NSArray<FIRVisionFace *> *faces, NSError *error) {
@@ -308,7 +251,7 @@
         //     completed([self processFaces:faces inImage:base64String]);
         //  }
     //  }];
-     CGImageRef imageRef = [uiImage CGImage];
+    CGImageRef imageRef = [uiImage CGImage];
     NSUInteger width = CGImageGetWidth(imageRef);
     NSUInteger height = CGImageGetHeight(imageRef);
     NSData *imageData = UIImagePNGRepresentation(uiImage);
@@ -359,8 +302,12 @@
     NSData *inputData = [RNImageUtils getArrayOfImage:uiImage];
     // NSData *inputData = [self OriginalImageData:uiImage];
     RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
+    NSString *originalImagePath = [RNFileSystem documentDirectoryPath];
+    originalImagePath = [originalImagePath stringByAppendingPathComponent:identityFolderName];
+    originalImagePath = [originalImagePath stringByAppendingPathComponent:identityFileName];
+    UIImage * originalImage = [RNImageUtils loadImage:originalImagePath];
     // NSData *originData = inputData;
-    UIImage * originalImage = [UIImage imageNamed:@"true_img.png"];
+    // UIImage * originalImage = [UIImage imageNamed:@"true_img.png"];
     // UIImage * originalImage = [UIImage imageNamed:@"fake_img.png"];
     NSData *originData = [self preprocessImage:originalImage];
 
