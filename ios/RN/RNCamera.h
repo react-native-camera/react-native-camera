@@ -118,7 +118,7 @@
 - (void)setupOrDisableFaceDetector;
 //added
 - (void)setupOrDisableFaceVerifier;
-+ (void)setIdentityFileLocation : (NSString *)location;
+// + (void)setIdentityFileLocation : (NSString *)location;
 // added
 + (void)setIdentityFilePath : (NSString *)path;
 // added

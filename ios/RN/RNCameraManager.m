@@ -285,44 +285,44 @@ RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
 RCT_CUSTOM_VIEW_PROPERTY(path, NSString, RNCamera)
 {
     NSString * path =[RCTConvert NSString:json];
-    // [view setupOrDisableFaceVerifier];
-    RCTLogInfo(@"RNCameraManager > IdentityFile path = %@",path);  
+  
+    // RCTLogInfo(@"RNCameraManager > IdentityFile path = %@",path);  
     [view setIdentityFilePath:path];
 }
 // added
 RCT_CUSTOM_VIEW_PROPERTY(user, NSString, RNCamera)
 {
     NSString * user =[RCTConvert NSString:json];
-    // [view setupOrDisableFaceVerifier];
-    RCTLogInfo(@"RNCameraManager > user = %@",user);  
+    
+    // RCTLogInfo(@"RNCameraManager > user = %@",user);  
     [view setIdentity:user];
 }
-// added
-RCT_CUSTOM_VIEW_PROPERTY(IdentityFileLocation, NSString , RNCamera)
-{
-    NSString * myLocation = [RCTConvert NSString:json];
-    RCTLogInfo(@"RNCameraManager > IdentityFileLocation = %@",myLocation);  
-    [view setIdentityFileLocation:myLocation];
-}
+// // added
+// RCT_CUSTOM_VIEW_PROPERTY(IdentityFileLocation, NSString , RNCamera)
+// {
+//     NSString * myLocation = [RCTConvert NSString:json];
+//     // RCTLogInfo(@"RNCameraManager > IdentityFileLocation = %@",myLocation);  
+//     [view setIdentityFileLocation:myLocation];
+// }
 // added
 RCT_CUSTOM_VIEW_PROPERTY(modelURL, NSString , RNCamera)
 {
     NSString * modelURL = [RCTConvert NSString:json];
-    RCTLogInfo(@"RNCameraManager > modelURL = %@",modelURL);  
+    // RCTLogInfo(@"RNCameraManager > modelURL = %@",modelURL);  
     [view setModelURL:modelURL];
 }
 // added
 RCT_CUSTOM_VIEW_PROPERTY(modelFileName, NSString , RNCamera)
 {
     NSString * modelFileName = [RCTConvert NSString:json];
-    RCTLogInfo(@"RNCameraManager > modelFileName = %@",modelFileName);  
+    // RCTLogInfo(@"RNCameraManager > modelFileName = %@",modelFileName);  
     [view setModelFileName:modelFileName];
 }
 // added
 RCT_CUSTOM_VIEW_PROPERTY(faceVerifyEnabled, BOOL, RNCamera)
 {
     view.canVerifyFaces = [RCTConvert BOOL:json];
-    RCTLogInfo(@"RNCameraManager > faceVerifyEnabled setupVerifier");  
+    // RCTLogInfo(@"RNCameraManager > faceVerifyEnabled setupVerifier");  
     [view setupOrDisableFaceVerifier];
 }
 RCT_CUSTOM_VIEW_PROPERTY(trackingEnabled, BOOL, RNCamera)
@@ -408,7 +408,7 @@ RCT_REMAP_METHOD(takePicture,
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
-        RCTLogInfo(@"RNCameraManager remapmethod > takePicture ");  
+        // RCTLogInfo(@"RNCameraManager remapmethod > takePicture ");  
     [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
         RNCamera *view = viewRegistry[reactTag];
         if (![view isKindOfClass:[RNCamera class]]) {
@@ -452,16 +452,11 @@ RCT_REMAP_METHOD(takePicture,
             if (useFastMode) {
                 [view onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
             } else {
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"RNCameraManager > takePicture response:%@",response);  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+        // RCTLogInfo(@"RNCameraManager > takePicture response:%@",response);  
                 resolve(response);
             }
 #else
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"RNCameraManager > takePicture view takePicture with options = %@",options);  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
- 
+        // RCTLogInfo(@"RNCameraManager > takePicture view takePicture with options = %@",options);  
             [view takePicture:options resolve:resolve reject:reject];
 #endif
         }

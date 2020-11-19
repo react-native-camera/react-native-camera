@@ -899,12 +899,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (props.onFacesVerified) {
       newProps.faceVerifyEnabled = true;
       // console.info(`faceVerifyEnabled: please make sure to have the model in bundle; and provide props: IdentityFileLocation`);
-      if (props.IdentityFileLocation) {
-        newProps.IdentityFileLocation = props.IdentityFileLocation;
-      } else {
-        console.warn('IdentityFileLocation is null');
-        newProps.IdentityFileLocation = '';
-      }
       newProps.path = props.path;
       newProps.user = props.user;
       newProps.modelURL = props.modelURL;

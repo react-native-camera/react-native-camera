@@ -99,14 +99,11 @@
             return AVCaptureSessionPresetHigh;
     }
 }
-        // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
-        // todo: how to convert to gray image???
+
 + (UIImage *)convertBufferToUIImage:(CMSampleBufferRef)sampleBuffer previewSize:(CGSize)previewSize position:(NSInteger)position
 {
-// ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"RNCameraUtils > convertBufferToUIImage ");  //only warn or error get response from react log.
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 
+        // RCTLogInfo(@"RNCameraUtils > convertBufferToUIImage ");  //only warn or error get response from react log.
     CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     CIImage *ciImage = [CIImage imageWithCVPixelBuffer:imageBuffer];
     // set correct orientation
@@ -155,9 +152,10 @@
     CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, boundingRect);
     CGImageRef croppedCGImage = CGImageCreateWithImageInRect(videoImage, croppedSize);
     UIImage *image = [[UIImage alloc] initWithCGImage:videoImage];
-    // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"RNCameraUtils > convertBufferToUIImage imageinfo: width=%f height=%f,  scale=%f",image.size.width,image.size.height,image.scale);
-// ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+
+        // RCTLogInfo(@"RNCameraUtils > convertBufferToUIImage imageinfo: width=%f height=%f,  scale=%f",
+        //                                             image.size.width,image.size.height,image.scale);
+
     CGImageRelease(videoImage);
     CGImageRelease(croppedCGImage);
     return image;
@@ -195,4 +193,3 @@
 }
 
 @end
-

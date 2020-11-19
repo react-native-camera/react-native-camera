@@ -53,6 +53,7 @@
 
     //Appending the name of your custom folder, if you have any
     NSString *path = [documentsDirectory stringByAppendingPathComponent:folderName]; 
+    // [self checkExistedFilesInDirectory:path];
     path = [path stringByAppendingPathComponent:fileName];
 
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -72,6 +73,21 @@
     if ([fileManager fileExistsAtPath:documentsDirectory]) { // Directory exists
         NSArray *listOfFiles = [fileManager contentsOfDirectoryAtPath:documentsDirectory error:nil];
         RCTLogInfo(@"check folder %@ : contains: %@",documentsDirectory,listOfFiles);
+        int amount = [listOfFiles count] ;
+        if(amount > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    return false;
+}
++ (BOOL)checkExistedFilesInDirectory: (NSString *)path
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:path]) { // Directory exists
+        NSArray *listOfFiles = [fileManager contentsOfDirectoryAtPath:path error:nil];
+        RCTLogInfo(@"check folder %@ : contains: %@",path,listOfFiles);
         int amount = [listOfFiles count] ;
         if(amount > 0){
             return true;
@@ -110,7 +126,7 @@
 
 + (void)purgeDocumentsDirectory
 {
-    NSLog(@"Purging Documents Directory...");
+    // NSLog(@"Purging Documents Directory...");
     NSString *folderPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     NSError *error = nil;
     for (NSString *file in [[NSFileManager defaultManager] contentsOfDirectoryAtPath:folderPath error:&error]) {
@@ -120,7 +136,7 @@
 + (void)CopyFile :(NSString *)fileName fromPath:(NSString *)originPath toPath:(NSString *)destPath
 {
     [self purgeDocumentsDirectory];
-    BOOL success;
+    BOOL success = false;
     BOOL exist;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     originPath = [originPath stringByAppendingPathComponent:fileName];
@@ -130,13 +146,14 @@
         return;
     }
     [self ensureDirExistsWithPath:destPath];
-    // destPath = [destPath stringByAppendingPathComponent:fileName];
+    destPath = [destPath stringByAppendingPathComponent:fileName];
     
-    success = [fileManager fileExistsAtPath:[destPath stringByAppendingPathComponent:fileName]];
+    success = [fileManager fileExistsAtPath:destPath];
     // NSString *FileDB = [[[NSBundle mainBundle]resourcePath]stringByAppendingPathComponent:DataName];
     if (success)
     {
         NSLog(@"File Exist");
+        
         return;
     }
     else
@@ -149,6 +166,30 @@
         RCTLogInfo(@"check folder %@ : contains: %@",destPath,listOfFiles);   
     }
 }
+// + (void) downloadModelFile:(NSString *)modelFileName fromURL:(NSString *)URL {
+// //   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//         NSLog(@"Downloading Started");
+//         NSString *urlToDownload = [URL stringByAppendingPathComponent:modelFileName];
+//         NSURL  *url = [NSURL URLWithString:urlToDownload];
+//         NSData *urlData = [NSData dataWithContentsOfURL:url];
+//         if ( urlData )
+//         {
+//             // NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+//             // NSString  *documentsDirectory = [paths objectAtIndex:0];
+//             NSString  *documentsDirectory = [RNFileSystem documentDirectoryPath];
+//             NSString  *filePath = [NSString stringWithFormat:@"%@/%@", documentsDirectory,modelFileName];
+//             //saving is done on main thread
+//             // dispatch_async(dispatch_get_main_queue(), ^{
+//             dispatch_async(_sessionQueue, ^{
+//                 [urlData writeToFile:filePath atomically:YES];
+//                 NSURL *fileURL = [NSURL fileURLWithPath:filePath];
+//                 RCTLogInfo(@"RNImageUtils > model file writed : apsoluteString %@",[fileURL absoluteString]);  
+//                 NSLog(@"File Saved ! path: ");
+//                 // return true;
+//             });
+//         }
 
+//     // });
+// }
 @end
 

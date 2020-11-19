@@ -116,9 +116,9 @@
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
-        NSData *imageData = UIImagePNGRepresentation(uiImage);
-        NSString * base64String = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-        RCTLogInfo(@"FaceDetectorManagerMlkit > findFacesInFrame");  
+        // NSData *imageData = UIImagePNGRepresentation(uiImage);
+        // NSString * base64String = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+        // RCTLogInfo(@"FaceDetectorManagerMlkit > findFacesInFrame");  
 
     FIRVisionImage *image = [[FIRVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
@@ -140,7 +140,7 @@
 - (NSArray *)processFaces:(NSArray *)faces inImage:(NSString *)base64Image
 {
     NSMutableArray *result = [[NSMutableArray alloc] init];
-        RCTLogInfo(@"faces length : %d", [faces count]  ) ;
+        // RCTLogInfo(@"faces length : %d", [faces count]  ) ;
     for (FIRVisionFace *face in faces) {
         NSMutableDictionary *resultDict =
         [[NSMutableDictionary alloc] initWithCapacity:20];
@@ -252,14 +252,14 @@
         }
         [result addObject:resultDict];
     }
-        RCTLogInfo(@"processFaces result: %@", result); 
+        // RCTLogInfo(@"processFaces result: %@", result); 
     return result;
 }
 - (NSArray *)processFaces:(NSArray *)faces 
 {
-        RCTLogInfo(@"FaceDetectorManagerMlkit > processFaces"); 
+        // RCTLogInfo(@"FaceDetectorManagerMlkit > processFaces"); 
     NSMutableArray *result = [[NSMutableArray alloc] init];
-        RCTLogInfo(@"faces length : %d", [faces count]  ) ;
+        RCTLogInfo(@"amount of faces detected : %d", [faces count]  ) ;
     for (FIRVisionFace *face in faces) {
         NSMutableDictionary *resultDict =
         [[NSMutableDictionary alloc] initWithCapacity:20];
@@ -372,13 +372,13 @@
         }
         [result addObject:resultDict];
     }
-        RCTLogInfo(@"processFaces result: %@", result); 
+        // RCTLogInfo(@"processFaces result: %@", result); 
     return result;
 }
 
 - (NSDictionary *)processBounds:(CGRect)bounds 
 {
-        RCTLogInfo(@"FaceDetectorManagerMlkit > processBounds");  
+        // RCTLogInfo(@"FaceDetectorManagerMlkit > processBounds");  
     float width = bounds.size.width * _scaleX;
     float height = bounds.size.height * _scaleY;
     float originX = bounds.origin.x * _scaleX;
@@ -424,7 +424,7 @@
                        scaleY:(float)scaleY
                        completed:(void (^)(NSArray *result))completed;
 {
-        RCTLogInfo(@"FaceDetectorManagerMlkit > findFacesInFrame (without FirebaseMLVision) : not yet implemented");  
+        // RCTLogInfo(@"FaceDetectorManagerMlkit > findFacesInFrame (without FirebaseMLVision) : not yet implemented");  
     NSLog(@"FaceDetector not installed, stub used!");
     NSArray *features = @[ @"Error, Face Detector not installed" ];
     return features;

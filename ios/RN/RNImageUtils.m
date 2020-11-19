@@ -64,7 +64,7 @@
 
 + (NSString *)writeImage:(NSData *)image toPath:(NSString *)path
 {
-    RCTLogInfo(@"RNImageUtils > writeImage : will save to path %@",path);  
+    // RCTLogInfo(@"RNImageUtils > writeImage : will save to path %@",path);  
     // overide by default
     [image writeToFile:path atomically:YES];
     NSURL *fileURL = [NSURL fileURLWithPath:path];
@@ -206,7 +206,7 @@
 // get grayscale array data from image
 + (NSData *)getArrayOfImage:(UIImage *)image
 {
-    RCTLogInfo(@"RNImageUtils > getArrayOfImage ...");
+    // RCTLogInfo(@"RNImageUtils > getArrayOfImage ...");
     CGImageRef imageRef = [image CGImage];
     NSUInteger width = CGImageGetWidth(imageRef);
     NSUInteger height = CGImageGetHeight(imageRef);
@@ -245,7 +245,7 @@
 // demo function to get raw data from image using provider
 + (UInt8 *)rawDataCopyWithImage:(UIImage*)image
 {
-    RCTLogInfo(@"RNImageUtils > rawDataCopyWithImage ...");
+    // RCTLogInfo(@"RNImageUtils > rawDataCopyWithImage ...");
     CGImageRef  imageRef = image.CGImage;
     CGDataProviderRef dataProvider = CGImageGetDataProvider(imageRef);
     
@@ -264,7 +264,7 @@
 // demo function to get raw data from image by draw it out with pixel bitmap context
 + (void)rawDataDrawWithImage:(UIImage*)image
 {
-    RCTLogInfo(@"RNImageUtils > rawDataDrawWithImage ...");
+    // RCTLogInfo(@"RNImageUtils > rawDataDrawWithImage ...");
     CGImageRef imageRef = [image CGImage];
     NSUInteger width = CGImageGetWidth(imageRef);
     NSUInteger height = CGImageGetHeight(imageRef);
@@ -288,7 +288,7 @@
     NSData * data = [self RGBImageDataToGrayScaleArray:rawData width:width height:height bytesPerRow:bytesPerRow];
     // NSUInteger size = [data length] / sizeof(float);
     NSUInteger size = [data length] ;
-    RCTLogInfo(@" gray rawData size: %d",size);
+    // RCTLogInfo(@" gray rawData size: %d",size);
     rawData = (unsigned char*) [data bytes];
     // [self printGrayData:rawData width:width height:height bytesPerRow:bytesPerRow];
 
@@ -304,7 +304,7 @@
 // print RGB values from image data 
 + (void)printData:(UInt8*)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow
 {
-    RCTLogInfo(@"RNImageUtils > printData ...");
+    // RCTLogInfo(@"RNImageUtils > printData ...");
     for (NSInteger x=0; x<width; x++)
     {
         for (NSInteger y=0; y<height; y++)
@@ -325,7 +325,7 @@
 // print grayscale array data 
  + (void)printGrayData:(UInt8 *)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow
 {
-    RCTLogInfo(@"RNImageUtils > printGrayData ...");
+    // RCTLogInfo(@"RNImageUtils > printGrayData ...");
     for (NSInteger x=0; x<width; x++)
     {
         for (NSInteger y=0; y<height; y++)
@@ -341,7 +341,7 @@
 + (NSData *) RGBImageDataToGrayScaleArray:(UInt8 *)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow
 {
     NSMutableData *result = [[NSMutableData alloc] initWithLength:0] ; // demo data
-     RCTLogInfo(@"RNImageUtils > RGBImageDataToGrayScaleArray ...");
+    //  RCTLogInfo(@"RNImageUtils > RGBImageDataToGrayScaleArray ...");
     for (NSInteger x=0; x<width; x++)
     {
         for (NSInteger y=0; y<height; y++)
@@ -362,6 +362,22 @@
 + (UIImage*)loadImage:(NSString *) imagePath
 {
     return [UIImage imageWithContentsOfFile:imagePath];
+    // NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: @"http://myurl/mypic.jpg"]];
+    // cell.image = [UIImage imageWithData: imageData];
+    // [imageData release];
+
+    // return [UIImage imageNamed:@"colorpattern.jpg"];
+
+   
+    // NSString *workSpacePath=[[self applicationDocumentsDirectory] stringByAppendingPathComponent:@"your image-name"];
+    // UIImageView *myimage=[[UIImageView alloc] initWithFrame:CGRectMake(0,0,20,20)];
+    // return [UIImage imageWithData:[NSData dataWithContentsOfFile:workSpacePath]];    
+  
+    //  NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] 
+    //                                                         stringByAppendingPathComponent:@"Camera"] 
+    //                                 withExtension:@".jpg"];
+    // NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
+    //  response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
 }
 
 // https://gist.github.com/3ign0n/43dd799c33331c3de603 

@@ -16,16 +16,16 @@
 #import "RNFileSystem.h"
 #import "RNCameraUtils.h"
 #import "TFLTensorFlowLite.h"
+#import "FaceDetectorManagerMlkit.h"
 @import TensorFlowLite;
 
 @implementation MyModel
+// init with model file added to resource bundle
 - (instancetype)init 
 {
   if (self = [super init]) {
     NSString *modelPath = [[NSBundle mainBundle] pathForResource:@"mymodel"
-                                                      ofType:@"tflite"];
-    // NSString *modelPath = [[NSBundle mainBundle] pathForResource:@"anyfile"
-    //                                                   ofType:@"tflite"];                                                  
+                                                      ofType:@"tflite"];                                                
     NSError *error;
       // Initialize an interpreter with the model.
     TFLInterpreter *myinterpreter = [[TFLInterpreter alloc] initWithModelPath:modelPath error:&error];
@@ -36,12 +36,12 @@
       
     }
     self.interpreter = myinterpreter;
-    // self.faceRecognizer = [_vision faceDetectorWithOptions:_options];
   }
         RCTLogInfo(@"MyModel > init finish"); 
   return self;
 }
 
+// init model with provided path
 - (instancetype)initWithPath :(NSString *)modelPath
 {
   if (self = [super init]) {                                               
@@ -52,113 +52,117 @@
     if (error != nil) { 
     /* Error handling... */ 
       RCTLogWarn(@"MyModel > init error ...");
-      
     }
-    RCTLogWarn(@"MyModel > init success with %@",modelPath);
+    RCTLogInfo(@"MyModel > init success with %@",modelPath);
     self.interpreter = myinterpreter;
-    // self.faceRecognizer = [_vision faceDetectorWithOptions:_options];
   }
-        RCTLogInfo(@"MyModel > init finish"); 
+        // RCTLogInfo(@"MyModel > init finish"); 
   return self;
 }
 
-- (NSArray *)runModelWithFrame:(UIImage *)uiImage
+- (float)runModelWithFrame:(UIImage *)uiImage
                   scaleX:(float)scaleX
                   scaleY:(float)scaleY
                
 {
-  // int control = 1;
   CGImageRef imageRef = [uiImage CGImage];
   NSUInteger width = CGImageGetWidth(imageRef);
   NSUInteger height = CGImageGetHeight(imageRef);
   NSData *imageData = UIImagePNGRepresentation(uiImage);
-  NSLog(@"runModelWithFrame > image data length : %d, width=%d, height=%d, scale=%f x %f", 
-        [imageData length],width,height,scaleX,scaleY );
-
-  RCTLogInfo(@"MyModel > runModelWithFrame...");  
+  // NSLog(@"runModelWithFrame > image data length : %d, width=%d, height=%d, scale=%f x %f", 
+  //       [imageData length],width,height,scaleX,scaleY );
+  // RCTLogInfo(@"MyModel > runModelWithFrame...");  
   NSError *error;
   // Allocate memory for the model's input `TFLTensor`s.
   [self.interpreter allocateTensorsWithError:&error];
   if (error != nil) { 
     /* Error handling... */ 
-    RCTLogInfo(@"MyModel > runModelWithFrame > allocateTensorsWithError : error ...%@",error);
+    RCTLogWarn(@"MyModel > runModelWithFrame > allocateTensorsWithError : error ...%@",error);
+    return   404;
   }
-  RCTLogInfo(@"MyModel > runModelWithFrame > imagePreProcess...");
-  NSData *inputData = [self OriginalImageData:uiImage];
-  RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
-  NSData *originData = [self OriginalImageData:uiImage];
+  // preprocess input
+  // RCTLogInfo(@"MyModel > runModelWithFrame > imagePreProcess...");
+  NSData *inputData = [RNImageUtils getArrayOfImage:uiImage];
+  // RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
+  UIImage * originalImage = [UIImage imageNamed:@"true_img.png"];
+  // UIImage * originalImage = [UIImage imageNamed:@"fake_img.png"];
+  NSData *originData = [self preprocessImage:originalImage];
 
   // Copy the input data to the input `TFLTensor`.
   [[self.interpreter  inputTensorAtIndex:0 error:&error] copyData:inputData error:&error];
   if (error != nil) { 
     /* Error handling... */ 
-     RCTLogInfo(@"MyModel > runModelWithFrame > copyData : error ...%@",error);
+     RCTLogInfo(@"MyModel > runModelWithFrame > copy input 1 data error: %@",error);
+     return   404;
   }
    [[self.interpreter  inputTensorAtIndex:1 error:&error] copyData:originData error:&error];
   if (error != nil) { 
     /* Error handling... */ 
-     RCTLogInfo(@"MyModel > runModelWithFrame > copyData : error ...%@",error);
+     RCTLogInfo(@"MyModel > runModelWithFrame > copy input 2 data error: %@",error);
+     return   404;
   }
   // Run inference by invoking the `TFLInterpreter`.
   [self.interpreter invokeWithError:&error];
   if (error != nil) { 
     /* Error handling... */ 
-     RCTLogInfo(@"MyModel > runModelWithFrame > invokeWithError : error ...%@",error);
+     RCTLogInfo(@"MyModel > runModelWithFrame > invokeWithError : error : %@",error);
+     return   404;
   }
 
   // Get the output `TFLTensor`
   TFLTensor *outputTensor = [self.interpreter outputTensorAtIndex:0 error:&error];
   if (error != nil) { 
     /* Error handling... */ 
-        RCTLogInfo(@"MyModel > runModelWithFrame > outputTensorAtIndex : error ...%@",error);
+        RCTLogInfo(@"MyModel > runModelWithFrame > outputTensor error : %@",error);
+        return   404;
   }
 
   // Copy output to `NSData` to process the inference results.
   NSData *outputData = [outputTensor dataWithError:&error];
-  RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%@",outputData);
+  // RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%@",outputData);
   if (error != nil) { 
     /* Error handling... */ 
-     RCTLogInfo(@"MyModel > runModelWithFrame > dataWithError : error ...%@",error);
+     RCTLogInfo(@"MyModel > runModelWithFrame > get ouput data error : %@",error);
+     return   404;
   }
   float *p = (float*)[outputData bytes];   // -bytes returns a void* that points to the data
   float f = *p;
-  RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%f",f);
-  NSArray *features = @[ @"Interprete finish" ];
-  //  CGFloat rotY = face.headEulerAngleY;
-  //           [resultDict setObject:@(rotY) forKey:@"yawAngle"];
-  return features; 
+  RCTLogInfo(@"MyModel > runModelWithFrame > result = %f",f);
+  return f; 
 }
 
-- (NSArray *)runModelWithFrame:(UIImage *)uiImage scaleX:(float)scaleX scaleY:(float)scaleY faces:(NSDictionary *)eventFace             
+- (float)runModelWithFrame:(UIImage *)uiImage scaleX:(float)scaleX scaleY:(float)scaleY faces:(NSDictionary *)eventFace             
 {
     CGImageRef imageRef = [uiImage CGImage];
     NSUInteger width = CGImageGetWidth(imageRef);
     NSUInteger height = CGImageGetHeight(imageRef);
     NSData *imageData = UIImagePNGRepresentation(uiImage);
-    NSLog(@"runModelWithFrame > image data length : %d, width=%d, height=%d, scale=%f x %f", 
-          [imageData length],width,height,scaleX,scaleY );
+    // NSLog(@"runModelWithFrame > image data length : %d, width=%d, height=%d, scale=%f x %f", 
+    //       [imageData length],width,height,scaleX,scaleY );
     if ([eventFace[@"faces"] count] < 1) {
       NSLog(@"runModelWithFrame > emptyface");
-      return imageData;
+      return   404;
     }
     else {
+      // get the first face to run model
       NSDictionary *firstFace = eventFace[@"faces"][0] ;
       int faceX = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"x"] floatValue];
       int faceY = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
       int faceWidth = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
       int faceHeight = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
-      NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
+      // NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
+      // preprocess: cut face, scale face, 
       int maxLength = faceHeight;
       if (faceHeight < faceWidth) {
         maxLength = faceWidth;
       }
       uiImage = [RNImageUtils cropImage:uiImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
-      NSLog(@"runModelWithFrame > crop image to face width=%d, height=%d", 
-            CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
+      // NSLog(@"runModelWithFrame > crop image to face width=%d, height=%d", 
+            // CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
       uiImage = [RNImageUtils scaleImage:uiImage convertToSize:CGSizeMake(112, 112) ];
       NSData *imageData = UIImagePNGRepresentation(uiImage);
-      NSLog(@"runModelWithFrame > scaled image data length = %d, width=%d, height=%d", 
-            [imageData length],CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
+      // NSLog(@"runModelWithFrame > scaled image data length = %d, width=%d, height=%d", 
+      //       [imageData length],CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
       // [RNImageUtils rawDataDrawWithImage:uiImage ];
       // get the image array data 
       // NSData * imageGrayArrayData = [RNImageUtils getArrayOfImage:uiImage] ;
@@ -168,19 +172,12 @@
     if (error != nil) { 
     /* Error handling... */ 
       RCTLogInfo(@"MyModel > runModelWithFrame > allocateTensorsWithError : error ...%@",error);
+      return   404;
     }
 
-
-   
-  // input data preparation...
-  //  NSData *inputData = [[NSMutableData alloc] initWithLength:41216]; ; // Should be initialized
-  //  NSData *originData = inputData;
-  
-    RCTLogInfo(@"MyModel > runModelWithFrame > imagePreProcess...");
+    // RCTLogInfo(@"MyModel > runModelWithFrame > imagePreProcess...");
     NSData *inputData = [RNImageUtils getArrayOfImage:uiImage];
-    // NSData *inputData = [self OriginalImageData:uiImage];
-    RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
-    // NSData *originData = inputData;
+    // RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
     UIImage * originalImage = [UIImage imageNamed:@"true_img.png"];
     // UIImage * originalImage = [UIImage imageNamed:@"fake_img.png"];
     NSData *originData = [self preprocessImage:originalImage];
@@ -192,17 +189,20 @@
     if (error != nil) { 
     /* Error handling... */ 
       RCTLogInfo(@"MyModel > runModelWithFrame > copyData : error ...%@",error);
+      return   404;
     }
     [[self.interpreter  inputTensorAtIndex:1 error:&error] copyData:originData error:&error];
     if (error != nil) { 
     /* Error handling... */ 
       RCTLogInfo(@"MyModel > runModelWithFrame > copyData : error ...%@",error);
+      return   404;
     }
   // Run inference by invoking the `TFLInterpreter`.
     [self.interpreter invokeWithError:&error];
     if (error != nil) { 
     /* Error handling... */ 
       RCTLogInfo(@"MyModel > runModelWithFrame > invokeWithError : error ...%@",error);
+      return   404;
     }
 
   // Get the output `TFLTensor`
@@ -210,6 +210,7 @@
     if (error != nil) { 
     /* Error handling... */ 
       RCTLogInfo(@"MyModel > runModelWithFrame > outputTensorAtIndex : error ...%@",error);
+      return   404;
     }
 
   // Copy output to `NSData` to process the inference results.
@@ -218,18 +219,15 @@
     if (error != nil) { 
     /* Error handling... */ 
       RCTLogInfo(@"MyModel > runModelWithFrame > dataWithError : error ...%@",error);
+      return   404;
     }
     float *p = (float*)[outputData bytes];   // -bytes returns a void* that points to the data
     float f = *p;
     RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%f",f);
-  // NSArray *features = @[ @"Interprete finish" ];
-  //  CGFloat rotY = face.headEulerAngleY;
-  //           [resultDict setObject:@(rotY) forKey:@"yawAngle"];
-    // return features;
-    return imageData;
+    return f;
 }
 
-// callback version, todo: finish this
+// callback version
 - (void)verifyFacesInFrame:(UIImage *)uiImage
               scaleX:(float)scaleX
               scaleY:(float)scaleY
@@ -237,98 +235,53 @@
               identity:(NSString *)identityFileName
               identityFolder:(NSString *)identityFolderName
               completed:(void (^)(float result))completed {
-    NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
-    // [_faceRecognizer  processImage:image completion:^(NSArray<FIRVisionFace *> *faces, NSError *error) {
-    //      if (error != nil || faces == nil ) {
-            //  completed(emptyResult);
-        //  } else {
-        //      int size = [faces count];
-        //      if (size < 1) {
-        //          completed(emptyResult);
-        //      }
-        // todo: call other function, with the image included to cut faces, return face image or recognize image.
-            //  completed([self processFaces:faces]);
-        //     completed([self processFaces:faces inImage:base64String]);
-        //  }
-    //  }];
-    CGImageRef imageRef = [uiImage CGImage];
-    NSUInteger width = CGImageGetWidth(imageRef);
-    NSUInteger height = CGImageGetHeight(imageRef);
-    NSData *imageData = UIImagePNGRepresentation(uiImage);
-    NSLog(@"runModelWithFrame > image data length : %d, width=%d, height=%d, scale=%f x %f", 
-          [imageData length],width,height,scaleX,scaleY );
+    NSData *inputData;
+    NSData *originData;
     if ([eventFace[@"faces"] count] < 1) {
-      NSLog(@"runModelWithFrame > emptyface");
-
-      completed(1.9);
-      // return imageData;
+      NSLog(@"verifyFacesInFrame > emptyface");
+      completed(  404);
+      return;
     }
     else {
-      NSDictionary *firstFace = eventFace[@"faces"][0] ;
-      int faceX = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"x"] floatValue];
-      int faceY = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
-      int faceWidth = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
-      int faceHeight = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
-      NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
-      int maxLength = faceHeight;
-      if (faceHeight < faceWidth) {
-        maxLength = faceWidth;
-      }
-      uiImage = [RNImageUtils cropImage:uiImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
-      NSLog(@"runModelWithFrame > crop image to face width=%d, height=%d", 
-            CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
-      uiImage = [RNImageUtils scaleImage:uiImage convertToSize:CGSizeMake(112, 112) ];
-      NSData *imageData = UIImagePNGRepresentation(uiImage);
-      NSLog(@"runModelWithFrame > scaled image data length = %d, width=%d, height=%d", 
-            [imageData length],CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
-      // [RNImageUtils rawDataDrawWithImage:uiImage ];
-      // get the image array data 
-      // NSData * imageGrayArrayData = [RNImageUtils getArrayOfImage:uiImage] ;
+      inputData = [self preprocessFrameImage:uiImage faces:eventFace];
+      // RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
+      NSString *originalImagePath = [RNFileSystem documentDirectoryPath];
+      originalImagePath = [originalImagePath stringByAppendingPathComponent:identityFolderName];
+      originalImagePath = [originalImagePath stringByAppendingPathComponent:identityFileName];
+      originData = [self preprocessImage:[RNImageUtils loadImage:originalImagePath]];
     }
     NSError *error;
     [self.interpreter allocateTensorsWithError:&error];
     if (error != nil) { 
     /* Error handling... */ 
       RCTLogInfo(@"MyModel > runModelWithFrame > allocateTensorsWithError : error ...%@",error);
+      completed(  404);
+      return;
     }
 
-
-   
-  // input data preparation...
-  //  NSData *inputData = [[NSMutableData alloc] initWithLength:41216]; ; // Should be initialized
-  //  NSData *originData = inputData;
-  
-    RCTLogInfo(@"MyModel > runModelWithFrame > imagePreProcess...");
-    NSData *inputData = [RNImageUtils getArrayOfImage:uiImage];
-    // NSData *inputData = [self OriginalImageData:uiImage];
-    RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
-    NSString *originalImagePath = [RNFileSystem documentDirectoryPath];
-    originalImagePath = [originalImagePath stringByAppendingPathComponent:identityFolderName];
-    originalImagePath = [originalImagePath stringByAppendingPathComponent:identityFileName];
-    UIImage * originalImage = [RNImageUtils loadImage:originalImagePath];
-    // NSData *originData = inputData;
-    // UIImage * originalImage = [UIImage imageNamed:@"true_img.png"];
-    // UIImage * originalImage = [UIImage imageNamed:@"fake_img.png"];
-    NSData *originData = [self preprocessImage:originalImage];
-
-  
 
   // Copy the input data to the input `TFLTensor`.
     [[self.interpreter  inputTensorAtIndex:0 error:&error] copyData:inputData error:&error];
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > copyData : error ...%@",error);
+      RCTLogInfo(@"MyModel > runModelWithFrame > input 1 error : %@",error);
+      completed(  404);
+      return;
     }
     [[self.interpreter  inputTensorAtIndex:1 error:&error] copyData:originData error:&error];
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > copyData : error ...%@",error);
+      RCTLogInfo(@"MyModel > runModelWithFrame > input 2 error : %@",error);
+      completed(  404);
+      return;
     }
   // Run inference by invoking the `TFLInterpreter`.
     [self.interpreter invokeWithError:&error];
     if (error != nil) { 
     /* Error handling... */ 
       RCTLogInfo(@"MyModel > runModelWithFrame > invokeWithError : error ...%@",error);
+      completed(  404);
+      return;
     }
 
   // Get the output `TFLTensor`
@@ -336,121 +289,134 @@
     if (error != nil) { 
     /* Error handling... */ 
       RCTLogInfo(@"MyModel > runModelWithFrame > outputTensorAtIndex : error ...%@",error);
+      completed(  404);
+      return;
     }
 
   // Copy output to `NSData` to process the inference results.
     NSData *outputData = [outputTensor dataWithError:&error];
-    RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%@",outputData);
+    // RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%@",outputData);
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > dataWithError : error ...%@",error);
+      RCTLogInfo(@"MyModel > runModelWithFrame > output error : %@",error);
+      completed(  404);
+      return;
     }
     float *p = (float*)[outputData bytes];   // -bytes returns a void* that points to the data
     float f = *p;
-    RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%f",f);
+    // RCTLogInfo(@"MyModel > runModelWithFrame > result = %f",f);
     completed(f);
-    // return imageData;
   }
 
 
-- (NSData *)ImagePreprocess:(UIImage *)uiImage  
-                  scaleX:(float)scaleX 
-                  scaleY:(float)scaleY 
+- (NSData *)preprocessFrameImage:(UIImage *)uiImage  
+                  // scaleX:(float)scaleX 
+                  // scaleY:(float)scaleY 
                   faces:(NSDictionary *)eventFace                 
 {
-    CGImageRef imageRef = [uiImage CGImage];
-    NSUInteger width = CGImageGetWidth(imageRef);
-    NSUInteger height = CGImageGetHeight(imageRef);
     NSData *imageData = UIImagePNGRepresentation(uiImage);
-    NSLog(@"MyModel > ImagePreprocess -> image data length : %d, width=%d, height=%d, scale=%f x %f", 
-              [imageData length],width,height,scaleX,scaleY );
     if ([eventFace[@"faces"] count] < 1) {
-      NSLog(@"MyModel > ImagePreprocess emptyface");
-      return imageData;
+      NSLog(@"MyModel > preprocessFrameImage emptyface");
+      return [self randomData];
     }
     else {
       NSDictionary *firstFace = eventFace[@"faces"][0] ;
-      //  NSLog(@"runModelWithFrame > faces: %@", eventFace);
       // NSLog(@"runModelWithFrame > first face: %@", firstFace);
       int faceX = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"x"] floatValue];
       int faceY = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
       int faceWidth = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
       int faceHeight = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
       // NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
-      // uiImage = [RNImageUtils cropImage:uiImage toRect:CGRectMake(faceX, faceY, faceWidth , faceHeight)];
-      // NSLog(@"runModelWithFrame > crop image to face width=%d, height=%d", 
-      //       CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
       int maxLength = faceHeight;
       if (faceHeight < faceWidth) {
         maxLength = faceWidth;
       }
       uiImage = [RNImageUtils cropImage:uiImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
-      // NSLog(@"runModelWithFrame > crop image to face width=%d, height=%d", 
-      //       CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
       uiImage = [RNImageUtils scaleImage:uiImage convertToSize:CGSizeMake(112, 112) ];
-      NSData *imageData = UIImagePNGRepresentation(uiImage);
-      // NSLog(@"Mymodel > ImagePreprocess -> scaled image data length = %d, width=%d, height=%d", 
-      //       [imageData length],CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
-      // [RNImageUtils rawDataDrawWithImage:uiImage ];
       // get the image array data 
       NSData * imageGrayArrayData = [RNImageUtils getArrayOfImage:uiImage] ;
       return imageGrayArrayData;
     }
-    
-  
 }
 
 
 - (NSData *)preprocessImage:(UIImage *)uiImage               
 {
-    CGImageRef imageRef = [uiImage CGImage];
-    NSUInteger width = CGImageGetWidth(imageRef);
-    NSUInteger height = CGImageGetHeight(imageRef);
+    // CGImageRef imageRef = [uiImage CGImage];
+    // NSUInteger width = CGImageGetWidth(imageRef);
+    // NSUInteger height = CGImageGetHeight(imageRef);
     // NSLog(@"MyModel > preprocessImage -> image  width=%d, height=%d", width,height );
-   
     uiImage = [RNImageUtils scaleImage:uiImage convertToSize:CGSizeMake(112, 112) ];
-    NSData *imageData = UIImagePNGRepresentation(uiImage);
-    // NSLog(@"runModelWithFrame > scaled image data length = %d, width=%d, height=%d", 
-    //       [imageData length],CGImageGetWidth([uiImage CGImage]),CGImageGetHeight([uiImage CGImage]));
     NSData * imageGrayArrayData = [RNImageUtils getArrayOfImage:uiImage] ;
     return imageGrayArrayData;
 }
-
-//demo
-- (NSData *)OriginalImageData :(UIImage *)faceImage                
-{
-  RCTLogInfo(@"MyModel > OriginalImageData...");
-  // get image from a location, preprocess and return
- 
-  // int maxLength = 41216; //92*112*4-bytes; float	4 byte
+// - (NSData *)preprocessUserImage:(UIImage *)uiImage               
+// {
+//   // todo: check if this is ok: call function in side it self before calback complete
+//   [FaceDetectorManagerMlkit findFacesInFrame:uiImage scaleX:1 scaleY:1 completed:^(NSArray * faces) {  
+//      if ([faces count] < 1) {
+//       NSLog(@"preprocessUserImage > emptyface");
+//       // return random data
+//       int maxLength = 50176; //112*112*4-bytes; float	4 byte
+//       NSMutableData *originalImageData = [[NSMutableData alloc] initWithLength:maxLength] ; 
+//       NSData * result = originalImageData;
+//       return result;
+//     }else{
+//       NSDictionary *firstFace = faces[0] ;
+//       // NSLog(@"runModelWithFrame > first face: %@", firstFace);
+//       int faceX = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"x"] floatValue];
+//       int faceY = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
+//       int faceWidth = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
+//       int faceHeight = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
+//       // NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
+//       int maxLength = faceHeight;
+//       if (faceHeight < faceWidth) {
+//         maxLength = faceWidth;
+//       }
+//       uiImage = [RNImageUtils cropImage:uiImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
+//       uiImage = [RNImageUtils scaleImage:uiImage convertToSize:CGSizeMake(112, 112) ];
+//       // get the image array data 
+//       NSData * imageGrayArrayData = [RNImageUtils getArrayOfImage:uiImage] ;
+//       return imageGrayArrayData;
+//     }
+//   }];
+// }
+- (NSData *) randomData{
+    // int maxLength = 41216; //92*112*4-bytes; float	4 byte
   int maxLength = 50176; //112*112*4-bytes; float	4 byte
-  // int faceX = 0;
-  // int faceY = 0;
-  // int width = 112;
-  // int height = 112;
-  NSMutableData *originalImageData = [[NSMutableData alloc] initWithLength:maxLength] ; // demo data
+  NSMutableData *originalImageData = [[NSMutableData alloc] initWithLength:maxLength] ; 
   NSData * result = originalImageData;
-  // free(byteData);
-  RCTLogInfo(@"MyModel > OriginalImageData result bytes length  ...%d",[result length]);
   return result;
 }
 
-// todo: check this func
-- (NSData *)originalImageData :(NSString *)myImagePath               
-{
-    // load the image from the path
-  UIImage * myFace = [UIImage imageNamed:myImagePath];
-  RCTLogInfo(@"MyModel > OriginalImageData...");
-  int maxLength = 50176; //112*112*4-bytes; float	4 byte
+// //demo
+// - (NSData *)OriginalImageData :(UIImage *)faceImage                
+// {
+//   // RCTLogInfo(@"MyModel > OriginalImageData...");
+//   // int maxLength = 41216; //92*112*4-bytes; float	4 byte
+//   int maxLength = 50176; //112*112*4-bytes; float	4 byte
+//   NSMutableData *originalImageData = [[NSMutableData alloc] initWithLength:maxLength] ; // demo data
+//   NSData * result = originalImageData;
+//   return result;
+// }
+
+// // todo: check this func
+// - (NSData *)originalImageData :(NSString *)myImagePath               
+// {
+//     // load the image from the path
+//   UIImage * myFace = [UIImage imageNamed:myImagePath];
+//   // RCTLogInfo(@"MyModel > OriginalImageData...");
+//   int maxLength = 50176; //112*112*4-bytes; float	4 byte
+//   NSMutableData *originalImageData = [[NSMutableData alloc] initWithLength:maxLength] ; // demo data
+//   NSData * result = originalImageData;
+//   // free(byteData);
+//   RCTLogInfo(@"MyModel > OriginalImageData result bytes length  ...%d",[result length]);
+//   return result;
+// }
 
 
-  NSMutableData *originalImageData = [[NSMutableData alloc] initWithLength:maxLength] ; // demo data
-   
-  NSData * result = originalImageData;
-  // free(byteData);
-  RCTLogInfo(@"MyModel > OriginalImageData result bytes length  ...%d",[result length]);
-  return result;
-}
+
+
 - (BOOL)isRealVerifier 
 {
   return true;

@@ -12,12 +12,10 @@
   @property(nonatomic, strong) TFLInterpreter *interpreter;
   - (instancetype)init;
   - (instancetype)initWithPath :(NSString *)modelPath;
-  -(NSArray *)runModelWithFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float)scaleY ;
-
-  - (NSArray *)runModelWithFrame:(UIImage *)uiImage scaleX:(float)scaleX scaleY:(float)scaleY faces: (NSDictionary *)eventFace ;
-  // typedef void(^postRecognitionBlock)(NSArray *faces);
-  // -(void)findFacesInFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float)scaleY completed:(postRecognitionBlock)completed;
-  - (NSData *)ImagePreprocess:(UIImage *)faceImage  scaleX:(float)scaleX scaleY:(float)scaleY faces: (NSDictionary *)eventFace    ;
+  -(float)runModelWithFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float)scaleY ;
+  - (float)runModelWithFrame:(UIImage *)uiImage scaleX:(float)scaleX scaleY:(float)scaleY faces: (NSDictionary *)eventFace ;
+  - (NSData *)preprocessFrameImage:(UIImage *)faceImage faces: (NSDictionary *)eventFace    ;
+  // - (NSData *)preprocessUserImage:(UIImage *)uiImage ;
   - (NSData *)preprocessImage:(UIImage *)uiImage    ;
   -(BOOL)isRealVerifier;
   - (void)verifyFacesInFrame:(UIImage *)uiImage

@@ -17,6 +17,7 @@
 + (BOOL)checkExistFilesInDir:(NSString *)folderName;
 + (BOOL)checkFileInDocumentDir:(NSString *)folderName withFileName:(NSString *)fileName;
 + (BOOL)checkExistedFilesInDocumentDir;
++ (BOOL)checkExistedFilesInDirectory: (NSString *)path;
 + (void)purgeDocumentsDirectory;
 + (void)CopyFile :(NSString *)fileName fromPath:(NSString *)originPath toPath:(NSString *)destPath;
 @end
