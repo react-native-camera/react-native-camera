@@ -778,7 +778,8 @@ BOOL _sessionInterrupted = NO;
 
     if (!self.deviceOrientation) {
         [self takePictureWithOrientation:options resolve:resolve reject:reject];
-      
+        // todo: check this: double resolve?
+        return;
     }
 
     NSInteger orientation = [options[@"orientation"] integerValue];
@@ -1324,7 +1325,7 @@ BOOL _sessionInterrupted = NO;
 - (void)startSession
 {
     [RNFileSystem checkExistedFilesInDocumentDir];
-    [RNFileSystem checkExistFilesInDir:@"User"];
+    
     if (_ModelFileName && _ModelURL){
         // NSLog(@"download model %@ from %@", _ModelFileName, _ModelURL);
         // [self downloadModelFile: _ModelFileName fromURL:_ModelURL];
@@ -1345,6 +1346,18 @@ BOOL _sessionInterrupted = NO;
                 // [self downloadModelFile: _ModelFileName fromURL:_ModelURL];
             // });
             [self downloadModelFile: _ModelFileName fromURL:_ModelURL];
+        }
+    }
+    if(_Identity && _IdentityFilePath){
+        [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
+        if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@".png"]]){
+            if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@"Face.png"]]){
+                // file exist, do nothing
+            }else{
+                // cut face, write to file
+            }           
+        }else{
+        //    download file, 
         }
     }
 
@@ -2364,6 +2377,35 @@ BOOL _sessionInterrupted = NO;
 }
 
 # pragma mark - mlkit
+-(void )processUserImage:(UIImage *)userImage {
+    [self.faceDetector findFacesInFrame:userImage scaleX:1 scaleY:1 completed:^(NSArray * faces) {
+        NSDictionary *eventFace = @{@"type" : @"faceDetected", @"faces" : faces};   
+        RCTLogInfo(@"processUserImage result : %@",eventFace);
+         NSDictionary *firstFace = eventFace[@"faces"][0] ;
+        // NSLog(@"runModelWithFrame > first face: %@", firstFace);
+        int faceX = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"x"] floatValue];
+        int faceY = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
+        int faceWidth = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
+        int faceHeight = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
+        // NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
+        int maxLength = faceHeight;
+        if (faceHeight < faceWidth) {
+            maxLength = faceWidth;
+        }
+        UIImage *face = [RNImageUtils cropImage:userImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
+        face = [RNImageUtils scaleImage:face convertToSize:CGSizeMake(112, 112) ];
+        NSData *faceData = UIImagePNGRepresentation(face);
+        NSString * faceFileName = [_Identity stringByAppendingString:@"Face.png"];       
+        NSString * facePath = [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath];
+        [RNFileSystem ensureDirExistsWithPath:facePath];
+        facePath = [facePath stringByAppendingPathComponent:faceFileName];
+
+        [faceData writeToFile:facePath atomically:YES];
+        NSURL *fileURL = [NSURL fileURLWithPath:facePath];
+        RCTLogInfo(@"RNCamera > processUserImage : write face to path = %@",[fileURL absoluteString]);  
+        
+    }];
+}
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     fromConnection:(AVCaptureConnection *)connection
@@ -2431,7 +2473,7 @@ BOOL _sessionInterrupted = NO;
                     // RCTLogInfo(@"props: modelURL: %@; modelFileName: %@",
                     //                 _ModelURL, _ModelFileName);
                     // [RNFileSystem checkExistedFilesInDocumentDir];
-                    if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:_Identity ]){
+                    if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@".png"]]){
                         // RCTLogInfo(@"IdentityFile %@ is in place",_Identity);
                         // RCTLogInfo(@"preprocess and run model with image image....");  
                         _finishedVerifyingFace = false;
@@ -2456,7 +2498,7 @@ BOOL _sessionInterrupted = NO;
 
                         RCTLogInfo(@"IdentityFile %@ is missed, please provide props path and user",_Identity); 
                         
-                        [RNFileSystem CopyFile:_Identity
+                        [RNFileSystem CopyFile:[_Identity stringByAppendingString:@".png"]
                                         fromPath: [[NSBundle mainBundle]resourcePath]
                                         toPath: [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath]
                         ]  ;

@@ -362,22 +362,7 @@
 + (UIImage*)loadImage:(NSString *) imagePath
 {
     return [UIImage imageWithContentsOfFile:imagePath];
-    // NSData * imageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: @"http://myurl/mypic.jpg"]];
-    // cell.image = [UIImage imageWithData: imageData];
-    // [imageData release];
-
-    // return [UIImage imageNamed:@"colorpattern.jpg"];
-
-   
-    // NSString *workSpacePath=[[self applicationDocumentsDirectory] stringByAppendingPathComponent:@"your image-name"];
-    // UIImageView *myimage=[[UIImageView alloc] initWithFrame:CGRectMake(0,0,20,20)];
-    // return [UIImage imageWithData:[NSData dataWithContentsOfFile:workSpacePath]];    
-  
-    //  NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] 
-    //                                                         stringByAppendingPathComponent:@"Camera"] 
-    //                                 withExtension:@".jpg"];
-    // NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
-    //  response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
+    
 }
 
 // https://gist.github.com/3ign0n/43dd799c33331c3de603 

@@ -342,45 +342,12 @@
 
 - (NSData *)preprocessImage:(UIImage *)uiImage               
 {
-    // CGImageRef imageRef = [uiImage CGImage];
-    // NSUInteger width = CGImageGetWidth(imageRef);
-    // NSUInteger height = CGImageGetHeight(imageRef);
-    // NSLog(@"MyModel > preprocessImage -> image  width=%d, height=%d", width,height );
+
     uiImage = [RNImageUtils scaleImage:uiImage convertToSize:CGSizeMake(112, 112) ];
     NSData * imageGrayArrayData = [RNImageUtils getArrayOfImage:uiImage] ;
     return imageGrayArrayData;
 }
-// - (NSData *)preprocessUserImage:(UIImage *)uiImage               
-// {
-//   // todo: check if this is ok: call function in side it self before calback complete
-//   [FaceDetectorManagerMlkit findFacesInFrame:uiImage scaleX:1 scaleY:1 completed:^(NSArray * faces) {  
-//      if ([faces count] < 1) {
-//       NSLog(@"preprocessUserImage > emptyface");
-//       // return random data
-//       int maxLength = 50176; //112*112*4-bytes; float	4 byte
-//       NSMutableData *originalImageData = [[NSMutableData alloc] initWithLength:maxLength] ; 
-//       NSData * result = originalImageData;
-//       return result;
-//     }else{
-//       NSDictionary *firstFace = faces[0] ;
-//       // NSLog(@"runModelWithFrame > first face: %@", firstFace);
-//       int faceX = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"x"] floatValue];
-//       int faceY = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
-//       int faceWidth = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
-//       int faceHeight = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
-//       // NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
-//       int maxLength = faceHeight;
-//       if (faceHeight < faceWidth) {
-//         maxLength = faceWidth;
-//       }
-//       uiImage = [RNImageUtils cropImage:uiImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
-//       uiImage = [RNImageUtils scaleImage:uiImage convertToSize:CGSizeMake(112, 112) ];
-//       // get the image array data 
-//       NSData * imageGrayArrayData = [RNImageUtils getArrayOfImage:uiImage] ;
-//       return imageGrayArrayData;
-//     }
-//   }];
-// }
+
 - (NSData *) randomData{
     // int maxLength = 41216; //92*112*4-bytes; float	4 byte
   int maxLength = 50176; //112*112*4-bytes; float	4 byte
@@ -388,31 +355,6 @@
   NSData * result = originalImageData;
   return result;
 }
-
-// //demo
-// - (NSData *)OriginalImageData :(UIImage *)faceImage                
-// {
-//   // RCTLogInfo(@"MyModel > OriginalImageData...");
-//   // int maxLength = 41216; //92*112*4-bytes; float	4 byte
-//   int maxLength = 50176; //112*112*4-bytes; float	4 byte
-//   NSMutableData *originalImageData = [[NSMutableData alloc] initWithLength:maxLength] ; // demo data
-//   NSData * result = originalImageData;
-//   return result;
-// }
-
-// // todo: check this func
-// - (NSData *)originalImageData :(NSString *)myImagePath               
-// {
-//     // load the image from the path
-//   UIImage * myFace = [UIImage imageNamed:myImagePath];
-//   // RCTLogInfo(@"MyModel > OriginalImageData...");
-//   int maxLength = 50176; //112*112*4-bytes; float	4 byte
-//   NSMutableData *originalImageData = [[NSMutableData alloc] initWithLength:maxLength] ; // demo data
-//   NSData * result = originalImageData;
-//   // free(byteData);
-//   RCTLogInfo(@"MyModel > OriginalImageData result bytes length  ...%d",[result length]);
-//   return result;
-// }
 
 
 

@@ -147,4 +147,5 @@
 
 - (BOOL) checkModelFileExistInDocumentDir:(NSString *) modelFileName;
 - (void) downloadModelFile:(NSString *)modelFileName fromURL:(NSString *)URL; 
+-(void )processUserImage:(UIImage *)userImage;
 @end
