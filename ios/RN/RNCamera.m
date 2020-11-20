@@ -1348,18 +1348,21 @@ BOOL _sessionInterrupted = NO;
             [self downloadModelFile: _ModelFileName fromURL:_ModelURL];
         }
     }
-    if(_Identity && _IdentityFilePath){
-        [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
-        if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@".png"]]){
-            if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@"Face.png"]]){
-                // file exist, do nothing
-            }else{
-                // cut face, write to file
-            }           
-        }else{
-        //    download file, 
-        }
-    }
+    // if(_Identity && _IdentityFilePath){
+    //     [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
+    //     if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@".png"]]){
+    //         if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@"Face.png"]]){
+    //             // file exist, do nothing
+    //         }else{
+    //             // cut face, write to file
+    //             NSString * userImagePath = [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath];
+    //             userImagePath = [userImagePath stringByAppendingPathComponent:[_Identity stringByAppendingString:@".png"]];
+    //             [self processUserImage:[RNImageUtils loadImage:userImagePath]];
+    //         }           
+    //     }else{
+    //     //    download file,,, 
+    //     }
+    // }
 
 
 #if TARGET_IPHONE_SIMULATOR
@@ -2381,29 +2384,30 @@ BOOL _sessionInterrupted = NO;
     [self.faceDetector findFacesInFrame:userImage scaleX:1 scaleY:1 completed:^(NSArray * faces) {
         NSDictionary *eventFace = @{@"type" : @"faceDetected", @"faces" : faces};   
         RCTLogInfo(@"processUserImage result : %@",eventFace);
-         NSDictionary *firstFace = eventFace[@"faces"][0] ;
-        // NSLog(@"runModelWithFrame > first face: %@", firstFace);
-        int faceX = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"x"] floatValue];
-        int faceY = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
-        int faceWidth = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
-        int faceHeight = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
-        // NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
-        int maxLength = faceHeight;
-        if (faceHeight < faceWidth) {
-            maxLength = faceWidth;
-        }
-        UIImage *face = [RNImageUtils cropImage:userImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
-        face = [RNImageUtils scaleImage:face convertToSize:CGSizeMake(112, 112) ];
-        NSData *faceData = UIImagePNGRepresentation(face);
-        NSString * faceFileName = [_Identity stringByAppendingString:@"Face.png"];       
-        NSString * facePath = [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath];
-        [RNFileSystem ensureDirExistsWithPath:facePath];
-        facePath = [facePath stringByAppendingPathComponent:faceFileName];
+        if([faces count] > 0){
+            NSDictionary *firstFace = eventFace[@"faces"][0] ;
+            // NSLog(@"runModelWithFrame > first face: %@", firstFace);
+            int faceX = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"x"] floatValue];
+            int faceY = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
+            int faceWidth = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
+            int faceHeight = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
+            // NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
+            int maxLength = faceHeight;
+            if (faceHeight < faceWidth) {
+                maxLength = faceWidth;
+            }
+            UIImage *face = [RNImageUtils cropImage:userImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
+            face = [RNImageUtils scaleImage:face convertToSize:CGSizeMake(112, 112) ];
+            NSData *faceData = UIImagePNGRepresentation(face);
+            NSString * faceFileName = [_Identity stringByAppendingString:@"Face.png"];       
+            NSString * facePath = [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath];
+            [RNFileSystem ensureDirExistsWithPath:facePath];
+            facePath = [facePath stringByAppendingPathComponent:faceFileName];
 
-        [faceData writeToFile:facePath atomically:YES];
-        NSURL *fileURL = [NSURL fileURLWithPath:facePath];
-        RCTLogInfo(@"RNCamera > processUserImage : write face to path = %@",[fileURL absoluteString]);  
-        
+            [faceData writeToFile:facePath atomically:YES];
+            NSURL *fileURL = [NSURL fileURLWithPath:facePath];
+            RCTLogInfo(@"RNCamera > processUserImage : write face to path = %@",[fileURL absoluteString]);  
+        }
     }];
 }
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
