@@ -142,7 +142,7 @@
     originPath = [originPath stringByAppendingPathComponent:fileName];
     exist = [fileManager fileExistsAtPath:originPath];
     if(!exist){
-        RCTLogWarn(@"file does not exist at path %@",originPath);
+        RCTLogInfo(@"file does not exist at path %@",originPath);
         return;
     }
     [self ensureDirExistsWithPath:destPath];
