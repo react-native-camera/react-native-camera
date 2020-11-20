@@ -964,12 +964,12 @@ BOOL _sessionInterrupted = NO;
 
                     NSString *fileName = nil;
                     //  RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
-                    RCTLogInfo(@"RNCamera > takePicture path %@ , length %d",options[@"path"],[options[@"path"] length] );  
+                    // RCTLogInfo(@"RNCamera > takePicture path %@ , length %d",options[@"path"],[options[@"path"] length] );  
                     if ([options[@"path"] length] > 1) {
                         path = [RNFileSystem documentDirectoryPath]  ;
                         path = [path stringByAppendingPathComponent:options[@"path"]];//  path: 'User'
                         // [RNFileSystem ensureDirExistsWithPath:path]
-                        RCTLogInfo(@"RNCamera > takePicture user %@ , length %d",options[@"user"],[options[@"user"] length] );  
+                        // RCTLogInfo(@"RNCamera > takePicture user %@ , length %d",options[@"user"],[options[@"user"] length] );  
                         if([options[@"user"] length] > 1 ) {
                             fileName = [options[@"user"] stringByAppendingString:@".png"];//, user: 'UserID'   
                                 
@@ -981,7 +981,7 @@ BOOL _sessionInterrupted = NO;
                         }
                         path = [RNFileSystem generatePathInDirectory:path withFileName:fileName];     
                     }
-                    RCTLogInfo(@"RNCamera > takePicture : save to path %@",path);  
+                    // RCTLogInfo(@"RNCamera > takePicture : save to path %@",path);  
                     if (![options[@"doNotSave"] boolValue]) {         
                         response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
                         
@@ -1348,22 +1348,33 @@ BOOL _sessionInterrupted = NO;
             [self downloadModelFile: _ModelFileName fromURL:_ModelURL];
         }
     }
-    // if(_Identity && _IdentityFilePath){
-    //     [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
-    //     if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@".png"]]){
-    //         if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@"Face.png"]]){
-    //             // file exist, do nothing
-    //         }else{
-    //             // cut face, write to file
-    //             NSString * userImagePath = [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath];
-    //             userImagePath = [userImagePath stringByAppendingPathComponent:[_Identity stringByAppendingString:@".png"]];
-    //             [self processUserImage:[RNImageUtils loadImage:userImagePath]];
-    //         }           
-    //     }else{
-    //     //    download file,,, 
-    //     }
-    // }
-
+        
+    if(_Identity && _IdentityFilePath){
+       
+        if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@".png"]]){
+            if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@"Face.png"]]){
+                NSLog(@"startSession > file  %@.png and %@Face.png exist.", _Identity, _Identity);
+                // file exist, do nothing
+                 [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
+            }else{
+                NSLog(@"startSession > cut face from image %@.png",_Identity);
+                // cut face, write to file
+                NSString * userImagePath = [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath];
+                userImagePath = [userImagePath stringByAppendingPathComponent:[_Identity stringByAppendingString:@".png"]];
+                UIImage * myImage = [RNImageUtils loadImage:userImagePath];
+                if(myImage){
+                    [self processUserImage:myImage];
+                    [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
+                }else{
+                    NSLog(@"startSession > failed to load image %@.png from path %@", _Identity, userImagePath);
+                }
+                
+            }           
+        }else{
+        //    download file,,, 
+            NSLog(@"startSession > need to download image %@.png",_Identity);
+        }
+    }
 
 #if TARGET_IPHONE_SIMULATOR
     [self onReady:nil];
@@ -2483,7 +2494,7 @@ BOOL _sessionInterrupted = NO;
                         _finishedVerifyingFace = false;
                         [self.myInterpreter verifyFacesInFrame:image 
                                             scaleX:scaleX scaleY:scaleY faces:eventFace 
-                                            identity:_Identity
+                                            identity:[_Identity stringByAppendingString:@".png"]
                                             identityFolder:_IdentityFilePath
                                             completed:^(float result){
                                                 NSDictionary *eventVerify;
