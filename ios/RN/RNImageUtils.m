@@ -361,6 +361,7 @@
 }
 + (UIImage*)loadImage:(NSString *) imagePath
 {
+    // RCTLogInfo(@"RNImageUtils > loadImage at path: %@",  imagePath);
     return [UIImage imageWithContentsOfFile:imagePath];
     
 }
@@ -372,5 +373,36 @@
     [self rawDataCopyWithImage:image];
     [self rawDataDrawWithImage:image];
 }
+// - (NSString *)contentTypeForImageData:(NSData *)data
+// {
+//     uint8_t c;
+//     [data getBytes:&c length:1];
+
+//     switch (c) {
+//         case 0xFF:
+//             return @"image/jpeg";
+//         case 0x89:
+//             return @"image/png";
+//         case 0x47:
+//             return @"image/gif";
+//         case 0x49:
+//         case 0x4D:
+//             return @"image/tiff";
+//     }
+//     return nil;
+// }
+// + (BOOL )checkImageContentData:(UIImage *)image{
+//     CGImageRef cgref = [image CGImage];
+//     CIImage *cim = [image CIImage];
+
+//     if (cim == nil && cgref == NULL)
+//     {
+//         // NSLog(@"no underlying data");
+//         return false;
+//     }
+//     else{
+//         return true;
+//     }
+// }
 @end
 

@@ -45,6 +45,7 @@
 @property (nonatomic, assign) BOOL finishedReadingText;
 @property (nonatomic, assign) BOOL finishedDetectingFace;
 @property (nonatomic, assign) BOOL finishedVerifyingFace;
+@property (nonatomic, assign) BOOL finishTakingImage;
 
 @property (nonatomic, copy) NSDate *startText;
 @property (nonatomic, copy) NSDate *startFace;
@@ -81,6 +82,7 @@ BOOL _sessionInterrupted = NO;
         self.finishedReadingText = true;
         self.finishedDetectingFace = true;
         self.finishedVerifyingFace = true;
+        self.finishTakingImage = true;
         
         self.startText = [NSDate date];
         self.startFace = [NSDate date];
@@ -770,15 +772,18 @@ BOOL _sessionInterrupted = NO;
 {
         RCTLogInfo(@"RNCamera > takePicture");  
         RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
+    _finishTakingImage = false;
     // if video device is not set, reject
     if(self.videoCaptureDeviceInput == nil || !self.session.isRunning){
         reject(@"E_IMAGE_CAPTURE_FAILED", @"Camera is not ready.", nil);
+        _finishTakingImage = false;
         return;
     }
 
     if (!self.deviceOrientation) {
         [self takePictureWithOrientation:options resolve:resolve reject:reject];
         // todo: check this: double resolve?
+        _finishTakingImage = false;
         return;
     }
 
@@ -982,10 +987,13 @@ BOOL _sessionInterrupted = NO;
                         path = [RNFileSystem generatePathInDirectory:path withFileName:fileName];     
                     }
                     // RCTLogInfo(@"RNCamera > takePicture : save to path %@",path);  
-                    if (![options[@"doNotSave"] boolValue]) {         
+                    if (![options[@"doNotSave"] boolValue]) {   
+                        // NSString * absolutePath =       
                         response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
-                        
                         //todo: run face detection and cut the face, save to other image name
+                        [self processUserImage:[UIImage imageWithContentsOfFile:path] ];
+
+// -(void )processUserImage:(UIImage *)userImage 
                     }
                     response[@"width"] = @(takenImage.size.width);
                     response[@"height"] = @(takenImage.size.height);
@@ -1037,6 +1045,7 @@ BOOL _sessionInterrupted = NO;
                [NSError errorWithDomain:@"E_IMAGE_CAPTURE_FAILED" code: 500 userInfo:@{NSLocalizedDescriptionKey:exception.reason}]
         );
     }
+    _finishTakingImage = true;
 }
 
 - (void)recordWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
@@ -1358,13 +1367,14 @@ BOOL _sessionInterrupted = NO;
                  [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
             }else{
                 NSLog(@"startSession > cut face from image %@.png",_Identity);
+                 [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
                 // cut face, write to file
                 NSString * userImagePath = [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath];
                 userImagePath = [userImagePath stringByAppendingPathComponent:[_Identity stringByAppendingString:@".png"]];
                 UIImage * myImage = [RNImageUtils loadImage:userImagePath];
                 if(myImage){
                     [self processUserImage:myImage];
-                    [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
+                    // [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
                 }else{
                     NSLog(@"startSession > failed to load image %@.png from path %@", _Identity, userImagePath);
                 }
@@ -2392,9 +2402,12 @@ BOOL _sessionInterrupted = NO;
 
 # pragma mark - mlkit
 -(void )processUserImage:(UIImage *)userImage {
-    [self.faceDetector findFacesInFrame:userImage scaleX:1 scaleY:1 completed:^(NSArray * faces) {
+    RCTLogInfo(@"processUserImage start");
+    RCTLogInfo(_faceDetector ? @"processUserImage got facedetector": @"processUserImage null facedetector");
+    [_faceDetector findFacesInFrame:userImage scaleX:1 scaleY:1 completed:^(NSArray * faces) {
         NSDictionary *eventFace = @{@"type" : @"faceDetected", @"faces" : faces};   
-        RCTLogInfo(@"processUserImage result : %@",eventFace);
+         RCTLogInfo(@"RNCamera > processUserImage : faces count = %d",[faces count]);
+        RCTLogInfo(@"processUserImage findFacesInFrame result : %@",eventFace);
         if([faces count] > 0){
             NSDictionary *firstFace = eventFace[@"faces"][0] ;
             // NSLog(@"runModelWithFrame > first face: %@", firstFace);
@@ -2420,6 +2433,7 @@ BOOL _sessionInterrupted = NO;
             RCTLogInfo(@"RNCamera > processUserImage : write face to path = %@",[fileURL absoluteString]);  
         }
     }];
+    RCTLogInfo(@"processUserImage end");
 }
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
@@ -2464,7 +2478,7 @@ BOOL _sessionInterrupted = NO;
                 //             _previewLayer.frame.size.width, _previewLayer.frame.size.height);
 
         // find text features
-        if (canSubmitForTextDetection) {
+        if (canSubmitForTextDetection && _finishTakingImage) {
             _finishedReadingText = false;
             self.startText = [NSDate date];
             [self.textDetector findTextBlocksInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * textBlocks) {
@@ -2482,7 +2496,7 @@ BOOL _sessionInterrupted = NO;
             [self.faceDetector findFacesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * faces) {
                 NSDictionary *eventFace = @{@"type" : @"face", @"faces" : faces};   
                 // verify the face with interpreter; active by having props: onFaceVerified.
-                if(_canVerifyFaces && self.canVerifyFaces && [self.myInterpreter isRealVerifier]){
+                if(_canVerifyFaces && self.canVerifyFaces && [self.myInterpreter isRealVerifier] && [faces count]>0){
                     // RCTLogInfo(@"props: IdentityFilePath: %@; Identity: %@"
                     //                 , _IdentityFilePath, _Identity);
                     // RCTLogInfo(@"props: modelURL: %@; modelFileName: %@",
@@ -2503,7 +2517,7 @@ BOOL _sessionInterrupted = NO;
                                                 }else{
                                                     eventVerify = @{@"type" : @"error", @"result" : @(result)};
                                                 }
-                                                RCTLogInfo(@"findFacesInFrame result : %@",eventVerify);
+                                                RCTLogInfo(@"verifyFacesInFrame result : %@",eventVerify);
                                                 [self onFacesVerified:eventVerify];
                                                 _finishedVerifyingFace = true;
                                                 _finishedDetectingFace = true;
@@ -2513,10 +2527,10 @@ BOOL _sessionInterrupted = NO;
 
                         RCTLogInfo(@"IdentityFile %@ is missed, please provide props path and user",_Identity); 
                         
-                        [RNFileSystem CopyFile:[_Identity stringByAppendingString:@".png"]
-                                        fromPath: [[NSBundle mainBundle]resourcePath]
-                                        toPath: [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath]
-                        ]  ;
+                        // [RNFileSystem CopyFile:[_Identity stringByAppendingString:@".png"]
+                        //                 fromPath: [[NSBundle mainBundle]resourcePath]
+                        //                 toPath: [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath]
+                        // ]  ;
                         _finishedDetectingFace = true;
                     }
                 }
