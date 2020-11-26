@@ -178,6 +178,8 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
                 // save to file if requested
                 if (!mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave")) {
+                     // =============<<<<<<<<<<<<<<<<< check here
+                    //  todo: save path to document...
 
                     // Prepare file output
                     File imageFile = new File(getImagePath());
@@ -209,6 +211,8 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
                     // Return file system URI
                     String fileUri = Uri.fromFile(imageFile).toString();
+                     // =============<<<<<<<<<<<<<<<<< check here
+                    //  console log uri...
                     response.putString("uri", fileUri);
                 }
 
@@ -231,6 +235,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 // Write compressed image to file in cache directory unless otherwise specified
                 if (!mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave")) {
                     String filePath = writeStreamToFile(imageStream);
+                     // =============<<<<<<<<<<<<<<<<< check here
 
                     // since we lost any exif data on bitmap creation, we only need
                     // to add it if requested
@@ -241,6 +246,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                     }
                     File imageFile = new File(filePath);
                     String fileUri = Uri.fromFile(imageFile).toString();
+                     // =============<<<<<<<<<<<<<<<<< check here
                     response.putString("uri", fileUri);
                 }
 
@@ -317,9 +323,11 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         if(mOptions.hasKey("path")){
             return mOptions.getString("path");
         }
+         // =============<<<<<<<<<<<<<<<<< check here
         return RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg");
     }
 
+     // =============<<<<<<<<<<<<<<<<< check here
     private String writeStreamToFile(ByteArrayOutputStream inputStream) throws IOException {
         String outputPath = null;
         IOException exception = null;

@@ -23,6 +23,7 @@ public class RNFileUtils {
 
     public static String getOutputFilePath(File directory, String extension) throws IOException {
         ensureDirExists(directory);
+        // =============<<<<<<<<<<<<<<<<< check here
         String filename = UUID.randomUUID().toString();
         return directory + File.separator + filename + extension;
     }

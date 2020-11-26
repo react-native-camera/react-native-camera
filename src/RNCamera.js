@@ -290,6 +290,7 @@ type PropsType = typeof View.props & {
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
+  // added
   onFacesVerified?: ({ result: Array<TrackedFaceFeature> }) => void,
   captureAudio?: boolean,
   keepAudioSession?: boolean,
@@ -323,7 +324,7 @@ const RecordAudioPermissionStatusEnum: {
   PENDING_AUTHORIZATION: 'PENDING_AUTHORIZATION',
   NOT_AUTHORIZED: 'NOT_AUTHORIZED',
 };
-
+// =============<<<<<<<<<<<<<<<<< check here
 const CameraManager: Object = NativeModules.RNCameraManager ||
   NativeModules.RNCameraModule || {
     stubbed: true,
@@ -804,7 +805,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
       recordAudioPermissionStatus,
     });
   }
-
+  // =============<<<<<<<<<<<<<<<<< check here
+  //  check folder here?
   async componentDidMount() {
     const {
       hasCameraPermissions,
@@ -866,6 +868,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
             onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
             onTouch={this._onTouch}
             onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
+            // added
             onFacesVerified={this._onObjectDetected(this.props.onFacesVerified)}
             onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
             onPictureSaved={this._onPictureSaved}
@@ -891,7 +894,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (props.onGoogleVisionBarcodesDetected) {
       newProps.googleVisionBarcodeDetectorEnabled = true;
     }
-    // todo: add onfacesverify to enable, pass info of the face location
+
     if (props.onFacesDetected) {
       newProps.faceDetectorEnabled = true;
     }
@@ -949,6 +952,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     onAudioConnected: true,
     onPictureSaved: true,
     onFaceDetected: true,
+    // added
     onFacesVerified: true,
     onTouch: true,
     onLayout: true,

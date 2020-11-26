@@ -174,7 +174,7 @@ public class RNCameraViewHelper {
       }
     });
   }
-
+ // =============<<<<<<<<<<<<<<<<< check here
   // Camera ready event
 
   public static void emitCameraReadyEvent(final ViewGroup view) {
@@ -189,6 +189,7 @@ public class RNCameraViewHelper {
     });
   }
 
+   // =============<<<<<<<<<<<<<<<<< check here
   // Picture saved event
 
   public static void emitPictureSavedEvent(final ViewGroup view, final WritableMap response) {
@@ -256,6 +257,7 @@ public class RNCameraViewHelper {
     });
 
   }
+   // =============<<<<<<<<<<<<<<<<< check here
   // Face detection events
 
   public static void emitFacesDetectedEvent(final ViewGroup view, final WritableArray data) {
@@ -453,6 +455,7 @@ public class RNCameraViewHelper {
     exifInterface.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, null);
   }
 
+   // =============<<<<<<<<<<<<<<<<< check here
   public static Bitmap generateSimulatorPhoto(int width, int height) {
     Bitmap fakePhoto = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     Canvas canvas = new Canvas(fakePhoto);

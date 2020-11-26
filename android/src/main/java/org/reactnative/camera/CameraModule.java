@@ -31,6 +31,7 @@ import java.util.SortedSet;
 
 
 public class CameraModule extends ReactContextBaseJavaModule {
+   // =============<<<<<<<<<<<<<<<<< check here
   private static final String TAG = "CameraModule";
 
   private ScopedContext mScopedContext;
@@ -78,6 +79,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
   @Override
   public String getName() {
+     // =============<<<<<<<<<<<<<<<<< check here
+    //  why not return tag???
     return "RNCameraModule";
   }
 
@@ -254,7 +257,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
             }
         });
     }
-
+   // =============<<<<<<<<<<<<<<<<< check here
   @ReactMethod
   public void takePicture(final ReadableMap options, final int viewTag, final Promise promise) {
     final ReactApplicationContext context = getReactApplicationContext();

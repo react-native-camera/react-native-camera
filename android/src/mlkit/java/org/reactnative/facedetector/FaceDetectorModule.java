@@ -14,6 +14,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 public class FaceDetectorModule extends ReactContextBaseJavaModule {
+  // =============<<<<<<<<<<<<<<<<< check here
   private static final String TAG = "RNFaceDetector";
 //  private ScopedContext mScopedContext;
 private static ReactApplicationContext mScopedContext;
@@ -67,6 +68,7 @@ private static ReactApplicationContext mScopedContext;
     });
   }
 
+  // =============<<<<<<<<<<<<<<<<< check here
   @ReactMethod
   public void detectFaces(ReadableMap options, final Promise promise) {
     new FileFaceDetectionAsyncTask(mScopedContext, options, promise).execute();

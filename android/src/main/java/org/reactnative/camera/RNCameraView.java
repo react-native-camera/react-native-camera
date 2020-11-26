@@ -108,6 +108,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         RNCameraViewHelper.emitMountErrorEvent(cameraView, "Camera view threw an error - component could not be rendered.");
       }
 
+       // =============<<<<<<<<<<<<<<<<< check here
       @Override
       public void onPictureTaken(CameraView cameraView, final byte[] data, int deviceOrientation) {
         Promise promise = mPictureTakenPromises.poll();
@@ -115,6 +116,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         if (options.hasKey("fastMode") && options.getBoolean("fastMode")) {
             promise.resolve(null);
         }
+         // =============<<<<<<<<<<<<<<<<< check here
         final File cacheDirectory = mPictureTakenDirectories.remove(promise);
         if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
           new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
@@ -159,6 +161,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
       }
 
+       // =============<<<<<<<<<<<<<<<<< check here
+      //  todo: similar to output capture of ios
       @Override
       public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int rotation) {
         int correctRotation = RNCameraViewHelper.getCorrectCameraRotation(rotation, getFacing(), getCameraOrientation());
@@ -182,6 +186,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
         if (willCallFaceTask) {
           faceDetectorTaskLock = true;
+           // =============<<<<<<<<<<<<<<<<< check here
           FaceDetectorAsyncTaskDelegate delegate = (FaceDetectorAsyncTaskDelegate) cameraView;
           new FaceDetectorAsyncTask(delegate, mFaceDetector, data, width, height, correctRotation, getResources().getDisplayMetrics().density, getFacing(), getWidth(), getHeight(), mPaddingX, mPaddingY).execute();
         }
@@ -215,6 +220,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     });
   }
 
+   // =============<<<<<<<<<<<<<<<<< check here
   @Override
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
     View preview = getView();
@@ -267,6 +273,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     this.mDetectedImageInEvent = detectedImageInEvent;
   }
 
+   // =============<<<<<<<<<<<<<<<<< check here
   public void takePicture(final ReadableMap options, final Promise promise, final File cacheDirectory) {
     mBgHandler.post(new Runnable() {
       @Override
@@ -276,6 +283,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         mPictureTakenDirectories.put(promise, cacheDirectory);
 
         try {
+           // =============<<<<<<<<<<<<<<<<< check here
           RNCameraView.super.takePicture(options);
         } catch (Exception e) {
           mPictureTakenPromises.remove(promise);
@@ -439,6 +447,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     return true;
   }
 
+   // =============<<<<<<<<<<<<<<<<< check here
   /**
    * Initial setup of the face detector
    */
@@ -477,7 +486,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       mFaceDetector.setTracking(trackingEnabled);
     }
   }
-
+ // =============<<<<<<<<<<<<<<<<< check here
   public void setShouldDetectFaces(boolean shouldDetectFaces) {
     if (shouldDetectFaces && mFaceDetector == null) {
       setupFaceDetector();
@@ -485,7 +494,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     this.mShouldDetectFaces = shouldDetectFaces;
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
   }
-
+ // =============<<<<<<<<<<<<<<<<< check here
   public void onFacesDetected(WritableArray data) {
     if (!mShouldDetectFaces) {
       return;

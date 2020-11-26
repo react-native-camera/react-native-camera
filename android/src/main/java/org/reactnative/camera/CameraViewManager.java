@@ -29,7 +29,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_RECORDING_START("onRecordingStart"),
     EVENT_ON_RECORDING_END("onRecordingEnd"),
     EVENT_ON_TOUCH("onTouch");
-
+ // =============<<<<<<<<<<<<<<<<< check here
 
     private final String mName;
 

@@ -8,7 +8,7 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
-
+ // =============<<<<<<<<<<<<<<<<< check here
 public class FacesDetectedEvent extends Event<FacesDetectedEvent> {
   private static final Pools.SynchronizedPool<FacesDetectedEvent> EVENTS_POOL =
       new Pools.SynchronizedPool<>(3);

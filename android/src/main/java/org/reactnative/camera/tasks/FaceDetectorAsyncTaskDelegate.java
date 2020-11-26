@@ -5,6 +5,7 @@ import org.reactnative.facedetector.RNFaceDetector;
 import com.facebook.react.bridge.WritableArray;
 
 public interface FaceDetectorAsyncTaskDelegate {
+   // =============<<<<<<<<<<<<<<<<< check here
   void onFacesDetected(WritableArray faces);
   void onFaceDetectionError(RNFaceDetector faceDetector);
   void onFaceDetectingTaskCompleted();

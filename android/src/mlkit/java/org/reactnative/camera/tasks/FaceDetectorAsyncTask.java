@@ -74,12 +74,14 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
     FirebaseVisionImage image = FirebaseVisionImage.fromByteArray(mImageData, metadata);
 
     FirebaseVisionFaceDetector detector = mFaceDetector.getDetector();
+     // =============<<<<<<<<<<<<<<<<< check here
     detector.detectInImage(image)
             .addOnSuccessListener(
                     new OnSuccessListener<List<FirebaseVisionFace>>() {
                       @Override
                       public void onSuccess(List<FirebaseVisionFace> faces) {
                         WritableArray facesList = serializeEventData(faces);
+                         // =============<<<<<<<<<<<<<<<<< check here
                         mDelegate.onFacesDetected(facesList);
                         mDelegate.onFaceDetectingTaskCompleted();
                       }
@@ -89,6 +91,8 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
                       @Override
                       public void onFailure(Exception e) {
                         Log.e(TAG, "Text recognition task failed" + e);
+                         // =============<<<<<<<<<<<<<<<<< check here
+                        //  why text recognition
                         mDelegate.onFaceDetectingTaskCompleted();
                       }
                     });

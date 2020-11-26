@@ -98,6 +98,7 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, Void> {
     try {
       FirebaseVisionImage image = FirebaseVisionImage.fromFilePath(mContext, Uri.parse(mUri));
       FirebaseVisionFaceDetector detector = mRNFaceDetector.getDetector();
+         // =============<<<<<<<<<<<<<<<<< check here
       detector.detectInImage(image)
               .addOnSuccessListener(
                       new OnSuccessListener<List<FirebaseVisionFace>>() {
@@ -110,6 +111,8 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, Void> {
                       new OnFailureListener() {
                         @Override
                         public void onFailure(Exception e) {
+                           // =============<<<<<<<<<<<<<<<<< check here
+                          //  why text recognition???
                           Log.e(ERROR_TAG, "Text recognition task failed", e);
                           mPromise.reject(ERROR_TAG, "Text recognition task failed", e);
                         }
