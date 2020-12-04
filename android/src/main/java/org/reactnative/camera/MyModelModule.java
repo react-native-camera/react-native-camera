@@ -17,7 +17,7 @@ import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.fraa.ml.Mymodel;
+import org.reactnative.camera.Mymodel;
 // tensorflow
 //import org.tensorflow.lite.Interpreter;
 //import org.tensorflow.lite.examples.detection.env.Logger;

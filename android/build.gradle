@@ -76,4 +76,18 @@ dependencies {
   implementation "androidx.legacy:legacy-support-v4:1.0.0"
   mlkitImplementation "com.google.firebase:firebase-ml-vision:${safeExtGet('firebase-ml-vision', '19.0.3')}"
   mlkitImplementation "com.google.firebase:firebase-ml-vision-face-model:${safeExtGet('firebase-ml-vision-face-model', '17.0.2')}"
+
+//    tensorflow:
+  implementation 'org.tensorflow:tensorflow-lite-support:0.1.0-rc1'
+  implementation 'org.tensorflow:tensorflow-lite-metadata:0.1.0-rc1'
+  implementation 'org.tensorflow:tensorflow-lite-gpu:2.2.0'
+//    2
+  implementation 'org.tensorflow:tensorflow-lite-task-vision:0.0.0-nightly'
+  implementation 'org.tensorflow:tensorflow-lite-task-text:0.0.0-nightly'
+//    3
+  implementation 'org.tensorflow:tensorflow-lite-support:0.0.0-nightly'
+//    4
+  implementation 'org.tensorflow:tensorflow-lite:0.0.0-nightly'
+  // implementation 'com.google.firebase:firebase-core:16.0.1'
+  // implementation 'com.google.firebase:firebase-database:16.0.1'
 }
