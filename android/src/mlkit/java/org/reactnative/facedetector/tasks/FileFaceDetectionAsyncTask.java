@@ -73,7 +73,8 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, Void> {
       cancel(true);
       return;
     }
-
+       // =============<<<<<<<<<<<<<<<<< check here
+      //  this is for detect face in image
     if(!new File(mPath).exists()) {
       mPromise.reject(ERROR_TAG, "The file does not exist. Given path: `" + mPath + "`.");
       cancel(true);
@@ -99,6 +100,7 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, Void> {
       FirebaseVisionImage image = FirebaseVisionImage.fromFilePath(mContext, Uri.parse(mUri));
       FirebaseVisionFaceDetector detector = mRNFaceDetector.getDetector();
          // =============<<<<<<<<<<<<<<<<< check here
+        //  detect in image
       detector.detectInImage(image)
               .addOnSuccessListener(
                       new OnSuccessListener<List<FirebaseVisionFace>>() {

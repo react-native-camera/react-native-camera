@@ -5,9 +5,12 @@ import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
+   // =============<<<<<<<<<<<<<<<<< check here
+//    still use the cameramodule in lwansbrough package
 import com.lwansbrough.RCTCamera.RCTCameraModule;
 import com.lwansbrough.RCTCamera.RCTCameraViewManager;
-
+   // =============<<<<<<<<<<<<<<<<< check here
+//    use the facedetector module in org reactnative facedetector package
 import org.reactnative.facedetector.FaceDetectorModule;
 
 import java.util.Arrays;
@@ -23,10 +26,16 @@ public class RNCameraPackage implements ReactPackage {
     public List<NativeModule> createNativeModules(ReactApplicationContext reactApplicationContext) {
         return Arrays.<NativeModule>asList(
             // =============<<<<<<<<<<<<<<<<< check here
-                new RCTCameraModule(reactApplicationContext),
+            // why two module at the same time?
+                // new RCTCameraModule(reactApplicationContext),
                 // this is returned for js bridge in android devices
                 new CameraModule(reactApplicationContext),
-                new FaceDetectorModule(reactApplicationContext)
+                // use the FaceDetectorModule
+                new FaceDetectorModule(reactApplicationContext),
+                new MyModelModule(reactApplicationContext)
+
+                // todo: check cameramodule, RCTCameraModule and facedetectormodule
+                // todo: add verification module here
         );
     }
 
@@ -39,8 +48,10 @@ public class RNCameraPackage implements ReactPackage {
     public List<ViewManager> createViewManagers(ReactApplicationContext reactApplicationContext) {
         return Arrays.<ViewManager>asList(
             // =============<<<<<<<<<<<<<<<<< check here
+            // why use two view manager at the same time?
                 new RCTCameraViewManager(),
                 new CameraViewManager()
+                // todo: modify in cameraviewmanager
         );
     }
 }

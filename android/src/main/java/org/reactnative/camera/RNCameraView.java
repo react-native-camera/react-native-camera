@@ -14,6 +14,7 @@ import android.os.Build;
 import androidx.core.content.ContextCompat;
 
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -187,6 +188,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         if (willCallFaceTask) {
           faceDetectorTaskLock = true;
            // =============<<<<<<<<<<<<<<<<< check here
+          //  Log.i("Debug",String.format("RNCameraView onFramePreview willCallFaceTask"));
           FaceDetectorAsyncTaskDelegate delegate = (FaceDetectorAsyncTaskDelegate) cameraView;
           new FaceDetectorAsyncTask(delegate, mFaceDetector, data, width, height, correctRotation, getResources().getDisplayMetrics().density, getFacing(), getWidth(), getHeight(), mPaddingX, mPaddingY).execute();
         }

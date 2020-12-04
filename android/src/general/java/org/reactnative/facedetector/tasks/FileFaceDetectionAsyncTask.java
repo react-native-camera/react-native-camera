@@ -85,7 +85,7 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, SparseArra
     if (isCancelled()) {
       return null;
     }
-
+    // RNFaceDetector
     mRNFaceDetector = detectorForOptions(mOptions, mContext);
     Bitmap bitmap = BitmapFactory.decodeFile(mPath);
     mWidth = bitmap.getWidth();
@@ -99,11 +99,14 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, SparseArra
     }
 
     RNFrame frame = RNFrameFactory.buildFrame(bitmap);
+    // =============<<<<<<<<<<<<<<<<< check here
     return mRNFaceDetector.detect(frame);
   }
 
   @Override
   protected void onPostExecute(SparseArray<Face> faces) {
+    // =============<<<<<<<<<<<<<<<<< check here
+    // todo: result faces
     super.onPostExecute(faces);
     WritableMap result = Arguments.createMap();
     WritableArray facesArray = Arguments.createArray();
@@ -126,10 +129,12 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, SparseArra
     result.putMap("image", image);
 
     mRNFaceDetector.release();
+    // todo: how to delay or switch off a call
     mPromise.resolve(result);
   }
 
   private static RNFaceDetector detectorForOptions(ReadableMap options, Context context) {
+    // =============<<<<<<<<<<<<<<<<< check here
     RNFaceDetector detector = new RNFaceDetector(context);
     detector.setTracking(false);
 

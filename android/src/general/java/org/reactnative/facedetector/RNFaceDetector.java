@@ -26,6 +26,7 @@ public class RNFaceDetector {
   private int mMode = FAST_MODE;
 
   public RNFaceDetector(Context context) {
+    // todo: save context?
     mBuilder = new FaceDetector.Builder(context);
     mBuilder.setMinFaceSize(mMinFaceSize);
     mBuilder.setMode(mMode);
@@ -42,7 +43,8 @@ public class RNFaceDetector {
 
     return mFaceDetector.isOperational();
   }
-
+// =============<<<<<<<<<<<<<<<<< check here
+// todo: inject faceverification here
   public SparseArray<Face> detect(RNFrame frame) {
     // If the frame has different dimensions, create another face detector.
     // Otherwise we will get nasty "inconsistent image dimensions" error from detector
@@ -55,7 +57,7 @@ public class RNFaceDetector {
       createFaceDetector();
       mPreviousDimensions = frame.getDimensions();
     }
-
+    // todo: check frame.getFrame()
     return mFaceDetector.detect(frame.getFrame());
   }
 

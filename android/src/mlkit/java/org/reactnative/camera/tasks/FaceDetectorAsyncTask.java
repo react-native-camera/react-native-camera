@@ -65,6 +65,7 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
     if (isCancelled() || mDelegate == null || mFaceDetector == null) {
       return null;
     }
+    // convert mImageData to Firebase format
     FirebaseVisionImageMetadata metadata = new FirebaseVisionImageMetadata.Builder()
             .setWidth(mWidth)
             .setHeight(mHeight)

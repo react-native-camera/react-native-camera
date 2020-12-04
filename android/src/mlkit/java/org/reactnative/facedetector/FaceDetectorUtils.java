@@ -75,13 +75,21 @@ public class FaceDetectorUtils {
     } else if (face.getBoundingBox().exactCenterY() > height / 2) {
       y = y - paddingTop / 2;
     }
-
+// =============<<<<<<<<<<<<<<<<< check here
+// bounds.origin.x/y
+// bounds.size.width/height
     origin.putDouble("x", x * scaleX);
     origin.putDouble("y", y * scaleY);
 
     WritableMap size = Arguments.createMap();
     size.putDouble("width", face.getBoundingBox().width() * scaleX);
     size.putDouble("height", face.getBoundingBox().height() * scaleY);
+
+      //                        todo: ....
+    int faceWidth = face.getBoundingBox().width();
+    int faceHeight = face.getBoundingBox().height();
+    Log.i("Debug",String.format("FaceDetectorUtils serializeFace %.2f - %.2f, %d - %d",
+                                x,y,faceWidth,faceWidth));
 
     WritableMap bounds = Arguments.createMap();
     bounds.putMap("origin", origin);

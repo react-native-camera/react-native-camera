@@ -492,14 +492,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         }
         return byteArray;
     }
-
+ // =============<<<<<<<<<<<<<<<<< check here
     @ReactMethod
     public void capture(final ReadableMap options, final Promise promise) {
         if (RCTCamera.getInstance() == null) {
             promise.reject("Camera is not ready yet.");
             return;
         }
-
+        // todo: check more options with more keys.
         int orientation = options.hasKey("orientation") ? options.getInt("orientation") : RCTCamera.getInstance().getOrientation();
         if (orientation == RCT_CAMERA_ORIENTATION_AUTO) {
             _sensorOrientationChecker.onResume();
@@ -796,10 +796,13 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     private File getTempMediaFile(int type) {
         try {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+               // =============<<<<<<<<<<<<<<<<< check here
+            //    todo: change to document dir
             File outputDir = _reactContext.getCacheDir();
             File outputFile;
 
             if (type == MEDIA_TYPE_IMAGE) {
+                // todo: change to png 
                 outputFile = File.createTempFile("IMG_" + timeStamp, ".jpg", outputDir);
             } else if (type == MEDIA_TYPE_VIDEO) {
                 outputFile = File.createTempFile("VID_" + timeStamp, ".mp4", outputDir);

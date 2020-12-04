@@ -69,6 +69,8 @@ private static ReactApplicationContext mScopedContext;
 
   @ReactMethod
   public void detectFaces(ReadableMap options, final Promise promise) {
+    // use execute the asynctask , pass in the promise to react bridge
+    // todo: delay to a certain amount of time...
     new FileFaceDetectionAsyncTask(mScopedContext, options, promise).execute();
   }
 }
