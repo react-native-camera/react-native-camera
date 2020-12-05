@@ -245,6 +245,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             if (mPreview.isReady()) {
                 setUpPreview();
                 if(mShowingPreview){
+                    Log.i("Debug","Camera1 start startCameraPreview...");
                     startCameraPreview();
                 }
             }
@@ -698,6 +699,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     @Override
     void takePicture(final ReadableMap options) {
+        Log.i("Debug","Camera1 takePicture  ...");
         if (!isCameraOpened()) {
             throw new IllegalStateException(
                     "Camera is not ready. Call start() before takePicture().");
@@ -745,6 +747,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     void takePictureInternal(final ReadableMap options) {
+        Log.i("Debug","Camera1 takePictureInternal  ...");
         // if not capturing already, atomically set it to true
         if (!mIsRecording.get() && isPictureCaptureInProgress.compareAndSet(false, true)) {
 
@@ -776,7 +779,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
                     @Override
                     public void onPictureTaken(byte[] data, Camera camera) {
-
+                        Log.i("Debug","Camera1 takePictureInternal onpicturetaken ...");
                         // this shouldn't be needed and messes up autoFocusPointOfInterest
                         // camera.cancelAutoFocus();
 
