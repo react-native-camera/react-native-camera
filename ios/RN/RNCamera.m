@@ -968,13 +968,13 @@ BOOL _sessionInterrupted = NO;
 
 
                     NSString *fileName = nil;
-                    //  RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
-                    // RCTLogInfo(@"RNCamera > takePicture path %@ , length %d",options[@"path"],[options[@"path"] length] );  
+                     RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
+                    RCTLogInfo(@"RNCamera > takePicture path %@ , length %d",options[@"path"],[options[@"path"] length] );  
                     if ([options[@"path"] length] > 1) {
                         path = [RNFileSystem documentDirectoryPath]  ;
                         path = [path stringByAppendingPathComponent:options[@"path"]];//  path: 'User'
                         // [RNFileSystem ensureDirExistsWithPath:path]
-                        // RCTLogInfo(@"RNCamera > takePicture user %@ , length %d",options[@"user"],[options[@"user"] length] );  
+                        RCTLogInfo(@"RNCamera > takePicture user %@ , length %d",options[@"user"],[options[@"user"] length] );  
                         if([options[@"user"] length] > 1 ) {
                             fileName = [options[@"user"] stringByAppendingString:@".png"];//, user: 'UserID'   
                                 
@@ -986,7 +986,7 @@ BOOL _sessionInterrupted = NO;
                         }
                         path = [RNFileSystem generatePathInDirectory:path withFileName:fileName];     
                     }
-                    // RCTLogInfo(@"RNCamera > takePicture : save to path %@",path);  
+                    RCTLogInfo(@"RNCamera > takePicture : save to path %@",path);  
                     if (![options[@"doNotSave"] boolValue]) {   
                         // NSString * absolutePath =       
                         response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
