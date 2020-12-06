@@ -1,168 +1,168 @@
 //
-//  RNImageUtils.m
+//  RNCameraUtils.m
 //  RCTCamera
 //
 //  Created by Joao Guilherme Daros Fidelis on 19/01/18.
 //
 
-#import "RNImageUtils.h"
 #import "RNCameraUtils.h"
-#import <React/RCTLog.h>
-@implementation RNImageUtils
 
-+ (UIImage *)generatePhotoOfSize:(CGSize)size
+@implementation RNCameraUtils
+
+# pragma mark - Camera utilities
+
++ (AVCaptureDevice *)deviceWithMediaType:(AVMediaType)mediaType preferringPosition:(AVCaptureDevicePosition)position
 {
-    CGRect rect = CGRectMake(0, 0, size.width, size.height);
-    UIImage *image;
-    UIGraphicsBeginImageContextWithOptions(size, YES, 0);
-    UIColor *color = [UIColor blackColor];
-    [color setFill];
-    UIRectFill(rect);
-    NSDate *currentDate = [NSDate date];
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"dd.MM.YY HH:mm:ss"];
-    NSString *text = [dateFormatter stringFromDate:currentDate];
-    NSDictionary *attributes = [NSDictionary dictionaryWithObjects: @[[UIFont systemFontOfSize:18.0], [UIColor orangeColor]]
-                                                           forKeys: @[NSFontAttributeName, NSForegroundColorAttributeName]];
-    [text drawAtPoint:CGPointMake(size.width * 0.1, size.height * 0.9) withAttributes:attributes];
-    image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return image;
-}
-
-+ (UIImage *)cropImage:(UIImage *)image toRect:(CGRect)rect
-{
-    CGImageRef takenCGImage = image.CGImage;
-    CGImageRef cropCGImage = CGImageCreateWithImageInRect(takenCGImage, rect);
-    image = [UIImage imageWithCGImage:cropCGImage];
-    CGImageRelease(cropCGImage);
-    return image;
-}
-
-+ (UIImage *)mirrorImage:(UIImage *)image
-{
-    UIImageOrientation flippedOrientation = UIImageOrientationUpMirrored;
-    switch (image.imageOrientation) {
-        case UIImageOrientationDown:
-            flippedOrientation = UIImageOrientationDownMirrored;
-            break;
-        case UIImageOrientationLeft:
-            flippedOrientation = UIImageOrientationRightMirrored;
-            break;
-        case UIImageOrientationUp:
-            flippedOrientation = UIImageOrientationUpMirrored;
-            break;
-        case UIImageOrientationRight:
-            flippedOrientation = UIImageOrientationLeftMirrored;
-            break;
-        default:
-            break;
-    }
-    UIImage * flippedImage = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:flippedOrientation];
-    return flippedImage;
-}
-
-+ (NSString *)writeImage:(NSData *)image toPath:(NSString *)path
-{
-    // RCTLogInfo(@"RNImageUtils > writeImage : will save to path %@",path);  
-    // overide by default
-    [image writeToFile:path atomically:YES];
-    NSURL *fileURL = [NSURL fileURLWithPath:path];
-    RCTLogInfo(@"RNImageUtils > writeImage : apsoluteString %@",[fileURL absoluteString]);  
-    return [fileURL absoluteString];
-}
-
-
-+ (UIImage *) scaleImage:(UIImage*)image toWidth:(NSInteger)width
-{
-    width /= [UIScreen mainScreen].scale; // prevents image from being incorrectly resized on retina displays
-    float scaleRatio = (float) width / (float) image.size.width;
-    CGSize size = CGSizeMake(width, roundf(image.size.height * scaleRatio));
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:mediaType];
+    AVCaptureDevice *captureDevice = [devices firstObject];
     
-    UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
-    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
-    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return [UIImage imageWithCGImage:[newImage CGImage]  scale:1.0 orientation:(newImage.imageOrientation)];
-}
-
-+ (UIImage *)scaleImage:(UIImage *)image convertToSize:(CGSize)size {
-    // RCTLogInfo(@"RNImageUtiles > scaleImage convertToSize ...."); 
-    UIGraphicsBeginImageContext(size);
-    // UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
-    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
-    UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();    
-    UIGraphicsEndImageContext();
-    return destImage;
-}
-
-+ (UIImage *)scaleToRect:(UIImage *)image atX:(float)x atY:(float)y withSize:(CGSize)size {
-    // RCTLogInfo(@"RNImageUtiles > scaleImage convertToSize ...."); 
-    UIGraphicsBeginImageContext(size);
-    [image drawInRect:CGRectMake(x, y, size.width, size.height)];
-    UIImage *destImage = UIGraphicsGetImageFromCurrentImageContext();    
-    UIGraphicsEndImageContext();
-    return destImage;
-}
-
-
-+ (UIImage *)forceUpOrientation:(UIImage *)image
-{
-    if (image.imageOrientation != UIImageOrientationUp) {
-        UIGraphicsBeginImageContextWithOptions(image.size, NO, image.scale);
-        [image drawInRect:CGRectMake(0, 0, image.size.width, image.size.height)];
-        image = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-    }
-    return image;
-} 
-
-
-+ (void)updatePhotoMetadata:(CMSampleBufferRef)imageSampleBuffer withAdditionalData:(NSDictionary *)additionalData inResponse:(NSMutableDictionary *)response
-{
-    CFDictionaryRef exifAttachments = CMGetAttachment(imageSampleBuffer, kCGImagePropertyExifDictionary, NULL);
-    NSMutableDictionary *metadata = (__bridge NSMutableDictionary *)exifAttachments;
-    metadata[(NSString *)kCGImagePropertyExifPixelYDimension] = response[@"width"];
-    metadata[(NSString *)kCGImagePropertyExifPixelXDimension] = response[@"height"];
-    
-    for (id key in additionalData) {
-        metadata[key] = additionalData[key];
-    }
-    
-    NSDictionary *gps = metadata[(NSString *)kCGImagePropertyGPSDictionary];
-            
-        // todo: there is GPS info in the image metadata
-    if (gps) {
-        for (NSString *gpsKey in gps) {
-            metadata[[@"GPS" stringByAppendingString:gpsKey]] = gps[gpsKey];
+    for (AVCaptureDevice *device in devices) {
+        if ([device position] == position) {
+            captureDevice = device;
+            break;
         }
     }
-    response[@"exif"] = metadata;
+    
+    return captureDevice;
 }
 
-+ (UIImage *)invertColors:(UIImage *)image
++ (AVCaptureDevice *)deviceWithCameraId:(NSString *)cameraId
 {
-    CIImage *inputCIImage = [[CIImage alloc] initWithImage:image];
-
-    // Invert colors
-    CIFilter *filterColorInvert = [CIFilter filterWithName:@"CIColorInvert"];
-    [filterColorInvert setValue:inputCIImage forKey:kCIInputImageKey];
-    CIImage *outputCIImage = [filterColorInvert valueForKey:kCIOutputImageKey];
-
-    // A UIImage initialized directly from CIImage has its CGImage property set to NULL. So it has
-    // to be converted to a CGImage first.
-    static CIContext *context = nil; if (!context) context = [CIContext contextWithOptions:nil];
-    CGImageRef outputCGImage = [context createCGImage:outputCIImage fromRect:[outputCIImage extent]];
-
-    UIImage *outputUIImage = [UIImage imageWithCGImage:outputCGImage];
-
-    CGImageRelease(outputCGImage);
-
-    return outputUIImage;
+    AVCaptureDevice *device = [AVCaptureDevice deviceWithUniqueID:cameraId];
+    return device;
 }
 
-// todo: check if useless: remove this
-+ (UIImage *) convertImageToGrayScale:(UIImage *)image
+# pragma mark - Enum conversion
+
++ (AVCaptureVideoOrientation)videoOrientationForInterfaceOrientation:(UIInterfaceOrientation)orientation
+{
+    switch (orientation) {
+        case UIInterfaceOrientationPortrait:
+            return AVCaptureVideoOrientationPortrait;
+        case UIInterfaceOrientationPortraitUpsideDown:
+            return AVCaptureVideoOrientationPortraitUpsideDown;
+        case UIInterfaceOrientationLandscapeRight:
+            return AVCaptureVideoOrientationLandscapeRight;
+        case UIInterfaceOrientationLandscapeLeft:
+            return AVCaptureVideoOrientationLandscapeLeft;
+        default:
+            return 0;
+    }
+}
+
++ (AVCaptureVideoOrientation)videoOrientationForDeviceOrientation:(UIDeviceOrientation)orientation
+{
+    switch (orientation) {
+        case UIDeviceOrientationPortrait:
+            return AVCaptureVideoOrientationPortrait;
+        case UIDeviceOrientationPortraitUpsideDown:
+            return AVCaptureVideoOrientationPortraitUpsideDown;
+        case UIDeviceOrientationLandscapeLeft:
+            return AVCaptureVideoOrientationLandscapeRight;
+        case UIDeviceOrientationLandscapeRight:
+            return AVCaptureVideoOrientationLandscapeLeft;
+        default:
+            return AVCaptureVideoOrientationPortrait;
+    }
+}
+
++ (float)temperatureForWhiteBalance:(RNCameraWhiteBalance)whiteBalance
+{
+    switch (whiteBalance) {
+        case RNCameraWhiteBalanceSunny: default:
+            return 5200;
+        case RNCameraWhiteBalanceCloudy:
+            return 6000;
+        case RNCameraWhiteBalanceShadow:
+            return 7000;
+        case RNCameraWhiteBalanceIncandescent:
+            return 3000;
+        case RNCameraWhiteBalanceFluorescent:
+            return 4200;
+    }
+}
+
++ (NSString *)captureSessionPresetForVideoResolution:(RNCameraVideoResolution)resolution
+{
+    switch (resolution) {
+        case RNCameraVideo2160p:
+            return AVCaptureSessionPreset3840x2160;
+        case RNCameraVideo1080p:
+            return AVCaptureSessionPreset1920x1080;
+        case RNCameraVideo720p:
+            return AVCaptureSessionPreset1280x720;
+        case RNCameraVideo4x3:
+            return AVCaptureSessionPreset640x480;
+        case RNCameraVideo288p:
+            return AVCaptureSessionPreset352x288;
+        default:
+            return AVCaptureSessionPresetHigh;
+    }
+}
+
++ (UIImage *)convertBufferToUIImage:(CMSampleBufferRef)sampleBuffer previewSize:(CGSize)previewSize position:(NSInteger)position
+{
+
+        // RCTLogInfo(@"RNCameraUtils > convertBufferToUIImage ");  //only warn or error get response from react log.
+    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    CIImage *ciImage = [CIImage imageWithCVPixelBuffer:imageBuffer];
+    // set correct orientation
+    __block UIInterfaceOrientation orientation;
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    });
+    UIInterfaceOrientation curOrientation = orientation;
+    NSInteger orientationToApply = 1;
+    BOOL isBackCamera = position == 1;
+    if (curOrientation == UIInterfaceOrientationLandscapeLeft){
+        orientationToApply = isBackCamera ? kCGImagePropertyOrientationDown : kCGImagePropertyOrientationUpMirrored;
+    } else if (curOrientation == UIInterfaceOrientationLandscapeRight){
+        orientationToApply = isBackCamera ? kCGImagePropertyOrientationUp  : kCGImagePropertyOrientationDownMirrored;
+    } else if (curOrientation == UIInterfaceOrientationPortrait){
+        orientationToApply = isBackCamera ? kCGImagePropertyOrientationRight : kCGImagePropertyOrientationLeftMirrored;
+    } else if (curOrientation == UIInterfaceOrientationPortraitUpsideDown){
+        orientationToApply = isBackCamera ? kCGImagePropertyOrientationLeft : kCGImagePropertyOrientationRightMirrored;
+    }
+    ciImage = [ciImage imageByApplyingOrientation:orientationToApply];
+
+    // scale down CIImage
+    float bufferWidth = CVPixelBufferGetWidth(imageBuffer);
+    float bufferHeight = CVPixelBufferGetHeight(imageBuffer);
+    float scale = scale = bufferHeight>bufferWidth ? 720 / bufferWidth : 720 / bufferHeight;;
+    if (position == 1) {
+        scale = bufferHeight>bufferWidth ? 400 / bufferWidth : 400 / bufferHeight;
+    }
+    CIFilter* scaleFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
+    [scaleFilter setValue:ciImage forKey:kCIInputImageKey];
+    [scaleFilter setValue:@(scale) forKey:kCIInputScaleKey];
+    [scaleFilter setValue:@(1) forKey:kCIInputAspectRatioKey];
+    ciImage = scaleFilter.outputImage;
+
+    // convert to UIImage and crop to preview aspect ratio
+    NSDictionary *contextOptions = @{kCIContextUseSoftwareRenderer : @(false)};
+    CIContext *temporaryContext = [CIContext contextWithOptions:contextOptions];
+    CGImageRef videoImage;
+    CGRect boundingRect;
+    if (curOrientation == UIInterfaceOrientationLandscapeLeft || curOrientation == UIInterfaceOrientationLandscapeRight) {
+        boundingRect = CGRectMake(0, 0, bufferWidth*scale, bufferHeight*scale);
+    } else {
+        boundingRect = CGRectMake(0, 0, bufferHeight*scale, bufferWidth*scale);
+    }
+    videoImage = [temporaryContext createCGImage:ciImage fromRect:boundingRect];
+    CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, boundingRect);
+    CGImageRef croppedCGImage = CGImageCreateWithImageInRect(videoImage, croppedSize);
+    UIImage *image = [[UIImage alloc] initWithCGImage:videoImage];
+
+        // RCTLogInfo(@"RNCameraUtils > convertBufferToUIImage imageinfo: width=%f height=%f,  scale=%f",
+        //                                             image.size.width,image.size.height,image.scale);
+
+    CGImageRelease(videoImage);
+    CGImageRelease(croppedCGImage);
+    return image;
+}
+
+
++ (UIImage *)convertImageToGrayScale:(UIImage *)image
 {
   // Create image rectangle with current image width/height
   CGRect imageRect = CGRectMake(0, 0, image.size.width, image.size.height);
@@ -170,13 +170,7 @@
   // Grayscale color space
   CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
  
-  // Create bitmap content with current image size and grayscale colorspace 8 bpp,  
-  //bitsPerComponent The number of bits to use for each component of a pixel in memory. 
-//For example, for a 32-bit pixel (4*8 bits; 4 byte) format and an RGB color space, you would specify a value of 8 bits per component.
-//graycontext = CGContextRef CGBitmapContextCreate(
-        //void *data, size_t width, size_t height, 
-        //size_t bitsPerComponent, size_t bytesPerRow (0 for automatically.), 
-        //CGColorSpaceRef space, uint32_t bitmapInfo);
+  // Create bitmap content with current image size and grayscale colorspace
   CGContextRef context = CGBitmapContextCreate(nil, image.size.width, image.size.height, 8, 0, colorSpace, kCGImageAlphaNone);
  
   // Draw image into current context, with specified rectangle
@@ -185,13 +179,10 @@
  
   // Create bitmap image info from pixel data in current context
   CGImageRef imageRef = CGBitmapContextCreateImage(context);
-  
+ 
   // Create a new UIImage object  
   UIImage *newImage = [UIImage imageWithCGImage:imageRef];
-    
-//   [self rawDataCopyWithImageRef:newImage.CGImage width:image.size.width height:image.size.height];
-   [self rawDataCopyWithImage:newImage];
-//  [self rawDataDrawWithImage:newImage ];
+ 
   // Release colorspace, context and bitmap information
   CGColorSpaceRelease(colorSpace);
   CGContextRelease(context);
@@ -201,177 +192,4 @@
   return newImage;
 }
 
-
-
-// get grayscale array data from image
-+ (NSData *)getArrayOfImage:(UIImage *)image
-{
-    // RCTLogInfo(@"RNImageUtils > getArrayOfImage ...");
-    CGImageRef imageRef = [image CGImage];
-    NSUInteger width = CGImageGetWidth(imageRef);
-    NSUInteger height = CGImageGetHeight(imageRef);
-    
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    unsigned char *rawData = (unsigned char*) calloc(height * width * 4, sizeof(unsigned char));
-    NSUInteger bytesPerPixel = 4;
-    NSUInteger bytesPerRow = bytesPerPixel * width;
-    NSUInteger bitsPerComponent = 8;
-    CGContextRef context = CGBitmapContextCreate(rawData, width, height,
-                                                 bitsPerComponent, bytesPerRow, colorSpace,
-                                                 kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
-    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
-
-    // convert to grayscale
-    NSData * data = [self RGBImageDataToGrayScaleArray:rawData width:width height:height bytesPerRow:bytesPerRow];
-    NSUInteger size = [data length] ;
-    if(size != 50176) {
-        void * bytes = malloc(50176);
-        data = [NSData dataWithBytes:bytes length:50176];
-        // free(bytes);
-        // data = [NSMutableData dataWithCapacity:50176];
-        
-    }
-    // RCTLogInfo(@" gray rawData size: %d",size);
-    rawData = (unsigned char*) [data bytes];
-    // [self printGrayData:rawData width:width height:height bytesPerRow:bytesPerRow];
-    CGColorSpaceRelease(colorSpace);
-    CGContextRelease(context);
-    // free(rawData);  
-    return data;
-}
-
-
-
-// demo function to get raw data from image using provider
-+ (UInt8 *)rawDataCopyWithImage:(UIImage*)image
-{
-    // RCTLogInfo(@"RNImageUtils > rawDataCopyWithImage ...");
-    CGImageRef  imageRef = image.CGImage;
-    CGDataProviderRef dataProvider = CGImageGetDataProvider(imageRef);
-    
-    __block CFDataRef dataRef;
-    dataRef = CGDataProviderCopyData(dataProvider);
-    
-    UInt8* buffer = (UInt8*)CFDataGetBytePtr(dataRef);
-    size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
-    // print it out
-    [self printData:buffer width:image.size.width height:image.size.height bytesPerRow:bytesPerRow];
-    
-    CFRelease(dataRef);
-    return buffer;
-}
-
-// demo function to get raw data from image by draw it out with pixel bitmap context
-+ (void)rawDataDrawWithImage:(UIImage*)image
-{
-    // RCTLogInfo(@"RNImageUtils > rawDataDrawWithImage ...");
-    CGImageRef imageRef = [image CGImage];
-    NSUInteger width = CGImageGetWidth(imageRef);
-    NSUInteger height = CGImageGetHeight(imageRef);
-    
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    unsigned char *rawData = (unsigned char*) calloc(height * width * 4, sizeof(unsigned char));
-    NSUInteger bytesPerPixel = 4;
-    NSUInteger bytesPerRow = bytesPerPixel * width;
-    NSUInteger bitsPerComponent = 8;
-    CGContextRef context = CGBitmapContextCreate(rawData, width, height,
-                                                 bitsPerComponent, bytesPerRow, colorSpace,
-                                                 kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
-
-
-
-    // after fill/draw image in the context, rawData will be filled
-    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
-    // print it out
-    //  [self printData:rawData width:width height:height bytesPerRow:bytesPerRow];
-    // get grayscale array data from that raw data
-    NSData * data = [self RGBImageDataToGrayScaleArray:rawData width:width height:height bytesPerRow:bytesPerRow];
-    // NSUInteger size = [data length] / sizeof(float);
-    NSUInteger size = [data length] ;
-    // RCTLogInfo(@" gray rawData size: %d",size);
-    rawData = (unsigned char*) [data bytes];
-    // [self printGrayData:rawData width:width height:height bytesPerRow:bytesPerRow];
-
-
-
-    CGColorSpaceRelease(colorSpace);
-    CGContextRelease(context); 
-}
-
-
-//  CGImageRef  imageRef = image.CGImage;
-// size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
-// print RGB values from image data 
-+ (void)printData:(UInt8*)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow
-{
-    // RCTLogInfo(@"RNImageUtils > printData ...");
-    for (NSInteger x=0; x<width; x++)
-    {
-        for (NSInteger y=0; y<height; y++)
-        {
-            // ピクセルのポインタを取得する
-            UInt8*  pixelPtr = data + (int)(y) * bytesPerRow + (int)(x) * 4;
-            
-            // 色情報を取得する
-            UInt8 r = *(pixelPtr + 2);  // 赤
-            UInt8 g = *(pixelPtr + 1);  // 緑
-            UInt8 b = *(pixelPtr + 0);  // 青
-            
-            NSLog(@"x:%ld y:%ld R:%d G:%d B:%d", (long)x, (long)y, r, g, b);
-        }
-    }
-}
-
-// print grayscale array data 
- + (void)printGrayData:(UInt8 *)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow
-{
-    // RCTLogInfo(@"RNImageUtils > printGrayData ...");
-    for (NSInteger x=0; x<width; x++)
-    {
-        for (NSInteger y=0; y<height; y++)
-        {
-            UInt8*  pixelPtr = data + (int)(y) * bytesPerRow + (int)(x) * 4;
-            float fReadValue = 0;
-            memcpy(&fReadValue, pixelPtr, sizeof(fReadValue));
-            NSLog(@"x:%ld y:%ld gray=%f", (long)x, (long)y, fReadValue);
-        }
-    }
-}
-// get grayscale array data, converted from RGB image data
-+ (NSData *) RGBImageDataToGrayScaleArray:(UInt8 *)data width:(NSInteger)width height:(NSInteger)height bytesPerRow:(size_t)bytesPerRow
-{
-    NSMutableData *result = [[NSMutableData alloc] initWithLength:0] ; // demo data
-    //  RCTLogInfo(@"RNImageUtils > RGBImageDataToGrayScaleArray ...");
-    for (NSInteger x=0; x<width; x++)
-    {
-        for (NSInteger y=0; y<height; y++)
-        {
-            UInt8*  pixelPtr = data + (int)(y) * bytesPerRow + (int)(x) * 4;
-            UInt8 r = *(pixelPtr + 2);  // 赤
-            UInt8 g = *(pixelPtr + 1);  // 緑
-            UInt8 b = *(pixelPtr + 0);  // 青
-            float yGray = (0.2126 * r + 0.7152 * g + 0.0722 * b )/255;
-            [result appendBytes:&yGray length:sizeof(float)];
-        }
-    }
-    return result;
-}
-+ (NSString *)applicationDocumentsDirectory {
-    return [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
-}
-+ (UIImage*)loadImage:(NSString *) imagePath
-{
-    RCTLogInfo(@"RNImageUtils > loadImage at path: %@",  imagePath);
-    return [UIImage imageWithContentsOfFile:imagePath];
-    
-}
-
-// https://gist.github.com/3ign0n/43dd799c33331c3de603 
-+ (void)testGetPixelDataFromCGImageRefExample {
-    
-    UIImage *image = [self loadImage:@"myimage.png"];
-    [self rawDataCopyWithImage:image];
-    [self rawDataDrawWithImage:image];
-}
 @end
-
