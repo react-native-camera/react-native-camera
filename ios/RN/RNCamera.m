@@ -968,11 +968,12 @@ BOOL _sessionInterrupted = NO;
 
 
                     NSString *fileName = nil;
-<<<<<<< HEAD
+
                      RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
-=======
+
                     //  RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
->>>>>>> parent of 64fb3ab... minor fix: userImageExtenstion
+
+
                     RCTLogInfo(@"RNCamera > takePicture path %@ , length %d",options[@"path"],[options[@"path"] length] );  
                     if ([options[@"path"] length] > 1) {
                         path = [RNFileSystem documentDirectoryPath]  ;
@@ -991,12 +992,13 @@ BOOL _sessionInterrupted = NO;
                         path = [RNFileSystem generatePathInDirectory:path withFileName:fileName];     
                     }
                     RCTLogInfo(@"RNCamera > takePicture : save to path %@",path);  
-<<<<<<< HEAD
+
                     if (![options[@"doNotSave"] boolValue]) {   
                         // NSString * absolutePath =       
-=======
+
+
                     if (![options[@"doNotSave"] boolValue]) {         
->>>>>>> parent of 64fb3ab... minor fix: userImageExtenstion
+
                         response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
                         //todo: run face detection and cut the face, save to other image name
                         [self processUserImage:[UIImage imageWithContentsOfFile:path] ];
@@ -1365,7 +1367,7 @@ BOOL _sessionInterrupted = NO;
             [self downloadModelFile: _ModelFileName fromURL:_ModelURL];
         }
     }
-<<<<<<< HEAD
+
         
     if(_Identity && _IdentityFilePath){
        
@@ -1394,7 +1396,7 @@ BOOL _sessionInterrupted = NO;
             NSLog(@"startSession > need to download image %@.png",_Identity);
         }
     }
-=======
+
     // if(_Identity && _IdentityFilePath){
     //     [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
     //     if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@".png"]]){
@@ -1411,7 +1413,7 @@ BOOL _sessionInterrupted = NO;
     //     }
     // }
 
->>>>>>> parent of 64fb3ab... minor fix: userImageExtenstion
+
 
 #if TARGET_IPHONE_SIMULATOR
     [self onReady:nil];
