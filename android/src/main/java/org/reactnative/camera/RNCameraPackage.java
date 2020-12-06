@@ -12,7 +12,6 @@ import com.lwansbrough.RCTCamera.RCTCameraViewManager;
    // =============<<<<<<<<<<<<<<<<< check here
 //    use the facedetector module in org reactnative facedetector package
 import org.reactnative.facedetector.FaceDetectorModule;
-import org.reactnative.facedetector.FaceDetectorModule;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,7 +49,7 @@ public class RNCameraPackage implements ReactPackage {
         return Arrays.<ViewManager>asList(
             // =============<<<<<<<<<<<<<<<<< check here
             // why use two view manager at the same time?
-                // new RCTCameraViewManager(),
+                new RCTCameraViewManager(),
                 new CameraViewManager()
                 // todo: modify in cameraviewmanager
         );

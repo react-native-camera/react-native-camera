@@ -1,500 +1,487 @@
 package org.reactnative.camera;
 
-import android.Manifest;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.facebook.react.bridge.*;
-import com.facebook.react.common.build.ReactBuildConfig;
-import com.facebook.react.uimanager.NativeViewHierarchyManager;
-import com.facebook.react.uimanager.UIBlock;
-import com.facebook.react.uimanager.UIManagerModule;
-import com.google.android.cameraview.AspectRatio;
-import com.google.zxing.BarcodeFormat;
-import org.reactnative.barcodedetector.BarcodeFormatUtils;
-import org.reactnative.camera.utils.ScopedContext;
-import org.reactnative.facedetector.RNFaceDetector;
-import com.google.android.cameraview.Size;
+// import packages
+import androidx.annotation.NonNull;
+//async task
+import android.content.res.AssetFileDescriptor;
+import android.os.AsyncTask;
+// use all the react bridge code from facebook to expose this class as API to react javascript
+//import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactApplicationContext;
+//import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+import org.reactnative.camera.Mymodel;
+// tensorflow
+//import org.tensorflow.lite.Interpreter;
+//import org.tensorflow.lite.examples.detection.env.Logger;
+//import org.tensorflow.lite.support.common.FileUtil;
+//import org.tensorflow.lite.support.image.ImageProcessor;
+//import org.tensorflow.lite.support.image.TensorImage;
+//import org.tensorflow.lite.support.image.ops.ResizeOp;
+//import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
+//import org.tensorflow.lite.support.model.Model;
 
-import javax.annotation.Nullable;
+
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Properties;
-import java.util.List;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.nio.ReadOnlyBufferException;
+import java.nio.channels.FileChannel;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.RectF;
+import android.os.Trace;
+import android.util.Log;
+
+
+import org.tensorflow.lite.DataType;
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
+import org.tensorflow.lite.Interpreter;
+import org.tensorflow.lite.support.tensorbuffer.TensorBufferFloat;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.List;
+import java.util.Vector;
 
 
-public class CameraModule extends ReactContextBaseJavaModule {
-   // =============<<<<<<<<<<<<<<<<< check here
-  private static final String TAG = "CameraModule";
 
-  private ScopedContext mScopedContext;
-  static final int VIDEO_2160P = 0;
-  static final int VIDEO_1080P = 1;
-  static final int VIDEO_720P = 2;
-  static final int VIDEO_480P = 3;
-  static final int VIDEO_4x3 = 4;
+// extend react module
+public class MyModelModule extends ReactContextBaseJavaModule {
+    //    constructor from react app context
+    public MyModelModule(ReactApplicationContext reactContext) {
+        super(reactContext);
+        mContext = reactContext;
+//        mReactNativeEventEmitter =  new ReactNativeEventEmitter(reactContext);
+    }
 
-  static final int GOOGLE_VISION_BARCODE_MODE_NORMAL = 0;
-  static final int GOOGLE_VISION_BARCODE_MODE_ALTERNATE = 1;
-  static final int GOOGLE_VISION_BARCODE_MODE_INVERTED = 2;
+    //    protected static Interpreter interpreter = null;
+    protected static String interpreter = null;
+    String modelString = "";
+    ReactApplicationContext mContext;
+    //    ReactNativeEventEmitter mReactNativeEventEmitter = ReactNativeEventEmitter.getInstance();
+//    todo: read file
+    protected File tensorflowFile = null;
+    protected Object output = null;
+    protected Object input = null;
+    private static final String MODEL_PATH = "mymodel.tflite";
+    /** Dimensions of inputs. */
+    private static final int DIM_BATCH_SIZE = 1;
 
-  public static final Map<String, Object> VALID_BARCODE_TYPES =
-      Collections.unmodifiableMap(new HashMap<String, Object>() {
-        {
-          put("aztec", BarcodeFormat.AZTEC.toString());
-          put("ean13", BarcodeFormat.EAN_13.toString());
-          put("ean8", BarcodeFormat.EAN_8.toString());
-          put("qr", BarcodeFormat.QR_CODE.toString());
-          put("pdf417", BarcodeFormat.PDF_417.toString());
-          put("upc_e", BarcodeFormat.UPC_E.toString());
-          put("datamatrix", BarcodeFormat.DATA_MATRIX.toString());
-          put("code39", BarcodeFormat.CODE_39.toString());
-          put("code93", BarcodeFormat.CODE_93.toString());
-          put("interleaved2of5", BarcodeFormat.ITF.toString());
-          put("codabar", BarcodeFormat.CODABAR.toString());
-          put("code128", BarcodeFormat.CODE_128.toString());
-          put("maxicode", BarcodeFormat.MAXICODE.toString());
-          put("rss14", BarcodeFormat.RSS_14.toString());
-          put("rssexpanded", BarcodeFormat.RSS_EXPANDED.toString());
-          put("upc_a", BarcodeFormat.UPC_A.toString());
-          put("upc_ean", BarcodeFormat.UPC_EAN_EXTENSION.toString());
+    private static final int DIM_PIXEL_SIZE = 3;
+    //from model inputs
+    // static final int DIM_IMG_SIZE_X = 92;
+    static final int DIM_IMG_SIZE_X = 112;
+    static final int DIM_IMG_SIZE_Y = 112;
+    @NonNull
+    @Override
+    public String getName() {
+//        return the name of this class, to use in javascript
+        return "MyModel";
+    }
+//    @ReactMethod
+//    public void getCurrentPackageFolderPath(final Promise promise) {
+//        promise.resolve(this.mUpdateManager.getCurrentPackageFolderPath());
+//    }
+
+    @ReactMethod
+    public void loadmodel() {
+        BackgroundLoadTask backgroundLoadTask = new BackgroundLoadTask();
+        backgroundLoadTask.execute();
+    // Declaring the capacity of the ByteBuffer
+        int capacity = 50176;
+        try {
+            // creating object of ByteBuffer
+            // and allocating size capacity
+            ByteBuffer byteBuffer = createBuffer(capacity);
+
+            // putting the int to byte typecast value
+            // in ByteBuffer using putInt() method
+//            byteBuffer.put((byte)20);
+//            byteBuffer.put((byte)30);
+//            byteBuffer.put((byte)40);
+//            byteBuffer.put((byte)50);
+//            byteBuffer.rewind();
+
+            // print the ByteBuffer
+            System.out.println("Original ByteBuffer:  "
+                    + Arrays.toString(byteBuffer.array()));
+            Mymodel model = Mymodel.newInstance(mContext);
+
+            // Creates inputs for reference.
+            TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 112, 112, 1}, DataType.FLOAT32);
+            inputFeature0.loadBuffer(byteBuffer);
+            TensorBuffer inputFeature1 = TensorBuffer.createFixedSize(new int[]{1, 112, 112, 1}, DataType.FLOAT32);
+            inputFeature1.loadBuffer(byteBuffer);
+
+            // Runs model inference and gets result.
+            Mymodel.Outputs outputs = model.process(inputFeature0, inputFeature1);
+            TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
+            TensorBufferFloat output= (TensorBufferFloat) outputFeature0;
+            WritableMap params = Arguments.createMap();
+            Log.i("Debug",String.format("mymodel output %.2f  ",output.getFloatArray()[0]));
+            params.putString("status", ""+output.getFloatArray()[0]);
+//            sent notify to the bridge: using other method
+            sendEvent("BackgroundLoadTask", params);
+            // Releases model resources if no longer used.
+            model.close();
         }
-      });
+         catch (IllegalArgumentException e) {
 
-  public CameraModule(ReactApplicationContext reactContext) {
-    super(reactContext);
-    mScopedContext = new ScopedContext(reactContext);
-  }
+            System.out.println("IllegalArgumentException catched");
+        }
 
-  public ScopedContext getScopedContext() {
-    return mScopedContext;
-  }
+        catch (ReadOnlyBufferException e) {
 
-  @Override
-  public String getName() {
-     // =============<<<<<<<<<<<<<<<<< check here
-    //  why not return tag???
-    return "RNCameraModule";
-  }
-
-  @Nullable
-  @Override
-  public Map<String, Object> getConstants() {
-    return Collections.unmodifiableMap(new HashMap<String, Object>() {
-      {
-        put("Type", getTypeConstants());
-        put("FlashMode", getFlashModeConstants());
-        put("AutoFocus", getAutoFocusConstants());
-        put("WhiteBalance", getWhiteBalanceConstants());
-        put("VideoQuality", getVideoQualityConstants());
-        put("BarCodeType", getBarCodeConstants());
-        put("FaceDetection", Collections.unmodifiableMap(new HashMap<String, Object>() {
-          {
-            put("Mode", getFaceDetectionModeConstants());
-            put("Landmarks", getFaceDetectionLandmarksConstants());
-            put("Classifications", getFaceDetectionClassificationsConstants());
-          }
-
-          private Map<String, Object> getFaceDetectionModeConstants() {
-            return Collections.unmodifiableMap(new HashMap<String, Object>() {
-              {
-                put("fast", RNFaceDetector.FAST_MODE);
-                put("accurate", RNFaceDetector.ACCURATE_MODE);
-              }
-            });
-          }
-
-          private Map<String, Object> getFaceDetectionClassificationsConstants() {
-            return Collections.unmodifiableMap(new HashMap<String, Object>() {
-              {
-                put("all", RNFaceDetector.ALL_CLASSIFICATIONS);
-                put("none", RNFaceDetector.NO_CLASSIFICATIONS);
-              }
-            });
-          }
-
-          private Map<String, Object> getFaceDetectionLandmarksConstants() {
-            return Collections.unmodifiableMap(new HashMap<String, Object>() {
-              {
-                put("all", RNFaceDetector.ALL_LANDMARKS);
-                put("none", RNFaceDetector.NO_LANDMARKS);
-              }
-            });
-          }
-        }));
-        put("GoogleVisionBarcodeDetection", Collections.unmodifiableMap(new HashMap<String, Object>() {
-          {
-            put("BarcodeType", BarcodeFormatUtils.REVERSE_FORMATS);
-            put("BarcodeMode", getGoogleVisionBarcodeModeConstants());
-          }
-        }));
-        put("Orientation", Collections.unmodifiableMap(new HashMap<String, Object>() {
-            {
-              put("auto", Constants.ORIENTATION_AUTO);
-              put("portrait", Constants.ORIENTATION_UP);
-              put("portraitUpsideDown", Constants.ORIENTATION_DOWN);
-              put("landscapeLeft", Constants.ORIENTATION_LEFT);
-              put("landscapeRight", Constants.ORIENTATION_RIGHT);
-            }
-        }));
-      }
-
-      private Map<String, Object> getTypeConstants() {
-        return Collections.unmodifiableMap(new HashMap<String, Object>() {
-          {
-            put("front", Constants.FACING_FRONT);
-            put("back", Constants.FACING_BACK);
-          }
-        });
-      }
-
-      private Map<String, Object> getFlashModeConstants() {
-        return Collections.unmodifiableMap(new HashMap<String, Object>() {
-          {
-            put("off", Constants.FLASH_OFF);
-            put("on", Constants.FLASH_ON);
-            put("auto", Constants.FLASH_AUTO);
-            put("torch", Constants.FLASH_TORCH);
-          }
-        });
-      }
-
-      private Map<String, Object> getAutoFocusConstants() {
-        return Collections.unmodifiableMap(new HashMap<String, Object>() {
-          {
-            put("on", true);
-            put("off", false);
-          }
-        });
-      }
-
-      private Map<String, Object> getWhiteBalanceConstants() {
-        return Collections.unmodifiableMap(new HashMap<String, Object>() {
-          {
-            put("auto", Constants.WB_AUTO);
-            put("cloudy", Constants.WB_CLOUDY);
-            put("sunny", Constants.WB_SUNNY);
-            put("shadow", Constants.WB_SHADOW);
-            put("fluorescent", Constants.WB_FLUORESCENT);
-            put("incandescent", Constants.WB_INCANDESCENT);
-          }
-        });
-      }
-
-      private Map<String, Object> getVideoQualityConstants() {
-        return Collections.unmodifiableMap(new HashMap<String, Object>() {
-          {
-            put("2160p", VIDEO_2160P);
-            put("1080p", VIDEO_1080P);
-            put("720p", VIDEO_720P);
-            put("480p", VIDEO_480P);
-            put("4:3", VIDEO_4x3);
-          }
-        });
-      }
-
-      private Map<String, Object> getGoogleVisionBarcodeModeConstants() {
-        return Collections.unmodifiableMap(new HashMap<String, Object>() {
-          {
-            put("NORMAL", GOOGLE_VISION_BARCODE_MODE_NORMAL);
-            put("ALTERNATE", GOOGLE_VISION_BARCODE_MODE_ALTERNATE);
-            put("INVERTED", GOOGLE_VISION_BARCODE_MODE_INVERTED);
-          }
-        });
-      }
-
-      private Map<String, Object> getBarCodeConstants() {
-        return VALID_BARCODE_TYPES;
-      }
-    });
-  }
-
+            System.out.println("ReadOnlyBufferException catched");
+        }
+        catch (IOException e) {
+            // TODO Handle the exception
+        }
+    }
+    public ByteBuffer createBuffer(int size){
+        ByteBuffer byteBuffer = ByteBuffer.allocate(size);
+        for (int i = 0; i < size; i++) {
+            byteBuffer.put((byte)(i/100.0));
+        }
+        return  byteBuffer;
+    }
     @ReactMethod
-    public void pausePreview(final int viewTag) {
-        final ReactApplicationContext context = getReactApplicationContext();
-        UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-        uiManager.addUIBlock(new UIBlock() {
-            @Override
-            public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-                final RNCameraView cameraView;
+    public void getmodel(Callback successCallback) {
+        if(interpreter == null){
+            successCallback.invoke(null, interpreter);
+        }
+        else {
+            successCallback.invoke(null, "this model require input amount: "+ modelString);
+        }
 
-                try {
-                    cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-                    if (cameraView.isCameraOpened()) {
-                        cameraView.pausePreview();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+
+    }
+    @ReactMethod
+    public void doInterprete() {
+        BackgroundInterprete backgroundInterprete = new BackgroundInterprete();
+        backgroundInterprete.execute();
+    }
+    @ReactMethod
+    public void testEvent() {
+        WritableMap params = Arguments.createMap();
+        params.putString("status", "tes event");
+        sendEvent("BackgroundLoadTask", params);
     }
 
-    @ReactMethod
-    public void resumePreview(final int viewTag) {
-        final ReactApplicationContext context = getReactApplicationContext();
-        UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-        uiManager.addUIBlock(new UIBlock() {
-            @Override
-            public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-                final RNCameraView cameraView;
-
-                try {
-                    cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-                    if (cameraView.isCameraOpened()) {
-                        cameraView.resumePreview();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+    /** Memory-map the model file in Assets. */
+    private static MappedByteBuffer loadModelFile(AssetManager assets, String modelFilename) throws IOException {
+        AssetFileDescriptor fileDescriptor = assets.openFd(modelFilename);
+        FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
+        FileChannel fileChannel = inputStream.getChannel();
+        long startOffset = fileDescriptor.getStartOffset();
+        long declaredLength = fileDescriptor.getDeclaredLength();
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
+        // return Mymodel.newInstance(mContext);
     }
-   // =============<<<<<<<<<<<<<<<<< check here
-  @ReactMethod
-  public void takePicture(final ReadableMap options, final int viewTag, final Promise promise) {
-      Log.i("Debug","CameraModule takePicture start ...");
-    final ReactApplicationContext context = getReactApplicationContext();
-    final File cacheDirectory = mScopedContext.getCacheDirectory();
-    UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-    uiManager.addUIBlock(new UIBlock() {
-      @Override
-      public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-          RNCameraView cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-          try {
-              if (cameraView.isCameraOpened()) {
-                  Log.i("Debug","CameraModule cameraopened viewtakePicture...");
-                cameraView.takePicture(options, promise, cacheDirectory);
-              } else {
-                promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
-              }
-          }
-          catch (Exception e) {
-            promise.reject("E_TAKE_PICTURE_FAILED", e.getMessage());
-          }
-      }
-    });
-  }
 
-  @ReactMethod
-  public void record(final ReadableMap options, final int viewTag, final Promise promise) {
-      final ReactApplicationContext context = getReactApplicationContext();
-      final File cacheDirectory = mScopedContext.getCacheDirectory();
-      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
 
-      uiManager.addUIBlock(new UIBlock() {
-          @Override
-          public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-              final RNCameraView cameraView;
+    private void sendEvent(String eventName, WritableMap params) {
+//        mReactNativeEventEmitter.sendEvent(eventName,params);
+//        ReactNativeEventEmitter.getInstance().sendEvent(eventName,params);
+        getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(eventName, params);
+    }
 
-              try {
-                  cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-                  if (cameraView.isCameraOpened()) {
-                      cameraView.record(options, promise, cacheDirectory);
-                  } else {
-                      promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
-                  }
-              } catch (Exception e) {
-                  promise.reject("E_CAPTURE_FAILED", e.getMessage());
-              }
-          }
-      });
-  }
+    //    helper internal private class
+    private class BackgroundLoadTask extends AsyncTask<String, String, String> {
 
-  @ReactMethod
-  public void stopRecording(final int viewTag) {
-      final ReactApplicationContext context = getReactApplicationContext();
-      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-      uiManager.addUIBlock(new UIBlock() {
-          @Override
-          public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-              final RNCameraView cameraView;
+        @Override
+        protected String doInBackground(String... params) {
+//            public notification to the async progress
+            if(interpreter == null) {
+                publishProgress("current interpreter: null");
+            }
+            publishProgress("Loading");
+            try {
+            //    interpreter = new Interpreter(MyModel.loadModelFile( mContext.getAssets(),MODEL_PATH));
+                publishProgress("Loaded");
+            } catch (Exception e) {
+                e.printStackTrace();
+                publishProgress("Error");
+            }
+// Initialise the model
+//            try{
+//                MappedByteBuffer tfliteModel
+//                        = FileUtil.loadMappedFile(mContext.getCurrentActivity(),                   MODEL_PATH);
+//                interpreter = new Interpreter(tfliteModel);
+//            } catch (IOException e){
+//                Log.e("tfliteSupport", "Error reading model", e);
+//            }
 
-              try {
-                  cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-                  if (cameraView.isCameraOpened()) {
-                      cameraView.stopRecording();
-                  }
-              } catch (Exception e) {
-                  e.printStackTrace();
-              }
-          }
-      });
-  }
+// Running inference
+            if(null != interpreter) {
+//                tflite.run(tImage.getBuffer(), probabilityBuffer.getBuffer());
+//                modelString = modelString+ interpreter.getInputTensorCount();
+                publishProgress("success model: "+interpreter.toString());
+//                interpreter.close();
+            }
+            return "Done";
+        }
 
-  @ReactMethod
-  public void pauseRecording(final int viewTag) {
-    final ReactApplicationContext context = getReactApplicationContext();
-    UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-    uiManager.addUIBlock(new UIBlock() {
-      @Override
-      public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-          final RNCameraView cameraView;
+        @Override
+        protected void onProgressUpdate(String... values) {
 
-          try {
-              cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-              if (cameraView.isCameraOpened()) {
-                  cameraView.pauseRecording();
-              }
-          } catch (Exception e) {
-              e.printStackTrace();
-          }
-      }
-    });
-  }
+            StringBuilder sb = new StringBuilder();
+            for (String str : values)
+                sb.append(str).append(", ");
+            WritableMap params = Arguments.createMap();
 
-  @ReactMethod
-  public void resumeRecording(final int viewTag) {
-    final ReactApplicationContext context = getReactApplicationContext();
-    UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-    uiManager.addUIBlock(new UIBlock() {
-      @Override
-      public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-          final RNCameraView cameraView;
+            params.putString("status", sb.substring(0, sb.length() - 1));
+//            sent notify to the bridge: using other method
+            sendEvent("BackgroundLoadTask", params);
+        }
 
-          try {
-              cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-              if (cameraView.isCameraOpened()) {
-                  cameraView.resumeRecording();
-              }
-          } catch (Exception e) {
-              e.printStackTrace();
-          }
-      }
-    });
-  }
+        @Override
+        protected void onPostExecute(String s) {
+//            after the progress done and return, notify the bridge
+            WritableMap params = Arguments.createMap();
+            params.putString("status", "Done");
+            sendEvent("BackgroundLoadTask", params);
+        }
+    }
 
-  @ReactMethod
-  public void getSupportedRatios(final int viewTag, final Promise promise) {
-      final ReactApplicationContext context = getReactApplicationContext();
-      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-      uiManager.addUIBlock(new UIBlock() {
-          @Override
-          public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-              final RNCameraView cameraView;
-              try {
-                  cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-                  WritableArray result = Arguments.createArray();
-                  if (cameraView.isCameraOpened()) {
-                      Set<AspectRatio> ratios = cameraView.getSupportedAspectRatios();
-                      for (AspectRatio ratio : ratios) {
-                          result.pushString(ratio.toString());
-                      }
-                      promise.resolve(result);
-                  } else {
-                      promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
-                  }
-              } catch (Exception e) {
-                  e.printStackTrace();
-              }
-          }
-      });
-  }
 
-  @ReactMethod
-  public void getCameraIds(final int viewTag, final Promise promise) {
-      final ReactApplicationContext context = getReactApplicationContext();
-      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-      uiManager.addUIBlock(new UIBlock() {
-          @Override
-          public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-              final RNCameraView cameraView;
-              try {
-                  cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-                  WritableArray result = Arguments.createArray();
-                  List<Properties> ids = cameraView.getCameraIds();
-                  for (Properties p : ids) {
-                      WritableMap m = new WritableNativeMap();
-                      m.putString("id", p.getProperty("id"));
-                      m.putInt("type", Integer.valueOf(p.getProperty("type")));
-                      result.pushMap(m);
-                  }
-                  promise.resolve(result);
-              } catch (Exception e) {
-                  e.printStackTrace();
-                  promise.reject("E_CAMERA_FAILED", e.getMessage());
-              }
-          }
-      });
-  }
+    private class BackgroundInterprete extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... params) {
 
-  @ReactMethod
-  public void getAvailablePictureSizes(final String ratio, final int viewTag, final Promise promise) {
-      final ReactApplicationContext context = getReactApplicationContext();
-      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-      uiManager.addUIBlock(new UIBlock() {
-          @Override
-          public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-              final RNCameraView cameraView;
+//            public notification to the async progress
+            publishProgress("interpreting...");
+            //            implement the tasks
+            try  {
+                Thread.sleep(2000);
+                // Object input = new Object();
+                // Object output = new Object();
+//                interpreter.run(input, output);
+//                todo: set up inputs
+//            interpreter.runForMultipleInputsOutputs(inputs, map_of_indices_to_outputs);
 
-              try {
-                  cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-                  WritableArray result = Arguments.createArray();
-                  if (cameraView.isCameraOpened()) {
-                      SortedSet<Size> sizes = cameraView.getAvailablePictureSizes(AspectRatio.parse(ratio));
-                      for (Size size : sizes) {
-                          result.pushString(size.toString());
-                      }
-                      promise.resolve(result);
-                  } else {
-                      promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
-                  }
-              } catch (Exception e) {
-                  promise.reject("E_CAMERA_BAD_VIEWTAG", "getAvailablePictureSizesAsync: Expected a Camera component");
-              }
-          }
-      });
-  }
+//            interpreter.runForMultipleInputsOutputs(inputs,outputs);
+                //             public int getInputIndex(String opName);
+//        public int getOutputIndex(String opName);
+                // interpreter.close();
 
-  @ReactMethod
-  public void checkIfRecordAudioPermissionsAreDefined(final Promise promise) {
-      try {
-          PackageInfo info = getCurrentActivity().getPackageManager().getPackageInfo(getReactApplicationContext().getPackageName(), PackageManager.GET_PERMISSIONS);
-          if (info.requestedPermissions != null) {
-              for (String p : info.requestedPermissions) {
-                  if (p.equals(Manifest.permission.RECORD_AUDIO)) {
-                      promise.resolve(true);
-                      return;
-                  }
-              }
-          }
-      } catch (Exception e) {
-          e.printStackTrace();
-      }
-      promise.resolve(false);
-  }
+            } catch (Exception e) {
+                e.printStackTrace();
+                publishProgress("Error");
+            }
+            return "Done";
+        }
 
-  @ReactMethod
-  public void getSupportedPreviewFpsRange(final int viewTag, final Promise promise) {
-      final ReactApplicationContext context = getReactApplicationContext();
-      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-      uiManager.addUIBlock(new UIBlock() {
-          @Override
-          public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-              final RNCameraView cameraView;
+        @Override
+        protected void onProgressUpdate(String... values) {
+            WritableMap params = Arguments.createMap();
+            params.putString("status", "Loading");
+//            sent notify to the bridge: using other method
+            sendEvent("BackgroundInterprete", params);
+        }
 
-              try {
-                  cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-                  WritableArray result = Arguments.createArray();
-                  ArrayList<int[]> ranges = cameraView.getSupportedPreviewFpsRange();
-                  for (int[] range : ranges) {
-                      WritableMap m = new WritableNativeMap();
-                      m.putInt("MAXIMUM_FPS", range[0]);
-                      m.putInt("MINIMUM_FPS", range[1]);
-                      result.pushMap(m);
-                  }
-                  promise.resolve(result);
-              } catch (Exception e) {
-                  e.printStackTrace();
-              }
-          }
-      });
-  }
+        @Override
+        protected void onPostExecute(String s) {
+//            after the progress done and return, notify the bridge
+            WritableMap params = Arguments.createMap();
+            params.putString("status", "Done");
+            sendEvent("BackgroundInterprete", params);
+        }
+    }
+
+
+
+
+
+
+
+
+//     public void loadModel(){
+//         String file = "";
+//         // Interpreter(@NotNull File modelFile);
+//         // Interpreter(@NotNull MappedByteBuffer mappedByteBuffer);
+//         try (Interpreter interpreter = new Interpreter(file_of_a_tensorflowlite_model)) {
+//             // interpreter.run(input, output);
+//             interpreter.runForMultipleInputsOutputs(inputs, map_of_indices_to_outputs);
+// //             public int getInputIndex(String opName);
+// public int getOutputIndex(String opName);
+// // interpreter.close();
+//           }
+//     }
+//    provide method being called from react. annotation for injection
+    // @ReactMethod
+    // public void increment(){
+    //     count++;
+    //     System.out.println(count);
+    // }
+//    callback is required to use with react native module api
+    // @ReactMethod
+    // public void getCount(Callback successCallback) {
+    //     successCallback.invoke(null, count);
+    // }
+
+
 }
+// val assetManager = context.assets
+// val model = loadModelFile(assetManager, "mnist.tflite")
+// Read input shape from model file
+// val inputShape = interpreter.getInputTensor(0).shape()
+// inputImageWidth = inputShape[1]
+// inputImageHeight = inputShape[2]
+// modelInputSize = FLOAT_TYPE_SIZE * inputImageWidth * inputImageHeight * PIXEL_SIZE
+
+// // Finish interpreter initialization
+// this.interpreter = interpreter
+// interpreter?.close()
+//{
+
+/** Executor to run inference task in the background. */
+//     private val executorService: ExecutorService = Executors.newCachedThreadPool()
+
+//     private var inputImageWidth: Int = 0 // will be inferred from TF Lite model.
+//     private var inputImageHeight: Int = 0 // will be inferred from TF Lite model.
+//     private var modelInputSize: Int = 0 // will be inferred from TF Lite model.
+
+//     fun initialize(): Task<Void> {
+//     val task = TaskCompletionSource<Void>()
+//     executorService.execute {
+//         try {
+//         initializeInterpreter()
+//         task.setResult(null)
+//         } catch (e: IOException) {
+//         task.setException(e)
+//         }
+//     }
+//     return task.task
+//     }
+
+
+//     @Throws(IOException::class)
+//     private fun initializeInterpreter() {
+//     // TODO: Load the TF Lite model from file and initialize an interpreter.
+
+//     // Load the TF Lite model from asset folder and initialize TF Lite Interpreter with NNAPI enabled.
+//     val assetManager = context.assets
+//     val model = loadModelFile(assetManager, "mnist.tflite")
+//     val options = Interpreter.Options()
+//     options.setUseNNAPI(true)
+//     val interpreter = Interpreter(model, options)
+
+//     // TODO: Read the model input shape from model file.
+
+//     // Read input shape from model file.
+//     val inputShape = interpreter.getInputTensor(0).shape()
+//     inputImageWidth = inputShape[1]
+//     inputImageHeight = inputShape[2]
+//     modelInputSize = FLOAT_TYPE_SIZE * inputImageWidth *
+//         inputImageHeight * PIXEL_SIZE
+
+//     // Finish interpreter initialization.
+//     this.interpreter = interpreter
+
+//     isInitialized = true
+//     Log.d(TAG, "Initialized TFLite interpreter.")
+//     }
+
+//     @Throws(IOException::class)
+//     private fun loadModelFile(assetManager: AssetManager, filename: String): ByteBuffer {
+//     val fileDescriptor = assetManager.openFd(filename)
+//     val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
+//     val fileChannel = inputStream.channel
+//     val startOffset = fileDescriptor.startOffset
+//     val declaredLength = fileDescriptor.declaredLength
+//     return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+//     }
+
+//     private fun classify(bitmap: Bitmap): String {
+//     check(isInitialized) { "TF Lite Interpreter is not initialized yet." }
+
+//     // TODO: Add code to run inference with TF Lite.
+//     // Pre-processing: resize the input image to match the model input shape.
+//     val resizedImage = Bitmap.createScaledBitmap(
+//         bitmap,
+//         inputImageWidth,
+//         inputImageHeight,
+//         true
+//     )
+//     val byteBuffer = convertBitmapToByteBuffer(resizedImage)
+
+//     // Define an array to store the model output.
+//     val output = Array(1) { FloatArray(OUTPUT_CLASSES_COUNT) }
+
+//     // Run inference with the input data.
+//     interpreter?.run(byteBuffer, output)
+
+//     // Post-processing: find the digit that has the highest probability
+//     // and return it a human-readable string.
+//     val result = output[0]
+//     val maxIndex = result.indices.maxBy { result[it] } ?: -1
+//     val resultString =
+//         "Prediction Result: %d\nConfidence: %2f"
+//         .format(maxIndex, result[maxIndex])
+
+//     return resultString
+//     }
+
+//     fun classifyAsync(bitmap: Bitmap): Task<String> {
+//     val task = TaskCompletionSource<String>()
+//     executorService.execute {
+//         val result = classify(bitmap)
+//         task.setResult(result)
+//     }
+//     return task.task
+//     }
+
+//     fun close() {
+//     executorService.execute {
+//         interpreter?.close()
+//         Log.d(TAG, "Closed TFLite interpreter.")
+//     }
+//     }
+
+//     private fun convertBitmapToByteBuffer(bitmap: Bitmap): ByteBuffer {
+//     val byteBuffer = ByteBuffer.allocateDirect(modelInputSize)
+//     byteBuffer.order(ByteOrder.nativeOrder())
+
+//     val pixels = IntArray(inputImageWidth * inputImageHeight)
+//     bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+
+//     for (pixelValue in pixels) {
+//         val r = (pixelValue shr 16 and 0xFF)
+//         val g = (pixelValue shr 8 and 0xFF)
+//         val b = (pixelValue and 0xFF)
+
+//         // Convert RGB to grayscale and normalize pixel value to [0..1].
+//         val normalizedPixelValue = (r + g + b) / 3.0f / 255.0f
+//         byteBuffer.putFloat(normalizedPixelValue)
+//     }
+
+//     return byteBuffer
+//     }
+
+//     companion object {
+//     private const val TAG = "DigitClassifier"
+
+//     private const val FLOAT_TYPE_SIZE = 4
+//     private const val PIXEL_SIZE = 1
+
+//     private const val OUTPUT_CLASSES_COUNT = 10
+//     }
+// }

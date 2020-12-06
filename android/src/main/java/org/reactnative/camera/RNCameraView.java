@@ -93,9 +93,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private int mCameraViewWidth = 0;
   private int mCameraViewHeight = 0;
 
-  private long mLastFinish = 0;
-
-
   public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext, true);
     mThemedReactContext = themedReactContext;
@@ -174,9 +171,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         boolean willCallFaceTask = mShouldDetectFaces && !faceDetectorTaskLock && cameraView instanceof FaceDetectorAsyncTaskDelegate;
         boolean willCallGoogleBarcodeTask = mShouldGoogleDetectBarcodes && !googleBarcodeDetectorTaskLock && cameraView instanceof BarcodeDetectorAsyncTaskDelegate;
         boolean willCallTextTask = mShouldRecognizeText && !textRecognizerTaskLock && cameraView instanceof TextRecognizerAsyncTaskDelegate;
-        Log.i("Debug",String.format("RNCameraView onFramePreview run"));
         if (!willCallBarCodeTask && !willCallFaceTask && !willCallGoogleBarcodeTask && !willCallTextTask) {
-          Log.i("Debug",String.format("RNCameraView nothing"));
           return;
         }
 
@@ -191,20 +186,11 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
 
         if (willCallFaceTask) {
-          Calendar calendar = Calendar.getInstance();
-//          calendar.setTime(new Date());
-          long mTimeNow = calendar.getTimeInMillis();
-          Log.i("Debug", String.format("RNCameraView onFramePreview lastcallfinished: %d ; now = %d",
-                                mLastFinish,mTimeNow));
-          if(mTimeNow - mLastFinish > 500) {
-            faceDetectorTaskLock = true;
-            // =============<<<<<<<<<<<<<<<<< check here
-            Log.i("Debug", String.format("RNCameraView onFramePreview detectface start"));
-            FaceDetectorAsyncTaskDelegate delegate = (FaceDetectorAsyncTaskDelegate) cameraView;
-            new FaceDetectorAsyncTask(delegate, mFaceDetector, data, width, height, correctRotation, getResources().getDisplayMetrics().density, getFacing(), getWidth(), getHeight(), mPaddingX, mPaddingY).execute();
-//          faceDetectorTaskLock = false;
-            Log.i("Debug", String.format("RNCameraView onFramePreview detectface asynccalled"));
-          }
+          faceDetectorTaskLock = true;
+           // =============<<<<<<<<<<<<<<<<< check here
+          //  Log.i("Debug",String.format("RNCameraView onFramePreview willCallFaceTask"));
+          FaceDetectorAsyncTaskDelegate delegate = (FaceDetectorAsyncTaskDelegate) cameraView;
+          new FaceDetectorAsyncTask(delegate, mFaceDetector, data, width, height, correctRotation, getResources().getDisplayMetrics().density, getFacing(), getWidth(), getHeight(), mPaddingX, mPaddingY).execute();
         }
 
         if (willCallGoogleBarcodeTask) {
@@ -300,7 +286,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
         try {
            // =============<<<<<<<<<<<<<<<<< check here
-          Log.i("Debug","CameraView takePicture call: super.takePicure");
           RNCameraView.super.takePicture(options);
         } catch (Exception e) {
           mPictureTakenPromises.remove(promise);
@@ -518,14 +503,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     }
 
     RNCameraViewHelper.emitFacesDetectedEvent(this, data);
-//    try {
-//      Log.i("Debug", "RNCameraView facedetectcompleted, sleep0.5" );
-//      Thread.sleep(500);
-//      faceDetectorTaskLock = false;
-//      Log.i("Debug", "RNCameraView facedetectcompleted done" );
-//    } catch (InterruptedException e) {
-//      e.printStackTrace();
-//    }
   }
 
   public void onFaceDetectionError(RNFaceDetector faceDetector) {
@@ -534,25 +511,11 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     }
 
     RNCameraViewHelper.emitFaceDetectionErrorEvent(this, faceDetector);
-
   }
 
   @Override
   public void onFaceDetectingTaskCompleted() {
-//    try {
-//      Log.i("Debug", "RNCameraView facedetectcompleted, sleep0.5" );
-//      Thread.sleep(500);
-//      faceDetectorTaskLock = false;
-//      Log.i("Debug", "RNCameraView facedetectcompleted done" );
-//    } catch (InterruptedException e) {
-//      e.printStackTrace();
-//    }
     faceDetectorTaskLock = false;
-    Calendar calendar = Calendar.getInstance();
-//    calendar.setTime(new Date());
-//    mLastFinish = calendar.get(Calendar.MILLISECOND);
-    mLastFinish = calendar.getTimeInMillis();
-    Log.i("Debug", String.format("RNCameraView lastcallfinished = %d",mLastFinish));
   }
 
   /**
