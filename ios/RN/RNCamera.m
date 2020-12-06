@@ -972,8 +972,6 @@ BOOL _sessionInterrupted = NO;
                      RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
 
                     //  RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
-
-
                     RCTLogInfo(@"RNCamera > takePicture path %@ , length %d",options[@"path"],[options[@"path"] length] );  
                     if ([options[@"path"] length] > 1) {
                         path = [RNFileSystem documentDirectoryPath]  ;
@@ -992,11 +990,6 @@ BOOL _sessionInterrupted = NO;
                         path = [RNFileSystem generatePathInDirectory:path withFileName:fileName];     
                     }
                     RCTLogInfo(@"RNCamera > takePicture : save to path %@",path);  
-
-                    if (![options[@"doNotSave"] boolValue]) {   
-                        // NSString * absolutePath =       
-
-
                     if (![options[@"doNotSave"] boolValue]) {         
 
                         response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
@@ -1367,35 +1360,22 @@ BOOL _sessionInterrupted = NO;
             [self downloadModelFile: _ModelFileName fromURL:_ModelURL];
         }
     }
+    // if(_Identity && _IdentityFilePath){
+    //     [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
+    //     if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@".png"]]){
+    //         if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@"Face.png"]]){
+    //             // file exist, do nothing
+    //         }else{
+    //             // cut face, write to file
+    //             NSString * userImagePath = [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath];
+    //             userImagePath = [userImagePath stringByAppendingPathComponent:[_Identity stringByAppendingString:@".png"]];
+    //             [self processUserImage:[RNImageUtils loadImage:userImagePath]];
+    //         }           
+    //     }else{
+    //     //    download file,,, 
+    //     }
+    // }
 
-        
-    if(_Identity && _IdentityFilePath){
-       
-        if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@".png"]]){
-            if([RNFileSystem checkFileInDocumentDir:_IdentityFilePath withFileName:[_Identity stringByAppendingString:@"Face.png"]]){
-                NSLog(@"startSession > file  %@.png and %@Face.png exist.", _Identity, _Identity);
-                // file exist, do nothing
-                 [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
-            }else{
-                NSLog(@"startSession > cut face from image %@.png",_Identity);
-                 [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
-                // cut face, write to file
-                NSString * userImagePath = [[RNFileSystem documentDirectoryPath] stringByAppendingPathComponent:_IdentityFilePath];
-                userImagePath = [userImagePath stringByAppendingPathComponent:[_Identity stringByAppendingString:@".png"]];
-                UIImage * myImage = [RNImageUtils loadImage:userImagePath];
-                if(myImage){
-                    [self processUserImage:myImage];
-                    // [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
-                }else{
-                    NSLog(@"startSession > failed to load image %@.png from path %@", _Identity, userImagePath);
-                }
-                
-            }           
-        }else{
-        //    download file,,, 
-            NSLog(@"startSession > need to download image %@.png",_Identity);
-        }
-    }
 
     // if(_Identity && _IdentityFilePath){
     //     [RNFileSystem checkExistFilesInDir:_IdentityFilePath];
