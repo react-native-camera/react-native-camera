@@ -16,7 +16,7 @@
 - (instancetype)init 
 {
   if (self = [super init]) {
-    RCTLogInfo(@"FaceDetectorManagerMlkit > init  "); 
+    // RCTLogInfo(@"FaceDetectorManagerMlkit > init  "); 
     self.options = [[FIRVisionFaceDetectorOptions alloc] init];
     self.options.performanceMode = FIRVisionFaceDetectorPerformanceModeFast;
     self.options.landmarkMode = FIRVisionFaceDetectorLandmarkModeNone;
@@ -127,7 +127,7 @@
      processImage:image
      completion:^(NSArray<FIRVisionFace *> *faces, NSError *error) {
          if (error != nil || faces == nil ) {
-             RCTLogInfo(@"FaceDetectorManagerMlkit > findFacesInFrame  error: %@",error);  
+            //  RCTLogInfo(@"FaceDetectorManagerMlkit > findFacesInFrame  error: %@",error);  
              completed(emptyResult);
          } else {
              int size = [faces count];
@@ -264,7 +264,7 @@
 {
         // RCTLogInfo(@"FaceDetectorManagerMlkit > processFaces"); 
     NSMutableArray *result = [[NSMutableArray alloc] init];
-        RCTLogInfo(@"amount of faces detected : %d", [faces count]  ) ;
+        // RCTLogInfo(@"amount of faces detected : %d", [faces count]  ) ;
     for (FIRVisionFace *face in faces) {
         NSMutableDictionary *resultDict =
         [[NSMutableDictionary alloc] initWithCapacity:20];

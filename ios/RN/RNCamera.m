@@ -770,8 +770,8 @@ BOOL _sessionInterrupted = NO;
 
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
-        RCTLogInfo(@"RNCamera > takePicture");  
-        RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
+        // RCTLogInfo(@"RNCamera > takePicture");  
+        // RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
     _finishTakingImage = false;
     // if video device is not set, reject
     if(self.videoCaptureDeviceInput == nil || !self.session.isRunning){
@@ -969,15 +969,15 @@ BOOL _sessionInterrupted = NO;
 
                     NSString *fileName = nil;
 
-                     RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
+                    //  RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
 
                     //  RCTLogInfo(@"RNCamera > takePicture options : %@",options);  
-                    RCTLogInfo(@"RNCamera > takePicture path %@ , length %d",options[@"path"],[options[@"path"] length] );  
+                    // RCTLogInfo(@"RNCamera > takePicture path %@ , length %d",options[@"path"],[options[@"path"] length] );  
                     if ([options[@"path"] length] > 1) {
                         path = [RNFileSystem documentDirectoryPath]  ;
                         path = [path stringByAppendingPathComponent:options[@"path"]];//  path: 'User'
                         // [RNFileSystem ensureDirExistsWithPath:path]
-                        RCTLogInfo(@"RNCamera > takePicture user %@ , length %d",options[@"user"],[options[@"user"] length] );  
+                        // RCTLogInfo(@"RNCamera > takePicture user %@ , length %d",options[@"user"],[options[@"user"] length] );  
                         if([options[@"user"] length] > 1 ) {
                             fileName = [options[@"user"] stringByAppendingString:@".png"];//, user: 'UserID'   
                                 
@@ -989,7 +989,7 @@ BOOL _sessionInterrupted = NO;
                         }
                         path = [RNFileSystem generatePathInDirectory:path withFileName:fileName];     
                     }
-                    RCTLogInfo(@"RNCamera > takePicture : save to path %@",path);  
+                    // RCTLogInfo(@"RNCamera > takePicture : save to path %@",path);  ?
                     if (![options[@"doNotSave"] boolValue]) {         
 
                         response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
@@ -2186,11 +2186,11 @@ BOOL _sessionInterrupted = NO;
     // RCTLogInfo(@"RNCamera > checkModelFileExistInDocumentDir %@",path); 
     exist = [[NSFileManager defaultManager] fileExistsAtPath:path];
     [RNFileSystem checkExistedFilesInDocumentDir];
-    if(exist){
-        RCTLogInfo(@"RNCamera > checkModelFileExistInDocumentDir model exist"); 
-    }else{
-        RCTLogInfo(@"RNCamera > checkModelFileExistInDocumentDir model %@ not exist",modelFileName); 
-    }
+    // if(exist){
+        // RCTLogInfo(@"RNCamera > checkModelFileExistInDocumentDir model exist"); 
+    // }else{
+        // RCTLogInfo(@"RNCamera > checkModelFileExistInDocumentDir model %@ not exist",modelFileName); 
+    // }
     
     return exist;
 }
@@ -2212,7 +2212,7 @@ BOOL _sessionInterrupted = NO;
             // dispatch_async(_sessionQueue, ^{
                 [urlData writeToFile:filePath atomically:YES];
                 NSURL *fileURL = [NSURL fileURLWithPath:filePath];
-                RCTLogInfo(@"RNImageUtils > downloadModelFile: model file wrote to apsoluteString = %@",[fileURL absoluteString]);  
+                // RCTLogInfo(@"RNImageUtils > downloadModelFile: model file wrote to apsoluteString = %@",[fileURL absoluteString]);  
                 // NSLog(@"File Saved ! path: %@",[fileURL absoluteString]);
                 [RNFileSystem checkExistedFilesInDocumentDir];
                 self.myInterpreter = [self createFaceVerifier];
@@ -2411,12 +2411,12 @@ BOOL _sessionInterrupted = NO;
 
 # pragma mark - mlkit
 -(void )processUserImage:(UIImage *)userImage {
-    RCTLogInfo(@"processUserImage start");
-    RCTLogInfo(_faceDetector ? @"processUserImage got facedetector": @"processUserImage null facedetector");
+    // RCTLogInfo(@"processUserImage start");
+    // RCTLogInfo(_faceDetector ? @"processUserImage got facedetector": @"processUserImage null facedetector");
     [_faceDetector findFacesInFrame:userImage scaleX:1 scaleY:1 completed:^(NSArray * faces) {
         NSDictionary *eventFace = @{@"type" : @"faceDetected", @"faces" : faces};   
-         RCTLogInfo(@"RNCamera > processUserImage : faces count = %d",[faces count]);
-        RCTLogInfo(@"processUserImage findFacesInFrame result : %@",eventFace);
+        //  RCTLogInfo(@"RNCamera > processUserImage : faces count = %d",[faces count]);
+        // RCTLogInfo(@"processUserImage findFacesInFrame result : %@",eventFace);
         if([faces count] > 0){
             NSDictionary *firstFace = eventFace[@"faces"][0] ;
             // NSLog(@"runModelWithFrame > first face: %@", firstFace);
@@ -2439,10 +2439,10 @@ BOOL _sessionInterrupted = NO;
 
             [faceData writeToFile:facePath atomically:YES];
             NSURL *fileURL = [NSURL fileURLWithPath:facePath];
-            RCTLogInfo(@"RNCamera > processUserImage : write face to path = %@",[fileURL absoluteString]);  
+            // RCTLogInfo(@"RNCamera > processUserImage : write face to path = %@",[fileURL absoluteString]);  
         }
     }];
-    RCTLogInfo(@"processUserImage end");
+    // RCTLogInfo(@"processUserImage end");
 }
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
@@ -2526,7 +2526,7 @@ BOOL _sessionInterrupted = NO;
                                                 }else{
                                                     eventVerify = @{@"type" : @"error", @"result" : @(result)};
                                                 }
-                                                RCTLogInfo(@"verifyFacesInFrame result : %@",eventVerify);
+                                                // RCTLogInfo(@"verifyFacesInFrame result : %@",eventVerify);
                                                 [self onFacesVerified:eventVerify];
                                                 _finishedVerifyingFace = true;
                                                 _finishedDetectingFace = true;
@@ -2534,7 +2534,7 @@ BOOL _sessionInterrupted = NO;
                         ];
                     }else{
 
-                        RCTLogInfo(@"IdentityFile %@ is missed, please provide props path and user",_Identity); 
+                        // RCTLogInfo(@"IdentityFile %@ is missed, please provide props path and user",_Identity); 
                         
                         // [RNFileSystem CopyFile:[_Identity stringByAppendingString:@".png"]
                         //                 fromPath: [[NSBundle mainBundle]resourcePath]

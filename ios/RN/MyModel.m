@@ -32,12 +32,12 @@
                       
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogWarn(@"MyModel > init error ...");
+      // RCTLogWarn(@"MyModel > init error ...");
       
     }
     self.interpreter = myinterpreter;
   }
-        RCTLogInfo(@"MyModel > init finish"); 
+        // RCTLogInfo(@"MyModel > init finish"); 
   return self;
 }
 
@@ -51,9 +51,9 @@
                       
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogWarn(@"MyModel > init error ...");
+      // RCTLogWarn(@"MyModel > init error ...");
     }
-    RCTLogInfo(@"MyModel > init success with %@",modelPath);
+    // RCTLogInfo(@"MyModel > init success with %@",modelPath);
     self.interpreter = myinterpreter;
   }
         // RCTLogInfo(@"MyModel > init finish"); 
@@ -77,7 +77,7 @@
   [self.interpreter allocateTensorsWithError:&error];
   if (error != nil) { 
     /* Error handling... */ 
-    RCTLogWarn(@"MyModel > runModelWithFrame > allocateTensorsWithError : error ...%@",error);
+    // RCTLogWarn(@"MyModel > runModelWithFrame > allocateTensorsWithError : error ...%@",error);
     return   404;
   }
   // preprocess input
@@ -92,20 +92,20 @@
   [[self.interpreter  inputTensorAtIndex:0 error:&error] copyData:inputData error:&error];
   if (error != nil) { 
     /* Error handling... */ 
-     RCTLogInfo(@"MyModel > runModelWithFrame > copy input 1 data error: %@",error);
+    //  RCTLogInfo(@"MyModel > runModelWithFrame > copy input 1 data error: %@",error);
      return   404;
   }
    [[self.interpreter  inputTensorAtIndex:1 error:&error] copyData:originData error:&error];
   if (error != nil) { 
     /* Error handling... */ 
-     RCTLogInfo(@"MyModel > runModelWithFrame > copy input 2 data error: %@",error);
+    //  RCTLogInfo(@"MyModel > runModelWithFrame > copy input 2 data error: %@",error);
      return   404;
   }
   // Run inference by invoking the `TFLInterpreter`.
   [self.interpreter invokeWithError:&error];
   if (error != nil) { 
     /* Error handling... */ 
-     RCTLogInfo(@"MyModel > runModelWithFrame > invokeWithError : error : %@",error);
+    //  RCTLogInfo(@"MyModel > runModelWithFrame > invokeWithError : error : %@",error);
      return   404;
   }
 
@@ -113,7 +113,7 @@
   TFLTensor *outputTensor = [self.interpreter outputTensorAtIndex:0 error:&error];
   if (error != nil) { 
     /* Error handling... */ 
-        RCTLogInfo(@"MyModel > runModelWithFrame > outputTensor error : %@",error);
+        // RCTLogInfo(@"MyModel > runModelWithFrame > outputTensor error : %@",error);
         return   404;
   }
 
@@ -122,12 +122,12 @@
   // RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%@",outputData);
   if (error != nil) { 
     /* Error handling... */ 
-     RCTLogInfo(@"MyModel > runModelWithFrame > get ouput data error : %@",error);
+    //  RCTLogInfo(@"MyModel > runModelWithFrame > get ouput data error : %@",error);
      return   404;
   }
   float *p = (float*)[outputData bytes];   // -bytes returns a void* that points to the data
   float f = *p;
-  RCTLogInfo(@"MyModel > runModelWithFrame > result = %f",f);
+  // RCTLogInfo(@"MyModel > runModelWithFrame > result = %f",f);
   return f; 
 }
 
@@ -171,7 +171,7 @@
     [self.interpreter allocateTensorsWithError:&error];
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > allocateTensorsWithError : error ...%@",error);
+      // RCTLogInfo(@"MyModel > runModelWithFrame > allocateTensorsWithError : error ...%@",error);
       return   404;
     }
 
@@ -188,20 +188,20 @@
     [[self.interpreter  inputTensorAtIndex:0 error:&error] copyData:inputData error:&error];
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > copyData : error ...%@",error);
+      // RCTLogInfo(@"MyModel > runModelWithFrame > copyData : error ...%@",error);
       return   404;
     }
     [[self.interpreter  inputTensorAtIndex:1 error:&error] copyData:originData error:&error];
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > copyData : error ...%@",error);
+      // RCTLogInfo(@"MyModel > runModelWithFrame > copyData : error ...%@",error);
       return   404;
     }
   // Run inference by invoking the `TFLInterpreter`.
     [self.interpreter invokeWithError:&error];
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > invokeWithError : error ...%@",error);
+      // RCTLogInfo(@"MyModel > runModelWithFrame > invokeWithError : error ...%@",error);
       return   404;
     }
 
@@ -209,21 +209,21 @@
     TFLTensor *outputTensor = [self.interpreter outputTensorAtIndex:0 error:&error];
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > outputTensorAtIndex : error ...%@",error);
+      // RCTLogInfo(@"MyModel > runModelWithFrame > outputTensorAtIndex : error ...%@",error);
       return   404;
     }
 
   // Copy output to `NSData` to process the inference results.
     NSData *outputData = [outputTensor dataWithError:&error];
-    RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%@",outputData);
+    // RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%@",outputData);
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > dataWithError : error ...%@",error);
+      // RCTLogInfo(@"MyModel > runModelWithFrame > dataWithError : error ...%@",error);
       return   404;
     }
     float *p = (float*)[outputData bytes];   // -bytes returns a void* that points to the data
     float f = *p;
-    RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%f",f);
+    // RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%f",f);
     return f;
 }
 
@@ -254,7 +254,7 @@
     [self.interpreter allocateTensorsWithError:&error];
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > allocateTensorsWithError : error ...%@",error);
+      // RCTLogInfo(@"MyModel > runModelWithFrame > allocateTensorsWithError : error ...%@",error);
       completed(  404);
       return;
     }
@@ -264,14 +264,14 @@
     [[self.interpreter  inputTensorAtIndex:0 error:&error] copyData:inputData error:&error];
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > input 1 error : %@",error);
+      // RCTLogInfo(@"MyModel > runModelWithFrame > input 1 error : %@",error);
       completed(  404);
       return;
     }
     [[self.interpreter  inputTensorAtIndex:1 error:&error] copyData:originData error:&error];
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > input 2 error : %@",error);
+      // RCTLogInfo(@"MyModel > runModelWithFrame > input 2 error : %@",error);
       completed(  404);
       return;
     }
@@ -279,7 +279,7 @@
     [self.interpreter invokeWithError:&error];
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > invokeWithError : error ...%@",error);
+      // RCTLogInfo(@"MyModel > runModelWithFrame > invokeWithError : error ...%@",error);
       completed(  404);
       return;
     }
@@ -288,7 +288,7 @@
     TFLTensor *outputTensor = [self.interpreter outputTensorAtIndex:0 error:&error];
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > outputTensorAtIndex : error ...%@",error);
+      // RCTLogInfo(@"MyModel > runModelWithFrame > outputTensorAtIndex : error ...%@",error);
       completed(  404);
       return;
     }
@@ -298,7 +298,7 @@
     // RCTLogInfo(@"MyModel > runModelWithFrame > outputData  ...%@",outputData);
     if (error != nil) { 
     /* Error handling... */ 
-      RCTLogInfo(@"MyModel > runModelWithFrame > output error : %@",error);
+      // RCTLogInfo(@"MyModel > runModelWithFrame > output error : %@",error);
       completed(  404);
       return;
     }

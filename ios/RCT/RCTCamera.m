@@ -63,7 +63,7 @@
 - (id)initWithManager:(RCTCameraManager*)manager bridge:(RCTBridge *)bridge
 {
 // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"RCTCamera > initWithManager ");  //only warn or error get response from react log.
+        // RCTLogInfo(@"RCTCamera > initWithManager ");  //only warn or error get response from react log.
 // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
   if ((self = [super init])) {
     self.manager = manager;

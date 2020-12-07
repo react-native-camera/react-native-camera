@@ -49,7 +49,7 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
             // --------------------------------------  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  check this
         // todo: check where the options uri come from 
 // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"FaceDetectorModuleMlkit > exportMethod detectFaces: options = %@",options);  //only warn or error get response from react log.
+        // RCTLogInfo(@"FaceDetectorModuleMlkit > exportMethod detectFaces: options = %@",options);  //only warn or error get response from react log.
 // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     NSString *uri = options[@"uri"];
     if (uri == nil) {
@@ -60,7 +60,7 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
     NSURL *url = [NSURL URLWithString:uri];
     NSString *path = [url.path stringByStandardizingPath];
     // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"FaceDetectorModuleMlkit > exportMethod detectFaces: path = %@",path);  //only warn or error get response from react log.
+        // RCTLogInfo(@"FaceDetectorModuleMlkit > exportMethod detectFaces: path = %@",path);  //only warn or error get response from react log.
 // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
     @try {
         if (![fileManager fileExistsAtPath:path]) {
@@ -68,7 +68,7 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
             return;
         }
     // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"FaceDetectorModuleMlkit > exportMethod detectFaces: file existed at the given path");  //only warn or error get response from react log.
+        // RCTLogInfo(@"FaceDetectorModuleMlkit > exportMethod detectFaces: file existed at the given path");  //only warn or error get response from react log.
 // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^         
         FIRVisionFaceDetectorOptions *newOptions = [[FIRVisionFaceDetectorOptions alloc] init];
         if (options[kDetectLandmarksOptionName]) {
@@ -90,7 +90,7 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
         Class faceDetectorManagerClassMlkit = NSClassFromString(@"FaceDetectorManagerMlkit");
         id faceDetector = [[faceDetectorManagerClassMlkit alloc] init];
             // ================================================  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        RCTLogInfo(@"FaceDetectorModuleMlkit > exportMethod detectFaces: init faceDetector, findFacesInFrame");  //only warn or error get response from react log.
+        // RCTLogInfo(@"FaceDetectorModuleMlkit > exportMethod detectFaces: init faceDetector, findFacesInFrame");  //only warn or error get response from react log.
 // ================================================  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
         // detect face in frame, 
         // todo: why scale 1x1, why rotate image

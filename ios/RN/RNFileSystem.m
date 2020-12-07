@@ -35,7 +35,7 @@
 
     if ([fileManager fileExistsAtPath:path]) { // Directory exists
         NSArray *listOfFiles = [fileManager contentsOfDirectoryAtPath:path error:nil];
-        RCTLogInfo(@"check folder %@ : contains: %@",folderName,listOfFiles);
+        // RCTLogInfo(@"check folder %@ : contains: %@",folderName,listOfFiles);
         int amount = [listOfFiles count] ;
         if(amount > 0){
             return true;
@@ -72,7 +72,7 @@
 
     if ([fileManager fileExistsAtPath:documentsDirectory]) { // Directory exists
         NSArray *listOfFiles = [fileManager contentsOfDirectoryAtPath:documentsDirectory error:nil];
-        RCTLogInfo(@"check folder %@ : contains: %@",documentsDirectory,listOfFiles);
+        // RCTLogInfo(@"check folder %@ : contains: %@",documentsDirectory,listOfFiles);
         int amount = [listOfFiles count] ;
         if(amount > 0){
             return true;
@@ -87,7 +87,7 @@
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:path]) { // Directory exists
         NSArray *listOfFiles = [fileManager contentsOfDirectoryAtPath:path error:nil];
-        RCTLogInfo(@"check folder %@ : contains: %@",path,listOfFiles);
+        // RCTLogInfo(@"check folder %@ : contains: %@",path,listOfFiles);
         int amount = [listOfFiles count] ;
         if(amount > 0){
             return true;
@@ -142,7 +142,7 @@
     originPath = [originPath stringByAppendingPathComponent:fileName];
     exist = [fileManager fileExistsAtPath:originPath];
     if(!exist){
-        RCTLogInfo(@"file does not exist at path %@",originPath);
+        // RCTLogInfo(@"file does not exist at path %@",originPath);
         return;
     }
     [self ensureDirExistsWithPath:destPath];
@@ -162,8 +162,8 @@
         [fileManager copyItemAtPath:originPath toPath:destPath error:nil];
         
         NSArray *listOfFiles = [fileManager contentsOfDirectoryAtPath:destPath error:nil];
-        RCTLogInfo(@"copy file to path %@",destPath);
-        RCTLogInfo(@"check folder %@ : contains: %@",destPath,listOfFiles);   
+        // RCTLogInfo(@"copy file to path %@",destPath);
+        // RCTLogInfo(@"check folder %@ : contains: %@",destPath,listOfFiles);   
     }
 }
 // + (void) downloadModelFile:(NSString *)modelFileName fromURL:(NSString *)URL {

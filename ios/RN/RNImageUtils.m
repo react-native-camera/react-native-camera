@@ -68,7 +68,7 @@
     // overide by default
     [image writeToFile:path atomically:YES];
     NSURL *fileURL = [NSURL fileURLWithPath:path];
-    RCTLogInfo(@"RNImageUtils > writeImage : apsoluteString %@",[fileURL absoluteString]);  
+    // RCTLogInfo(@"RNImageUtils > writeImage : apsoluteString %@",[fileURL absoluteString]);  
     return [fileURL absoluteString];
 }
 
