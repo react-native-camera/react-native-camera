@@ -140,7 +140,7 @@
     // NSLog(@"runModelWithFrame > image data length : %d, width=%d, height=%d, scale=%f x %f", 
     //       [imageData length],width,height,scaleX,scaleY );
     if ([eventFace[@"faces"] count] < 1) {
-      NSLog(@"runModelWithFrame > emptyface");
+      // NSLog(@"runModelWithFrame > emptyface");
       return   404;
     }
     else {
@@ -238,7 +238,7 @@
     NSData *inputData;
     NSData *originData;
     if ([eventFace[@"faces"] count] < 1) {
-      NSLog(@"verifyFacesInFrame > emptyface");
+      // NSLog(@"verifyFacesInFrame > emptyface");
       completed(  404);
       return;
     }
@@ -316,7 +316,7 @@
 {
     NSData *imageData = UIImagePNGRepresentation(uiImage);
     if ([eventFace[@"faces"] count] < 1) {
-      NSLog(@"MyModel > preprocessFrameImage emptyface");
+      // NSLog(@"MyModel > preprocessFrameImage emptyface");
       return [self randomData];
     }
     else {
