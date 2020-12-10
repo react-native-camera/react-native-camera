@@ -81,10 +81,27 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
                     new OnSuccessListener<List<FirebaseVisionFace>>() {
                       @Override
                       public void onSuccess(List<FirebaseVisionFace> faces) {
+
                         WritableArray facesList = serializeEventData(faces);
+                        if(faces.size()>0){
+                          mDelegate.onFacesDetected(facesList);
+//                          try {
+//                            Log.i("Debug", "detectInImage onSuccess have face" );
+//                            Thread.sleep(500);
+                            mDelegate.onFaceDetectingTaskCompleted();
+//                          } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                          }
+                        }else {
+                          // Log.i("Debug", "detectInImage onSuccess no face" );
+//                          mDelegate.onFacesDetected(facesList);
+
+                            mDelegate.onFaceDetectingTaskCompleted();
+
+                        }
                          // =============<<<<<<<<<<<<<<<<< check here
-                        mDelegate.onFacesDetected(facesList);
-                        mDelegate.onFaceDetectingTaskCompleted();
+
+
                       }
                     })
             .addOnFailureListener(

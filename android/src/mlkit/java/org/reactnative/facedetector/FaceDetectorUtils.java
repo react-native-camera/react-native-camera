@@ -1,5 +1,7 @@
 package org.reactnative.facedetector;
 
+import android.util.Log;
+
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
@@ -88,8 +90,8 @@ public class FaceDetectorUtils {
       //                        todo: ....
     int faceWidth = face.getBoundingBox().width();
     int faceHeight = face.getBoundingBox().height();
-    Log.i("Debug",String.format("FaceDetectorUtils serializeFace %.2f - %.2f, %d - %d",
-                                x,y,faceWidth,faceWidth));
+    // Log.i("Debug",String.format("FaceDetectorUtils serializeFace %.2f - %.2f, %d - %d",
+    //                             x,y,faceWidth,faceHeight));
 
     WritableMap bounds = Arguments.createMap();
     bounds.putMap("origin", origin);

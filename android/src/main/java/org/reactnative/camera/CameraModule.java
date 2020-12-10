@@ -260,8 +260,10 @@ public class CameraModule extends ReactContextBaseJavaModule {
    // =============<<<<<<<<<<<<<<<<< check here
   @ReactMethod
   public void takePicture(final ReadableMap options, final int viewTag, final Promise promise) {
+      Log.i("Debug","CameraModule takePicture start ...");
     final ReactApplicationContext context = getReactApplicationContext();
     final File cacheDirectory = mScopedContext.getCacheDirectory();
+
     UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
     uiManager.addUIBlock(new UIBlock() {
       @Override
@@ -269,6 +271,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
           RNCameraView cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
           try {
               if (cameraView.isCameraOpened()) {
+                  Log.i("Debug","CameraModule cameraopened viewtakePicture...");
                 cameraView.takePicture(options, promise, cacheDirectory);
               } else {
                 promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");

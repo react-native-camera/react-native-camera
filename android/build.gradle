@@ -26,11 +26,15 @@ android {
   buildToolsVersion safeExtGet('buildToolsVersion', '28.0.3')
 
   defaultConfig {
-    minSdkVersion safeExtGet('minSdkVersion', 16)
+    // minSdkVersion safeExtGet('minSdkVersion', 16)
+     minSdkVersion safeExtGet('minSdkVersion', 19)
     targetSdkVersion safeExtGet('targetSdkVersion', 28)
   }
 
   flavorDimensions "react-native-camera"
+  aaptOptions {
+    noCompress "tflite", "lite"
+  }
 
   productFlavors {
     general {
