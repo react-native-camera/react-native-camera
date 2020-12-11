@@ -1,6 +1,9 @@
 package org.reactnative.camera;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
+
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
@@ -15,33 +18,12 @@ import java.util.List;
 import java.util.Map;
 
 public class CameraViewManager extends ViewGroupManager<RNCameraView> {
-  public enum Events {
-    EVENT_CAMERA_READY("onCameraReady"),
-    EVENT_ON_MOUNT_ERROR("onMountError"),
-    EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
-    EVENT_ON_FACES_DETECTED("onFacesDetected"),
-    // add onfacesRecognition
-    EVENT_ON_BARCODES_DETECTED("onGoogleVisionBarcodesDetected"),
-    EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
-    EVENT_ON_BARCODE_DETECTION_ERROR("onGoogleVisionBarcodeDetectionError"),
-    EVENT_ON_TEXT_RECOGNIZED("onTextRecognized"),
-    EVENT_ON_PICTURE_TAKEN("onPictureTaken"),
-    EVENT_ON_PICTURE_SAVED("onPictureSaved"),
-    EVENT_ON_RECORDING_START("onRecordingStart"),
-    EVENT_ON_RECORDING_END("onRecordingEnd"),
-    EVENT_ON_TOUCH("onTouch");
- // =============<<<<<<<<<<<<<<<<< check here
-
-    private final String mName;
-
-    Events(final String name) {
-      mName = name;
-    }
-
-    @Override
-    public String toString() {
-      return mName;
-    }
+  // todo: add faceVerifyEnable, and other inputs
+  // =============<<<<<<<<<<<<<<<<< check here
+  @ReactProp(name = "path")
+  public void setUserImageDir(RNCameraView view, String userImageDir) {
+    Log.i("Debug",
+            "CameraviewManager userImageDir=" + userImageDir);
   }
 
   private static final String REACT_CLASS = "RNCamera";
@@ -173,11 +155,79 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setShouldDetectTouches(touchDetectorEnabled);
   }
 
+  @ReactProp(name = "user")
+  public void setUserImageName(RNCameraView view, String userImageName) {
+    Log.i("Debug",
+            "CameraviewManager userImageName=" + userImageName);
+  }
+
+  //  todo: pass this to model modul
+  @ReactProp(name = "modelURL")
+  public void setModelUrl(RNCameraView view, String modelURL) {
+    Log.i("Debug",
+            "CameraviewManager modelURL=" + modelURL);
+  }
+
+  @ReactProp(name = "modelFileName")
+  public void setModelFileName(RNCameraView view, String modelFileName) {
+    Log.i("Debug",
+            "CameraviewManager modelFileName=" + modelFileName);
+  }
+
+  @ReactProp(name = "onFaceVerified")
+  public void setFaceVerifier(RNCameraView view, Boolean onFaceVerifyEnabled) {
+    Log.i("Debug",
+            "CameraviewManager onFaceVerified enable =" +
+                    onFaceVerifyEnabled.toString());
+    setFaceVerifying(view, onFaceVerifyEnabled);
+  }
+
   @ReactProp(name = "faceDetectorEnabled")
   public void setFaceDetecting(RNCameraView view, boolean faceDetectorEnabled) {
+    Log.i("Debug", "CameraviewManager setFaceDetecting from reactprops " +
+            faceDetectorEnabled);
     view.setShouldDetectFaces(faceDetectorEnabled);
+//    setFaceVerifying(view,faceDetectorEnabled);
   }
-  // todo: add faceVerifyEnable, and other inputs
+
+  @ReactProp(name = "faceVerifierEnabled")
+  public void setFaceVerifying(RNCameraView view, boolean faceVerifierEnabled) {
+    Log.i("Debug", "CameraviewManager setFaceVerifying from reactprops " +
+            faceVerifierEnabled);
+    view.setShouldVerifyFaces(faceVerifierEnabled);
+  }
+
+  public enum Events {
+    EVENT_CAMERA_READY("onCameraReady"),
+    EVENT_ON_MOUNT_ERROR("onMountError"),
+    EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
+    EVENT_ON_FACES_DETECTED("onFacesDetected"),
+    // =============<<<<<<<<<<<<<<<<< check here
+    EVENT_ON_FACE_VERIFIED("onFaceVerified"),
+    EVENT_ON_BARCODES_DETECTED("onGoogleVisionBarcodesDetected"),
+    EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
+    // =============<<<<<<<<<<<<<<<<< check here
+    EVENT_ON_FACE_VERIFICATION_ERROR("onFaceVerificationError"),
+    EVENT_ON_BARCODE_DETECTION_ERROR("onGoogleVisionBarcodeDetectionError"),
+    EVENT_ON_TEXT_RECOGNIZED("onTextRecognized"),
+    EVENT_ON_PICTURE_TAKEN("onPictureTaken"),
+    EVENT_ON_PICTURE_SAVED("onPictureSaved"),
+    EVENT_ON_RECORDING_START("onRecordingStart"),
+    EVENT_ON_RECORDING_END("onRecordingEnd"),
+    EVENT_ON_TOUCH("onTouch");
+    // =============<<<<<<<<<<<<<<<<< check here
+
+    private final String mName;
+
+    Events(final String name) {
+      mName = name;
+    }
+
+    @Override
+    public String toString() {
+      return mName;
+    }
+  }
 
 
   @ReactProp(name = "faceDetectionMode")

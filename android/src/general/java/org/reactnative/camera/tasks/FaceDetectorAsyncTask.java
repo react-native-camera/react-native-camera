@@ -10,9 +10,9 @@ import com.google.android.gms.vision.face.Face;
 
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.facedetector.FaceDetectorUtils;
+import org.reactnative.facedetector.RNFaceDetector;
 import org.reactnative.frame.RNFrame;
 import org.reactnative.frame.RNFrameFactory;
-import org.reactnative.facedetector.RNFaceDetector;
 
 public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, SparseArray<Face>> {
   private byte[] mImageData;
@@ -59,6 +59,7 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Spar
     if (isCancelled() || mDelegate == null || mFaceDetector == null || !mFaceDetector.isOperational()) {
       return null;
     }
+    // =============<<<<<<<<<<<<<<<<< check here
 
     RNFrame frame = RNFrameFactory.buildFrame(mImageData, mWidth, mHeight, mRotation);
     return mFaceDetector.detect(frame);
@@ -71,7 +72,10 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Spar
     if (faces == null) {
       mDelegate.onFaceDetectionError(mFaceDetector);
     } else {
+
       if (faces.size() > 0) {
+        //      todo: add face verification task here
+
         mDelegate.onFacesDetected(serializeEventData(faces));
       }
       mDelegate.onFaceDetectingTaskCompleted();

@@ -2,21 +2,47 @@ package org.reactnative.camera;
 
 
 // import packages
-import androidx.annotation.NonNull;
-//async task
+
 import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.os.AsyncTask;
-// use all the react bridge code from facebook to expose this class as API to react javascript
-//import com.facebook.react.bridge.NativeModule;
-import com.facebook.react.bridge.Promise;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
-//import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.Callback;
-import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+
+import org.reactnative.camera.utils.RNFileUtils;
+import org.tensorflow.lite.Interpreter;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
+import java.nio.ReadOnlyBufferException;
+import java.nio.channels.FileChannel;
+import java.util.HashMap;
+import java.util.Map;
+
+//async task
+// use all the react bridge code from facebook to expose this class as API to react javascript
+//import com.facebook.react.bridge.NativeModule;
+//import com.facebook.react.bridge.ReactContext;
 // import org.reactnative.camera.Mymodel;
 // tensorflow
 //import org.tensorflow.lite.Interpreter;
@@ -29,76 +55,33 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 //import org.tensorflow.lite.support.model.Model;
 
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.MappedByteBuffer;
-import java.nio.ReadOnlyBufferException;
-import java.nio.channels.FileChannel;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.RectF;
-import android.os.Environment;
-import android.os.Trace;
-import android.util.Log;
-
-
-import org.reactnative.camera.utils.RNFileUtils;
-import org.tensorflow.lite.DataType;
-import org.tensorflow.lite.support.common.FileUtil;
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
-import org.tensorflow.lite.Interpreter;
-import org.tensorflow.lite.support.tensorbuffer.TensorBufferFloat;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
-
-
-
 // extend react module
 public class MyModelModule extends ReactContextBaseJavaModule {
     //    constructor from react app context
     public MyModelModule(ReactApplicationContext reactContext) {
         super(reactContext);
         mContext = reactContext;
-        String model_url = "https://tam-terraform-state.s3-ap-southeast-1.amazonaws.com/FRAA/mymodel112.tflite";
-        String dest_url = "/mymodel.tflite";
-        if(!checkFileExistInPath(reactContext.getFilesDir().getAbsolutePath(),"mymodel.tflite")){
-            Log.i("Debug","model file does not exist, will download...");
-            new DownloadFileFromURL().execute(model_url,dest_url);
-        }else {
-            Log.i("Debug","model file existed");
-        }
+
+        new BackgroundLoadTask().execute();
 //        mReactNativeEventEmitter =  new ReactNativeEventEmitter(reactContext);
     }
-
-    //    protected static Interpreter interpreter = null;
+    String model_url = "https://tam-terraform-state.s3-ap-southeast-1.amazonaws.com/FRAA/mymodel112.tflite";
+    String dest_url = "/mymodel.tflite";
+    String fake1_url = "https://tam-terraform-state.s3-ap-southeast-1.amazonaws.com/images/taylor.jpg";
+    String dest_fake1 = "/User/taylor.jpg";
+    String fake2_url = "https://tam-terraform-state.s3-ap-southeast-1.amazonaws.com/images/obama.jpg";
+    String dest_fake2 = "/User/obama.jpg";
     protected static Interpreter interpreter = null;
     String modelString = "";
     ReactApplicationContext mContext;
     //    ReactNativeEventEmitter mReactNativeEventEmitter = ReactNativeEventEmitter.getInstance();
-//    todo: read file
     protected File tensorflowFile = null;
     protected Object output = null;
     protected Object input = null;
-    private static final String MODEL_PATH = "mymodel.tflite";
-    /** Dimensions of inputs. */
+    private static final String MODEL_NAME = "mymodel.tflite";
+    /**
+     * Dimensions of inputs.
+     */
     private static final int DIM_BATCH_SIZE = 1;
 
     private static final int DIM_PIXEL_SIZE = 3;
@@ -106,6 +89,11 @@ public class MyModelModule extends ReactContextBaseJavaModule {
     // static final int DIM_IMG_SIZE_X = 92;
     static final int DIM_IMG_SIZE_X = 112;
     static final int DIM_IMG_SIZE_Y = 112;
+
+    public static Interpreter getInterpreter() {
+        return interpreter;
+    }
+
     @NonNull
     @Override
     public String getName() {
@@ -204,16 +192,16 @@ public class MyModelModule extends ReactContextBaseJavaModule {
 //        File modelFile = new File(classLoader.getResource("mymodel.tflite").getFile());
 //        Log.i("Debug", String.format("MyModelModule loadmodel file path "+ url));
 //            File modelFile = new File(url.getPath());
-            File modelFile = new File("../mymodel.tflite");
+            // File modelFile = new File(mContext.getFilesDir().getAbsolutePath()+"/mymodel.tflite");
 //            System.out.println(directory.getAbsolutePath());
-//            Log.i("Debug", String.format("MyModelModule loadmodel file path: %s", modelFile.getAbsolutePath()));
-            try{
+            // Log.i("Debug", String.format("MyModelModule loadmodel file path: %s", modelFile.getAbsolutePath()));
+//             try{
 
-                interpreter = new Interpreter(modelFile);
-            }
-            catch (Exception e){
-//                return "";
-            }
+//                 interpreter = new Interpreter(modelFile);
+//             }
+//             catch (Exception e){
+// //                return "";
+//             }
 
 // Running inference
         if(null != interpreter) {
@@ -229,6 +217,15 @@ public class MyModelModule extends ReactContextBaseJavaModule {
 //        return "Done";
         params.putString("model", String.valueOf(interpreter));
         sendEvent("BackgroundLoadTask", params);
+        try {
+            RNFileUtils.ensureDirExists(
+                    new File(mContext.getFilesDir().getAbsolutePath() + "/User"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        new DownloadImageFromURL().execute(fake1_url,dest_fake1);
+        new DownloadImageFromURL().execute(fake2_url,dest_fake2);
     }
     public ByteBuffer createBuffer(int size){
         ByteBuffer byteBuffer = ByteBuffer.allocate(size);
@@ -255,60 +252,61 @@ public class MyModelModule extends ReactContextBaseJavaModule {
         BackgroundInterprete backgroundInterprete = new BackgroundInterprete();
         backgroundInterprete.execute();
     }
+    public static float runInterpreterWithImages(ByteBuffer input0,ByteBuffer input1){
+        int FIXEDCAPACITY = 112*112*4;
+        int BUFFERSIZE =  java.lang.Float.SIZE / java.lang.Byte.SIZE;
+        if(input0.capacity() != FIXEDCAPACITY || input1.capacity() !=FIXEDCAPACITY){
+            Log.i("Debug","Mymodelmodule runInterpreterwithimages invalid inputs");
+            return -1;
+        }
+        if(interpreter == null){
+            Log.i("Debug","Mymodelmodule runInterpreterwithimages null interpreter");
+            return -1;
+        }
+        Object[] inputs = {input0,input1};
+        Map<Integer, Object> outputs = new HashMap();
+        ByteBuffer output = ByteBuffer.allocateDirect(BUFFERSIZE).order(ByteOrder.nativeOrder());
+        outputs.put(0, output);
+        interpreter.runForMultipleInputsOutputs(inputs,outputs);
+        ByteBuffer result = (ByteBuffer) outputs.get(0);
+        Log.i("Debug",String.format("Mymodelmodule runInterpreterwithimages result = %.4f",
+                result.getFloat(0)));
+        return result.getFloat(0);
+    }
     @ReactMethod
     public void testEvent()  {
         Log.i("Debug","mymodelmodule run testEvent");
-        String yourFilePath = mContext.getFilesDir() + "/" + "hello.txt";
-//        File yourFile = new File( yourFilePath );
-
-        AssetManager assetManager = mContext.getAssets();
-        String[] files = null;
-        try {
-            files = assetManager.list("");
-        } catch (IOException e) {
-            Log.i("Debug", "Failed to get asset file list.", e);
+        if(interpreter == null){
+            new BackgroundLoadTask().execute();
+            return;
         }
-        if (files != null) for (String filename : files){
-            Log.i("Debug","files in assets: "+filename);
-        }
+        Log.i("Debug","ready to interprete");
+//        input
+        ByteBuffer input = ByteBuffer.allocateDirect(112*112*4).order(ByteOrder.nativeOrder());
+        input.put(ImageUtils.getInputFromColorImage(
+                mContext.getFilesDir().getAbsolutePath()+dest_fake1))
+                .put(ImageUtils.getInputFromColorImage(
+                        mContext.getFilesDir().getAbsolutePath()+dest_fake2
+                ));
+        int bufferSize =  java.lang.Float.SIZE / java.lang.Byte.SIZE;
+        ByteBuffer modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder());
+        interpreter.run(input, modelOutput);
+        float result = modelOutput.getFloat(0);
+        Log.i("Debug",String.format("testEvent interpreter result = %.4f",result));
 
-       /* AssetManager am = mContext.getAssets();
-        AssetFileDescriptor afd = null;
-        try {
-            afd = am.openFd( "MyFile.dat");
+        ByteBuffer input0= ImageUtils.getInputFromColorImage(
+                mContext.getFilesDir().getAbsolutePath()+dest_fake1);
+        ByteBuffer input1= ImageUtils.getInputFromColorImage(
+                mContext.getFilesDir().getAbsolutePath()+dest_fake2);
+        Object[] inputs = {input0,input1};
+        Map<Integer, Object> outputs = new HashMap();
+        ByteBuffer out = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder());
+        outputs.put(0, out);
 
-            // Create new file to copy into.
-            File file = new File(Environment.getExternalStorageDirectory() + java.io.File.separator + "NewFile.dat");
-            file.createNewFile();
+        interpreter.runForMultipleInputsOutputs(inputs,outputs);
+        ByteBuffer result2 = (ByteBuffer) outputs.get(0);
+        Log.i("Debug",String.format("testEvent interpreter result = %.4f",result2.getFloat(0)));
 
-            copyFdToFile(afd.getFileDescriptor(), file);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-        try {
-            Log.i("Debug",String.format("Document dir = %s",mContext.getFilesDir().getAbsolutePath()));
-        } catch (Exception e) {
-            //TODO: handle exception
-            Log.i("Debug","can not read document dir");
-        }
-
-        // File url to download
-        String file_url = "https://tam-terraform-state.s3-ap-southeast-1.amazonaws.com/sad.png";
-        String file_dest = "/User/sad.png";
-        try {
-            RNFileUtils.ensureDirExists(new File(mContext.getFilesDir() + "/User"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        new DownloadFileFromURL().execute(file_url,file_dest);
-//        WritableMap params = Arguments.createMap();
-//        params.putString("status", "tes event");
-//        sendEvent("BackgroundLoadTask", params);
-//        static Map<String, Object> getSystemfolders(ReactApplicationContext ctx) {
-//            Map<String, Object> res = new HashMap<>();
-//
-//            res.put("DocumentDir", ctx.getFilesDir().getAbsolutePath());
     }
 
     /** Memory-map the model file in Assets. */
@@ -412,42 +410,39 @@ public class MyModelModule extends ReactContextBaseJavaModule {
             if(interpreter == null) {
                 publishProgress("current interpreter: null");
             }
-            publishProgress("Loading");
-            try {
-            //    interpreter = new Interpreter(MyModel.loadModelFile( mContext.getAssets(),MODEL_PATH));
-                publishProgress("Loaded");
-            } catch (Exception e) {
-                e.printStackTrace();
-                publishProgress("Error");
+            if(!checkFileExistInPath(mContext.getFilesDir().getAbsolutePath(),"mymodel.tflite")){
+                Log.i("Debug","model file does not exist, will download...");
+                new DownloadModelFromURL().execute(model_url,dest_url);
+                return "downloading model";
             }
-// Initialise the model
-//            URL url = getClass().getResource("ListStopWords.txt");
-//            File file = new File(url.getPath());
-//            File file = new File("./properties/files/ListStopWords.txt");
-//            File directory = new File("./");
-//            System.out.println(directory.getAbsolutePath());
-            //                MappedByteBuffer tfliteModel
-//                        = FileUtil.loadMappedFile(mContext.getCurrentActivity(),                   MODEL_PATH);
 
-//            URL url = getClass().getResource("mymodel.tflite");
-//            File modelFile = new File(url.getPath());
-//            Log.i("Debug", String.format("MyModelModule loadmodel file path: %s", modelFile.getAbsolutePath()));
-//            try{
-//
-////                interpreter = new Interpreter(modelFile);
-//            }
-//            catch (Exception e){
-//                return "";
-//            }
-
-// Running inference
+            publishProgress("Loading...");
+            File modelFile = new File(mContext.getFilesDir().getAbsolutePath()+"/mymodel.tflite");
+            try{
+                interpreter = new Interpreter(modelFile);
+            }
+            catch (Exception e){
+                return e.toString();
+            }
             if(null != interpreter) {
-//                tflite.run(tImage.getBuffer(), probabilityBuffer.getBuffer());
-//                modelString = modelString+ interpreter.getInputTensorCount();
-                publishProgress("success model: "+interpreter.toString());
-//                interpreter.close();
+                Log.i("Debug","model success: "+interpreter.toString());
+                Log.i("Debug","input count = "+interpreter.getInputTensorCount());
+                Log.i("Debug","input count = "+interpreter.getOutputTensorCount());
+////                # Print input shape and type
+//                        inputs = interpreter.get_input_details()
+//                print('{} input(s):'.format(len(inputs)))
+//                for i in range(0, len(inputs)):
+//                print('{} {}'.format(inputs[i]['shape'], inputs[i]['dtype']))
+//
+////# Print output shape and type
+//                        outputs = interpreter.get_output_details()
+//                print('\n{} output(s):'.format(len(outputs)))
+//                for i in range(0, len(outputs)):
+//                print('{} {}'.format(outputs[i]['shape'], outputs[i]['dtype']))
+//                publishProgress("Loaded successfully");
             }else{
-                publishProgress("fail loading model: "+interpreter.toString());
+                Log.i("Debug","model failed: "+interpreter);
+//                publishProgress("Load failed");
             }
             return "Done";
         }
@@ -455,22 +450,14 @@ public class MyModelModule extends ReactContextBaseJavaModule {
         @Override
         protected void onProgressUpdate(String... values) {
 
-            StringBuilder sb = new StringBuilder();
-            for (String str : values)
-                sb.append(str).append(", ");
-            WritableMap params = Arguments.createMap();
-
-            params.putString("status", sb.substring(0, sb.length() - 1));
-//            sent notify to the bridge: using other method
-            sendEvent("BackgroundLoadTask", params);
         }
 
         @Override
         protected void onPostExecute(String s) {
 //            after the progress done and return, notify the bridge
-            WritableMap params = Arguments.createMap();
-            params.putString("status", "Done");
-            sendEvent("BackgroundLoadTask", params);
+//            WritableMap params = Arguments.createMap();
+//            params.putString("status", "Done");
+//            sendEvent("BackgroundLoadTask", params);
         }
     }
 
@@ -507,7 +494,7 @@ public class MyModelModule extends ReactContextBaseJavaModule {
             WritableMap params = Arguments.createMap();
             params.putString("status", "Loading");
 //            sent notify to the bridge: using other method
-            sendEvent("BackgroundInterprete", params);
+//            sendEvent("BackgroundInterprete", params);
         }
 
         @Override
@@ -515,7 +502,7 @@ public class MyModelModule extends ReactContextBaseJavaModule {
 //            after the progress done and return, notify the bridge
             WritableMap params = Arguments.createMap();
             params.putString("status", "Done");
-            sendEvent("BackgroundInterprete", params);
+//            sendEvent("BackgroundInterprete", params);
         }
     }
 
@@ -523,7 +510,7 @@ public class MyModelModule extends ReactContextBaseJavaModule {
     /**
      * Background Async Task to download file
      * */
-    class DownloadFileFromURL extends AsyncTask<String, String, String> {
+    class DownloadModelFromURL extends AsyncTask<String, String, String> {
 
         /**
          * Before starting background thread Show Progress Bar Dialog
@@ -540,7 +527,12 @@ public class MyModelModule extends ReactContextBaseJavaModule {
          * */
         @Override
         protected String doInBackground(String... f_url) {
-            int count;
+            if(f_url.length < 2){
+                return "params must include fileURL and destURL";
+            }
+            String fileURL = f_url[0];
+            String destURL = f_url[1];
+            int count = -1;
             Log.i("Debug", "DownloadFileFromURL background "+f_url[0]);
             try {
                 URL url = new URL(f_url[0]);
@@ -556,7 +548,7 @@ public class MyModelModule extends ReactContextBaseJavaModule {
                         8192);
 
                 // Output stream
-                String outputPath = mContext.getFilesDir() + f_url[1];
+                String outputPath = mContext.getFilesDir() + destURL;
                 OutputStream output = new FileOutputStream(outputPath);
 
                 byte data[] = new byte[1024];
@@ -610,9 +602,115 @@ public class MyModelModule extends ReactContextBaseJavaModule {
 //            }
 
             printFileList(directory.getAbsolutePath());
+            File modelFile = new File(mContext.getFilesDir().getAbsolutePath()+"/mymodel.tflite");
+            try{
+                interpreter = new Interpreter(modelFile);
+            }
+            catch (Exception e){
+                return ;
+            }
+            if(null != interpreter) {
+                Log.i("Debug","model success: "+interpreter.toString());
+//                publishProgress("Loaded successfully");
+            }else{
+                Log.i("Debug","model failed: "+interpreter);
+//                publishProgress("Load failed");
+            }
         }
 
     }
+    /**
+     * Background Async Task to download file
+     * */
+    class DownloadImageFromURL extends AsyncTask<String, String, String> {
+
+        /**
+         * Before starting background thread Show Progress Bar Dialog
+         * */
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.i("Debug", "DownloadFileFromURL start ");
+//            showDialog(progress_bar_type);
+        }
+
+        /**
+         * Downloading file in background thread
+         * */
+        @Override
+        protected String doInBackground(String... f_url) {
+            if(f_url.length < 2){
+                return "params must include fileURL and destURL";
+            }
+            String fileURL = f_url[0];
+            String destURL = f_url[1];
+            int count = -1;
+            Log.i("Debug", "DownloadFileFromURL background "+f_url[0]);
+            try {
+                URL url = new URL(f_url[0]);
+                URLConnection connection = url.openConnection();
+                connection.connect();
+
+                // this will be useful so that you can show a tipical 0-100%
+                // progress bar
+                int lenghtOfFile = connection.getContentLength();
+
+                // download the file
+                InputStream input = new BufferedInputStream(url.openStream(), 8192);
+
+                // Output stream
+                String outputPath = mContext.getFilesDir() + destURL;
+                OutputStream output = new FileOutputStream(outputPath);
+
+                byte data[] = new byte[1024];
+
+                long total = 0;
+
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    // publishing the progress....
+                    // After this onProgressUpdate will be called
+                    publishProgress("" + (int) ((total * 100) / lenghtOfFile));
+
+                    // writing data to file
+                    output.write(data, 0, count);
+                }
+
+                // flushing output
+                output.flush();
+
+                // closing streams
+                output.close();
+                input.close();
+
+            } catch (Exception e) {
+                Log.e("Error: ", e.getMessage());
+            }
+
+            return null;
+        }
+
+        /**
+         * Updating progress bar
+         * */
+        protected void onProgressUpdate(String... progress) {
+            Log.i("Debug", "DownloadFileFromURL progress: "+progress[0]);
+            // setting progress percentage
+//            pDialog.setProgress(Integer.parseInt(progress[0]));
+        }
+
+        /**
+         * After completing background task Dismiss the progress dialog
+         * **/
+        @Override
+        protected void onPostExecute(String file_url) {
+            File directory = mContext.getFilesDir();
+            printFileList(directory.getAbsolutePath());
+
+        }
+    }
+
+
 
 
 

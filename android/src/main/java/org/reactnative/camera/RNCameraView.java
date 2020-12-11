@@ -5,42 +5,74 @@ import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.media.CamcorderProfile;
+import android.os.AsyncTask;
 import android.os.Build;
-import androidx.core.content.ContextCompat;
-
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.os.AsyncTask;
-import com.facebook.react.bridge.*;
+
+import androidx.core.content.ContextCompat;
+
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.LifecycleEventListener;
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.google.android.cameraview.CameraView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.Result;
+
 import org.reactnative.barcodedetector.RNBarcodeDetector;
-import org.reactnative.camera.tasks.*;
+import org.reactnative.camera.tasks.BarCodeScannerAsyncTask;
+import org.reactnative.camera.tasks.BarCodeScannerAsyncTaskDelegate;
+import org.reactnative.camera.tasks.BarcodeDetectorAsyncTask;
+import org.reactnative.camera.tasks.BarcodeDetectorAsyncTaskDelegate;
+import org.reactnative.camera.tasks.FaceDetectorAsyncTask;
+import org.reactnative.camera.tasks.FaceDetectorAsyncTaskDelegate;
+import org.reactnative.camera.tasks.FaceVerifierAsyncTask;
+import org.reactnative.camera.tasks.FaceVerifierAsyncTaskDelegate;
+import org.reactnative.camera.tasks.PictureSavedDelegate;
+import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
+import org.reactnative.camera.tasks.TextRecognizerAsyncTask;
+import org.reactnative.camera.tasks.TextRecognizerAsyncTaskDelegate;
 import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.facedetector.RNFaceDetector;
+import org.tensorflow.lite.Interpreter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate,
-    BarcodeDetectorAsyncTaskDelegate, TextRecognizerAsyncTaskDelegate, PictureSavedDelegate {
+public class RNCameraView extends CameraView implements
+        LifecycleEventListener,
+        BarCodeScannerAsyncTaskDelegate,
+        FaceDetectorAsyncTaskDelegate,
+        FaceVerifierAsyncTaskDelegate,
+        BarcodeDetectorAsyncTaskDelegate,
+        TextRecognizerAsyncTaskDelegate,
+        PictureSavedDelegate {
   private ThemedReactContext mThemedReactContext;
   private Queue<Promise> mPictureTakenPromises = new ConcurrentLinkedQueue<>();
   private Map<Promise, ReadableMap> mPictureTakenOptions = new ConcurrentHashMap<>();
@@ -58,19 +90,25 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private boolean invertImageData = false;
   private Boolean mIsRecording = false;
   private Boolean mIsRecordingInterrupted = false;
-  private boolean mUseNativeZoom=false;
+  private boolean mUseNativeZoom = false;
 
   // Concurrency lock for scanners to avoid flooding the runtime
   public volatile boolean barCodeScannerTaskLock = false;
   public volatile boolean faceDetectorTaskLock = false;
+  // =============<<<<<<<<<<<<<<<<< check here
+  public volatile boolean faceVerifierTaskLock = false;
   public volatile boolean googleBarcodeDetectorTaskLock = false;
   public volatile boolean textRecognizerTaskLock = false;
 
   // Scanning-related properties
   private MultiFormatReader mMultiFormatReader;
   private RNFaceDetector mFaceDetector;
+  // =============<<<<<<<<<<<<<<<<< check here
+  private Interpreter mFaceVerifier;
   private RNBarcodeDetector mGoogleBarcodeDetector;
   private boolean mShouldDetectFaces = false;
+  // =============<<<<<<<<<<<<<<<<< check here
+  private boolean mShouldVerifyFaces = false;
   private boolean mShouldGoogleDetectBarcodes = false;
   private boolean mShouldScanBarCodes = false;
   private boolean mShouldRecognizeText = false;
@@ -100,6 +138,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     super(themedReactContext, true);
     mThemedReactContext = themedReactContext;
     themedReactContext.addLifecycleEventListener(this);
+//    MyModelModule myModelModule = new MyModelModule((ReactContext) this.getContext());
 
     addCallback(new Callback() {
       @Override
@@ -112,15 +151,15 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         RNCameraViewHelper.emitMountErrorEvent(cameraView, "Camera view threw an error - component could not be rendered.");
       }
 
-       // =============<<<<<<<<<<<<<<<<< check here
+      // =============<<<<<<<<<<<<<<<<< check here
       @Override
       public void onPictureTaken(CameraView cameraView, final byte[] data, int deviceOrientation) {
         Promise promise = mPictureTakenPromises.poll();
         ReadableMap options = mPictureTakenOptions.remove(promise);
         if (options.hasKey("fastMode") && options.getBoolean("fastMode")) {
-            promise.resolve(null);
+          promise.resolve(null);
         }
-         // =============<<<<<<<<<<<<<<<<< check here
+        // =============<<<<<<<<<<<<<<<<< check here
         final File cacheDirectory = mPictureTakenDirectories.remove(promise);
         if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
           new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
@@ -165,7 +204,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
       }
 
-       // =============<<<<<<<<<<<<<<<<< check here
+      // =============<<<<<<<<<<<<<<<<< check here
       //  todo: similar to output capture of ios
       @Override
       public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int rotation) {
@@ -181,7 +220,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
 
         if (data.length < (1.5 * width * height)) {
-            return;
+          return;
         }
 
         if (willCallBarCodeTask) {
@@ -198,10 +237,66 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 //                                mLastFinish,mTimeNow));
           if(mTimeNow - mLastFinish > 500) {
             faceDetectorTaskLock = true;
+            byte[] dataCopy = data.clone();
+
+
             // =============<<<<<<<<<<<<<<<<< check here
             // Log.i("Debug", String.format("RNCameraView onFramePreview detectface start"));
             FaceDetectorAsyncTaskDelegate delegate = (FaceDetectorAsyncTaskDelegate) cameraView;
-            new FaceDetectorAsyncTask(delegate, mFaceDetector, data, width, height, correctRotation, getResources().getDisplayMetrics().density, getFacing(), getWidth(), getHeight(), mPaddingX, mPaddingY).execute();
+            new FaceDetectorAsyncTask(delegate, mFaceDetector,
+                    dataCopy, width, height, correctRotation,
+                    getResources().getDisplayMetrics().density,
+                    getFacing(), getWidth(), getHeight(),
+                    mPaddingX, mPaddingY).execute();
+//            todo: add face verification here. or in the asynctask
+            boolean willCallFaceVerifyTask = true;
+            Log.i("Debug", "check interpreter :  " + mFaceVerifier.toString());
+            if (willCallFaceVerifyTask && mFaceVerifier != null && !faceVerifierTaskLock) {
+              faceVerifierTaskLock = true;
+//              todo: prepare inputs, pass to the task
+              boolean checkUserImage = true;
+              if (checkUserImage) {
+                Log.i("Debug", "will run verifytask... ");
+//                todo: preprocess frame
+//                Size size = myCamera.getParameters().getPreviewSize(); //Get the preview size
+//                final int w = size.width; //width
+//                final int h = size.height;
+//                final YuvImage image = new YuvImage(mData, ImageFormat.NV21, w, h, null);
+//                ByteArrayOutputStream os = new ByteArrayOutputStream(mData.length);
+//                if(!image.compressToJpeg(new Rect(0, 0, w, h), 100, os)){
+//                  return null;
+//                }
+                byte[] d = convertYuvToJpeg(dataCopy, cameraView);
+
+                if (d != null) {
+                  Log.i("Debug", "byte converted lenth=" + d.length);
+                  Bitmap bitmap = BitmapFactory.decodeByteArray(d, 0, d.length);
+                  Log.i("Debug", "bitmap converted lenth=" + bitmap.getByteCount());
+                } else {
+                  Log.i("Debug", "byte converted lenth=" + d);
+                }
+//                Bitmap bmp = BitmapFactory.decodeByteArray(tmp, 0,tmp.length);
+                //                todo: get user image:
+                String dest_fake2 = "/User/obama.jpg";
+                String dest_fake1 = "/User/taylor.jpg";
+//                ByteBuffer input1= ImageUtils.getInputFromColorImage(
+//                        mThemedReactContext.getFilesDir().getAbsolutePath()+dest_fake2);
+                String userImagePath = mThemedReactContext.getFilesDir().getAbsolutePath() + dest_fake2;
+                String user0ImagePath = mThemedReactContext.getFilesDir().getAbsolutePath() + dest_fake1;
+                FaceVerifierAsyncTaskDelegate delegate1 = (FaceVerifierAsyncTaskDelegate) cameraView;
+//                new VerifyFaceTask(delegate1, mFaceVerifier, userImagePath,
+//                        data, width, height, correctRotation,
+//                        getResources().getDisplayMetrics().density,
+//                        getFacing(), getWidth(), getHeight(),
+//                        mPaddingX, mPaddingY).execute();
+                new FaceVerifierAsyncTask(delegate1, mFaceVerifier,
+                        userImagePath, user0ImagePath,
+                        d, width, height, correctRotation,
+                        getResources().getDisplayMetrics().density,
+                        getFacing(), getWidth(), getHeight(),
+                        mPaddingX, mPaddingY).execute();
+              }
+            }
 //          faceDetectorTaskLock = false;
             // Log.i("Debug", String.format("RNCameraView onFramePreview detectface asynccalled"));
           }
@@ -236,7 +331,26 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     });
   }
 
-   // =============<<<<<<<<<<<<<<<<< check here
+  public byte[] convertYuvToJpeg(byte[] data, CameraView camera) {
+    try {
+      YuvImage image = new YuvImage(data, ImageFormat.NV21,
+              camera.getPreviewSize().getWidth(),
+              camera.getPreviewSize().getHeight(),
+              null);
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      Rect rect = new Rect(0, 0,
+              camera.getPreviewSize().getWidth(),
+              camera.getPreviewSize().getHeight());
+      //set quality
+      int quality = 100;
+      image.compressToJpeg(rect, quality, baos);
+      return baos.toByteArray();
+    } catch (Exception e) {
+    }
+    return null;
+  }
+
+  // =============<<<<<<<<<<<<<<<<< check here
   @Override
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
     View preview = getView();
@@ -289,7 +403,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     this.mDetectedImageInEvent = detectedImageInEvent;
   }
 
-   // =============<<<<<<<<<<<<<<<<< check here
+  // =============<<<<<<<<<<<<<<<<< check here
   public void takePicture(final ReadableMap options, final Promise promise, final File cacheDirectory) {
     mBgHandler.post(new Runnable() {
       @Override
@@ -299,8 +413,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         mPictureTakenDirectories.put(promise, cacheDirectory);
 
         try {
-           // =============<<<<<<<<<<<<<<<<< check here
+          // =============<<<<<<<<<<<<<<<<< check here
           Log.i("Debug","CameraView takePicture call: super.takePicure");
+//          todo: save to the documentdir location
           RNCameraView.super.takePicture(options);
         } catch (Exception e) {
           mPictureTakenPromises.remove(promise);
@@ -399,6 +514,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     final byte[] compressedImage;
     if (mDetectedImageInEvent) {
       try {
+//        todo: check this
         // https://stackoverflow.com/a/32793908/122441
         final YuvImage yuvImage = new YuvImage(imageData, ImageFormat.NV21, width, height, null);
         final ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
@@ -464,7 +580,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     return true;
   }
 
-   // =============<<<<<<<<<<<<<<<<< check here
+  // =============<<<<<<<<<<<<<<<<< check here
+
   /**
    * Initial setup of the face detector
    */
@@ -474,6 +591,15 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mFaceDetector.setLandmarkType(mFaceDetectionLandmarks);
     mFaceDetector.setClassificationType(mFaceDetectionClassifications);
     mFaceDetector.setTracking(mTrackingEnabled);
+  }
+  // =============<<<<<<<<<<<<<<<<< check here
+
+  /**
+   * Initial setup of the face verifier
+   */
+  private void setupFaceVerifier() {
+    mFaceVerifier = MyModelModule.getInterpreter();
+
   }
 
   public void setFaceDetectionLandmarks(int landmarks) {
@@ -503,15 +629,24 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       mFaceDetector.setTracking(trackingEnabled);
     }
   }
- // =============<<<<<<<<<<<<<<<<< check here
+
+  // =============<<<<<<<<<<<<<<<<< check here
   public void setShouldDetectFaces(boolean shouldDetectFaces) {
     if (shouldDetectFaces && mFaceDetector == null) {
       setupFaceDetector();
     }
+    if (mFaceVerifier == null) {
+      setupFaceVerifier();
+    }
     this.mShouldDetectFaces = shouldDetectFaces;
+    this.mShouldVerifyFaces = shouldDetectFaces;
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
   }
- // =============<<<<<<<<<<<<<<<<< check here
+
+
+//    RNCameraViewHelper.emitFacesDetectedEvent(this, data);
+
+
   public void onFacesDetected(WritableArray data) {
     if (!mShouldDetectFaces) {
       return;
@@ -592,6 +727,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     if (mDetectedImageInEvent) {
       try {
         // https://stackoverflow.com/a/32793908/122441
+//        check this
+//        todo: convert byte image data into image bitmap?
         final YuvImage yuvImage = new YuvImage(imageData, ImageFormat.NV21, width, height, null);
         final ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
         yuvImage.compressToJpeg(new Rect(0, 0, width, height), 100, imageStream);
@@ -643,8 +780,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   /**
-  *
-  * End Text Recognition */
+   *
+   * End Text Recognition */
 
   @Override
   public void onHostResume() {
@@ -689,12 +826,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     // camera release can be quite expensive. Run in on bg handler
     // and cleanup last once everything has finished
     mBgHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          stop();
-          cleanup();
-        }
-      });
+      @Override
+      public void run() {
+        stop();
+        cleanup();
+      }
+    });
   }
   private void onZoom(float scale){
     float currentZoom=getZoom();
@@ -755,4 +892,35 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   };
 
+  // =============<<<<<<<<<<<<<<<<< check here
+  public void setShouldVerifyFaces(boolean faceVerifierEnabled) {
+  }
+
+  // =============<<<<<<<<<<<<<<<<< check here
+  @Override
+  public void onFaceVerified(float result) {
+//    if (!mShouldVerifyFaces) {
+//      return;
+//    }
+
+    Log.i("Debug", "RNCameraView onFaceVerified " + String.valueOf(result));
+//    RNCameraViewHelper.emitFaceVerifiedEvent(this, result );
+    RNCameraViewHelper.emitFaceVerifiedEvent(this, result);
+  }
+
+  @Override
+  public void onFaceVerificationError() {
+//    if (!mShouldDetectFaces) {
+//      return;
+//    }
+
+    RNCameraViewHelper.emitFaceVerificationErrorEvent(this);
+
+  }
+
+  @Override
+  public void onFaceVerificationTaskCompleted() {
+//    unlock the thread.
+    faceVerifierTaskLock = false;
+  }
 }
