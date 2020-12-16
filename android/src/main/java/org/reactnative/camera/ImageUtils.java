@@ -248,14 +248,7 @@ public class ImageUtils {
         Bitmap resizedBitmap = Bitmap.createBitmap(image, 0, 0,
                 width, height, matrix, true);
 
-// make a Drawable from Bitmap to allow to set the BitMap
-// to the ImageView, ImageButton or what ever
-//        BitmapDrawable bmd = new BitmapDrawable(resizedBitmap);
-//
-//        ImageView imageView = new ImageView(this);
 
-// set the Drawable on the ImageView
-//        imageView.setImageDrawable(bmd);
         return resizedBitmap;
     }
 
