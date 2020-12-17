@@ -45,7 +45,7 @@ import org.reactnative.camera.utils.ObjectUtils;
 
 @SuppressWarnings("deprecation")
 class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
-                                                MediaRecorder.OnErrorListener, Camera.PreviewCallback {
+        MediaRecorder.OnErrorListener, Camera.PreviewCallback {
 
     private static final int INVALID_CAMERA_ID = -1;
 
@@ -62,12 +62,12 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     private static final SparseArrayCompat<String> WB_MODES = new SparseArrayCompat<>();
 
     static {
-      WB_MODES.put(Constants.WB_AUTO, Camera.Parameters.WHITE_BALANCE_AUTO);
-      WB_MODES.put(Constants.WB_CLOUDY, Camera.Parameters.WHITE_BALANCE_CLOUDY_DAYLIGHT);
-      WB_MODES.put(Constants.WB_SUNNY, Camera.Parameters.WHITE_BALANCE_DAYLIGHT);
-      WB_MODES.put(Constants.WB_SHADOW, Camera.Parameters.WHITE_BALANCE_SHADE);
-      WB_MODES.put(Constants.WB_FLUORESCENT, Camera.Parameters.WHITE_BALANCE_FLUORESCENT);
-      WB_MODES.put(Constants.WB_INCANDESCENT, Camera.Parameters.WHITE_BALANCE_INCANDESCENT);
+        WB_MODES.put(Constants.WB_AUTO, Camera.Parameters.WHITE_BALANCE_AUTO);
+        WB_MODES.put(Constants.WB_CLOUDY, Camera.Parameters.WHITE_BALANCE_CLOUDY_DAYLIGHT);
+        WB_MODES.put(Constants.WB_SUNNY, Camera.Parameters.WHITE_BALANCE_DAYLIGHT);
+        WB_MODES.put(Constants.WB_SHADOW, Camera.Parameters.WHITE_BALANCE_SHADE);
+        WB_MODES.put(Constants.WB_FLUORESCENT, Camera.Parameters.WHITE_BALANCE_FLUORESCENT);
+        WB_MODES.put(Constants.WB_INCANDESCENT, Camera.Parameters.WHITE_BALANCE_INCANDESCENT);
     }
 
     private static final int FOCUS_AREA_SIZE_DEFAULT = 300;
@@ -245,6 +245,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             if (mPreview.isReady()) {
                 setUpPreview();
                 if(mShowingPreview){
+                    Log.i("Debug","Camera1 start startCameraPreview...");
                     startCameraPreview();
                 }
             }
@@ -698,6 +699,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     @Override
     void takePicture(final ReadableMap options) {
+//        Log.i("Debug","Camera1 takePicture  ...");
         if (!isCameraOpened()) {
             throw new IllegalStateException(
                     "Camera is not ready. Call start() before takePicture().");
@@ -745,6 +747,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     void takePictureInternal(final ReadableMap options) {
+//        Log.i("Debug","Camera1 takePictureInternal  ...");
         // if not capturing already, atomically set it to true
         if (!mIsRecording.get() && isPictureCaptureInProgress.compareAndSet(false, true)) {
 
@@ -776,7 +779,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
                     @Override
                     public void onPictureTaken(byte[] data, Camera camera) {
-
+//                        Log.i("Debug","Camera1 takePictureInternal onpicturetaken datalength = "+data.length);
                         // this shouldn't be needed and messes up autoFocusPointOfInterest
                         // camera.cancelAutoFocus();
 
@@ -815,6 +818,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 });
             }
             catch(Exception e){
+                Log.i("Debug","Camera1 takePictureInternal onpicturetaken erro..."+e.getMessage());
                 isPictureCaptureInProgress.set(false);
                 throw e;
             }
@@ -1097,16 +1101,16 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         // just make sure we get the right and most suitable value
         if(mPictureSize != null){
             pictureSize = getBestSizeMatch(
-                mPictureSize.getWidth(),
-                mPictureSize.getHeight(),
-                mPictureSizes.sizes(mAspectRatio)
+                    mPictureSize.getWidth(),
+                    mPictureSize.getHeight(),
+                    mPictureSizes.sizes(mAspectRatio)
             );
         }
         else{
             pictureSize = getBestSizeMatch(
-                0,
-                0,
-                mPictureSizes.sizes(mAspectRatio)
+                    0,
+                    0,
+                    mPictureSizes.sizes(mAspectRatio)
             );
         }
 
@@ -1206,7 +1210,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                                         focusMode.equals(Camera.Parameters.FOCUS_MODE_MACRO) ||
                                         focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) ||
                                         focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
-                                ) {
+                        ) {
                             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                             parameters.setFocusAreas(meteringAreas);
                             if (parameters.getMaxNumMeteringAreas() > 0) {
@@ -1296,10 +1300,10 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                         parameters.setFocusAreas(null);
                         parameters.setMeteringAreas(null);
                         try{
-                          mCamera.setParameters(parameters);
+                            mCamera.setParameters(parameters);
                         }
                         catch(RuntimeException e ) {
-                          Log.e("CAMERA_1::", "setParameters failed", e);
+                            Log.e("CAMERA_1::", "setParameters failed", e);
                         }
                     }
 
@@ -1358,12 +1362,12 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      * @return Number of degrees to rotate image in order for it to view correctly.
      */
     private int calcCameraRotation(int screenOrientationDegrees) {
-       if (mCameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-           return (mCameraInfo.orientation + screenOrientationDegrees) % 360;
-       }
-       // back-facing
-       final int landscapeFlip = isLandscape(screenOrientationDegrees) ? 180 : 0;
-       return (mCameraInfo.orientation + screenOrientationDegrees + landscapeFlip) % 360;
+        if (mCameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+            return (mCameraInfo.orientation + screenOrientationDegrees) % 360;
+        }
+        // back-facing
+        final int landscapeFlip = isLandscape(screenOrientationDegrees) ? 180 : 0;
+        return (mCameraInfo.orientation + screenOrientationDegrees + landscapeFlip) % 360;
     }
 
     /**
@@ -1626,7 +1630,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     @Override
     public ArrayList<int[]> getSupportedPreviewFpsRange() {
-      return (ArrayList<int[]>) mCameraParameters.getSupportedPreviewFpsRange();
+        return (ArrayList<int[]>) mCameraParameters.getSupportedPreviewFpsRange();
     }
 
     private boolean isCompatibleWithDevice(int fps) {
@@ -1661,7 +1665,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     @Override
     public void onInfo(MediaRecorder mr, int what, int extra) {
         if ( what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED ||
-              what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
+                what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
             stopRecording();
         }
     }

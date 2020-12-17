@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 
+
 public class ImageUtils {
     //    private static int[][] convertTo2DWithoutUsingGetRGB(Buffer image) {
 //
@@ -62,21 +63,21 @@ public class ImageUtils {
 //
 //        return result;
 //    }
-    public static ByteBuffer getInputFromColorImage(String imagePath) {
+    public static ByteBuffer getInputFromColorImage(String imagePath){
 //        an image classification model with an input shape of [1 224 224 1] floating-point values
-        File imgFile = new File(imagePath);
-        if (!imgFile.exists()) {
+        File imgFile = new  File(imagePath);
+        if(!imgFile.exists()){
             return null;
         }
 
         //read image
         Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-        if (myBitmap == null) {
-            Log.i("Debug", "image file failed to decoded" + imgFile.getAbsolutePath());
+        if(myBitmap == null){
+            Log.i("Debug","image file failed to decoded"+imgFile.getAbsolutePath());
             return null;
         }
         Bitmap bitmap = Bitmap.createScaledBitmap(myBitmap, 112, 112, true);
-        ByteBuffer input = ByteBuffer.allocateDirect(112 * 112 * 4).order(ByteOrder.nativeOrder());
+        ByteBuffer input = ByteBuffer.allocateDirect(112*112*4).order(ByteOrder.nativeOrder());
         for (int y = 0; y < 112; y++) {
             for (int x = 0; x < 112; x++) {
                 int px = bitmap.getPixel(x, y);
@@ -88,34 +89,33 @@ public class ImageUtils {
                 int b = Color.blue(px);
 
                 // normalized to the range [0.0, 1.0] instead.
-                float rf = (r) / 255.0f;
-                float gf = (g) / 255.0f;
-                float bf = (b) / 255.0f;
+                float rf = (r ) / 255.0f;
+                float gf = (g ) / 255.0f;
+                float bf = (b ) / 255.0f;
 
 //                input.putFloat(rf);
 //                input.putFloat(gf);
 //                input.putFloat(bf);
-                input.putFloat((rf + gf + bf) / 3);
+                input.putFloat((rf+gf+bf)/3);
             }
 
         }
         return input;
     }
-
-    public static ByteBuffer getInputFromStream(RNFrame imageFrame) {
+    public static ByteBuffer getInputFromStream(RNFrame imageFrame){
 //        an image classification model with an input shape of [1 224 224 1] floating-point values
         Frame mframe = imageFrame.getFrame();
-        if (mframe == null) {
+        if(mframe == null){
             return null;
         }
         //read image
         Bitmap myBitmap = mframe.getBitmap();
-        if (myBitmap == null) {
-            Log.i("Debug", "failed to get bitmap from frame");
+        if(myBitmap == null){
+            Log.i("Debug","failed to get bitmap from frame");
             return null;
         }
         Bitmap bitmap = Bitmap.createScaledBitmap(myBitmap, 112, 112, true);
-        ByteBuffer input = ByteBuffer.allocateDirect(112 * 112 * 4).order(ByteOrder.nativeOrder());
+        ByteBuffer input = ByteBuffer.allocateDirect(112*112*4).order(ByteOrder.nativeOrder());
         for (int y = 0; y < 112; y++) {
             for (int x = 0; x < 112; x++) {
                 int px = bitmap.getPixel(x, y);
@@ -127,28 +127,28 @@ public class ImageUtils {
                 int b = Color.blue(px);
 
                 // normalized to the range [0.0, 1.0] instead.
-                float rf = (r) / 255.0f;
-                float gf = (g) / 255.0f;
-                float bf = (b) / 255.0f;
+                float rf = (r ) / 255.0f;
+                float gf = (g ) / 255.0f;
+                float bf = (b ) / 255.0f;
 
 //                input.putFloat(rf);
 //                input.putFloat(gf);
 //                input.putFloat(bf);
-                input.putFloat((rf + gf + bf) / 3);
+                input.putFloat((rf+gf+bf)/3);
             }
 
         }
         return input;
     }
 
-    public static ByteBuffer getInputFromBitmap(Bitmap imageBitmap) {
+    public static ByteBuffer getInputFromBitmap(Bitmap imageBitmap){
 
-        if (imageBitmap == null) {
-            Log.i("Debug", "imageBitmap is null");
+        if(imageBitmap == null){
+            Log.i("Debug","imageBitmap is null");
             return null;
         }
         Bitmap bitmap = Bitmap.createScaledBitmap(imageBitmap, 112, 112, true);
-        ByteBuffer input = ByteBuffer.allocateDirect(112 * 112 * 4).order(ByteOrder.nativeOrder());
+        ByteBuffer input = ByteBuffer.allocateDirect(112*112*4).order(ByteOrder.nativeOrder());
         for (int y = 0; y < 112; y++) {
             for (int x = 0; x < 112; x++) {
                 int px = bitmap.getPixel(x, y);
@@ -160,20 +160,19 @@ public class ImageUtils {
                 int b = Color.blue(px);
 
                 // normalized to the range [0.0, 1.0] instead.
-                float rf = (r) / 255.0f;
-                float gf = (g) / 255.0f;
-                float bf = (b) / 255.0f;
+                float rf = (r ) / 255.0f;
+                float gf = (g ) / 255.0f;
+                float bf = (b ) / 255.0f;
 
 //                input.putFloat(rf);
 //                input.putFloat(gf);
 //                input.putFloat(bf);
-                input.putFloat((rf + gf + bf) / 3);
+                input.putFloat((rf+gf+bf)/3);
             }
 
         }
         return input;
     }
-
     //    public static ByteBuffer getInputFromImage(String imagePath){
 ////        an image classification model with an input shape of [1 224 224 3] floating-point values
 //        File imgFile = new  File(imagePath);
@@ -208,7 +207,7 @@ public class ImageUtils {
 //        }
 //        return input;
 //    }
-    public static Bitmap toGrayScale(Bitmap image) {
+    public static Bitmap toGrayScale(Bitmap image){
         int width, height;
         height = image.getHeight();
         width = image.getWidth();
@@ -222,12 +221,10 @@ public class ImageUtils {
         c.drawBitmap(image, 0, 0, paint);
         return bmpGrayscale;
     }
-
-    public static Bitmap rescaleImage(Bitmap image, int width, int height) {
+    public static Bitmap rescaleImage(Bitmap image,int width,int height){
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
-
-    public static Bitmap cutImage(Bitmap image, int x, int y, int faceWidth, int faceHeight) {
+    public static Bitmap cutImage(Bitmap image, int x, int y, int faceWidth, int faceHeight){
 
         int width = image.getWidth();
         int height = image.getHeight();
@@ -248,7 +245,14 @@ public class ImageUtils {
         Bitmap resizedBitmap = Bitmap.createBitmap(image, 0, 0,
                 width, height, matrix, true);
 
+// make a Drawable from Bitmap to allow to set the BitMap
+// to the ImageView, ImageButton or what ever
+//        BitmapDrawable bmd = new BitmapDrawable(resizedBitmap);
+//
+//        ImageView imageView = new ImageView(this);
 
+// set the Drawable on the ImageView
+//        imageView.setImageDrawable(bmd);
         return resizedBitmap;
     }
 

@@ -6,36 +6,26 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.CamcorderProfile;
 import android.os.Build;
-import android.view.ViewGroup;
-
 import androidx.exifinterface.media.ExifInterface;
-
+import android.view.ViewGroup;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.uimanager.UIManagerModule;
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactApplicationContext;
+
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.cameraview.CameraView;
 import com.google.zxing.Result;
-
+import org.reactnative.camera.events.*;
 import org.reactnative.barcodedetector.RNBarcodeDetector;
-import org.reactnative.camera.events.BarCodeReadEvent;
-import org.reactnative.camera.events.BarcodeDetectionErrorEvent;
-import org.reactnative.camera.events.BarcodesDetectedEvent;
-import org.reactnative.camera.events.CameraMountErrorEvent;
-import org.reactnative.camera.events.CameraReadyEvent;
-import org.reactnative.camera.events.FaceDetectionErrorEvent;
-import org.reactnative.camera.events.FaceVerificationErrorEvent;
-import org.reactnative.camera.events.FaceVerifiedEvent;
-import org.reactnative.camera.events.FacesDetectedEvent;
-import org.reactnative.camera.events.PictureSavedEvent;
-import org.reactnative.camera.events.PictureTakenEvent;
-import org.reactnative.camera.events.RecordingEndEvent;
-import org.reactnative.camera.events.RecordingStartEvent;
-import org.reactnative.camera.events.TextRecognizedEvent;
-import org.reactnative.camera.events.TouchEvent;
 import org.reactnative.facedetector.RNFaceDetector;
 
 import java.text.SimpleDateFormat;

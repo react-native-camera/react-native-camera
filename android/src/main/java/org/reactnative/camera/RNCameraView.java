@@ -11,57 +11,51 @@ import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
+import android.hardware.Camera;
 import android.media.CamcorderProfile;
-import android.os.AsyncTask;
 import android.os.Build;
+import androidx.core.content.ContextCompat;
+
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-
-import androidx.core.content.ContextCompat;
-
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.LifecycleEventListener;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableArray;
-import com.facebook.react.bridge.WritableMap;
+import android.os.AsyncTask;
+import com.facebook.react.bridge.*;
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.bridge.ReactContext;
 import com.google.android.cameraview.CameraView;
+import com.google.android.gms.vision.face.Face;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.Result;
-
 import org.reactnative.barcodedetector.RNBarcodeDetector;
-import org.reactnative.camera.tasks.BarCodeScannerAsyncTask;
-import org.reactnative.camera.tasks.BarCodeScannerAsyncTaskDelegate;
-import org.reactnative.camera.tasks.BarcodeDetectorAsyncTask;
-import org.reactnative.camera.tasks.BarcodeDetectorAsyncTaskDelegate;
-import org.reactnative.camera.tasks.FaceDetectorAsyncTask;
-import org.reactnative.camera.tasks.FaceDetectorAsyncTaskDelegate;
+import org.reactnative.camera.tasks.*;
 import org.reactnative.camera.tasks.FaceVerifierAsyncTask;
-import org.reactnative.camera.tasks.FaceVerifierAsyncTaskDelegate;
-import org.reactnative.camera.tasks.PictureSavedDelegate;
-import org.reactnative.camera.tasks.ResolveTakenPictureAsyncTask;
-import org.reactnative.camera.tasks.TextRecognizerAsyncTask;
-import org.reactnative.camera.tasks.TextRecognizerAsyncTaskDelegate;
+import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.facedetector.RNFaceDetector;
+import org.reactnative.frame.RNFrame;
+import org.reactnative.frame.RNFrameFactory;
 import org.tensorflow.lite.Interpreter;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -90,7 +84,7 @@ public class RNCameraView extends CameraView implements
   private boolean invertImageData = false;
   private Boolean mIsRecording = false;
   private Boolean mIsRecordingInterrupted = false;
-  private boolean mUseNativeZoom = false;
+  private boolean mUseNativeZoom=false;
 
   // Concurrency lock for scanners to avoid flooding the runtime
   public volatile boolean barCodeScannerTaskLock = false;
@@ -99,6 +93,7 @@ public class RNCameraView extends CameraView implements
   public volatile boolean faceVerifierTaskLock = false;
   public volatile boolean googleBarcodeDetectorTaskLock = false;
   public volatile boolean textRecognizerTaskLock = false;
+  public volatile boolean takingPictureLock = false;
 
   // Scanning-related properties
   private MultiFormatReader mMultiFormatReader;
@@ -132,6 +127,8 @@ public class RNCameraView extends CameraView implements
   private int mCameraViewHeight = 0;
 
   private long mLastFinish = 0;
+  private String userImageName;
+  private String userImageDir;
 
 
   public RNCameraView(ThemedReactContext themedReactContext) {
@@ -154,20 +151,23 @@ public class RNCameraView extends CameraView implements
       // =============<<<<<<<<<<<<<<<<< check here
       @Override
       public void onPictureTaken(CameraView cameraView, final byte[] data, int deviceOrientation) {
+//        Log.i("Debug","RNCameraView onPictureTaken ...");
         Promise promise = mPictureTakenPromises.poll();
         ReadableMap options = mPictureTakenOptions.remove(promise);
         if (options.hasKey("fastMode") && options.getBoolean("fastMode")) {
           promise.resolve(null);
         }
-        // =============<<<<<<<<<<<<<<<<< check here
         final File cacheDirectory = mPictureTakenDirectories.remove(promise);
+//        Log.i("Debug","RNCameraView onPictureTaken  call resolvetakenpictureasynctask");
         if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
+//          Log.i("Debug","RNCameraView onPictureTaken sdk>11 call resolvetakenpictureasynctask");
           new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
                   .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
           new ResolveTakenPictureAsyncTask(data, promise, options, cacheDirectory, deviceOrientation, RNCameraView.this)
                   .execute();
         }
+//        Log.i("Debug","RNCameraView onPictureTaken emitpicturetakenevent");
         RNCameraViewHelper.emitPictureTakenEvent(cameraView);
       }
 
@@ -229,7 +229,7 @@ public class RNCameraView extends CameraView implements
           new BarCodeScannerAsyncTask(delegate, mMultiFormatReader, data, width, height, mLimitScanArea, mScanAreaX, mScanAreaY, mScanAreaWidth, mScanAreaHeight, mCameraViewWidth, mCameraViewHeight, getAspectRatio().toFloat()).execute();
         }
 
-        if (willCallFaceTask) {
+        if (willCallFaceTask && !takingPictureLock) {
           Calendar calendar = Calendar.getInstance();
 //          calendar.setTime(new Date());
           long mTimeNow = calendar.getTimeInMillis();
@@ -250,55 +250,47 @@ public class RNCameraView extends CameraView implements
                     mPaddingX, mPaddingY).execute();
 //            todo: add face verification here. or in the asynctask
             boolean willCallFaceVerifyTask = true;
-            Log.i("Debug", "check interpreter :  " + mFaceVerifier.toString());
-            if (willCallFaceVerifyTask && mFaceVerifier != null && !faceVerifierTaskLock) {
+//            Log.i("Debug","RNCameraView check interpreter :  "+mFaceVerifier.toString());
+            Log.i("Debug","RNCameraView mshouldverifyfaces = "+mShouldVerifyFaces);
+            if(willCallFaceVerifyTask && mShouldVerifyFaces && mFaceVerifier != null && !faceVerifierTaskLock){
               faceVerifierTaskLock = true;
-//              todo: prepare inputs, pass to the task
-              boolean checkUserImage = true;
-              if (checkUserImage) {
-                Log.i("Debug", "will run verifytask... ");
-//                todo: preprocess frame
-//                Size size = myCamera.getParameters().getPreviewSize(); //Get the preview size
-//                final int w = size.width; //width
-//                final int h = size.height;
-//                final YuvImage image = new YuvImage(mData, ImageFormat.NV21, w, h, null);
-//                ByteArrayOutputStream os = new ByteArrayOutputStream(mData.length);
-//                if(!image.compressToJpeg(new Rect(0, 0, w, h), 100, os)){
-//                  return null;
-//                }
-                byte[] d = convertYuvToJpeg(dataCopy, cameraView);
-
+//              todo: check user image then prepare input:
+              String userImageFile =  mThemedReactContext.getFilesDir().getAbsolutePath()+
+                      "/"+userImageDir+"/"+userImageName+".png";
+              Log.i("Debug","RNCameraView userImageFile: "+userImageFile);
+              File file = new File(userImageFile);
+              if(!file.exists()){
+                Log.i("Debug","RNCameraView userImageFile missed");
+                faceVerifierTaskLock = false;
+              }else {
+                Log.i("Debug","will run verifytask... ");
+                byte[] d = convertYuvToJpeg(dataCopy,cameraView);
                 if (d != null) {
-                  Log.i("Debug", "byte converted lenth=" + d.length);
-                  Bitmap bitmap = BitmapFactory.decodeByteArray(d, 0, d.length);
-                  Log.i("Debug", "bitmap converted lenth=" + bitmap.getByteCount());
-                } else {
-                  Log.i("Debug", "byte converted lenth=" + d);
+//                    Log.i("Debug","byte converted lenth="+d.length);
+                  Bitmap bitmap = BitmapFactory.decodeByteArray(d,0,d.length);
+//                    Log.i("Debug","bitmap converted lenth="+bitmap.getByteCount());
+                }else {
+                  Log.i("Debug","byte converted error lenth="+d);
                 }
-//                Bitmap bmp = BitmapFactory.decodeByteArray(tmp, 0,tmp.length);
-                //                todo: get user image:
-                String dest_fake2 = "/User/obama.jpg";
-                String dest_fake1 = "/User/taylor.jpg";
-//                ByteBuffer input1= ImageUtils.getInputFromColorImage(
-//                        mThemedReactContext.getFilesDir().getAbsolutePath()+dest_fake2);
-                String userImagePath = mThemedReactContext.getFilesDir().getAbsolutePath() + dest_fake2;
-                String user0ImagePath = mThemedReactContext.getFilesDir().getAbsolutePath() + dest_fake1;
+//                  String dest_fake2 = "/User/obama.jpg";
+//                  String dest_fake1 = "/User/taylor.jpg";
+//                  String userImagePath = mThemedReactContext.getFilesDir().getAbsolutePath()+dest_fake2;
+//                  String user0ImagePath = mThemedReactContext.getFilesDir().getAbsolutePath()+dest_fake1;
                 FaceVerifierAsyncTaskDelegate delegate1 = (FaceVerifierAsyncTaskDelegate) cameraView;
-//                new VerifyFaceTask(delegate1, mFaceVerifier, userImagePath,
-//                        data, width, height, correctRotation,
-//                        getResources().getDisplayMetrics().density,
-//                        getFacing(), getWidth(), getHeight(),
-//                        mPaddingX, mPaddingY).execute();
+//                  new FaceVerifierAsyncTask(delegate1, mFaceVerifier,
+//                          userImageFile,user0ImagePath,
+//                          d, width, height, correctRotation,
+//                          getResources().getDisplayMetrics().density,
+//                          getFacing(), getWidth(), getHeight(),
+//                          mPaddingX, mPaddingY).execute();
                 new FaceVerifierAsyncTask(delegate1, mFaceVerifier,
-                        userImagePath, user0ImagePath,
+                        userImageFile,
                         d, width, height, correctRotation,
                         getResources().getDisplayMetrics().density,
                         getFacing(), getWidth(), getHeight(),
                         mPaddingX, mPaddingY).execute();
               }
             }
-//          faceDetectorTaskLock = false;
-            // Log.i("Debug", String.format("RNCameraView onFramePreview detectface asynccalled"));
           }
         }
 
@@ -330,7 +322,6 @@ public class RNCameraView extends CameraView implements
       }
     });
   }
-
   public byte[] convertYuvToJpeg(byte[] data, CameraView camera) {
     try {
       YuvImage image = new YuvImage(data, ImageFormat.NV21,
@@ -364,7 +355,7 @@ public class RNCameraView extends CameraView implements
     int correctHeight;
     int correctWidth;
     this.setBackgroundColor(Color.BLACK);
-    if (orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
       if (ratio * height < width) {
         correctHeight = (int) (width / ratio);
         correctWidth = (int) width;
@@ -404,7 +395,8 @@ public class RNCameraView extends CameraView implements
   }
 
   // =============<<<<<<<<<<<<<<<<< check here
-  public void takePicture(final ReadableMap options, final Promise promise, final File cacheDirectory) {
+  public void takePicture(final ReadableMap options, final Promise promise, final File cacheDirectory, final String fileName) {
+    takingPictureLock = true;
     mBgHandler.post(new Runnable() {
       @Override
       public void run() {
@@ -414,14 +406,15 @@ public class RNCameraView extends CameraView implements
 
         try {
           // =============<<<<<<<<<<<<<<<<< check here
-          Log.i("Debug","CameraView takePicture call: super.takePicure");
+//          Log.i("Debug","RNCameraView takePicture call: super.takePicure");
 //          todo: save to the documentdir location
           RNCameraView.super.takePicture(options);
         } catch (Exception e) {
+          takingPictureLock = false;
           mPictureTakenPromises.remove(promise);
           mPictureTakenOptions.remove(promise);
           mPictureTakenDirectories.remove(promise);
-
+          Log.i("Debug","CameraView takePicture error: "+e.getMessage());
           promise.reject("E_TAKE_PICTURE_FAILED", e.getMessage());
         }
       }
@@ -430,6 +423,7 @@ public class RNCameraView extends CameraView implements
 
   @Override
   public void onPictureSaved(WritableMap response) {
+    takingPictureLock = false;
     RNCameraViewHelper.emitPictureSavedEvent(this, response);
   }
 
@@ -581,7 +575,6 @@ public class RNCameraView extends CameraView implements
   }
 
   // =============<<<<<<<<<<<<<<<<< check here
-
   /**
    * Initial setup of the face detector
    */
@@ -593,15 +586,13 @@ public class RNCameraView extends CameraView implements
     mFaceDetector.setTracking(mTrackingEnabled);
   }
   // =============<<<<<<<<<<<<<<<<< check here
-
   /**
    * Initial setup of the face verifier
    */
   private void setupFaceVerifier() {
-    mFaceVerifier = MyModelModule.getInterpreter();
+    mFaceVerifier =  MyModelModule.getInterpreter();
 
   }
-
   public void setFaceDetectionLandmarks(int landmarks) {
     mFaceDetectionLandmarks = landmarks;
     if (mFaceDetector != null) {
@@ -629,17 +620,15 @@ public class RNCameraView extends CameraView implements
       mFaceDetector.setTracking(trackingEnabled);
     }
   }
-
   // =============<<<<<<<<<<<<<<<<< check here
   public void setShouldDetectFaces(boolean shouldDetectFaces) {
     if (shouldDetectFaces && mFaceDetector == null) {
       setupFaceDetector();
     }
-    if (mFaceVerifier == null) {
+    if(mFaceVerifier == null){
       setupFaceVerifier();
     }
     this.mShouldDetectFaces = shouldDetectFaces;
-    this.mShouldVerifyFaces = shouldDetectFaces;
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
   }
 
@@ -651,16 +640,8 @@ public class RNCameraView extends CameraView implements
     if (!mShouldDetectFaces) {
       return;
     }
-
+//    todo: save face to cut....
     RNCameraViewHelper.emitFacesDetectedEvent(this, data);
-//    try {
-//      Log.i("Debug", "RNCameraView facedetectcompleted, sleep0.5" );
-//      Thread.sleep(500);
-//      faceDetectorTaskLock = false;
-//      Log.i("Debug", "RNCameraView facedetectcompleted done" );
-//    } catch (InterruptedException e) {
-//      e.printStackTrace();
-//    }
   }
 
   public void onFaceDetectionError(RNFaceDetector faceDetector) {
@@ -894,25 +875,25 @@ public class RNCameraView extends CameraView implements
 
   // =============<<<<<<<<<<<<<<<<< check here
   public void setShouldVerifyFaces(boolean faceVerifierEnabled) {
+    mShouldVerifyFaces=faceVerifierEnabled;
   }
-
   // =============<<<<<<<<<<<<<<<<< check here
   @Override
   public void onFaceVerified(float result) {
-//    if (!mShouldVerifyFaces) {
-//      return;
-//    }
+    if (!mShouldVerifyFaces) {
+      return;
+    }
 
-    Log.i("Debug", "RNCameraView onFaceVerified " + String.valueOf(result));
+    Log.i("Debug","RNCameraView onFaceVerified "+String.valueOf(result));
 //    RNCameraViewHelper.emitFaceVerifiedEvent(this, result );
-    RNCameraViewHelper.emitFaceVerifiedEvent(this, result);
+    RNCameraViewHelper.emitFaceVerifiedEvent(this, result );
   }
 
   @Override
-  public void onFaceVerificationError() {
-//    if (!mShouldDetectFaces) {
-//      return;
-//    }
+  public void onFaceVerificationError( ) {
+    if (!mShouldDetectFaces) {
+      return;
+    }
 
     RNCameraViewHelper.emitFaceVerificationErrorEvent(this);
 
@@ -922,5 +903,20 @@ public class RNCameraView extends CameraView implements
   public void onFaceVerificationTaskCompleted() {
 //    unlock the thread.
     faceVerifierTaskLock = false;
+  }
+
+  public void setUserImageName(String userImageName) {
+    this.userImageName = userImageName;
+  }
+
+  public String getUserImageName() {
+    return userImageName;
+  }
+
+  public void setUserImageDir(String userImageDir) {
+    this.userImageDir = userImageDir;
+  }
+  public String getUserImageDir() {
+    return this.userImageDir ;
   }
 }

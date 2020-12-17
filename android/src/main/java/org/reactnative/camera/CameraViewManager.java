@@ -3,27 +3,52 @@ package org.reactnative.camera;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
+import com.facebook.react.bridge.ReactApplicationContext;
 import com.google.android.cameraview.AspectRatio;
 import com.google.android.cameraview.Size;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class CameraViewManager extends ViewGroupManager<RNCameraView> {
-  // todo: add faceVerifyEnable, and other inputs
-  // =============<<<<<<<<<<<<<<<<< check here
-  @ReactProp(name = "path")
-  public void setUserImageDir(RNCameraView view, String userImageDir) {
-    Log.i("Debug",
-            "CameraviewManager userImageDir=" + userImageDir);
+  public enum Events {
+    EVENT_CAMERA_READY("onCameraReady"),
+    EVENT_ON_MOUNT_ERROR("onMountError"),
+    EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
+    EVENT_ON_FACES_DETECTED("onFacesDetected"),
+    // =============<<<<<<<<<<<<<<<<< check here
+    EVENT_ON_FACE_VERIFIED("onFaceVerified"),
+    EVENT_ON_BARCODES_DETECTED("onGoogleVisionBarcodesDetected"),
+    EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
+    // =============<<<<<<<<<<<<<<<<< check here
+    EVENT_ON_FACE_VERIFICATION_ERROR("onFaceVerificationError"),
+    EVENT_ON_BARCODE_DETECTION_ERROR("onGoogleVisionBarcodeDetectionError"),
+    EVENT_ON_TEXT_RECOGNIZED("onTextRecognized"),
+    EVENT_ON_PICTURE_TAKEN("onPictureTaken"),
+    EVENT_ON_PICTURE_SAVED("onPictureSaved"),
+    EVENT_ON_RECORDING_START("onRecordingStart"),
+    EVENT_ON_RECORDING_END("onRecordingEnd"),
+    EVENT_ON_TOUCH("onTouch");
+    // =============<<<<<<<<<<<<<<<<< check here
+
+    private final String mName;
+
+    Events(final String name) {
+      mName = name;
+    }
+
+    @Override
+    public String toString() {
+      return mName;
+    }
   }
 
   private static final String REACT_CLASS = "RNCamera";
@@ -44,6 +69,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   protected RNCameraView createViewInstance(ThemedReactContext themedReactContext) {
     return new RNCameraView(themedReactContext);
   }
+
 
   @Override
   @Nullable
@@ -155,36 +181,43 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setShouldDetectTouches(touchDetectorEnabled);
   }
 
+  // todo: add faceVerifyEnable, and other inputs
+  // =============<<<<<<<<<<<<<<<<< check here
+  @ReactProp(name = "path")
+  public void setUserImageDir(RNCameraView view, String userImageDir) {
+    Log.i("Debug",
+            "CameraviewManager userImageDir="+userImageDir);
+    view.setUserImageDir(userImageDir);
+  }
   @ReactProp(name = "user")
   public void setUserImageName(RNCameraView view, String userImageName) {
     Log.i("Debug",
-            "CameraviewManager userImageName=" + userImageName);
+            "CameraviewManager userImageName="+userImageName);
+    view.setUserImageName(userImageName);
   }
-
   //  todo: pass this to model modul
   @ReactProp(name = "modelURL")
   public void setModelUrl(RNCameraView view, String modelURL) {
     Log.i("Debug",
-            "CameraviewManager modelURL=" + modelURL);
+            "CameraviewManager modelURL="+modelURL);
   }
-
   @ReactProp(name = "modelFileName")
   public void setModelFileName(RNCameraView view, String modelFileName) {
     Log.i("Debug",
-            "CameraviewManager modelFileName=" + modelFileName);
+            "CameraviewManager modelFileName="+modelFileName);
   }
 
   @ReactProp(name = "onFaceVerified")
   public void setFaceVerifier(RNCameraView view, Boolean onFaceVerifyEnabled) {
     Log.i("Debug",
-            "CameraviewManager onFaceVerified enable =" +
+            "CameraviewManager onFaceVerified enable ="+
                     onFaceVerifyEnabled.toString());
-    setFaceVerifying(view, onFaceVerifyEnabled);
+    setFaceVerifying(view,onFaceVerifyEnabled);
   }
 
   @ReactProp(name = "faceDetectorEnabled")
   public void setFaceDetecting(RNCameraView view, boolean faceDetectorEnabled) {
-    Log.i("Debug", "CameraviewManager setFaceDetecting from reactprops " +
+    Log.i("Debug","CameraviewManager setFaceDetecting from reactprops "+
             faceDetectorEnabled);
     view.setShouldDetectFaces(faceDetectorEnabled);
 //    setFaceVerifying(view,faceDetectorEnabled);
@@ -192,41 +225,9 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
 
   @ReactProp(name = "faceVerifierEnabled")
   public void setFaceVerifying(RNCameraView view, boolean faceVerifierEnabled) {
-    Log.i("Debug", "CameraviewManager setFaceVerifying from reactprops " +
+    Log.i("Debug","CameraviewManager setFaceVerifying from reactprops "+
             faceVerifierEnabled);
     view.setShouldVerifyFaces(faceVerifierEnabled);
-  }
-
-  public enum Events {
-    EVENT_CAMERA_READY("onCameraReady"),
-    EVENT_ON_MOUNT_ERROR("onMountError"),
-    EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
-    EVENT_ON_FACES_DETECTED("onFacesDetected"),
-    // =============<<<<<<<<<<<<<<<<< check here
-    EVENT_ON_FACE_VERIFIED("onFaceVerified"),
-    EVENT_ON_BARCODES_DETECTED("onGoogleVisionBarcodesDetected"),
-    EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
-    // =============<<<<<<<<<<<<<<<<< check here
-    EVENT_ON_FACE_VERIFICATION_ERROR("onFaceVerificationError"),
-    EVENT_ON_BARCODE_DETECTION_ERROR("onGoogleVisionBarcodeDetectionError"),
-    EVENT_ON_TEXT_RECOGNIZED("onTextRecognized"),
-    EVENT_ON_PICTURE_TAKEN("onPictureTaken"),
-    EVENT_ON_PICTURE_SAVED("onPictureSaved"),
-    EVENT_ON_RECORDING_START("onRecordingStart"),
-    EVENT_ON_RECORDING_END("onRecordingEnd"),
-    EVENT_ON_TOUCH("onTouch");
-    // =============<<<<<<<<<<<<<<<<< check here
-
-    private final String mName;
-
-    Events(final String name) {
-      mName = name;
-    }
-
-    @Override
-    public String toString() {
-      return mName;
-    }
   }
 
 

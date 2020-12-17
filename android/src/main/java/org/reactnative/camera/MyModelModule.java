@@ -2,47 +2,21 @@ package org.reactnative.camera;
 
 
 // import packages
-
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
-import android.os.AsyncTask;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
-
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Callback;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
-
-import org.reactnative.camera.utils.RNFileUtils;
-import org.tensorflow.lite.Interpreter;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.MappedByteBuffer;
-import java.nio.ReadOnlyBufferException;
-import java.nio.channels.FileChannel;
-import java.util.HashMap;
-import java.util.Map;
-
 //async task
+import android.content.res.AssetFileDescriptor;
+import android.os.AsyncTask;
 // use all the react bridge code from facebook to expose this class as API to react javascript
 //import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactApplicationContext;
 //import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 // import org.reactnative.camera.Mymodel;
 // tensorflow
 //import org.tensorflow.lite.Interpreter;
@@ -55,6 +29,48 @@ import java.util.Map;
 //import org.tensorflow.lite.support.model.Model;
 
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.MappedByteBuffer;
+import java.nio.ReadOnlyBufferException;
+import java.nio.channels.FileChannel;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.RectF;
+import android.os.Environment;
+import android.os.Trace;
+import android.util.Log;
+
+
+import org.reactnative.camera.utils.RNFileUtils;
+import org.tensorflow.lite.DataType;
+import org.tensorflow.lite.support.common.FileUtil;
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
+import org.tensorflow.lite.Interpreter;
+import org.tensorflow.lite.support.tensorbuffer.TensorBufferFloat;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Vector;
+
+
+
 // extend react module
 public class MyModelModule extends ReactContextBaseJavaModule {
     //    constructor from react app context
@@ -65,6 +81,9 @@ public class MyModelModule extends ReactContextBaseJavaModule {
         new BackgroundLoadTask().execute();
 //        mReactNativeEventEmitter =  new ReactNativeEventEmitter(reactContext);
     }
+
+
+
     String model_url = "https://tam-terraform-state.s3-ap-southeast-1.amazonaws.com/FRAA/mymodel112.tflite";
     String dest_url = "/mymodel.tflite";
     String fake1_url = "https://tam-terraform-state.s3-ap-southeast-1.amazonaws.com/images/taylor.jpg";
@@ -72,6 +91,7 @@ public class MyModelModule extends ReactContextBaseJavaModule {
     String fake2_url = "https://tam-terraform-state.s3-ap-southeast-1.amazonaws.com/images/obama.jpg";
     String dest_fake2 = "/User/obama.jpg";
     protected static Interpreter interpreter = null;
+
     String modelString = "";
     ReactApplicationContext mContext;
     //    ReactNativeEventEmitter mReactNativeEventEmitter = ReactNativeEventEmitter.getInstance();
@@ -79,9 +99,8 @@ public class MyModelModule extends ReactContextBaseJavaModule {
     protected Object output = null;
     protected Object input = null;
     private static final String MODEL_NAME = "mymodel.tflite";
-    /**
-     * Dimensions of inputs.
-     */
+
+    /** Dimensions of inputs. */
     private static final int DIM_BATCH_SIZE = 1;
 
     private static final int DIM_PIXEL_SIZE = 3;
@@ -89,10 +108,10 @@ public class MyModelModule extends ReactContextBaseJavaModule {
     // static final int DIM_IMG_SIZE_X = 92;
     static final int DIM_IMG_SIZE_X = 112;
     static final int DIM_IMG_SIZE_Y = 112;
-
-    public static Interpreter getInterpreter() {
+    public static Interpreter getInterpreter(){
         return interpreter;
     }
+
 
     @NonNull
     @Override
@@ -109,7 +128,7 @@ public class MyModelModule extends ReactContextBaseJavaModule {
     public void loadmodel() {
 //        BackgroundLoadTask backgroundLoadTask = new BackgroundLoadTask();
 //        backgroundLoadTask.execute();
-    // Declaring the capacity of the ByteBuffer
+        // Declaring the capacity of the ByteBuffer
         int capacity = 50176;
         Log.i("Debug","mymodelmodule run testEvent");
         WritableMap params = Arguments.createMap();
@@ -151,7 +170,7 @@ public class MyModelModule extends ReactContextBaseJavaModule {
 //             // Releases model resources if no longer used.
 //             model.close();
         }
-         catch (IllegalArgumentException e) {
+        catch (IllegalArgumentException e) {
 
             System.out.println("IllegalArgumentException catched");
         }
@@ -192,9 +211,9 @@ public class MyModelModule extends ReactContextBaseJavaModule {
 //        File modelFile = new File(classLoader.getResource("mymodel.tflite").getFile());
 //        Log.i("Debug", String.format("MyModelModule loadmodel file path "+ url));
 //            File modelFile = new File(url.getPath());
-            // File modelFile = new File(mContext.getFilesDir().getAbsolutePath()+"/mymodel.tflite");
+        // File modelFile = new File(mContext.getFilesDir().getAbsolutePath()+"/mymodel.tflite");
 //            System.out.println(directory.getAbsolutePath());
-            // Log.i("Debug", String.format("MyModelModule loadmodel file path: %s", modelFile.getAbsolutePath()));
+        // Log.i("Debug", String.format("MyModelModule loadmodel file path: %s", modelFile.getAbsolutePath()));
 //             try{
 
 //                 interpreter = new Interpreter(modelFile);
@@ -395,14 +414,16 @@ public class MyModelModule extends ReactContextBaseJavaModule {
         }
     }
 
-    private void sendEvent(String eventName, WritableMap params) {
+    public void sendEvent(String eventName, WritableMap params) {
 //        mReactNativeEventEmitter.sendEvent(eventName,params);
 //        ReactNativeEventEmitter.getInstance().sendEvent(eventName,params);
-        getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(eventName, params);
+//        getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(eventName, params);
+        mContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(eventName, params);
+
     }
 
     //    helper internal private class
-    private class BackgroundLoadTask extends AsyncTask<String, String, String> {
+    class BackgroundLoadTask extends AsyncTask<String, String, String> {
 
         @Override
         protected String doInBackground(String... params) {
@@ -426,8 +447,9 @@ public class MyModelModule extends ReactContextBaseJavaModule {
             }
             if(null != interpreter) {
                 Log.i("Debug","model success: "+interpreter.toString());
-                Log.i("Debug","input count = "+interpreter.getInputTensorCount());
-                Log.i("Debug","input count = "+interpreter.getOutputTensorCount());
+//                Log.i("Debug","input count = "+interpreter.getInputTensorCount());
+//                Log.i("Debug","input count = "+interpreter.getOutputTensorCount());
+
 ////                # Print input shape and type
 //                        inputs = interpreter.get_input_details()
 //                print('{} input(s):'.format(len(inputs)))
