@@ -293,7 +293,7 @@ public class RNCameraView extends CameraView implements
 //                          mPaddingX, mPaddingY).execute();
                 new FaceVerifierAsyncTask(delegate1, mFaceVerifier,
                         userImageFile,
-                        d, width, height, correctRotation,
+                        d, mLastFace, width, height, correctRotation,
                         getResources().getDisplayMetrics().density,
                         getFacing(), getWidth(), getHeight(),
                         mPaddingX, mPaddingY).execute();

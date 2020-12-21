@@ -20,6 +20,7 @@ public class FaceVerifierAsyncTask extends android.os.AsyncTask<Void, Void, Floa
     private ByteBuffer userImageBuffer;
     //    private ByteBuffer user0ImageBuffer;
     private byte[] mImageData;
+    private HashMap<String,Float> mLastFace =new HashMap<>();
     private int mWidth;
     private int mHeight;
     private int mRotation;
@@ -35,8 +36,10 @@ public class FaceVerifierAsyncTask extends android.os.AsyncTask<Void, Void, Floa
             FaceVerifierAsyncTaskDelegate delegate,
             Interpreter faceVerifier,
             String userImagePath,
+
 //            String user0ImagePath,
             byte[] imageData,
+            HashMap<String,Float> lastFace,
             int width,
             int height,
             int rotation,
@@ -53,6 +56,7 @@ public class FaceVerifierAsyncTask extends android.os.AsyncTask<Void, Void, Floa
 //        user0ImageBuffer= ImageUtils.getInputFromColorImage(user0ImagePath);
 
         mImageData = imageData;
+        mLastFace = lastFace;
         mWidth = width;
         mHeight = height;
         mRotation = rotation;
@@ -77,6 +81,16 @@ public class FaceVerifierAsyncTask extends android.os.AsyncTask<Void, Void, Floa
         // =============<<<<<<<<<<<<<<<<< check here
         int bufferSize =  java.lang.Float.SIZE / java.lang.Byte.SIZE;
         Bitmap b = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
+//        todo:cut face
+        if(mLastFace.containsKey("faceID")){
+            int largerSize = mLastFace.get("width") > mLastFace.get("height")?
+                    mLastFace.get("width").intValue():
+                    mLastFace.get("height").intValue();
+            b = ImageUtils.cutFace(b,
+                    mLastFace.get("x").intValue(),mLastFace.get("y").intValue(),
+                    largerSize,largerSize);
+        }
+
         ByteBuffer inputFromFrameBitmap= ImageUtils.getInputFromBitmap(b);;
         if(inputFromFrameBitmap == null) {
             Log.i("Debug", "FaceVerifierAsyncTask inputFromFrameBitmap from bitmap is " + inputFromFrameBitmap);

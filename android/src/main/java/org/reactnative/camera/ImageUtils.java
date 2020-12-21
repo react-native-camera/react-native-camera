@@ -224,6 +224,13 @@ public class ImageUtils {
     public static Bitmap rescaleImage(Bitmap image,int width,int height){
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
+
+    public static Bitmap cutFace(Bitmap image,int faceX,int faceY, int faceWidth, int faceHeight){
+        return Bitmap.createBitmap(image,faceX,faceY,faceWidth,faceHeight);
+    }
+
+
+
     public static Bitmap cutImage(Bitmap image, int x, int y, int faceWidth, int faceHeight){
 
         int width = image.getWidth();
@@ -242,7 +249,7 @@ public class ImageUtils {
         matrix.postScale(scaleWidth, scaleHeight);
 
 // recreate the new Bitmap
-        Bitmap resizedBitmap = Bitmap.createBitmap(image, 0, 0,
+        Bitmap resizedBitmap = Bitmap.createBitmap(image, x, y,
                 width, height, matrix, true);
 
 // make a Drawable from Bitmap to allow to set the BitMap
