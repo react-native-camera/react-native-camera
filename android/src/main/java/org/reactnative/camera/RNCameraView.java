@@ -116,6 +116,7 @@ public class RNCameraView extends CameraView implements
   private boolean mTrackingEnabled = true;
   private int mPaddingX;
   private int mPaddingY;
+  private HashMap<String,Float> mLastFace;
 
   // Limit Android Scan Area
   private boolean mLimitScanArea = false;
@@ -135,6 +136,7 @@ public class RNCameraView extends CameraView implements
     super(themedReactContext, true);
     mThemedReactContext = themedReactContext;
     themedReactContext.addLifecycleEventListener(this);
+    mLastFace=new HashMap<>();
 //    MyModelModule myModelModule = new MyModelModule((ReactContext) this.getContext());
 
     addCallback(new Callback() {
@@ -253,6 +255,12 @@ public class RNCameraView extends CameraView implements
 //            Log.i("Debug","RNCameraView check interpreter :  "+mFaceVerifier.toString());
             Log.i("Debug","RNCameraView mshouldverifyfaces = "+mShouldVerifyFaces);
             if(willCallFaceVerifyTask && mShouldVerifyFaces && mFaceVerifier != null && !faceVerifierTaskLock){
+              Log.i("Debug","RNCameraView lastFaceDetected: "+mLastFace.get("faceID"));
+              Log.i("Debug",String.format("RNCameraView x= %.2f ; y= %.2f: ",
+                      mLastFace.get("x"),mLastFace.get("y")));
+              Log.i("Debug",String.format("RNCameraView w= %.2f ; h= %.2f: ",
+                      mLastFace.get("width"),mLastFace.get("height")));
+
               faceVerifierTaskLock = true;
 //              todo: check user image then prepare input:
               String userImageFile =  mThemedReactContext.getFilesDir().getAbsolutePath()+
@@ -591,7 +599,6 @@ public class RNCameraView extends CameraView implements
    */
   private void setupFaceVerifier() {
     mFaceVerifier =  MyModelModule.getInterpreter();
-
   }
   public void setFaceDetectionLandmarks(int landmarks) {
     mFaceDetectionLandmarks = landmarks;
@@ -643,6 +650,14 @@ public class RNCameraView extends CameraView implements
 //    todo: save face to cut....
     RNCameraViewHelper.emitFacesDetectedEvent(this, data);
   }
+
+  public void saveFaceDetected(HashMap<String, Float> face) {
+    if (face != null){
+      mLastFace = face;
+    }
+  }
+
+
 
   public void onFaceDetectionError(RNFaceDetector faceDetector) {
     if (!mShouldDetectFaces) {
