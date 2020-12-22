@@ -152,7 +152,7 @@
     // NSString *FileDB = [[[NSBundle mainBundle]resourcePath]stringByAppendingPathComponent:DataName];
     if (success)
     {
-        NSLog(@"File Exist");
+        // NSLog(@"File Exist");
         
         return;
     }

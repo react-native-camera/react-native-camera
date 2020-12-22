@@ -317,7 +317,7 @@
             UInt8 g = *(pixelPtr + 1);  // 緑
             UInt8 b = *(pixelPtr + 0);  // 青
             
-            NSLog(@"x:%ld y:%ld R:%d G:%d B:%d", (long)x, (long)y, r, g, b);
+            // NSLog(@"x:%ld y:%ld R:%d G:%d B:%d", (long)x, (long)y, r, g, b);
         }
     }
 }
@@ -333,7 +333,7 @@
             UInt8*  pixelPtr = data + (int)(y) * bytesPerRow + (int)(x) * 4;
             float fReadValue = 0;
             memcpy(&fReadValue, pixelPtr, sizeof(fReadValue));
-            NSLog(@"x:%ld y:%ld gray=%f", (long)x, (long)y, fReadValue);
+            // NSLog(@"x:%ld y:%ld gray=%f", (long)x, (long)y, fReadValue);
         }
     }
 }

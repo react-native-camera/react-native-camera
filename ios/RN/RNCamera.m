@@ -1352,7 +1352,7 @@ BOOL _sessionInterrupted = NO;
             }
         }else{
             //download model from URL
-            NSLog(@"download model %@ from %@", _ModelFileName, _ModelURL);
+            // NSLog(@"download model %@ from %@", _ModelFileName, _ModelURL);
             self.canVerifyFaces = false;
             // dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 // [self downloadModelFile: _ModelFileName fromURL:_ModelURL];
