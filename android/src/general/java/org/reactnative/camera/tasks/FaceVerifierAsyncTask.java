@@ -73,8 +73,10 @@ public class FaceVerifierAsyncTask extends android.os.AsyncTask<Void, Void, Floa
      * */
     @Override
     protected Float doInBackground(Void... voids) {
-        if (isCancelled() || mDelegate == null || mFaceVerifier == null ) {
-            return null;
+        if (isCancelled() || mDelegate == null || mFaceVerifier == null || userImageBuffer == null) {
+            Log.i("Debug", "FaceVerifierAsyncTask something is null ");
+            return (float) 400;
+//            return null;
         }
 //        Log.i("Debug","mImageData length="+mImageData.length);
 //        int bitperpixel = ImageFormat.getBitsPerPixel(ImageFormat.NV21);
@@ -143,11 +145,9 @@ public class FaceVerifierAsyncTask extends android.os.AsyncTask<Void, Void, Floa
             mDelegate.onFaceVerificationError();
         } else {
             Log.i("Debug","faceverifierasynctask onpostexecute result = "+String.valueOf(result));
-//            if (result > 0) {
-            //      todo: add face verification task here
 
             mDelegate.onFaceVerified(result);
-//            }
+
             mDelegate.onFaceVerificationTaskCompleted();
         }
 

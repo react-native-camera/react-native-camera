@@ -671,7 +671,7 @@ public class RNCameraView extends CameraView implements
     if (!mShouldDetectFaces) {
       return;
     }
-
+    faceDetectorTaskLock = false;
     RNCameraViewHelper.emitFaceDetectionErrorEvent(this, faceDetector);
 
   }
@@ -917,7 +917,7 @@ public class RNCameraView extends CameraView implements
     if (!mShouldDetectFaces) {
       return;
     }
-
+    faceVerifierTaskLock = false;
     RNCameraViewHelper.emitFaceVerificationErrorEvent(this);
 
   }

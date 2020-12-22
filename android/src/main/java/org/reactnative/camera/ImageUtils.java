@@ -351,11 +351,11 @@ public class ImageUtils {
         FileOutputStream fOut;
         try {
             fOut = new FileOutputStream(file,false);
-            imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            boolean a = imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
             fOut.flush();
             fOut.close();
             imageBitmap.recycle();
-            Log.i("Debug","FileFaceDetectionAsyncTask saveFaceImage success");
+            Log.i("Debug","FileFaceDetectionAsyncTask saveFaceImage success"+a);
         } catch (Exception e) {
             Log.i("Debug",e.getMessage());
         }
