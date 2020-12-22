@@ -8,13 +8,18 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.media.ExifInterface;
 import android.util.Log;
 
 import com.google.android.gms.vision.Frame;
 
+import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.frame.RNFrame;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -224,12 +229,32 @@ public class ImageUtils {
     public static Bitmap rescaleImage(Bitmap image,int width,int height){
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
+    public static void rescaleSavedImage(String imagePath,int width){
+        Bitmap imageBitmap = loadImageBitmap(imagePath);
+        imageBitmap = resizeBitmap(imageBitmap,width);
+        saveBitmapToFile(imageBitmap,imagePath);
+
+    }
+
+    public static Bitmap loadImageBitmap(String imagePath){
+        File imgFile = new  File(imagePath);
+        if(!imgFile.exists()){
+            return null;
+        }
+
+        //read image
+        Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+        if(myBitmap == null){
+            Log.i("Debug","image file failed to decoded"+imgFile.getAbsolutePath());
+            return null;
+        }
+        Log.i("Debug","ImageUtils imagebitmap w.h = "+myBitmap.getWidth() + " x "+myBitmap.getHeight());
+        return myBitmap;
+    }
 
     public static Bitmap cutFace(Bitmap image,int faceX,int faceY, int faceWidth, int faceHeight){
         return Bitmap.createBitmap(image,faceX,faceY,faceWidth,faceHeight);
     }
-
-
 
     public static Bitmap cutImage(Bitmap image, int x, int y, int faceWidth, int faceHeight){
 
@@ -261,6 +286,79 @@ public class ImageUtils {
 // set the Drawable on the ImageView
 //        imageView.setImageDrawable(bmd);
         return resizedBitmap;
+    }
+
+    public static Bitmap rotateBitmap(Bitmap source, int angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
+    private static int exifToDegrees(int exifOrientation) {
+        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) { return 90; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {  return 180; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  return 270; }
+        return 0;
+    }
+    private static int getImageDegreeOfRotation(int orientation) {
+        int rotationDegrees = 0;
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotationDegrees = 90;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotationDegrees = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotationDegrees = 270;
+                break;
+        }
+        return rotationDegrees;
+    }
+
+    public static Bitmap resizeBitmap(Bitmap bm, int newWidth) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleRatio = (float) newWidth / (float) width;
+
+        return Bitmap.createScaledBitmap(bm, newWidth, (int) (height * scaleRatio), true);
+    }
+
+    public static Bitmap flipHorizontally(Bitmap source) {
+        Matrix matrix = new Matrix();
+        matrix.preScale(-1.0f, 1.0f);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
+
+    // Get rotation degrees from Exif orientation enum
+
+    public static int getImageRotation(int orientation) {
+        int rotationDegrees = 0;
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotationDegrees = 90;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotationDegrees = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotationDegrees = 270;
+                break;
+        }
+        return rotationDegrees;
+    }
+    public static void saveBitmapToFile(Bitmap imageBitmap, String path){
+        File file = new File(path);
+        FileOutputStream fOut;
+        try {
+            fOut = new FileOutputStream(file,false);
+            imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            fOut.flush();
+            fOut.close();
+            imageBitmap.recycle();
+            Log.i("Debug","FileFaceDetectionAsyncTask saveFaceImage success");
+        } catch (Exception e) {
+            Log.i("Debug",e.getMessage());
+        }
     }
 
 }

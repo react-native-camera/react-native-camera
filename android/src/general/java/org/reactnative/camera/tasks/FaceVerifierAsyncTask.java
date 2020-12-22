@@ -76,18 +76,18 @@ public class FaceVerifierAsyncTask extends android.os.AsyncTask<Void, Void, Floa
         if (isCancelled() || mDelegate == null || mFaceVerifier == null ) {
             return null;
         }
-        Log.i("Debug","mImageData length="+mImageData.length);
-        int bitperpixel = ImageFormat.getBitsPerPixel(ImageFormat.NV21);
+//        Log.i("Debug","mImageData length="+mImageData.length);
+//        int bitperpixel = ImageFormat.getBitsPerPixel(ImageFormat.NV21);
         // =============<<<<<<<<<<<<<<<<< check here
         int bufferSize =  java.lang.Float.SIZE / java.lang.Byte.SIZE;
         Bitmap b = BitmapFactory.decodeByteArray(mImageData, 0, mImageData.length);
-//        todo:cut face
+        int extraBits = 10;
         if(mLastFace.containsKey("faceID")){
             int largerSize = mLastFace.get("width") > mLastFace.get("height")?
-                    mLastFace.get("width").intValue():
-                    mLastFace.get("height").intValue();
+                    mLastFace.get("width").intValue()+2*extraBits:
+                    mLastFace.get("height").intValue()+2*extraBits;
             b = ImageUtils.cutFace(b,
-                    mLastFace.get("x").intValue(),mLastFace.get("y").intValue(),
+                    mLastFace.get("x").intValue()-extraBits,mLastFace.get("y").intValue()-extraBits,
                     largerSize,largerSize);
         }
 
@@ -103,11 +103,11 @@ public class FaceVerifierAsyncTask extends android.os.AsyncTask<Void, Void, Floa
         outputs.put(0, out);
 
         mFaceVerifier.runForMultipleInputsOutputs(inputs,outputs);
-        ByteBuffer result2 = (ByteBuffer) outputs.get(0);
-        Log.i("Debug",String.format("verifytask  result = %.4f",result2.getFloat(0)));
+        ByteBuffer result = (ByteBuffer) outputs.get(0);
+//        Log.i("Debug",String.format("verifytask  result = %.4f",result.getFloat(0)));
 //        float result = 0;
 
-        return result2.getFloat(0);
+        return result.getFloat(0);
     }
 
     /**

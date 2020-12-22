@@ -88,8 +88,7 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
                         if(faces.size()>0){
 
                           mDelegate.onFacesDetected(facesList);
-                          //todo: save the first face info to cut later
-                          faces.get(0);
+
                           mDelegate.saveFaceDetected(
                                   FaceDetectorUtils.getFirstFaceData(
                                           faces.get(0), mScaleX, mScaleY,

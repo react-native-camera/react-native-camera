@@ -262,7 +262,6 @@ public class RNCameraView extends CameraView implements
                       mLastFace.get("width"),mLastFace.get("height")));
 
               faceVerifierTaskLock = true;
-//              todo: check user image then prepare input:
               String userImageFile =  mThemedReactContext.getFilesDir().getAbsolutePath()+
                       "/"+userImageDir+"/"+userImageName+".png";
               Log.i("Debug","RNCameraView userImageFile: "+userImageFile);
@@ -275,7 +274,17 @@ public class RNCameraView extends CameraView implements
                 byte[] d = convertYuvToJpeg(dataCopy,cameraView);
                 if (d != null) {
 //                    Log.i("Debug","byte converted lenth="+d.length);
-                  Bitmap bitmap = BitmapFactory.decodeByteArray(d,0,d.length);
+//                    Bitmap bitmap = BitmapFactory.decodeByteArray(d,0,d.length);
+//
+//                    if(mLastFace != null && mLastFace.get("faceID") != null){
+//                      int largerEdge = mLastFace.get("width") > mLastFace.get("height") ?
+//                              mLastFace.get("width").intValue() :
+//                              mLastFace.get("height").intValue();
+//                      bitmap = ImageUtils.cutFace(bitmap,
+//                              mLastFace.get("x").intValue(), mLastFace.get("y").intValue(),
+//                              largerEdge,largerEdge);
+//                    }
+
 //                    Log.i("Debug","bitmap converted lenth="+bitmap.getByteCount());
                 }else {
                   Log.i("Debug","byte converted error lenth="+d);
@@ -415,7 +424,6 @@ public class RNCameraView extends CameraView implements
         try {
           // =============<<<<<<<<<<<<<<<<< check here
 //          Log.i("Debug","RNCameraView takePicture call: super.takePicure");
-//          todo: save to the documentdir location
           RNCameraView.super.takePicture(options);
         } catch (Exception e) {
           takingPictureLock = false;
