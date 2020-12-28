@@ -140,6 +140,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setPlaySoundOnCapture(playSoundOnCapture);
   }
 
+  @ReactProp(name = "playSoundOnRecord")
+  public void setPlaySoundOnRecord(RNCameraView view, boolean playSoundOnRecord) {
+    view.setPlaySoundOnRecord(playSoundOnRecord);
+  }
+
   @ReactProp(name = "barCodeTypes")
   public void setBarCodeTypes(RNCameraView view, ReadableArray barCodeTypes) {
     if (barCodeTypes == null) {

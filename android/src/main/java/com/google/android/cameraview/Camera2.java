@@ -268,6 +268,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     private Boolean mPlaySoundOnCapture = false;
 
+    private Boolean mPlaySoundOnRecord = false;
+
     private Surface mPreviewSurface;
 
     private Rect mInitialCropRegion;
@@ -598,6 +600,9 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                 // same TODO as onVideoRecorded
                 mCallback.onRecordingStart(mVideoPath, 0, 0);
 
+                if (mPlaySoundOnRecord) {
+                    sound.play(MediaActionSound.START_VIDEO_RECORDING);
+                }
                 return true;
             } catch (CameraAccessException | IOException e) {
                 e.printStackTrace();
@@ -702,6 +707,11 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     @Override
     void setPlaySoundOnCapture(boolean playSoundOnCapture) {
         mPlaySoundOnCapture = playSoundOnCapture;
+    }
+
+    @Override
+    void setPlaySoundOnRecord(boolean playSoundOnRecord) {
+        mPlaySoundOnRecord = playSoundOnRecord;
     }
 
     @Override
@@ -1428,6 +1438,9 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         mMediaRecorder = null;
 
         mCallback.onRecordingEnd();
+        if (mPlaySoundOnRecord) {
+            sound.play(MediaActionSound.STOP_VIDEO_RECORDING);
+        }
 
         if (mVideoPath == null || !new File(mVideoPath).exists()) {
             // @TODO: implement videoOrientation and deviceOrientation calculation
