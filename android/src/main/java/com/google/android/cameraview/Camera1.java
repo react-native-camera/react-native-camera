@@ -1535,13 +1535,18 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     @Override
+    public boolean getPlaySoundOnCapture(){
+        return mPlaySoundOnCapture;
+    }
+
+    @Override
     void setPlaySoundOnRecord(boolean playSoundOnRecord) {
         mPlaySoundOnRecord = playSoundOnRecord;
     }
 
     @Override
-    public boolean getPlaySoundOnCapture(){
-        return mPlaySoundOnCapture;
+    boolean getPlaySoundOnRecord() {
+        return mPlaySoundOnRecord;
     }
 
     @Override
