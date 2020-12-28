@@ -1,5 +1,5 @@
 #import "RNFaceDetectorModuleMLKit.h"
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+#if __has_include(<MLKitFaceDetection/MLKitFaceDetection.h>)
 #import "RNFileSystem.h"
 #import "RNImageUtils.h"
 

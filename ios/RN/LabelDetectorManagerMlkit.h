@@ -3,6 +3,7 @@
 #if __has_include(<MLKitImageLabeling/MLKitImageLabeling.h>)
   #import <MLKitVision/MLKitVision.h>
   #import <MLKitImageLabeling/MLKitImageLabeling.h>
+  #import <MLKitImageLabelingCommon/MLKitImageLabelingCommon.h>
 #endif
 
 @interface LabelDetectorManagerMlkit : NSObject
