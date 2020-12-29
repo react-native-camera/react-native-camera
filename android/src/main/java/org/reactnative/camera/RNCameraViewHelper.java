@@ -14,6 +14,14 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.uimanager.UIManagerModule;
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactApplicationContext;
+
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.cameraview.CameraView;
 import com.google.zxing.Result;
 import org.reactnative.camera.events.*;
@@ -23,138 +31,140 @@ import org.reactnative.facedetector.RNFaceDetector;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+
+
 public class RNCameraViewHelper {
 
   public static final String[][] exifTags = new String[][]{
-      {"string", ExifInterface.TAG_ARTIST},
-      {"int", ExifInterface.TAG_BITS_PER_SAMPLE},
-      {"int", ExifInterface.TAG_COMPRESSION},
-      {"string", ExifInterface.TAG_COPYRIGHT},
-      {"string", ExifInterface.TAG_DATETIME},
-      {"string", ExifInterface.TAG_IMAGE_DESCRIPTION},
-      {"int", ExifInterface.TAG_IMAGE_LENGTH},
-      {"int", ExifInterface.TAG_IMAGE_WIDTH},
-      {"int", ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT},
-      {"int", ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT_LENGTH},
-      {"string", ExifInterface.TAG_MAKE},
-      {"string", ExifInterface.TAG_MODEL},
-      {"int", ExifInterface.TAG_ORIENTATION},
-      {"int", ExifInterface.TAG_PHOTOMETRIC_INTERPRETATION},
-      {"int", ExifInterface.TAG_PLANAR_CONFIGURATION},
-      {"double", ExifInterface.TAG_PRIMARY_CHROMATICITIES},
-      {"double", ExifInterface.TAG_REFERENCE_BLACK_WHITE},
-      {"int", ExifInterface.TAG_RESOLUTION_UNIT},
-      {"int", ExifInterface.TAG_ROWS_PER_STRIP},
-      {"int", ExifInterface.TAG_SAMPLES_PER_PIXEL},
-      {"string", ExifInterface.TAG_SOFTWARE},
-      {"int", ExifInterface.TAG_STRIP_BYTE_COUNTS},
-      {"int", ExifInterface.TAG_STRIP_OFFSETS},
-      {"int", ExifInterface.TAG_TRANSFER_FUNCTION},
-      {"double", ExifInterface.TAG_WHITE_POINT},
-      {"double", ExifInterface.TAG_X_RESOLUTION},
-      {"double", ExifInterface.TAG_Y_CB_CR_COEFFICIENTS},
-      {"int", ExifInterface.TAG_Y_CB_CR_POSITIONING},
-      {"int", ExifInterface.TAG_Y_CB_CR_SUB_SAMPLING},
-      {"double", ExifInterface.TAG_Y_RESOLUTION},
-      {"double", ExifInterface.TAG_APERTURE_VALUE},
-      {"double", ExifInterface.TAG_BRIGHTNESS_VALUE},
-      {"string", ExifInterface.TAG_CFA_PATTERN},
-      {"int", ExifInterface.TAG_COLOR_SPACE},
-      {"string", ExifInterface.TAG_COMPONENTS_CONFIGURATION},
-      {"double", ExifInterface.TAG_COMPRESSED_BITS_PER_PIXEL},
-      {"int", ExifInterface.TAG_CONTRAST},
-      {"int", ExifInterface.TAG_CUSTOM_RENDERED},
-      {"string", ExifInterface.TAG_DATETIME_DIGITIZED},
-      {"string", ExifInterface.TAG_DATETIME_ORIGINAL},
-      {"string", ExifInterface.TAG_DEVICE_SETTING_DESCRIPTION},
-      {"double", ExifInterface.TAG_DIGITAL_ZOOM_RATIO},
-      {"string", ExifInterface.TAG_EXIF_VERSION},
-      {"double", ExifInterface.TAG_EXPOSURE_BIAS_VALUE},
-      {"double", ExifInterface.TAG_EXPOSURE_INDEX},
-      {"int", ExifInterface.TAG_EXPOSURE_MODE},
-      {"int", ExifInterface.TAG_EXPOSURE_PROGRAM},
-      {"double", ExifInterface.TAG_EXPOSURE_TIME},
-      {"double", ExifInterface.TAG_F_NUMBER},
-      {"string", ExifInterface.TAG_FILE_SOURCE},
-      {"int", ExifInterface.TAG_FLASH},
-      {"double", ExifInterface.TAG_FLASH_ENERGY},
-      {"string", ExifInterface.TAG_FLASHPIX_VERSION},
-      {"double", ExifInterface.TAG_FOCAL_LENGTH},
-      {"int", ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM},
-      {"int", ExifInterface.TAG_FOCAL_PLANE_RESOLUTION_UNIT},
-      {"double", ExifInterface.TAG_FOCAL_PLANE_X_RESOLUTION},
-      {"double", ExifInterface.TAG_FOCAL_PLANE_Y_RESOLUTION},
-      {"int", ExifInterface.TAG_GAIN_CONTROL},
-      {"int", ExifInterface.TAG_ISO_SPEED_RATINGS},
-      {"string", ExifInterface.TAG_IMAGE_UNIQUE_ID},
-      {"int", ExifInterface.TAG_LIGHT_SOURCE},
-      {"string", ExifInterface.TAG_MAKER_NOTE},
-      {"double", ExifInterface.TAG_MAX_APERTURE_VALUE},
-      {"int", ExifInterface.TAG_METERING_MODE},
-      {"int", ExifInterface.TAG_NEW_SUBFILE_TYPE},
-      {"string", ExifInterface.TAG_OECF},
-      {"int", ExifInterface.TAG_PIXEL_X_DIMENSION},
-      {"int", ExifInterface.TAG_PIXEL_Y_DIMENSION},
-      {"string", ExifInterface.TAG_RELATED_SOUND_FILE},
-      {"int", ExifInterface.TAG_SATURATION},
-      {"int", ExifInterface.TAG_SCENE_CAPTURE_TYPE},
-      {"string", ExifInterface.TAG_SCENE_TYPE},
-      {"int", ExifInterface.TAG_SENSING_METHOD},
-      {"int", ExifInterface.TAG_SHARPNESS},
-      {"double", ExifInterface.TAG_SHUTTER_SPEED_VALUE},
-      {"string", ExifInterface.TAG_SPATIAL_FREQUENCY_RESPONSE},
-      {"string", ExifInterface.TAG_SPECTRAL_SENSITIVITY},
-      {"int", ExifInterface.TAG_SUBFILE_TYPE},
-      {"string", ExifInterface.TAG_SUBSEC_TIME},
-      {"string", ExifInterface.TAG_SUBSEC_TIME_DIGITIZED},
-      {"string", ExifInterface.TAG_SUBSEC_TIME_ORIGINAL},
-      {"int", ExifInterface.TAG_SUBJECT_AREA},
-      {"double", ExifInterface.TAG_SUBJECT_DISTANCE},
-      {"int", ExifInterface.TAG_SUBJECT_DISTANCE_RANGE},
-      {"int", ExifInterface.TAG_SUBJECT_LOCATION},
-      {"string", ExifInterface.TAG_USER_COMMENT},
-      {"int", ExifInterface.TAG_WHITE_BALANCE},
-      {"int", ExifInterface.TAG_GPS_ALTITUDE_REF},
-      {"string", ExifInterface.TAG_GPS_AREA_INFORMATION},
-      {"double", ExifInterface.TAG_GPS_DOP},
-      {"string", ExifInterface.TAG_GPS_DATESTAMP},
-      {"double", ExifInterface.TAG_GPS_DEST_BEARING},
-      {"string", ExifInterface.TAG_GPS_DEST_BEARING_REF},
-      {"double", ExifInterface.TAG_GPS_DEST_DISTANCE},
-      {"string", ExifInterface.TAG_GPS_DEST_DISTANCE_REF},
-      {"double", ExifInterface.TAG_GPS_DEST_LATITUDE},
-      {"string", ExifInterface.TAG_GPS_DEST_LATITUDE_REF},
-      {"double", ExifInterface.TAG_GPS_DEST_LONGITUDE},
-      {"string", ExifInterface.TAG_GPS_DEST_LONGITUDE_REF},
-      {"int", ExifInterface.TAG_GPS_DIFFERENTIAL},
-      {"double", ExifInterface.TAG_GPS_IMG_DIRECTION},
-      {"string", ExifInterface.TAG_GPS_IMG_DIRECTION_REF},
-      {"string", ExifInterface.TAG_GPS_LATITUDE_REF},
-      {"string", ExifInterface.TAG_GPS_LONGITUDE_REF},
-      {"string", ExifInterface.TAG_GPS_MAP_DATUM},
-      {"string", ExifInterface.TAG_GPS_MEASURE_MODE},
-      {"string", ExifInterface.TAG_GPS_PROCESSING_METHOD},
-      {"string", ExifInterface.TAG_GPS_SATELLITES},
-      {"double", ExifInterface.TAG_GPS_SPEED},
-      {"string", ExifInterface.TAG_GPS_SPEED_REF},
-      {"string", ExifInterface.TAG_GPS_STATUS},
-      {"string", ExifInterface.TAG_GPS_TIMESTAMP},
-      {"double", ExifInterface.TAG_GPS_TRACK},
-      {"string", ExifInterface.TAG_GPS_TRACK_REF},
-      {"string", ExifInterface.TAG_GPS_VERSION_ID},
-      {"string", ExifInterface.TAG_INTEROPERABILITY_INDEX},
-      {"int", ExifInterface.TAG_THUMBNAIL_IMAGE_LENGTH},
-      {"int", ExifInterface.TAG_THUMBNAIL_IMAGE_WIDTH},
-      {"int", ExifInterface.TAG_DNG_VERSION},
-      {"int", ExifInterface.TAG_DEFAULT_CROP_SIZE},
-      {"int", ExifInterface.TAG_ORF_PREVIEW_IMAGE_START},
-      {"int", ExifInterface.TAG_ORF_PREVIEW_IMAGE_LENGTH},
-      {"int", ExifInterface.TAG_ORF_ASPECT_FRAME},
-      {"int", ExifInterface.TAG_RW2_SENSOR_BOTTOM_BORDER},
-      {"int", ExifInterface.TAG_RW2_SENSOR_LEFT_BORDER},
-      {"int", ExifInterface.TAG_RW2_SENSOR_RIGHT_BORDER},
-      {"int", ExifInterface.TAG_RW2_SENSOR_TOP_BORDER},
-      {"int", ExifInterface.TAG_RW2_ISO},
+          {"string", ExifInterface.TAG_ARTIST},
+          {"int", ExifInterface.TAG_BITS_PER_SAMPLE},
+          {"int", ExifInterface.TAG_COMPRESSION},
+          {"string", ExifInterface.TAG_COPYRIGHT},
+          {"string", ExifInterface.TAG_DATETIME},
+          {"string", ExifInterface.TAG_IMAGE_DESCRIPTION},
+          {"int", ExifInterface.TAG_IMAGE_LENGTH},
+          {"int", ExifInterface.TAG_IMAGE_WIDTH},
+          {"int", ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT},
+          {"int", ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT_LENGTH},
+          {"string", ExifInterface.TAG_MAKE},
+          {"string", ExifInterface.TAG_MODEL},
+          {"int", ExifInterface.TAG_ORIENTATION},
+          {"int", ExifInterface.TAG_PHOTOMETRIC_INTERPRETATION},
+          {"int", ExifInterface.TAG_PLANAR_CONFIGURATION},
+          {"double", ExifInterface.TAG_PRIMARY_CHROMATICITIES},
+          {"double", ExifInterface.TAG_REFERENCE_BLACK_WHITE},
+          {"int", ExifInterface.TAG_RESOLUTION_UNIT},
+          {"int", ExifInterface.TAG_ROWS_PER_STRIP},
+          {"int", ExifInterface.TAG_SAMPLES_PER_PIXEL},
+          {"string", ExifInterface.TAG_SOFTWARE},
+          {"int", ExifInterface.TAG_STRIP_BYTE_COUNTS},
+          {"int", ExifInterface.TAG_STRIP_OFFSETS},
+          {"int", ExifInterface.TAG_TRANSFER_FUNCTION},
+          {"double", ExifInterface.TAG_WHITE_POINT},
+          {"double", ExifInterface.TAG_X_RESOLUTION},
+          {"double", ExifInterface.TAG_Y_CB_CR_COEFFICIENTS},
+          {"int", ExifInterface.TAG_Y_CB_CR_POSITIONING},
+          {"int", ExifInterface.TAG_Y_CB_CR_SUB_SAMPLING},
+          {"double", ExifInterface.TAG_Y_RESOLUTION},
+          {"double", ExifInterface.TAG_APERTURE_VALUE},
+          {"double", ExifInterface.TAG_BRIGHTNESS_VALUE},
+          {"string", ExifInterface.TAG_CFA_PATTERN},
+          {"int", ExifInterface.TAG_COLOR_SPACE},
+          {"string", ExifInterface.TAG_COMPONENTS_CONFIGURATION},
+          {"double", ExifInterface.TAG_COMPRESSED_BITS_PER_PIXEL},
+          {"int", ExifInterface.TAG_CONTRAST},
+          {"int", ExifInterface.TAG_CUSTOM_RENDERED},
+          {"string", ExifInterface.TAG_DATETIME_DIGITIZED},
+          {"string", ExifInterface.TAG_DATETIME_ORIGINAL},
+          {"string", ExifInterface.TAG_DEVICE_SETTING_DESCRIPTION},
+          {"double", ExifInterface.TAG_DIGITAL_ZOOM_RATIO},
+          {"string", ExifInterface.TAG_EXIF_VERSION},
+          {"double", ExifInterface.TAG_EXPOSURE_BIAS_VALUE},
+          {"double", ExifInterface.TAG_EXPOSURE_INDEX},
+          {"int", ExifInterface.TAG_EXPOSURE_MODE},
+          {"int", ExifInterface.TAG_EXPOSURE_PROGRAM},
+          {"double", ExifInterface.TAG_EXPOSURE_TIME},
+          {"double", ExifInterface.TAG_F_NUMBER},
+          {"string", ExifInterface.TAG_FILE_SOURCE},
+          {"int", ExifInterface.TAG_FLASH},
+          {"double", ExifInterface.TAG_FLASH_ENERGY},
+          {"string", ExifInterface.TAG_FLASHPIX_VERSION},
+          {"double", ExifInterface.TAG_FOCAL_LENGTH},
+          {"int", ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM},
+          {"int", ExifInterface.TAG_FOCAL_PLANE_RESOLUTION_UNIT},
+          {"double", ExifInterface.TAG_FOCAL_PLANE_X_RESOLUTION},
+          {"double", ExifInterface.TAG_FOCAL_PLANE_Y_RESOLUTION},
+          {"int", ExifInterface.TAG_GAIN_CONTROL},
+          {"int", ExifInterface.TAG_ISO_SPEED_RATINGS},
+          {"string", ExifInterface.TAG_IMAGE_UNIQUE_ID},
+          {"int", ExifInterface.TAG_LIGHT_SOURCE},
+          {"string", ExifInterface.TAG_MAKER_NOTE},
+          {"double", ExifInterface.TAG_MAX_APERTURE_VALUE},
+          {"int", ExifInterface.TAG_METERING_MODE},
+          {"int", ExifInterface.TAG_NEW_SUBFILE_TYPE},
+          {"string", ExifInterface.TAG_OECF},
+          {"int", ExifInterface.TAG_PIXEL_X_DIMENSION},
+          {"int", ExifInterface.TAG_PIXEL_Y_DIMENSION},
+          {"string", ExifInterface.TAG_RELATED_SOUND_FILE},
+          {"int", ExifInterface.TAG_SATURATION},
+          {"int", ExifInterface.TAG_SCENE_CAPTURE_TYPE},
+          {"string", ExifInterface.TAG_SCENE_TYPE},
+          {"int", ExifInterface.TAG_SENSING_METHOD},
+          {"int", ExifInterface.TAG_SHARPNESS},
+          {"double", ExifInterface.TAG_SHUTTER_SPEED_VALUE},
+          {"string", ExifInterface.TAG_SPATIAL_FREQUENCY_RESPONSE},
+          {"string", ExifInterface.TAG_SPECTRAL_SENSITIVITY},
+          {"int", ExifInterface.TAG_SUBFILE_TYPE},
+          {"string", ExifInterface.TAG_SUBSEC_TIME},
+          {"string", ExifInterface.TAG_SUBSEC_TIME_DIGITIZED},
+          {"string", ExifInterface.TAG_SUBSEC_TIME_ORIGINAL},
+          {"int", ExifInterface.TAG_SUBJECT_AREA},
+          {"double", ExifInterface.TAG_SUBJECT_DISTANCE},
+          {"int", ExifInterface.TAG_SUBJECT_DISTANCE_RANGE},
+          {"int", ExifInterface.TAG_SUBJECT_LOCATION},
+          {"string", ExifInterface.TAG_USER_COMMENT},
+          {"int", ExifInterface.TAG_WHITE_BALANCE},
+          {"int", ExifInterface.TAG_GPS_ALTITUDE_REF},
+          {"string", ExifInterface.TAG_GPS_AREA_INFORMATION},
+          {"double", ExifInterface.TAG_GPS_DOP},
+          {"string", ExifInterface.TAG_GPS_DATESTAMP},
+          {"double", ExifInterface.TAG_GPS_DEST_BEARING},
+          {"string", ExifInterface.TAG_GPS_DEST_BEARING_REF},
+          {"double", ExifInterface.TAG_GPS_DEST_DISTANCE},
+          {"string", ExifInterface.TAG_GPS_DEST_DISTANCE_REF},
+          {"double", ExifInterface.TAG_GPS_DEST_LATITUDE},
+          {"string", ExifInterface.TAG_GPS_DEST_LATITUDE_REF},
+          {"double", ExifInterface.TAG_GPS_DEST_LONGITUDE},
+          {"string", ExifInterface.TAG_GPS_DEST_LONGITUDE_REF},
+          {"int", ExifInterface.TAG_GPS_DIFFERENTIAL},
+          {"double", ExifInterface.TAG_GPS_IMG_DIRECTION},
+          {"string", ExifInterface.TAG_GPS_IMG_DIRECTION_REF},
+          {"string", ExifInterface.TAG_GPS_LATITUDE_REF},
+          {"string", ExifInterface.TAG_GPS_LONGITUDE_REF},
+          {"string", ExifInterface.TAG_GPS_MAP_DATUM},
+          {"string", ExifInterface.TAG_GPS_MEASURE_MODE},
+          {"string", ExifInterface.TAG_GPS_PROCESSING_METHOD},
+          {"string", ExifInterface.TAG_GPS_SATELLITES},
+          {"double", ExifInterface.TAG_GPS_SPEED},
+          {"string", ExifInterface.TAG_GPS_SPEED_REF},
+          {"string", ExifInterface.TAG_GPS_STATUS},
+          {"string", ExifInterface.TAG_GPS_TIMESTAMP},
+          {"double", ExifInterface.TAG_GPS_TRACK},
+          {"string", ExifInterface.TAG_GPS_TRACK_REF},
+          {"string", ExifInterface.TAG_GPS_VERSION_ID},
+          {"string", ExifInterface.TAG_INTEROPERABILITY_INDEX},
+          {"int", ExifInterface.TAG_THUMBNAIL_IMAGE_LENGTH},
+          {"int", ExifInterface.TAG_THUMBNAIL_IMAGE_WIDTH},
+          {"int", ExifInterface.TAG_DNG_VERSION},
+          {"int", ExifInterface.TAG_DEFAULT_CROP_SIZE},
+          {"int", ExifInterface.TAG_ORF_PREVIEW_IMAGE_START},
+          {"int", ExifInterface.TAG_ORF_PREVIEW_IMAGE_LENGTH},
+          {"int", ExifInterface.TAG_ORF_ASPECT_FRAME},
+          {"int", ExifInterface.TAG_RW2_SENSOR_BOTTOM_BORDER},
+          {"int", ExifInterface.TAG_RW2_SENSOR_LEFT_BORDER},
+          {"int", ExifInterface.TAG_RW2_SENSOR_RIGHT_BORDER},
+          {"int", ExifInterface.TAG_RW2_SENSOR_TOP_BORDER},
+          {"int", ExifInterface.TAG_RW2_ISO},
   };
 
   // Run all events on native modules queue thread since they might be fired
@@ -174,7 +184,7 @@ public class RNCameraViewHelper {
       }
     });
   }
- // =============<<<<<<<<<<<<<<<<< check here
+  // =============<<<<<<<<<<<<<<<<< check here
   // Camera ready event
 
   public static void emitCameraReadyEvent(final ViewGroup view) {
@@ -189,7 +199,7 @@ public class RNCameraViewHelper {
     });
   }
 
-   // =============<<<<<<<<<<<<<<<<< check here
+  // =============<<<<<<<<<<<<<<<<< check here
   // Picture saved event
 
   public static void emitPictureSavedEvent(final ViewGroup view, final WritableMap response) {
@@ -216,7 +226,7 @@ public class RNCameraViewHelper {
         PictureTakenEvent event = PictureTakenEvent.obtain(view.getId());
         reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
       }
-     });
+    });
   }
 
   // video recording start/end events
@@ -230,7 +240,7 @@ public class RNCameraViewHelper {
         RecordingStartEvent event = RecordingStartEvent.obtain(view.getId(), response);
         reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
       }
-     });
+    });
   }
 
   public static void emitRecordingEndEvent(final ViewGroup view) {
@@ -242,7 +252,7 @@ public class RNCameraViewHelper {
         RecordingEndEvent event = RecordingEndEvent.obtain(view.getId());
         reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
       }
-     });
+    });
   }
   // Touch event
   public static void emitTouchEvent(final ViewGroup view, final boolean isDoubleTap, final int x, final int y) {
@@ -257,7 +267,7 @@ public class RNCameraViewHelper {
     });
 
   }
-   // =============<<<<<<<<<<<<<<<<< check here
+  // =============<<<<<<<<<<<<<<<<< check here
   // Face detection events
 
   public static void emitFacesDetectedEvent(final ViewGroup view, final WritableArray data) {
@@ -269,7 +279,7 @@ public class RNCameraViewHelper {
         FacesDetectedEvent event = FacesDetectedEvent.obtain(view.getId(), data);
         reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
       }
-     });
+    });
   }
 
   public static void emitFaceDetectionErrorEvent(final ViewGroup view, final RNFaceDetector faceDetector) {
@@ -436,7 +446,7 @@ public class RNCameraViewHelper {
 
     if (exifMap.hasKey(ExifInterface.TAG_GPS_LATITUDE) && exifMap.hasKey(ExifInterface.TAG_GPS_LONGITUDE)) {
       exifInterface.setLatLong(exifMap.getDouble(ExifInterface.TAG_GPS_LATITUDE),
-                               exifMap.getDouble(ExifInterface.TAG_GPS_LONGITUDE));
+              exifMap.getDouble(ExifInterface.TAG_GPS_LONGITUDE));
     }
     if(exifMap.hasKey(ExifInterface.TAG_GPS_ALTITUDE)){
       exifInterface.setAltitude(exifMap.getDouble(ExifInterface.TAG_GPS_ALTITUDE));
@@ -455,7 +465,7 @@ public class RNCameraViewHelper {
     exifInterface.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, null);
   }
 
-   // =============<<<<<<<<<<<<<<<<< check here
+  // =============<<<<<<<<<<<<<<<<< check here
   public static Bitmap generateSimulatorPhoto(int width, int height) {
     Bitmap fakePhoto = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     Canvas canvas = new Canvas(fakePhoto);
@@ -473,5 +483,32 @@ public class RNCameraViewHelper {
     canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.4f, height * 0.8f, textPaint);
 
     return fakePhoto;
+  }
+
+  public static void emitFaceVerifiedEvent(final ViewGroup view, final float result) {
+    final ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.runOnNativeModulesQueueThread(new Runnable() {
+      @Override
+      public void run() {
+        FaceVerifiedEvent event = FaceVerifiedEvent.obtain(view.getId(), result);
+        WritableMap params = Arguments.createMap();
+        params.putString("model", String.valueOf(result));
+
+        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("eventEmmiter", params);
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher()
+                .dispatchEvent(event);
+      }
+    });
+  }
+
+  public static void emitFaceVerificationErrorEvent(final ViewGroup view) {
+    final ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.runOnNativeModulesQueueThread(new Runnable() {
+      @Override
+      public void run() {
+        FaceVerificationErrorEvent event = FaceVerificationErrorEvent.obtain(view.getId());
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+    });
   }
 }

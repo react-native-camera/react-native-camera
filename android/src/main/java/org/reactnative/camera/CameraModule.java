@@ -14,12 +14,14 @@ import com.facebook.react.uimanager.UIManagerModule;
 import com.google.android.cameraview.AspectRatio;
 import com.google.zxing.BarcodeFormat;
 import org.reactnative.barcodedetector.BarcodeFormatUtils;
+import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.camera.utils.ScopedContext;
 import org.reactnative.facedetector.RNFaceDetector;
 import com.google.android.cameraview.Size;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
@@ -260,21 +262,45 @@ public class CameraModule extends ReactContextBaseJavaModule {
    // =============<<<<<<<<<<<<<<<<< check here
   @ReactMethod
   public void takePicture(final ReadableMap options, final int viewTag, final Promise promise) {
-    final ReactApplicationContext context = getReactApplicationContext();
-    final File cacheDirectory = mScopedContext.getCacheDirectory();
-    UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-    uiManager.addUIBlock(new UIBlock() {
+//      Log.i("Debug","CameraModule takePicture start ...");
+      final ReactApplicationContext context = getReactApplicationContext();
+      File path = mScopedContext.getCacheDirectory();
+      String fileName = "" ;
+      if(options.hasKey("path")){
+//          Log.i("Debug", "CameraModule takePicture option path = "+options.getString("path"));
+          path = new File(context.getFilesDir().getAbsolutePath() + "/"+options.getString("path"));
+          try {
+              RNFileUtils.ensureDirExists(path);
+          } catch (IOException e) {
+              Log.i("Debug", "CameraModule takePicture create dir failed");
+              return;
+          }
+      }
+//      if(options.hasKey("user") && options.getString("user") instanceof String){
+//
+//          fileName = options.getString("user");
+//          Log.i("Debug", "CameraModule takePicture option user = "+fileName);
+//      }
+
+      final File directoryToSaveImage = path;
+      final String fileNameToSaveImage = fileName;
+
+      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+      uiManager.addUIBlock(new UIBlock() {
       @Override
       public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
           RNCameraView cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
           try {
               if (cameraView.isCameraOpened()) {
-                cameraView.takePicture(options, promise, cacheDirectory);
+//                  Log.i("Debug","CameraModule cameraopened viewtakePicture...");
+                cameraView.takePicture(options, promise, directoryToSaveImage,fileNameToSaveImage);
+//                todo: call face detection to cut face
               } else {
                 promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
               }
           }
           catch (Exception e) {
+              Log.i("Debug","CameraModule takePicture exeption..."+e.getMessage());
             promise.reject("E_TAKE_PICTURE_FAILED", e.getMessage());
           }
       }

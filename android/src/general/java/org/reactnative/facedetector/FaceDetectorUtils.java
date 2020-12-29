@@ -1,67 +1,97 @@
 package org.reactnative.facedetector;
 
-import android.graphics.PointF;
-
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
-import com.google.android.gms.vision.face.Face;
-import com.google.android.gms.vision.face.Landmark;
+import com.google.firebase.ml.vision.common.FirebaseVisionPoint;
+import com.google.firebase.ml.vision.face.FirebaseVisionFace;
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark;
+
+import java.util.HashMap;
 
 public class FaceDetectorUtils {
-  // All the landmarks reported by Google Mobile Vision in constants' order.
-  // https://developers.google.com/android/reference/com/google/android/gms/vision/face/Landmark
   private static final String[] landmarkNames = {
-    "bottomMouthPosition", "leftCheekPosition", "leftEarPosition", "leftEarTipPosition",
-      "leftEyePosition", "leftMouthPosition", "noseBasePosition", "rightCheekPosition",
-      "rightEarPosition", "rightEarTipPosition", "rightEyePosition", "rightMouthPosition"
+          "bottomMouthPosition", "leftCheekPosition", "leftEarPosition",
+          "leftEyePosition", "leftMouthPosition", "noseBasePosition", "rightCheekPosition",
+          "rightEarPosition", "rightEyePosition", "rightMouthPosition"
   };
 
-  public static WritableMap serializeFace(Face face) {
+  public static WritableMap serializeFace(FirebaseVisionFace face) {
     return serializeFace(face, 1, 1, 0, 0, 0, 0);
   }
 
-  public static WritableMap serializeFace(Face face, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
+  public static WritableMap serializeFace(FirebaseVisionFace face, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
     WritableMap encodedFace = Arguments.createMap();
 
-    encodedFace.putInt("faceID", face.getId());
-    encodedFace.putDouble("rollAngle", face.getEulerZ());
-    encodedFace.putDouble("yawAngle", face.getEulerY());
-
-    if (face.getIsSmilingProbability() >= 0) {
-      encodedFace.putDouble("smilingProbability", face.getIsSmilingProbability());
-    }
-    if (face.getIsLeftEyeOpenProbability() >= 0) {
-      encodedFace.putDouble("leftEyeOpenProbability", face.getIsLeftEyeOpenProbability());
-    }
-    if (face.getIsRightEyeOpenProbability() >= 0) {
-      encodedFace.putDouble("rightEyeOpenProbability", face.getIsRightEyeOpenProbability());
+    int id = 0;
+    // If face tracking was enabled:
+    if (face.getTrackingId() != FirebaseVisionFace.INVALID_ID) {
+      id = face.getTrackingId();
     }
 
-    for(Landmark landmark : face.getLandmarks()) {
-      encodedFace.putMap(landmarkNames[landmark.getType()], mapFromPoint(landmark.getPosition(), scaleX, scaleY, width, height, paddingLeft, paddingTop));
+
+    encodedFace.putInt("faceID", id);
+    encodedFace.putDouble("rollAngle", face.getHeadEulerAngleZ());
+    encodedFace.putDouble("yawAngle", face.getHeadEulerAngleY());
+
+    // If classification was enabled:
+    if (face.getSmilingProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+      encodedFace.putDouble("smilingProbability", face.getSmilingProbability());
+    }
+    if (face.getLeftEyeOpenProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+      encodedFace.putDouble("leftEyeOpenProbability", face.getLeftEyeOpenProbability());
+    }
+    if (face.getRightEyeOpenProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+      encodedFace.putDouble("rightEyeOpenProbability", face.getRightEyeOpenProbability());
+    }
+    int[] landmarks = {
+            FirebaseVisionFaceLandmark.MOUTH_BOTTOM,
+            FirebaseVisionFaceLandmark.LEFT_CHEEK,
+            FirebaseVisionFaceLandmark.LEFT_EAR,
+            FirebaseVisionFaceLandmark.LEFT_EYE,
+            FirebaseVisionFaceLandmark.MOUTH_LEFT,
+            FirebaseVisionFaceLandmark.NOSE_BASE,
+            FirebaseVisionFaceLandmark.RIGHT_CHEEK,
+            FirebaseVisionFaceLandmark.RIGHT_EAR,
+            FirebaseVisionFaceLandmark.RIGHT_EYE,
+            FirebaseVisionFaceLandmark.MOUTH_RIGHT};
+
+    for (int i = 0; i < landmarks.length; ++i) {
+      FirebaseVisionFaceLandmark landmark = face.getLandmark(landmarks[i]);
+      if (landmark != null) {
+        encodedFace.putMap(landmarkNames[i], mapFromPoint(landmark.getPosition(), scaleX, scaleY, width, height, paddingLeft, paddingTop));
+      }
     }
 
     WritableMap origin = Arguments.createMap();
-    Float x = face.getPosition().x;
-    Float y = face.getPosition().y;
-    if (face.getPosition().x < width / 2) {
+    Float x = face.getBoundingBox().exactCenterX() - (face.getBoundingBox().width() / 2 );
+    Float y = face.getBoundingBox().exactCenterY() - (face.getBoundingBox().height() / 2);
+    if (face.getBoundingBox().exactCenterX() < width / 2) {
       x = x + paddingLeft / 2;
-    } else if (face.getPosition().x > width / 2) {
+    } else if (face.getBoundingBox().exactCenterX() > width / 2) {
       x = x - paddingLeft / 2;
     }
 
-    if (face.getPosition().y < height / 2) {
+    if (face.getBoundingBox().exactCenterY() < height / 2) {
       y = y + paddingTop / 2;
-    } else if (face.getPosition().y > height / 2) {
+    } else if (face.getBoundingBox().exactCenterY() > height / 2) {
       y = y - paddingTop / 2;
     }
+// =============<<<<<<<<<<<<<<<<< check here
+// bounds.origin.x/y
+// bounds.size.width/height
     origin.putDouble("x", x * scaleX);
     origin.putDouble("y", y * scaleY);
 
     WritableMap size = Arguments.createMap();
-    size.putDouble("width", face.getWidth() * scaleX);
-    size.putDouble("height", face.getHeight() * scaleY);
+    size.putDouble("width", face.getBoundingBox().width() * scaleX);
+    size.putDouble("height", face.getBoundingBox().height() * scaleY);
+
+    //                        todo: ....
+    int faceWidth = face.getBoundingBox().width();
+    int faceHeight = face.getBoundingBox().height();
+    // Log.i("Debug",String.format("FaceDetectorUtils serializeFace %.2f - %.2f, %d - %d",
+    //                             x,y,faceWidth,faceHeight));
 
     WritableMap bounds = Arguments.createMap();
     bounds.putMap("origin", origin);
@@ -70,6 +100,87 @@ public class FaceDetectorUtils {
     encodedFace.putMap("bounds", bounds);
 
     return encodedFace;
+  }
+  public static HashMap<String, Float> getFirstFaceData(FirebaseVisionFace face, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
+    HashMap<String,Float> faceData = new HashMap<>();
+//    WritableMap encodedFace = Arguments.createMap();
+
+    int id = 0;
+    // If face tracking was enabled:
+    if (face.getTrackingId() != FirebaseVisionFace.INVALID_ID) {
+      id = face.getTrackingId();
+    }
+    faceData.put("faceID", (float) id);
+
+//    encodedFace.putInt("faceID", id);
+//    encodedFace.putDouble("rollAngle", face.getHeadEulerAngleZ());
+//    encodedFace.putDouble("yawAngle", face.getHeadEulerAngleY());
+
+    // If classification was enabled:
+//    if (face.getSmilingProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+//      encodedFace.putDouble("smilingProbability", face.getSmilingProbability());
+//    }
+//    if (face.getLeftEyeOpenProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+//      encodedFace.putDouble("leftEyeOpenProbability", face.getLeftEyeOpenProbability());
+//    }
+//    if (face.getRightEyeOpenProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+//      encodedFace.putDouble("rightEyeOpenProbability", face.getRightEyeOpenProbability());
+//    }
+//    int[] landmarks = {
+//            FirebaseVisionFaceLandmark.MOUTH_BOTTOM,
+//            FirebaseVisionFaceLandmark.LEFT_CHEEK,
+//            FirebaseVisionFaceLandmark.LEFT_EAR,
+//            FirebaseVisionFaceLandmark.LEFT_EYE,
+//            FirebaseVisionFaceLandmark.MOUTH_LEFT,
+//            FirebaseVisionFaceLandmark.NOSE_BASE,
+//            FirebaseVisionFaceLandmark.RIGHT_CHEEK,
+//            FirebaseVisionFaceLandmark.RIGHT_EAR,
+//            FirebaseVisionFaceLandmark.RIGHT_EYE,
+//            FirebaseVisionFaceLandmark.MOUTH_RIGHT};
+
+//    for (int i = 0; i < landmarks.length; ++i) {
+//      FirebaseVisionFaceLandmark landmark = face.getLandmark(landmarks[i]);
+//      if (landmark != null) {
+//        encodedFace.putMap(landmarkNames[i], mapFromPoint(landmark.getPosition(), scaleX, scaleY, width, height, paddingLeft, paddingTop));
+//      }
+//    }
+
+//    WritableMap origin = Arguments.createMap();
+    Float x = face.getBoundingBox().exactCenterX() - (face.getBoundingBox().width() / 2 );
+    Float y = face.getBoundingBox().exactCenterY() - (face.getBoundingBox().height() / 2);
+    if (face.getBoundingBox().exactCenterX() < width / 2) {
+      x = x + paddingLeft / 2;
+    } else if (face.getBoundingBox().exactCenterX() > width / 2) {
+      x = x - paddingLeft / 2;
+    }
+
+    if (face.getBoundingBox().exactCenterY() < height / 2) {
+      y = y + paddingTop / 2;
+    } else if (face.getBoundingBox().exactCenterY() > height / 2) {
+      y = y - paddingTop / 2;
+    }
+// =============<<<<<<<<<<<<<<<<< check here
+// bounds.origin.x/y
+// bounds.size.width/height
+//    origin.putDouble("x", x * scaleX);
+//    origin.putDouble("y", y * scaleY);
+    faceData.put("x", (float) (x * scaleX));
+    faceData.put("y", (float) (y * scaleY));
+
+//    WritableMap size = Arguments.createMap();
+//    size.putDouble("width", face.getBoundingBox().width() * scaleX);
+//    size.putDouble("height", face.getBoundingBox().height() * scaleY);
+    faceData.put("width",(float)(face.getBoundingBox().width() * scaleX));
+    faceData.put("height", (float)(face.getBoundingBox().height() * scaleY));
+
+
+//    WritableMap bounds = Arguments.createMap();
+//    bounds.putMap("origin", origin);
+//    bounds.putMap("size", size);
+//
+//    encodedFace.putMap("bounds", bounds);
+
+    return faceData;
   }
 
   public static WritableMap rotateFaceX(WritableMap face, int sourceWidth, double scaleX) {
@@ -104,23 +215,23 @@ public class FaceDetectorUtils {
     return face;
   }
 
-  public static WritableMap mapFromPoint(PointF point, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
+  public static WritableMap mapFromPoint(FirebaseVisionPoint point, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
     WritableMap map = Arguments.createMap();
-    Float x = point.x;
-    Float y = point.y;
-    if (point.x < width / 2) {
+    Float x = point.getX();
+    Float y = point.getY();
+    if (point.getX() < width / 2) {
       x = (x + paddingLeft / 2);
-    } else if (point.x > width / 2) {
+    } else if (point.getX() > width / 2) {
       x = (x - paddingLeft / 2);
     }
 
-    if (point.y < height / 2) {
+    if (point.getY() < height / 2) {
       y = (y + paddingTop / 2);
-    } else if (point.y > height / 2) {
+    } else if (point.getY() > height / 2) {
       y = (y - paddingTop / 2);
     }
-    map.putDouble("x", point.x * scaleX);
-    map.putDouble("y", point.y * scaleY);
+    map.putDouble("x", x * scaleX);
+    map.putDouble("y", y * scaleY);
     return map;
   }
 

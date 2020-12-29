@@ -33,6 +33,7 @@ import androidx.core.os.ParcelableCompat;
 import androidx.core.os.ParcelableCompatCreatorCallbacks;
 import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -396,10 +397,10 @@ public class CameraView extends FrameLayout {
     }
 
     public View getView() {
-      if (mImpl != null) {
-        return mImpl.getView();
-      }
-      return null;
+        if (mImpl != null) {
+            return mImpl.getView();
+        }
+        return null;
     }
 
     /**
@@ -423,13 +424,13 @@ public class CameraView extends FrameLayout {
         return mImpl.getFacing();
     }
 
-     /**
+    /**
      * Chooses camera by its camera iD
      *
      * @param id The camera ID
      */
     public void setCameraId(String id) {
-      mImpl.setCameraId(id);
+        mImpl.setCameraId(id);
     }
 
     /**
@@ -438,7 +439,7 @@ public class CameraView extends FrameLayout {
      * @return The camera facing.
      */
     public String getCameraId() {
-      return mImpl.getCameraId();
+        return mImpl.getCameraId();
     }
 
     /**
@@ -532,7 +533,7 @@ public class CameraView extends FrameLayout {
     }
 
     public ArrayList<int[]> getSupportedPreviewFpsRange() {
-      return mImpl.getSupportedPreviewFpsRange();
+        return mImpl.getSupportedPreviewFpsRange();
     }
 
     /**
@@ -581,27 +582,27 @@ public class CameraView extends FrameLayout {
     public float getFocusDepth() { return mImpl.getFocusDepth(); }
 
     public void setZoom(float zoom) {
-      mImpl.setZoom(zoom);
+        mImpl.setZoom(zoom);
     }
 
     public float getZoom() {
-      return mImpl.getZoom();
+        return mImpl.getZoom();
     }
 
     public void setWhiteBalance(int whiteBalance) {
-      mImpl.setWhiteBalance(whiteBalance);
+        mImpl.setWhiteBalance(whiteBalance);
     }
 
     public int getWhiteBalance() {
-      return mImpl.getWhiteBalance();
+        return mImpl.getWhiteBalance();
     }
 
     public void setPlaySoundOnCapture(boolean playSoundOnCapture) {
-      mImpl.setPlaySoundOnCapture(playSoundOnCapture);
+        mImpl.setPlaySoundOnCapture(playSoundOnCapture);
     }
 
     public boolean getPlaySoundOnCapture() {
-      return mImpl.getPlaySoundOnCapture();
+        return mImpl.getPlaySoundOnCapture();
     }
 
     public void setScanning(boolean isScanning) { mImpl.setScanning(isScanning);}
@@ -613,6 +614,7 @@ public class CameraView extends FrameLayout {
      * {@link Callback#onPictureTaken(CameraView, byte[], int)}.
      */
     public void takePicture(ReadableMap options) {
+//        Log.i("Debug","CameraView takePicture ... ");
         mImpl.takePicture(options);
     }
 
@@ -696,7 +698,9 @@ public class CameraView extends FrameLayout {
 
         @Override
         public void onPictureTaken(byte[] data, int deviceOrientation) {
+//            Log.i("Debug","CameraView onpicturetaken return data lenght = "+data.length);
             for (Callback callback : mCallbacks) {
+//                Log.i("Debug","CameraView onpicturetaken return data lenght = "+callback.toString());
                 callback.onPictureTaken(CameraView.this, data, deviceOrientation);
             }
         }

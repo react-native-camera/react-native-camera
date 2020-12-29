@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import androidx.exifinterface.media.ExifInterface;
 import android.util.Base64;
+import android.util.Log;
 
 import org.reactnative.camera.RNCameraViewHelper;
 import org.reactnative.camera.utils.RNFileUtils;
@@ -35,6 +36,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private PictureSavedDelegate mPictureSavedDelegate;
 
     public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate) {
+//        Log.i("Debug","ResolveTakenPictureAsyncTask init with data length="+imageData.length);
         mPromise = promise;
         mOptions = options;
         mImageData = imageData;
@@ -59,6 +61,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
     @Override
     protected WritableMap doInBackground(Void... voids) {
+//        Log.i("Debug","ResolveTakenPictureAsyncTask do in background...");
         WritableMap response = Arguments.createMap();
         ByteArrayInputStream inputStream = null;
         ExifInterface exifInterface = null;
@@ -179,12 +182,14 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 // save to file if requested
                 if (!mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave")) {
                      // =============<<<<<<<<<<<<<<<<< check here
-                    //  todo: save path to document...
+
+//                    Log.i("Debug","ResolveTakenPictureAsyncTask doinbackground savetofile...");
 
                     // Prepare file output
                     File imageFile = new File(getImagePath());
 
                     imageFile.createNewFile();
+//                    Log.i("Debug","ResolveTakenPictureAsyncTask doinbackground after createnewfile");
 
                     FileOutputStream fOut = new FileOutputStream(imageFile);
 
@@ -214,6 +219,8 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                      // =============<<<<<<<<<<<<<<<<< check here
                     //  console log uri...
                     response.putString("uri", fileUri);
+                    Log.i("Debug","ResolveTakenPicTask imageURI = "+fileUri);
+//                    todo: call faceDetection and cut the face off
                 }
 
                 if (mOptions.hasKey("base64") && mOptions.getBoolean("base64")) {
@@ -265,10 +272,12 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
             e.printStackTrace();
         }
         catch (IOException e) {
+            Log.i("Debug","ResolveTakenPictureAsyncTask exception"+e.getMessage());
             mPromise.reject(ERROR_TAG, "An unknown I/O exception has occurred.", e);
             e.printStackTrace();
         }
         finally {
+//            Log.i("Debug","ResolveTakenPictureAsyncTask doinbackground finally");
             try {
                 if (inputStream != null) {
                     inputStream.close();
@@ -320,10 +329,15 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     }
 
     private String getImagePath() throws IOException{
-        if(mOptions.hasKey("path")){
-            return mOptions.getString("path");
+//        Log.i("Debug","ResolvetakenPictureAsyncTask getImagepath mcachedir= "+mCacheDirectory.getAbsolutePath());
+        if(mOptions.hasKey("path") && mOptions.hasKey("user")) {
+            String path = mOptions.getString("path");
+            path = path+"/"+  mOptions.getString("user") +".png";
+//            Log.i("Debug","ResolvetakenPictureAsyncTask getImagepath option path+user= "+path);
+            return RNFileUtils.getOutputFilePathWithFileName(mCacheDirectory,mOptions.getString("user"),".png");
         }
          // =============<<<<<<<<<<<<<<<<< check here
+//        file with random name
         return RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg");
     }
 

@@ -3,9 +3,10 @@ package org.reactnative.facedetector;
 import android.content.Context;
 import android.util.SparseArray;
 
-import org.reactnative.camera.utils.ImageDimensions;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
+
+import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.frame.RNFrame;
 
 public class RNFaceDetector {
@@ -43,8 +44,9 @@ public class RNFaceDetector {
 
     return mFaceDetector.isOperational();
   }
-// =============<<<<<<<<<<<<<<<<< check here
-// todo: inject faceverification here
+
+  // =============<<<<<<<<<<<<<<<<< check here
+//
   public SparseArray<Face> detect(RNFrame frame) {
     // If the frame has different dimensions, create another face detector.
     // Otherwise we will get nasty "inconsistent image dimensions" error from detector

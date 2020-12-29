@@ -17,6 +17,7 @@ import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.facedetector.FaceDetectorUtils;
 import org.reactnative.facedetector.RNFaceDetector;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void> {
@@ -69,6 +70,7 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
     FirebaseVisionImageMetadata metadata = new FirebaseVisionImageMetadata.Builder()
             .setWidth(mWidth)
             .setHeight(mHeight)
+//            todo: note here: frame format is YV12
             .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_YV12)
             .setRotation(getFirebaseRotation())
             .build();
@@ -81,10 +83,35 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
                     new OnSuccessListener<List<FirebaseVisionFace>>() {
                       @Override
                       public void onSuccess(List<FirebaseVisionFace> faces) {
+
                         WritableArray facesList = serializeEventData(faces);
-                         // =============<<<<<<<<<<<<<<<<< check here
-                        mDelegate.onFacesDetected(facesList);
-                        mDelegate.onFaceDetectingTaskCompleted();
+                        if(faces.size()>0){
+
+                          mDelegate.onFacesDetected(facesList);
+
+                          mDelegate.saveFaceDetected(
+                                  FaceDetectorUtils.getFirstFaceData(
+                                          faces.get(0), mScaleX, mScaleY,
+                                                        mWidth, mHeight,
+                                                        mPaddingLeft, mPaddingTop));
+
+//                          try {
+//                            Log.i("Debug", "detectInImage onSuccess have face" );
+//                            Thread.sleep(500);
+                            mDelegate.onFaceDetectingTaskCompleted();
+//                          } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                          }
+                        }else {
+                          // Log.i("Debug", "detectInImage onSuccess no face" );
+                          mDelegate.onFacesDetected(Arguments.createArray());
+
+                            mDelegate.onFaceDetectingTaskCompleted();
+
+                        }
+
+
+
                       }
                     })
             .addOnFailureListener(
@@ -137,6 +164,7 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
       }
       facesList.pushMap(serializedFace);
     }
+
 
     return facesList;
   }

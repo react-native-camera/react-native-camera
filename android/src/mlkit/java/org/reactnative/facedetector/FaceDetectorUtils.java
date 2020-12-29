@@ -7,6 +7,8 @@ import com.google.firebase.ml.vision.common.FirebaseVisionPoint;
 import com.google.firebase.ml.vision.face.FirebaseVisionFace;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark;
 
+import java.util.HashMap;
+
 public class FaceDetectorUtils {
   private static final String[] landmarkNames = {
           "bottomMouthPosition", "leftCheekPosition", "leftEarPosition",
@@ -17,6 +19,7 @@ public class FaceDetectorUtils {
   public static WritableMap serializeFace(FirebaseVisionFace face) {
     return serializeFace(face, 1, 1, 0, 0, 0, 0);
   }
+
 
   public static WritableMap serializeFace(FirebaseVisionFace face, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
     WritableMap encodedFace = Arguments.createMap();
@@ -88,8 +91,8 @@ public class FaceDetectorUtils {
       //                        todo: ....
     int faceWidth = face.getBoundingBox().width();
     int faceHeight = face.getBoundingBox().height();
-    Log.i("Debug",String.format("FaceDetectorUtils serializeFace %.2f - %.2f, %d - %d",
-                                x,y,faceWidth,faceWidth));
+    // Log.i("Debug",String.format("FaceDetectorUtils serializeFace %.2f - %.2f, %d - %d",
+    //                             x,y,faceWidth,faceHeight));
 
     WritableMap bounds = Arguments.createMap();
     bounds.putMap("origin", origin);
@@ -98,6 +101,92 @@ public class FaceDetectorUtils {
     encodedFace.putMap("bounds", bounds);
 
     return encodedFace;
+  }
+
+  public static HashMap<String, Float> getFirstFaceData(FirebaseVisionFace face) {
+    return getFirstFaceData(face, 1, 1, 0, 0, 0, 0);
+  }
+
+  public static HashMap<String, Float> getFirstFaceData(FirebaseVisionFace face, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
+    HashMap<String,Float> faceData = new HashMap<>();
+//    WritableMap encodedFace = Arguments.createMap();
+
+    int id = 0;
+    // If face tracking was enabled:
+    if (face.getTrackingId() != FirebaseVisionFace.INVALID_ID) {
+      id = face.getTrackingId();
+    }
+    faceData.put("faceID", (float) id);
+
+//    encodedFace.putInt("faceID", id);
+//    encodedFace.putDouble("rollAngle", face.getHeadEulerAngleZ());
+//    encodedFace.putDouble("yawAngle", face.getHeadEulerAngleY());
+
+    // If classification was enabled:
+//    if (face.getSmilingProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+//      encodedFace.putDouble("smilingProbability", face.getSmilingProbability());
+//    }
+//    if (face.getLeftEyeOpenProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+//      encodedFace.putDouble("leftEyeOpenProbability", face.getLeftEyeOpenProbability());
+//    }
+//    if (face.getRightEyeOpenProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+//      encodedFace.putDouble("rightEyeOpenProbability", face.getRightEyeOpenProbability());
+//    }
+//    int[] landmarks = {
+//            FirebaseVisionFaceLandmark.MOUTH_BOTTOM,
+//            FirebaseVisionFaceLandmark.LEFT_CHEEK,
+//            FirebaseVisionFaceLandmark.LEFT_EAR,
+//            FirebaseVisionFaceLandmark.LEFT_EYE,
+//            FirebaseVisionFaceLandmark.MOUTH_LEFT,
+//            FirebaseVisionFaceLandmark.NOSE_BASE,
+//            FirebaseVisionFaceLandmark.RIGHT_CHEEK,
+//            FirebaseVisionFaceLandmark.RIGHT_EAR,
+//            FirebaseVisionFaceLandmark.RIGHT_EYE,
+//            FirebaseVisionFaceLandmark.MOUTH_RIGHT};
+
+//    for (int i = 0; i < landmarks.length; ++i) {
+//      FirebaseVisionFaceLandmark landmark = face.getLandmark(landmarks[i]);
+//      if (landmark != null) {
+//        encodedFace.putMap(landmarkNames[i], mapFromPoint(landmark.getPosition(), scaleX, scaleY, width, height, paddingLeft, paddingTop));
+//      }
+//    }
+
+//    WritableMap origin = Arguments.createMap();
+    Float x = face.getBoundingBox().exactCenterX() - (face.getBoundingBox().width() / 2 );
+    Float y = face.getBoundingBox().exactCenterY() - (face.getBoundingBox().height() / 2);
+    if (face.getBoundingBox().exactCenterX() < width / 2) {
+      x = x + paddingLeft / 2;
+    } else if (face.getBoundingBox().exactCenterX() > width / 2) {
+      x = x - paddingLeft / 2;
+    }
+
+    if (face.getBoundingBox().exactCenterY() < height / 2) {
+      y = y + paddingTop / 2;
+    } else if (face.getBoundingBox().exactCenterY() > height / 2) {
+      y = y - paddingTop / 2;
+    }
+// =============<<<<<<<<<<<<<<<<< check here
+// bounds.origin.x/y
+// bounds.size.width/height
+//    origin.putDouble("x", x * scaleX);
+//    origin.putDouble("y", y * scaleY);
+    faceData.put("x", (float) (x * scaleX));
+    faceData.put("y", (float) (y * scaleY));
+
+//    WritableMap size = Arguments.createMap();
+//    size.putDouble("width", face.getBoundingBox().width() * scaleX);
+//    size.putDouble("height", face.getBoundingBox().height() * scaleY);
+    faceData.put("width",(float)(face.getBoundingBox().width() * scaleX));
+    faceData.put("height", (float)(face.getBoundingBox().height() * scaleY));
+
+
+//    WritableMap bounds = Arguments.createMap();
+//    bounds.putMap("origin", origin);
+//    bounds.putMap("size", size);
+//
+//    encodedFace.putMap("bounds", bounds);
+
+    return faceData;
   }
 
   public static WritableMap rotateFaceX(WritableMap face, int sourceWidth, double scaleX) {
