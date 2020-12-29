@@ -8,6 +8,7 @@ import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import org.reactnative.camera.CameraViewManager;
+import org.reactnative.facedetector.RNFaceDetector;
 
 public class FaceVerificationErrorEvent extends Event<FaceVerificationErrorEvent> {
     private static final Pools.SynchronizedPool<FaceVerificationErrorEvent> EVENTS_POOL = new Pools.SynchronizedPool<>(3);
@@ -21,19 +22,18 @@ public class FaceVerificationErrorEvent extends Event<FaceVerificationErrorEvent
         if (event == null) {
             event = new FaceVerificationErrorEvent();
         }
-        event.init(viewTag);
+//        event.init(viewTag);
         return event;
     }
 
-    private void init(int viewTag) {
-        super.init(viewTag);
+//    private void init(int viewTag) {
+//        super.init();
+//    }
 
-    }
-
-    @Override
-    public short getCoalescingKey() {
-        return 0;
-    }
+//    @Override
+//    public short getCoalescingKey() {
+//        return 0;
+//    }
 
     @Override
     public String getEventName() {

@@ -17,6 +17,7 @@ import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.facedetector.FaceDetectorUtils;
 import org.reactnative.facedetector.RNFaceDetector;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void> {
@@ -69,6 +70,7 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
     FirebaseVisionImageMetadata metadata = new FirebaseVisionImageMetadata.Builder()
             .setWidth(mWidth)
             .setHeight(mHeight)
+//            todo: note here: frame format is YV12
             .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_YV12)
             .setRotation(getFirebaseRotation())
             .build();
@@ -84,7 +86,15 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
 
                         WritableArray facesList = serializeEventData(faces);
                         if(faces.size()>0){
+
                           mDelegate.onFacesDetected(facesList);
+
+                          mDelegate.saveFaceDetected(
+                                  FaceDetectorUtils.getFirstFaceData(
+                                          faces.get(0), mScaleX, mScaleY,
+                                                        mWidth, mHeight,
+                                                        mPaddingLeft, mPaddingTop));
+
 //                          try {
 //                            Log.i("Debug", "detectInImage onSuccess have face" );
 //                            Thread.sleep(500);
@@ -94,12 +104,12 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
 //                          }
                         }else {
                           // Log.i("Debug", "detectInImage onSuccess no face" );
-//                          mDelegate.onFacesDetected(facesList);
+                          mDelegate.onFacesDetected(Arguments.createArray());
 
                             mDelegate.onFaceDetectingTaskCompleted();
 
                         }
-                         // =============<<<<<<<<<<<<<<<<< check here
+
 
 
                       }
@@ -154,6 +164,7 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Void
       }
       facesList.pushMap(serializedFace);
     }
+
 
     return facesList;
   }

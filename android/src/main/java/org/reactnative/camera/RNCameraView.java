@@ -270,9 +270,9 @@ public class RNCameraView extends CameraView implements
                 Log.i("Debug","RNCameraView userImageFile missed");
                 faceVerifierTaskLock = false;
               }else {
-                Log.i("Debug","will run verifytask... ");
-                byte[] d = convertYuvToJpeg(dataCopy,cameraView);
-                if (d != null) {
+                  Log.i("Debug","will run verifytask... ");
+                  byte[] d = convertYuvToJpeg(dataCopy,cameraView);
+                  if (d != null) {
 //                    Log.i("Debug","byte converted lenth="+d.length);
 //                    Bitmap bitmap = BitmapFactory.decodeByteArray(d,0,d.length);
 //
@@ -286,14 +286,14 @@ public class RNCameraView extends CameraView implements
 //                    }
 
 //                    Log.i("Debug","bitmap converted lenth="+bitmap.getByteCount());
-                }else {
-                  Log.i("Debug","byte converted error lenth="+d);
-                }
+                  }else {
+                    Log.i("Debug","byte converted error lenth="+d);
+                  }
 //                  String dest_fake2 = "/User/obama.jpg";
 //                  String dest_fake1 = "/User/taylor.jpg";
 //                  String userImagePath = mThemedReactContext.getFilesDir().getAbsolutePath()+dest_fake2;
 //                  String user0ImagePath = mThemedReactContext.getFilesDir().getAbsolutePath()+dest_fake1;
-                FaceVerifierAsyncTaskDelegate delegate1 = (FaceVerifierAsyncTaskDelegate) cameraView;
+                  FaceVerifierAsyncTaskDelegate delegate1 = (FaceVerifierAsyncTaskDelegate) cameraView;
 //                  new FaceVerifierAsyncTask(delegate1, mFaceVerifier,
 //                          userImageFile,user0ImagePath,
 //                          d, width, height, correctRotation,

@@ -94,7 +94,7 @@ public class MyModelModule extends ReactContextBaseJavaModule {
 
     String modelString = "";
     ReactApplicationContext mContext;
-    //    ReactNativeEventEmitter mReactNativeEventEmitter = ReactNativeEventEmitter.getInstance();
+//    ReactNativeEventEmitter mReactNativeEventEmitter = ReactNativeEventEmitter.getInstance();
     protected File tensorflowFile = null;
     protected Object output = null;
     protected Object input = null;
@@ -423,7 +423,7 @@ public class MyModelModule extends ReactContextBaseJavaModule {
     }
 
     //    helper internal private class
-    class BackgroundLoadTask extends AsyncTask<String, String, String> {
+     class BackgroundLoadTask extends AsyncTask<String, String, String> {
 
         @Override
         protected String doInBackground(String... params) {

@@ -195,7 +195,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
             "CameraviewManager userImageName="+userImageName);
     view.setUserImageName(userImageName);
   }
-  //  todo: pass this to model modul
+//  todo: pass this to model modul
   @ReactProp(name = "modelURL")
   public void setModelUrl(RNCameraView view, String modelURL) {
     Log.i("Debug",

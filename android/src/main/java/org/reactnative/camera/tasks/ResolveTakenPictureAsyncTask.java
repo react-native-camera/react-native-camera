@@ -181,7 +181,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
                 // save to file if requested
                 if (!mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave")) {
-                    // =============<<<<<<<<<<<<<<<<< check here
+                     // =============<<<<<<<<<<<<<<<<< check here
 
 //                    Log.i("Debug","ResolveTakenPictureAsyncTask doinbackground savetofile...");
 
@@ -216,7 +216,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
                     // Return file system URI
                     String fileUri = Uri.fromFile(imageFile).toString();
-                    // =============<<<<<<<<<<<<<<<<< check here
+                     // =============<<<<<<<<<<<<<<<<< check here
                     //  console log uri...
                     response.putString("uri", fileUri);
                     Log.i("Debug","ResolveTakenPicTask imageURI = "+fileUri);
@@ -242,7 +242,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                 // Write compressed image to file in cache directory unless otherwise specified
                 if (!mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave")) {
                     String filePath = writeStreamToFile(imageStream);
-                    // =============<<<<<<<<<<<<<<<<< check here
+                     // =============<<<<<<<<<<<<<<<<< check here
 
                     // since we lost any exif data on bitmap creation, we only need
                     // to add it if requested
@@ -253,7 +253,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                     }
                     File imageFile = new File(filePath);
                     String fileUri = Uri.fromFile(imageFile).toString();
-                    // =============<<<<<<<<<<<<<<<<< check here
+                     // =============<<<<<<<<<<<<<<<<< check here
                     response.putString("uri", fileUri);
                 }
 
@@ -315,15 +315,15 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private int getImageRotation(int orientation) {
         int rotationDegrees = 0;
         switch (orientation) {
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                rotationDegrees = 90;
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                rotationDegrees = 180;
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                rotationDegrees = 270;
-                break;
+        case ExifInterface.ORIENTATION_ROTATE_90:
+            rotationDegrees = 90;
+            break;
+        case ExifInterface.ORIENTATION_ROTATE_180:
+            rotationDegrees = 180;
+            break;
+        case ExifInterface.ORIENTATION_ROTATE_270:
+            rotationDegrees = 270;
+            break;
         }
         return rotationDegrees;
     }
@@ -336,12 +336,12 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 //            Log.i("Debug","ResolvetakenPictureAsyncTask getImagepath option path+user= "+path);
             return RNFileUtils.getOutputFilePathWithFileName(mCacheDirectory,mOptions.getString("user"),".png");
         }
-        // =============<<<<<<<<<<<<<<<<< check here
+         // =============<<<<<<<<<<<<<<<<< check here
 //        file with random name
         return RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg");
     }
 
-    // =============<<<<<<<<<<<<<<<<< check here
+     // =============<<<<<<<<<<<<<<<<< check here
     private String writeStreamToFile(ByteArrayOutputStream inputStream) throws IOException {
         String outputPath = null;
         IOException exception = null;
