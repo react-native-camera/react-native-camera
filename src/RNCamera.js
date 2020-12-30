@@ -263,6 +263,7 @@ type PropsType = typeof View.props & {
   onRecordingEnd?: Function,
   onTap?: Function,
   onDoubleTap?: Function,
+  onDynamsoftVisionBarcodesDetected?: Function,
   onGoogleVisionBarcodesDetected?: ({ barcodes: Array<TrackedBarcodeFeature> }) => void,
   onSubjectAreaChanged?: ({ nativeEvent: { prevPoint: {| x: number, y: number |} } }) => void,
   faceDetectionMode?: number,
@@ -410,6 +411,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     onRecordingEnd: PropTypes.func,
     onTap: PropTypes.func,
     onDoubleTap: PropTypes.func,
+    onDynamsoftVisionBarcodesDetected: PropTypes.func,
     onGoogleVisionBarcodesDetected: PropTypes.func,
     onFacesDetected: PropTypes.func,
     onTextRecognized: PropTypes.func,
@@ -839,6 +841,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
             onCameraReady={this._onCameraReady}
             onAudioInterrupted={this._onAudioInterrupted}
             onAudioConnected={this._onAudioConnected}
+            onDynamsoftVisionBarcodesDetected={this._onObjectDetected(
+              this.props.onDynamsoftVisionBarcodesDetected,
+            )}
             onGoogleVisionBarcodesDetected={this._onObjectDetected(
               this.props.onGoogleVisionBarcodesDetected,
             )}
@@ -870,6 +875,10 @@ export default class Camera extends React.Component<PropsType, StateType> {
       newProps.googleVisionBarcodeDetectorEnabled = true;
     }
 
+    if (props.onDynamsoftVisionBarcodesDetected) {
+      newProps.dynamsoftVisionBarcodeDetectorEnabled = true;
+    }
+
     if (props.onFacesDetected) {
       newProps.faceDetectorEnabled = true;
     }
@@ -883,6 +892,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
 
     if (Platform.OS === 'ios') {
+      delete newProps.dynamsoftVisionBarcodeDetectorEnabled;
       delete newProps.ratio;
     }
 
@@ -908,10 +918,12 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     barCodeScannerEnabled: true,
     touchDetectorEnabled: true,
     googleVisionBarcodeDetectorEnabled: true,
+    dynamsoftVisionBarcodeDetectorEnabled: true,
     faceDetectorEnabled: true,
     textRecognizerEnabled: true,
     importantForAccessibility: true,
     onBarCodeRead: true,
+    onDynamsoftVisionBarcodesDetected: true,
     onGoogleVisionBarcodesDetected: true,
     onCameraReady: true,
     onAudioInterrupted: true,

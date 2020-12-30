@@ -21,6 +21,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
     EVENT_ON_FACES_DETECTED("onFacesDetected"),
     EVENT_ON_BARCODES_DETECTED("onGoogleVisionBarcodesDetected"),
+    EVENT_ON_DYNAMSOFT_BARCODE_DETECTED("onDynamsoftVisionBarcodesDetected"),
     EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
     EVENT_ON_BARCODE_DETECTION_ERROR("onGoogleVisionBarcodeDetectionError"),
     EVENT_ON_TEXT_RECOGNIZED("onTextRecognized"),
@@ -200,6 +201,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "googleVisionBarcodeDetectorEnabled")
   public void setGoogleVisionBarcodeDetecting(RNCameraView view, boolean googleBarcodeDetectorEnabled) {
     view.setShouldGoogleDetectBarcodes(googleBarcodeDetectorEnabled);
+  }
+
+  @ReactProp(name = "dynamsoftVisionBarcodeDetectorEnabled")
+  public void setDynamsoftVisionBarcodeDetecting(RNCameraView view, boolean dynamsoftBarcodeDetectorEnabled) {
+    view.setShouldDynamsoftDetectBarcodes(dynamsoftBarcodeDetectorEnabled);
   }
 
   @ReactProp(name = "googleVisionBarcodeType")

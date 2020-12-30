@@ -23,6 +23,8 @@ import org.reactnative.facedetector.RNFaceDetector;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import com.dynamsoft.dbr.TextResult;
+
 public class RNCameraViewHelper {
 
   public static final String[][] exifTags = new String[][]{
@@ -283,6 +285,16 @@ public class RNCameraViewHelper {
   }
 
   // Barcode detection events
+
+  public static void emitDynamsoftBarcodesDetectedEvent(ViewGroup view, TextResult[] results) {
+    DynamsoftBarcodeEvent event = DynamsoftBarcodeEvent.obtain(
+        view.getId(),
+        results
+    );
+
+    ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  }
 
   public static void emitBarcodesDetectedEvent(final ViewGroup view, final WritableArray barcodes, final byte[] compressedImage) {
 

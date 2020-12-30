@@ -64,6 +64,7 @@ repositories {
 }
 
 dependencies {
+  implementation fileTree(dir: '../../react-native-dbr/androidLib/lib/', include: ['*.jar', '*.aar'])
   def googlePlayServicesVisionVersion = safeExtGet('googlePlayServicesVisionVersion', safeExtGet('googlePlayServicesVersion', '17.0.2'))
 
   //noinspection GradleDynamicVersion
