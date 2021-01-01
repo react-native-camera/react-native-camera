@@ -2411,8 +2411,9 @@ BOOL _sessionInterrupted = NO;
 
 # pragma mark - mlkit
 -(void )processUserImage:(UIImage *)userImage {
-    // RCTLogInfo(@"processUserImage start");
+    RCTLogInfo(@"processUserImage start");
     // RCTLogInfo(_faceDetector ? @"processUserImage got facedetector": @"processUserImage null facedetector");
+    userImage = [RNImageUtils scaleImage:userImage toWidth:500] ;
     [_faceDetector findFacesInFrame:userImage scaleX:1 scaleY:1 completed:^(NSArray * faces) {
         NSDictionary *eventFace = @{@"type" : @"faceDetected", @"faces" : faces};   
         //  RCTLogInfo(@"RNCamera > processUserImage : faces count = %d",[faces count]);
@@ -2424,7 +2425,7 @@ BOOL _sessionInterrupted = NO;
             int faceY = (int) [[[firstFace valueForKeyPath:@"bounds.origin"] objectForKey:@"y"] floatValue];
             int faceWidth = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"width"] floatValue];
             int faceHeight = (int) [[[firstFace valueForKeyPath:@"bounds.size"] objectForKey:@"height"] floatValue];
-            // NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
+            NSLog(@"runModelWithFrame > first face: x:y:w:h  %d x %d ; %d x %d", faceX,faceY,faceWidth,faceHeight);
             int maxLength = faceHeight;
             if (faceHeight < faceWidth) {
                 maxLength = faceWidth;
