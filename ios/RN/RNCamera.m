@@ -2430,6 +2430,9 @@ BOOL _sessionInterrupted = NO;
             if (faceHeight < faceWidth) {
                 maxLength = faceWidth;
             }
+            if(faceWidth < 30){
+                return ;
+            }
             UIImage *face = [RNImageUtils cropImage:userImage toRect:CGRectMake(faceX, faceY, maxLength , maxLength)];
             face = [RNImageUtils scaleImage:face convertToSize:CGSizeMake(112, 112) ];
             NSData *faceData = UIImagePNGRepresentation(face);

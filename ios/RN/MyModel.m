@@ -247,8 +247,13 @@
       // RCTLogInfo(@"MyModel > runModelWithFrame > originalImageData...");
       NSString *originalImagePath = [RNFileSystem documentDirectoryPath];
       originalImagePath = [originalImagePath stringByAppendingPathComponent:identityFolderName];
-      originalImagePath = [originalImagePath stringByAppendingPathComponent:identityFileName];
-      originData = [self preprocessImage:[RNImageUtils loadImage:originalImagePath]];
+      imageTakenImage = [identityFileName stringByAppendingString:@'Face.png'];
+      originalImagePath1 = [originalImagePath stringByAppendingPathComponent:imageTakenImage];
+      if([RNImageUtils loadImage:originalImagePath] == nil) {
+        identityFileName = [identityFileName stringByAppendingString:@'.png']
+        originalImagePath1 = [originalImagePath stringByAppendingPathComponent:identityFileName];
+      }
+      originData = [self preprocessImage:[RNImageUtils loadImage:originalImagePath1]];
     }
     NSError *error;
     [self.interpreter allocateTensorsWithError:&error];
