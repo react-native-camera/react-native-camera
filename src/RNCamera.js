@@ -666,7 +666,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
       this.props.onTap(nativeEvent.touchOrigin);
     }
     if (this.props.onDoubleTap && nativeEvent.isDoubleTap) {
-      this.props.onTap(nativeEvent.touchOrigin);
+      this.props.onDoubleTap(nativeEvent.touchOrigin);
     }
   };
   _onAudioConnected = () => {
