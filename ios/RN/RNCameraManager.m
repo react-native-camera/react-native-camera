@@ -8,6 +8,7 @@
 #import <React/RCTLog.h>
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
+#import "RNCustomWhiteBalanceSettings.h"
 
 @implementation RNCameraManager
 
@@ -26,6 +27,8 @@ RCT_EXPORT_VIEW_PROPERTY(onRecordingEnd, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onTextRecognized, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onSubjectAreaChanged, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
+RCT_EXPORT_VIEW_PROPERTY(onTouch, RCTDirectEventBlock);
+
 
 + (BOOL)requiresMainQueueSetup
 {
@@ -79,13 +82,18 @@ RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
              @"VideoStabilization": [[self class] validVideoStabilizationModes],
              @"GoogleVisionBarcodeDetection": @{
                  @"BarcodeType": [[self class] barcodeDetectorConstants],
-             }
-             };
+                 @"BarcodeMode": @{
+                     @"NORMAL" : @(RNCameraGoogleVisionBarcodeModeNormal),
+                     @"ALTERNATE" : @(RNCameraGoogleVisionBarcodeModeAlternate),
+                     @"INVERTED" : @(RNCameraGoogleVisionBarcodeModeInverted),
+                     },
+             },
+    };
 }
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"onCameraReady", @"onAudioInterrupted", @"onAudioConnected", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureTaken", @"onPictureSaved", @"onRecordingStart", @"onRecordingEnd", @"onTextRecognized", @"onGoogleVisionBarcodesDetected", @"onSubjectAreaChanged"];
+    return @[@"onCameraReady", @"onAudioInterrupted", @"onAudioConnected", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureTaken", @"onPictureSaved", @"onRecordingStart", @"onRecordingEnd", @"onTextRecognized", @"onGoogleVisionBarcodesDetected", @"onSubjectAreaChanged",@"onTouch"];
 }
 
 + (NSDictionary *)validCodecTypes
@@ -233,9 +241,21 @@ RCT_CUSTOM_VIEW_PROPERTY(maxZoom, NSNumber, RNCamera)
     [view updateZoom];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, NSInteger, RNCamera)
+RCT_CUSTOM_VIEW_PROPERTY(whiteBalance, id, RNCamera)
 {
-    [view setWhiteBalance:[RCTConvert NSInteger:json]];
+    if ([json isKindOfClass: [NSDictionary class]]) {
+        NSDictionary *params = [RCTConvert NSDictionary:json];
+        RNCustomWhiteBalanceSettings *settings = [RNCustomWhiteBalanceSettings new];
+        settings.temperature = [params[@"temperature"] floatValue];
+        settings.tint = [params[@"tint"] floatValue];
+        settings.redGainOffset = [params[@"redGainOffset"] floatValue];
+        settings.greenGainOffset = [params[@"greenGainOffset"] floatValue];
+        settings.blueGainOffset = [params[@"blueGainOffset"] floatValue];
+        [view setCustomWhiteBalanceSettings:settings];
+    } else {
+        [view setCustomWhiteBalanceSettings:nil];
+        [view setWhiteBalance:[RCTConvert NSInteger:json]];
+    }
     [view updateWhiteBalance];
 }
 
@@ -293,6 +313,11 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RNCamera)
 RCT_CUSTOM_VIEW_PROPERTY(googleVisionBarcodeType, NSString, RNCamera)
 {
     [view updateGoogleVisionBarcodeType:json];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(googleVisionBarcodeMode, NSInteger, RNCamera)
+{
+    [view updateGoogleVisionBarcodeMode:json];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(googleVisionBarcodeDetectorEnabled, BOOL, RNCamera)
@@ -466,7 +491,7 @@ RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(checkVideoAuthorizationStatus:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
 #ifdef DEBUG
-    if ([[NSBundle mainBundle].infoDictionary objectForKey:@"NSCameraUsageDescription"] == nil) {
+    if (![[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCameraUsageDescription"]) {
         RCTLogWarn(@"Checking video permissions without having key 'NSCameraUsageDescription' defined in your Info.plist. If you do not add it your app will crash when being built in release mode. You will have to add it to your Info.plist file, otherwise RNCamera is not allowed to use the camera.  You can learn more about adding permissions here: https://stackoverflow.com/a/38498347/4202031");
         resolve(@(NO));
         return;
@@ -480,7 +505,7 @@ RCT_EXPORT_METHOD(checkVideoAuthorizationStatus:(RCTPromiseResolveBlock)resolve
 
 RCT_EXPORT_METHOD(checkRecordAudioAuthorizationStatus:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
-    if ([[NSBundle mainBundle].infoDictionary objectForKey:@"NSMicrophoneUsageDescription"] == nil) {
+    if (![[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"]) {
         RCTLogWarn(@"Checking audio permissions without having key 'NSMicrophoneUsageDescription' defined in your Info.plist. Audio Recording for your video files is therefore disabled. If you do not need audio on your recordings is is recommended to set the 'captureAudio' property on your component instance to 'false', otherwise you will have to add the key 'NSMicrophoneUsageDescription' to your Info.plist. If you do not your app will crash when being built in release mode. You can learn more about adding permissions here: https://stackoverflow.com/a/38498347/4202031");
         resolve(@(NO));
         return;

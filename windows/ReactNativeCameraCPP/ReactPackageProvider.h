@@ -5,16 +5,16 @@ using namespace winrt::Microsoft::ReactNative;
 
 namespace winrt::ReactNativeCameraCPP::implementation {
 
-    struct ReactPackageProvider : ReactPackageProviderT<ReactPackageProvider> {
-        ReactPackageProvider() = default;
+struct ReactPackageProvider : ReactPackageProviderT<ReactPackageProvider> {
+  ReactPackageProvider() = default;
 
-        void CreatePackage(IReactPackageBuilder const &packageBuilder) noexcept;
-    };
+  void CreatePackage(IReactPackageBuilder const &packageBuilder) noexcept;
+};
 
 } // namespace winrt::ReactNativeCameraCPP::implementation
 
 namespace winrt::ReactNativeCameraCPP::factory_implementation {
 
-    struct ReactPackageProvider : ReactPackageProviderT<ReactPackageProvider, implementation::ReactPackageProvider> {};
+struct ReactPackageProvider : ReactPackageProviderT<ReactPackageProvider, implementation::ReactPackageProvider> {};
 
 } // namespace winrt::ReactNativeCameraCPP::factory_implementation

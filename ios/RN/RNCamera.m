@@ -7,7 +7,9 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 #import <MobileCoreServices/MobileCoreServices.h>
-#import  "RNSensorOrientationChecker.h"
+#import "RNSensorOrientationChecker.h"
+#import "RNCustomWhiteBalanceSettings.h"
+
 @interface RNCamera ()
 
 @property (nonatomic, weak) RCTBridge *bridge;
@@ -25,6 +27,7 @@
 @property (nonatomic, copy) RCTDirectEventBlock onAudioConnected;
 @property (nonatomic, copy) RCTDirectEventBlock onMountError;
 @property (nonatomic, copy) RCTDirectEventBlock onBarCodeRead;
+@property (nonatomic, copy) RCTDirectEventBlock onTouch;
 @property (nonatomic, copy) RCTDirectEventBlock onTextRecognized;
 @property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onGoogleVisionBarcodesDetected;
@@ -34,14 +37,13 @@
 @property (nonatomic, copy) RCTDirectEventBlock onRecordingEnd;
 @property (nonatomic, assign) BOOL finishedReadingText;
 @property (nonatomic, assign) BOOL finishedDetectingFace;
-@property (nonatomic, assign) BOOL finishedDetectingBarcodes;
 @property (nonatomic, copy) NSDate *startText;
 @property (nonatomic, copy) NSDate *startFace;
-@property (nonatomic, copy) NSDate *startBarcode;
 
 @property (nonatomic, copy) RCTDirectEventBlock onSubjectAreaChanged;
 @property (nonatomic, assign) BOOL isFocusedOnPoint;
 @property (nonatomic, assign) BOOL isExposedOnPoint;
+@property (nonatomic, assign) BOOL invertImageData;
 
 @end
 
@@ -65,10 +67,8 @@ BOOL _sessionInterrupted = NO;
         self.barcodeDetector = [self createBarcodeDetectorMlKit];
         self.finishedReadingText = true;
         self.finishedDetectingFace = true;
-        self.finishedDetectingBarcodes = true;
         self.startText = [NSDate date];
         self.startFace = [NSDate date];
-        self.startBarcode = [NSDate date];
 #if !(TARGET_IPHONE_SIMULATOR)
         self.previewLayer =
         [AVCaptureVideoPreviewLayer layerWithSession:self.session];
@@ -76,12 +76,19 @@ BOOL _sessionInterrupted = NO;
         self.previewLayer.needsDisplayOnBoundsChange = YES;
 #endif
         self.rectOfInterest = CGRectMake(0, 0, 1.0, 1.0);
+
+        UITapGestureRecognizer * tapHandler=[self createTapGestureRecognizer];
+        [self addGestureRecognizer:tapHandler];
+        UITapGestureRecognizer * doubleTabHandler=[self createDoubleTapGestureRecognizer];
+        [self addGestureRecognizer:doubleTabHandler];
+
         self.autoFocus = -1;
         self.exposure = -1;
         self.presetCamera = AVCaptureDevicePositionUnspecified;
         self.cameraId = nil;
         self.isFocusedOnPoint = NO;
         self.isExposedOnPoint = NO;
+        self.invertImageData = true;
         _recordRequested = NO;
         _sessionInterrupted = NO;
 
@@ -94,6 +101,39 @@ BOOL _sessionInterrupted = NO;
 
     }
     return self;
+}
+-(UITapGestureRecognizer*)createDoubleTapGestureRecognizer
+{
+    UITapGestureRecognizer *doubleTapGestureRecognizer =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
+    doubleTapGestureRecognizer.numberOfTapsRequired = 2;
+    return doubleTapGestureRecognizer;
+
+}
+-(UITapGestureRecognizer*)createTapGestureRecognizer
+{
+    UITapGestureRecognizer *tapGestureRecognizer =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+    tapGestureRecognizer.numberOfTapsRequired = 1;
+    return tapGestureRecognizer;
+
+}
+-(void)handleDoubleTap:(UITapGestureRecognizer*)doubleTapRecognizer {
+    [self handleTouch:doubleTapRecognizer isDoubleTap:true];
+}
+-(void)handleTap:(UITapGestureRecognizer*)tapRecognizer {
+    [self handleTouch:tapRecognizer isDoubleTap:false];
+}
+-(void)handleTouch:(UITapGestureRecognizer*)tapRecognizer isDoubleTap:(BOOL)isDoubleTap{
+    if (tapRecognizer.state == UIGestureRecognizerStateRecognized) {
+        CGPoint location = [tapRecognizer locationInView:self];
+        NSDictionary *tapEvent = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"isDoubleTab":@(isDoubleTap),
+            @"touchOrigin": @{
+                @"x": @(location.x),
+                @"y": @(location.y)
+            }
+        }];
+        [self onTouch:tapEvent];
+    }
 }
 -(float) getMaxZoomFactor:(AVCaptureDevice*)device {
     float maxZoom;
@@ -172,6 +212,12 @@ BOOL _sessionInterrupted = NO;
 {
     if (_onRecordingEnd) {
         _onRecordingEnd(event);
+    }
+}
+- (void)onTouch:(NSDictionary *)event
+{
+    if (_onTouch) {
+        _onTouch(event);
     }
 }
 
@@ -296,6 +342,24 @@ BOOL _sessionInterrupted = NO;
     return preset;
 }
 
+- (void)lockDevice:(AVCaptureDevice *)device andApplySettings:(void (^)(void))applySettings {
+    NSError *error = nil;
+
+    if(device == nil){
+        return;
+    }
+
+    if (![device lockForConfiguration:&error]) {
+        if (error) {
+            RCTLogError(@"%s: %@", __func__, error);
+        }
+        return;
+}
+
+    applySettings();
+
+    [device unlockForConfiguration];
+}
 
 -(void)updateType
 {
@@ -307,61 +371,32 @@ BOOL _sessionInterrupted = NO;
 - (void)updateFlashMode
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    NSError *error = nil;
-
-    if(device == nil){
+    if(device == nil) {
         return;
     }
 
     if (self.flashMode == RNCameraFlashModeTorch) {
-        if (![device hasTorch])
-            return;
-        if (![device lockForConfiguration:&error]) {
-            if (error) {
-                RCTLogError(@"%s: %@", __func__, error);
-            }
+        if (![device hasTorch] || ![device isTorchModeSupported:AVCaptureTorchModeOn]) {
+            RCTLogWarn(@"%s: device doesn't support torch mode", __func__);
             return;
         }
-        if (device.hasTorch && [device isTorchModeSupported:AVCaptureTorchModeOn])
-        {
-            NSError *error = nil;
-            if ([device lockForConfiguration:&error]) {
-                [device setFlashMode:AVCaptureFlashModeOff];
-                [device setTorchMode:AVCaptureTorchModeOn];
-                [device unlockForConfiguration];
-            } else {
-                if (error) {
-                    RCTLogError(@"%s: %@", __func__, error);
-                }
-            }
-        }
+        [self lockDevice:device andApplySettings:^{
+            [device setFlashMode:AVCaptureFlashModeOff];
+            [device setTorchMode:AVCaptureTorchModeOn];
+        }];
     } else {
-        if (![device hasFlash])
-            return;
-        if (![device lockForConfiguration:&error]) {
-            if (error) {
-                RCTLogError(@"%s: %@", __func__, error);
-            }
+        if (![device hasFlash] || ![device isFlashModeSupported:self.flashMode]) {
+            RCTLogWarn(@"%s: device doesn't support flash mode", __func__);
             return;
         }
-        if (device.hasFlash && [device isFlashModeSupported:self.flashMode])
-        {
-            NSError *error = nil;
-            if ([device lockForConfiguration:&error]) {
-                if ([device isTorchActive]) {
-                    [device setTorchMode:AVCaptureTorchModeOff];
-                }
-                [device setFlashMode:self.flashMode];
-                [device unlockForConfiguration];
-            } else {
-                if (error) {
-                    RCTLogError(@"%s: %@", __func__, error);
-                }
-            }
-        }
-    }
 
-    [device unlockForConfiguration];
+        [self lockDevice:device andApplySettings:^{
+            if ([device isTorchActive]) {
+                [device setTorchMode:AVCaptureTorchModeOff];
+            }
+            [device setFlashMode:self.flashMode];
+        }];
+    }
 }
 
 // Function to cleanup focus listeners and variables on device
@@ -380,18 +415,9 @@ BOOL _sessionInterrupted = NO;
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:previousDevice];
 
         // cleanup device flags
-        NSError *error = nil;
-        if (![previousDevice lockForConfiguration:&error]) {
-            if (error) {
-                RCTLogError(@"%s: %@", __func__, error);
-            }
-            return;
-        }
-
-        previousDevice.subjectAreaChangeMonitoringEnabled = NO;
-
-        [previousDevice unlockForConfiguration];
-
+        [self lockDevice:previousDevice andApplySettings:^{
+            previousDevice.subjectAreaChangeMonitoringEnabled = NO;
+        }];
     }
 }
 
@@ -466,116 +492,80 @@ BOOL _sessionInterrupted = NO;
 - (void)updateAutoFocusPointOfInterest
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    NSError *error = nil;
+    [self lockDevice:device andApplySettings:^{
+        if ([self.autoFocusPointOfInterest objectForKey:@"x"] && [self.autoFocusPointOfInterest objectForKey:@"y"]) {
 
-    if(device == nil){
-        return;
-    }
+            float xValue = [self.autoFocusPointOfInterest[@"x"] floatValue];
+            float yValue = [self.autoFocusPointOfInterest[@"y"] floatValue];
 
-    if (![device lockForConfiguration:&error]) {
-        if (error) {
-            RCTLogError(@"%s: %@", __func__, error);
-        }
-        return;
-    }
+            CGPoint autofocusPoint = CGPointMake(xValue, yValue);
 
-    if ([self.autoFocusPointOfInterest objectForKey:@"x"] && [self.autoFocusPointOfInterest objectForKey:@"y"]) {
+            if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
 
-        float xValue = [self.autoFocusPointOfInterest[@"x"] floatValue];
-        float yValue = [self.autoFocusPointOfInterest[@"y"] floatValue];
+                [device setFocusPointOfInterest:autofocusPoint];
+                [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
 
-        CGPoint autofocusPoint = CGPointMake(xValue, yValue);
+                if (!self.isFocusedOnPoint) {
+                    self.isFocusedOnPoint = YES;
 
-
-        if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
-
-            [device setFocusPointOfInterest:autofocusPoint];
-            [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-
-            if (!self.isFocusedOnPoint) {
-                self.isFocusedOnPoint = YES;
-
-                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(AutofocusDelegate:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:device];
-                device.subjectAreaChangeMonitoringEnabled = YES;
+                    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(autofocusDelegate:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:device];
+                    device.subjectAreaChangeMonitoringEnabled = YES;
+                }
+            } else {
+                RCTLogWarn(@"AutoFocusPointOfInterest not supported");
             }
-        } else {
-            RCTLogWarn(@"AutoFocusPointOfInterest not supported");
-        }
 
-        if([self.autoFocusPointOfInterest objectForKey:@"autoExposure"]){
-            BOOL autoExposure = [self.autoFocusPointOfInterest[@"autoExposure"] boolValue];
+            if([self.autoFocusPointOfInterest objectForKey:@"autoExposure"]){
+                BOOL autoExposure = [self.autoFocusPointOfInterest[@"autoExposure"] boolValue];
 
-            if(autoExposure){
-                if([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure])
-                {
-                    [device setExposurePointOfInterest:autofocusPoint];
-                    [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
-                    self.isExposedOnPoint = YES;
+                if(autoExposure){
+                    if([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure])
+                    {
+                        [device setExposurePointOfInterest:autofocusPoint];
+                        [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+                        self.isExposedOnPoint = YES;
 
-                } else {
-                    RCTLogWarn(@"AutoExposurePointOfInterest not supported");
+                    } else {
+                        RCTLogWarn(@"AutoExposurePointOfInterest not supported");
+                    }
+                }
+                else{
+                    [self deexposePointOfInterest];
                 }
             }
             else{
                 [self deexposePointOfInterest];
             }
-        }
-        else{
+
+        } else {
+            [self defocusPointOfInterest];
             [self deexposePointOfInterest];
         }
-
-    } else {
-        [self defocusPointOfInterest];
-        [self deexposePointOfInterest];
-    }
-
-    [device unlockForConfiguration];
+    }];
 }
 
--(void) AutofocusDelegate:(NSNotification*) notification {
+- (void)autofocusDelegate:(NSNotification*) notification {
     AVCaptureDevice* device = [notification object];
 
-    if ([device lockForConfiguration:NULL] == YES ) {
+    [self lockDevice:device andApplySettings:^{
         [self defocusPointOfInterest];
         [self deexposePointOfInterest];
-        [device unlockForConfiguration];
-    }
+    }];
 }
 
 - (void)updateFocusMode
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    NSError *error = nil;
-
-    if(device == nil){
-        return;
-    }
-
-    if (![device lockForConfiguration:&error]) {
-        if (error) {
-            RCTLogError(@"%s: %@", __func__, error);
-        }
-        return;
-    }
-
     if ([device isFocusModeSupported:self.autoFocus]) {
-        if ([device lockForConfiguration:&error]) {
+        [self lockDevice:device andApplySettings:^{
             [device setFocusMode:self.autoFocus];
-        } else {
-            if (error) {
-                RCTLogError(@"%s: %@", __func__, error);
-            }
-        }
+        }];
     }
-
-    [device unlockForConfiguration];
 }
 
 - (void)updateFocusDepth
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    NSError *error = nil;
-
     if (device == nil || self.autoFocus < 0 || device.focusMode != RNCameraAutoFocusOff || device.position == RNCameraTypeFront) {
         return;
     }
@@ -585,85 +575,79 @@ BOOL _sessionInterrupted = NO;
         return;
     }
 
-    if (![device lockForConfiguration:&error]) {
-        if (error) {
-            RCTLogError(@"%s: %@", __func__, error);
-        }
-        return;
-    }
-
-    __weak __typeof__(device) weakDevice = device;
-    [device setFocusModeLockedWithLensPosition:self.focusDepth completionHandler:^(CMTime syncTime) {
-        [weakDevice unlockForConfiguration];
+    [self lockDevice:device andApplySettings:^{
+        [device setFocusModeLockedWithLensPosition:self.focusDepth completionHandler:nil];
     }];
 }
 
 - (void)updateZoom {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    NSError *error = nil;
-
-    if(device == nil){
-        return;
-    }
-
-    if (![device lockForConfiguration:&error]) {
-        if (error) {
-            RCTLogError(@"%s: %@", __func__, error);
-        }
-        return;
-    }
-
-    float maxZoom = [self getMaxZoomFactor:device];
-
-    device.videoZoomFactor = (maxZoom - 1) * self.zoom + 1;
-
-
-    [device unlockForConfiguration];
+    [self lockDevice:device andApplySettings:^{
+        float maxZoom = [self getMaxZoomFactor:device];
+        device.videoZoomFactor = (maxZoom - 1) * self.zoom + 1;
+    }];
 }
 
-- (void)updateWhiteBalance
-{
-    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    NSError *error = nil;
-
-    if(device == nil){
-        return;
-    }
-
-    if (![device lockForConfiguration:&error]) {
-        if (error) {
-            RCTLogError(@"%s: %@", __func__, error);
-        }
-        return;
-    }
-
-    if (self.whiteBalance == RNCameraWhiteBalanceAuto) {
-        [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
-        [device unlockForConfiguration];
+- (void)updateWhiteBalance {
+    if (self.customWhiteBalanceSettings != nil) {
+        [self applyCustomWhiteBalance];
     } else {
-        AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
-            .temperature = [RNCameraUtils temperatureForWhiteBalance:self.whiteBalance],
-            .tint = 0,
-        };
-        AVCaptureWhiteBalanceGains rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
-        __weak __typeof__(device) weakDevice = device;
-        if ([device lockForConfiguration:&error]) {
+        [self applyDefaultWhiteBalance];
+    }
+}
+
+- (void)applyDefaultWhiteBalance {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    [self lockDevice:device andApplySettings:^{
+        if (self.whiteBalance == RNCameraWhiteBalanceAuto || ![device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]) {
+            if (self.whiteBalance != RNCameraWhiteBalanceAuto) {
+                RCTLogWarn(@"%s: locked whitebalance mode ist note supported. Fallback to continuous auto white balance mode", __func__);
+            }
+            [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
+        } else {
+            AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
+                .temperature = [RNCameraUtils temperatureForWhiteBalance:self.whiteBalance],
+                .tint = 0,
+            };
+            AVCaptureWhiteBalanceGains rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
+
             @try{
-                [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:^(CMTime syncTime) {
-                    [weakDevice unlockForConfiguration];
-                }];
+                [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:nil];
             }
             @catch(NSException *exception){
                 RCTLogError(@"Failed to set white balance: %@", exception);
             }
+        }
+    }];
+}
+
+- (void)applyCustomWhiteBalance {
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    [self lockDevice:device andApplySettings:^{
+        if (![device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]) {
+            RCTLogWarn(@"%s: locked whitebalance mode ist note supported. Fallback to continuous auto white balance mode", __func__);
+            [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
         } else {
-            if (error) {
-                RCTLogError(@"%s: %@", __func__, error);
+            AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
+                .temperature = self.customWhiteBalanceSettings.temperature,
+                .tint = self.customWhiteBalanceSettings.tint,
+            };
+            AVCaptureWhiteBalanceGains rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
+            CGFloat redGain = rgbGains.redGain + self.customWhiteBalanceSettings.redGainOffset;
+            CGFloat greenGain = rgbGains.greenGain + self.customWhiteBalanceSettings.greenGainOffset;
+            CGFloat blueGain = rgbGains.blueGain + self.customWhiteBalanceSettings.blueGainOffset;
+
+            rgbGains.redGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, redGain));
+            rgbGains.greenGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, greenGain));
+            rgbGains.blueGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, blueGain));
+
+            @try{
+                [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:nil];
+            } @catch(NSException *exception){
+                RCTLogError(@"Failed to set custom white balance: %@", exception);
             }
         }
-    }
-
-    [device unlockForConfiguration];
+    }];
 }
 
 
@@ -681,50 +665,42 @@ BOOL _sessionInterrupted = NO;
 - (void)updateExposure
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
-    NSError *error = nil;
-
-    if(device == nil){
-        return;
-    }
-
-    if (![device lockForConfiguration:&error]) {
-        if (error) {
-            RCTLogError(@"%s: %@", __func__, error);
-        }
-        return;
-    }
-
-    // Check that either no explicit exposure-val has been set yet
-    // or that it has been reset. Check for > 1 is only a guard.
-    if(self.exposure < 0 || self.exposure > 1){
-        [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
-        [device unlockForConfiguration];
-        return;
-    }
-
-    // Lazy init of range.
-    if(!self.exposureIsoMin){ self.exposureIsoMin = device.activeFormat.minISO; }
-    if(!self.exposureIsoMax){ self.exposureIsoMax = device.activeFormat.maxISO; }
-
-    // Get a valid ISO-value in range from min to max. After we mapped the exposure
-    // (a val between 0 - 1), the result gets corrected by the offset from 0, which
-    // is the min-ISO-value.
-    float appliedExposure = (self.exposureIsoMax - self.exposureIsoMin) * self.exposure + self.exposureIsoMin;
-
-    // Make sure we're in AVCaptureExposureModeCustom, else the ISO + duration time won't apply.
-    // Also make sure the device can set exposure
-    if([device isExposureModeSupported:AVCaptureExposureModeCustom]){
-        if(device.exposureMode != AVCaptureExposureModeCustom){
-            [device setExposureMode:AVCaptureExposureModeCustom];
+    [self lockDevice:device andApplySettings:^{
+        // Check that either no explicit exposure-val has been set yet
+        // or that it has been reset. Check for > 1 is only a guard.
+        if(self.exposure < 0 || self.exposure > 1){
+            [device setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+            return;
         }
 
-        // Only set the ISO for now, duration will be default as a change might affect frame rate.
-        [device setExposureModeCustomWithDuration:AVCaptureExposureDurationCurrent ISO:appliedExposure completionHandler:nil];
-    }
-    else{
-        RCTLog(@"Device does not support AVCaptureExposureModeCustom");
-    }
-    [device unlockForConfiguration];
+        // Lazy init of range.
+        if(!self.exposureIsoMin){ self.exposureIsoMin = device.activeFormat.minISO; }
+        if(!self.exposureIsoMax){ self.exposureIsoMax = device.activeFormat.maxISO; }
+
+        // Get a valid ISO-value in range from min to max. After we mapped the exposure
+        // (a val between 0 - 1), the result gets corrected by the offset from 0, which
+        // is the min-ISO-value.
+        float appliedExposure = (self.exposureIsoMax - self.exposureIsoMin) * self.exposure + self.exposureIsoMin;
+
+        // Make sure we're in AVCaptureExposureModeCustom, else the ISO + duration time won't apply.
+        // Also make sure the device can set exposure
+        if([device isExposureModeSupported:AVCaptureExposureModeCustom]){
+            if(device.exposureMode != AVCaptureExposureModeCustom){
+                [device setExposureMode:AVCaptureExposureModeCustom];
+            }
+
+            // Only set the ISO for now, duration will be default as a change might affect frame rate.
+            @try{
+                [device setExposureModeCustomWithDuration:AVCaptureExposureDurationCurrent ISO:appliedExposure completionHandler:nil];
+            }
+            @catch(NSException *exception){
+                RCTLogError(@"Failed to update exposure: %@", exception);
+            }
+
+        } else {
+            RCTLog(@"Device does not support AVCaptureExposureModeCustom");
+        }
+    }];
 }
 
 - (void)updatePictureSize
@@ -1538,6 +1514,13 @@ BOOL _sessionInterrupted = NO;
         self.session.sessionPreset = [self getDefaultPreset];
 
 
+        // reset iso cached values, these might be different
+        // from camera to camera. Otherwise, the camera may crash
+        // when changing cameras and exposure.
+        self.exposureIsoMin = 0;
+        self.exposureIsoMax = 0;
+
+
         if ([self.session canAddInput:captureDeviceInput]) {
             [self.session addInput:captureDeviceInput];
 
@@ -2129,6 +2112,13 @@ BOOL _sessionInterrupted = NO;
     [self.barcodeDetector setType:requestedTypes queue:self.sessionQueue];
 }
 
+- (void)updateGoogleVisionBarcodeMode:(id)requestedMode
+{
+    if ([self.barcodeDetector isRealDetector]) {
+        [self.barcodeDetector setMode:requestedMode queue:self.sessionQueue];
+    }
+}
+
 - (void)onBarcodesDetected:(NSDictionary *)event
 {
     if (_onGoogleVisionBarcodesDetected && _session) {
@@ -2193,10 +2183,9 @@ BOOL _sessionInterrupted = NO;
     NSDate *methodFinish = [NSDate date];
     NSTimeInterval timePassedSinceSubmittingForText = [methodFinish timeIntervalSinceDate:self.startText];
     NSTimeInterval timePassedSinceSubmittingForFace = [methodFinish timeIntervalSinceDate:self.startFace];
-    NSTimeInterval timePassedSinceSubmittingForBarcode = [methodFinish timeIntervalSinceDate:self.startBarcode];
     BOOL canSubmitForTextDetection = timePassedSinceSubmittingForText > 0.5 && _finishedReadingText && self.canReadText && [self.textDetector isRealDetector];
     BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
-    BOOL canSubmitForBarcodeDetection = timePassedSinceSubmittingForBarcode > 0.5 && _finishedDetectingBarcodes && self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
+    BOOL canSubmitForBarcodeDetection = self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
     if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection) {
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
         NSInteger position = self.videoCaptureDeviceInput.device.position;
@@ -2227,12 +2216,29 @@ BOOL _sessionInterrupted = NO;
         }
         // find barcodes
         if (canSubmitForBarcodeDetection) {
-            _finishedDetectingBarcodes = false;
-            self.startBarcode = [NSDate date];
+            // Check for the barcode detection mode (Normal, Alternate, Inverted)
+            switch ([self.barcodeDetector fetchDetectionMode]) {
+                case RNCameraGoogleVisionBarcodeModeNormal:
+                    self.invertImageData = false;
+                    break;
+                case RNCameraGoogleVisionBarcodeModeAlternate:
+                    self.invertImageData = !self.invertImageData;
+                    break;
+                case RNCameraGoogleVisionBarcodeModeInverted:
+                    self.invertImageData = true;
+                    break;
+                default:
+                    self.invertImageData = false;
+                    break;
+            }
+
+            if (self.invertImageData) {
+                image = [RNImageUtils invertColors:image];
+            }
+
             [self.barcodeDetector findBarcodesInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * barcodes) {
                 NSDictionary *eventBarcode = @{@"type" : @"barcode", @"barcodes" : barcodes};
                 [self onBarcodesDetected:eventBarcode];
-                self.finishedDetectingBarcodes = true;
             }];
         }
     }

@@ -531,6 +531,10 @@ public class CameraView extends FrameLayout {
         mImpl.setFlash(flash);
     }
 
+    public ArrayList<int[]> getSupportedPreviewFpsRange() {
+      return mImpl.getSupportedPreviewFpsRange();
+    }
+
     /**
      * Gets the current flash mode.
      *
@@ -623,12 +627,20 @@ public class CameraView extends FrameLayout {
      * fires {@link Callback#onRecordingStart(CameraView, String, int, int)} and {@link Callback#onRecordingEnd(CameraView)}.
      */
     public boolean record(String path, int maxDuration, int maxFileSize,
-                          boolean recordAudio, CamcorderProfile profile, int orientation) {
-        return mImpl.record(path, maxDuration, maxFileSize, recordAudio, profile, orientation);
+                          boolean recordAudio, CamcorderProfile profile, int orientation, int fps) {
+        return mImpl.record(path, maxDuration, maxFileSize, recordAudio, profile, orientation, fps);
     }
 
     public void stopRecording() {
         mImpl.stopRecording();
+    }
+
+    public void pauseRecording() {
+        mImpl.pauseRecording();
+    }
+
+    public void resumeRecording() {
+        mImpl.resumeRecording();
     }
 
     public void resumePreview() {

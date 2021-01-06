@@ -272,6 +272,9 @@ export default class CameraScreen extends React.Component {
         onTextRecognized={canDetectText ? this.textRecognized : null}
         onGoogleVisionBarcodesDetected={canDetectBarcode ? this.barcodeRecognized : null}
         googleVisionBarcodeType={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeType.ALL}
+        googleVisionBarcodeMode={
+          RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeMode.ALTERNATE
+        }
       >
         <View
           style={{

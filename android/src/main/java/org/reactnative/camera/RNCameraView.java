@@ -3,11 +3,18 @@ package org.reactnative.camera;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import androidx.core.content.ContextCompat;
 
+import android.util.DisplayMetrics;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -24,6 +31,7 @@ import org.reactnative.camera.tasks.*;
 import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.facedetector.RNFaceDetector;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -38,8 +46,11 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private Map<Promise, File> mPictureTakenDirectories = new ConcurrentHashMap<>();
   private Promise mVideoRecordedPromise;
   private List<String> mBarCodeTypes = null;
+  private boolean mDetectedImageInEvent = false;
 
   private ScaleGestureDetector mScaleGestureDetector;
+  private GestureDetector mGestureDetector;
+
 
   private boolean mIsPaused = false;
   private boolean mIsNew = true;
@@ -62,6 +73,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private boolean mShouldGoogleDetectBarcodes = false;
   private boolean mShouldScanBarCodes = false;
   private boolean mShouldRecognizeText = false;
+  private boolean mShouldDetectTouches = false;
   private int mFaceDetectorMode = RNFaceDetector.FAST_MODE;
   private int mFaceDetectionLandmarks = RNFaceDetector.NO_LANDMARKS;
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
@@ -189,7 +201,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
             }
           }
           BarcodeDetectorAsyncTaskDelegate delegate = (BarcodeDetectorAsyncTaskDelegate) cameraView;
-          new BarcodeDetectorAsyncTask(delegate, mGoogleBarcodeDetector, data, width, height, correctRotation, getResources().getDisplayMetrics().density, getFacing(), getWidth(), getHeight(), mPaddingX, mPaddingY).execute();
+          new BarcodeDetectorAsyncTask(delegate, mGoogleBarcodeDetector, data, width, height,
+                  correctRotation, getResources().getDisplayMetrics().density, getFacing(),
+                  getWidth(), getHeight(), mPaddingX, mPaddingY).execute();
         }
 
         if (willCallTextTask) {
@@ -249,6 +263,10 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     initBarcodeReader();
   }
 
+  public void setDetectedImageInEvent(boolean detectedImageInEvent) {
+    this.mDetectedImageInEvent = detectedImageInEvent;
+  }
+
   public void takePicture(final ReadableMap options, final Promise promise, final File cacheDirectory) {
     mBgHandler.post(new Runnable() {
       @Override
@@ -283,6 +301,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           String path = options.hasKey("path") ? options.getString("path") : RNFileUtils.getOutputFilePath(cacheDirectory, ".mp4");
           int maxDuration = options.hasKey("maxDuration") ? options.getInt("maxDuration") : -1;
           int maxFileSize = options.hasKey("maxFileSize") ? options.getInt("maxFileSize") : -1;
+          int fps = options.hasKey("fps") ? options.getInt("fps") : -1;
 
           CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
           if (options.hasKey("quality")) {
@@ -302,7 +321,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
             orientation = options.getInt("orientation");
           }
 
-          if (RNCameraView.super.record(path, maxDuration * 1000, maxFileSize, recordAudio, profile, orientation)) {
+          if (RNCameraView.super.record(path, maxDuration * 1000, maxFileSize, recordAudio, profile, orientation, fps)) {
             mIsRecording = true;
             mVideoRecordedPromise = promise;
           } else {
@@ -346,13 +365,28 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
   }
 
-  public void onBarCodeRead(Result barCode, int width, int height) {
+  public void onBarCodeRead(Result barCode, int width, int height, byte[] imageData) {
     String barCodeType = barCode.getBarcodeFormat().toString();
     if (!mShouldScanBarCodes || !mBarCodeTypes.contains(barCodeType)) {
       return;
     }
 
-    RNCameraViewHelper.emitBarCodeReadEvent(this, barCode,  width,  height);
+    final byte[] compressedImage;
+    if (mDetectedImageInEvent) {
+      try {
+        // https://stackoverflow.com/a/32793908/122441
+        final YuvImage yuvImage = new YuvImage(imageData, ImageFormat.NV21, width, height, null);
+        final ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
+        yuvImage.compressToJpeg(new Rect(0, 0, width, height), 100, imageStream);
+        compressedImage = imageStream.toByteArray();
+      } catch (Exception e) {
+        throw new RuntimeException(String.format("Error decoding imageData from NV21 format (%d bytes)", imageData.length), e);
+      }
+    } else {
+      compressedImage = null;
+    }
+
+    RNCameraViewHelper.emitBarCodeReadEvent(this, barCode, width, height, compressedImage);
   }
 
   public void onBarCodeScanningTaskCompleted() {
@@ -375,6 +409,16 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     this.mCameraViewHeight = height;
   }
 
+
+  public void setShouldDetectTouches(boolean shouldDetectTouches) {
+    if(!mShouldDetectTouches && shouldDetectTouches){
+      mGestureDetector=new GestureDetector(mThemedReactContext,onGestureListener);
+    }else{
+      mGestureDetector=null;
+    }
+    this.mShouldDetectTouches = shouldDetectTouches;
+  }
+
   public void setUseNativeZoom(boolean useNativeZoom){
     if(!mUseNativeZoom && useNativeZoom){
       mScaleGestureDetector = new ScaleGestureDetector(mThemedReactContext,onScaleGestureListener);
@@ -388,6 +432,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   public boolean onTouchEvent(MotionEvent event) {
     if(mUseNativeZoom) {
       mScaleGestureDetector.onTouchEvent(event);
+    }
+    if(mShouldDetectTouches){
+      mGestureDetector.onTouchEvent(event);
     }
     return true;
   }
@@ -487,11 +534,28 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mGoogleVisionBarCodeMode = barcodeMode;
   }
 
-  public void onBarcodesDetected(WritableArray barcodesDetected) {
+  public void onBarcodesDetected(WritableArray barcodesDetected, int width, int height, byte[] imageData) {
     if (!mShouldGoogleDetectBarcodes) {
       return;
     }
-    RNCameraViewHelper.emitBarcodesDetectedEvent(this, barcodesDetected);
+
+    // See discussion in https://github.com/react-native-community/react-native-camera/issues/2786
+    final byte[] compressedImage;
+    if (mDetectedImageInEvent) {
+      try {
+        // https://stackoverflow.com/a/32793908/122441
+        final YuvImage yuvImage = new YuvImage(imageData, ImageFormat.NV21, width, height, null);
+        final ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
+        yuvImage.compressToJpeg(new Rect(0, 0, width, height), 100, imageStream);
+        compressedImage = imageStream.toByteArray();
+      } catch (Exception e) {
+        throw new RuntimeException(String.format("Error decoding imageData from NV21 format (%d bytes)", imageData.length), e);
+      }
+    } else {
+      compressedImage = null;
+    }
+
+    RNCameraViewHelper.emitBarcodesDetectedEvent(this, barcodesDetected, compressedImage);
   }
 
   public void onBarcodeDetectionError(RNBarcodeDetector barcodeDetector) {
@@ -604,7 +668,25 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       return true;
     }
   }
+  private int scalePosition(float raw){
+    Resources resources = getResources();
+    Configuration config = resources.getConfiguration();
+    DisplayMetrics dm = resources.getDisplayMetrics();
+    return (int)(raw/ dm.density);
+  }
+  private GestureDetector.SimpleOnGestureListener onGestureListener = new GestureDetector.SimpleOnGestureListener(){
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+      RNCameraViewHelper.emitTouchEvent(RNCameraView.this,false,scalePosition(e.getX()),scalePosition(e.getY()));
+      return true;
+    }
 
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+      RNCameraViewHelper.emitTouchEvent(RNCameraView.this,true,scalePosition(e.getX()),scalePosition(e.getY()));
+      return true;
+    }
+  };
   private ScaleGestureDetector.OnScaleGestureListener onScaleGestureListener = new ScaleGestureDetector.OnScaleGestureListener() {
 
     @Override

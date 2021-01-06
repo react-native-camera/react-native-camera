@@ -27,7 +27,9 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_PICTURE_TAKEN("onPictureTaken"),
     EVENT_ON_PICTURE_SAVED("onPictureSaved"),
     EVENT_ON_RECORDING_START("onRecordingStart"),
-    EVENT_ON_RECORDING_END("onRecordingEnd");
+    EVENT_ON_RECORDING_END("onRecordingEnd"),
+    EVENT_ON_TOUCH("onTouch");
+
 
     private final String mName;
 
@@ -150,6 +152,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setBarCodeTypes(result);
   }
 
+  @ReactProp(name = "detectedImageInEvent")
+  public void setDetectedImageInEvent(RNCameraView view, boolean detectedImageInEvent) {
+    view.setDetectedImageInEvent(detectedImageInEvent);
+  }
+
   @ReactProp(name = "barCodeScannerEnabled")
   public void setBarCodeScanning(RNCameraView view, boolean barCodeScannerEnabled) {
     view.setShouldScanBarCodes(barCodeScannerEnabled);
@@ -158,6 +165,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "useCamera2Api")
   public void setUseCamera2Api(RNCameraView view, boolean useCamera2Api) {
     view.setUsingCamera2Api(useCamera2Api);
+  }
+
+  @ReactProp(name = "touchDetectorEnabled")
+  public void setTouchDetectorEnabled(RNCameraView view, boolean touchDetectorEnabled) {
+    view.setShouldDetectTouches(touchDetectorEnabled);
   }
 
   @ReactProp(name = "faceDetectorEnabled")
