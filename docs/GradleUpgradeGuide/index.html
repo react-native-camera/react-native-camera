@@ -66,24 +66,24 @@
 <ul>
 <li>In the <code>android/build.gradle</code> file:</li>
 </ul>
-<pre><code class="hljs">buildscript {
-    repositories {
+<pre><code class="hljs"><span class="hljs-keyword">buildscript</span> {
+    <span class="hljs-keyword">repositories</span> {
         jcenter()
         maven {
             url <span class="hljs-string">'https://maven.google.com'</span>
             name <span class="hljs-string">'Google'</span>
         }
     }
-    dependencies {
-        classpath <span class="hljs-string">'com.android.tools.build:gradle:3.1.0'</span>
+    <span class="hljs-keyword">dependencies</span> {
+        <span class="hljs-keyword">classpath</span> <span class="hljs-string">'com.android.tools.build:gradle:3.1.0'</span>
 
         <span class="hljs-comment">// <span class="hljs-doctag">NOTE:</span> Do not place your application dependencies here; they belong</span>
         <span class="hljs-comment">// in the individual module build.gradle files</span>
     }
 }
 
-allprojects {
-    repositories {
+<span class="hljs-keyword">allprojects</span> {
+    <span class="hljs-keyword">repositories</span> {
         mavenLocal()
         jcenter()
         maven {
@@ -98,18 +98,18 @@ allprojects {
     }
 }
 
-subprojects {
-    project<span class="hljs-selector-class">.configurations</span><span class="hljs-selector-class">.all</span> {
-        resolutionStrategy<span class="hljs-selector-class">.eachDependency</span> { <span class="hljs-selector-tag">details</span> -&gt;
-            <span class="hljs-keyword">if</span> (<span class="hljs-selector-tag">details</span><span class="hljs-selector-class">.requested</span><span class="hljs-selector-class">.group</span> == <span class="hljs-string">'com.android.support'</span>
-              &amp;&amp; !<span class="hljs-selector-tag">details</span><span class="hljs-selector-class">.requested</span><span class="hljs-selector-class">.name</span><span class="hljs-selector-class">.contains</span>(<span class="hljs-string">'multidex'</span>) ) {
-                <span class="hljs-selector-tag">details</span><span class="hljs-selector-class">.useVersion</span> <span class="hljs-string">"26.0.1"</span>
+<span class="hljs-keyword">subprojects</span> {
+    <span class="hljs-keyword">project</span>.<span class="hljs-keyword">configurations</span>.all {
+        resolutionStrategy.eachDependency { details -&gt;
+            <span class="hljs-keyword">if</span> (details.requested.<span class="hljs-keyword">group</span> == <span class="hljs-string">'com.android.support'</span>
+              &amp;&amp; !details.requested.name.contains(<span class="hljs-string">'multidex'</span>) ) {
+                details.useVersion <span class="hljs-string">"26.0.1"</span>
             }
         }
     }
 
     afterEvaluate {
-        project -&gt; <span class="hljs-keyword">if</span> (project.hasProperty(<span class="hljs-string">"android"</span>)) {
+        <span class="hljs-keyword">project</span> -&gt; <span class="hljs-keyword">if</span> (<span class="hljs-keyword">project</span>.hasProperty(<span class="hljs-string">"android"</span>)) {
             android {
                 compileSdkVersion <span class="hljs-number">26</span>
                 buildToolsVersion <span class="hljs-string">'26.0.1'</span>

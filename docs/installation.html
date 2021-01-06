@@ -237,12 +237,12 @@ In short, you would need to</p>
 <li>Add <code>pod 'Firebase/Core'</code> to your podfile</li>
 <li>In your <code>AppDelegate.m</code> file add the following lines:</li>
 </ol>
-<pre><code class="hljs css language-objective-c">#import &lt;Firebase.h&gt; // &lt;--- add this
+<pre><code class="hljs css language-objective-c"><span class="hljs-meta">#import <span class="hljs-meta-string">&lt;Firebase.h&gt; // &lt;--- add this</span></span>
 ...
 
-- <span class="hljs-params">(BOOL)</span>application:<span class="hljs-params">(UIApplication *)</span>application didFinishLaunchingWithOptions:<span class="hljs-params">(NSDictionary *)</span>launchOptions
+- (<span class="hljs-built_in">BOOL</span>)application:(<span class="hljs-built_in">UIApplication</span> *)application didFinishLaunchingWithOptions:(<span class="hljs-built_in">NSDictionary</span> *)launchOptions
 {
-  [FIRApp configure]; // &lt;--- add this
+  [FIRApp configure]; <span class="hljs-comment">// &lt;--- add this</span>
   ...
 }
 </code></pre>
