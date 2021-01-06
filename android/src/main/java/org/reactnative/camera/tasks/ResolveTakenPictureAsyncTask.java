@@ -155,7 +155,9 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
                 // Write Exif data to the response if requested
                 if (writeExifToResponse) {
-                    response.putMap("exif", exifData);
+                    final WritableMap exifDataCopy = Arguments.createMap();
+                    exifDataCopy.merge(exifData);
+                    response.putMap("exif", exifDataCopy);
                 }
             }
 
