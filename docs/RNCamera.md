@@ -356,6 +356,10 @@ An `{width:, height: }` object which defines the width and height of the cameraV
 
 Boolean to turn on or off the camera's shutter sound (default false). Note that in some countries, the shutter sound cannot be turned off.
 
+### `Android` `playSoundOnRecord`
+
+Boolean to turn on or off the camera's record sound (default false)
+
 ### `iOS` `videoStabilizationMode`
 
 The video stabilization mode used for a video recording. The possible values are:

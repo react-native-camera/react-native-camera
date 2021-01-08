@@ -135,6 +135,10 @@ abstract class CameraViewImpl {
 
     abstract boolean getPlaySoundOnCapture();
 
+    abstract void setPlaySoundOnRecord(boolean playSoundOnRecord);
+
+    abstract boolean getPlaySoundOnRecord();
+
     abstract void setScanning(boolean isScanning);
 
     abstract boolean getScanning();
