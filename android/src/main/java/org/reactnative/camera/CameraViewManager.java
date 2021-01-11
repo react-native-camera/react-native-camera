@@ -25,7 +25,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
     EVENT_ON_FACES_DETECTED("onFacesDetected"),
     // =============<<<<<<<<<<<<<<<<< check here
-    EVENT_ON_FACE_VERIFIED("onFaceVerified"),
+    EVENT_ON_FACE_VERIFIED("onFacesVerified"),
     EVENT_ON_BARCODES_DETECTED("onGoogleVisionBarcodesDetected"),
     EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
     // =============<<<<<<<<<<<<<<<<< check here
@@ -207,7 +207,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
             "CameraviewManager modelFileName="+modelFileName);
   }
 
-  @ReactProp(name = "onFaceVerified")
+  @ReactProp(name = "onFacesVerified")
   public void setFaceVerifier(RNCameraView view, Boolean onFaceVerifyEnabled) {
     Log.i("Debug",
             "CameraviewManager onFaceVerified enable ="+
