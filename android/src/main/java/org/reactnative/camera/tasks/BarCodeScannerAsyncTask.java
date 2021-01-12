@@ -63,7 +63,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     /**
      * mCameraViewWidth and mCameraViewHeight are obtained from portait orientation
      * mWidth and mHeight are measured with landscape orientation with Home button to the right
-     * adjustedCamViewWidth is the adjusted width fromt the Aspect ratio setting 
+     * adjustedCamViewWidth is the adjusted width from the Aspect ratio setting
      */
     int adjustedCamViewWidth = (int) (mCameraViewHeight / mRatio);
     float adjustedScanY = (((adjustedCamViewWidth - mCameraViewWidth) / 2) + (mScanAreaY * mCameraViewWidth)) / adjustedCamViewWidth;
@@ -148,7 +148,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
   protected void onPostExecute(Result result) {
     super.onPostExecute(result);
     if (result != null) {
-      mDelegate.onBarCodeRead(result, mWidth, mHeight);
+      mDelegate.onBarCodeRead(result, mWidth, mHeight, mImageData);
     }
     mDelegate.onBarCodeScanningTaskCompleted();
   }

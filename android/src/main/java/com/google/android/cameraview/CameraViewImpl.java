@@ -105,6 +105,10 @@ abstract class CameraViewImpl {
 
     abstract void stopRecording();
 
+    abstract void pauseRecording();
+
+    abstract void resumeRecording();
+
     abstract int getCameraOrientation();
 
     abstract void setDisplayOrientation(int displayOrientation);
@@ -130,6 +134,10 @@ abstract class CameraViewImpl {
     abstract void setPlaySoundOnCapture(boolean playSoundOnCapture);
 
     abstract boolean getPlaySoundOnCapture();
+
+    abstract void setPlaySoundOnRecord(boolean playSoundOnRecord);
+
+    abstract boolean getPlaySoundOnRecord();
 
     abstract void setScanning(boolean isScanning);
 

@@ -140,6 +140,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setPlaySoundOnCapture(playSoundOnCapture);
   }
 
+  @ReactProp(name = "playSoundOnRecord")
+  public void setPlaySoundOnRecord(RNCameraView view, boolean playSoundOnRecord) {
+    view.setPlaySoundOnRecord(playSoundOnRecord);
+  }
+
   @ReactProp(name = "barCodeTypes")
   public void setBarCodeTypes(RNCameraView view, ReadableArray barCodeTypes) {
     if (barCodeTypes == null) {
@@ -150,6 +155,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
       result.add(barCodeTypes.getString(i));
     }
     view.setBarCodeTypes(result);
+  }
+
+  @ReactProp(name = "detectedImageInEvent")
+  public void setDetectedImageInEvent(RNCameraView view, boolean detectedImageInEvent) {
+    view.setDetectedImageInEvent(detectedImageInEvent);
   }
 
   @ReactProp(name = "barCodeScannerEnabled")

@@ -20,7 +20,7 @@ class ExampleApp extends PureComponent {
     return (
       <View style={styles.container}>
         <RNCamera
-          ref={(ref) => {
+          ref={ref => {
             this.camera = ref;
           }}
           style={styles.preview}
@@ -144,7 +144,7 @@ class ExampleApp extends PureComponent {
     );
   }
 
-  takePicture = async function (camera) {
+  takePicture = async function(camera) {
     const options = { quality: 0.5, base64: true };
     const data = await camera.takePictureAsync(options);
     //  eslint-disable-next-line
@@ -286,7 +286,7 @@ The idea is that you select the appropriate white balance setting for the type o
 
 Use the `whiteBalance` property to specify which white balance setting the camera should use.
 
-On iOS it's also possible to specify custom temperature, tint and rgb offset values instead of using one of the presets (auto, sunny, ...): 
+On iOS it's also possible to specify custom temperature, tint and rgb offset values instead of using one of the presets (auto, sunny, ...):
 
 Value: Object (e.g. `{temperature: 4000, tint: -10.0, redGainOffset: 0.0, greenGainOffset: 0.0, blueGainOffset: 0.0}`)
 
@@ -356,6 +356,10 @@ An `{width:, height: }` object which defines the width and height of the cameraV
 
 Boolean to turn on or off the camera's shutter sound (default false). Note that in some countries, the shutter sound cannot be turned off.
 
+### `Android` `playSoundOnRecord`
+
+Boolean to turn on or off the camera's record sound (default false)
+
 ### `iOS` `videoStabilizationMode`
 
 The video stabilization mode used for a video recording. The possible values are:
@@ -392,6 +396,14 @@ This option specifies the quality of the video to be taken. The possible values 
 
 If nothing is passed the device's highest camera quality will be used as default.
 Note: This solve the flicker video recording issue for iOS
+
+### `pictureSize`
+
+This prop has a different behaviour for Android and iOS and should rarely be set.
+
+For Android, this prop attempts to control the camera sensor capture resolution, similar to how `ratio` behaves. This is useful for cases where a low resolution image is required, and makes further resizing less intensive on the device's memory. The list of possible values can be requested with `getAvailablePictureSizes`, and the value should be set in the format of `<width>x<height>`. Internally, the native code will attempt to get the best suited resolution for the given `pictureSize` value if the provided value is invalid, and will default to the highest resolution available.
+
+For iOS, this prop controls the internal camera preset value and should rarely be changed. However, this value can be set to setup the sensor to match the video recording's quality in order to prevent flickering. The list of valid values can be gathered from https://developer.apple.com/documentation/avfoundation/avcapturesessionpreset and can also be requested with `getAvailablePictureSizes`.
 
 ### Native Event callbacks props
 
@@ -550,6 +562,13 @@ Available settings:
 
 Change the mode in order to scan "inverted" barcodes. You can either change it to `alternate`, which will inverted the image data every second screen and be able to read both normal and inverted barcodes, or `inverted`, which will only read inverted barcodes. Default is `normal`, which only reads "normal" barcodes. Note: this property only applies to the Google Vision barcode detector.
 Example: `<RNCamera googleVisionBarcodeMode={RNCamera.Constants.GoogleVisionBarcodeDetection.BarcodeMode.ALTERNATE} />`
+
+### `detectedImageInEvent`
+
+When `detectedImageInEvent` is `false` (default), `onBarCodeRead` / `onBarcodesDetected` only gives metadata, but not the image (bytes/base64) itself.
+
+When `detectedImageInEvent` is `true`, `onBarCodeRead` / `onGoogleVisionBarcodesDetected` will fill the `image` field inside the object given to the callback handler.
+It contains raw image bytes in JPEG format (quality 100) as Base64-encoded string.
 
 ### Face Detection Related props
 

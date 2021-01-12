@@ -1,5 +1,7 @@
 package org.reactnative.camera.events;
 
+import android.util.Base64;
+
 import androidx.core.util.Pools;
 
 import org.reactnative.camera.CameraViewManager;
@@ -20,23 +22,25 @@ public class BarCodeReadEvent extends Event<BarCodeReadEvent> {
   private Result mBarCode;
   private int mWidth;
   private int mHeight;
+  private byte[] mCompressedImage;
 
   private BarCodeReadEvent() {}
 
-  public static BarCodeReadEvent obtain(int viewTag, Result barCode, int width, int height) {
+  public static BarCodeReadEvent obtain(int viewTag, Result barCode, int width, int height, byte[] compressedImage) {
     BarCodeReadEvent event = EVENTS_POOL.acquire();
     if (event == null) {
       event = new BarCodeReadEvent();
     }
-    event.init(viewTag, barCode, width, height);
+    event.init(viewTag, barCode, width, height, compressedImage);
     return event;
   }
 
-  private void init(int viewTag, Result barCode, int width, int height) {
+  private void init(int viewTag, Result barCode, int width, int height, byte[] compressedImage) {
     super.init(viewTag);
     mBarCode = barCode;
     mWidth = width;
     mHeight = height;
+    mCompressedImage = compressedImage;
   }
 
   /**
@@ -95,6 +99,9 @@ public class BarCodeReadEvent extends Event<BarCodeReadEvent> {
     eventOrigin.putInt("height", mHeight);
     eventOrigin.putInt("width", mWidth);
     event.putMap("bounds", eventOrigin);
+    if (mCompressedImage != null) {
+      event.putString("image", Base64.encodeToString(mCompressedImage, Base64.NO_WRAP));
+    }
     return event;
   }
 }

@@ -257,6 +257,7 @@ public class CameraView extends FrameLayout {
         state.zoom = getZoom();
         state.whiteBalance = getWhiteBalance();
         state.playSoundOnCapture = getPlaySoundOnCapture();
+        state.playSoundOnRecord = getPlaySoundOnRecord();
         state.scanning = getScanning();
         state.pictureSize = getPictureSize();
         return state;
@@ -280,6 +281,7 @@ public class CameraView extends FrameLayout {
         setZoom(ss.zoom);
         setWhiteBalance(ss.whiteBalance);
         setPlaySoundOnCapture(ss.playSoundOnCapture);
+        setPlaySoundOnRecord(ss.playSoundOnRecord);
         setScanning(ss.scanning);
         setPictureSize(ss.pictureSize);
     }
@@ -604,6 +606,14 @@ public class CameraView extends FrameLayout {
       return mImpl.getPlaySoundOnCapture();
     }
 
+    public void setPlaySoundOnRecord(boolean playSoundOnRecord) {
+        mImpl.setPlaySoundOnRecord(playSoundOnRecord);
+    }
+
+    public boolean getPlaySoundOnRecord() {
+        return mImpl.getPlaySoundOnRecord();
+    }
+
     public void setScanning(boolean isScanning) { mImpl.setScanning(isScanning);}
 
     public boolean getScanning() { return mImpl.getScanning(); }
@@ -633,6 +643,14 @@ public class CameraView extends FrameLayout {
 
     public void stopRecording() {
         mImpl.stopRecording();
+    }
+
+    public void pauseRecording() {
+        mImpl.pauseRecording();
+    }
+
+    public void resumeRecording() {
+        mImpl.resumeRecording();
     }
 
     public void resumePreview() {
@@ -757,6 +775,8 @@ public class CameraView extends FrameLayout {
 
         boolean playSoundOnCapture;
 
+        boolean playSoundOnRecord;
+
         boolean scanning;
 
         Size pictureSize;
@@ -774,6 +794,7 @@ public class CameraView extends FrameLayout {
             zoom = source.readFloat();
             whiteBalance = source.readInt();
             playSoundOnCapture = source.readByte() != 0;
+            playSoundOnRecord = source.readByte() != 0;
             scanning = source.readByte() != 0;
             pictureSize = source.readParcelable(loader);
         }
@@ -795,6 +816,7 @@ public class CameraView extends FrameLayout {
             out.writeFloat(zoom);
             out.writeInt(whiteBalance);
             out.writeByte((byte) (playSoundOnCapture ? 1 : 0));
+            out.writeByte((byte) (playSoundOnRecord ? 1 : 0));
             out.writeByte((byte) (scanning ? 1 : 0));
             out.writeParcelable(pictureSize, flags);
         }

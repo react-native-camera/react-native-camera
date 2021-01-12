@@ -16,6 +16,7 @@ title: Work in progress
 - [`whiteBalance`](API.md#whiteBalance)
 - [`autoFocus`](API.md#autoFocus)
 - [`ratio`](API.md#ratio)
+- [`pictureSize`](API.md#pictureSize)
 - [`focusDepth`](API.md#focusDepth)
 - [`onMountError`](API.md#onMountError)
 - [`onCameraReady`](API.md#onCameraReady)
@@ -94,6 +95,28 @@ torch: 'off'
 | Type   | Default Value |
 | ------ | ------------- |
 | object | `{ off: 1 }`  |
+
+### `ratio`
+
+A string representing the camera ratio in the format 'height:width'. Default is `"4:3"`.
+
+Use `getSupportedRatiosAsync` method to get ratio strings supported by your camera on Android.
+
+| Type   | Default Value |
+| ------ | ------------- |
+| string | `4:3`         |
+
+### `pictureSize`
+
+This prop has a different behaviour for Android and iOS and should rarely be set.
+
+For Android, this prop attempts to control the camera sensor capture resolution, similar to how `ratio` behaves. This is useful for cases where a low resolution image is required, and makes further resizing less intensive on the device's memory. The list of possible values can be requested with `getAvailablePictureSizes`, and the value should be set in the format of `<width>x<height>`. Internally, the native code will attempt to get the best suited resolution for the given `pictureSize` value if the provided value is invalid, and will default to the highest resolution available.
+
+For iOS, this prop controls the internal camera preset value and should rarely be changed. However, this value can be set to setup the sensor to match the video recording's quality in order to prevent flickering. The list of valid values can be gathered from https://developer.apple.com/documentation/avfoundation/avcapturesessionpreset and can also be requested with `getAvailablePictureSizes`.
+
+| Type   | Default Value |
+| ------ | ------------- |
+| string | `None`        |
 
 ## Methods
 
@@ -376,7 +399,7 @@ const previewRange = await this.camera.getSupportedPreviewFpsRange();
     MINIMUM_FPS: "15000",
     MAXIMUM_FPS: "15000"
   },
-  { 
+  {
     MINIMUM_FPS: "20000",
     MAXIMUM_FPS: "20000"
   }

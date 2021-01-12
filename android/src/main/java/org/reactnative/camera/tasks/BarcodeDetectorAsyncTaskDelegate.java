@@ -5,7 +5,7 @@ import org.reactnative.barcodedetector.RNBarcodeDetector;
 
 public interface BarcodeDetectorAsyncTaskDelegate {
 
-    void onBarcodesDetected(WritableArray barcodes);
+    void onBarcodesDetected(WritableArray barcodes, int width, int height, byte[] imageData);
 
     void onBarcodeDetectionError(RNBarcodeDetector barcodeDetector);
 
