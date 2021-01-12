@@ -69,6 +69,10 @@ RCT_EXPORT_VIEW_PROPERTY(onTouch, RCTDirectEventBlock);
                      @"4:3": @(RNCameraVideo4x3),
                      @"288p": @(RNCameraVideo288p),
                      },
+             @"ImageType": @{
+                     @"jpeg": @(RNCameraImageTypeJPEG),
+                     @"png": @(RNCameraImageTypePNG),
+             },
              @"Orientation": @{
                      @"auto": @(RNCameraOrientationAuto),
                      @"landscapeLeft": @(RNCameraOrientationLandscapeLeft),

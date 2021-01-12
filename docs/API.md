@@ -147,6 +147,7 @@ interface TakePictureOptions {
 
   /** iOS only */
   forceUpOrientation?: boolean;
+  imageType?: ImageType;
 }
 
 interface TakePictureResponse {

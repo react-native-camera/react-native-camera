@@ -818,10 +818,22 @@ BOOL _sessionInterrupted = NO;
                 // bridge the copy for auto release
                 NSMutableDictionary *metadata = (NSMutableDictionary *)CFBridgingRelease(mutableMetaDict);
 
+                RNCameraImageType imageType = RNCameraImageTypeJPEG;
+                CFStringRef imageTypeIdentifier = kUTTypeJPEG;
+                NSString *imageExtension = @".jpg";
+                if ([options[@"imageType"] isEqualToString:@"png"]) {
+                    imageType = RNCameraImageTypePNG;
+                    imageTypeIdentifier = kUTTypePNG;
+                    imageExtension = @".png";
+                }
 
                 // Get final JPEG image and set compression
-                float quality = [options[@"quality"] floatValue];
-                [metadata setObject:@(quality) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
+                NSString *qualityKey = (__bridge NSString *)kCGImageDestinationLossyCompressionQuality;
+                if (imageType == RNCameraImageTypeJPEG) {
+                    float quality = [options[@"quality"] floatValue];
+                    [metadata setObject:@(quality) forKey:qualityKey];
+                }
+
 
                 // Reset exif orientation if we need to due to image changes
                 // that already rotate the image.
@@ -836,7 +848,7 @@ BOOL _sessionInterrupted = NO;
                 // idea taken from: https://stackoverflow.com/questions/9006759/how-to-write-exif-metadata-to-an-image-not-the-camera-roll-just-a-uiimage-or-j/9091472
                 NSMutableData * destData = [NSMutableData data];
 
-                CGImageDestinationRef destination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)destData, kUTTypeJPEG, 1, NULL);
+                CGImageDestinationRef destination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)destData, imageTypeIdentifier, 1, NULL);
 
                 // defaults to true, must like Android
                 bool writeExif = true;
@@ -907,8 +919,17 @@ BOOL _sessionInterrupted = NO;
                     }
 
                 }
+                
+                CFDictionaryRef finalMetaData = nil;
+                if (writeExif) {
+                    finalMetaData = (__bridge CFDictionaryRef)metadata;
+                } else if (metadata[qualityKey]) {
+                    // In order to apply the desired compression quality,
+                    // it is necessary to specify the kCGImageDestinationLossyCompressionQuality in the metadata.
+                    finalMetaData = (__bridge CFDictionaryRef)@{qualityKey: metadata[qualityKey]};
+                }
 
-                CGImageDestinationAddImage(destination, takenImage.CGImage, writeExif ? ((__bridge CFDictionaryRef) metadata) : nil);
+                CGImageDestinationAddImage(destination, takenImage.CGImage, finalMetaData);
 
 
                 // write final image data with metadata to our destination
@@ -921,7 +942,7 @@ BOOL _sessionInterrupted = NO;
                         path = options[@"path"];
                     }
                     else{
-                        path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+                        path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:imageExtension];
                     }
 
                     if (![options[@"doNotSave"] boolValue]) {
@@ -1285,7 +1306,7 @@ BOOL _sessionInterrupted = NO;
 
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
-            stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
+            stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG, AVVideoQualityKey: @(1.0)};
             [self.session addOutput:stillImageOutput];
             [stillImageOutput setHighResolutionStillImageOutputEnabled:YES];
             self.stillImageOutput = stillImageOutput;
