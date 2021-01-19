@@ -519,7 +519,11 @@ public class CameraModule extends ReactContextBaseJavaModule {
           promise.resolve(hasVideo != null && "yes".equals(hasVideo));
         }
         finally{
-          retriever.close();
+          // this many fail or may not be available in API < 29
+          try{
+            retriever.close();
+          }
+          catch{}
         }
       }
     }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
