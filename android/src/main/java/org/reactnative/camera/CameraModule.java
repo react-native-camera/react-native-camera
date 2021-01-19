@@ -523,7 +523,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
           try{
             retriever.close();
           }
-          catch{}
+          catch(Throwable e){}
         }
       }
     }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
