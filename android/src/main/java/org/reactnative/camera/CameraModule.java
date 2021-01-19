@@ -512,11 +512,23 @@ public class CameraModule extends ReactContextBaseJavaModule {
           }
           catch (Exception e){
               e.printStackTrace();
-              promise.resolve(false);
+
+              // if we failed to load the source, also return true
+              // as this may cause false positives.
+              promise.resolve(true);
+              return;
           }
 
+          // extract a few values since different devices may only report
+          // certain metadata
           String hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO);
-          promise.resolve(hasVideo != null && "yes".equals(hasVideo));
+          String mimeType = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+
+          // if we were unable to extract metadata, also return true
+          // since we will otherwise get false positives.
+          //promise.resolve(hasVideo == null || "yes".equals(hasVideo));
+          promise.resolve(hasVideo != null && ("yes".equals(hasVideo) || "true".equals(hasVideo) ||
+            mimeType != null && mimeType.contains("video")));
         }
         finally{
           // this many fail or may not be available in API < 29
