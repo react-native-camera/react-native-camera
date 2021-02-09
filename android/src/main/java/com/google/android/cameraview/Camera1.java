@@ -1122,6 +1122,13 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         }
         mCameraParameters.setPreviewSize(size.getWidth(), size.getHeight());
         mCameraParameters.setPictureSize(pictureSize.getWidth(), pictureSize.getHeight());
+
+        // some android devices (mostly Samsung and high res devices)
+        // will include a JPEG thumbnail within the image's EXIF information
+        // This is not really appropriate for the library, and just increases the file size
+        // and has a chance of blowing up when `writeExif` is used
+        mCameraParameters.setJpegThumbnailSize(0, 0);
+
         if (mOrientation != Constants.ORIENTATION_AUTO) {
             mCameraParameters.setRotation(calcCameraRotation(orientationEnumToRotation(mOrientation)));
         } else {
