@@ -550,6 +550,11 @@ RCT_EXPORT_METHOD(isRecording:(nonnull NSNumber *)reactTag
         }];
 }
 
+RCT_EXPORT_METHOD(hasTorch::(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    resolve(@([view hasTorch])
+}
+
 RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
 

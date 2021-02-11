@@ -113,6 +113,7 @@
 - (void)onTouch:(NSDictionary *)event;
 - (void)onBarcodesDetected:(NSDictionary *)event;
 - (bool)isRecording;
+- (bool)hasTorch;
 - (void)onSubjectAreaChanged:(NSDictionary *)event;
 
 @end
