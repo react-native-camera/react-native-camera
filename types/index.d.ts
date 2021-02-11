@@ -489,6 +489,8 @@ export class RNCamera extends Component<RNCameraProps & ViewProperties> {
 
   /** iOS only */
   isRecording(): Promise<boolean>;
+
+  hasTorch(): Promise<boolean>;
 }
 
 interface DetectionOptions {
