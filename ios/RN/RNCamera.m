@@ -79,8 +79,8 @@ BOOL _sessionInterrupted = NO;
 
         UITapGestureRecognizer * tapHandler=[self createTapGestureRecognizer];
         [self addGestureRecognizer:tapHandler];
-        UITapGestureRecognizer * doubleTabHandler=[self createDoubleTapGestureRecognizer];
-        [self addGestureRecognizer:doubleTabHandler];
+        UITapGestureRecognizer * doubleTapHandler=[self createDoubleTapGestureRecognizer];
+        [self addGestureRecognizer:doubleTapHandler];
 
         self.autoFocus = -1;
         self.exposure = -1;
@@ -126,7 +126,7 @@ BOOL _sessionInterrupted = NO;
     if (tapRecognizer.state == UIGestureRecognizerStateRecognized) {
         CGPoint location = [tapRecognizer locationInView:self];
         NSDictionary *tapEvent = [NSMutableDictionary dictionaryWithDictionary:@{
-            @"isDoubleTab":@(isDoubleTap),
+            @"isDoubleTap":@(isDoubleTap),
             @"touchOrigin": @{
                 @"x": @(location.x),
                 @"y": @(location.y)
@@ -919,7 +919,7 @@ BOOL _sessionInterrupted = NO;
                     }
 
                 }
-                
+
                 CFDictionaryRef finalMetaData = nil;
                 if (writeExif) {
                     finalMetaData = (__bridge CFDictionaryRef)metadata;
