@@ -2269,19 +2269,4 @@ BOOL _sessionInterrupted = NO;
     return self.movieFileOutput != nil ? self.movieFileOutput.isRecording : NO;
 }
 
-- (BOOL)hasTorch
-{
-    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-    BOOL hasTorch = NO;
-
-    for (AVCaptureDevice *device in devices) {
-        if ([device hasTorch]) {
-            hasTorch = YES;
-            break;
-        }
-    }
-    return hasTorch;
-}
-
-
 @end
