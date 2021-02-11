@@ -394,8 +394,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public boolean hasTorch() {
-      return getReactApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+  public boolean hasTorch(final Promise promise) {
+      promise.resolve(getReactApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH));
   }
 
   @ReactMethod
