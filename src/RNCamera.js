@@ -594,6 +594,12 @@ export default class Camera extends React.Component<PropsType, StateType> {
       }
     }
 
+    if (Platform.OS === 'ios') {
+      if (typeof options.codec === 'string') {
+        options.codec = Camera.Constants.VideoCodec[options.codec];
+      }
+    }
+
     if (__DEV__) {
       if (options.videoBitrate && typeof options.videoBitrate !== 'number') {
         // eslint-disable-next-line no-console
