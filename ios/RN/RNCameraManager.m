@@ -550,17 +550,18 @@ RCT_EXPORT_METHOD(isRecording:(nonnull NSNumber *)reactTag
         }];
 }
 
-RCT_EXPORT_METHOD(hasTorch:(nonnull NSNumber *)reactTag
-                  resolver:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(hasTorch: (RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
-        RNCamera *view = viewRegistry[reactTag];
-        if (![view isKindOfClass:[RNCamera class]]) {
-            RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
-        } else {
-            resolve(@([view hasTorch]));
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    BOOL hasTorch = NO;
+
+    for (AVCaptureDevice *device in devices) {
+        if ([device hasTorch]) {
+            hasTorch = YES;
+            break;
         }
-    }];
+    }
+    resolve(@(hasTorch));
 }
 
 RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
