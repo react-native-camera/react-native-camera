@@ -40,10 +40,10 @@
 - (void)resume
 {
     __weak __typeof(self) weakSelf = self;
-    [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue new]
-                                             withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) {
+    [self.motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue new]
+                                             withHandler:^(CMDeviceMotion  *data, NSError *error) {
                                                  if (!error) {
-                                                     self.orientation = [weakSelf getOrientationBy:accelerometerData.acceleration];
+                                                     self.orientation = [weakSelf getOrientationBy:data];
                                                  }
                                                  if (self.orientationCallback) {
                                                      self.orientationCallback(self.orientation);
@@ -53,7 +53,7 @@
 
 - (void)pause
 {
-    [self.motionManager stopAccelerometerUpdates];
+    [self.motionManager stopDeviceMotionUpdates];
 }
 
 - (void)getDeviceOrientationWithBlock:(RNSensorCallback)callback
@@ -74,25 +74,31 @@
     [self resume];
 }
 
-- (UIInterfaceOrientation)getOrientationBy:(CMAcceleration)acceleration
+- (UIInterfaceOrientation)getOrientationBy:(CMDeviceMotion*)motion
 {
-    if(acceleration.x >= 0.75) {
-        return UIInterfaceOrientationLandscapeLeft;
+    CMAcceleration gravity = motion.gravity;
+    
+    if (fabs(gravity.y) < fabs(gravity.x)) {
+        if(gravity.x > 0){
+            return UIInterfaceOrientationLandscapeLeft;
+        }
+        else{
+            return UIInterfaceOrientationLandscapeRight;
+        }
+    } else {
+        if(gravity.y > 0){
+            return UIInterfaceOrientationPortraitUpsideDown;
+        }
+        else{
+            return UIInterfaceOrientationPortrait;
+        }
     }
-    if(acceleration.x <= -0.75) {
-        return UIInterfaceOrientationLandscapeRight;
-    }
-    if(acceleration.y <= -0.75) {
-        return UIInterfaceOrientationPortrait;
-    }
-    if(acceleration.y >= 0.75) {
-        return UIInterfaceOrientationPortraitUpsideDown;
-    }
-    __block UIInterfaceOrientation orientation;
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    });
-    return orientation;
+    
+//    __block UIInterfaceOrientation orientation;
+//    dispatch_sync(dispatch_get_main_queue(), ^{
+//        orientation = [[UIApplication sharedApplication] statusBarOrientation];
+//    });
+//    return orientation;
 }
 
 - (AVCaptureVideoOrientation)convertToAVCaptureVideoOrientation:(UIInterfaceOrientation)orientation
