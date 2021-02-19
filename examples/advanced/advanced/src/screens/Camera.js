@@ -233,8 +233,8 @@ class CameraSelector extends React.PureComponent{
 
     }
     else{
-      // if no available camera ids, always call with null
-      onChange(null);
+      // if no available camera ids, always call with empty id
+      onChange('');
     }
   }
 
