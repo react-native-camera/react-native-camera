@@ -27,6 +27,7 @@
         self.motionManager = [[CMMotionManager alloc] init];
         self.motionManager.accelerometerUpdateInterval = 0.2;
         self.motionManager.gyroUpdateInterval = 0.2;
+        self.motionManager.deviceMotionUpdateInterval = 0.2;
         self.orientationCallback = nil;
     }
     return self;
