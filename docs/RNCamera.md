@@ -718,6 +718,10 @@ Supported options:
 
 - `path` (file path on disk). Specifies the path on disk to record the video to. You can use the same `uri` returned to continue recording across start/stops
 
+- `videoFrameWidth` (number). Android only. The target video frame width in pixels. The target width should be supported by the device.
+
+- `videoFrameHeight` (number). Android only. The target video frame height in pixels. The target height should be supported by the device.
+
 The promise will be fulfilled with an object with some of the following properties:
 
 - `uri`: (string) the path to the video saved on your app's cache directory.

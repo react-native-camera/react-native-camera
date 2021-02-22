@@ -232,6 +232,8 @@ type RecordingOptions = {
   mute?: boolean,
   path?: string,
   videoBitrate?: number,
+  videoFrameWidth?: number,
+  videoFrameHeight?: number,
 };
 
 type EventCallbackArgumentsType = {

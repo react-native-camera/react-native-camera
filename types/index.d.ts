@@ -454,6 +454,8 @@ interface RecordOptions {
   mirrorVideo?: boolean;
   path?: string;
   videoBitrate?: number;
+  videoFrameWidth?: number;
+  videoFrameHeight?: number;
 
   /** iOS only */
   codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
