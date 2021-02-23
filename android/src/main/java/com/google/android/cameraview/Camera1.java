@@ -982,7 +982,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      * This rewrites {@link #mCameraId} and {@link #mCameraInfo}.
      */
     private void chooseCamera() {
-        if(_mCameraId == null){
+        if(_mCameraId == null || _mCameraId.isEmpty()){
 
             try{
                 int count = Camera.getNumberOfCameras();
