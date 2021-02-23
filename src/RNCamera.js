@@ -461,7 +461,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     ratio: '4:3',
     focusDepth: 0,
     type: CameraManager.Type.back,
-    cameraId: null,
+    cameraId: '',
     autoFocus: CameraManager.AutoFocus.on,
     flashMode: CameraManager.FlashMode.off,
     exposure: -1,

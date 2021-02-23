@@ -798,7 +798,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
      * {@link #mFacing}.</p>
      */
     private boolean chooseCameraIdByFacing() {
-        if(_mCameraId == null){
+        if(_mCameraId == null || _mCameraId.isEmpty()){
             try {
                 int internalFacing = INTERNAL_FACINGS.get(mFacing);
                 final String[] ids = mCameraManager.getCameraIdList();
