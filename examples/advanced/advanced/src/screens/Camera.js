@@ -227,14 +227,14 @@ class CameraSelector extends React.PureComponent{
   loopCamera = () => {
     let {cameraId, cameraIds, onChange} = this.props;
 
-    if(cameraId != null && cameraIds.length){
+    if(cameraId && cameraIds.length){
       let newIdx = (cameraIds.findIndex(i => i.id == cameraId) + 1) % cameraIds.length;
       onChange(cameraIds[newIdx].id);
 
     }
     else{
-      // if no available camera ids, always call with null
-      onChange(null);
+      // if no available camera ids, always call with empty id
+      onChange('');
     }
   }
 
@@ -244,9 +244,9 @@ class CameraSelector extends React.PureComponent{
 
     if(!cameraIds){return null;}
 
-    // camera ID is null, means we have no info about the camera.
+    // camera ID is empty, means we have no info about the camera.
     // fallback to regular switch
-    if(cameraId == null){
+    if(!cameraId){
       return (
         <Button
           transparent
@@ -309,7 +309,7 @@ class Camera extends Component{
       cameraReady: false,
       cameraIds: null, // null means not checked, empty list means no results
       cameraType: BACK_TYPE,
-      cameraId: null,
+      cameraId: '',
       aspectRatioStr: "4:3",
       aspectRatio: parseRatio("4:3")
     };
@@ -357,7 +357,7 @@ class Camera extends Component{
         //   {id: '4', type: FRONT_TYPE, deviceType: 'AVCaptureDeviceTypeBuiltInWideAngleCamera'},
         // ]
 
-        let cameraId = null;
+        let cameraId = '';
 
         try{
           ids = await this.camera.getCameraIdsAsync();
@@ -563,7 +563,7 @@ class Camera extends Component{
 
     // we have queried the list of cameras
     if(cameraIds != null){
-      if(cameraId == null){
+      if(!cameraId){
         cameraCount = 2; // no camera id info, assume 2 cameras to switch from back and front
       }
       else{
@@ -1000,16 +1000,16 @@ class Camera extends Component{
     this.setState({cameraReady: false}, () => {
       runAfterInteractions(() => {
 
-        // cameraId will be null if we failed to get a camera by ID or
+        // cameraId will be empty if we failed to get a camera by ID or
         // our id list is empty. Fallback to back/front setting
 
-        if(cameraId == null){
+        if(!cameraId){
           let cameraType = this.state.cameraType;
           if(cameraType == FRONT_TYPE){
-            this.setState({cameraType: BACK_TYPE, cameraId: null, ...defaultCameraOptions});
+            this.setState({cameraType: BACK_TYPE, cameraId: '', ...defaultCameraOptions});
           }
           else{
-            this.setState({cameraType: FRONT_TYPE, cameraId: null, ...defaultCameraOptions});
+            this.setState({cameraType: FRONT_TYPE, cameraId: '', ...defaultCameraOptions});
           }
         }
         else{
