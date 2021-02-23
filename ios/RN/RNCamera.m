@@ -85,7 +85,7 @@ BOOL _sessionInterrupted = NO;
         self.autoFocus = -1;
         self.exposure = -1;
         self.presetCamera = AVCaptureDevicePositionUnspecified;
-        self.cameraId = nil;
+        self.cameraId = @"";
         self.isFocusedOnPoint = NO;
         self.isExposedOnPoint = NO;
         self.invertImageData = true;
@@ -311,7 +311,7 @@ BOOL _sessionInterrupted = NO;
 -(AVCaptureDevice*)getDevice
 {
     AVCaptureDevice *captureDevice;
-    if(self.cameraId != nil){
+    if(self.cameraId != nil && self.cameraId.length){
         captureDevice = [RNCameraUtils deviceWithCameraId:self.cameraId];
     }
     else{
@@ -1299,7 +1299,7 @@ BOOL _sessionInterrupted = NO;
         }
 
         // if camera not set (invalid type and no ID) return.
-        if (self.presetCamera == AVCaptureDevicePositionUnspecified && self.cameraId == nil) {
+        if (self.presetCamera == AVCaptureDevicePositionUnspecified && (self.cameraId == nil || !self.cameraId.length)) {
             return;
         }
 
