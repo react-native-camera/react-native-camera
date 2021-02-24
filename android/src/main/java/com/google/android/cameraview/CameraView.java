@@ -488,35 +488,8 @@ public class CameraView extends FrameLayout {
     }
 
     public SortedSet<Size> getAvailableVideoSizes(@NonNull AspectRatio ratio) {
-        SortedSet<Size> sizes = new TreeSet<Size>();
-        List<CamcorderProfile> profiles = getSupportedProfiles();
-        for (int i = 0; i < profiles.length; i++) {
-            CamcorderProfile profile = profiles[i];
-            sizes.add(new Size(profile.videoFrameWidth, profile.videoFrameHeight));
-        }
-
-        return sizes;
-    }
-
-    public List<CamcorderProfile> getSupportedProfiles() {
-        int cameraId = getCameraIdInt();
-        List<CamcorderProfile> profiles = new ArrayList<>();
-        int[] qualities = {
-            CamcorderProfile.QUALITY_HIGH, CamcorderProfile.QUALITY_1080P,
-            CamcorderProfile.QUALITY_720P, CamcorderProfile.QUALITY_480P,
-            CamcorderProfile.QUALITY_CIF, CamcorderProfile.QUALITY_QVGA,
-            CamcorderProfile.QUALITY_QCIF, CamcorderProfile.QUALITY_LOW
-        };
-
-        for (int i = 0; i < qualities.length; i++) {
-            int quality = qualities[i];
-            if( CamcorderProfile.hasProfile(cameraId, quality) ) {
-                CamcorderProfile profile = CamcorderProfile.get(cameraId, quality);
-                profiles.add(profile);
-            }
-        }
-
-        return profiles;
+        int cameraId = Integer.parseInt(getCameraId());
+        return new VideoQualityHandler(mImpl).getAvailableVideoSizes(cameraId, ratio);
     }
 
     /**

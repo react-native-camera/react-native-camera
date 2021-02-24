@@ -449,6 +449,34 @@ public class CameraModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void getAvailableVideoSizes(final String ratio, final int viewTag, final Promise promise) {
+      final ReactApplicationContext context = getReactApplicationContext();
+      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+      uiManager.addUIBlock(new UIBlock() {
+          @Override
+          public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+              final RNCameraView cameraView;
+
+              try {
+                  cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
+                  WritableArray result = Arguments.createArray();
+                  if (cameraView.isCameraOpened()) {
+                      SortedSet<Size> sizes = cameraView.getAvailableVideoSizes(AspectRatio.parse(ratio));
+                      for (Size size : sizes) {
+                          result.pushString(size.toString());
+                      }
+                      promise.resolve(result);
+                  } else {
+                      promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
+                  }
+              } catch (Exception e) {
+                  promise.reject("E_CAMERA_BAD_VIEWTAG", "getAvailableVideoSizes: Expected a Camera component");
+              }
+          }
+      });
+  }
+
+  @ReactMethod
   public void checkIfRecordAudioPermissionsAreDefined(final Promise promise) {
       try {
           PackageInfo info = getCurrentActivity().getPackageManager().getPackageInfo(getReactApplicationContext().getPackageName(), PackageManager.GET_PERMISSIONS);
