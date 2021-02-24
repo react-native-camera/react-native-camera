@@ -32,14 +32,16 @@ public class VideoQualityHandler {
         this.mImpl = mImpl;
     }
 
-    public SortedSet<Size> getAvailableVideoSizes(int cameraId, @NonNull AspectRatio ratio) {
+    public SortedSet<Size> getAvailableVideoSizes(@NonNull AspectRatio ratio) {
         SortedSet<Size> result = new TreeSet<Size>();
-        SortedSet<Size> videoSizes = mImpl.getSupportedVideoSizes(ratio);
-        Size[] videoSizesArray = videoSizes.toArray( new Size[videoSizes.size()] );
-        List<CamcorderProfile> profiles = getSupportedProfiles(cameraId);
+
+        List<CamcorderProfile> profiles = mImpl.getSupportedProfiles();
+        SortedSet<Size> sizes = mImpl.getSupportedVideoSizes(ratio);
+        Size[] sizesArray = sizes.toArray( new Size[sizes.size()] );
+
         for (int i = 0; i < profiles.size(); i++) {
             CamcorderProfile profile = profiles.get(i);
-            addVideoResolutions(result, videoSizesArray, profile);
+            addVideoResolutions(result, sizesArray, profile);
         }
         return result;
     }
@@ -55,29 +57,9 @@ public class VideoQualityHandler {
                 return;
             }
 
-            if (baseProfile.quality == CamcorderProfile.QUALITY_LOW || size.getWidth() * size.getHeight() >= minResWidth*minResHeight) {
+            if (baseProfile.quality == CamcorderProfile.QUALITY_LOW || size.getWidth() * size.getHeight() >= minResWidth * minResHeight) {
                 result.add(new Size(size.getWidth(), size.getHeight()));
             }
         }
-    }
-
-    private List<CamcorderProfile> getSupportedProfiles(int cameraId) {
-        List<CamcorderProfile> profiles = new ArrayList<>();
-        int[] qualities = {
-            CamcorderProfile.QUALITY_HIGH, CamcorderProfile.QUALITY_1080P,
-            CamcorderProfile.QUALITY_720P, CamcorderProfile.QUALITY_480P,
-            CamcorderProfile.QUALITY_CIF, CamcorderProfile.QUALITY_QVGA,
-            CamcorderProfile.QUALITY_QCIF, CamcorderProfile.QUALITY_LOW
-        };
-
-        for (int i = 0; i < qualities.length; i++) {
-            int quality = qualities[i];
-            if( CamcorderProfile.hasProfile(cameraId, quality) ) {
-                CamcorderProfile profile = CamcorderProfile.get(cameraId, quality);
-                profiles.add(profile);
-            }
-        }
-
-        return profiles;
     }
 }

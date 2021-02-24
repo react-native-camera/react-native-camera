@@ -488,8 +488,7 @@ public class CameraView extends FrameLayout {
     }
 
     public SortedSet<Size> getAvailableVideoSizes(@NonNull AspectRatio ratio) {
-        int cameraId = Integer.parseInt(getCameraId());
-        return new VideoQualityHandler(mImpl).getAvailableVideoSizes(cameraId, ratio);
+        return new VideoQualityHandler(mImpl).getAvailableVideoSizes(ratio);
     }
 
     /**

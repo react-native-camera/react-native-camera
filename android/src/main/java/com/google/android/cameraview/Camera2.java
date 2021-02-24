@@ -240,6 +240,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     private final SizeMap mPictureSizes = new SizeMap();
 
+    private List<CamcorderProfile> mSupportedProfiles;
+
     private Size mPictureSize;
 
     private int mFacing;
@@ -447,6 +449,11 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     @Override
     SortedSet<Size> getSupportedVideoSizes(AspectRatio ratio) {
         return mVideoSizes.sizes(ratio);
+    }
+
+    @Override
+    List<CamcorderProfile> getSupportedProfiles() {
+        return mSupportedProfiles;
     }
 
     @Override
@@ -917,6 +924,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
         mVideoSizes.clear();
         collectVideoSizes(mPictureSizes, map);
+
+        mSupportedProfiles = new CamcorderProfileHelper().getSupportedProfiles(Integer.parseInt(mCameraId));
 
         mCameraOrientation = mCameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
     }

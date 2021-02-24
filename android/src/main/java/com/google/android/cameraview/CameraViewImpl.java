@@ -62,7 +62,7 @@ abstract class CameraViewImpl {
     abstract boolean isCameraOpened();
 
     abstract void setFacing(int facing);
-  
+
     abstract int getFacing();
 
     abstract void setCameraId(String id);
@@ -76,6 +76,8 @@ abstract class CameraViewImpl {
     abstract SortedSet<Size> getAvailablePictureSizes(AspectRatio ratio);
 
     abstract SortedSet<Size> getSupportedVideoSizes(AspectRatio ratio);
+
+    abstract List<CamcorderProfile> getSupportedProfiles();
 
     abstract void setPictureSize(Size size);
 
