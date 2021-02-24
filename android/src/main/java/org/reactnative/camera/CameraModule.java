@@ -459,11 +459,14 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
               try {
                   cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-                  WritableArray result = Arguments.createArray();
                   if (cameraView.isCameraOpened()) {
+                      WritableArray result = Arguments.createArray();
                       SortedSet<Size> sizes = cameraView.getAvailableVideoSizes(AspectRatio.parse(ratio));
                       for (Size size : sizes) {
-                          result.pushString(size.toString());
+                          WritableMap m = new WritableNativeMap();
+                          m.putInt("width", size.getWidth());
+                          m.putInt("height", size.getHeight());
+                          result.pushMap(m);
                       }
                       promise.resolve(result);
                   } else {

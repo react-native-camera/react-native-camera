@@ -354,7 +354,7 @@ getAvailableVideoSizes(): Promise<string[]>;
 ```js
 const videoSizes = await cameraRef.getAvailableVideoSizes();
 /* -> {
-  ["320x240", "640x480", "960x720", "1280x960", "1440x1080"]
+  [{"height": 240, "width": 320}, {"height": 480, "width": 640}, {"height": 720, "width": 960}, {"height": 960, "width": 1280}, {"height": 1080, "width": 1440}]
 } */
 ```
 
