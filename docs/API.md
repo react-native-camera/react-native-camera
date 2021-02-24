@@ -345,7 +345,7 @@ Returns a promise with getAvailableVideoSizes.
 ### Method type
 
 ```ts
-getAvailableVideoSizes(): Promise<string[]>;
+getAvailableVideoSizes(): Promise<[{width: number, height: number}]>;
 
 ```
 
