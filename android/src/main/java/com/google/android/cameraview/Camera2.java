@@ -236,6 +236,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     private final SizeMap mPreviewSizes = new SizeMap();
 
+    private final SizeMap mVideoSizes = new SizeMap();
+
     private final SizeMap mPictureSizes = new SizeMap();
 
     private Size mPictureSize;
@@ -440,6 +442,11 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     @Override
     SortedSet<Size> getAvailablePictureSizes(AspectRatio ratio) {
         return mPictureSizes.sizes(ratio);
+    }
+
+    @Override
+    SortedSet<Size> getSupportedVideoSizes(AspectRatio ratio) {
+        return mVideoSizes.sizes(ratio);
     }
 
     @Override
@@ -908,12 +915,21 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             mAspectRatio = mPreviewSizes.ratios().iterator().next();
         }
 
+        mVideoSizes.clear();
+        collectVideoSizes(mPictureSizes, map);
+
         mCameraOrientation = mCameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
     }
 
     protected void collectPictureSizes(SizeMap sizes, StreamConfigurationMap map) {
         for (android.util.Size size : map.getOutputSizes(mImageFormat)) {
             mPictureSizes.add(new Size(size.getWidth(), size.getHeight()));
+        }
+    }
+
+    protected void collectVideoSizes(SizeMap sizes, StreamConfigurationMap map) {
+        for (android.util.Size size : map.getOutputSizes(MediaRecorder.class)) {
+            mVideoSizes.add(new Size(size.getWidth(), size.getHeight()));
         }
     }
 

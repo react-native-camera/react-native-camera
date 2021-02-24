@@ -98,6 +98,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private final SizeMap mPreviewSizes = new SizeMap();
 
+    private final SizeMap mVideoSizes = new SizeMap();
+
     private boolean mIsPreviewActive = false;
     private boolean mShowingPreview = true; // preview enabled by default
 
@@ -463,6 +465,11 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     @Override
     SortedSet<Size> getAvailablePictureSizes(AspectRatio ratio) {
         return mPictureSizes.sizes(ratio);
+    }
+
+    @Override
+    SortedSet<Size> getSupportedVideoSizes(AspectRatio ratio) {
+        return mVideoSizes.sizes(ratio);
     }
 
     // Returns the best available size match for a given
@@ -1049,6 +1056,12 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             mPictureSizes.clear();
             for (Camera.Size size : mCameraParameters.getSupportedPictureSizes()) {
                 mPictureSizes.add(new Size(size.width, size.height));
+            }
+
+            // Supported videos sizes
+            mVideoSizes.clear();
+            for (Camera.Size size : mCameraParameters.getSupportedVideoSizes()) {
+                mVideoSizes.add(new Size(size.width, size.height));
             }
 
             // to be consistent with Camera2, and to prevent crashes on some devices

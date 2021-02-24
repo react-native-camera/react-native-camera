@@ -75,6 +75,8 @@ abstract class CameraViewImpl {
 
     abstract SortedSet<Size> getAvailablePictureSizes(AspectRatio ratio);
 
+    abstract SortedSet<Size> getSupportedVideoSizes(AspectRatio ratio);
+
     abstract void setPictureSize(Size size);
 
     abstract Size getPictureSize();
