@@ -234,6 +234,7 @@ type RecordingOptions = {
   videoBitrate?: number,
   videoFrameWidth?: number,
   videoFrameHeight?: number,
+  captureRate?: number,
 };
 
 type EventCallbackArgumentsType = {

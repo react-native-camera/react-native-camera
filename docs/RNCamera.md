@@ -722,6 +722,8 @@ Supported options:
 
 - `videoFrameHeight` (number). Android only. The target video frame height in pixels. The target height should be supported by the device.
 
+- `captureRate` (number). Android only. CaptureRate of the video, it is used in creating timelapse recording.
+
 The promise will be fulfilled with an object with some of the following properties:
 
 - `uri`: (string) the path to the video saved on your app's cache directory.

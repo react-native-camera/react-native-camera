@@ -637,12 +637,13 @@ public class CameraView extends FrameLayout {
      * @param maxDuration Maximum duration of the recording, in seconds.
      * @param maxFileSize Maximum recording file size, in bytes.
      * @param profile Quality profile of the recording.
+     * @param captureRate CaptureRate of the video, used in creating timelapse recording.
      *
      * fires {@link Callback#onRecordingStart(CameraView, String, int, int)} and {@link Callback#onRecordingEnd(CameraView)}.
      */
     public boolean record(String path, int maxDuration, int maxFileSize,
-                          boolean recordAudio, CamcorderProfile profile, int orientation, int fps) {
-        return mImpl.record(path, maxDuration, maxFileSize, recordAudio, profile, orientation, fps);
+                          boolean recordAudio, CamcorderProfile profile, int orientation, int fps, double captureRate) {
+        return mImpl.record(path, maxDuration, maxFileSize, recordAudio, profile, orientation, fps, captureRate);
     }
 
     public void stopRecording() {

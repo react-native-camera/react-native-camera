@@ -456,6 +456,7 @@ interface RecordOptions {
   videoBitrate?: number;
   videoFrameWidth?: number;
   videoFrameHeight?: number;
+  captureRate?: number;
 
   /** iOS only */
   codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
