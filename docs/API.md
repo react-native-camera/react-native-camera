@@ -30,6 +30,7 @@ title: Work in progress
 - [`pausePreview`](API.md#pausepreview)
 - [`resumePreview`](API.md#resumepreview)
 - [`getAvailablePictureSizes`](API.md#getavailablepicturesizes)
+- [`getAvailableVideoSizes`](API.md#getavailablevideosizes-android-only)
 - [`getSupportedRatiosAsync`](API.md#getsupportedratiosasync-android-only)
 - [`isRecording`](API.md#isrecording-ios-only)
 - [`getSupportedPreviewFpsRange`](API.md#getsupportedpreviewfpsrange-android-only)
@@ -337,6 +338,27 @@ getAvailablePictureSizes(): Promise<string[]>;
 
 ---
 
+## getAvailableVideoSizes() - Android only
+
+Returns a promise with getAvailableVideoSizes.
+
+### Method type
+
+```ts
+getAvailableVideoSizes(): Promise<string[]>;
+
+```
+
+### Usage example
+
+```js
+const videoSizes = await cameraRef.getAvailableVideoSizes();
+/* -> {
+  ["320x240", "640x480", "960x720", "1280x960", "1440x1080"]
+} */
+```
+
+---
 ## getSupportedRatiosAsync() - Android only
 
 Android only. Returns a promise. The promise will be fulfilled with an object with an array containing strings with all camera aspect ratios supported by the device.

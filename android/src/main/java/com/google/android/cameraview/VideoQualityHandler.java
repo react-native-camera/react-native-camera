@@ -27,6 +27,7 @@ import java.util.TreeSet;
 public class VideoQualityHandler {
 
     CameraViewImpl mImpl;
+    boolean[] doneVideoSizes = null;
 
     public VideoQualityHandler(CameraViewImpl mImpl) {
         this.mImpl = mImpl;
@@ -38,6 +39,7 @@ public class VideoQualityHandler {
         List<CamcorderProfile> profiles = mImpl.getSupportedProfiles();
         SortedSet<Size> sizes = mImpl.getSupportedVideoSizes(ratio);
         Size[] sizesArray = sizes.toArray( new Size[sizes.size()] );
+        doneVideoSizes = new boolean[sizes.size()];
 
         for (int i = 0; i < profiles.size(); i++) {
             CamcorderProfile profile = profiles.get(i);
@@ -52,13 +54,18 @@ public class VideoQualityHandler {
         for (int i = 0; i < sizes.length; i++) {
             Size size = sizes[i];
 
+            if (doneVideoSizes[i])
+                continue;
+
             if (size.getWidth() == minResWidth && size.getHeight() == minResHeight) {
                 result.add(size);
+                doneVideoSizes[i] = true;
                 return;
             }
 
             if (baseProfile.quality == CamcorderProfile.QUALITY_LOW || size.getWidth() * size.getHeight() >= minResWidth * minResHeight) {
                 result.add(new Size(size.getWidth(), size.getHeight()));
+                doneVideoSizes[i] = true;
             }
         }
     }
