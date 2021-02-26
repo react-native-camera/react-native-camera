@@ -757,6 +757,10 @@ Resumes the preview after pausePreview() has been called.
 
 Android only. Returns a promise. The promise will be fulfilled with an object with an array containing strings with all camera aspect ratios supported by the device.
 
+### `Android` `checkIfVideoIsValid(path): Promise<boolean>`
+
+Static method and Android only. Returns a promise. The promise will be fulfilled with a boolean indicating if the given path contains a valid (non corrupted) video file. Useful for some android devices that may store corrupted files from time to time. Note: make sure to not include file:// since not all android implementations support URI strings (use /path/to/file/instead).
+
 ### `getCameraIdsAsync(): Promise`
 
 Returns a promise. The promise will be fulfilled with an array containing objects with all camera IDs and type supported by the device.
