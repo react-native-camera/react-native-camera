@@ -462,14 +462,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
               try {
                   cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
                   if (cameraView.isCameraOpened()) {
-                      WritableArray result = Arguments.createArray();
                       SortedSet<Size> sizes = cameraView.getAvailableVideoSizes(AspectRatio.parse(ratio));
-                      for (Size size : sizes) {
-                          WritableMap m = new WritableNativeMap();
-                          m.putInt("width", size.getWidth());
-                          m.putInt("height", size.getHeight());
-                          result.pushMap(m);
-                      }
+                      WritableArray result = sizesToWritableArray(sizes);
                       promise.resolve(result);
                   } else {
                       promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
@@ -479,6 +473,17 @@ public class CameraModule extends ReactContextBaseJavaModule {
               }
           }
       });
+  }
+
+  private WritableArray sizesToWritableArray(final SortedSet<Size> sizes) {
+      WritableArray result = Arguments.createArray();
+      for (Size size : sizes) {
+          WritableMap m = new WritableNativeMap();
+          m.putInt("width", size.getWidth());
+          m.putInt("height", size.getHeight());
+          result.pushMap(m);
+      }
+      return result;
   }
 
   @ReactMethod

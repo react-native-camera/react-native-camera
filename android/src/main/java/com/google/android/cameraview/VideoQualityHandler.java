@@ -38,6 +38,11 @@ public class VideoQualityHandler {
 
         List<CamcorderProfile> profiles = mImpl.getSupportedProfiles();
         SortedSet<Size> sizes = mImpl.getSupportedVideoSizes(ratio);
+
+        if (sizes == null) {
+            return result;
+        }
+
         Size[] sizesArray = sizes.toArray( new Size[sizes.size()] );
         doneVideoSizes = new boolean[sizes.size()];
 
