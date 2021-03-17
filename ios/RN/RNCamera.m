@@ -1166,9 +1166,18 @@ BOOL _sessionInterrupted = NO;
         if (options[@"codec"]) {
             if (@available(iOS 10, *)) {
                 AVVideoCodecType videoCodecType = options[@"codec"];
+                
                 if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
                     self.videoCodecType = videoCodecType;
-                    if(options[@"videoBitrate"]) {
+                    
+                    BOOL supportsBitRate = NO;
+                    
+                    // prevent crashing due to unsupported keys
+                    if (@available(iOS 12.0, *)) {
+                        supportsBitRate = [[self.movieFileOutput supportedOutputSettingsKeysForConnection:connection] containsObject:AVVideoCompressionPropertiesKey];
+                    }
+                    
+                    if(options[@"videoBitrate"] && supportsBitRate) {
                         NSString *videoBitrate = options[@"videoBitrate"];
                         [self.movieFileOutput setOutputSettings:@{
                           AVVideoCodecKey:videoCodecType,
