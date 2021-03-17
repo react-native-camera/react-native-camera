@@ -562,6 +562,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   }
 
+  static async checkIfVideoIsValid(path) {
+    if (Platform.OS === 'android') {
+      return await CameraManager.checkIfVideoIsValid(path);
+    } else {
+      return true; // iOS: not implemented
+    }
+  }
+
   getSupportedPreviewFpsRange = async (): Promise<[]> => {
     if (Platform.OS === 'android') {
       return await CameraManager.getSupportedPreviewFpsRange(this._cameraHandle);
