@@ -214,57 +214,16 @@ RCT_CUSTOM_VIEW_PROPERTY(aspect, NSInteger, RCTCamera) {
   self.previewLayer.videoGravity = aspectString;
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera) {
-  NSInteger type = [RCTConvert NSInteger:json];
-
-  self.presetCamera = type;
-  if (self.session.isRunning) {
-    dispatch_async(self.sessionQueue, ^{
-      AVCaptureDevice *currentCaptureDevice = [self.videoCaptureDeviceInput device];
-      AVCaptureDevicePosition position = (AVCaptureDevicePosition)type;
-      AVCaptureDevice *captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:(AVCaptureDevicePosition)position];
-
-      if (captureDevice == nil) {
-        return;
-      }
-
-      self.presetCamera = type;
-
-      NSError *error = nil;
-      AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
-
-      if (error || captureDeviceInput == nil)
-      {
-        NSLog(@"%@", error);
-        return;
-      }
-
-      [self.session beginConfiguration];
-
-      [self.session removeInput:self.videoCaptureDeviceInput];
-
-      if ([self.session canAddInput:captureDeviceInput])
-      {
-        [self.session addInput:captureDeviceInput];
-
-        [NSNotificationCenter.defaultCenter removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:currentCaptureDevice];
-
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:captureDevice];
-        self.videoCaptureDeviceInput = captureDeviceInput;
-        [self initCaptureDeviceConfiguration];
-        [self setFlashMode];
-      }
-      else
-      {
-        [self.session addInput:self.videoCaptureDeviceInput];
-      }
-
-      [self.session commitConfiguration];
-    });
-  }
-  [self initializeCaptureSessionInput:AVMediaTypeVideo];
+RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera)
+{
+    NSInteger newType = [RCTConvert NSInteger:json];
+    if (self.presetCamera != newType) {
+        [self setPresetCamera:newType];
+        
+        [self initializeCaptureSessionInput:AVMediaTypeVideo];
+        [self startSession];
+    }
 }
-
 
 - (void)initCaptureDeviceConfiguration {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
@@ -288,6 +247,21 @@ RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera) {
     else
     {
         NSLog(@"%@", error);
+    }
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(cameraId, NSString, RCTCamera)
+{
+    NSString *newId = [RCTConvert NSString:json];
+
+    // also compare pointers so we check for nulls
+    if (self.cameraId != newId && ![self.cameraId isEqualToString:newId]) {
+        [self setCameraId:newId];
+        
+        // using same call as setting the type here since they
+        // both require the same updates
+        [self initializeCaptureSessionInput:AVMediaTypeVideo];
+        [self startSession];
     }
 }
 
@@ -484,7 +458,9 @@ RCT_EXPORT_METHOD(lockFocus:(NSDictionary *)options resolve:(RCTPromiseResolveBl
     NSError *error;
 
     if ([device lockForConfiguration:&error]) {
-        [device setFocusMode:AVCaptureFocusModeAutoFocus];
+        if ([device isFocusModeSupported:AVCaptureFocusModeAutoFocus]){
+            [device setFocusMode:AVCaptureFocusModeAutoFocus];
+        }
         [device unlockForConfiguration];
         resolve(@YES);
     } else {
@@ -497,7 +473,9 @@ RCT_EXPORT_METHOD(unlockFocus:(NSDictionary *)options resolve:(RCTPromiseResolve
     NSError *error;
 
     if ([device lockForConfiguration:&error]) {
-        [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        if ([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
+            [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        }
         [device unlockForConfiguration];
         resolve(@YES);
     } else {
@@ -723,7 +701,7 @@ RCT_EXPORT_METHOD(getPreviewPosition:(RCTPromiseResolveBlock)resolve reject:(RCT
       captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
     }
     else if (type == AVMediaTypeVideo) {
-      captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
+      captureDevice = [self getDevice];
     }
 
     if (captureDevice == nil) {
@@ -1437,22 +1415,40 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
   }
 }
 
-
-- (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
+// Helper to get a device from the currently set properties (type and camera id)
+// might return nil if device failed to be retrieved or is invalid
+-(AVCaptureDevice*)getDevice
 {
-  NSArray *devices = [AVCaptureDevice devicesWithMediaType:mediaType];
-  AVCaptureDevice *captureDevice = [devices firstObject];
-
-  for (AVCaptureDevice *device in devices)
-  {
-    if ([device position] == position)
-    {
-      captureDevice = device;
-      break;
+    AVCaptureDevice *captureDevice;
+    if (self.cameraId != nil && self.cameraId.length) {
+        captureDevice = [self deviceWithCameraId:self.cameraId];
     }
-  }
+    else{
+        captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
+    }
+    return captureDevice;
 
-  return captureDevice;
+}
+
+- (AVCaptureDevice *)deviceWithMediaType:(AVMediaType)mediaType preferringPosition:(AVCaptureDevicePosition)position
+{
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:mediaType];
+    AVCaptureDevice *captureDevice = [devices firstObject];
+    
+    for (AVCaptureDevice *device in devices) {
+        if ([device position] == position) {
+            captureDevice = device;
+            break;
+        }
+    }
+    
+    return captureDevice;
+}
+
+- (AVCaptureDevice *)deviceWithCameraId:(NSString *)cameraId
+{
+    AVCaptureDevice *device = [AVCaptureDevice deviceWithUniqueID:cameraId];
+    return device;
 }
 
 - (void)subjectAreaDidChange:(NSNotification *)notification
@@ -1563,4 +1559,100 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     #endif
 }
 
+RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+
+#if TARGET_IPHONE_SIMULATOR
+    resolve(@[]);
+    return;
+#endif
+
+    NSMutableArray *res = [NSMutableArray array];
+
+
+    // need to filter/search devices based on iOS version
+    // these warnings can be easily seen on XCode
+    if (@available(iOS 10.0, *)) {
+        NSArray *captureDeviceType;
+
+
+        if (@available(iOS 13.0, *)) {
+            captureDeviceType = @[
+                AVCaptureDeviceTypeBuiltInWideAngleCamera,
+                AVCaptureDeviceTypeBuiltInTelephotoCamera
+                #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+                    ,AVCaptureDeviceTypeBuiltInUltraWideCamera
+                #endif
+            ];
+        }
+        else{
+            captureDeviceType = @[
+                AVCaptureDeviceTypeBuiltInWideAngleCamera,
+                AVCaptureDeviceTypeBuiltInTelephotoCamera
+            ];
+        }
+
+
+        AVCaptureDeviceDiscoverySession *captureDevice =
+        [AVCaptureDeviceDiscoverySession
+         discoverySessionWithDeviceTypes:captureDeviceType
+         mediaType:AVMediaTypeVideo
+         position:AVCaptureDevicePositionUnspecified];
+
+        for(AVCaptureDevice *camera in [captureDevice devices]){
+
+            // exclude virtual devices. We currently cannot use
+            // any virtual device feature like auto switching or
+            // depth of field detetion anyways.
+            #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+                if (@available(iOS 13.0, *)) {
+                    if([camera isVirtualDevice]){
+                        continue;
+                    }
+                }
+            #endif
+
+
+            if([camera position] == AVCaptureDevicePositionFront) {
+                [res addObject: @{
+                    @"id": [camera uniqueID],
+                    @"type": @(RCTCameraTypeFront),
+                    @"deviceType": [camera deviceType]
+                }];
+            }
+            else if ([camera position] == AVCaptureDevicePositionBack) {
+                [res addObject: @{
+                    @"id": [camera uniqueID],
+                    @"type": @(RCTCameraTypeBack),
+                    @"deviceType": [camera deviceType]
+                }];
+            }
+
+        }
+
+    } else {
+        NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+        for(AVCaptureDevice *camera in devices) {
+
+
+            if ([camera position] == AVCaptureDevicePositionFront) {
+                [res addObject: @{
+                    @"id": [camera uniqueID],
+                    @"type": @(RCTCameraTypeFront),
+                    @"deviceType": @""
+                }];
+            }
+            else if ([camera position] == AVCaptureDevicePositionBack) {
+                [res addObject: @{
+                    @"id": [camera uniqueID],
+                    @"type": @(RCTCameraTypeBack),
+                    @"deviceType": @""
+                }];
+            }
+
+        }
+    }
+
+    resolve(res);
+}
 @end
