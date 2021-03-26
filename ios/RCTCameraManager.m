@@ -311,6 +311,18 @@ RCT_CUSTOM_VIEW_PROPERTY(torchMode, NSInteger, RCTCamera) {
   });
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(zoom, NSNumber, RCTCamera)
+{
+    [self setZoom:[RCTConvert CGFloat:json]];
+    [self updateZoom];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(maxZoom, NSNumber, RCTCamera)
+{
+    [self setMaxZoom:[RCTConvert CGFloat:json]];
+    [self updateZoom];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(keepAwake, BOOL, RCTCamera) {
   BOOL enabled = [RCTConvert BOOL:json];
   [UIApplication sharedApplication].idleTimerDisabled = enabled;
@@ -727,6 +739,7 @@ RCT_EXPORT_METHOD(getPreviewPosition:(RCTPromiseResolveBlock)resolve reject:(RCT
       }
       else if (type == AVMediaTypeVideo) {
         self.videoCaptureDeviceInput = captureDeviceInput;
+        [self updateZoom];
         [self initCaptureDeviceConfiguration];
         [self setFlashMode];
       }
@@ -1509,6 +1522,27 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
                 }
             }
         });
+    }
+}
+
+-(float) getMaxZoomFactor:(AVCaptureDevice*)device {
+    float maxZoom;
+    if (self.maxZoom > 1) {
+        maxZoom = MIN(self.maxZoom, device.activeFormat.videoMaxZoomFactor);
+    } else {
+        maxZoom = device.activeFormat.videoMaxZoomFactor;
+    }
+    return maxZoom;
+}
+
+- (void)updateZoom {
+    NSError *error = nil;
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    if ([device lockForConfiguration:&error]) {
+        float maxZoom = [self getMaxZoomFactor:device];
+        device.videoZoomFactor = (maxZoom - 1) * self.zoom + 1;
+    } else {
+        NSLog(@"error: %@", error);
     }
 }
 

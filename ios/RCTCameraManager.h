@@ -70,6 +70,8 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, strong) id runtimeErrorHandlingObserver;
 @property (nonatomic, assign) NSInteger presetCamera;
 @property (nonatomic, copy) NSString *cameraId; // copy required for strings/pointers
+@property (assign, nonatomic) CGFloat zoom;
+@property (assign, nonatomic) CGFloat maxZoom;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property (nonatomic, assign) NSInteger videoTarget;
 @property (nonatomic, assign) NSInteger orientation;
