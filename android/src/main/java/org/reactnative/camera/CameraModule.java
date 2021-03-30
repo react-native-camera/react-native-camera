@@ -569,7 +569,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
         finally{
           // this many fail or may not be available in API < 29
           try{
-            retriever.close();
+            retriever.release();
           }
           catch(Throwable e){}
         }
