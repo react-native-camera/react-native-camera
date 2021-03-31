@@ -1089,7 +1089,12 @@ BOOL _sessionInterrupted = NO;
 
         // if we haven't initialized our capture session yet
         // initialize it. This will cause video to flicker.
-        [self initializeAudioCaptureSessionInput];
+        // dispatch sync as we need to wait for audio to be enabled
+        // and need to make sure it doesn't conflict with concurrent changes
+        // to captureAudio prop
+        dispatch_sync(self.sessionQueue, ^{
+            [self initializeAudioCaptureSessionInput];
+        });
 
 
         // finally, make sure we got access to the capture device
