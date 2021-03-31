@@ -1088,22 +1088,19 @@ BOOL _sessionInterrupted = NO;
     if(recordAudio && self.captureAudio){
 
         // if we haven't initialized our capture session yet
-        // initialize it. This will cause video to flicker.
-        // dispatch sync as we need to wait for audio to be enabled
-        // and need to make sure it doesn't conflict with concurrent changes
-        // to captureAudio prop
-        dispatch_sync(self.sessionQueue, ^{
+        // initialize it (this will cause video to flicker.)
+        // Dispatch through our session queue as we may have race conditions
+        // with this and the captureAudio prop
+        dispatch_async(self.sessionQueue, ^{
             [self initializeAudioCaptureSessionInput];
+
+            // finally, make sure we got access to the capture device
+            // and turn the connection on.
+            if(self.audioCaptureDeviceInput != nil){
+                AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
+                audioConnection.enabled = YES;
+            }
         });
-
-
-        // finally, make sure we got access to the capture device
-        // and turn the connection on.
-        if(self.audioCaptureDeviceInput != nil){
-            AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
-            audioConnection.enabled = YES;
-        }
-
     }
 
     // if we have a capture input but are muted
