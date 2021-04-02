@@ -1990,9 +1990,15 @@ BOOL _sessionInterrupted = NO;
 
     [instruction setLayerInstructions:@[transformer]];
     [videoComposition setInstructions:@[instruction]];
+    
+    //reset preset to get current default
+    AVCaptureSessionPreset preset = [self getDefaultPreset];
+    if (self.session.sessionPreset != preset) {
+        [self updateSessionPreset: preset];
+    }
 
     // Export
-    AVAssetExportSession* exportSession = [AVAssetExportSession exportSessionWithAsset:videoAsset presetName:self.session.sessionPreset];
+    AVAssetExportSession* exportSession = [AVAssetExportSession exportSessionWithAsset:videoAsset presetName:preset];
     NSString* filePath = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingString:@"CameraFlip"] withExtension:@".mp4"];
     NSURL* outputURL = [NSURL fileURLWithPath:filePath];
     [exportSession setOutputURL:outputURL];
