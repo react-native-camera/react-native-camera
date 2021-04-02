@@ -1991,7 +1991,7 @@ BOOL _sessionInterrupted = NO;
     [instruction setLayerInstructions:@[transformer]];
     [videoComposition setInstructions:@[instruction]];
     
-    //reset preset to get current default
+    //get preset for export via default or session
     AVCaptureSessionPreset preset = [self getDefaultPreset];
     if (self.session.sessionPreset != preset) {
         preset = self.session.sessionPreset;
