@@ -1994,7 +1994,7 @@ BOOL _sessionInterrupted = NO;
     //reset preset to get current default
     AVCaptureSessionPreset preset = [self getDefaultPreset];
     if (self.session.sessionPreset != preset) {
-        [self updateSessionPreset: preset];
+        preset = self.session.sessionPreset;
     }
 
     // Export
