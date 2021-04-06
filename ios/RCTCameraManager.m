@@ -1593,6 +1593,22 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     #endif
 }
 
+RCT_EXPORT_METHOD(resumePreview)
+{
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    [[self.previewLayer connection] setEnabled:YES];
+}
+
+RCT_EXPORT_METHOD(pausePreview)
+{
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    [[self.previewLayer connection] setEnabled:NO];
+}
+
 RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
 
