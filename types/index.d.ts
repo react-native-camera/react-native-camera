@@ -232,7 +232,7 @@ export interface RNCameraProps {
   onGoogleVisionBarcodesDetected?(event: GoogleVisionBarcodesDetectedEvent): void;
 
   // limiting scan area
-  rectOfInterest?: Point;
+  rectOfInterest?: RectOfInterest;
 
   // -- FACE DETECTION PROPS
 
@@ -291,6 +291,8 @@ interface Size<T = number> {
   width: T;
   height: T;
 }
+
+interface RectOfInterest extends Point,Size{}
 
 export interface Barcode {
   bounds: {
