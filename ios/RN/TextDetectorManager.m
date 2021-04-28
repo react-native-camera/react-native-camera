@@ -45,7 +45,7 @@
 - (NSArray *)processBlocks:(NSArray *)features
 {
   NSMutableArray *textBlocks = [[NSMutableArray alloc] init];
-  for (FIRVisionTextBlock *textBlock in features) {
+  for (MLKTextBlock *textBlock in features) {
       NSDictionary *textBlockDict = 
       @{@"type": @"block", @"value" : textBlock.text, @"bounds" : [self processBounds:textBlock.frame], @"components" : [self processLine:textBlock.lines]};
       [textBlocks addObject:textBlockDict];
@@ -56,7 +56,7 @@
 -(NSArray *)processLine:(NSArray *)lines
 {
   NSMutableArray *lineBlocks = [[NSMutableArray alloc] init];
-  for (FIRVisionTextLine *textLine in lines) {
+  for (MLKTextLine *textLine in lines) {
         NSDictionary *textLineDict = 
         @{@"type": @"line", @"value" : textLine.text, @"bounds" : [self processBounds:textLine.frame], @"components" : [self processElement:textLine.elements]};
         [lineBlocks addObject:textLineDict];
@@ -67,7 +67,7 @@
 -(NSArray *)processElement:(NSArray *)elements 
 {
   NSMutableArray *elementBlocks = [[NSMutableArray alloc] init];
-  for (FIRVisionTextElement *textElement in elements) {
+  for (MLKTextElement *textElement in elements) {
         NSDictionary *textElementDict = 
         @{@"type": @"element", @"value" : textElement.text, @"bounds" : [self processBounds:textElement.frame]};
         [elementBlocks addObject:textElementDict];
