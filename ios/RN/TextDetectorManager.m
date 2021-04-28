@@ -1,8 +1,8 @@
 #import "TextDetectorManager.h"
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+#if __has_include(<MLKit.h>)
 
 @interface TextDetectorManager ()
-@property(nonatomic, strong) FIRVisionTextRecognizer *textRecognizer;
+@property(nonatomic, strong) MLKTextRecognizer *textRecognizer;
 @property(nonatomic, assign) float scaleX;
 @property(nonatomic, assign) float scaleY;
 @end
@@ -11,10 +11,7 @@
 
 - (instancetype)init
 {
-  if (self = [super init]) {
-    FIRVision *vision = [FIRVision vision];
-    self.textRecognizer = [vision onDeviceTextRecognizer];
-  }
+  if (self = [super init]) {}
   return self;
 }
 
@@ -25,19 +22,24 @@
 
 - (void)findTextBlocksInFrame:(UIImage *)uiImage scaleX:(float)scaleX scaleY:(float) scaleY completed: (void (^)(NSArray * result)) completed
 {
+    MLKVisionImage *visionImage = [[MLKVisionImage alloc] initWithImage:uiImage];
+    visionImage.orientation = uiImage.imageOrientation;
+    
+    self.textRecognizer = [MLKTextRecognizer textRecognizer];
+
     self.scaleX = scaleX;
     self.scaleY = scaleY;
-    FIRVisionImage *image = [[FIRVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *textBlocks = [[NSMutableArray alloc] init];
-    [_textRecognizer processImage:image
-                       completion:^(FIRVisionText *_Nullable result,
-                                    NSError *_Nullable error) {
-                           if (error != nil || result == nil) {
-                               completed(textBlocks);
-                           } else {
-                               completed([self processBlocks:result.blocks]);
-                           }
-                       }];
+    [self.textRecognizer processImage:visionImage
+                      completion:^(MLKText *_Nullable result,
+                                   NSError *_Nullable error) {
+      if (error != nil || result == nil) {
+          completed(textBlocks);
+        return;
+      }
+        completed([self processBlocks:result.blocks]);
+    }];
+    
 }
 
 - (NSArray *)processBlocks:(NSArray *)features
