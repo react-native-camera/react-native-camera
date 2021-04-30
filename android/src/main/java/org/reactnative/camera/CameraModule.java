@@ -15,9 +15,7 @@ import com.facebook.react.uimanager.UIBlock;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.google.android.cameraview.AspectRatio;
 import com.google.zxing.BarcodeFormat;
-import org.reactnative.barcodedetector.BarcodeFormatUtils;
 import org.reactnative.camera.utils.ScopedContext;
-import org.reactnative.facedetector.RNFaceDetector;
 import com.google.android.cameraview.Size;
 
 import javax.annotation.Nullable;
@@ -93,47 +91,6 @@ public class CameraModule extends ReactContextBaseJavaModule {
         put("AutoFocus", getAutoFocusConstants());
         put("WhiteBalance", getWhiteBalanceConstants());
         put("VideoQuality", getVideoQualityConstants());
-        put("BarCodeType", getBarCodeConstants());
-        put("FaceDetection", Collections.unmodifiableMap(new HashMap<String, Object>() {
-          {
-            put("Mode", getFaceDetectionModeConstants());
-            put("Landmarks", getFaceDetectionLandmarksConstants());
-            put("Classifications", getFaceDetectionClassificationsConstants());
-          }
-
-          private Map<String, Object> getFaceDetectionModeConstants() {
-            return Collections.unmodifiableMap(new HashMap<String, Object>() {
-              {
-                put("fast", RNFaceDetector.FAST_MODE);
-                put("accurate", RNFaceDetector.ACCURATE_MODE);
-              }
-            });
-          }
-
-          private Map<String, Object> getFaceDetectionClassificationsConstants() {
-            return Collections.unmodifiableMap(new HashMap<String, Object>() {
-              {
-                put("all", RNFaceDetector.ALL_CLASSIFICATIONS);
-                put("none", RNFaceDetector.NO_CLASSIFICATIONS);
-              }
-            });
-          }
-
-          private Map<String, Object> getFaceDetectionLandmarksConstants() {
-            return Collections.unmodifiableMap(new HashMap<String, Object>() {
-              {
-                put("all", RNFaceDetector.ALL_LANDMARKS);
-                put("none", RNFaceDetector.NO_LANDMARKS);
-              }
-            });
-          }
-        }));
-        put("GoogleVisionBarcodeDetection", Collections.unmodifiableMap(new HashMap<String, Object>() {
-          {
-            put("BarcodeType", BarcodeFormatUtils.REVERSE_FORMATS);
-            put("BarcodeMode", getGoogleVisionBarcodeModeConstants());
-          }
-        }));
         put("Orientation", Collections.unmodifiableMap(new HashMap<String, Object>() {
             {
               put("auto", Constants.ORIENTATION_AUTO);
@@ -197,20 +154,6 @@ public class CameraModule extends ReactContextBaseJavaModule {
             put("4:3", VIDEO_4x3);
           }
         });
-      }
-
-      private Map<String, Object> getGoogleVisionBarcodeModeConstants() {
-        return Collections.unmodifiableMap(new HashMap<String, Object>() {
-          {
-            put("NORMAL", GOOGLE_VISION_BARCODE_MODE_NORMAL);
-            put("ALTERNATE", GOOGLE_VISION_BARCODE_MODE_ALTERNATE);
-            put("INVERTED", GOOGLE_VISION_BARCODE_MODE_INVERTED);
-          }
-        });
-      }
-
-      private Map<String, Object> getBarCodeConstants() {
-        return VALID_BARCODE_TYPES;
       }
     });
   }

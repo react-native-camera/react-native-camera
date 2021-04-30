@@ -17,8 +17,6 @@ import com.facebook.react.uimanager.UIManagerModule;
 import com.google.android.cameraview.CameraView;
 import com.google.zxing.Result;
 import org.reactnative.camera.events.*;
-import org.reactnative.barcodedetector.RNBarcodeDetector;
-import org.reactnative.facedetector.RNFaceDetector;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -255,70 +253,6 @@ public class RNCameraViewHelper {
       }
     });
 
-  }
-  // Face detection events
-
-  public static void emitFacesDetectedEvent(final ViewGroup view, final WritableArray data) {
-
-    final ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.runOnNativeModulesQueueThread(new Runnable() {
-      @Override
-      public void run() {
-        FacesDetectedEvent event = FacesDetectedEvent.obtain(view.getId(), data);
-        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
-      }
-     });
-  }
-
-  public static void emitFaceDetectionErrorEvent(final ViewGroup view, final RNFaceDetector faceDetector) {
-
-    final ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.runOnNativeModulesQueueThread(new Runnable() {
-      @Override
-      public void run() {
-        FaceDetectionErrorEvent event = FaceDetectionErrorEvent.obtain(view.getId(), faceDetector);
-        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
-      }
-    });
-  }
-
-  // Barcode detection events
-
-  public static void emitBarcodesDetectedEvent(final ViewGroup view, final WritableArray barcodes, final byte[] compressedImage) {
-
-    final ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.runOnNativeModulesQueueThread(new Runnable() {
-      @Override
-      public void run() {
-        BarcodesDetectedEvent event = BarcodesDetectedEvent.obtain(view.getId(), barcodes, compressedImage);
-        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
-      }
-    });
-  }
-
-  public static void emitBarcodeDetectionErrorEvent(final ViewGroup view, final RNBarcodeDetector barcodeDetector) {
-
-    final ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.runOnNativeModulesQueueThread(new Runnable() {
-      @Override
-      public void run() {
-        BarcodeDetectionErrorEvent event = BarcodeDetectionErrorEvent.obtain(view.getId(), barcodeDetector);
-        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
-      }
-    });
-  }
-
-  // Bar code read event
-
-  public static void emitBarCodeReadEvent(final ViewGroup view, final Result barCode, final int width, final int height, final byte[] compressedImage) {
-    final ReactContext reactContext = (ReactContext) view.getContext();
-    reactContext.runOnNativeModulesQueueThread(new Runnable() {
-      @Override
-      public void run() {
-        BarCodeReadEvent event = BarCodeReadEvent.obtain(view.getId(), barCode, width,  height, compressedImage);
-        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
-      }
-    });
   }
 
   // Text recognition event

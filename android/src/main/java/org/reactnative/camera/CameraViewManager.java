@@ -177,46 +177,6 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setShouldDetectTouches(touchDetectorEnabled);
   }
 
-  @ReactProp(name = "faceDetectorEnabled")
-  public void setFaceDetecting(RNCameraView view, boolean faceDetectorEnabled) {
-    view.setShouldDetectFaces(faceDetectorEnabled);
-  }
-
-  @ReactProp(name = "faceDetectionMode")
-  public void setFaceDetectionMode(RNCameraView view, int mode) {
-    view.setFaceDetectionMode(mode);
-  }
-
-  @ReactProp(name = "faceDetectionLandmarks")
-  public void setFaceDetectionLandmarks(RNCameraView view, int landmarks) {
-    view.setFaceDetectionLandmarks(landmarks);
-  }
-
-  @ReactProp(name = "faceDetectionClassifications")
-  public void setFaceDetectionClassifications(RNCameraView view, int classifications) {
-    view.setFaceDetectionClassifications(classifications);
-  }
-
-  @ReactProp(name = "trackingEnabled")
-  public void setTracking(RNCameraView view, boolean trackingEnabled) {
-    view.setTracking(trackingEnabled);
-  }
-
-  @ReactProp(name = "googleVisionBarcodeDetectorEnabled")
-  public void setGoogleVisionBarcodeDetecting(RNCameraView view, boolean googleBarcodeDetectorEnabled) {
-    view.setShouldGoogleDetectBarcodes(googleBarcodeDetectorEnabled);
-  }
-
-  @ReactProp(name = "googleVisionBarcodeType")
-  public void setGoogleVisionBarcodeType(RNCameraView view, int barcodeType) {
-    view.setGoogleVisionBarcodeType(barcodeType);
-  }
-
-  @ReactProp(name = "googleVisionBarcodeMode")
-  public void setGoogleVisionBarcodeMode(RNCameraView view, int barcodeMode) {
-    view.setGoogleVisionBarcodeMode(barcodeMode);
-  }
-
   @ReactProp(name = "textRecognizerEnabled")
   public void setTextRecognizing(RNCameraView view, boolean textRecognizerEnabled) {
     view.setShouldRecognizeText(textRecognizerEnabled);

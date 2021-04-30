@@ -8,8 +8,6 @@ import com.facebook.react.uimanager.ViewManager;
 import com.lwansbrough.RCTCamera.RCTCameraModule;
 import com.lwansbrough.RCTCamera.RCTCameraViewManager;
 
-import org.reactnative.facedetector.FaceDetectorModule;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,8 +21,7 @@ public class RNCameraPackage implements ReactPackage {
     public List<NativeModule> createNativeModules(ReactApplicationContext reactApplicationContext) {
         return Arrays.<NativeModule>asList(
                 new RCTCameraModule(reactApplicationContext),
-                new CameraModule(reactApplicationContext),
-                new FaceDetectorModule(reactApplicationContext)
+                new CameraModule(reactApplicationContext)
         );
     }
 
