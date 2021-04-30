@@ -38,9 +38,6 @@ android {
     general {
       dimension "react-native-camera"
     }
-    mlkit {
-      dimension "react-native-camera"
-    }
   }
 
   lintOptions {
