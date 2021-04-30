@@ -212,11 +212,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     // React handles this for us, so we don't need to call super.requestLayout();
   }
 
-  public void setBarCodeTypes(List<String> barCodeTypes) {
-    mBarCodeTypes = barCodeTypes;
-    initBarcodeReader();
-  }
-
   public void setDetectedImageInEvent(boolean detectedImageInEvent) {
     this.mDetectedImageInEvent = detectedImageInEvent;
   }
@@ -286,68 +281,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
       }
     });
-  }
-
-  /**
-   * Initialize the barcode decoder.
-   * Supports all iOS codes except [code138, code39mod43, itf14]
-   * Additionally supports [codabar, code128, maxicode, rss14, rssexpanded, upc_a, upc_ean]
-   */
-  private void initBarcodeReader() {
-    mMultiFormatReader = new MultiFormatReader();
-    EnumMap<DecodeHintType, Object> hints = new EnumMap<>(DecodeHintType.class);
-    EnumSet<BarcodeFormat> decodeFormats = EnumSet.noneOf(BarcodeFormat.class);
-
-    if (mBarCodeTypes != null) {
-      for (String code : mBarCodeTypes) {
-        String formatString = (String) CameraModule.VALID_BARCODE_TYPES.get(code);
-        if (formatString != null) {
-          decodeFormats.add(BarcodeFormat.valueOf(formatString));
-        }
-      }
-    }
-
-    hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
-    mMultiFormatReader.setHints(hints);
-  }
-
-  public void setShouldScanBarCodes(boolean shouldScanBarCodes) {
-    if (shouldScanBarCodes && mMultiFormatReader == null) {
-      initBarcodeReader();
-    }
-    this.mShouldScanBarCodes = shouldScanBarCodes;
-    setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
-  }
-
-  public void onBarCodeRead(Result barCode, int width, int height, byte[] imageData) {
-    String barCodeType = barCode.getBarcodeFormat().toString();
-    if (!mShouldScanBarCodes || !mBarCodeTypes.contains(barCodeType)) {
-      return;
-    }
-
-    final byte[] compressedImage;
-    if (mDetectedImageInEvent) {
-      try {
-        // https://stackoverflow.com/a/32793908/122441
-        final YuvImage yuvImage = new YuvImage(imageData, ImageFormat.NV21, width, height, null);
-        final ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
-        yuvImage.compressToJpeg(new Rect(0, 0, width, height), 100, imageStream);
-        compressedImage = imageStream.toByteArray();
-      } catch (Exception e) {
-        throw new RuntimeException(String.format("Error decoding imageData from NV21 format (%d bytes)", imageData.length), e);
-      }
-    } else {
-      compressedImage = null;
-    }
-
-    RNCameraViewHelper.emitBarCodeReadEvent(this, barCode, width, height, compressedImage);
-  }
-
-  public void onBarCodeScanningTaskCompleted() {
-    barCodeScannerTaskLock = false;
-    if(mMultiFormatReader != null) {
-      mMultiFormatReader.reset();
-    }
   }
 
   // Limit Scan Area

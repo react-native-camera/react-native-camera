@@ -14,8 +14,6 @@ import {
   PermissionsAndroid,
 } from 'react-native';
 
-import type { FaceFeature } from './FaceDetector';
-
 const Rationale = PropTypes.shape({
   title: PropTypes.string.isRequired,
   message: PropTypes.string.isRequired,
@@ -110,10 +108,6 @@ type PictureOptions = {
   pauseAfterCapture?: boolean,
 };
 
-type TrackedFaceFeature = FaceFeature & {
-  faceID?: number,
-};
-
 type TrackedTextFeature = {
   type: string,
   bounds: {
@@ -128,98 +122,6 @@ type TrackedTextFeature = {
   },
   value: string,
   components: Array<TrackedTextFeature>,
-};
-
-type TrackedBarcodeFeature = {
-  bounds: {
-    size: {
-      width: number,
-      height: number,
-    },
-    origin: {
-      x: number,
-      y: number,
-    },
-  },
-  data: string,
-  dataRaw: string,
-  type: BarcodeType,
-  format?: string,
-  addresses?: {
-    addressesType?: 'UNKNOWN' | 'Work' | 'Home',
-    addressLines?: string[],
-  }[],
-  emails?: Email[],
-  phones?: Phone[],
-  urls: ?(string[]),
-  name?: {
-    firstName?: string,
-    lastName?: string,
-    middleName?: string,
-    prefix?: string,
-    pronounciation?: string,
-    suffix?: string,
-    formattedName?: string,
-  },
-  phone?: Phone,
-  organization?: string,
-  latitude?: number,
-  longitude?: number,
-  ssid?: string,
-  password?: string,
-  encryptionType?: string,
-  title?: string,
-  url?: string,
-  firstName?: string,
-  middleName?: string,
-  lastName?: string,
-  gender?: string,
-  addressCity?: string,
-  addressState?: string,
-  addressStreet?: string,
-  addressZip?: string,
-  birthDate?: string,
-  documentType?: string,
-  licenseNumber?: string,
-  expiryDate?: string,
-  issuingDate?: string,
-  issuingCountry?: string,
-  eventDescription?: string,
-  location?: string,
-  organizer?: string,
-  status?: string,
-  summary?: string,
-  start?: string,
-  end?: string,
-  email?: Email,
-  phoneNumber?: string,
-  message?: string,
-};
-
-type BarcodeType =
-  | 'EMAIL'
-  | 'PHONE'
-  | 'CALENDAR_EVENT'
-  | 'DRIVER_LICENSE'
-  | 'GEO'
-  | 'SMS'
-  | 'CONTACT_INFO'
-  | 'WIFI'
-  | 'TEXT'
-  | 'ISBN'
-  | 'PRODUCT'
-  | 'URL';
-
-type Email = {
-  address?: string,
-  body?: string,
-  subject?: string,
-  emailType?: 'UNKNOWN' | 'Work' | 'Home',
-};
-
-type Phone = {
-  number?: string,
-  phoneType?: 'UNKNOWN' | 'Work' | 'Home' | 'Fax' | 'Mobile',
 };
 
 type RecordingOptions = {
@@ -256,28 +158,27 @@ type PropsType = typeof View.props & {
   onAudioInterrupted?: Function,
   onAudioConnected?: Function,
   onStatusChange?: Function,
-  onBarCodeRead?: Function,
   onPictureTaken?: Function,
   onPictureSaved?: Function,
   onRecordingStart?: Function,
   onRecordingEnd?: Function,
   onTap?: Function,
   onDoubleTap?: Function,
-  onGoogleVisionBarcodesDetected?: ({ barcodes: Array<TrackedBarcodeFeature> }) => void,
   onSubjectAreaChanged?: ({ nativeEvent: { prevPoint: {| x: number, y: number |} } }) => void,
-  faceDetectionMode?: number,
-  trackingEnabled?: boolean,
   flashMode?: number | string,
   exposure?: number,
-  barCodeTypes?: Array<string>,
-  googleVisionBarcodeType?: number,
-  googleVisionBarcodeMode?: number,
-  whiteBalance?: number | string | {temperature: number, tint: number, redGainOffset?: number, greenGainOffset?: number, blueGainOffset?: number },
-  faceDetectionLandmarks?: number,
+  whiteBalance?:
+    | number
+    | string
+    | {
+        temperature: number,
+        tint: number,
+        redGainOffset?: number,
+        greenGainOffset?: number,
+        blueGainOffset?: number,
+      },
   autoFocus?: string | boolean | number,
   autoFocusPointOfInterest?: { x: number, y: number },
-  faceDetectionClassifications?: number,
-  onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
   captureAudio?: boolean,
   keepAudioSession?: boolean,
@@ -326,21 +227,6 @@ const CameraManager: Object = NativeModules.RNCameraManager ||
       off: 1,
     },
     WhiteBalance: {},
-    BarCodeType: {},
-    FaceDetection: {
-      fast: 1,
-      Mode: {},
-      Landmarks: {
-        none: 0,
-      },
-      Classifications: {
-        none: 0,
-      },
-    },
-    GoogleVisionBarcodeDetection: {
-      BarcodeType: 0,
-      BarcodeMode: 0,
-    },
   };
 
 const EventThrottleMs = 500;
@@ -362,9 +248,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
     VideoQuality: CameraManager.VideoQuality,
     ImageType: CameraManager.ImageType,
     VideoCodec: CameraManager.VideoCodec,
-    BarCodeType: CameraManager.BarCodeType,
-    GoogleVisionBarcodeDetection: CameraManager.GoogleVisionBarcodeDetection,
-    FaceDetection: CameraManager.FaceDetection,
     CameraStatus,
     CaptureTarget: CameraManager.CaptureTarget,
     RecordAudioPermissionStatus: RecordAudioPermissionStatusEnum,
@@ -385,11 +268,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
     exposure: CameraManager.Exposure,
     autoFocus: CameraManager.AutoFocus,
     whiteBalance: CameraManager.WhiteBalance,
-    faceDetectionMode: (CameraManager.FaceDetection || {}).Mode,
-    faceDetectionLandmarks: (CameraManager.FaceDetection || {}).Landmarks,
-    faceDetectionClassifications: (CameraManager.FaceDetection || {}).Classifications,
-    googleVisionBarcodeType: (CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeType,
-    googleVisionBarcodeMode: (CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeMode,
     videoStabilizationMode: CameraManager.VideoStabilization || {},
   };
 
@@ -405,33 +283,29 @@ export default class Camera extends React.Component<PropsType, StateType> {
     onAudioInterrupted: PropTypes.func,
     onAudioConnected: PropTypes.func,
     onStatusChange: PropTypes.func,
-    onBarCodeRead: PropTypes.func,
     onPictureTaken: PropTypes.func,
     onPictureSaved: PropTypes.func,
     onRecordingStart: PropTypes.func,
     onRecordingEnd: PropTypes.func,
     onTap: PropTypes.func,
     onDoubleTap: PropTypes.func,
-    onGoogleVisionBarcodesDetected: PropTypes.func,
-    onFacesDetected: PropTypes.func,
     onTextRecognized: PropTypes.func,
     onSubjectAreaChanged: PropTypes.func,
-    trackingEnabled: PropTypes.bool,
-    faceDetectionMode: PropTypes.number,
-    faceDetectionLandmarks: PropTypes.number,
-    faceDetectionClassifications: PropTypes.number,
-    barCodeTypes: PropTypes.arrayOf(PropTypes.string),
-    googleVisionBarcodeType: PropTypes.number,
-    googleVisionBarcodeMode: PropTypes.number,
     type: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     cameraId: PropTypes.string,
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     exposure: PropTypes.number,
-    whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number,
-      PropTypes.shape({ temperature: PropTypes.number, tint: PropTypes.number,
+    whiteBalance: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+      PropTypes.shape({
+        temperature: PropTypes.number,
+        tint: PropTypes.number,
         redGainOffset: PropTypes.number,
         greenGainOffset: PropTypes.number,
-        blueGainOffset: PropTypes.number })]),
+        blueGainOffset: PropTypes.number,
+      }),
+    ]),
     autoFocus: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
     autoFocusPointOfInterest: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number }),
     permissionDialogTitle: PropTypes.string,
@@ -464,14 +338,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
     flashMode: CameraManager.FlashMode.off,
     exposure: -1,
     whiteBalance: CameraManager.WhiteBalance.auto,
-    faceDetectionMode: (CameraManager.FaceDetection || {}).fast,
-    barCodeTypes: Object.values(CameraManager.BarCodeType),
-    googleVisionBarcodeType: ((CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeType || {})
-      .None,
-    googleVisionBarcodeMode: ((CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeMode || {})
-      .NORMAL,
-    faceDetectionLandmarks: ((CameraManager.FaceDetection || {}).Landmarks || {}).none,
-    faceDetectionClassifications: ((CameraManager.FaceDetection || {}).Classifications || {}).none,
     permissionDialogTitle: '',
     permissionDialogMessage: '',
     androidCameraPermissionOptions: null,
@@ -720,7 +586,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
-  _onSubjectAreaChanged = e => {
+  _onSubjectAreaChanged = (e) => {
     if (this.props.onSubjectAreaChanged) {
       this.props.onSubjectAreaChanged(e);
     }
@@ -851,12 +717,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
             onCameraReady={this._onCameraReady}
             onAudioInterrupted={this._onAudioInterrupted}
             onAudioConnected={this._onAudioConnected}
-            onGoogleVisionBarcodesDetected={this._onObjectDetected(
-              this.props.onGoogleVisionBarcodesDetected,
-            )}
-            onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
             onTouch={this._onTouch}
-            onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
             onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
             onPictureSaved={this._onPictureSaved}
             onSubjectAreaChanged={this._onSubjectAreaChanged}
@@ -873,18 +734,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
   _convertNativeProps({ children, ...props }: PropsType) {
     const newProps = mapValues(props, this._convertProp);
-
-    if (props.onBarCodeRead) {
-      newProps.barCodeScannerEnabled = true;
-    }
-
-    if (props.onGoogleVisionBarcodesDetected) {
-      newProps.googleVisionBarcodeDetectorEnabled = true;
-    }
-
-    if (props.onFacesDetected) {
-      newProps.faceDetectorEnabled = true;
-    }
 
     if (props.onTap || props.onDoubleTap) {
       newProps.touchDetectorEnabled = true;
@@ -917,19 +766,13 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     accessibilityComponentType: true,
     accessibilityLabel: true,
     accessibilityLiveRegion: true,
-    barCodeScannerEnabled: true,
     touchDetectorEnabled: true,
-    googleVisionBarcodeDetectorEnabled: true,
-    faceDetectorEnabled: true,
     textRecognizerEnabled: true,
     importantForAccessibility: true,
-    onBarCodeRead: true,
-    onGoogleVisionBarcodesDetected: true,
     onCameraReady: true,
     onAudioInterrupted: true,
     onAudioConnected: true,
     onPictureSaved: true,
-    onFaceDetected: true,
     onTouch: true,
     onLayout: true,
     onMountError: true,
