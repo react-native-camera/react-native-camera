@@ -173,6 +173,7 @@ export interface GoogleVisionBarcodesDetectedEvent {
 
 export interface RNCameraProps {
   children?: ReactNode | FaCC;
+  cameraId?: string;
 
   autoFocus?: keyof AutoFocus;
   autoFocusPointOfInterest?: Point;
