@@ -1088,17 +1088,19 @@ BOOL _sessionInterrupted = NO;
     if(recordAudio && self.captureAudio){
 
         // if we haven't initialized our capture session yet
-        // initialize it. This will cause video to flicker.
-        [self initializeAudioCaptureSessionInput];
+        // initialize it (this will cause video to flicker.)
+        // Dispatch through our session queue as we may have race conditions
+        // with this and the captureAudio prop
+        dispatch_async(self.sessionQueue, ^{
+            [self initializeAudioCaptureSessionInput];
 
-
-        // finally, make sure we got access to the capture device
-        // and turn the connection on.
-        if(self.audioCaptureDeviceInput != nil){
-            AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
-            audioConnection.enabled = YES;
-        }
-
+            // finally, make sure we got access to the capture device
+            // and turn the connection on.
+            if(self.audioCaptureDeviceInput != nil){
+                AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
+                audioConnection.enabled = YES;
+            }
+        });
     }
 
     // if we have a capture input but are muted
@@ -1997,9 +1999,15 @@ BOOL _sessionInterrupted = NO;
 
     [instruction setLayerInstructions:@[transformer]];
     [videoComposition setInstructions:@[instruction]];
+    
+    //get preset for export via default or session
+    AVCaptureSessionPreset preset = [self getDefaultPreset];
+    if (self.session.sessionPreset != preset) {
+        preset = self.session.sessionPreset;
+    }
 
     // Export
-    AVAssetExportSession* exportSession = [AVAssetExportSession exportSessionWithAsset:videoAsset presetName:AVAssetExportPreset640x480];
+    AVAssetExportSession* exportSession = [AVAssetExportSession exportSessionWithAsset:videoAsset presetName:preset];
     NSString* filePath = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingString:@"CameraFlip"] withExtension:@".mp4"];
     NSURL* outputURL = [NSURL fileURLWithPath:filePath];
     [exportSession setOutputURL:outputURL];
