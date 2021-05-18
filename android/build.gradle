@@ -9,6 +9,7 @@ buildscript {
   if (project == rootProject) {
     repositories {
       google()
+      mavenCentral()
       jcenter()
     }
 

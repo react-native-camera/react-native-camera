@@ -626,7 +626,7 @@ Supported options:
 
 - `mirrorImage` (boolean true or false). Use this with `true` if you want the resulting rendered picture to be mirrored (inverted in the vertical axis). If no value is specified `mirrorImage:false` is used.
 
-- `writeExif`: (boolean or object, defaults to true). Setting this to a boolean indicates if the image exif should be preserved after capture, or removed. Setting it to an object, merges any data with the final exif output. This is useful, for example, to add GPS metadata (note that GPS info is correctly transalted from double values to the EXIF format, so there's no need to read the EXIF protocol).
+- `writeExif`: (boolean or object, defaults to true). Setting this to a boolean indicates if the image exif should be preserved after capture, or removed. Setting it to an object, merges any data with the final exif output. This is useful, for example, to add GPS metadata (note that GPS info is correctly translated from double values to the EXIF format, so there's no need to read the EXIF protocol).
 
 ```js
 writeExif = {
