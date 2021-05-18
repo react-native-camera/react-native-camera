@@ -85,7 +85,7 @@ BOOL _sessionInterrupted = NO;
         self.autoFocus = -1;
         self.exposure = -1;
         self.presetCamera = AVCaptureDevicePositionUnspecified;
-        self.cameraId = nil;
+        self.cameraId = @"";
         self.isFocusedOnPoint = NO;
         self.isExposedOnPoint = NO;
         self.invertImageData = true;
@@ -309,7 +309,7 @@ BOOL _sessionInterrupted = NO;
 -(AVCaptureDevice*)getDevice
 {
     AVCaptureDevice *captureDevice;
-    if(self.cameraId != nil){
+    if(self.cameraId != nil && self.cameraId.length){
         captureDevice = [RNCameraUtils deviceWithCameraId:self.cameraId];
     }
     else{
@@ -1088,17 +1088,19 @@ BOOL _sessionInterrupted = NO;
     if(recordAudio && self.captureAudio){
 
         // if we haven't initialized our capture session yet
-        // initialize it. This will cause video to flicker.
-        [self initializeAudioCaptureSessionInput];
+        // initialize it (this will cause video to flicker.)
+        // Dispatch through our session queue as we may have race conditions
+        // with this and the captureAudio prop
+        dispatch_async(self.sessionQueue, ^{
+            [self initializeAudioCaptureSessionInput];
 
-
-        // finally, make sure we got access to the capture device
-        // and turn the connection on.
-        if(self.audioCaptureDeviceInput != nil){
-            AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
-            audioConnection.enabled = YES;
-        }
-
+            // finally, make sure we got access to the capture device
+            // and turn the connection on.
+            if(self.audioCaptureDeviceInput != nil){
+                AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
+                audioConnection.enabled = YES;
+            }
+        });
     }
 
     // if we have a capture input but are muted
@@ -1166,9 +1168,18 @@ BOOL _sessionInterrupted = NO;
         if (options[@"codec"]) {
             if (@available(iOS 10, *)) {
                 AVVideoCodecType videoCodecType = options[@"codec"];
+                
                 if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
                     self.videoCodecType = videoCodecType;
-                    if(options[@"videoBitrate"]) {
+                    
+                    BOOL supportsBitRate = NO;
+                    
+                    // prevent crashing due to unsupported keys
+                    if (@available(iOS 12.0, *)) {
+                        supportsBitRate = [[self.movieFileOutput supportedOutputSettingsKeysForConnection:connection] containsObject:AVVideoCompressionPropertiesKey];
+                    }
+                    
+                    if(options[@"videoBitrate"] && supportsBitRate) {
                         NSString *videoBitrate = options[@"videoBitrate"];
                         [self.movieFileOutput setOutputSettings:@{
                           AVVideoCodecKey:videoCodecType,
@@ -1294,7 +1305,7 @@ BOOL _sessionInterrupted = NO;
         }
 
         // if camera not set (invalid type and no ID) return.
-        if (self.presetCamera == AVCaptureDevicePositionUnspecified && self.cameraId == nil) {
+        if (self.presetCamera == AVCaptureDevicePositionUnspecified && (self.cameraId == nil || !self.cameraId.length)) {
             return;
         }
 
@@ -1988,9 +1999,15 @@ BOOL _sessionInterrupted = NO;
 
     [instruction setLayerInstructions:@[transformer]];
     [videoComposition setInstructions:@[instruction]];
+    
+    //get preset for export via default or session
+    AVCaptureSessionPreset preset = [self getDefaultPreset];
+    if (self.session.sessionPreset != preset) {
+        preset = self.session.sessionPreset;
+    }
 
     // Export
-    AVAssetExportSession* exportSession = [AVAssetExportSession exportSessionWithAsset:videoAsset presetName:AVAssetExportPreset640x480];
+    AVAssetExportSession* exportSession = [AVAssetExportSession exportSessionWithAsset:videoAsset presetName:preset];
     NSString* filePath = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingString:@"CameraFlip"] withExtension:@".mp4"];
     NSURL* outputURL = [NSURL fileURLWithPath:filePath];
     [exportSession setOutputURL:outputURL];
