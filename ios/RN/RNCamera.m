@@ -283,6 +283,7 @@ BOOL _sessionInterrupted = NO;
         // after mount to set the camera's default, and that will already
         // this method
         // [self initializeCaptureSessionInput];
+        [self.sensorOrientationChecker start];
         [self startSession];
     }
     else{
@@ -296,6 +297,7 @@ BOOL _sessionInterrupted = NO;
 
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
 
+        [self.sensorOrientationChecker stop];
         [self stopSession];
     }
 
@@ -326,7 +328,7 @@ BOOL _sessionInterrupted = NO;
 -(AVCaptureSessionPreset)getDefaultPreset
 {
     AVCaptureSessionPreset preset =
-    ([self pictureSize] && [[self pictureSize] integerValue] >= 0) ? [self pictureSize] : AVCaptureSessionPresetHigh;
+    ([self pictureSize] && [[self pictureSize] integerValue] >= 0) ? [self pictureSize] : AVCaptureSessionPresetPhoto;
 
     return preset;
 }
@@ -727,15 +729,17 @@ BOOL _sessionInterrupted = NO;
 }
 
 - (void)takePictureWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
-    [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
-        NSMutableDictionary *tmpOptions = [options mutableCopy];
-        if ([tmpOptions valueForKey:@"orientation"] == nil) {
-            tmpOptions[@"orientation"] = [NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation:orientation]];
-        }
-        self.deviceOrientation = [NSNumber numberWithInteger:orientation];
-        self.orientation = [NSNumber numberWithInteger:[tmpOptions[@"orientation"] integerValue]];
-        [self takePicture:tmpOptions resolve:resolve reject:reject];
-    }];
+    
+    UIInterfaceOrientation orientation = [self.sensorOrientationChecker getDeviceOrientation];
+    
+    NSMutableDictionary *tmpOptions = [options mutableCopy];
+    
+    if ([tmpOptions valueForKey:@"orientation"] == nil) {
+        tmpOptions[@"orientation"] = [NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation:orientation]];
+    }
+    self.deviceOrientation = [NSNumber numberWithInteger:orientation];
+    self.orientation = [NSNumber numberWithInteger:[tmpOptions[@"orientation"] integerValue]];
+    [self takePicture:tmpOptions resolve:resolve reject:reject];
 }
 
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
@@ -919,7 +923,7 @@ BOOL _sessionInterrupted = NO;
                     }
 
                 }
-
+                
                 CFDictionaryRef finalMetaData = nil;
                 if (writeExif) {
                     finalMetaData = (__bridge CFDictionaryRef)metadata;
@@ -999,16 +1003,17 @@ BOOL _sessionInterrupted = NO;
 }
 
 - (void)recordWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
-    [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
-        NSMutableDictionary *tmpOptions = [options mutableCopy];
-        if ([tmpOptions valueForKey:@"orientation"] == nil) {
-            tmpOptions[@"orientation"] = [NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
-        }
-        self.deviceOrientation = [NSNumber numberWithInteger:orientation];
-        self.orientation = [NSNumber numberWithInteger:[tmpOptions[@"orientation"] integerValue]];
-        [self record:tmpOptions resolve:resolve reject:reject];
-    }];
+    
+    UIInterfaceOrientation orientation = [self.sensorOrientationChecker getDeviceOrientation];
+    NSMutableDictionary *tmpOptions = [options mutableCopy];
+    if ([tmpOptions valueForKey:@"orientation"] == nil) {
+        tmpOptions[@"orientation"] = [NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
+    }
+    self.deviceOrientation = [NSNumber numberWithInteger:orientation];
+    self.orientation = [NSNumber numberWithInteger:[tmpOptions[@"orientation"] integerValue]];
+    [self record:tmpOptions resolve:resolve reject:reject];
 }
+
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
     if(self.videoCaptureDeviceInput == nil || !self.session.isRunning){
