@@ -13,7 +13,6 @@
 @interface RNSensorOrientationChecker ()
 
 @property (strong, nonatomic) CMMotionManager * motionManager;
-@property (strong, nonatomic) RNSensorCallback orientationCallback;
 
 @end
 
@@ -27,72 +26,53 @@
         self.motionManager = [[CMMotionManager alloc] init];
         self.motionManager.accelerometerUpdateInterval = 0.2;
         self.motionManager.gyroUpdateInterval = 0.2;
-        self.orientationCallback = nil;
+        self.motionManager.deviceMotionUpdateInterval = 0.2;
     }
+    
+    
     return self;
 }
 
 - (void)dealloc
 {
-    [self pause];
+    [self stop];
 }
 
-- (void)resume
+- (void)start
 {
-    __weak __typeof(self) weakSelf = self;
-    [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue new]
-                                             withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) {
-                                                 if (!error) {
-                                                     self.orientation = [weakSelf getOrientationBy:accelerometerData.acceleration];
-                                                 }
-                                                 if (self.orientationCallback) {
-                                                     self.orientationCallback(self.orientation);
-                                                 }
-                                             }];
+    [self.motionManager startDeviceMotionUpdates];
 }
 
-- (void)pause
+- (void)stop
 {
-    [self.motionManager stopAccelerometerUpdates];
+    [self.motionManager stopDeviceMotionUpdates];
 }
 
-- (void)getDeviceOrientationWithBlock:(RNSensorCallback)callback
+- (UIInterfaceOrientation)getDeviceOrientation
 {
-    __weak __typeof(self) weakSelf = self;
-    self.orientationCallback = ^(UIInterfaceOrientation orientation) {
-        // Synchronized because this might fire more than once
-        // under some circumstances, causing a very bad loop
-        // to people that uses it.
-        @synchronized (weakSelf) {
-            if (callback && weakSelf.orientationCallback) {
-                callback(orientation);
-            }
-            weakSelf.orientationCallback = nil;
-            [weakSelf pause];
+    CMDeviceMotion* data = self.motionManager.deviceMotion;
+    return [self getOrientationBy:data];
+}
+
+- (UIInterfaceOrientation)getOrientationBy:(CMDeviceMotion*)motion
+{
+    CMAcceleration gravity = motion.gravity;
+    
+    if (fabs(gravity.y) < fabs(gravity.x)) {
+        if(gravity.x > 0){
+            return UIInterfaceOrientationLandscapeLeft;
         }
-    };
-    [self resume];
-}
-
-- (UIInterfaceOrientation)getOrientationBy:(CMAcceleration)acceleration
-{
-    if(acceleration.x >= 0.75) {
-        return UIInterfaceOrientationLandscapeLeft;
+        else{
+            return UIInterfaceOrientationLandscapeRight;
+        }
+    } else {
+        if(gravity.y > 0){
+            return UIInterfaceOrientationPortraitUpsideDown;
+        }
+        else{
+            return UIInterfaceOrientationPortrait;
+        }
     }
-    if(acceleration.x <= -0.75) {
-        return UIInterfaceOrientationLandscapeRight;
-    }
-    if(acceleration.y <= -0.75) {
-        return UIInterfaceOrientationPortrait;
-    }
-    if(acceleration.y >= 0.75) {
-        return UIInterfaceOrientationPortraitUpsideDown;
-    }
-    __block UIInterfaceOrientation orientation;
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    });
-    return orientation;
 }
 
 - (AVCaptureVideoOrientation)convertToAVCaptureVideoOrientation:(UIInterfaceOrientation)orientation
