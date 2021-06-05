@@ -19,13 +19,13 @@ project.
 
 ```
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
 
     defaultConfig {
         ...
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 29
     }
 ...
 ```
@@ -38,7 +38,7 @@ to use the androidx version. Can check the full migration list [here](https://de
 remove
 
 ```xml
-<uses-sdk android:minSdkVersion="16" android:targetSdkVersion="26" />
+<uses-sdk android:minSdkVersion="16" android:targetSdkVersion="29" />
 ```
 
 #### Update `android/build.gradle`
@@ -50,7 +50,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:4.1.0'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -71,8 +71,8 @@ allprojects {
 }
 
 ext {
-    compileSdkVersion = 28
-    buildToolsVersion = '28.0.3'
+    compileSdkVersion = 29
+    buildToolsVersion = '29.0.2'
 }
 
 subprojects { subproject ->
@@ -98,4 +98,4 @@ android.useAndroidX = true;
 
 #### Update `android/gradle/wrapper/gradle-wrapper.properties`
 
-make sure your gradle `distributionUrl=https\://services.gradle.org/distributions/gradle-4.6-all.zip`
+make sure your gradle `distributionUrl=https\://services.gradle.org/distributions/gradle-6.7-all.zip`
