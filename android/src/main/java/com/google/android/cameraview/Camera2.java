@@ -40,6 +40,7 @@ import android.media.MediaRecorder;
 import android.media.MediaActionSound;
 import androidx.annotation.NonNull;
 import android.util.Log;
+import android.util.Range;
 import android.util.SparseIntArray;
 import android.view.Surface;
 import android.os.Handler;
@@ -380,9 +381,13 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     @Override
     public ArrayList<int[]> getSupportedPreviewFpsRange() {
-        Log.e("CAMERA_2:: ", "getSupportedPreviewFpsRange is not currently supported for Camera2");
-        ArrayList<int[]> validValues = new ArrayList<int[]>();
-        return validValues;
+        ArrayList<int[]> fpsRanges = new ArrayList<int[]>();
+
+        for (Range<Integer> range : mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)) {
+          fpsRanges.add(new int[]{range.getLower(), range.getUpper()});
+        }
+
+        return fpsRanges;
     }
 
     @Override
