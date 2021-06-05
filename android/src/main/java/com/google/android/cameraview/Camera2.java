@@ -579,6 +579,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     @Override
     boolean record(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int orientation, int fps) {
         if (!mIsRecording) {
+            profile.videoFrameRate = isCompatibleWithDevice(fps) ? fps : profile.videoFrameRate;
             setUpMediaRecorder(path, maxDuration, maxFileSize, recordAudio, profile);
             try {
                 mMediaRecorder.prepare();
@@ -596,6 +597,10 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                 mPreviewRequestBuilder = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
                 mPreviewRequestBuilder.addTarget(surface);
                 mPreviewRequestBuilder.addTarget(mMediaRecorderSurface);
+
+                Range<Integer> targetFpsRange = Range.create(profile.videoFrameRate, profile.videoFrameRate);
+                mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, targetFpsRange);
+
                 mCamera.createCaptureSession(Arrays.asList(surface, mMediaRecorderSurface),
                     mSessionCallback, null);
                 mMediaRecorder.start();
@@ -1405,6 +1410,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             camProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
         }
         camProfile.videoBitRate = profile.videoBitRate;
+        camProfile.videoFrameRate = profile.videoFrameRate;
         setCamcorderProfile(camProfile, recordAudio);
 
         mMediaRecorder.setOrientationHint(getOutputRotation());
@@ -1418,6 +1424,16 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
         mMediaRecorder.setOnInfoListener(this);
         mMediaRecorder.setOnErrorListener(this);
+    }
+
+    private boolean isCompatibleWithDevice(int fps) {
+        for(Range<Integer> range : mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)) {
+            if (range.contains(fps)) {
+              return true;
+            }
+        }
+        Log.w(TAG, "fps (framePerSecond) received an unsupported value and will be ignored.");
+        return false;
     }
 
     private void setCamcorderProfile(CamcorderProfile profile, boolean recordAudio) {
