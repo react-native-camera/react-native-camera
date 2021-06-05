@@ -294,9 +294,9 @@ apply plugin: 'com.google.gms.google-services'
   The current Android library defaults to the below values for the Google SDK and Libraries,
 
 ```gradle
-def DEFAULT_COMPILE_SDK_VERSION             = 26
-def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
-def DEFAULT_TARGET_SDK_VERSION              = 26
+def DEFAULT_COMPILE_SDK_VERSION             = 29
+def DEFAULT_BUILD_TOOLS_VERSION             = "29.0.2"
+def DEFAULT_TARGET_SDK_VERSION              = 29
 def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
 def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
 ```
@@ -314,9 +314,9 @@ allprojects {...}
 * Project-wide gradle configuration properties for use by all modules
 */
 ext {
-    compileSdkVersion           = 26
-    targetSdkVersion            = 26
-    buildToolsVersion           = "26.0.2"
+    compileSdkVersion           = 29
+    targetSdkVersion            = 29
+    buildToolsVersion           = "29.0.2"
     googlePlayServicesVersion   = "12.0.1"
     googlePlayServicesVisionVersion = "15.0.2"
     supportLibVersion           = "27.1.0"
@@ -341,7 +341,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.3.1'
+    classpath 'com.android.tools.build:gradle:4.1.0'
   }
 }
 
@@ -417,9 +417,9 @@ If you are using a version of `googlePlayServicesVersion` that does not have `pl
 
 ```gradle
 ext {
-    compileSdkVersion           = 26
-    targetSdkVersion            = 26
-    buildToolsVersion           = "26.0.2"
+    compileSdkVersion           = 29
+    targetSdkVersion            = 29
+    buildToolsVersion           = "29.0.2"
     googlePlayServicesVersion   = "16.0.1"
     googlePlayServicesVisionVersion = "15.0.2"
     supportLibVersion           = "27.1.0"

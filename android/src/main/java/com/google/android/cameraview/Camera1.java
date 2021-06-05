@@ -791,13 +791,25 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                         synchronized(Camera1.this){
                             if(mCamera != null){
                                 if (options.hasKey("pauseAfterCapture") && !options.getBoolean("pauseAfterCapture")) {
-                                    mCamera.startPreview();
-                                    mIsPreviewActive = true;
-                                    if (mIsScanning) {
-                                        mCamera.setPreviewCallback(Camera1.this);
+                                    try{
+                                        mCamera.startPreview();
+                                        mIsPreviewActive = true;
+                                        if (mIsScanning) {
+                                            mCamera.setPreviewCallback(Camera1.this);
+                                        }
+                                    }
+                                    catch(Exception e){
+                                        mIsPreviewActive = false;
+                                        mCamera.setPreviewCallback(null);
+                                        Log.e("CAMERA_1::", "camera startPreview failed", e);
                                     }
                                 } else {
-                                    mCamera.stopPreview();
+                                    try{
+                                        mCamera.stopPreview();
+                                    }
+                                    catch(Exception e){
+                                        Log.e("CAMERA_1::", "camera stopPreview failed", e);
+                                    }
                                     mIsPreviewActive = false;
                                     mCamera.setPreviewCallback(null);
                                 }
@@ -930,8 +942,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             }
             mDeviceOrientation = deviceOrientation;
             if (isCameraOpened() && mOrientation == Constants.ORIENTATION_AUTO && !mIsRecording.get() && !isPictureCaptureInProgress.get()) {
-                mCameraParameters.setRotation(calcCameraRotation(deviceOrientation));
                 try{
+                    mCameraParameters.setRotation(calcCameraRotation(deviceOrientation));
                     mCamera.setParameters(mCameraParameters);
                 }
                 catch(RuntimeException e ) {
@@ -981,7 +993,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      * This rewrites {@link #mCameraId} and {@link #mCameraInfo}.
      */
     private void chooseCamera() {
-        if(_mCameraId == null){
+        if(_mCameraId == null || _mCameraId.isEmpty()){
 
             try{
                 int count = Camera.getNumberOfCameras();
@@ -1068,6 +1080,16 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             mCallback.onCameraOpened();
             return true;
         } catch (RuntimeException e) {
+            // if camera failed to fully open
+            // try to release it before returning an error
+            // in order to avoid erratic behaviour
+            // Both getParameters and open may return null
+            try{
+                mCamera.release();
+                mCamera = null;
+            }
+            catch(RuntimeException e2){}
+
             return false;
         }
     }
