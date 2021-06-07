@@ -290,9 +290,9 @@ public class MutableImage {
 
     private static class GPS {
         public static void writeExifData(double latitude, double longitude, ExifInterface exif) throws IOException {
-            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, toDegreeMinuteSecods(latitude));
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, toDegreeMinuteSeconds(latitude));
             exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitudeRef(latitude));
-            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, toDegreeMinuteSecods(longitude));
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, toDegreeMinuteSeconds(longitude));
             exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, longitudeRef(longitude));
         }
 
@@ -304,7 +304,7 @@ public class MutableImage {
             return longitude < 0.0d ? "W" : "E";
         }
 
-        private static String toDegreeMinuteSecods(double latitude) {
+        private static String toDegreeMinuteSeconds(double latitude) {
             latitude = Math.abs(latitude);
             int degree = (int) latitude;
             latitude *= 60;
