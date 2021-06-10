@@ -1130,11 +1130,12 @@ didFinishProcessingPhoto:(AVCapturePhoto *)photo
           NSUInteger startIndex = itemsRemaining - length;
           NSRange range = NSMakeRange(startIndex, length);
           NSArray *subarray = [self.exposures subarrayWithRange:range];
-          [exposuresBrackets addObject:subarray];
+          NSArray* reversedSubArray = [[subarray reverseObjectEnumerator] allObjects];
+          [exposuresBrackets addObject:reversedSubArray];
           itemsRemaining-=range.length;
       }
 
-      self.exposureBrackets = exposuresBrackets;
+      self.exposureBrackets = [[[exposuresBrackets reverseObjectEnumerator] allObjects] mutableCopy];
       [self captureBracket];
 #endif
   });
