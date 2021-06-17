@@ -381,6 +381,21 @@ public class RNCameraViewHelper {
     return profile;
   }
 
+  public static CamcorderProfile getCamcorderProfile(int cameraId, int quality) {
+    if (cameraId < 0) {
+      return getCamcorderProfile(quality);
+    }
+    CamcorderProfile profile = CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_HIGH);
+    int camcorderQuality = getCamcorderProfileQualityFromCameraModuleConstant(quality);
+    if (CamcorderProfile.hasProfile(cameraId, camcorderQuality)) {
+      profile = CamcorderProfile.get(cameraId, camcorderQuality);
+      if (quality == CameraModule.VIDEO_4x3) {
+        profile.videoFrameWidth = 640;
+      }
+    }
+    return profile;
+  }
+
   public static WritableMap getExifData(ExifInterface exifInterface) {
     WritableMap exifMap = Arguments.createMap();
     for (String[] tagInfo : exifTags) {
