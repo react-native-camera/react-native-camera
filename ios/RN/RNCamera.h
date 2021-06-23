@@ -12,7 +12,9 @@
 
 @interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate,
                               AVCaptureFileOutputRecordingDelegate,
-                              AVCaptureVideoDataOutputSampleBufferDelegate>
+                              AVCaptureVideoDataOutputSampleBufferDelegate,
+                              // ↓追加
+                              AVCapturePhotoCaptureDelegate>
 
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
 @property(nonatomic, strong) AVCaptureSession *session;
@@ -114,5 +116,12 @@
 - (void)onBarcodesDetected:(NSDictionary *)event;
 - (bool)isRecording;
 - (void)onSubjectAreaChanged:(NSDictionary *)event;
+
+// ↓ 追加
+@property(nonatomic, strong) AVCapturePhotoOutput *aisaacCameraOutput;
+@property(nonatomic, strong) NSMutableDictionary *aisaacCaptureOptions;
+@property(nonatomic, strong) RCTPromiseResolveBlock aisaacCaptureResolve;
+@property(nonatomic, strong) RCTPromiseRejectBlock aisaacCaptureReject;
+// ↑ 追加
 
 @end
