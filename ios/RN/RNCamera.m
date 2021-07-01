@@ -949,33 +949,46 @@ BOOL _sessionInterrupted = NO;
                         path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:imageExtension];
                     }
 
+                    bool success = YES;
+                    
                     if (![options[@"doNotSave"] boolValue]) {
-                        response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
+                        NSString* pathRes = [RNImageUtils writeImage:destData toPath:path];
+                        if (!pathRes) {
+                            reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be saved: file write failed.", nil);
+                            success = NO;
+                        } else {
+                            response[@"uri"] = pathRes;
+                        }
+                        
                     }
-                    response[@"width"] = @(takenImage.size.width);
-                    response[@"height"] = @(takenImage.size.height);
+                    
+                    if (success) {
+                        response[@"width"] = @(takenImage.size.width);
+                        response[@"height"] = @(takenImage.size.height);
 
-                    if ([options[@"base64"] boolValue]) {
-                        response[@"base64"] = [destData base64EncodedStringWithOptions:0];
+                        if ([options[@"base64"] boolValue]) {
+                            response[@"base64"] = [destData base64EncodedStringWithOptions:0];
+                        }
+
+                        if ([options[@"exif"] boolValue]) {
+                            response[@"exif"] = metadata;
+
+                            // No longer needed since we always get the photo metadata now
+                            //[RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
+                        }
+
+                        response[@"pictureOrientation"] = @([self.orientation integerValue]);
+                        response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
+                        
+                        if (useFastMode) {
+                            [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
+                        } else {
+                            resolve(response);
+                        }
                     }
-
-                    if ([options[@"exif"] boolValue]) {
-                        response[@"exif"] = metadata;
-
-                        // No longer needed since we always get the photo metadata now
-                        //[RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
-                    }
-
-                    response[@"pictureOrientation"] = @([self.orientation integerValue]);
-                    response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
+                    
                     self.orientation = nil;
                     self.deviceOrientation = nil;
-
-                    if (useFastMode) {
-                        [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
-                    } else {
-                        resolve(response);
-                    }
                 }
                 else{
                     reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be saved", error);
