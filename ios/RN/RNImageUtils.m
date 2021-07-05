@@ -63,7 +63,9 @@
 
 + (NSString *)writeImage:(NSData *)image toPath:(NSString *)path
 {
-    [image writeToFile:path atomically:YES];
+    if (![image writeToFile:path atomically:YES]) {
+        return nil;
+    }
     NSURL *fileURL = [NSURL fileURLWithPath:path];
     return [fileURL absoluteString];
 }

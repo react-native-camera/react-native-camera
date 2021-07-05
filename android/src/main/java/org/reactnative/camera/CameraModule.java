@@ -514,8 +514,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
                   ArrayList<int[]> ranges = cameraView.getSupportedPreviewFpsRange();
                   for (int[] range : ranges) {
                       WritableMap m = new WritableNativeMap();
-                      m.putInt("MAXIMUM_FPS", range[0]);
-                      m.putInt("MINIMUM_FPS", range[1]);
+                      m.putInt("MINIMUM_FPS", range[0]);
+                      m.putInt("MAXIMUM_FPS", range[1]);
                       result.pushMap(m);
                   }
                   promise.resolve(result);
@@ -564,7 +564,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
         finally{
           // this many fail or may not be available in API < 29
           try{
-            retriever.close();
+            retriever.release();
           }
           catch(Throwable e){}
         }

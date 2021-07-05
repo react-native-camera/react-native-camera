@@ -59,7 +59,6 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
       return null;
     }
 
-    Result result = null;
     /**
      * mCameraViewWidth and mCameraViewHeight are obtained from portait orientation
      * mWidth and mHeight are measured with landscape orientation with Home button to the right
@@ -74,67 +73,73 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     int scanHeight = (int) (((mScanAreaHeight * mCameraViewWidth) / adjustedCamViewWidth) * mHeight);
 
     try {
-      BinaryBitmap bitmap = generateBitmapFromImageData(
-              mImageData,
-              mWidth,
-              mHeight,
-              false,
-              left,
-              top,
-              scanWidth,
-              scanHeight
-      );
-      result = mMultiFormatReader.decodeWithState(bitmap);
-    } catch (NotFoundException e) {
-      BinaryBitmap bitmap = generateBitmapFromImageData(
-              rotateImage(mImageData,mWidth, mHeight),
-              mHeight,
-              mWidth,
-              false,
-              mHeight - scanHeight - top,
-              left,
-              scanHeight,
-              scanWidth
-      );
       try {
-        result = mMultiFormatReader.decodeWithState(bitmap);
-      } catch (NotFoundException e1) {
-          BinaryBitmap invertedBitmap = generateBitmapFromImageData(
-                  mImageData,
-                  mWidth,
-                  mHeight,
-                  true,
-                  mWidth - scanWidth - left,
-                  mHeight - scanHeight - top,
-                  scanWidth,
-                  scanHeight
-          );
-        try {
-          result = mMultiFormatReader.decodeWithState(invertedBitmap);
-        } catch (NotFoundException e2) {
-          BinaryBitmap invertedRotatedBitmap = generateBitmapFromImageData(
-                  rotateImage(mImageData,mWidth, mHeight),
-                  mHeight,
-                  mWidth,
-                  true,
-                  top,
-                  mWidth - scanWidth - left,
-                  scanHeight,
-                  scanWidth
-          );
-          try {
-            result = mMultiFormatReader.decodeWithState(invertedRotatedBitmap);
-          } catch (NotFoundException e3) {
-            //no barcode Found
-          }
-        }
+        BinaryBitmap bitmap = generateBitmapFromImageData(
+                mImageData,
+                mWidth,
+                mHeight,
+                false,
+                left,
+                top,
+                scanWidth,
+                scanHeight
+        );
+        return mMultiFormatReader.decodeWithState(bitmap);
+      } catch (NotFoundException e) {
+      }
+
+      try {
+        BinaryBitmap bitmap = generateBitmapFromImageData(
+                rotateImage(mImageData,mWidth, mHeight),
+                mHeight,
+                mWidth,
+                false,
+                mHeight - scanHeight - top,
+                left,
+                scanHeight,
+                scanWidth
+        );
+        return mMultiFormatReader.decodeWithState(bitmap);
+      } catch (NotFoundException e) {
+      }
+
+      try {
+        BinaryBitmap invertedBitmap = generateBitmapFromImageData(
+                mImageData,
+                mWidth,
+                mHeight,
+                true,
+                mWidth - scanWidth - left,
+                mHeight - scanHeight - top,
+                scanWidth,
+                scanHeight
+        );
+        return mMultiFormatReader.decodeWithState(invertedBitmap);
+      } catch (NotFoundException e) {
+      }
+
+      try {
+        BinaryBitmap invertedRotatedBitmap = generateBitmapFromImageData(
+                rotateImage(mImageData,mWidth, mHeight),
+                mHeight,
+                mWidth,
+                true,
+                top,
+                mWidth - scanWidth - left,
+                scanHeight,
+                scanWidth
+        );
+        return mMultiFormatReader.decodeWithState(invertedRotatedBitmap);
+      } catch (NotFoundException e) {
       }
     } catch (Throwable t) {
       t.printStackTrace();
     }
 
-    return result;
+    // no barcode found
+    return null;
   }
+
   private byte[] rotateImage(byte[]imageData,int width, int height) {
     byte[] rotated = new byte[imageData.length];
     for (int y = 0; y < height; y++) {
@@ -144,6 +149,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     }
     return rotated;
   }
+
   @Override
   protected void onPostExecute(Result result) {
     super.onPostExecute(result);
@@ -167,7 +173,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
         false // boolean reverseHorizontal
       );
     } else {
-        source = new PlanarYUVLuminanceSource(
+      source = new PlanarYUVLuminanceSource(
         imageData, // byte[] yuvData
         width, // int dataWidth
         height, // int dataHeight

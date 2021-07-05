@@ -283,6 +283,7 @@ BOOL _sessionInterrupted = NO;
         // after mount to set the camera's default, and that will already
         // this method
         // [self initializeCaptureSessionInput];
+        [self.sensorOrientationChecker start];
         [self startSession];
     }
     else{
@@ -296,6 +297,7 @@ BOOL _sessionInterrupted = NO;
 
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
 
+        [self.sensorOrientationChecker stop];
         [self stopSession];
     }
 
@@ -326,7 +328,7 @@ BOOL _sessionInterrupted = NO;
 -(AVCaptureSessionPreset)getDefaultPreset
 {
     AVCaptureSessionPreset preset =
-    ([self pictureSize] && [[self pictureSize] integerValue] >= 0) ? [self pictureSize] : AVCaptureSessionPresetHigh;
+    ([self pictureSize] && [[self pictureSize] integerValue] >= 0) ? [self pictureSize] : AVCaptureSessionPresetPhoto;
 
     return preset;
 }
@@ -727,15 +729,17 @@ BOOL _sessionInterrupted = NO;
 }
 
 - (void)takePictureWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
-    [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
-        NSMutableDictionary *tmpOptions = [options mutableCopy];
-        if ([tmpOptions valueForKey:@"orientation"] == nil) {
-            tmpOptions[@"orientation"] = [NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation:orientation]];
-        }
-        self.deviceOrientation = [NSNumber numberWithInteger:orientation];
-        self.orientation = [NSNumber numberWithInteger:[tmpOptions[@"orientation"] integerValue]];
-        [self takePicture:tmpOptions resolve:resolve reject:reject];
-    }];
+    
+    UIInterfaceOrientation orientation = [self.sensorOrientationChecker getDeviceOrientation];
+    
+    NSMutableDictionary *tmpOptions = [options mutableCopy];
+    
+    if ([tmpOptions valueForKey:@"orientation"] == nil) {
+        tmpOptions[@"orientation"] = [NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation:orientation]];
+    }
+    self.deviceOrientation = [NSNumber numberWithInteger:orientation];
+    self.orientation = [NSNumber numberWithInteger:[tmpOptions[@"orientation"] integerValue]];
+    [self takePicture:tmpOptions resolve:resolve reject:reject];
 }
 
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
@@ -746,13 +750,24 @@ BOOL _sessionInterrupted = NO;
         return;
     }
 
-    if (!self.deviceOrientation) {
-        [self takePictureWithOrientation:options resolve:resolve reject:reject];
-        return;
+    // make sure to get orientation info here
+    // as it may change if multiple consecutive calls are done
+    NSInteger orientation;
+    NSNumber* deviceOrientation;
+    
+    @synchronized (self) {
+        if (!self.deviceOrientation) {
+            [self takePictureWithOrientation:options resolve:resolve reject:reject];
+            return;
+        }
+
+        orientation = [options[@"orientation"] integerValue];
+        deviceOrientation = self.deviceOrientation;
+        
+        self.orientation = nil;
+        self.deviceOrientation = nil;
     }
-
-    NSInteger orientation = [options[@"orientation"] integerValue];
-
+    
     AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [connection setVideoOrientation:orientation];
     @try {
@@ -945,32 +960,42 @@ BOOL _sessionInterrupted = NO;
                         path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:imageExtension];
                     }
 
+                    bool success = YES;
+
                     if (![options[@"doNotSave"] boolValue]) {
-                        response[@"uri"] = [RNImageUtils writeImage:destData toPath:path];
-                    }
-                    response[@"width"] = @(takenImage.size.width);
-                    response[@"height"] = @(takenImage.size.height);
+                        NSString* pathRes = [RNImageUtils writeImage:destData toPath:path];
+                        if (!pathRes) {
+                            reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be saved: file write failed.", nil);
+                            success = NO;
+                        } else {
+                            response[@"uri"] = pathRes;
+                        }
 
-                    if ([options[@"base64"] boolValue]) {
-                        response[@"base64"] = [destData base64EncodedStringWithOptions:0];
-                    }
-
-                    if ([options[@"exif"] boolValue]) {
-                        response[@"exif"] = metadata;
-
-                        // No longer needed since we always get the photo metadata now
-                        //[RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
                     }
 
-                    response[@"pictureOrientation"] = @([self.orientation integerValue]);
-                    response[@"deviceOrientation"] = @([self.deviceOrientation integerValue]);
-                    self.orientation = nil;
-                    self.deviceOrientation = nil;
+                    if (success) {
+                        response[@"width"] = @(takenImage.size.width);
+                        response[@"height"] = @(takenImage.size.height);
 
-                    if (useFastMode) {
-                        [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
-                    } else {
-                        resolve(response);
+                        if ([options[@"base64"] boolValue]) {
+                            response[@"base64"] = [destData base64EncodedStringWithOptions:0];
+                        }
+
+                        if ([options[@"exif"] boolValue]) {
+                            response[@"exif"] = metadata;
+
+                            // No longer needed since we always get the photo metadata now
+                            //[RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
+                        }
+
+                        response[@"pictureOrientation"] = @(orientation);
+                        response[@"deviceOrientation"] = @([deviceOrientation integerValue]);
+
+                        if (useFastMode) {
+                            [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
+                        } else {
+                            resolve(response);
+                        }
                     }
                 }
                 else{
@@ -999,16 +1024,17 @@ BOOL _sessionInterrupted = NO;
 }
 
 - (void)recordWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
-    [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
-        NSMutableDictionary *tmpOptions = [options mutableCopy];
-        if ([tmpOptions valueForKey:@"orientation"] == nil) {
-            tmpOptions[@"orientation"] = [NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
-        }
-        self.deviceOrientation = [NSNumber numberWithInteger:orientation];
-        self.orientation = [NSNumber numberWithInteger:[tmpOptions[@"orientation"] integerValue]];
-        [self record:tmpOptions resolve:resolve reject:reject];
-    }];
+
+    UIInterfaceOrientation orientation = [self.sensorOrientationChecker getDeviceOrientation];
+    NSMutableDictionary *tmpOptions = [options mutableCopy];
+    if ([tmpOptions valueForKey:@"orientation"] == nil) {
+        tmpOptions[@"orientation"] = [NSNumber numberWithInteger:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation]];
+    }
+    self.deviceOrientation = [NSNumber numberWithInteger:orientation];
+    self.orientation = [NSNumber numberWithInteger:[tmpOptions[@"orientation"] integerValue]];
+    [self record:tmpOptions resolve:resolve reject:reject];
 }
+
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
     if(self.videoCaptureDeviceInput == nil || !self.session.isRunning){
@@ -1088,17 +1114,18 @@ BOOL _sessionInterrupted = NO;
     if(recordAudio && self.captureAudio){
 
         // if we haven't initialized our capture session yet
-        // initialize it. This will cause video to flicker.
-        [self initializeAudioCaptureSessionInput];
-
-
-        // finally, make sure we got access to the capture device
-        // and turn the connection on.
-        if(self.audioCaptureDeviceInput != nil){
-            AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
-            audioConnection.enabled = YES;
-        }
-
+        // initialize it (this will cause video to flicker.)
+        // Dispatch through our session queue as we may have race conditions
+        // with this and the captureAudio prop
+        dispatch_async(self.sessionQueue, ^{
+            [self initializeAudioCaptureSessionInput];
+            // finally, make sure we got access to the capture device
+            // and turn the connection on.
+            if(self.audioCaptureDeviceInput != nil){
+                AVCaptureConnection *audioConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeAudio];
+                audioConnection.enabled = YES;
+            }
+        });
     }
 
     // if we have a capture input but are muted
@@ -1166,9 +1193,18 @@ BOOL _sessionInterrupted = NO;
         if (options[@"codec"]) {
             if (@available(iOS 10, *)) {
                 AVVideoCodecType videoCodecType = options[@"codec"];
+
                 if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
                     self.videoCodecType = videoCodecType;
-                    if(options[@"videoBitrate"]) {
+
+                    BOOL supportsBitRate = NO;
+
+                    // prevent crashing due to unsupported keys
+                    if (@available(iOS 12.0, *)) {
+                        supportsBitRate = [[self.movieFileOutput supportedOutputSettingsKeysForConnection:connection] containsObject:AVVideoCompressionPropertiesKey];
+                    }
+
+                    if(options[@"videoBitrate"] && supportsBitRate) {
                         NSString *videoBitrate = options[@"videoBitrate"];
                         [self.movieFileOutput setOutputSettings:@{
                           AVVideoCodecKey:videoCodecType,
@@ -1989,8 +2025,14 @@ BOOL _sessionInterrupted = NO;
     [instruction setLayerInstructions:@[transformer]];
     [videoComposition setInstructions:@[instruction]];
 
+    //get preset for export via default or session
+    AVCaptureSessionPreset preset = [self getDefaultPreset];
+    if (self.session.sessionPreset != preset) {
+        preset = self.session.sessionPreset;
+    }
+
     // Export
-    AVAssetExportSession* exportSession = [AVAssetExportSession exportSessionWithAsset:videoAsset presetName:AVAssetExportPreset640x480];
+    AVAssetExportSession* exportSession = [AVAssetExportSession exportSessionWithAsset:videoAsset presetName:preset];
     NSString* filePath = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingString:@"CameraFlip"] withExtension:@".mp4"];
     NSURL* outputURL = [NSURL fileURLWithPath:filePath];
     [exportSession setOutputURL:outputURL];
