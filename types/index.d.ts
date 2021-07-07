@@ -79,6 +79,7 @@ type ImageType = Readonly<{
 
 type FaceDetectionClassifications = Readonly<{ all: any; none: any }>;
 type FaceDetectionLandmarks = Readonly<{ all: any; none: any }>;
+type FaceDetectionContours = Readonly<{ all: any; none: any }>;
 type FaceDetectionMode = Readonly<{ fast: any; accurate: any }>;
 type GoogleVisionBarcodeType = Readonly<{
   CODE_128: any;
@@ -128,6 +129,7 @@ export interface Constants {
   FaceDetection: {
     Classifications: FaceDetectionClassifications;
     Landmarks: FaceDetectionLandmarks;
+    Contours: FaceDetectionContours;
     Mode: FaceDetectionMode;
   };
   GoogleVisionBarcodeDetection: {
@@ -241,6 +243,7 @@ export interface RNCameraProps {
   onFaceDetectionError?(response: { isOperational: boolean }): void;
   faceDetectionMode?: keyof FaceDetectionMode;
   faceDetectionLandmarks?: keyof FaceDetectionLandmarks;
+  faceDetectionContours?: keyof FaceDetectionContours;
   faceDetectionClassifications?: keyof FaceDetectionClassifications;
   trackingEnabled?: boolean;
 
@@ -381,6 +384,23 @@ export interface Phone {
   phoneType?: 'UNKNOWN' | 'Work' | 'Home' | 'Fax' | 'Mobile';
 }
 
+export interface FaceContours {
+  all: Point[];
+  face: Point[];
+  leftEye: Point[];
+  leftEyebrowBottom: Point[];
+  leftEyebrowTop: Point[];
+  lowerLipBottom: Point[];
+  lowerLipTop: Point[];
+  noseBottom: Point[];
+  noseBridge: Point[];
+  rightEye: Point[];
+  rightEyebrowBottom: Point[];
+  rightEyebrowTop: Point[];
+  upperLipBottom: Point[];
+  upperLipTop: Point[];
+}
+
 export interface Face {
   faceID?: number;
   bounds: {
@@ -403,6 +423,7 @@ export interface Face {
   noseBasePosition?: Point;
   yawAngle?: number;
   rollAngle?: number;
+  contours?: FaceContours;
 }
 
 export interface TrackedTextFeatureRecursive {
@@ -499,13 +520,25 @@ export class RNCamera extends Component<RNCameraProps & ViewProperties> {
 interface DetectionOptions {
   mode?: keyof FaceDetectionMode;
   detectLandmarks?: keyof FaceDetectionLandmarks;
+  detectContours?: keyof FaceDetectionContours;
   runClassifications?: keyof FaceDetectionClassifications;
 }
 
 export class FaceDetector {
   private constructor();
   static Constants: Constants['FaceDetection'];
-  static detectFacesAsync(uri: string, options?: DetectionOptions): Promise<Face[]>;
+  static detectFacesAsync(
+    uri: string,
+    options?: DetectionOptions,
+  ): Promise<{
+    faces: Array<Face>;
+    image: {
+      uri: string;
+      width: number;
+      height: number;
+      orientation: any;
+    };
+  }>;
 }
 
 // -- DEPRECATED CONTENT BELOW

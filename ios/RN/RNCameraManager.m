@@ -297,6 +297,11 @@ RCT_CUSTOM_VIEW_PROPERTY(faceDetectionLandmarks, NSString, RNCamera)
     [view updateFaceDetectionLandmarks:json];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(faceDetectionContours, NSString, RNCamera)
+{
+    [view updateFaceDetectionContours:json];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectionClassifications, NSString, RNCamera)
 {
     [view updateFaceDetectionClassifications:json];

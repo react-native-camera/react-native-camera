@@ -15,7 +15,6 @@ public class RNFaceDetector {
   public static int NO_LANDMARKS = FirebaseVisionFaceDetectorOptions.NO_LANDMARKS;
   public static int ACCURATE_MODE = FirebaseVisionFaceDetectorOptions.ACCURATE;
   public static int FAST_MODE = FirebaseVisionFaceDetectorOptions.FAST;
-  // TODO contours detection is possible for MLKit-based face detector, implement this feature
   public static int ALL_CONTOURS = FirebaseVisionFaceDetectorOptions.ALL_CONTOURS;
   public static int NO_CONTOURS = FirebaseVisionFaceDetectorOptions.NO_CONTOURS;
 
@@ -24,6 +23,7 @@ public class RNFaceDetector {
 
   private int mClassificationType = NO_CLASSIFICATIONS;
   private int mLandmarkType = NO_LANDMARKS;
+  private int mContourType = NO_CONTOURS;
   private float mMinFaceSize = 0.15f;
   private int mMode = FAST_MODE;
 
@@ -31,6 +31,7 @@ public class RNFaceDetector {
     mBuilder = new FirebaseVisionFaceDetectorOptions.Builder()
             .setPerformanceMode(mMode)
             .setLandmarkMode(mLandmarkType)
+            .setContourMode(mContourType)
             .setClassificationMode(mClassificationType)
             .setMinFaceSize(mMinFaceSize);
   }
@@ -61,6 +62,14 @@ public class RNFaceDetector {
       release();
       mBuilder.setLandmarkMode(landmarkType);
       mLandmarkType = landmarkType;
+    }
+  }
+
+  public void setContourType(int contourType) {
+    if (contourType != mContourType) {
+      release();
+      mBuilder.setContourMode(contourType);
+      mContourType = contourType;
     }
   }
 

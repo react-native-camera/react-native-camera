@@ -2111,6 +2111,11 @@ BOOL _sessionInterrupted = NO;
     [self.faceDetector setLandmarksMode:requestedLandmarks queue:self.sessionQueue];
 }
 
+- (void)updateFaceDetectionContours:(id)requestedContours
+{
+    [self.faceDetector setContoursMode:requestedContours queue:self.sessionQueue];
+}
+
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications
 {
     [self.faceDetector setClassificationMode:requestedClassifications queue:self.sessionQueue];
@@ -2247,7 +2252,8 @@ BOOL _sessionInterrupted = NO;
     NSTimeInterval timePassedSinceSubmittingForText = [methodFinish timeIntervalSinceDate:self.startText];
     NSTimeInterval timePassedSinceSubmittingForFace = [methodFinish timeIntervalSinceDate:self.startFace];
     BOOL canSubmitForTextDetection = timePassedSinceSubmittingForText > 0.5 && _finishedReadingText && self.canReadText && [self.textDetector isRealDetector];
-    BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
+    // TODO: works with 0.016 (60 fps) too, make it customizable as prop
+    BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.033 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
     BOOL canSubmitForBarcodeDetection = self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
     if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection) {
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
