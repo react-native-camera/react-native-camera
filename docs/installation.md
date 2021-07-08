@@ -254,39 +254,23 @@ android {
 }
 ```
 
-### Setting up Firebase
+### Setting up MLKit
 
-Using Firebase MLKit requires seting up Firebase project for your app. If you have not already added Firebase to your app, please follow the steps described in [getting started guide](https://firebase.google.com/docs/android/setup).
-In short, you would need to
-
-1. Register your app in Firebase console.
-2. Download google-services.json and place it in `android/app/`
-3. Add the folowing to project level `build.gradle`:
+1. Add the folowing to project level `build.gradle`:
 
 ```gradle
 buildscript {
   dependencies {
   // Add this line
-  classpath 'com.google.gms:google-services:4.0.1' // <--- you might want to use different version
+  classpath 'com.google.android.gms:strict-version-matcher-plugin:1.2.1' // <--- you might want to use different version
   }
 }
 ```
 
-4. add to the bottom of `android/app/build.gradle` file
+2. add to the bottom of `android/app/build.gradle` file
 
 ```gradle
-apply plugin: 'com.google.gms.google-services'
-```
-
-5. Configure your app to automatically download the ML model to the device after your app is installed from the Play Store. If you do not enable install-time model downloads, the model will be downloaded the first time you run the on-device detector. Requests you make before the download has completed will produce no results.
-
-```xml
-<application ...>
-...
-  <meta-data
-      android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-      android:value="ocr, face" /> <!-- choose models that you will use -->
-</application>
+apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'
 ```
 
 <details>

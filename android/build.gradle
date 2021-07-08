@@ -66,16 +66,14 @@ repositories {
 }
 
 dependencies {
-  def googlePlayServicesVisionVersion = safeExtGet('googlePlayServicesVisionVersion', safeExtGet('googlePlayServicesVersion', '17.0.2'))
-
   //noinspection GradleDynamicVersion
   implementation 'com.facebook.react:react-native:+'  // From node_modules
   implementation "com.google.zxing:core:3.3.3"
   implementation "com.drewnoakes:metadata-extractor:2.11.0"
-  generalImplementation "com.google.android.gms:play-services-vision:$googlePlayServicesVisionVersion"
   implementation "androidx.exifinterface:exifinterface:1.3.2"
   implementation "androidx.annotation:annotation:1.0.0"
   implementation "androidx.legacy:legacy-support-v4:1.0.0"
-  mlkitImplementation "com.google.firebase:firebase-ml-vision:${safeExtGet('firebase-ml-vision', '19.0.3')}"
-  mlkitImplementation "com.google.firebase:firebase-ml-vision-face-model:${safeExtGet('firebase-ml-vision-face-model', '17.0.2')}"
+  mlkitImplementation "com.google.android.gms:play-services-mlkit-text-recognition:16.3.0"
+  mlkitImplementation "com.google.mlkit:barcode-scanning:16.2.0"
+  mlkitImplementation "com.google.mlkit:face-detection:16.1.2"
 }
