@@ -97,6 +97,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setExposureCompensation(exposure);
   }
 
+  @ReactProp(name = "exposureLock")
+  public void setExposureLock(RNCameraView view, boolean exposureLock){
+    view.setExposureLock(exposureLock);
+  }
+
   @ReactProp(name = "autoFocus")
   public void setAutoFocus(RNCameraView view, boolean autoFocus) {
     view.setAutoFocus(autoFocus);

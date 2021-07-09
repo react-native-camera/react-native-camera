@@ -253,6 +253,7 @@ public class CameraView extends FrameLayout {
         state.autoFocus = getAutoFocus();
         state.flash = getFlash();
         state.exposure = getExposureCompensation();
+        state.exposureLock = getExposureLock();
         state.focusDepth = getFocusDepth();
         state.zoom = getZoom();
         state.whiteBalance = getWhiteBalance();
@@ -277,6 +278,7 @@ public class CameraView extends FrameLayout {
         setAutoFocus(ss.autoFocus);
         setFlash(ss.flash);
         setExposureCompensation(ss.exposure);
+        setExposureLock(ss.exposureLock);
         setFocusDepth(ss.focusDepth);
         setZoom(ss.zoom);
         setWhiteBalance(ss.whiteBalance);
@@ -556,6 +558,14 @@ public class CameraView extends FrameLayout {
         return mImpl.getExposureCompensation();
     }
 
+    public void setExposureLock(boolean exposureLock) {
+        mImpl.setExposureLock(exposureLock);
+    }
+
+    public boolean getExposureLock() {
+        return mImpl.getExposureLock();
+    }
+
 
     /**
      * Gets the camera orientation relative to the devices native orientation.
@@ -767,6 +777,8 @@ public class CameraView extends FrameLayout {
 
         float exposure;
 
+        boolean exposureLock;
+
         float focusDepth;
 
         float zoom;
@@ -790,6 +802,7 @@ public class CameraView extends FrameLayout {
             autoFocus = source.readByte() != 0;
             flash = source.readInt();
             exposure = source.readFloat();
+            exposureLock = source.readByte() != 0;
             focusDepth = source.readFloat();
             zoom = source.readFloat();
             whiteBalance = source.readInt();
@@ -812,6 +825,7 @@ public class CameraView extends FrameLayout {
             out.writeByte((byte) (autoFocus ? 1 : 0));
             out.writeInt(flash);
             out.writeFloat(exposure);
+            out.writeByte((byte) (exposureLock ? 1 : 0));
             out.writeFloat(focusDepth);
             out.writeFloat(zoom);
             out.writeInt(whiteBalance);
