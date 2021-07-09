@@ -631,6 +631,21 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     @Override
+    boolean getExposureLock() {
+        if (mCamera.isAutoExposureLockSupported()) {
+            return mCamera.getAutoExposureLock();
+        }
+        return false;
+    }
+
+    @Override
+    void setExpsoureLock(boolean exposureLock) {
+        if (mCamera.isAutoExposureLockSupported()) {
+            mCamera.setAutoExposureLock(exposureLock);
+        }
+    }
+
+    @Override
     public void setFocusDepth(float value) {
         // not supported for Camera1
     }

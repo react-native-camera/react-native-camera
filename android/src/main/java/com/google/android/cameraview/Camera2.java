@@ -559,6 +559,15 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         Log.e("CAMERA_2:: ", "Adjusting exposure is not currently supported for Camera2");
     }
 
+    @Override
+    boolean getExposureLock() {
+        return false;
+    }
+
+    @Override
+    void setExpsoureLock(float exposure) {
+        Log.e("CAMERA_2:: ", "exposure-lock is not currently supported for Camera2");
+    }
 
     @Override
     void takePicture(ReadableMap options) {
