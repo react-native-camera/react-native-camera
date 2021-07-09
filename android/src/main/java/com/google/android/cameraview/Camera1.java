@@ -854,7 +854,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     @Override
-    boolean record(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int orientation, int fps) {
+    boolean record(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int orientation, int fps, boolean bestFps) {
 
         // make sure compareAndSet is last because we are setting it
         if (!isPictureCaptureInProgress.get() && mIsRecording.compareAndSet(false, true)) {
@@ -862,7 +862,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mOrientation = orientation;
             }
             try {
-                setUpMediaRecorder(path, maxDuration, maxFileSize, recordAudio, profile, fps);
+                setUpMediaRecorder(path, maxDuration, maxFileSize, recordAudio, profile, fps, bestFps);
                 mMediaRecorder.prepare();
                 mMediaRecorder.start();
 
@@ -1599,7 +1599,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         mCallback.onFramePreview(data, previewSize.width, previewSize.height, mDeviceOrientation);
     }
 
-    private void setUpMediaRecorder(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int fps) {
+    private void setUpMediaRecorder(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int fps, boolean bestFps) {
 
         mMediaRecorder = new MediaRecorder();
         mCamera.unlock();
@@ -1621,7 +1621,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             camProfile = CamcorderProfile.get(mCameraId, CamcorderProfile.QUALITY_HIGH);
         }
         camProfile.videoBitRate = profile.videoBitRate;
-        setCamcorderProfile(camProfile, recordAudio, fps);
+        setCamcorderProfile(camProfile, recordAudio, fps, bestFps);
 
         mMediaRecorder.setOrientationHint(calcCameraRotation(mOrientation != Constants.ORIENTATION_AUTO ? orientationEnumToRotation(mOrientation) : mDeviceOrientation));
 
@@ -1706,8 +1706,21 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         return false;
     }
 
-    private void setCamcorderProfile(CamcorderProfile profile, boolean recordAudio, int fps) {
-        int compatible_fps = isCompatibleWithDevice(fps) ? fps : profile.videoFrameRate;
+    private void setCamcorderProfile(CamcorderProfile profile, boolean recordAudio, int fps, boolean bestFps) {
+        int compatible_fps;
+        if (bestFps) {
+            ArrayList<int[]> validValues;
+            validValues = getSupportedPreviewFpsRange();
+            int max_fps = -1;
+            for(int[] row : validValues) {
+                if (max_fps < row[1]) {
+                    max_fps = row[1];
+                }
+            }
+            compatible_fps = max_fps;
+        } else {
+            compatible_fps = isCompatibleWithDevice(fps) ? fps : profile.videoFrameRate;
+        }
         mMediaRecorder.setOutputFormat(profile.fileFormat);
         mMediaRecorder.setVideoFrameRate(compatible_fps);
         mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);

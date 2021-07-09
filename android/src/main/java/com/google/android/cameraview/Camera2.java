@@ -581,7 +581,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     }
 
     @Override
-    boolean record(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int orientation, int fps) {
+    boolean record(String path, int maxDuration, int maxFileSize, boolean recordAudio, CamcorderProfile profile, int orientation, int fps, boolean bestFps) {
         if (!mIsRecording) {
             setUpMediaRecorder(path, maxDuration, maxFileSize, recordAudio, profile);
             try {
