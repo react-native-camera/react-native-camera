@@ -187,6 +187,7 @@ export interface RNCameraProps {
   pendingAuthorizationView?: JSX.Element;
   useCamera2Api?: boolean;
   exposure?: number;
+  exposureLock?: boolean;
   whiteBalance?: keyof WhiteBalance | CustomWhiteBalance;
   captureAudio?: boolean;
 
@@ -461,6 +462,7 @@ interface RecordOptions {
   /** iOS only */
   codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
   fps?: number;
+  bestFps: boolean;
 }
 
 export interface RecordResponse {
