@@ -269,6 +269,13 @@ RCT_CUSTOM_VIEW_PROPERTY(exposure, NSNumber, RNCamera)
     [view updateExposure];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(exposureLock, BOOL, RNCamera)
+{
+    view.exposureLock = [RCTConvert BOOL:json];
+    [view setExposureLock];
+    
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(pictureSize, NSString *, RNCamera)
 {
     [view setPictureSize:[[self class] pictureSizes][[RCTConvert NSString:json]]];
