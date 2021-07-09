@@ -227,7 +227,7 @@ type RecordingOptions = {
   maxFileSize?: number,
   orientation?: Orientation,
   quality?: number | string,
-  fps?: number,
+  fps?: number | 'best',
   codec?: string,
   mute?: boolean,
   path?: string,
