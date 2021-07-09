@@ -269,6 +269,7 @@ type PropsType = typeof View.props & {
   trackingEnabled?: boolean,
   flashMode?: number | string,
   exposure?: number,
+  exposureLock?: boolean,
   barCodeTypes?: Array<string>,
   googleVisionBarcodeType?: number,
   googleVisionBarcodeMode?: number,
