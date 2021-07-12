@@ -1178,7 +1178,7 @@ BOOL _sessionInterrupted = NO;
             int32_t maxWidth = 0;
 
             AVFrameRateRange *bestRange;
-            for (AVCaptureDeviceFormat *format in [device formats])
+            for (AVCaptureDeviceFormat *format in [device formats]) {
                 CMFormatDescriptionRef formatDescription = format.formatDescription;
                 CMVideoDimensions formatDimensions = CMVideoFormatDescriptionGetDimensions(formatDescription);
                         int32_t formatWidth = formatDimensions.width;
@@ -1193,6 +1193,17 @@ BOOL _sessionInterrupted = NO;
                         maxWidth = formatWidth;
                     }
                 }
+            }
+        
+            if (selectedFormat) {
+                if ([device lockForConfiguration:nil]) {
+                    device.activeFormat = selectedFormat;
+                    device.activeVideoMinFrameDuration = bestRange.minFrameDuration;
+                    device.activeVideoMaxFrameDuration = bestRange.minFrameDuration;
+                    [device unlockForConfiguration];
+                }
+            } else {
+                RCTLog(@"We could not find a suitable format for this device.");
             }
         }
 

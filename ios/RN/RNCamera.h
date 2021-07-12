@@ -69,6 +69,7 @@
 - (void)updateAutoFocusPointOfInterest;
 - (void)updateZoom;
 - (void)updateWhiteBalance;
+- (void)setExposureLock;
 - (void)updateExposure;
 - (void)updatePictureSize;
 - (void)updateCaptureAudio;
