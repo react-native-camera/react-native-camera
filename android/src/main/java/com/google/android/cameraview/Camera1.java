@@ -1184,6 +1184,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         setAutoFocusInternal(mAutoFocus);
         setFlashInternal(mFlash);
         setExposureInternal(mExposure);
+        setExposureLockInternal(mExposureLock);
         setAspectRatio(mAspectRatio);
         setZoomInternal(mZoom);
         setWhiteBalanceInternal(mWhiteBalance);
@@ -1507,7 +1508,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private boolean setExposureLockInternal(boolean exposureLock) {
         mExposureLock = exposureLock;
-        if (mCameraParameters.isAutoExposureLockSupported()) {
+        if (isCameraOpened() && mCameraParameters.isAutoExposureLockSupported()) {
             mCameraParameters.setAutoExposureLock(exposureLock);
             return true;
         }
