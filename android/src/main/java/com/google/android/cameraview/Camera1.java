@@ -115,6 +115,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private float mExposure;
 
+    private boolean mExposureLock;
+
     private int mDisplayOrientation;
 
     private int mDeviceOrientation;
@@ -632,14 +634,14 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     @Override
     boolean getExposureLock() {
-        if (mCameraParameters.isAutoExposureLockSupported()) {
-            return mCameraParameters.getAutoExposureLock();
-        }
-        return false;
+        return mExposureLock;
     }
 
     @Override
     void setExposureLock(boolean exposureLock) {
+        if (mExposureLock == exposureLock) {
+            return;
+        }
         if (setExposureLockInternal(exposureLock)) {
             try {
                 if (mCamera != null) {
@@ -1504,6 +1506,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     }
 
     private boolean setExposureLockInternal(boolean exposureLock) {
+        mExposureLock = exposureLock;
         if (mCameraParameters.isAutoExposureLockSupported()) {
             mCameraParameters.setAutoExposureLock(exposureLock);
             return true;
