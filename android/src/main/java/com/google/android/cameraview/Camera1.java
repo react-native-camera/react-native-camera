@@ -632,16 +632,23 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     @Override
     boolean getExposureLock() {
-        if (mCamera.isAutoExposureLockSupported()) {
-            return mCamera.getAutoExposureLock();
+        if (mCameraParameters.isAutoExposureLockSupported()) {
+            return mCameraParameters.getAutoExposureLock();
         }
         return false;
     }
 
     @Override
-    void setExpsoureLock(boolean exposureLock) {
-        if (mCamera.isAutoExposureLockSupported()) {
-            mCamera.setAutoExposureLock(exposureLock);
+    void setExposureLock(boolean exposureLock) {
+        if (setExposureLockInternal(exposureLock)) {
+            try {
+                if (mCamera != null) {
+                    mCamera.setParameters(mCameraParameters);
+                }
+            }
+            catch(RuntimeException e ) {
+                Log.e("CAMERA_1::", "setParameters failed", e);
+            }
         }
     }
 
@@ -1492,6 +1499,14 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mCameraParameters.setExposureCompensation(scaledValue);
                 return true;
             }
+        }
+        return false;
+    }
+
+    private boolean setExposureLockInternal(boolean exposureLock) {
+        if (mCameraParameters.isAutoExposureLockSupported()) {
+            mCameraParameters.setAutoExposureLock(exposureLock);
+            return true;
         }
         return false;
     }

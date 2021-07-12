@@ -565,7 +565,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     }
 
     @Override
-    void setExpsoureLock(float exposure) {
+    void setExposureLock(boolean exposureLock) {
         Log.e("CAMERA_2:: ", "exposure-lock is not currently supported for Camera2");
     }
 
