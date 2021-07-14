@@ -62,7 +62,6 @@ import java.util.SortedSet;
 import org.reactnative.camera.utils.ObjectUtils;
 
 
-
 @SuppressWarnings("MissingPermission")
 @TargetApi(21)
 class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener {
@@ -135,6 +134,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             updateFocusDepth();
             updateWhiteBalance();
             updateZoom();
+            updateExposureLock();
             try {
                 mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(),
                         mCaptureCallback, null);
@@ -251,6 +251,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     private int mFlash;
 
     private float mExposure;
+
+    private boolean mExposureLock;
 
     private int mCameraOrientation;
 
@@ -561,12 +563,19 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     @Override
     boolean getExposureLock() {
-        return false;
+        return mExposureLock;
     }
 
     @Override
     void setExposureLock(boolean exposureLock) {
-        Log.e("CAMERA_2:: ", "exposure-lock is not currently supported for Camera2");
+        if (mExposureLock == exposureLock) {
+            return;
+        }
+        boolean saved = mExposureLock;
+        mExposureLock = exposureLock;
+        if (mPreviewRequestBuilder != null) {
+            updateExposureLock();
+        }
     }
 
     @Override
@@ -1084,6 +1093,25 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         }
     }
 
+    void updateExposureLock() {
+        if (mExposureLock) {
+            mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF);
+            mPreviewRequestBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME,
+                    // 단위: nanoseconds, 높으면 밝아짐
+                    // 100000000l / 30 - 30fps
+                    1000000000l / 1000
+            );
+            mPreviewRequestBuilder.set(CaptureRequest.SENSOR_FRAME_DURATION,
+                    // 100000000l / 30 - 30fps
+                    1000000000l / 1000 + 3000000
+            );
+            mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_LOCK, true);
+        } else {
+            mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_LOCK, false);
+            mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
+        }
+    }
+
     /**
      * Updates the internal state of flash to {@link #mFlash}.
      */
@@ -1489,6 +1517,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback, null);
             updateAutoFocus();
             updateFlash();
+            updateExposureLock();
             if (mIsScanning) {
                 mImageFormat = ImageFormat.YUV_420_888;
                 startCaptureSession();
