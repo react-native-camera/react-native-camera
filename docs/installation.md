@@ -249,7 +249,7 @@ buildscript {
 2. add to the bottom of `android/app/build.gradle` file
 
 ```gradle
-apply plugin: 'com.google.gms.google-services'  // Google Services plugin
+apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'
 ```
 
 **If you have Firebase integrated already**
@@ -268,7 +268,7 @@ buildscript {
 2. add to the bottom of `android/app/build.gradle` file
 
 ```gradle
-apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'
+apply plugin: 'com.google.gms.google-services'  // Google Services plugin
 ```
 
 <details>
