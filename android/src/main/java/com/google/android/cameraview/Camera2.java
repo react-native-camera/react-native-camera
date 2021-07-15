@@ -535,6 +535,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         mFlash = flash;
         if (mPreviewRequestBuilder != null) {
             updateFlash();
+            updateExposureLock(); // update flash 에 AE 모드 변경이 있어서 부득이하게 추가
             if (mCaptureSession != null) {
                 try {
                     mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(),
