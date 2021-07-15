@@ -1107,12 +1107,13 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             mPreviewRequestBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME,
                     // 단위: nanoseconds, 높으면 밝아짐
                     // 100000000l / 30 - 30fps
-                    1000000000l / 1000
+                    1000000000l / 80
             );
             mPreviewRequestBuilder.set(CaptureRequest.SENSOR_FRAME_DURATION,
                     // 100000000l / 30 - 30fps
-                    1000000000l / 1000 + 3000000
+                    1000000000l / 80 + 3000000
             );
+            mPreviewRequestBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, 50);
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_LOCK, true);
         } else {
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_LOCK, false);
