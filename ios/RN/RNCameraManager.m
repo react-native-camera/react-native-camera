@@ -389,20 +389,31 @@ RCT_REMAP_METHOD(takePicture,
             }
 
             [view onPictureTaken:@{}];
+            
+            bool success = YES;
 
             NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
             if (![options[@"doNotSave"] boolValue]) {
-                response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
+                NSString* pathRes = [RNImageUtils writeImage:photoData toPath:path];
+                if (!pathRes) {
+                    reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be saved: file write failed.", nil);
+                    success = NO;
+                } else {
+                    response[@"uri"] = pathRes;
+                }
             }
-            response[@"width"] = @(generatedPhoto.size.width);
-            response[@"height"] = @(generatedPhoto.size.height);
-            if ([options[@"base64"] boolValue]) {
-                response[@"base64"] = [photoData base64EncodedStringWithOptions:0];
-            }
-            if (useFastMode) {
-                [view onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
-            } else {
-                resolve(response);
+            
+            if (success) {
+                response[@"width"] = @(generatedPhoto.size.width);
+                response[@"height"] = @(generatedPhoto.size.height);
+                if ([options[@"base64"] boolValue]) {
+                    response[@"base64"] = [photoData base64EncodedStringWithOptions:0];
+                }
+                if (useFastMode) {
+                    [view onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
+                } else {
+                    resolve(response);
+                }
             }
 #else
             [view takePicture:options resolve:resolve reject:reject];
