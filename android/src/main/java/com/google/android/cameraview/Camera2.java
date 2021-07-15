@@ -575,6 +575,14 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         mExposureLock = exposureLock;
         if (mPreviewRequestBuilder != null) {
             updateExposureLock();
+            if (mCaptureSession != null) {
+                try {
+                    mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(),
+                            mCaptureCallback, null);
+                } catch (CameraAccessException e) {
+                    mExposureLock = saved; // Revert
+                }
+            }
         }
     }
 
