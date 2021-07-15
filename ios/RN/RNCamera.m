@@ -84,6 +84,7 @@ BOOL _sessionInterrupted = NO;
 
         self.autoFocus = -1;
         self.exposure = -1;
+        self.exposureLock = false;
         self.presetCamera = AVCaptureDevicePositionUnspecified;
         self.cameraId = @"";
         self.isFocusedOnPoint = NO;
@@ -705,6 +706,23 @@ BOOL _sessionInterrupted = NO;
     }];
 }
 
+- (void)setExposureLock
+{
+    if (self.exposureLock) {
+        AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+        [self lockDevice:device andApplySettings:^{
+            if([device isExposureModeSupported:AVCaptureExposureModeLocked]){
+                if(device.exposureMode != AVCaptureExposureModeLocked){
+                    [device setExposureMode:AVCaptureExposureModeLocked];
+                }
+            } else {
+                RCTLog(@"Device does not support AVCaptureExposureModeLocked");
+            }
+        }];
+    }
+}
+
+
 - (void)updatePictureSize
 {
     // make sure to call this function so the right default is used if
@@ -1148,8 +1166,48 @@ BOOL _sessionInterrupted = NO;
         if (options[@"maxFileSize"]) {
             self.movieFileOutput.maxRecordedFileSize = [options[@"maxFileSize"] integerValue];
         }
+        
+        if ([options[@"bestFps"] boolValue]) {
+            AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+            AVCaptureDeviceFormat *activeFormat = device.activeFormat;
+            CMFormatDescriptionRef activeDescription = activeFormat.formatDescription;
+            CMVideoDimensions activeDimensions = CMVideoFormatDescriptionGetDimensions(activeDescription);
 
-        if (options[@"fps"]) {
+            AVCaptureDeviceFormat *selectedFormat = nil;
+            int32_t activeWidth = activeDimensions.width;
+            int32_t maxWidth = 0;
+
+            AVFrameRateRange *bestRange;
+            for (AVCaptureDeviceFormat *format in [device formats]) {
+                CMFormatDescriptionRef formatDescription = format.formatDescription;
+                CMVideoDimensions formatDimensions = CMVideoFormatDescriptionGetDimensions(formatDescription);
+                        int32_t formatWidth = formatDimensions.width;
+                if (formatWidth != activeWidth || formatWidth < maxWidth) {
+                    continue;
+                }
+
+                for (AVFrameRateRange *range in format.videoSupportedFrameRateRanges) {
+                    if (!bestRange || range.maxFrameRate > bestRange.maxFrameRate) {
+                        selectedFormat = format;
+                        bestRange = range;
+                        maxWidth = formatWidth;
+                    }
+                }
+            }
+        
+            if (selectedFormat) {
+                if ([device lockForConfiguration:nil]) {
+                    device.activeFormat = selectedFormat;
+                    device.activeVideoMinFrameDuration = bestRange.minFrameDuration;
+                    device.activeVideoMaxFrameDuration = bestRange.minFrameDuration;
+                    [device unlockForConfiguration];
+                }
+            } else {
+                RCTLog(@"We could not find a suitable format for this device.");
+            }
+        }
+
+        if (options[@"fps"] && ![options[@"bestFps"] boolValue]) {
             AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
             AVCaptureDeviceFormat *activeFormat = device.activeFormat;
             CMFormatDescriptionRef activeDescription = activeFormat.formatDescription;

@@ -39,6 +39,7 @@
 @property(assign, nonatomic) NSInteger whiteBalance;
 @property(nonatomic, strong) RNCustomWhiteBalanceSettings *customWhiteBalanceSettings;
 @property(assign, nonatomic) float exposure;
+@property(nonatomic, assign) BOOL exposureLock;
 @property(assign, nonatomic) float exposureIsoMin;
 @property(assign, nonatomic) float exposureIsoMax;
 @property(assign, nonatomic) AVCaptureSessionPreset pictureSize;
@@ -68,6 +69,7 @@
 - (void)updateAutoFocusPointOfInterest;
 - (void)updateZoom;
 - (void)updateWhiteBalance;
+- (void)setExposureLock;
 - (void)updateExposure;
 - (void)updatePictureSize;
 - (void)updateCaptureAudio;
