@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Migrating from version 2.x/3.x to 4.x · React Native Camera</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Version 3.x of react-native-camera replaces `MLKit for Firebase`(which has been deprecated) with `Google MLKit`, allowing you to use advanced features such as text/face recognition without Firebase. You can learn more at [MLKit](https://developers.google.com/ml-kit/migration)"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Migrating from version 2.x/3.x to 4.x · React Native Camera"/><meta property="og:type" content="website"/><meta property="og:url" content="undefined/react-native-camera/"/><meta property="og:description" content="Version 3.x of react-native-camera replaces `MLKit for Firebase`(which has been deprecated) with `Google MLKit`, allowing you to use advanced features such as text/face recognition without Firebase. You can learn more at [MLKit](https://developers.google.com/ml-kit/migration)"/><meta property="og:image" content="undefined/react-native-camera/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="undefined/react-native-camera/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/react-native-camera/img/community.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-dark.min.css"/><link rel="stylesheet" href="/css/code-block-buttons.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/code-blocks-buttons.js"></script><script src="/react-native-camera/js/scrollSpy.js"></script><link rel="stylesheet" href="/react-native-camera/css/prism.css"/><link rel="stylesheet" href="/react-native-camera/css/main.css"/><script src="/react-native-camera/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/react-native-camera/"><img class="logo" src="/react-native-camera/img/community.png" alt="React Native Camera"/><h2 class="headerTitleWithLogo">React Native Camera</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/react-native-camera/docs/installation" target="_self">Docs</a></li><li class="siteNavGroupActive"><a href="/react-native-camera/docs/expo_usage" target="_self">Guides</a></li><li class="siteNavGroupActive"><a href="/react-native-camera/docs/api" target="_self">API</a></li><li class=""><a href="/react-native-camera/docs/qa" target="_self">Help</a></li><li class="siteNavGroupActive"><a href="/react-native-camera/docs/Tidelift" target="_self">For Enterprise</a></li><li class=""><a href="https://github.com/react-native-community/react-native-camera" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Guides</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting Started</h3><ul class=""><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/installation">Installation</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/contributing">Contributing</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Guides</h3><ul class=""><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/expo_usage">Expo Usage</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/GradleUpgradeGuide">Gradle Upgrade Guide</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/migration">Migrating from RCTCamera to RNCamera</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/migrationv2">Migrating from version 1.x to 2.x</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/react-native-camera/docs/migrationv4">Migrating from version 2.x/3.x to 4.x</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/react-navigation">React Navigation</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/recipes">Recipes</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/rncamera">RNCamera</a></li><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/tests">Testing</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">API</h3><ul class=""><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/api">Work in progress</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Help</h3><ul class=""><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/qa">Q &amp; A</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Enterprise</h3><ul class=""><li class="navListItem"><a class="navItem" href="/react-native-camera/docs/Tidelift">React-Native-Camera for Enterprise</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/react-native-community/react-native-camera/master/docs/migrationV4.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Migrating from version 2.x/3.x to 4.x</h1></header><article><div><span><p>Version 3.x of react-native-camera replaces <code>MLKit for Firebase</code>(which has been deprecated) with <code>Google MLKit</code>, allowing you to use advanced features such as text/face recognition without Firebase. You can learn more at <a href="https://developers.google.com/ml-kit/migration">MLKit</a></p>
+<h2><a class="anchor" aria-hidden="true" id="required-steps"></a><a href="#required-steps" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Required steps</h2>
+<blockquote>
+<p>Skip this if you need Firebase in your project</p>
+</blockquote>
+<h3><a class="anchor" aria-hidden="true" id="remove-firebase-project"></a><a href="#remove-firebase-project" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Remove Firebase project</h3>
+<h4><a class="anchor" aria-hidden="true" id="android"></a><a href="#android" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Android</h4>
+<ol>
+<li><p>Remove the Firebase configuration file by deleting the google-services.json config file at <code>android/app/</code>.</p></li>
+<li><p>Replace the Google Services Gradle plugin classpath in <code>android/app/build.gradle</code> with the one for the Strict Version Matcher plugin:</p></li>
+</ol>
+<pre><code class="hljs css language-diff">    buildscript {
+      dependencies {
+        // Add this line
+<span class="hljs-deletion">-       classpath 'com.google.gms:google-services:4.0.1' &lt;-- you might want to use different version</span>
+<span class="hljs-addition">+       classpath 'com.google.android.gms:strict-version-matcher-plugin:1.2.1'</span>
+      }
+    }
+</code></pre>
+<ol start="3">
+<li>Replace the Google Services Gradle plugin in <code>android/build.gradle</code> with the Strict Version Matcher plugin:</li>
+</ol>
+<pre><code class="hljs css language-diff"><span class="hljs-deletion">- apply plugin: 'com.google.gms.google-services'</span>
+<span class="hljs-addition">+ apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'</span>
+</code></pre>
+<ol start="4">
+<li>Remove meta fron <code>android/app/Manifest.xml</code>(MLKit use bundled models)</li>
+</ol>
+<pre><code class="hljs css language-diff">&lt;application ...&gt;
+...
+<span class="hljs-deletion">- &lt;meta-data</span>
+<span class="hljs-deletion">-     android:name="com.google.firebase.ml.vision.DEPENDENCIES"</span>
+<span class="hljs-deletion">-     android:value="ocr" /&gt;</span>
+<span class="hljs-deletion">- &lt;!-- To use multiple models, list all needed models: android:value="ocr, face, barcode" --&gt;</span>
+&lt;/application&gt;
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="ios"></a><a href="#ios" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>iOS</h4>
+<ol>
+<li><p>Remove <code>GoogleService-Info.plist</code> from your project</p></li>
+<li><p>Remove <code>pod 'Firebase/Core'</code> from your Podfile</p></li>
+</ol>
+<p>1\3. Remove Firebase code from <code>AppDelegate.m</code></p>
+<pre><code class="hljs css language-diff"><span class="hljs-deletion">-#import &lt;Firebase.h&gt; // &lt;--- add this</span>
+...
+
+\- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+<span class="hljs-deletion">- [FIRApp configure]; // &lt;--- add this</span>
+  ...
+}
+</code></pre>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 7/16/2021 by Sean</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/react-native-camera/docs/migrationv2"><span class="arrow-prev">← </span><span>Migrating from version 1.x to 2.x</span></a><a class="docs-next button" href="/react-native-camera/docs/react-navigation"><span>React Navigation</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#required-steps">Required steps</a><ul class="toc-headings"><li><a href="#remove-firebase-project">Remove Firebase project</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/react-native-camera/" class="nav-home"><img src="/react-native-camera/img/community.png" alt="React Native Camera" width="66" height="58"/></a><div><h5>Docs</h5><a href="/react-native-camera/docs/en/installation.html">Getting Started</a><a href="/react-native-camera/docs/en/expo_usage.html">Guides</a><a href="/react-native-camera/docs/en/api.html">API Reference</a></div><div><h5>Community</h5><a href="/react-native-camera/en/users.html">User Showcase</a><a href="https://stackoverflow.com/questions/tagged/react-native-camera" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://spectrum.chat/">Project Chat</a></div><div><h5>More</h5><a href="https://github.com/react-native-community/react-native-camera">GitHub</a><a class="github-button" href="https://github.com/react-native-community/react-native-camera" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Stars</a></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/react-native-camera/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2021</section></footer></div></body></html>
