@@ -34,6 +34,10 @@
         "title": "Migrating from version 1.x to 2.x",
         "sidebar_label": "Migrating from version 1.x to 2.x"
       },
+      "migrationv4": {
+        "title": "Migrating from version 2.x/3.x to 4.x",
+        "sidebar_label": "Migrating from version 2.x/3.x to 4.x"
+      },
       "qa": {
         "title": "Q & A",
         "sidebar_label": "Q & A"

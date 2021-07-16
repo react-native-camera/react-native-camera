@@ -165,4 +165,4 @@ task downloadDependencies() {
   }
 }
 
-apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'

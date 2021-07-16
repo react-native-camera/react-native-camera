@@ -1,12 +1,10 @@
 package org.reactnative.camera.tasks;
 
-import android.util.SparseArray;
-
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.google.android.cameraview.CameraView;
-import com.google.android.gms.vision.face.Face;
+import com.google.mlkit.vision.face.Face;
 
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.facedetector.FaceDetectorUtils;
@@ -14,7 +12,9 @@ import org.reactnative.frame.RNFrame;
 import org.reactnative.frame.RNFrameFactory;
 import org.reactnative.facedetector.RNFaceDetector;
 
-public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, SparseArray<Face>> {
+import java.util.List;
+
+public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, List<Face>> {
   private byte[] mImageData;
   private int mWidth;
   private int mHeight;
@@ -55,7 +55,7 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Spar
   }
 
   @Override
-  protected SparseArray<Face> doInBackground(Void... ignored) {
+  protected List<Face> doInBackground(Void... ignored) {
     if (isCancelled() || mDelegate == null || mFaceDetector == null || !mFaceDetector.isOperational()) {
       return null;
     }
@@ -65,7 +65,7 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Spar
   }
 
   @Override
-  protected void onPostExecute(SparseArray<Face> faces) {
+  protected void onPostExecute(List<Face> faces) {
     super.onPostExecute(faces);
 
     if (faces == null) {
@@ -78,11 +78,11 @@ public class FaceDetectorAsyncTask extends android.os.AsyncTask<Void, Void, Spar
     }
   }
 
-  private WritableArray serializeEventData(SparseArray<Face> faces) {
+  private WritableArray serializeEventData(List<Face> faces) {
     WritableArray facesList = Arguments.createArray();
 
     for(int i = 0; i < faces.size(); i++) {
-      Face face = faces.valueAt(i);
+      Face face = faces.get(i);
       WritableMap serializedFace = FaceDetectorUtils.serializeFace(face, mScaleX, mScaleY, mWidth, mHeight, mPaddingLeft, mPaddingTop);
       if (mImageDimensions.getFacing() == CameraView.FACING_FRONT) {
         serializedFace = FaceDetectorUtils.rotateFaceX(serializedFace, mImageDimensions.getWidth(), mScaleX);
