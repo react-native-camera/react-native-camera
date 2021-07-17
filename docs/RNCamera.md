@@ -405,6 +405,12 @@ For Android, this prop attempts to control the camera sensor capture resolution,
 
 For iOS, this prop controls the internal camera preset value and should rarely be changed. However, this value can be set to setup the sensor to match the video recording's quality in order to prevent flickering. The list of valid values can be gathered from https://developer.apple.com/documentation/avfoundation/avcapturesessionpreset and can also be requested with `getAvailablePictureSizes`.
 
+### `useCamera2Api`
+
+Values: boolean `true` | `false` (default) 
+
+Android only. Specifies whether to use Android's [Camera2 API](https://developer.android.com/reference/android/hardware/camera2/package-summary).
+
 ### Native Event callbacks props
 
 ### `onCameraReady`
@@ -689,14 +695,14 @@ Supported options:
     - `ios` Specifies capture settings suitable for CIF quality (352x288 pixel) video output.
     - `android` Not supported.
 
-- `videoBitrate`. (int greater than 0) This option specifies a desired video bitrate. For example, 5\*1000\*1000 would be 5Mbps.
+  If nothing is passed the device's highest camera quality will be used as default.
+
+- `videoBitrate` (int greater than 0). This option specifies a desired video bitrate. For example, 5\*1000\*1000 would be 5Mbps.
 
   - `ios` Supported however requires that the codec key is also set.
   - `android` Supported.
 
 - `orientation` (string or number). Specifies the orientation that us used for recording the video. Possible values: `"portrait"`, `"portraitUpsideDown"`, `"landscapeLeft"` or `"landscapeRight"`.
-
-  If nothing is passed the device's highest camera quality will be used as default.
 
 - `iOS` `codec`. This option specifies the codec of the output video. Setting the codec is only supported on `iOS >= 10`. The possible values are:
 

@@ -30,9 +30,9 @@ title: Work in progress
 - [`pausePreview`](API.md#pausepreview)
 - [`resumePreview`](API.md#resumepreview)
 - [`getAvailablePictureSizes`](API.md#getavailablepicturesizes)
-- [`getSupportedRatiosAsync`](API.md#getsupportedratiosasync-android-only)
-- [`isRecording`](API.md#isrecording-ios-only)
-- [`getSupportedPreviewFpsRange`](API.md#getsupportedpreviewfpsrange-android-only)
+- [`getSupportedRatiosAsync`](API.md#getsupportedratiosasync---android-only)
+- [`isRecording`](API.md#isrecording---ios-only)
+- [`getSupportedPreviewFpsRange`](API.md#getsupportedpreviewfpsrange---android-only)
 
 ## Props
 
@@ -377,11 +377,14 @@ const isRecording = await isRecording();
 } */
 ```
 
-- [`getSupportedPreviewFpsRange`](API.md#getSupportedPreviewFpsRange`)
+---
 
 ## getSupportedPreviewFpsRange - Android only
 
-Android only. Returns a promise. The promise will be fulfilled with a json object including the fps ranges available for those devices ([android docs](<https://developer.android.com/reference/android/hardware/Camera.Parameters#getSupportedPreviewFpsRange()>))
+Android only. Returns a promise. The promise will be fulfilled with a json object including the fps ranges available for those devices.
+
+- [Camera1 API](<https://developer.android.com/reference/android/hardware/Camera.Parameters#getSupportedPreviewFpsRange()>)
+- [Camera2 API](https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)
 
 ### Method type
 
