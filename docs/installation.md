@@ -161,13 +161,12 @@ allprojects {
 # Additional installation steps
 
 Follow these optional steps if you want to use Face Detection/Text Recognition/BarCode with [MLKit](https://developers.google.com/ml-kit).
-You will need to set-up Firebase project for your app (detailed steps below).
-
-_Note:_ Installing [react-native-firebase](https://github.com/invertase/react-native-firebase) package is NOT necessary.
 
 ## iOS
 
 If you want any of these optional features, you will need to use CocoaPods.
+
+> MLKit for iOS runs on arm64/x86_64 devices only; armv7/x86 is not supported
 
 ### Modifying Podfile
 
@@ -209,33 +208,11 @@ pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs
 
 Then run `cd ios && pod install && cd ..`
 
-### Setting up Firebase
-
-Text/Face recognition for iOS uses Firebase MLKit which requires setting up Firebase project for your app.
-If you have not already added Firebase to your app, please follow the steps described in [getting started guide](https://firebase.google.com/docs/ios/setup).
-In short, you would need to
-
-1. Register your app in Firebase console.
-2. Download `GoogleService-Info.plist` and add it to your project
-3. Add `pod 'Firebase/Core'` to your podfile
-4. In your `AppDelegate.m` file add the following lines:
-
-```objective-c
-#import <Firebase.h> // <--- add this
-...
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-  [FIRApp configure]; // <--- add this
-  ...
-}
-```
 
 <details>
   <summary>Additional information in case of problems</summary>
 
-- If you have issues with duplicate symbols you will need to enable dead code stripping option in your Xcode (Target > Build Settings > search for "Dead code stripping") [see here](https://github.com/firebase/quickstart-ios/issues/487#issuecomment-415313053).
-- If you are using `pod Firebase/Core` with a version set below 5.13 you might want to add `pod 'GoogleAppMeasurement', '~> 5.3.0'` to your podfile
+- If you see build errors like `ld: symbol(s) not found for architecture armv7` you will need to exclude armv7 arch in your Xcode (Xcode -> Build Setting -> Excluded Architectures -> Add 'armv7' for 'Any iOS SDK' ).
   </details>
 
 ## Android
@@ -254,39 +231,44 @@ android {
 }
 ```
 
-### Setting up Firebase
+### Setting up MLKit
 
-Using Firebase MLKit requires seting up Firebase project for your app. If you have not already added Firebase to your app, please follow the steps described in [getting started guide](https://firebase.google.com/docs/android/setup).
-In short, you would need to
+**If you don't use any other Firebase component in your project**
 
-1. Register your app in Firebase console.
-2. Download google-services.json and place it in `android/app/`
-3. Add the folowing to project level `build.gradle`:
+1. Add the folowing to project level `build.gradle`:
 
 ```gradle
 buildscript {
   dependencies {
   // Add this line
-  classpath 'com.google.gms:google-services:4.0.1' // <--- you might want to use different version
+  classpath 'com.google.android.gms:strict-version-matcher-plugin:1.2.1' // <--- you might want to use different version
   }
 }
 ```
 
-4. add to the bottom of `android/app/build.gradle` file
+2. add to the bottom of `android/app/build.gradle` file
 
 ```gradle
-apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'
 ```
 
-5. Configure your app to automatically download the ML model to the device after your app is installed from the Play Store. If you do not enable install-time model downloads, the model will be downloaded the first time you run the on-device detector. Requests you make before the download has completed will produce no results.
+**If you have Firebase integrated already**
 
-```xml
-<application ...>
-...
-  <meta-data
-      android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-      android:value="ocr, face" /> <!-- choose models that you will use -->
-</application>
+1. Add the folowing to project level `build.gradle`:
+
+```gradle
+buildscript {
+  dependencies {
+  // Add this line
+  classpath 'com.google.gms:google-services:4.3.3'  // Google Services plugin(you might want to use different version)
+  }
+}
+```
+
+2. add to the bottom of `android/app/build.gradle` file
+
+```gradle
+apply plugin: 'com.google.gms.google-services'  // Google Services plugin
 ```
 
 <details>
@@ -294,10 +276,9 @@ apply plugin: 'com.google.gms.google-services'
   The current Android library defaults to the below values for the Google SDK and Libraries,
 
 ```gradle
-def DEFAULT_COMPILE_SDK_VERSION             = 26
-def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
-def DEFAULT_TARGET_SDK_VERSION              = 26
-def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
+def DEFAULT_COMPILE_SDK_VERSION             = 29
+def DEFAULT_BUILD_TOOLS_VERSION             = "29.0.2"
+def DEFAULT_TARGET_SDK_VERSION              = 29
 def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
 ```
 
@@ -314,117 +295,15 @@ allprojects {...}
 * Project-wide gradle configuration properties for use by all modules
 */
 ext {
-    compileSdkVersion           = 26
-    targetSdkVersion            = 26
-    buildToolsVersion           = "26.0.2"
-    googlePlayServicesVersion   = "12.0.1"
-    googlePlayServicesVisionVersion = "15.0.2"
+    compileSdkVersion           = 29
+    targetSdkVersion            = 29
+    buildToolsVersion           = "29.0.2"
     supportLibVersion           = "27.1.0"
 }
 ```
 
 The above settings in the ReactNative project over-rides the values present in the `react-native-camera`
-module. For your reference below is the `android/build.gradle` file of the module.
-
-```gradle
-def safeExtGet(prop, fallback) {
-    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
-}
-
-buildscript {
-  repositories {
-    google()
-    maven {
-      url 'https://maven.google.com'
-    }
-    jcenter()
-  }
-
-  dependencies {
-    classpath 'com.android.tools.build:gradle:3.3.1'
-  }
-}
-
-apply plugin: 'com.android.library'
-
-android {
-  compileSdkVersion safeExtGet('compileSdkVersion', 28)
-  buildToolsVersion safeExtGet('buildToolsVersion', '28.0.3')
-
-  defaultConfig {
-    minSdkVersion safeExtGet('minSdkVersion', 16)
-    targetSdkVersion safeExtGet('targetSdkVersion', 28)
-  }
-
-  flavorDimensions "react-native-camera"
-
-  productFlavors {
-    general {
-      dimension "react-native-camera"
-    }
-    mlkit {
-      dimension "react-native-camera"
-    }
-  }
-
-  sourceSets {
-    main {
-      java.srcDirs = ['src/main/java']
-    }
-    general {
-      java.srcDirs = ['src/general/java']
-    }
-    mlkit {
-      java.srcDirs = ['src/mlkit/java']
-    }
-  }
-
-  lintOptions {
-    abortOnError false
-    warning 'InvalidPackage'
-  }
-}
-
-repositories {
-  google()
-  jcenter()
-  maven {
-  url 'https://maven.google.com'
-  }
-  maven { url "https://jitpack.io" }
-  maven {
-    // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-    url "$rootDir/../node_modules/react-native/android"
-  }
-}
-
-dependencies {
-  def googlePlayServicesVisionVersion = safeExtGet('googlePlayServicesVisionVersion', safeExtGet('googlePlayServicesVersion', '17.0.2'))
-
-  implementation 'com.facebook.react:react-native:+'
-  implementation "com.google.zxing:core:3.3.3"
-  implementation "com.drewnoakes:metadata-extractor:2.11.0"
-  generalImplementation "com.google.android.gms:play-services-vision:$googlePlayServicesVisionVersion"
-  implementation "com.android.support:exifinterface:${safeExtGet('supportLibVersion', '28.0.0')}"
-  implementation "com.android.support:support-annotations:${safeExtGet('supportLibVersion', '28.0.0')}"
-  implementation "com.android.support:support-v4:${safeExtGet('supportLibVersion', '28.0.0')}"
-  mlkitImplementation "com.google.firebase:firebase-ml-vision:${safeExtGet('firebase-ml-vision', '19.0.3')}"
-  mlkitImplementation "com.google.firebase:firebase-ml-vision-face-model:${safeExtGet('firebase-ml-vision-face-model', '17.0.2')}"
-}
-```
-
-If you are using a version of `googlePlayServicesVersion` that does not have `play-services-vision`, you can specify a different version of `play-services-vision` by adding `googlePlayServicesVisionVersion` to the project-wide properties
-
-```gradle
-ext {
-    compileSdkVersion           = 26
-    targetSdkVersion            = 26
-    buildToolsVersion           = "26.0.2"
-    googlePlayServicesVersion   = "16.0.1"
-    googlePlayServicesVisionVersion = "15.0.2"
-    supportLibVersion           = "27.1.0"
-}
-```
+module. For your reference please check [android/build.gradle](android/build.gradle) file of the module.
 
 </details>
 

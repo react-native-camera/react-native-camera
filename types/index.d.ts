@@ -173,6 +173,7 @@ export interface GoogleVisionBarcodesDetectedEvent {
 
 export interface RNCameraProps {
   children?: ReactNode | FaCC;
+  cameraId?: string;
 
   autoFocus?: keyof AutoFocus;
   autoFocusPointOfInterest?: Point;
@@ -232,7 +233,7 @@ export interface RNCameraProps {
   onGoogleVisionBarcodesDetected?(event: GoogleVisionBarcodesDetectedEvent): void;
 
   // limiting scan area
-  rectOfInterest?: Point;
+  rectOfInterest?: RectOfInterest;
 
   // -- FACE DETECTION PROPS
 
@@ -291,6 +292,8 @@ interface Size<T = number> {
   width: T;
   height: T;
 }
+
+interface RectOfInterest extends Point,Size{}
 
 export interface Barcode {
   bounds: {
@@ -486,6 +489,8 @@ export class RNCamera extends Component<RNCameraProps & ViewProperties> {
 
   /** Android only */
   getSupportedRatiosAsync(): Promise<string[]>;
+  getSupportedPreviewFpsRange: Promise<string[]>;
+  static checkIfVideoIsValid: Promise<boolean>;
 
   /** iOS only */
   isRecording(): Promise<boolean>;

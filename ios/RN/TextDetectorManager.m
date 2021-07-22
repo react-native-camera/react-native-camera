@@ -1,8 +1,9 @@
 #import "TextDetectorManager.h"
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+#if __has_include(<MLKitTextRecognition/MLKitTextRecognition.h>)
+@import MLKitVision;
 
 @interface TextDetectorManager ()
-@property(nonatomic, strong) FIRVisionTextRecognizer *textRecognizer;
+@property(nonatomic, strong) MLKTextRecognizer *textRecognizer;
 @property(nonatomic, assign) float scaleX;
 @property(nonatomic, assign) float scaleY;
 @end
@@ -12,13 +13,12 @@
 - (instancetype)init
 {
   if (self = [super init]) {
-    FIRVision *vision = [FIRVision vision];
-    self.textRecognizer = [vision onDeviceTextRecognizer];
+    self.textRecognizer = [MLKTextRecognizer textRecognizer];
   }
   return self;
 }
 
--(BOOL)isRealDetector
+- (BOOL)isRealDetector
 {
   return true;
 }
@@ -27,10 +27,10 @@
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
-    FIRVisionImage *image = [[FIRVisionImage alloc] initWithImage:uiImage];
+    MLKVisionImage *visionImage = [[MLKVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *textBlocks = [[NSMutableArray alloc] init];
-    [_textRecognizer processImage:image
-                       completion:^(FIRVisionText *_Nullable result,
+    [_textRecognizer processImage:visionImage
+                       completion:^(MLKText *_Nullable result,
                                     NSError *_Nullable error) {
                            if (error != nil || result == nil) {
                                completed(textBlocks);
@@ -43,7 +43,7 @@
 - (NSArray *)processBlocks:(NSArray *)features
 {
   NSMutableArray *textBlocks = [[NSMutableArray alloc] init];
-  for (FIRVisionTextBlock *textBlock in features) {
+  for (MLKTextBlock *textBlock in features) {
       NSDictionary *textBlockDict = 
       @{@"type": @"block", @"value" : textBlock.text, @"bounds" : [self processBounds:textBlock.frame], @"components" : [self processLine:textBlock.lines]};
       [textBlocks addObject:textBlockDict];
@@ -51,10 +51,10 @@
   return textBlocks;
 }
 
--(NSArray *)processLine:(NSArray *)lines
+- (NSArray *)processLine:(NSArray *)lines
 {
   NSMutableArray *lineBlocks = [[NSMutableArray alloc] init];
-  for (FIRVisionTextLine *textLine in lines) {
+  for (MLKTextLine *textLine in lines) {
         NSDictionary *textLineDict = 
         @{@"type": @"line", @"value" : textLine.text, @"bounds" : [self processBounds:textLine.frame], @"components" : [self processElement:textLine.elements]};
         [lineBlocks addObject:textLineDict];
@@ -62,10 +62,10 @@
   return lineBlocks;
 }
 
--(NSArray *)processElement:(NSArray *)elements 
+- (NSArray *)processElement:(NSArray *)elements
 {
   NSMutableArray *elementBlocks = [[NSMutableArray alloc] init];
-  for (FIRVisionTextElement *textElement in elements) {
+  for (MLKTextElement *textElement in elements) {
         NSDictionary *textElementDict = 
         @{@"type": @"element", @"value" : textElement.text, @"bounds" : [self processBounds:textElement.frame]};
         [elementBlocks addObject:textElementDict];
@@ -73,7 +73,7 @@
   return elementBlocks;
 }
 
--(NSDictionary *)processBounds:(CGRect)bounds 
+- (NSDictionary *)processBounds:(CGRect)bounds
 {
   float width = bounds.size.width * _scaleX;
   float height = bounds.size.height * _scaleY;
@@ -109,12 +109,12 @@
   return self;
 }
 
--(BOOL)isRealDetector
+- (BOOL)isRealDetector
 {
   return false;
 }
 
--(void)findTextBlocksInFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float) scaleY completed:(postRecognitionBlock)completed;
+- (void)findTextBlocksInFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float) scaleY completed:(postRecognitionBlock)completed;
 {
   NSLog(@"TextDetector not installed, stub used!");
   NSArray *features = @[@"Error, Text Detector not installed"];

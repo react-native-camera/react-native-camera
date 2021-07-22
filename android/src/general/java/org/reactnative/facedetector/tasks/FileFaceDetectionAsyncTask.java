@@ -7,7 +7,6 @@ import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.util.SparseArray;
 
 import org.reactnative.facedetector.RNFaceDetector;
 import org.reactnative.frame.RNFrame;
@@ -18,12 +17,13 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
-import com.google.android.gms.vision.face.Face;
+import com.google.mlkit.vision.face.Face;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
-public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, SparseArray<Face>> {
+public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, List<Face>> {
   private static final String ERROR_TAG = "E_FACE_DETECTION_FAILED";
 
   private static final String MODE_OPTION_KEY = "mode";
@@ -81,7 +81,7 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, SparseArra
   }
 
   @Override
-  protected SparseArray<Face> doInBackground(Void... voids) {
+  protected List<Face> doInBackground(Void... voids) {
     if (isCancelled()) {
       return null;
     }
@@ -103,13 +103,13 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, SparseArra
   }
 
   @Override
-  protected void onPostExecute(SparseArray<Face> faces) {
+  protected void onPostExecute(List<Face> faces) {
     super.onPostExecute(faces);
     WritableMap result = Arguments.createMap();
     WritableArray facesArray = Arguments.createArray();
 
     for(int i = 0; i < faces.size(); i++) {
-      Face face = faces.valueAt(i);
+      Face face = faces.get(i);
       WritableMap encodedFace = FaceDetectorUtils.serializeFace(face);
       encodedFace.putDouble("yawAngle", (-encodedFace.getDouble("yawAngle") + 360) % 360);
       encodedFace.putDouble("rollAngle", (-encodedFace.getDouble("rollAngle") + 360) % 360);

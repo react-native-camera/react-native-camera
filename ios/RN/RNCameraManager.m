@@ -165,7 +165,7 @@ RCT_EXPORT_VIEW_PROPERTY(onTouch, RCTDirectEventBlock);
 
 + (NSDictionary *)faceDetectorConstants
 {
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+#if __has_include(<MLKitFaceDetection/MLKitFaceDetection.h>)
     return [FaceDetectorManagerMlkit constants];
 #else
     return [NSDictionary new];
@@ -174,7 +174,7 @@ RCT_EXPORT_VIEW_PROPERTY(onTouch, RCTDirectEventBlock);
 
 + (NSDictionary *)barcodeDetectorConstants
 {
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+#if __has_include(<MLKitBarcodeScanning/MLKitBarcodeScanning.h>)
     return [BarcodeDetectorManagerMlkit constants];
 #else
     return [NSDictionary new];
@@ -304,7 +304,6 @@ RCT_CUSTOM_VIEW_PROPERTY(faceDetectionClassifications, NSString, RNCamera)
 
 RCT_CUSTOM_VIEW_PROPERTY(barCodeScannerEnabled, BOOL, RNCamera)
 {
-
     view.isReadingBarCodes = [RCTConvert BOOL:json];
     [view setupOrDisableBarcodeScanner];
 }
@@ -332,7 +331,6 @@ RCT_CUSTOM_VIEW_PROPERTY(googleVisionBarcodeDetectorEnabled, BOOL, RNCamera)
 
 RCT_CUSTOM_VIEW_PROPERTY(textRecognizerEnabled, BOOL, RNCamera)
 {
-
     view.canReadText = [RCTConvert BOOL:json];
     [view setupOrDisableTextDetector];
 }
@@ -391,20 +389,31 @@ RCT_REMAP_METHOD(takePicture,
             }
 
             [view onPictureTaken:@{}];
+            
+            bool success = YES;
 
             NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
             if (![options[@"doNotSave"] boolValue]) {
-                response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
+                NSString* pathRes = [RNImageUtils writeImage:photoData toPath:path];
+                if (!pathRes) {
+                    reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be saved: file write failed.", nil);
+                    success = NO;
+                } else {
+                    response[@"uri"] = pathRes;
+                }
             }
-            response[@"width"] = @(generatedPhoto.size.width);
-            response[@"height"] = @(generatedPhoto.size.height);
-            if ([options[@"base64"] boolValue]) {
-                response[@"base64"] = [photoData base64EncodedStringWithOptions:0];
-            }
-            if (useFastMode) {
-                [view onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
-            } else {
-                resolve(response);
+            
+            if (success) {
+                response[@"width"] = @(generatedPhoto.size.width);
+                response[@"height"] = @(generatedPhoto.size.height);
+                if ([options[@"base64"] boolValue]) {
+                    response[@"base64"] = [photoData base64EncodedStringWithOptions:0];
+                }
+                if (useFastMode) {
+                    [view onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
+                } else {
+                    resolve(response);
+                }
             }
 #else
             [view takePicture:options resolve:resolve reject:reject];

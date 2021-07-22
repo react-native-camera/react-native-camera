@@ -3,6 +3,8 @@ package org.reactnative.camera;
 import android.Manifest;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.media.MediaMetadataRetriever;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -481,8 +483,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
                   ArrayList<int[]> ranges = cameraView.getSupportedPreviewFpsRange();
                   for (int[] range : ranges) {
                       WritableMap m = new WritableNativeMap();
-                      m.putInt("MAXIMUM_FPS", range[0]);
-                      m.putInt("MINIMUM_FPS", range[1]);
+                      m.putInt("MINIMUM_FPS", range[0]);
+                      m.putInt("MAXIMUM_FPS", range[1]);
                       result.pushMap(m);
                   }
                   promise.resolve(result);
@@ -491,5 +493,51 @@ public class CameraModule extends ReactContextBaseJavaModule {
               }
           }
       });
+  }
+
+  // Helper method to check for corrupted videos on Android
+  @ReactMethod
+  public void checkIfVideoIsValid(final String path, final Promise promise) {
+
+    // run in a background thread in order to
+    // not block the UI
+    new GuardedAsyncTask<Void, Void>(getReactApplicationContext()) {
+      @Override
+      protected void doInBackgroundGuarded(Void... params) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+
+        try{
+          try {
+              retriever.setDataSource(path);
+          }
+          catch (Exception e){
+              e.printStackTrace();
+
+              // if we failed to load the source, also return true
+              // as this may cause false positives.
+              promise.resolve(true);
+              return;
+          }
+
+          // extract a few values since different devices may only report
+          // certain metadata
+          String hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO);
+          String mimeType = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+
+          // if we were unable to extract metadata, also return true
+          // since we will otherwise get false positives.
+          //promise.resolve(hasVideo == null || "yes".equals(hasVideo));
+          promise.resolve(hasVideo != null && ("yes".equals(hasVideo) || "true".equals(hasVideo) ||
+            mimeType != null && mimeType.contains("video")));
+        }
+        finally{
+          // this many fail or may not be available in API < 29
+          try{
+            retriever.release();
+          }
+          catch(Throwable e){}
+        }
+      }
+    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
   }
 }
