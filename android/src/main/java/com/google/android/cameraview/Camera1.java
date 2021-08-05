@@ -34,6 +34,7 @@ import com.facebook.react.bridge.ReadableMap;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -50,6 +51,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     private static final int INVALID_CAMERA_ID = -1;
 
     private static final SparseArrayCompat<String> FLASH_MODES = new SparseArrayCompat<>();
+
+    private static final String[] BROKEN_ROTATION_DEVICE_MODELS = {"SM-G532M", "SM-T813"};
 
     static {
         FLASH_MODES.put(Constants.FLASH_OFF, Camera.Parameters.FLASH_MODE_OFF);
@@ -718,16 +721,15 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     int orientationEnumToRotation(int orientation) {
         switch(orientation) {
-            case Constants.ORIENTATION_UP:
-                return 0;
             case Constants.ORIENTATION_DOWN:
                 return 180;
             case Constants.ORIENTATION_LEFT:
                 return 270;
             case Constants.ORIENTATION_RIGHT:
                 return 90;
+            case Constants.ORIENTATION_UP:
             default:
-                return Constants.ORIENTATION_UP;
+                return 0;
         }
     }
 
@@ -746,6 +748,10 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
         }
     }
 
+    boolean fallbackToSoftwareRotation() {
+        return Arrays.asList(BROKEN_ROTATION_DEVICE_MODELS).contains(Build.MODEL);
+    }
+
     void takePictureInternal(final ReadableMap options) {
         // if not capturing already, atomically set it to true
         if (!mIsRecording.get() && isPictureCaptureInProgress.compareAndSet(false, true)) {
@@ -761,6 +767,21 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                     catch(RuntimeException e ) {
                         Log.e("CAMERA_1::", "setParameters rotation failed", e);
                     }
+                }
+
+                final int softwareRotation;
+                int requestedRotation = calcCameraRotation(orientationEnumToRotation(mOrientation));
+                if (requestedRotation != 0 && fallbackToSoftwareRotation()) {
+                    softwareRotation = requestedRotation;
+                    mCameraParameters.setRotation(0);
+                    try{
+                        mCamera.setParameters(mCameraParameters);
+                    }
+                    catch(RuntimeException e ) {
+                        Log.e("CAMERA_1::", "setParameters 0 rotation failed", e);
+                    }
+                } else {
+                    softwareRotation = 0;
                 }
 
                 // set quality on capture since we might not process the image bitmap if not needed now.
@@ -820,7 +841,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                         isPictureCaptureInProgress.set(false);
 
                         mOrientation = Constants.ORIENTATION_AUTO;
-                        mCallback.onPictureTaken(data, displayOrientationToOrientationEnum(mDeviceOrientation));
+                        mCallback.onPictureTaken(data, displayOrientationToOrientationEnum(mDeviceOrientation), softwareRotation);
 
                         if(mustUpdateSurface){
                             updateSurface();
