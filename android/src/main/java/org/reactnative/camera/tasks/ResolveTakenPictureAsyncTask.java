@@ -84,20 +84,20 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
             if (mSoftwareRotation != 0) {
                 loadBitmap();
                 mBitmap = rotateBitmap(mBitmap, mSoftwareRotation);
-            } else {
-                // Rotate the bitmap to the proper orientation if requested
-                if(mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation")){
-                    exifInterface = new ExifInterface(inputStream);
+            }
 
-                    // Get orientation of the image from mImageData via inputStream
-                    int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            // Rotate the bitmap to the proper orientation if requested
+            if(mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation")){
+                exifInterface = new ExifInterface(inputStream);
 
-                    if(orientation != ExifInterface.ORIENTATION_UNDEFINED && getImageRotation(orientation) != 0) {
-                        loadBitmap();
-                        int angle = getImageRotation(orientation);
-                        mBitmap = rotateBitmap(mBitmap, angle);
-                        exifOrientationFixed = true;
-                    }
+                // Get orientation of the image from mImageData via inputStream
+                int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+
+                if(orientation != ExifInterface.ORIENTATION_UNDEFINED && getImageRotation(orientation) != 0) {
+                    loadBitmap();
+                    int angle = getImageRotation(orientation);
+                    mBitmap = rotateBitmap(mBitmap, angle);
+                    exifOrientationFixed = true;
                 }
             }
 
