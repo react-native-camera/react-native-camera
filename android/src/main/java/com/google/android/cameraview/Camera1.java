@@ -52,7 +52,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private static final SparseArrayCompat<String> FLASH_MODES = new SparseArrayCompat<>();
 
-    private static final String[] BROKEN_ROTATION_DEVICE_MODELS = {"SM-G532M", "SM-T813"};
+    private static final String[] BROKEN_ROTATION_DEVICE_MODELS = {"SM-G532M", "SM-T813", "SM-T307U", "SM-T713"};
 
     static {
         FLASH_MODES.put(Constants.FLASH_OFF, Camera.Parameters.FLASH_MODE_OFF);
