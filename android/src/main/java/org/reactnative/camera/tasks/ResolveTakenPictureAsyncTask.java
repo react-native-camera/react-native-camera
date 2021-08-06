@@ -15,7 +15,6 @@ import org.reactnative.camera.utils.RNFileUtils;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.ReadableType;
 import com.facebook.react.bridge.WritableMap;
 
 import java.io.ByteArrayInputStream;
@@ -32,14 +31,16 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
     private ReadableMap mOptions;
     private File mCacheDirectory;
     private int mDeviceOrientation;
+    private int mSoftwareRotation;
     private PictureSavedDelegate mPictureSavedDelegate;
 
-    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, PictureSavedDelegate delegate) {
+    public ResolveTakenPictureAsyncTask(byte[] imageData, Promise promise, ReadableMap options, File cacheDirectory, int deviceOrientation, int softwareRotation, PictureSavedDelegate delegate) {
         mPromise = promise;
         mOptions = options;
         mImageData = imageData;
         mCacheDirectory = cacheDirectory;
         mDeviceOrientation = deviceOrientation;
+        mSoftwareRotation = softwareRotation;
         mPictureSavedDelegate = delegate;
     }
 
@@ -65,7 +66,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         WritableMap exifData = null;
         ReadableMap exifExtraData = null;
 
-        boolean orientationChanged = false;
+        boolean exifOrientationFixed = false;
 
         response.putInt("deviceOrientation", mDeviceOrientation);
         response.putInt("pictureOrientation", mOptions.hasKey("orientation") ? mOptions.getInt("orientation") : mDeviceOrientation);
@@ -77,22 +78,26 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
             // and this behaves more like the iOS version.
             // We will load all data lazily only when needed.
 
-            // this should not incurr in any overhead if not read/used
+            // this should not incur in any overhead if not read/used
             inputStream = new ByteArrayInputStream(mImageData);
 
+            if (mSoftwareRotation != 0) {
+                loadBitmap();
+                mBitmap = rotateBitmap(mBitmap, mSoftwareRotation);
+            }
 
             // Rotate the bitmap to the proper orientation if requested
             if(mOptions.hasKey("fixOrientation") && mOptions.getBoolean("fixOrientation")){
-
                 exifInterface = new ExifInterface(inputStream);
 
                 // Get orientation of the image from mImageData via inputStream
                 int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
 
-                if(orientation != ExifInterface.ORIENTATION_UNDEFINED){
+                if(orientation != ExifInterface.ORIENTATION_UNDEFINED && getImageRotation(orientation) != 0) {
                     loadBitmap();
-                    mBitmap = rotateBitmap(mBitmap, getImageRotation(orientation));
-                    orientationChanged = true;
+                    int angle = getImageRotation(orientation);
+                    mBitmap = rotateBitmap(mBitmap, angle);
+                    exifOrientationFixed = true;
                 }
             }
 
@@ -148,7 +153,7 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
                     exifData.putInt("width", mBitmap.getWidth());
                     exifData.putInt("height", mBitmap.getHeight());
 
-                    if(orientationChanged){
+                    if(exifOrientationFixed){
                         exifData.putInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
                     }
                 }
@@ -166,7 +171,6 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
             // final processing
             // Based on whether or not we loaded the full bitmap into memory, final processing differs
             if(mBitmap == null){
-
                 // set response dimensions. If we haven't read our bitmap, get it efficiently
                 // without loading the actual bitmap into memory
                 BitmapFactory.Options options = new BitmapFactory.Options();
@@ -220,15 +224,16 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
 
             }
             else{
-
                 // get response dimensions right from the bitmap if we have it
                 response.putInt("width", mBitmap.getWidth());
                 response.putInt("height", mBitmap.getHeight());
 
                 // Cache compressed image in imageStream
                 ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
-                mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), imageStream);
-
+                if (!mBitmap.compress(Bitmap.CompressFormat.JPEG, getQuality(), imageStream)) {
+                    mPromise.reject(ERROR_TAG, "Could not compress image to JPEG");
+                    return null;
+                }
 
                 // Write compressed image to file in cache directory unless otherwise specified
                 if (!mOptions.hasKey("doNotSave") || !mOptions.getBoolean("doNotSave")) {
@@ -322,22 +327,22 @@ public class ResolveTakenPictureAsyncTask extends AsyncTask<Void, Void, Writable
         return RNFileUtils.getOutputFilePath(mCacheDirectory, ".jpg");
     }
 
-    private String writeStreamToFile(ByteArrayOutputStream inputStream) throws IOException {
+    private String writeStreamToFile(ByteArrayOutputStream imageDataStream) throws IOException {
         String outputPath = null;
         IOException exception = null;
-        FileOutputStream outputStream = null;
+        FileOutputStream fileOutputStream = null;
 
         try {
             outputPath = getImagePath();
-            outputStream = new FileOutputStream(outputPath);
-            inputStream.writeTo(outputStream);
+            fileOutputStream = new FileOutputStream(outputPath);
+            imageDataStream.writeTo(fileOutputStream);
         } catch (IOException e) {
             e.printStackTrace();
             exception = e;
         } finally {
             try {
-                if (outputStream != null) {
-                    outputStream.close();
+                if (fileOutputStream != null) {
+                    fileOutputStream.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
