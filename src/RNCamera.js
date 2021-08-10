@@ -232,6 +232,8 @@ type RecordingOptions = {
   mute?: boolean,
   path?: string,
   videoBitrate?: number,
+  videoFrameWidth?: number,
+  videoFrameHeight?: number,
 };
 
 type EventCallbackArgumentsType = {
@@ -581,6 +583,10 @@ export default class Camera extends React.Component<PropsType, StateType> {
   getAvailablePictureSizes = async (): string[] => {
     //$FlowFixMe
     return await CameraManager.getAvailablePictureSizes(this.props.ratio, this._cameraHandle);
+  };
+
+  getAvailableVideoSizes = async (): string[] => {
+    return await CameraManager.getAvailableVideoSizes(this.props.ratio, this._cameraHandle);
   };
 
   async recordAsync(options?: RecordingOptions) {

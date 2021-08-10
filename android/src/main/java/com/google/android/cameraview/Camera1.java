@@ -101,6 +101,10 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private final SizeMap mPreviewSizes = new SizeMap();
 
+    private final SizeMap mVideoSizes = new SizeMap();
+
+    private List<CamcorderProfile> mSupportedProfiles;
+
     private boolean mIsPreviewActive = false;
     private boolean mShowingPreview = true; // preview enabled by default
 
@@ -461,6 +465,16 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     @Override
     SortedSet<Size> getAvailablePictureSizes(AspectRatio ratio) {
         return mPictureSizes.sizes(ratio);
+    }
+
+    @Override
+    SortedSet<Size> getSupportedVideoSizes(AspectRatio ratio) {
+        return mVideoSizes.sizes(ratio);
+    }
+
+    @Override
+    List<CamcorderProfile> getSupportedProfiles() {
+        return mSupportedProfiles;
     }
 
     // Returns the best available size match for a given
@@ -1064,6 +1078,14 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 mPictureSizes.add(new Size(size.width, size.height));
             }
 
+            // Supported videos sizes
+            mVideoSizes.clear();
+            for (Camera.Size size : mCameraParameters.getSupportedVideoSizes()) {
+                mVideoSizes.add(new Size(size.width, size.height));
+            }
+
+            mSupportedProfiles = new CamcorderProfileHelper().getSupportedProfiles(mCameraId);
+
             // to be consistent with Camera2, and to prevent crashes on some devices
             // do not allow preview sizes that are not also in the picture sizes set
             for (AspectRatio aspectRatio : mPreviewSizes.ratios()) {
@@ -1600,6 +1622,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             camProfile = CamcorderProfile.get(mCameraId, CamcorderProfile.QUALITY_HIGH);
         }
         camProfile.videoBitRate = profile.videoBitRate;
+        camProfile.videoFrameWidth = profile.videoFrameWidth;
+        camProfile.videoFrameHeight = profile.videoFrameHeight;
         setCamcorderProfile(camProfile, recordAudio, fps);
 
         mMediaRecorder.setOrientationHint(calcCameraRotation(mOrientation != Constants.ORIENTATION_AUTO ? orientationEnumToRotation(mOrientation) : mDeviceOrientation));

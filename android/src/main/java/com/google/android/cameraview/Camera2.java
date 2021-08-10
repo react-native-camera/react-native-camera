@@ -236,7 +236,11 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     private final SizeMap mPreviewSizes = new SizeMap();
 
+    private final SizeMap mVideoSizes = new SizeMap();
+
     private final SizeMap mPictureSizes = new SizeMap();
+
+    private List<CamcorderProfile> mSupportedProfiles;
 
     private Size mPictureSize;
 
@@ -440,6 +444,16 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
     @Override
     SortedSet<Size> getAvailablePictureSizes(AspectRatio ratio) {
         return mPictureSizes.sizes(ratio);
+    }
+
+    @Override
+    SortedSet<Size> getSupportedVideoSizes(AspectRatio ratio) {
+        return mVideoSizes.sizes(ratio);
+    }
+
+    @Override
+    List<CamcorderProfile> getSupportedProfiles() {
+        return mSupportedProfiles;
     }
 
     @Override
@@ -908,12 +922,23 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             mAspectRatio = mPreviewSizes.ratios().iterator().next();
         }
 
+        mVideoSizes.clear();
+        collectVideoSizes(mPictureSizes, map);
+
+        mSupportedProfiles = new CamcorderProfileHelper().getSupportedProfiles(Integer.parseInt(mCameraId));
+
         mCameraOrientation = mCameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
     }
 
     protected void collectPictureSizes(SizeMap sizes, StreamConfigurationMap map) {
         for (android.util.Size size : map.getOutputSizes(mImageFormat)) {
             mPictureSizes.add(new Size(size.getWidth(), size.getHeight()));
+        }
+    }
+
+    protected void collectVideoSizes(SizeMap sizes, StreamConfigurationMap map) {
+        for (android.util.Size size : map.getOutputSizes(MediaRecorder.class)) {
+            mVideoSizes.add(new Size(size.getWidth(), size.getHeight()));
         }
     }
 
@@ -1400,6 +1425,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
             camProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
         }
         camProfile.videoBitRate = profile.videoBitRate;
+        camProfile.videoFrameWidth = profile.videoFrameWidth;
+        camProfile.videoFrameHeight = profile.videoFrameHeight;
         setCamcorderProfile(camProfile, recordAudio);
 
         mMediaRecorder.setOrientationHint(getOutputRotation());

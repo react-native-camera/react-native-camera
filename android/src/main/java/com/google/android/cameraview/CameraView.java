@@ -487,6 +487,10 @@ public class CameraView extends FrameLayout {
         return mImpl.getAvailablePictureSizes(ratio);
     }
 
+    public SortedSet<Size> getAvailableVideoSizes(@NonNull AspectRatio ratio) {
+        return new VideoQualityHandler(mImpl).getAvailableVideoSizes(ratio);
+    }
+
     /**
      * Sets the size of taken pictures.
      *

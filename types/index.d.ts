@@ -457,6 +457,8 @@ interface RecordOptions {
   mirrorVideo?: boolean;
   path?: string;
   videoBitrate?: number;
+  videoFrameWidth?: number;
+  videoFrameHeight?: number;
 
   /** iOS only */
   codec?: keyof VideoCodec | VideoCodec[keyof VideoCodec];
@@ -486,6 +488,7 @@ export class RNCamera extends Component<RNCameraProps & ViewProperties> {
   pausePreview(): void;
   resumePreview(): void;
   getAvailablePictureSizes(): Promise<string[]>;
+  getAvailableVideoSizes(): Promise<[{width: number, height: number}]>;
 
   /** Android only */
   getSupportedRatiosAsync(): Promise<string[]>;

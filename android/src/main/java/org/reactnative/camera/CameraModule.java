@@ -451,6 +451,42 @@ public class CameraModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void getAvailableVideoSizes(final String ratio, final int viewTag, final Promise promise) {
+      final ReactApplicationContext context = getReactApplicationContext();
+      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+      uiManager.addUIBlock(new UIBlock() {
+          @Override
+          public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+              final RNCameraView cameraView;
+
+              try {
+                  cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
+                  if (cameraView.isCameraOpened()) {
+                      SortedSet<Size> sizes = cameraView.getAvailableVideoSizes(AspectRatio.parse(ratio));
+                      WritableArray result = sizesToWritableArray(sizes);
+                      promise.resolve(result);
+                  } else {
+                      promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
+                  }
+              } catch (Exception e) {
+                  promise.reject("E_CAMERA_BAD_VIEWTAG", "getAvailableVideoSizes: Expected a Camera component");
+              }
+          }
+      });
+  }
+
+  private WritableArray sizesToWritableArray(final SortedSet<Size> sizes) {
+      WritableArray result = Arguments.createArray();
+      for (Size size : sizes) {
+          WritableMap m = new WritableNativeMap();
+          m.putInt("width", size.getWidth());
+          m.putInt("height", size.getHeight());
+          result.pushMap(m);
+      }
+      return result;
+  }
+
+  @ReactMethod
   public void checkIfRecordAudioPermissionsAreDefined(final Promise promise) {
       try {
           PackageInfo info = getCurrentActivity().getPackageManager().getPackageInfo(getReactApplicationContext().getPackageName(), PackageManager.GET_PERMISSIONS);
