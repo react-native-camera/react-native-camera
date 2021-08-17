@@ -169,31 +169,27 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
             @Override
             public void onSurfaceDestroyed() {
 
-                // need to this early so we don't get buffer errors due to sufrace going away.
-                // Then call stop in bg thread since it might be quite slow and will freeze
-                // the UI or cause an ANR while it is happening.
-                synchronized(Camera1.this){
-                    if(mCamera != null){
+                // let the instance know our surface was destroyed
+                // and we might need to re-create it and restart the camera
+                surfaceWasDestroyed = true;
 
-                        // let the instance know our surface was destroyed
-                        // and we might need to re-create it and restart the camera
-                        surfaceWasDestroyed = true;
-
-                        try {
-                            mCamera.setPreviewCallback(null);
-                            // note: this might give a debug message that can be ignored.
-                            mCamera.setPreviewDisplay(null);
-                        } catch (Exception e) {
-                            Log.e("CAMERA_1::", "onSurfaceDestroyed preview cleanup failed", e);
+                // check that our camera is still valid here as
+                // it may have been destroyed already.
+                // Do not lock as it would freeze the UI if the camera is being released
+                if (mCamera != null) {
+                    try {
+                        // mCamera.setPreviewCallback(null); // Not needed as stop() already clears it
+                        mCamera.setPreviewDisplay(null); // needed to prevent buffer abandoned logs
+                    } catch (Exception e) {
+                        Log.e("CAMERA_1::", "onSurfaceDestroyed preview cleanup failed", e);
+                    }
+                    mBgHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            stop();
                         }
-                    }
+                    });
                 }
-                mBgHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        stop();
-                    }
-                });
             }
         });
     }
