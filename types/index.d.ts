@@ -479,7 +479,6 @@ export interface HardwareCamera {
   deviceType?: string;
   id: string;
   type: number;
-  facing: 'back' | 'front';
 }
 
 export class RNCamera extends Component<RNCameraProps & ViewProperties> {
