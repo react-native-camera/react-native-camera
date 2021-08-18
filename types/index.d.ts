@@ -436,6 +436,7 @@ interface TakePictureOptions {
   /** iOS only */
   forceUpOrientation?: boolean;
   imageType?: keyof ImageType;
+  path?: string;
 }
 
 export interface TakePictureResponse {
