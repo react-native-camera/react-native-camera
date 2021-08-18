@@ -474,6 +474,14 @@ export interface RecordResponse {
   codec: VideoCodec[keyof VideoCodec];
 }
 
+export interface HardwareCamera {
+  /** (iOS only) e.g: 'AVCaptureDeviceTypeBuiltInWideAngleCamera', 'AVCaptureDeviceTypeBuiltInUltraWideCamera' */
+  deviceType?: string;
+  id: string;
+  type: number;
+  facing: 'back' | 'front';
+}
+
 export class RNCamera extends Component<RNCameraProps & ViewProperties> {
   static Constants: Constants;
 
@@ -487,6 +495,7 @@ export class RNCamera extends Component<RNCameraProps & ViewProperties> {
   pausePreview(): void;
   resumePreview(): void;
   getAvailablePictureSizes(): Promise<string[]>;
+  getCameraIdsAsync(): Promise<HardwareCamera[]>;
 
   /** Android only */
   getSupportedRatiosAsync(): Promise<string[]>;
