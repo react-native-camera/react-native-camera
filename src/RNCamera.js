@@ -848,7 +848,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
             style={StyleSheet.absoluteFill}
             ref={this._setReference}
             onMountError={this._onMountError}
-            onCameraReady={this._onCameraReady}
+            onCameraReady={this._onObjectDetected(this._onCameraReady)}
             onAudioInterrupted={this._onAudioInterrupted}
             onAudioConnected={this._onAudioConnected}
             onGoogleVisionBarcodesDetected={this._onObjectDetected(
