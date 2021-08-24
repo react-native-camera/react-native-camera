@@ -714,6 +714,12 @@ IAsyncAction ReactCameraView::InitializeAsync() {
           });
 
       m_isInitialized = true;
+
+      auto control = this->get_strong().try_as<winrt::FrameworkElement>();
+      if (m_reactContext && control) {
+        m_reactContext.DispatchEvent(control, CameraReadyEvent, null);
+      }
+
     }
   } catch (winrt::hresult_error const &) {
     m_isInitialized = false;
