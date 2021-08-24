@@ -717,7 +717,7 @@ IAsyncAction ReactCameraView::InitializeAsync() {
 
       auto control = this->get_strong().try_as<winrt::FrameworkElement>();
       if (m_reactContext && control) {
-        m_reactContext.DispatchEvent(control, CameraReadyEvent, null);
+        m_reactContext.DispatchEvent(control, CameraReadyEvent, nullptr);
       }
 
     }
