@@ -89,6 +89,11 @@ ConstantProviderDelegate ReactCameraViewManager::ExportedCustomDirectEventTypeCo
     constantWriter.WriteObjectBegin();
     WriteProperty(constantWriter, L"registrationName", BarcodeReadEvent);
     constantWriter.WriteObjectEnd();
+
+    constantWriter.WritePropertyName(CameraReadyEvent);
+    constantWriter.WriteObjectBegin();
+    WriteProperty(constantWriter, L"registrationName", CameraReadyEvent);
+    constantWriter.WriteObjectEnd();
   };
 }
 
