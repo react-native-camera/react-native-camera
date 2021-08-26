@@ -208,7 +208,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
 
     private String mCameraId;
-    private String _mCameraId;
+    private String _mCameraId = "";
 
     private CameraCharacteristics mCameraCharacteristics;
 
