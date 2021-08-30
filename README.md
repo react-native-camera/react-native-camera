@@ -1,6 +1,8 @@
 # React Native Camera [![Backers on Open Collective](https://opencollective.com/react-native-camera/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-camera/sponsors/badge.svg)](#sponsors) [![npm version](https://badge.fury.io/js/react-native-camera.svg)](http://badge.fury.io/js/react-native-camera) [![npm downloads](https://img.shields.io/npm/dm/react-native-camera.svg)](https://www.npmjs.com/package/react-native-camera)
 
-[Looking for Maintainers](https://github.com/react-native-community/react-native-camera/issues/3000)
+### 🚧🚧 Looking for maintainers and backers 🚧🚧
+
+See this [issue](https://github.com/react-native-community/react-native-camera/issues/3000)
 
 We are looking for maintainers for this package, or to deprecated this in favor of [react-native-vision-camera](https://github.com/mrousavy/react-native-vision-camera) or [expo-camera](https://docs.expo.io/versions/latest/sdk/camera/), it nobody want to maintain this
 
