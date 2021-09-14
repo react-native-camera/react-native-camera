@@ -148,6 +148,11 @@
             CGFloat rotZ = -1 * face.headEulerAngleZ;
             [resultDict setObject:@(rotZ) forKey:@"rollAngle"];
         }
+        // Head is tilted sideways rotX degrees
+        if (face.hasHeadEulerAngleX) {
+            CGFloat rotX = -1 * face.headEulerAngleX;
+            [resultDict setObject:@(rotX) forKey:@"inclinationAngle"];
+        }
         
         // If landmark detection was enabled (mouth, ears, eyes, cheeks, and
         // nose available):
