@@ -5,7 +5,7 @@
     "@babel/runtime": "^7.1.2",
     "babel": "^6.23.0",
     "react": "16.13.1",
-    "react-native": "0.63.2"
+    "react-native": "0.64.1"
   },
   "devDependencies": {
     "babel-jest": "23.6.0",
