@@ -481,6 +481,8 @@ export interface HardwareCamera {
   type: number;
 }
 
+export function hasTorch(): Promise<boolean>;
+
 export class RNCamera extends Component<RNCameraProps & ViewProperties> {
   static Constants: Constants;
 

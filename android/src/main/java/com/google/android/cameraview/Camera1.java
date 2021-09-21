@@ -80,7 +80,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
     private Handler mHandler = new Handler();
 
     private int mCameraId;
-    private String _mCameraId;
+    private String _mCameraId = "";
 
     private final AtomicBoolean isPictureCaptureInProgress = new AtomicBoolean(false);
 
