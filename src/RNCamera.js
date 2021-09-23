@@ -518,19 +518,18 @@ export default class Camera extends React.Component<PropsType, StateType> {
     if (!options) {
       options = {};
     }
+
     if (!options.quality) {
       options.quality = 1;
     }
 
-    if (options.orientation) {
-      if (typeof options.orientation !== 'number') {
-        const { orientation } = options;
-        options.orientation = CameraManager.Orientation[orientation];
-        if (__DEV__) {
-          if (typeof options.orientation !== 'number') {
-            // eslint-disable-next-line no-console
-            console.warn(`Orientation '${orientation}' is invalid.`);
-          }
+    if (options.orientation && typeof options.orientation !== 'number') {
+      const { orientation } = options;
+      options.orientation = CameraManager.Orientation[orientation];
+      if (__DEV__) {
+        if (typeof options.orientation !== 'number') {
+          // eslint-disable-next-line no-console
+          console.warn(`Orientation '${orientation}' is invalid.`);
         }
       }
     }
@@ -586,11 +585,13 @@ export default class Camera extends React.Component<PropsType, StateType> {
   async recordAsync(options?: RecordingOptions) {
     if (!options || typeof options !== 'object') {
       options = {};
-    } else if (typeof options.quality === 'string') {
-      options.quality = Camera.Constants.VideoQuality[options.quality];
     }
-    if (options.orientation) {
-      if (typeof options.orientation !== 'number') {
+    else {
+      if (typeof options.quality === 'string') {
+        options.quality = Camera.Constants.VideoQuality[options.quality];
+      }
+
+      if (options.orientation && typeof options.orientation !== 'number') {
         const { orientation } = options;
         options.orientation = CameraManager.Orientation[orientation];
         if (__DEV__) {
@@ -600,12 +601,18 @@ export default class Camera extends React.Component<PropsType, StateType> {
           }
         }
       }
-    }
 
-    if (__DEV__) {
-      if (options.videoBitrate && typeof options.videoBitrate !== 'number') {
-        // eslint-disable-next-line no-console
-        console.warn('Video Bitrate should be a positive integer');
+      if (__DEV__) {
+        if (options.videoBitrate && typeof options.videoBitrate !== 'number') {
+          // eslint-disable-next-line no-console
+          console.warn('Video Bitrate should be a positive integer');
+        }
+      }
+
+      if (Platform.OS === 'ios') {
+        if (typeof options.codec === 'string') {
+          options.codec = Camera.Constants.VideoCodec[options.codec];
+        }
       }
     }
 
