@@ -303,10 +303,16 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           int maxFileSize = options.hasKey("maxFileSize") ? options.getInt("maxFileSize") : -1;
           int fps = options.hasKey("fps") ? options.getInt("fps") : -1;
 
-          CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
-          if (options.hasKey("quality")) {
-            profile = RNCameraViewHelper.getCamcorderProfile(options.getInt("quality"));
+          int cameraId = -1;
+          if (!getCameraId().isEmpty()) {
+            cameraId = Integer.parseInt(getCameraId());
           }
+
+          CamcorderProfile profile = RNCameraViewHelper.getCamcorderProfile(cameraId, CamcorderProfile.QUALITY_HIGH);
+          if (options.hasKey("quality")) {
+            profile = RNCameraViewHelper.getCamcorderProfile(cameraId, options.getInt("quality"));
+          }
+
           if (options.hasKey("videoBitrate")) {
             profile.videoBitRate = options.getInt("videoBitrate");
           }
