@@ -789,11 +789,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
       return;
     }
 
-    this.setState({
-      isAuthorized: hasCameraPermissions,
-      isAuthorizationChecked: true,
-      recordAudioPermissionStatus,
-    });
+    this.setState(
+      {
+        isAuthorized: hasCameraPermissions,
+        isAuthorizationChecked: true,
+        recordAudioPermissionStatus,
+      },
+      this._onStatusChange,
+    );
   }
 
   async componentDidMount() {
