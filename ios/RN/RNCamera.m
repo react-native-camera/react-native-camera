@@ -379,7 +379,6 @@ BOOL _sessionInterrupted = NO;
 
     if (self.flashMode == RNCameraFlashModeTorch) {
         if (![device hasTorch] || ![device isTorchModeSupported:AVCaptureTorchModeOn]) {
-            RCTLogWarn(@"%s: device doesn't support torch mode", __func__);
             return;
         }
         [self lockDevice:device andApplySettings:^{
@@ -388,7 +387,6 @@ BOOL _sessionInterrupted = NO;
         }];
     } else {
         if (![device hasFlash] || ![device isFlashModeSupported:self.flashMode]) {
-            RCTLogWarn(@"%s: device doesn't support flash mode", __func__);
             return;
         }
 
