@@ -1999,7 +1999,7 @@ BOOL _sessionInterrupted = NO;
     }
 }
 
-- (void)mirrorVideo:(NSURL *)inputURL completion:(void (^)(NSURL* outputUR))completion {
+- (void)mirrorVideo:(NSURL *)inputURL completion:(void (^)(NSURL* outputURL))completion {
     AVAsset* videoAsset = [AVAsset assetWithURL:inputURL];
     AVAssetTrack* clipVideoTrack = [[videoAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
 
