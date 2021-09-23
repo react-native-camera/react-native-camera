@@ -298,14 +298,22 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       @Override
       public void run() {
         try {
+          int currentCameraId = -1;
+          if (getCameraId() != null && getCameraId().length() > 0){
+            currentCameraId = Integer.parseInt(getCameraId());
+          }else {
+            promise.reject("E_RECORDING_FAILED", "Starting video recording failed. CameraId might be error.");
+            return;
+          }
+
           String path = options.hasKey("path") ? options.getString("path") : RNFileUtils.getOutputFilePath(cacheDirectory, ".mp4");
           int maxDuration = options.hasKey("maxDuration") ? options.getInt("maxDuration") : -1;
           int maxFileSize = options.hasKey("maxFileSize") ? options.getInt("maxFileSize") : -1;
           int fps = options.hasKey("fps") ? options.getInt("fps") : -1;
 
-          CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+          CamcorderProfile profile = CamcorderProfile.get(currentCameraId, CamcorderProfile.QUALITY_HIGH);
           if (options.hasKey("quality")) {
-            profile = RNCameraViewHelper.getCamcorderProfile(options.getInt("quality"));
+            profile = RNCameraViewHelper.getCamcorderProfile(currentCameraId, options.getInt("quality"));
           }
           if (options.hasKey("videoBitrate")) {
             profile.videoBitRate = options.getInt("videoBitrate");
@@ -329,6 +337,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           }
         } catch (IOException e) {
           promise.reject("E_RECORDING_FAILED", "Starting video recording failed - could not create video file.");
+        } catch (NumberFormatException e){
+          promise.reject("E_RECORDING_FAILED", "Starting video recording failed - parse camera id might be error.");
         }
       }
     });
