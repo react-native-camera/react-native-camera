@@ -1243,9 +1243,10 @@ BOOL _sessionInterrupted = NO;
         // finally, commit our config changes before starting to record
         [self.session commitConfiguration];
 
-        // and update flash in case it was turned off automatically
+        // and update flash/zoom in case it was turned off automatically
         // due to session/preset changes
         [self updateFlashMode];
+        [self updateZoom];
 
         // after everything is set, start recording with a tiny delay
         // to ensure the camera already has focus and exposure set.
