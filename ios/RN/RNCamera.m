@@ -1929,6 +1929,10 @@ BOOL _sessionInterrupted = NO;
         if (value) {
             success = [value boolValue];
         }
+        // Check if the recording stopped due to the session being interrupted.
+        if ([error code] == AVErrorSessionWasInterrupted) {
+          self.isRecordingInterrupted = YES;
+        }
     }
     if (success && self.videoRecordedResolve != nil) {
         NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
