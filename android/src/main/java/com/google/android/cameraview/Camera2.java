@@ -1324,6 +1324,8 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                             CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE);
                     break;
             }
+            captureRequestBuilder.set( CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
+                    CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
             captureRequestBuilder.set(CaptureRequest.JPEG_ORIENTATION, getOutputRotation());
 
 
