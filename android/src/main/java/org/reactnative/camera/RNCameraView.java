@@ -54,6 +54,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   private boolean mIsPaused = false;
   private boolean mIsNew = true;
+  private boolean isStopping = false;
   private boolean invertImageData = false;
   private Boolean mIsRecording = false;
   private Boolean mIsRecordingInterrupted = false;
@@ -600,17 +601,23 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   @Override
   public void onHostResume() {
+    isStopping = false;
     if (hasCameraPermissions()) {
-      mBgHandler.post(new Runnable() {
+      mBgHandler.postDelayed(new Runnable() {
         @Override
         public void run() {
+          // do nothing if we received a host destroy
+          // right before trying to start the camera
+          if (isStopping) {
+            return;
+          }
           if ((mIsPaused && !isCameraOpened()) || mIsNew) {
             mIsPaused = false;
             mIsNew = false;
             start();
           }
         }
-      });
+      }, mIsNew ? 0 : 50);
     } else {
       RNCameraViewHelper.emitMountErrorEvent(this, "Camera permissions not granted - component could not be rendered.");
     }
@@ -618,6 +625,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   @Override
   public void onHostPause() {
+    isStopping = true;
     if (mIsRecording) {
       mIsRecordingInterrupted = true;
     }
@@ -629,6 +637,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   @Override
   public void onHostDestroy() {
+    isStopping = true;
     if (mFaceDetector != null) {
       mFaceDetector.release();
     }
