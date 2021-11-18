@@ -27,8 +27,8 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
   private int mRotation;
   private RNBarcodeDetector mBarcodeDetector;
   private BarcodeDetectorAsyncTaskDelegate mDelegate;
-  private double mScaleX;
-  private double mScaleY;
+  private float mDensity;
+  private double mScaleFactor;
   private ImageDimensions mImageDimensions;
   private int mPaddingLeft;
   private int mPaddingTop;
@@ -55,8 +55,12 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
     mDelegate = delegate;
     mBarcodeDetector = barcodeDetector;
     mImageDimensions = new ImageDimensions(width, height, rotation, facing);
-    mScaleX = (double) (viewWidth) / (mImageDimensions.getWidth() * density);
-    mScaleY = 1 / density;
+    mDensity = density;
+    double scaleX = (double) viewWidth / mImageDimensions.getWidth();
+    double scaleY = (double) viewHeight / mImageDimensions.getHeight();
+    // To reverse "aspect fill", we'll scale both dimensions of the image by the smallest amount
+    // required to get one dimension to fit the preview view perfectly.
+    mScaleFactor = Math.max(scaleX, scaleY);
     mPaddingLeft = viewPaddingLeft;
     mPaddingTop = viewPaddingTop;
   }
@@ -319,30 +323,31 @@ public class BarcodeDetectorAsyncTask extends android.os.AsyncTask<Void, Void, V
     return typeStringPhone;
   }
 
+  /**
+   * Returns bounds in React Native JS view coordinate space for
+   * immediate consumption by in JS.
+   */
   private WritableMap processBounds(Rect frame) {
     WritableMap origin = Arguments.createMap();
-    int x = frame.left;
-    int y = frame.top;
+    double x = frame.left * mScaleFactor + mPaddingLeft;
+    double y = frame.top * mScaleFactor + mPaddingTop;
 
-    if (frame.left < mWidth / 2) {
-      x = x + mPaddingLeft / 2;
-    } else if (frame.left > mWidth /2) {
-      x = x - mPaddingLeft / 2;
-    }
+    // Further scale down both values by pixel density to map from
+    // native view coordinate space back to JS view coordinate space
+    x = x / mDensity;
+    y = y / mDensity;
 
-    y = y + mPaddingTop;
-
-    origin.putDouble("x", x * mScaleX);
-    origin.putDouble("y", y * mScaleY);
+    origin.putDouble("x", x);
+    origin.putDouble("y", y);
 
     WritableMap size = Arguments.createMap();
-    size.putDouble("width", frame.width() * mScaleX);
-    size.putDouble("height", frame.height() * mScaleY);
+    size.putDouble("width", frame.width() * mScaleFactor / mDensity);
+    size.putDouble("height", frame.height() * mScaleFactor / mDensity);
 
     WritableMap bounds = Arguments.createMap();
     bounds.putMap("origin", origin);
     bounds.putMap("size", size);
+
     return bounds;
   }
-
 }
