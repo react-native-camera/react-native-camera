@@ -1412,7 +1412,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      */
     private boolean setAutoFocusInternal(boolean autoFocus) {
         mAutoFocus = autoFocus;
-        if (isCameraOpened()) {
+        if (isCameraOpened() && mCameraParameters != null) {
             final List<String> modes = mCameraParameters.getSupportedFocusModes();
             if (autoFocus && modes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
                 mCameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
@@ -1435,7 +1435,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      * @return {@code true} if {@link #mCameraParameters} was modified.
      */
     private boolean setFlashInternal(int flash) {
-        if (isCameraOpened()) {
+        if (isCameraOpened() && mCameraParameters != null) {
             List<String> modes = mCameraParameters.getSupportedFlashModes();
             String mode = FLASH_MODES.get(flash);
             if(modes == null) {
@@ -1460,7 +1460,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
 
     private boolean setExposureInternal(float exposure) {
         mExposure = exposure;
-        if (isCameraOpened()){
+        if (isCameraOpened() && mCameraParameters != null){
             int minExposure = mCameraParameters.getMinExposureCompensation();
             int maxExposure = mCameraParameters.getMaxExposureCompensation();
 
@@ -1482,7 +1482,8 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      * @return {@code true} if {@link #mCameraParameters} was modified.
      */
     private boolean setZoomInternal(float zoom) {
-        if (isCameraOpened() && mCameraParameters.isZoomSupported()) {
+        if (isCameraOpened() && mCameraParameters != null &&
+                mCameraParameters.isZoomSupported()) {
             int maxZoom = mCameraParameters.getMaxZoom();
             int scaledValue = (int) (zoom * maxZoom);
             mCameraParameters.setZoom(scaledValue);
@@ -1499,7 +1500,7 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
      */
     private boolean setWhiteBalanceInternal(int whiteBalance) {
         mWhiteBalance = whiteBalance;
-        if (isCameraOpened()) {
+        if (isCameraOpened() && mCameraParameters != null) {
             final List<String> modes = mCameraParameters.getSupportedWhiteBalance();
             String mode = WB_MODES.get(whiteBalance);
             if (modes != null && modes.contains(mode)) {
