@@ -2,6 +2,7 @@ package org.reactnative.camera;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -19,6 +20,8 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.os.AsyncTask;
+import android.view.WindowManager;
+
 import com.facebook.react.bridge.*;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.google.android.cameraview.CameraView;
@@ -40,6 +43,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RNCameraView extends CameraView implements LifecycleEventListener, BarCodeScannerAsyncTaskDelegate, FaceDetectorAsyncTaskDelegate,
     BarcodeDetectorAsyncTaskDelegate, TextRecognizerAsyncTaskDelegate, PictureSavedDelegate {
+
   private ThemedReactContext mThemedReactContext;
   private Queue<Promise> mPictureTakenPromises = new ConcurrentLinkedQueue<>();
   private Map<Promise, ReadableMap> mPictureTakenOptions = new ConcurrentHashMap<>();
@@ -92,10 +96,33 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private int mCameraViewWidth = 0;
   private int mCameraViewHeight = 0;
 
+  private enum ScreenOrientation {
+    PORTRAIT(0),
+    LANDSCAPE_RIGHT(90),
+    PORTRAIT_UPSIDE_DOWN(180),
+    LANDSCAPE_LEFT(270);
+
+    private final int degrees;
+
+    private ScreenOrientation(int degrees) {
+      this.degrees = degrees;
+    }
+
+    public int getDegrees() {
+      return degrees;
+    }
+  }
+
+  private ScreenOrientation mNaturalScreenOrientation;
+  private ScreenOrientation mCurrentScreenOrientation;
+
   public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext, true);
     mThemedReactContext = themedReactContext;
     themedReactContext.addLifecycleEventListener(this);
+
+    mNaturalScreenOrientation = findNaturalScreenOrientation();
+    mCurrentScreenOrientation = getCurrentScreenOrientation();
 
     addCallback(new Callback() {
       @Override
@@ -161,7 +188,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
       @Override
       public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int rotation) {
-        int correctRotation = RNCameraViewHelper.getCorrectCameraRotation(rotation, getFacing(), getCameraOrientation());
+        int rotationForScreenOrientation = getRotationForScreenOrientation(mCurrentScreenOrientation, mNaturalScreenOrientation);
+        int correctRotation = RNCameraViewHelper.getCorrectCameraRotation(rotationForScreenOrientation, getFacing(), getCameraOrientation());
         boolean willCallBarCodeTask = mShouldScanBarCodes && !barCodeScannerTaskLock && cameraView instanceof BarCodeScannerAsyncTaskDelegate;
         boolean willCallFaceTask = mShouldDetectFaces && !faceDetectorTaskLock && cameraView instanceof FaceDetectorAsyncTaskDelegate;
         boolean willCallGoogleBarcodeTask = mShouldGoogleDetectBarcodes && !googleBarcodeDetectorTaskLock && cameraView instanceof BarcodeDetectorAsyncTaskDelegate;
@@ -216,6 +244,15 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   @Override
+  protected void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+
+    // Configuration change events are fired when the screen orientation changes, allowing us
+    // to recompute the current screen orientation based on device rotation
+    mCurrentScreenOrientation = getCurrentScreenOrientation();
+  }
+
+  @Override
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
     View preview = getView();
     if (null == preview) {
@@ -223,6 +260,10 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     }
     float width = right - left;
     float height = bottom - top;
+
+    WindowManager windowManager = (WindowManager) mThemedReactContext.getSystemService(Context.WINDOW_SERVICE);
+    int rotation = windowManager.getDefaultDisplay().getRotation();
+
     float ratio = getAspectRatio().toFloat();
     int orientation = getResources().getConfiguration().orientation;
     int correctHeight;
@@ -332,6 +373,59 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         }
       }
     });
+  }
+
+  /**
+   * NOTE: When the natural screen orientation is not PORTRAIT, we assume it is LANDSCAPE_LEFT.
+   * This seems like a reasonable assumption because it means PORTRAIT will be either 0 or 90 degrees clockwise from natural
+   * on all devices. If this assumption proves incorrect, this approach is likely insufficient. In that case, it
+   * may be necessary to compare device rotation data to accelerometer data to determine true natural
+   * orientation.
+   */
+  private ScreenOrientation findNaturalScreenOrientation() {
+    int screenOrientation = mThemedReactContext.getResources().getConfiguration().orientation;
+    int rotation = getRotationFromNaturalOrientation();
+
+    if (screenOrientation == Configuration.ORIENTATION_PORTRAIT && (rotation == 90 || rotation == 270)) {
+      return ScreenOrientation.LANDSCAPE_LEFT;
+    } else {
+      return ScreenOrientation.PORTRAIT;
+    }
+  }
+
+  private ScreenOrientation getCurrentScreenOrientation() {
+    int screenOrientation = mThemedReactContext.getResources().getConfiguration().orientation;
+    int rotation = getRotationFromNaturalOrientation();
+
+    if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
+      // Rotation from natural will always be larger than 180 if the screen is upside down
+      // If natural orientation is PORTRAIT, then upside down will be 180
+      // If natural orientation is LANDSCAPE_LEFT, then upside down will be 270
+      return rotation < 180 ? ScreenOrientation.PORTRAIT : ScreenOrientation.PORTRAIT_UPSIDE_DOWN;
+    } else {
+      // If natural orientation is PORTRAIT, then LANDSCAPE_LEFT is 270 and LANDSCAPE_RIGHT is 90
+      // If natural orientation is LANDSCAPE_LEFT, then LANDSCAPE_LEFT is 0 and LANDSCAPE_RIGHT is 180
+      // Adding 90 and modulo 360 makes the math convenient for us to do the smae check as above.
+      return (rotation + 90) % 360 < 180 ? ScreenOrientation.LANDSCAPE_LEFT : ScreenOrientation.LANDSCAPE_RIGHT;
+    }
+  }
+
+  private int getRotationFromNaturalOrientation() {
+    WindowManager windowManager = (WindowManager) mThemedReactContext.getSystemService(Context.WINDOW_SERVICE);
+    // getRotation() returns angle of rotation of drawn graphics on the screen, which is always
+    // opposite the direction of physical rotation. It returns this value as an enum with values 0, 1, 2, or 3.
+    // Correct this value by transforming it to degrees rotated clockwise from natural orientation to ease further calculation.
+    return (windowManager.getDefaultDisplay().getRotation() * 90 - 360) * -1 % 360;
+  }
+
+  private int getRotationForScreenOrientation(ScreenOrientation orientation, ScreenOrientation naturalScreenOrientation) {
+    int rotation = orientation.getDegrees();
+
+    if (naturalScreenOrientation == ScreenOrientation.PORTRAIT) {
+      return rotation;
+    }
+
+    return (rotation + 90) % 360;
   }
 
   /**
