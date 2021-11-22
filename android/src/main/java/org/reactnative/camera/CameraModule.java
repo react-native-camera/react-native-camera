@@ -281,6 +281,89 @@ public class CameraModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void getCameraInfo(final String camId, final int viewTag, final Promise promise) {
+    final ReactApplicationContext context = getReactApplicationContext();
+    final File cacheDirectory = mScopedContext.getCacheDirectory();
+    UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+    uiManager.addUIBlock(new UIBlock() {
+      @RequiresApi(api = Build.VERSION_CODES.N)
+      @Override
+      public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+          CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+          try {
+              int threshold = 120;
+              CameraCharacteristics characteristics = manager.getCameraCharacteristics(camId);
+            Boolean front = characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT;
+            SizeF size = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE);
+            float[] maxFocus = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
+            float w = size.getWidth();
+            float h = size.getHeight();
+            double horizontalAngle = ((2 * Math.atan(w / (maxFocus[0] * 2)))*100);
+            double verticalAngle = ((2 * Math.atan(h / (maxFocus[0] * 2)))*100);
+            Range<Float> zoomRange = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                zoomRange = characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE);
+            }
+
+            String supportsWideAngle = "";
+            if (horizontalAngle > threshold) {
+              supportsWideAngle = "Yes";
+            } else {
+              supportsWideAngle = "No";
+            }
+            WritableMap m = new WritableNativeMap();
+              m.putString("BOARD", Build.BOARD);
+              m.putString("MODEL", Build.MODEL);
+              m.putString("DEVICE", Build.DEVICE);
+              m.putString("MANUFACTURER", Build.MANUFACTURER);
+              m.putString("PRODUCT", Build.PRODUCT);
+              m.putString("FRONT_CAM", front.toString());
+              m.putString("SENSOR_SIZE", size.toString());
+              m.putDouble("FOV_HORIZONTAL", horizontalAngle);
+              m.putDouble("FOV_VERTICAL", verticalAngle);
+              m.putString("ZOOM_RANGE", zoomRange.toString());
+              m.putString("WIDE_ANGLE", supportsWideAngle);
+              m.putInt("SENSOR_ORIENTATION", characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION));
+
+//            List<android.hardware.camera2.CameraCharacteristics.Key<?>> list = characteristics.getKeys();
+//                for (android.hardware.camera2.CameraCharacteristics.Key<?> item : list) {
+//                    m.putString(item.getName(), item.getName());
+//                }
+
+//            for (int i = 0; i < list.size(); i++) {
+//                Object val = characteristics.get(list.get(i));
+//                ArrayUtil.processCameraCharacteristics(list.get(i).getName(), val, m);
+//            }
+
+//                String infoVersion = characteristics.get(CameraCharacteristics.INFO_VERSION);
+//                m.putString("INFO_VERSION", infoVersion);
+//                Range<Integer>[] fpsRanges = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
+//                m.putArray("CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES", ArrayUtil.toWritableArray(Arrays.stream(fpsRanges).toArray()));
+//                int[] availModes = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES);
+//                m.putArray("CONTROL_AE_AVAILABLE_MODES", ArrayUtil.toWritableArray(Arrays.stream(availModes).boxed().toArray( Integer[]::new )));
+//                int[] afAvailModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
+//                m.putArray("CONTROL_AF_AVAILABLE_MODES", ArrayUtil.toWritableArray(Arrays.stream(afAvailModes).boxed().toArray( Integer[]::new )));
+//                int[] availEffects = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS);
+//                m.putArray("CONTROL_AVAILABLE_EFFECTS", ArrayUtil.toWritableArray(Arrays.stream(availEffects).boxed().toArray( Integer[]::new )));
+//                Range<Float> zoomRatioRange = characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE);
+//                m.putString("CONTROL_ZOOM_RATIO_RANGE", zoomRatioRange.toString());
+//                boolean flashInfo = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
+//                m.putBoolean("FLASH_INFO_AVAILABLE", flashInfo);
+//                Integer hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+//                m.putInt("INFO_SUPPORTED_HARDWARE_LEVEL", hardwareLevel);
+//                android.util.Size[] thumbnailSizes = characteristics.get(CameraCharacteristics.JPEG_AVAILABLE_THUMBNAIL_SIZES);
+//                m.putArray("JPEG_AVAILABLE_THUMBNAIL_SIZES", ArrayUtil.toWritableArray(thumbnailSizes));
+
+            promise.resolve(m);
+          }
+          catch (Exception e) {
+            promise.reject("E_TAKE_PICTURE_FAILED", e.getMessage());
+          }
+      }
+    });
+  }
+
+  @ReactMethod
   public void record(final ReadableMap options, final int viewTag, final Promise promise) {
       final ReactApplicationContext context = getReactApplicationContext();
       final File cacheDirectory = mScopedContext.getCacheDirectory();
@@ -306,7 +389,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void stopRecording(final int viewTag) {
+  public void stopRecording(final int viewTag, final Promise promise) {
       final ReactApplicationContext context = getReactApplicationContext();
       UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
       uiManager.addUIBlock(new UIBlock() {
@@ -319,8 +402,12 @@ public class CameraModule extends ReactContextBaseJavaModule {
                   if (cameraView.isCameraOpened()) {
                       cameraView.stopRecording();
                   }
+
+                  String camId = cameraView.getCameraId();
+                  promise.resolve(camId);
               } catch (Exception e) {
                   e.printStackTrace();
+                  promise.reject("E_CAPTURE_FAILED", e.getMessage());
               }
           }
       });
