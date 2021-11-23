@@ -436,6 +436,7 @@ interface TakePictureOptions {
   /** iOS only */
   forceUpOrientation?: boolean;
   imageType?: keyof ImageType;
+  path?: string;
 }
 
 export interface TakePictureResponse {
@@ -476,6 +477,15 @@ export interface RecordResponse {
   codec: VideoCodec[keyof VideoCodec];
 }
 
+export interface HardwareCamera {
+  /** (iOS only) e.g: 'AVCaptureDeviceTypeBuiltInWideAngleCamera', 'AVCaptureDeviceTypeBuiltInUltraWideCamera' */
+  deviceType?: string;
+  id: string;
+  type: number;
+}
+
+export function hasTorch(): Promise<boolean>;
+
 export class RNCamera extends Component<RNCameraProps & ViewProperties> {
   static Constants: Constants;
 
@@ -491,6 +501,7 @@ export class RNCamera extends Component<RNCameraProps & ViewProperties> {
   getAvailablePictureSizes(): Promise<string[]>;
   getAvailableVideoSizes(): Promise<[{ width: number, height: number }]>;
   getCameraInfoAsync(camId: any): Promise<any>;
+  getCameraIdsAsync(): Promise<HardwareCamera[]>;
 
   /** Android only */
   getSupportedRatiosAsync(): Promise<string[]>;

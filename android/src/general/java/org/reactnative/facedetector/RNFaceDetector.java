@@ -1,24 +1,27 @@
 package org.reactnative.facedetector;
 
 import android.content.Context;
-import android.util.SparseArray;
 
 import org.reactnative.camera.utils.ImageDimensions;
-import com.google.android.gms.vision.face.Face;
-import com.google.android.gms.vision.face.FaceDetector;
+import com.google.mlkit.vision.face.Face;
+import com.google.mlkit.vision.face.FaceDetection;
+import com.google.mlkit.vision.face.FaceDetector;
+import com.google.mlkit.vision.face.FaceDetectorOptions;
 import org.reactnative.frame.RNFrame;
 
+import java.util.List;
+
 public class RNFaceDetector {
-  public static int ALL_CLASSIFICATIONS = FaceDetector.ALL_CLASSIFICATIONS;
-  public static int NO_CLASSIFICATIONS = FaceDetector.NO_CLASSIFICATIONS;
-  public static int ALL_LANDMARKS = FaceDetector.ALL_LANDMARKS;
-  public static int NO_LANDMARKS = FaceDetector.NO_LANDMARKS;
-  public static int ACCURATE_MODE = FaceDetector.ACCURATE_MODE;
-  public static int FAST_MODE = FaceDetector.FAST_MODE;
+  public static int ALL_CLASSIFICATIONS = FaceDetectorOptions.CLASSIFICATION_MODE_ALL;
+  public static int NO_CLASSIFICATIONS = FaceDetectorOptions.CLASSIFICATION_MODE_NONE;
+  public static int ALL_LANDMARKS = FaceDetectorOptions.LANDMARK_MODE_ALL;
+  public static int NO_LANDMARKS = FaceDetectorOptions.LANDMARK_MODE_NONE;
+  public static int ACCURATE_MODE = FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE;
+  public static int FAST_MODE = FaceDetectorOptions.PERFORMANCE_MODE_FAST;
 
   private FaceDetector mFaceDetector = null;
   private ImageDimensions mPreviousDimensions;
-  private FaceDetector.Builder mBuilder = null;
+  private FaceDetectorOptions.Builder mBuilder = null;
 
   private int mClassificationType = NO_CLASSIFICATIONS;
   private int mLandmarkType = NO_LANDMARKS;
@@ -26,11 +29,11 @@ public class RNFaceDetector {
   private int mMode = FAST_MODE;
 
   public RNFaceDetector(Context context) {
-    mBuilder = new FaceDetector.Builder(context);
+    mBuilder = new FaceDetectorOptions.Builder();
     mBuilder.setMinFaceSize(mMinFaceSize);
-    mBuilder.setMode(mMode);
-    mBuilder.setLandmarkType(mLandmarkType);
-    mBuilder.setClassificationType(mClassificationType);
+    mBuilder.setPerformanceMode(mMode);
+    mBuilder.setLandmarkMode(mLandmarkType);
+    mBuilder.setClassificationMode(mClassificationType);
   }
 
   // Public API
@@ -40,10 +43,10 @@ public class RNFaceDetector {
       createFaceDetector();
     }
 
-    return mFaceDetector.isOperational();
+    return true;
   }
 
-  public SparseArray<Face> detect(RNFrame frame) {
+  public List<Face> detect(RNFrame frame) {
     // If the frame has different dimensions, create another face detector.
     // Otherwise we will get nasty "inconsistent image dimensions" error from detector
     // and no face will be detected.
@@ -56,18 +59,20 @@ public class RNFaceDetector {
       mPreviousDimensions = frame.getDimensions();
     }
 
-    return mFaceDetector.detect(frame.getFrame());
+    return mFaceDetector.process(frame.getFrame()).getResult();
   }
 
   public void setTracking(boolean trackingEnabled) {
     release();
-    mBuilder.setTrackingEnabled(trackingEnabled);
+    if (trackingEnabled) {
+      mBuilder.enableTracking();
+    }
   }
 
   public void setClassificationType(int classificationType) {
     if (classificationType != mClassificationType) {
       release();
-      mBuilder.setClassificationType(classificationType);
+      mBuilder.setClassificationMode(classificationType);
       mClassificationType = classificationType;
     }
   }
@@ -75,7 +80,7 @@ public class RNFaceDetector {
   public void setLandmarkType(int landmarkType) {
     if (landmarkType != mLandmarkType) {
       release();
-      mBuilder.setLandmarkType(landmarkType);
+      mBuilder.setLandmarkMode(landmarkType);
       mLandmarkType = landmarkType;
     }
   }
@@ -83,7 +88,7 @@ public class RNFaceDetector {
   public void setMode(int mode) {
     if (mode != mMode) {
       release();
-      mBuilder.setMode(mode);
+      mBuilder.setPerformanceMode(mode);
       mMode = mode;
     }
   }
@@ -97,12 +102,12 @@ public class RNFaceDetector {
 
   private void releaseFaceDetector() {
     if (mFaceDetector != null) {
-      mFaceDetector.release();
+      mFaceDetector.close();
       mFaceDetector = null;
     }
   }
 
   private void createFaceDetector() {
-    mFaceDetector = mBuilder.build();
+    mFaceDetector = FaceDetection.getClient(mBuilder.build());
   }
 }

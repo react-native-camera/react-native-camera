@@ -613,6 +613,11 @@ public class CameraModule extends ReactContextBaseJavaModule {
       });
   }
 
+  @ReactMethod
+  public void hasTorch(final Promise promise) {
+      promise.resolve(getReactApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH));
+  }
+
   // Helper method to check for corrupted videos on Android
   @ReactMethod
   public void checkIfVideoIsValid(final String path, final Promise promise) {

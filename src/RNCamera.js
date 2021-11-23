@@ -865,7 +865,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
             style={StyleSheet.absoluteFill}
             ref={this._setReference}
             onMountError={this._onMountError}
-            onCameraReady={this._onCameraReady}
+            onCameraReady={this._onObjectDetected(this._onCameraReady)}
             onAudioInterrupted={this._onAudioInterrupted}
             onAudioConnected={this._onAudioConnected}
             onGoogleVisionBarcodesDetected={this._onObjectDetected(
@@ -928,6 +928,10 @@ export default class Camera extends React.Component<PropsType, StateType> {
 }
 
 export const Constants = Camera.Constants;
+
+export function hasTorch() {
+  return CameraManager.hasTorch();
+}
 
 const RNCamera = requireNativeComponent('RNCamera', Camera, {
   nativeOnly: {

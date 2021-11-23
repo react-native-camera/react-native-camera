@@ -1,7 +1,7 @@
 package org.reactnative.frame;
 
 import org.reactnative.camera.utils.ImageDimensions;
-import com.google.android.gms.vision.Frame;
+import com.google.mlkit.vision.common.InputImage;
 
 /**
  * Wrapper around Frame allowing us to track Frame dimensions.
@@ -10,15 +10,15 @@ import com.google.android.gms.vision.Frame;
  */
 
 public class RNFrame {
-  private Frame mFrame;
+  private InputImage mFrame;
   private ImageDimensions mDimensions;
 
-  public RNFrame(Frame frame, ImageDimensions dimensions) {
+  public RNFrame(InputImage frame, ImageDimensions dimensions) {
     mFrame = frame;
     mDimensions = dimensions;
   }
 
-  public Frame getFrame() {
+  public InputImage getFrame() {
     return mFrame;
   }
 

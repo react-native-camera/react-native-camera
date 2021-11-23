@@ -8,6 +8,7 @@
 #include "JSValue.h"
 
 #define BarcodeReadEvent L"onBarCodeRead"
+#define CameraReadyEvent L"onCameraReady"
 
 namespace winrt::ReactNativeCameraCPP {
 class ReactCameraConstants {

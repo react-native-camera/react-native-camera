@@ -165,7 +165,7 @@ RCT_EXPORT_VIEW_PROPERTY(onTouch, RCTDirectEventBlock);
 
 + (NSDictionary *)faceDetectorConstants
 {
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+#if __has_include(<MLKitFaceDetection/MLKitFaceDetection.h>)
     return [FaceDetectorManagerMlkit constants];
 #else
     return [NSDictionary new];
@@ -174,7 +174,7 @@ RCT_EXPORT_VIEW_PROPERTY(onTouch, RCTDirectEventBlock);
 
 + (NSDictionary *)barcodeDetectorConstants
 {
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+#if __has_include(<MLKitBarcodeScanning/MLKitBarcodeScanning.h>)
     return [BarcodeDetectorManagerMlkit constants];
 #else
     return [NSDictionary new];
@@ -304,7 +304,6 @@ RCT_CUSTOM_VIEW_PROPERTY(faceDetectionClassifications, NSString, RNCamera)
 
 RCT_CUSTOM_VIEW_PROPERTY(barCodeScannerEnabled, BOOL, RNCamera)
 {
-
     view.isReadingBarCodes = [RCTConvert BOOL:json];
     [view setupOrDisableBarcodeScanner];
 }
@@ -332,7 +331,6 @@ RCT_CUSTOM_VIEW_PROPERTY(googleVisionBarcodeDetectorEnabled, BOOL, RNCamera)
 
 RCT_CUSTOM_VIEW_PROPERTY(textRecognizerEnabled, BOOL, RNCamera)
 {
-
     view.canReadText = [RCTConvert BOOL:json];
     [view setupOrDisableTextDetector];
 }
@@ -559,6 +557,20 @@ RCT_EXPORT_METHOD(isRecording:(nonnull NSNumber *)reactTag
                 resolve(@([view isRecording]));
             }
         }];
+}
+
+RCT_EXPORT_METHOD(hasTorch: (RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    BOOL hasTorch = NO;
+
+    for (AVCaptureDevice *device in devices) {
+        if ([device hasTorch]) {
+            hasTorch = YES;
+            break;
+        }
+    }
+    resolve(@(hasTorch));
 }
 
 RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve

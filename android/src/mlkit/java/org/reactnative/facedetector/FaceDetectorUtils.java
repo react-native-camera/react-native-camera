@@ -1,11 +1,12 @@
 package org.reactnative.facedetector;
 
+import android.graphics.PointF;
+
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
-import com.google.firebase.ml.vision.common.FirebaseVisionPoint;
-import com.google.firebase.ml.vision.face.FirebaseVisionFace;
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark;
+import com.google.mlkit.vision.face.Face;
+import com.google.mlkit.vision.face.FaceLandmark;
 
 public class FaceDetectorUtils {
   private static final String[] landmarkNames = {
@@ -14,16 +15,16 @@ public class FaceDetectorUtils {
           "rightEarPosition", "rightEyePosition", "rightMouthPosition"
   };
 
-  public static WritableMap serializeFace(FirebaseVisionFace face) {
+  public static WritableMap serializeFace(Face face) {
     return serializeFace(face, 1, 1, 0, 0, 0, 0);
   }
 
-  public static WritableMap serializeFace(FirebaseVisionFace face, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
+  public static WritableMap serializeFace(Face face, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
     WritableMap encodedFace = Arguments.createMap();
 
     int id = 0;
     // If face tracking was enabled:
-    if (face.getTrackingId() != FirebaseVisionFace.INVALID_ID) {
+    if (face.getTrackingId() != null) {
       id = face.getTrackingId();
     }
 
@@ -33,29 +34,29 @@ public class FaceDetectorUtils {
     encodedFace.putDouble("yawAngle", face.getHeadEulerAngleY());
 
     // If classification was enabled:
-    if (face.getSmilingProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+    if (face.getSmilingProbability() != null) {
       encodedFace.putDouble("smilingProbability", face.getSmilingProbability());
     }
-    if (face.getLeftEyeOpenProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+    if (face.getLeftEyeOpenProbability() != null) {
       encodedFace.putDouble("leftEyeOpenProbability", face.getLeftEyeOpenProbability());
     }
-    if (face.getRightEyeOpenProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+    if (face.getRightEyeOpenProbability() != null) {
       encodedFace.putDouble("rightEyeOpenProbability", face.getRightEyeOpenProbability());
     }
     int[] landmarks = {
-            FirebaseVisionFaceLandmark.MOUTH_BOTTOM,
-            FirebaseVisionFaceLandmark.LEFT_CHEEK,
-            FirebaseVisionFaceLandmark.LEFT_EAR,
-            FirebaseVisionFaceLandmark.LEFT_EYE,
-            FirebaseVisionFaceLandmark.MOUTH_LEFT,
-            FirebaseVisionFaceLandmark.NOSE_BASE,
-            FirebaseVisionFaceLandmark.RIGHT_CHEEK,
-            FirebaseVisionFaceLandmark.RIGHT_EAR,
-            FirebaseVisionFaceLandmark.RIGHT_EYE,
-            FirebaseVisionFaceLandmark.MOUTH_RIGHT};
+            FaceLandmark.MOUTH_BOTTOM,
+            FaceLandmark.LEFT_CHEEK,
+            FaceLandmark.LEFT_EAR,
+            FaceLandmark.LEFT_EYE,
+            FaceLandmark.MOUTH_LEFT,
+            FaceLandmark.NOSE_BASE,
+            FaceLandmark.RIGHT_CHEEK,
+            FaceLandmark.RIGHT_EAR,
+            FaceLandmark.RIGHT_EYE,
+            FaceLandmark.MOUTH_RIGHT};
 
     for (int i = 0; i < landmarks.length; ++i) {
-      FirebaseVisionFaceLandmark landmark = face.getLandmark(landmarks[i]);
+      FaceLandmark landmark = face.getLandmark(landmarks[i]);
       if (landmark != null) {
         encodedFace.putMap(landmarkNames[i], mapFromPoint(landmark.getPosition(), scaleX, scaleY, width, height, paddingLeft, paddingTop));
       }
@@ -124,19 +125,19 @@ public class FaceDetectorUtils {
     return face;
   }
 
-  public static WritableMap mapFromPoint(FirebaseVisionPoint point, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
+  public static WritableMap mapFromPoint(PointF point, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
     WritableMap map = Arguments.createMap();
-    Float x = point.getX();
-    Float y = point.getY();
-    if (point.getX() < width / 2) {
+    Float x = point.x;
+    Float y = point.y;
+    if (point.x < width / 2) {
       x = (x + paddingLeft / 2);
-    } else if (point.getX() > width / 2) {
+    } else if (point.x > width / 2) {
       x = (x - paddingLeft / 2);
     }
 
-    if (point.getY() < height / 2) {
+    if (point.y < height / 2) {
       y = (y + paddingTop / 2);
-    } else if (point.getY() > height / 2) {
+    } else if (point.y > height / 2) {
       y = (y - paddingTop / 2);
     }
     map.putDouble("x", x * scaleX);

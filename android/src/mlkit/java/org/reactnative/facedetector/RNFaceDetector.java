@@ -3,24 +3,24 @@ package org.reactnative.facedetector;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.firebase.ml.vision.FirebaseVision;
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
+import com.google.mlkit.vision.face.FaceDetector;
+import com.google.mlkit.vision.face.FaceDetection;
+import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 
 public class RNFaceDetector {
-  public static int ALL_CLASSIFICATIONS = FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS;
-  public static int NO_CLASSIFICATIONS = FirebaseVisionFaceDetectorOptions.NO_CLASSIFICATIONS;
-  public static int ALL_LANDMARKS = FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS;
-  public static int NO_LANDMARKS = FirebaseVisionFaceDetectorOptions.NO_LANDMARKS;
-  public static int ACCURATE_MODE = FirebaseVisionFaceDetectorOptions.ACCURATE;
-  public static int FAST_MODE = FirebaseVisionFaceDetectorOptions.FAST;
+  public static int ALL_CLASSIFICATIONS = FaceDetectorOptions.CLASSIFICATION_MODE_ALL;
+  public static int NO_CLASSIFICATIONS = FaceDetectorOptions.CLASSIFICATION_MODE_NONE;
+  public static int ALL_LANDMARKS = FaceDetectorOptions.LANDMARK_MODE_ALL;
+  public static int NO_LANDMARKS = FaceDetectorOptions.LANDMARK_MODE_NONE;
+  public static int ACCURATE_MODE = FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE;
+  public static int FAST_MODE = FaceDetectorOptions.PERFORMANCE_MODE_FAST;
   // TODO contours detection is possible for MLKit-based face detector, implement this feature
-  public static int ALL_CONTOURS = FirebaseVisionFaceDetectorOptions.ALL_CONTOURS;
-  public static int NO_CONTOURS = FirebaseVisionFaceDetectorOptions.NO_CONTOURS;
+  public static int ALL_CONTOURS = FaceDetectorOptions.CONTOUR_MODE_ALL;
+  public static int NO_CONTOURS = FaceDetectorOptions.CONTOUR_MODE_NONE;
 
-  private FirebaseVisionFaceDetector mFaceDetector = null;
-  private FirebaseVisionFaceDetectorOptions.Builder mBuilder;
+  private FaceDetector mFaceDetector = null;
+  private FaceDetectorOptions.Builder mBuilder;
 
   private int mClassificationType = NO_CLASSIFICATIONS;
   private int mLandmarkType = NO_LANDMARKS;
@@ -28,7 +28,7 @@ public class RNFaceDetector {
   private int mMode = FAST_MODE;
 
   public RNFaceDetector(Context context) {
-    mBuilder = new FirebaseVisionFaceDetectorOptions.Builder()
+    mBuilder = new FaceDetectorOptions.Builder()
             .setPerformanceMode(mMode)
             .setLandmarkMode(mLandmarkType)
             .setClassificationMode(mClassificationType)
@@ -40,7 +40,7 @@ public class RNFaceDetector {
     return true;
   }
 
-  public FirebaseVisionFaceDetector getDetector() {
+  public FaceDetector getDetector() {
 
     if (mFaceDetector == null) {
       createFaceDetector();
@@ -91,7 +91,7 @@ public class RNFaceDetector {
   }
 
   private void createFaceDetector() {
-    FirebaseVisionFaceDetectorOptions options = mBuilder.build();
-    mFaceDetector = FirebaseVision.getInstance().getVisionFaceDetector(options);
+    FaceDetectorOptions options = mBuilder.build();
+    mFaceDetector = FaceDetection.getClient(options);
   }
 }
