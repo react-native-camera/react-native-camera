@@ -527,6 +527,8 @@ The following barcode types can be recognised:
 - `interleaved2of5` (when available)
 - `itf14` (when available)
 - `datamatrix` (when available)
+  
+**Note:** On certain iOS devices (for example, iPhone 6), barcode detection will only work if the camera is recording, which can be done by calling `cameraRef.recordAsync()`.
 
 ### `barCodeTypes`
 
