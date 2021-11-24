@@ -1,11 +1,17 @@
 package org.reactnative.camera;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
+import android.util.Range;
+import android.util.SizeF;
 import android.widget.Toast;
 
 import com.facebook.react.bridge.*;
@@ -291,8 +297,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
       public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
           CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
           try {
-              int threshold = 120;
-              CameraCharacteristics characteristics = manager.getCameraCharacteristics(camId);
+            int threshold = 120;
+            CameraCharacteristics characteristics = manager.getCameraCharacteristics(camId);
             Boolean front = characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT;
             SizeF size = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE);
             float[] maxFocus = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
