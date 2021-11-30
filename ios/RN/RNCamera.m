@@ -2311,4 +2311,51 @@ BOOL _sessionInterrupted = NO;
     return self.movieFileOutput != nil ? self.movieFileOutput.isRecording : NO;
 }
 
+- (void)getCameraInfo:(NSString *)cameraId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
+{
+    UIDevice *myDevice = [UIDevice currentDevice];
+    NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    
+    result[@"DEVICE"] = [myDevice name];
+    result[@"MODEL"] = [myDevice model];
+    result[@"FOV_HORIZONTAL"] = @([[device activeFormat] videoFieldOfView]);
+    result[@"SENSOR_ORIENTATION"] = self.deviceOrientation;
+    
+    
+    if (@available(iOS 10.0, *)) {
+        AVCaptureDeviceDiscoverySession *wideAngleDevice =
+        [AVCaptureDeviceDiscoverySession
+         discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInWideAngleCamera]
+         mediaType:AVMediaTypeVideo
+         position:AVCaptureDevicePositionUnspecified];
+        
+        result[@"WIDE_ANGLE"] = wideAngleDevice.devices.lastObject.uniqueID == cameraId ? @"True" : @"False";
+    } else {
+        // Fallback on earlier versions
+    }
+    
+
+    if (@available(iOS 11.0, *)) {
+        result[@"ZOOM_RANGE"] = [NSString stringWithFormat:@"[%@,%@]", @([device minAvailableVideoZoomFactor]), @([device maxAvailableVideoZoomFactor])];
+    } else {
+        // Fallback on earlier versions
+    }
+    
+    
+    if (@available(iOS 10.0, *)) {
+        AVCaptureDeviceDiscoverySession *frontCameraDevice =
+        [AVCaptureDeviceDiscoverySession
+         discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInWideAngleCamera]
+         mediaType:AVMediaTypeVideo
+         position:AVCaptureDevicePositionFront];
+        
+        result[@"FRONT_CAM"] = frontCameraDevice.devices.lastObject.uniqueID == cameraId ? @"True" : @"False";
+    } else {
+        // Fallback on earlier versions
+    }
+    
+    resolve(result);
+}
+
 @end

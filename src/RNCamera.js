@@ -646,11 +646,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
   }
 
   async getCameraInfoAsync(camId) {
-    if (Platform.OS === 'android') {
-      return await CameraManager.getCameraInfo(camId, this._cameraHandle);
-    } else {
-      return {};
-    }
+    return await CameraManager.getCameraInfo(camId, this._cameraHandle);
   }
 
   pauseRecording() {

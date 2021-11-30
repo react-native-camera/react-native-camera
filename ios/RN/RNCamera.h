@@ -114,5 +114,5 @@
 - (void)onBarcodesDetected:(NSDictionary *)event;
 - (bool)isRecording;
 - (void)onSubjectAreaChanged:(NSDictionary *)event;
-
+- (void)getCameraInfo:(NSString *)cameraId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 @end
