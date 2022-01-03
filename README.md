@@ -1,39 +1,12 @@
-<div align="center" width="55%">
 
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
+# 🚧 🚧 🚧
+## react-native-camera is deprecated.
 
-<h1>🚧</h1>
-<h2><b>react-native-camera</b> is deprecated.</h2>
+Due to the lack of maintainers and increased code complexity, react-native-camera is now deprecated in favor of [react-native-vision-camera](https://github.com/mrousavy/react-native-vision-camera).
 
-<p>
-Due to the lack of maintainers and increased code complexity, <b>react-native-camera</b> is now deprecated in favor of <a href="https://github.com/mrousavy/react-native-vision-camera"><b>react-native-vision-camera</b></a>. <br/>
-<b>VisionCamera</b> offers new APIs, better performance, improved stability and more features. <br/>
-It is actively maintained by <a href="https://github.com/mrousavy">@mrousavy</a>, supported by <a href="https://github.com/sponsors/mrousavy">his GitHub sponsors</a>, and used in many production apps. <br/>
-See <a href="https://github.com/react-native-community/react-native-camera/issues/3000">this issue</a> for more details. <br/>
+VisionCamera offers new APIs, better performance, improved stability and more features.
+It is actively maintained by [**@mrousavy**](https://github.com/mrousavy) and used in many production apps.
 
-You can support the development of VisionCamera by <a href="https://github.com/sponsors/mrousavy">sponsoring @mrousavy on GitHub</a>.
-</p>
+You can support the development of VisionCamera by [sponsoring **@mrousavy** on GitHub](https://github.com/sponsors/mrousavy).
 
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-
-
-</div>
+> See [this issue](https://github.com/react-native-community/react-native-camera/issues/3000) for more details.
