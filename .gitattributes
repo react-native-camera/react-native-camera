@@ -1,2 +1,0 @@
-# Disable git large files for now!
-# RNCameraExample/ios/Frameworks/FaceDetector/Frameworks/frameworks/FaceDetector.framework/FaceDetector filter=lfs diff=lfs merge=lfs -text
