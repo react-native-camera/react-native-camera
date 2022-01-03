@@ -9,4 +9,7 @@ It is actively maintained by [**@mrousavy**](https://github.com/mrousavy) and us
 
 You can support the development of VisionCamera by [sponsoring **@mrousavy** on GitHub](https://github.com/sponsors/mrousavy).
 
+<br />
+<br />
+
 > See [this issue](https://github.com/react-native-community/react-native-camera/issues/3000) for more details.
