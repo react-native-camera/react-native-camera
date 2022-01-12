@@ -10,7 +10,7 @@ buildscript {
     repositories {
       google()
       mavenCentral()
-      jcenter()
+      // jcenter()
     }
 
     dependencies {
