@@ -1,7 +1,8 @@
 #import "RNFaceDetectorModuleMLKit.h"
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+#if __has_include(<GoogleMLKit/FaceDetection>)
 #import "RNFileSystem.h"
 #import "RNImageUtils.h"
+
 
 static const NSString *kModeOptionName = @"mode";
 static const NSString *kDetectLandmarksOptionName = @"detectLandmarks";

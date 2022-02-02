@@ -1,5 +1,5 @@
 #import "TextDetectorManager.h"
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+#if __has_include(<GoogleMLKit/BarcodeScanning>)
 
 @interface TextDetectorManager ()
 @property(nonatomic, strong) MLKTextRecognizer *textRecognizer;

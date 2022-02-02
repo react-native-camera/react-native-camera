@@ -1,7 +1,7 @@
 #import "BarcodeDetectorManagerMlkit.h"
 #import <React/RCTConvert.h>
 #import "RNFileSystem.h"
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+#if __has_include(<GoogleMLKit/BarcodeScanning>)
 
 @interface BarcodeDetectorManagerMlkit ()
 @property(nonatomic, strong) MLKBarcodeDetector *barcodeRecognizer;
@@ -18,7 +18,7 @@
 {
   if (self = [super init]) {
     self.vision = [MLK vision];
-    self.barcodeRecognizer = [_vision barcodeDetector];
+    self.barcodeRecognizer = [vision barcodeDetector];
   }
   return self;
 }

@@ -1,8 +1,5 @@
 
 #import <UIKit/UIKit.h>
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
-  #import <FirebaseMLVision/FirebaseMLVision.h>
-#endif
 
 @interface BarcodeDetectorManagerMlkit : NSObject
 typedef void(^postRecognitionBlock)(NSArray *barcodes);

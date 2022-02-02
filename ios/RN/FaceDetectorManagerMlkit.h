@@ -1,7 +1,6 @@
 
 #import <UIKit/UIKit.h>
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
-  #import <FirebaseMLVision/FirebaseMLVision.h>
+#if __has_include(<GoogleMLKit/FaceDetection>)
   typedef NS_ENUM(NSInteger, RNFaceDetectionMode) {
       RNFaceDetectionFastMode = MLKFaceDetectorPerformanceModeFast,
       RNFaceDetectionAccurateMode = MLKFaceDetectorPerformanceModeAccurate

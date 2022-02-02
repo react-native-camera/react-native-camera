@@ -1,6 +1,6 @@
 #import "FaceDetectorManagerMlkit.h"
 #import <React/RCTConvert.h>
-#if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+#if __has_include(<GoogleMLKit/FaceDetection>)
 
 @interface FaceDetectorManagerMlkit ()
 @property(nonatomic, strong) MLKFaceDetector *faceRecognizer;
