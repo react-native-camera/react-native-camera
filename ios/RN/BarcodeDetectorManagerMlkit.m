@@ -1,11 +1,11 @@
 #import "BarcodeDetectorManagerMlkit.h"
 #import <React/RCTConvert.h>
 #import "RNFileSystem.h"
-#if __has_include(<GoogleMLKit/BarcodeScanning>)
+#if __has_include(<MLKitBarcodeScanning/MLKitBarcodeScanning.h>)
+@import MLKitVision;
 
 @interface BarcodeDetectorManagerMlkit ()
-@property(nonatomic, strong) MLKBarcodeDetector *barcodeRecognizer;
-@property(nonatomic, strong) MLK *vision;
+@property(nonatomic, strong) MLKBarcodeScanner *barcodeRecognizer;
 @property(nonatomic, assign) MLKBarcodeFormat setOption;
 @property(nonatomic, assign) NSInteger detectionMode;
 @property(nonatomic, assign) float scaleX;
@@ -17,8 +17,6 @@
 - (instancetype)init
 {
   if (self = [super init]) {
-//    self.vision = [MLK vision];
-//      MLKBarcodeScanner *barcodeScanner = [MLKBarcodeScanner barcodeScanner];
     self.barcodeRecognizer = [MLKBarcodeScanner barcodeScanner];
   }
   return self;
@@ -61,11 +59,11 @@
       if (sessionQueue) {
           dispatch_async(sessionQueue, ^{
               self.setOption = requestedValue;
-              MLKBarcodeDetectorOptions *options =
-              [[MLKBarcodeDetectorOptions alloc]
+              MLKBarcodeScannerOptions *options =
+              [[MLKBarcodeScannerOptions alloc]
               initWithFormats: requestedValue];
               self.barcodeRecognizer =
-              [self.vision barcodeDetectorWithOptions:options];
+              [MLKBarcodeScanner barcodeScannerWithOptions:options];
           });
       }
   }
@@ -84,9 +82,9 @@
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
-    MLKImage *image = [[MLKImage alloc] initWithImage:uiImage];
+    MLKVisionImage *visionImage = [[MLKVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
-    [_barcodeRecognizer detectInImage:image
+    [_barcodeRecognizer processImage:visionImage
         completion:^(NSArray<MLKBarcode *> *barcodes, NSError *error) {
             if (error != nil || barcodes == nil) {
                 completed(emptyResult);
@@ -172,7 +170,7 @@
                                              @"middleName" : name.middle ? name.middle : @"",
                                              @"lastName" : name.last ? name.last : @"",
                                              @"prefix" : name.prefix ? name.prefix : @"",
-                                             @"pronounciation" : name.pronounciation ? name.pronounciation : @"",
+                                             @"pronounciation" : name.pronunciation ? name.pronunciation : @"",
                                              @"suffix" : name.suffix ? name.suffix : @"",
                                              };
                     [resultDict setObject:nameObject forKey:@"name"];
@@ -389,10 +387,10 @@
 }
 
 
-- (NSDictionary *)processPoint:(MLKPoint *)point
+- (NSDictionary *)processPoint:(MLKVisionPoint *)point
 {
-    float originX = [point.x floatValue] * _scaleX;
-    float originY = [point.y floatValue] * _scaleY;
+    float originX = point.x * _scaleX;
+    float originY = point.y * _scaleY;
     NSDictionary *pointDict = @{
                                 @"x" : @(originX),
                                 @"y" : @(originY)

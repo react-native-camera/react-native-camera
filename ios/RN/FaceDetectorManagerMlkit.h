@@ -1,6 +1,8 @@
 
 #import <UIKit/UIKit.h>
-#if __has_include(<GoogleMLKit/FaceDetection>)
+#if __has_include(<MLKitFaceDetection/MLKitFaceDetection.h>)
+  @import MLKitFaceDetection;
+
   typedef NS_ENUM(NSInteger, RNFaceDetectionMode) {
       RNFaceDetectionFastMode = MLKFaceDetectorPerformanceModeFast,
       RNFaceDetectionAccurateMode = MLKFaceDetectorPerformanceModeAccurate
@@ -15,6 +17,7 @@
       RNFaceRunAllClassifications = MLKFaceDetectorClassificationModeAll,
       RNFaceRunNoClassifications = MLKFaceDetectorClassificationModeNone
   };
+  
 #endif
 
   @interface FaceDetectorManagerMlkit : NSObject

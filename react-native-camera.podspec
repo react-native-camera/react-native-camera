@@ -26,21 +26,18 @@ Pod::Spec.new do |s|
   s.subspec "TextDetector" do |ss|
     ss.dependency 'react-native-camera/RN'
     ss.dependency 'react-native-camera/RCT'
-    ss.dependency 'GoogleMLKit'
     ss.dependency 'GoogleMLKit/TextRecognition'
   end
 
   s.subspec "FaceDetectorMLKit" do |ss|
     ss.dependency 'react-native-camera/RN'
     ss.dependency 'react-native-camera/RCT'
-    ss.dependency 'GoogleMLKit'
     ss.dependency 'GoogleMLKit/FaceDetection'
   end
   
   s.subspec "BarcodeDetectorMLKit" do |ss|
     ss.dependency 'react-native-camera/RN'
     ss.dependency 'react-native-camera/RCT'
-    ss.dependency 'GoogleMLKit'
     ss.dependency 'GoogleMLKit/BarcodeScanning'
   end
 

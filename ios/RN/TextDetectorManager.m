@@ -1,7 +1,6 @@
 #import "TextDetectorManager.h"
-#import <React/RCTConvert.h>
-#import "RNFileSystem.h"
-#if __has_include(<GoogleMLKit/TextRecognition>)
+#if __has_include(<MLKitTextRecognition/MLKitTextRecognition.h>)
+@import MLKitVision;
 
 @interface TextDetectorManager ()
 @property(nonatomic, strong) MLKTextRecognizer *textRecognizer;
@@ -19,7 +18,7 @@
   return self;
 }
 
--(BOOL)isRealDetector
+- (BOOL)isRealDetector
 {
   return true;
 }
@@ -28,9 +27,9 @@
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
-    MLKImage *image = [[MLKImage alloc] initWithImage:uiImage];
+    MLKVisionImage *visionImage = [[MLKVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *textBlocks = [[NSMutableArray alloc] init];
-    [_textRecognizer processImage:image
+    [_textRecognizer processImage:visionImage
                        completion:^(MLKText *_Nullable result,
                                     NSError *_Nullable error) {
                            if (error != nil || result == nil) {
@@ -52,7 +51,7 @@
   return textBlocks;
 }
 
--(NSArray *)processLine:(NSArray *)lines
+- (NSArray *)processLine:(NSArray *)lines
 {
   NSMutableArray *lineBlocks = [[NSMutableArray alloc] init];
   for (MLKTextLine *textLine in lines) {
@@ -63,7 +62,7 @@
   return lineBlocks;
 }
 
--(NSArray *)processElement:(NSArray *)elements 
+- (NSArray *)processElement:(NSArray *)elements
 {
   NSMutableArray *elementBlocks = [[NSMutableArray alloc] init];
   for (MLKTextElement *textElement in elements) {
@@ -74,7 +73,7 @@
   return elementBlocks;
 }
 
--(NSDictionary *)processBounds:(CGRect)bounds 
+- (NSDictionary *)processBounds:(CGRect)bounds
 {
   float width = bounds.size.width * _scaleX;
   float height = bounds.size.height * _scaleY;
@@ -110,12 +109,12 @@
   return self;
 }
 
--(BOOL)isRealDetector
+- (BOOL)isRealDetector
 {
   return false;
 }
 
--(void)findTextBlocksInFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float) scaleY completed:(postRecognitionBlock)completed;
+- (void)findTextBlocksInFrame:(UIImage *)image scaleX:(float)scaleX scaleY:(float) scaleY completed:(postRecognitionBlock)completed;
 {
   NSLog(@"TextDetector not installed, stub used!");
   NSArray *features = @[@"Error, Text Detector not installed"];

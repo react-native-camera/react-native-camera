@@ -1,8 +1,7 @@
 #import "RNFaceDetectorModuleMLKit.h"
-#if __has_include(<GoogleMLKit/FaceDetection>)
+#if __has_include(<MLKitFaceDetection/MLKitFaceDetection.h>)
 #import "RNFileSystem.h"
 #import "RNImageUtils.h"
-
 
 static const NSString *kModeOptionName = @"mode";
 static const NSString *kDetectLandmarksOptionName = @"detectLandmarks";

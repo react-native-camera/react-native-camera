@@ -1,10 +1,10 @@
 #import "FaceDetectorManagerMlkit.h"
 #import <React/RCTConvert.h>
-#if __has_include(<GoogleMLKit/FaceDetection>)
+#if __has_include(<MLKitFaceDetection/MLKitFaceDetection.h>)
+@import MLKitVision;
 
 @interface FaceDetectorManagerMlkit ()
 @property(nonatomic, strong) MLKFaceDetector *faceRecognizer;
-@property(nonatomic, strong) MLK *vision;
 @property(nonatomic, strong) MLKFaceDetectorOptions *options;
 @property(nonatomic, assign) float scaleX;
 @property(nonatomic, assign) float scaleY;
@@ -20,8 +20,7 @@
     self.options.landmarkMode = MLKFaceDetectorLandmarkModeNone;
     self.options.classificationMode = MLKFaceDetectorClassificationModeNone;
     
-    self.vision = [MLK vision];
-    self.faceRecognizer = [_vision faceDetectorWithOptions:_options];
+    self.faceRecognizer = [MLKFaceDetector faceDetectorWithOptions:_options];
   }
   return self;
 }
@@ -57,7 +56,7 @@
           dispatch_async(sessionQueue, ^{
               self.options.trackingEnabled = requestedValue;
               self.faceRecognizer =
-              [self.vision faceDetectorWithOptions:self.options];
+              [MLKFaceDetector faceDetectorWithOptions:self.options];
           });
       }
   }
@@ -71,7 +70,7 @@
             dispatch_async(sessionQueue, ^{
                 self.options.landmarkMode = requestedValue;
                 self.faceRecognizer =
-                [self.vision faceDetectorWithOptions:self.options];
+                [MLKFaceDetector faceDetectorWithOptions:self.options];
             });
         }
     }
@@ -85,7 +84,7 @@
             dispatch_async(sessionQueue, ^{
                 self.options.performanceMode = requestedValue;
                 self.faceRecognizer =
-                [self.vision faceDetectorWithOptions:self.options];
+                [MLKFaceDetector faceDetectorWithOptions:self.options];
             });
         }
     }
@@ -99,7 +98,7 @@
             dispatch_async(sessionQueue, ^{
                 self.options.classificationMode = requestedValue;
                 self.faceRecognizer =
-                [self.vision faceDetectorWithOptions:self.options];
+                [MLKFaceDetector faceDetectorWithOptions:self.options];
             });
         }
     }
@@ -112,10 +111,10 @@
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
-    MLKImage *image = [[MLKImage alloc] initWithImage:uiImage];
+    MLKVisionImage *visionImage = [[MLKVisionImage alloc] initWithImage:uiImage];
     NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
     [_faceRecognizer
-     processImage:image
+     processImage:visionImage
      completion:^(NSArray<MLKFace *> *faces, NSError *error) {
          if (error != nil || faces == nil) {
              completed(emptyResult);
@@ -154,70 +153,70 @@
         // nose available):
         /** Midpoint of the left ear tip and left ear lobe. */
         MLKFaceLandmark *leftEar =
-        [face landmarkOfType:FIRFaceLandmarkTypeLeftEar];
+        [face landmarkOfType:MLKFaceLandmarkTypeLeftEar];
         if (leftEar != nil) {
             [resultDict setObject:[self processPoint:leftEar.position]
                            forKey:@"leftEarPosition"];
         }
         /** Midpoint of the right ear tip and right ear lobe. */
         MLKFaceLandmark *rightEar =
-        [face landmarkOfType:FIRFaceLandmarkTypeRightEar];
+        [face landmarkOfType:MLKFaceLandmarkTypeRightEar];
         if (rightEar != nil) {
             [resultDict setObject:[self processPoint:rightEar.position]
                            forKey:@"rightEarPosition"];
         }
         /** Center of the bottom lip. */
         MLKFaceLandmark *mouthBottom =
-        [face landmarkOfType:FIRFaceLandmarkTypeMouthBottom];
+        [face landmarkOfType:MLKFaceLandmarkTypeMouthBottom];
         if (mouthBottom != nil) {
             [resultDict setObject:[self processPoint:mouthBottom.position]
                            forKey:@"bottomMouthPosition"];
         }
         /** Right corner of the mouth */
         MLKFaceLandmark *mouthRight =
-        [face landmarkOfType:FIRFaceLandmarkTypeMouthRight];
+        [face landmarkOfType:MLKFaceLandmarkTypeMouthRight];
         if (mouthRight != nil) {
             [resultDict setObject:[self processPoint:mouthRight.position]
                            forKey:@"rightMouthPosition"];
         }
         /** Left corner of the mouth */
         MLKFaceLandmark *mouthLeft =
-        [face landmarkOfType:FIRFaceLandmarkTypeMouthLeft];
+        [face landmarkOfType:MLKFaceLandmarkTypeMouthLeft];
         if (mouthLeft != nil) {
             [resultDict setObject:[self processPoint:mouthLeft.position]
                            forKey:@"leftMouthPosition"];
         }
         /** Left eye. */
         MLKFaceLandmark *eyeLeft =
-        [face landmarkOfType:FIRFaceLandmarkTypeLeftEye];
+        [face landmarkOfType:MLKFaceLandmarkTypeLeftEye];
         if (eyeLeft != nil) {
             [resultDict setObject:[self processPoint:eyeLeft.position]
                            forKey:@"leftEyePosition"];
         }
         /** Right eye. */
         MLKFaceLandmark *eyeRight =
-        [face landmarkOfType:FIRFaceLandmarkTypeRightEye];
+        [face landmarkOfType:MLKFaceLandmarkTypeRightEye];
         if (eyeRight != nil) {
             [resultDict setObject:[self processPoint:eyeRight.position]
                            forKey:@"rightEyePosition"];
         }
         /** Left cheek. */
         MLKFaceLandmark *cheekLeft =
-        [face landmarkOfType:FIRFaceLandmarkTypeLeftCheek];
+        [face landmarkOfType:MLKFaceLandmarkTypeLeftCheek];
         if (cheekLeft != nil) {
             [resultDict setObject:[self processPoint:cheekLeft.position]
                            forKey:@"leftCheekPosition"];
         }
         /** Right cheek. */
         MLKFaceLandmark *cheekRight =
-        [face landmarkOfType:FIRFaceLandmarkTypeRightCheek];
+        [face landmarkOfType:MLKFaceLandmarkTypeRightCheek];
         if (cheekRight != nil) {
             [resultDict setObject:[self processPoint:cheekRight.position]
                            forKey:@"rightCheekPosition"];
         }
         /** Midpoint between the nostrils where the nose meets the face. */
         MLKFaceLandmark *noseBase =
-        [face landmarkOfType:FIRFaceLandmarkTypeNoseBase];
+        [face landmarkOfType:MLKFaceLandmarkTypeNoseBase];
         if (noseBase != nil) {
             [resultDict setObject:[self processPoint:noseBase.position]
                            forKey:@"noseBasePosition"];
@@ -256,10 +255,10 @@
     return boundsDict;
 }
 
-- (NSDictionary *)processPoint:(MLKPoint *)point 
+- (NSDictionary *)processPoint:(MLKVisionPoint *)point
 {
-    float originX = [point.x floatValue] * _scaleX;
-    float originY = [point.y floatValue] * _scaleY;
+    float originX = point.x * _scaleX;
+    float originY = point.y * _scaleY;
     NSDictionary *pointDict = @{
                                 
                                 @"x" : @(originX),
