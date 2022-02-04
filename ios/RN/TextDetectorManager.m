@@ -1,5 +1,7 @@
 #import "TextDetectorManager.h"
-#if __has_include(<GoogleMLKit/BarcodeScanning>)
+#import <React/RCTConvert.h>
+#import "RNFileSystem.h"
+#if __has_include(<GoogleMLKit/TextRecognition>)
 
 @interface TextDetectorManager ()
 @property(nonatomic, strong) MLKTextRecognizer *textRecognizer;
@@ -12,8 +14,7 @@
 - (instancetype)init
 {
   if (self = [super init]) {
-    MLK *vision = [MLK vision];
-    self.textRecognizer = [vision onDeviceTextRecognizer];
+    self.textRecognizer = [MLKTextRecognizer textRecognizer];
   }
   return self;
 }

@@ -1,6 +1,4 @@
-#if __has_include(<GoogleMLKit/TextRecognition.h>)
-  #import <GoogleMLKit/TextRecognition.h>
-#endif
+
   @interface TextDetectorManager : NSObject
   typedef void(^postRecognitionBlock)(NSArray *textBlocks);
 

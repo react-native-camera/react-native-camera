@@ -17,8 +17,9 @@
 - (instancetype)init
 {
   if (self = [super init]) {
-    self.vision = [MLK vision];
-    self.barcodeRecognizer = [vision barcodeDetector];
+//    self.vision = [MLK vision];
+//      MLKBarcodeScanner *barcodeScanner = [MLKBarcodeScanner barcodeScanner];
+    self.barcodeRecognizer = [MLKBarcodeScanner barcodeScanner];
   }
   return self;
 }
