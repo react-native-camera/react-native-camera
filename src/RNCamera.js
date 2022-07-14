@@ -5,7 +5,6 @@ import {
   findNodeHandle,
   Platform,
   NativeModules,
-  ViewPropTypes,
   requireNativeComponent,
   View,
   ActivityIndicator,
@@ -13,7 +12,7 @@ import {
   StyleSheet,
   PermissionsAndroid,
 } from 'react-native';
-
+import { ViewProps } from 'react-native/Libraries/Components/View/ViewPropTypes';
 import type { FaceFeature } from './FaceDetector';
 
 const Rationale = PropTypes.shape({
@@ -272,7 +271,16 @@ type PropsType = typeof View.props & {
   barCodeTypes?: Array<string>,
   googleVisionBarcodeType?: number,
   googleVisionBarcodeMode?: number,
-  whiteBalance?: number | string | {temperature: number, tint: number, redGainOffset?: number, greenGainOffset?: number, blueGainOffset?: number },
+  whiteBalance?:
+    | number
+    | string
+    | {
+        temperature: number,
+        tint: number,
+        redGainOffset?: number,
+        greenGainOffset?: number,
+        blueGainOffset?: number,
+      },
   faceDetectionLandmarks?: number,
   autoFocus?: string | boolean | number,
   autoFocusPointOfInterest?: { x: number, y: number },
@@ -394,7 +402,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
   };
 
   static propTypes = {
-    ...ViewPropTypes,
+    ...ViewProps,
     zoom: PropTypes.number,
     useNativeZoom: PropTypes.bool,
     maxZoom: PropTypes.number,
@@ -427,11 +435,17 @@ export default class Camera extends React.Component<PropsType, StateType> {
     cameraId: PropTypes.string,
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     exposure: PropTypes.number,
-    whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number,
-      PropTypes.shape({ temperature: PropTypes.number, tint: PropTypes.number,
+    whiteBalance: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+      PropTypes.shape({
+        temperature: PropTypes.number,
+        tint: PropTypes.number,
         redGainOffset: PropTypes.number,
         greenGainOffset: PropTypes.number,
-        blueGainOffset: PropTypes.number })]),
+        blueGainOffset: PropTypes.number,
+      }),
+    ]),
     autoFocus: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
     autoFocusPointOfInterest: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number }),
     permissionDialogTitle: PropTypes.string,
@@ -702,25 +716,27 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
-  _onObjectDetected = (callback: ?Function) => ({ nativeEvent }: EventCallbackArgumentsType) => {
-    const { type } = nativeEvent;
-    if (
-      this._lastEvents[type] &&
-      this._lastEventsTimes[type] &&
-      JSON.stringify(nativeEvent) === this._lastEvents[type] &&
-      new Date() - this._lastEventsTimes[type] < EventThrottleMs
-    ) {
-      return;
-    }
+  _onObjectDetected =
+    (callback: ?Function) =>
+    ({ nativeEvent }: EventCallbackArgumentsType) => {
+      const { type } = nativeEvent;
+      if (
+        this._lastEvents[type] &&
+        this._lastEventsTimes[type] &&
+        JSON.stringify(nativeEvent) === this._lastEvents[type] &&
+        new Date() - this._lastEventsTimes[type] < EventThrottleMs
+      ) {
+        return;
+      }
 
-    if (callback) {
-      callback(nativeEvent);
-      this._lastEventsTimes[type] = new Date();
-      this._lastEvents[type] = JSON.stringify(nativeEvent);
-    }
-  };
+      if (callback) {
+        callback(nativeEvent);
+        this._lastEventsTimes[type] = new Date();
+        this._lastEvents[type] = JSON.stringify(nativeEvent);
+      }
+    };
 
-  _onSubjectAreaChanged = e => {
+  _onSubjectAreaChanged = (e) => {
     if (this.props.onSubjectAreaChanged) {
       this.props.onSubjectAreaChanged(e);
     }
@@ -781,10 +797,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
   }
 
   async refreshAuthorizationStatus() {
-    const {
-      hasCameraPermissions,
-      recordAudioPermissionStatus,
-    } = await this.arePermissionsGranted();
+    const { hasCameraPermissions, recordAudioPermissionStatus } =
+      await this.arePermissionsGranted();
     if (this._isMounted === false) {
       return;
     }
@@ -797,10 +811,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
   }
 
   async componentDidMount() {
-    const {
-      hasCameraPermissions,
-      recordAudioPermissionStatus,
-    } = await this.arePermissionsGranted();
+    const { hasCameraPermissions, recordAudioPermissionStatus } =
+      await this.arePermissionsGranted();
     if (this._isMounted === false) {
       return;
     }
