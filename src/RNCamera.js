@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { ViewProps } from 'react-native/Libraries/Components/View/ViewPropTypes';
 import type { FaceFeature } from './FaceDetector';
-
+// Supriyo
 const Rationale = PropTypes.shape({
   title: PropTypes.string.isRequired,
   message: PropTypes.string.isRequired,
