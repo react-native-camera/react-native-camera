@@ -559,6 +559,20 @@ RCT_EXPORT_METHOD(isRecording:(nonnull NSNumber *)reactTag
         }];
 }
 
+RCT_EXPORT_METHOD(hasTorch: (RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    BOOL hasTorch = NO;
+
+    for (AVCaptureDevice *device in devices) {
+        if ([device hasTorch]) {
+            hasTorch = YES;
+            break;
+        }
+    }
+    resolve(@(hasTorch));
+}
+
 RCT_EXPORT_METHOD(getCameraIds:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
 

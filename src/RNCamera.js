@@ -912,6 +912,10 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
 export const Constants = Camera.Constants;
 
+export function hasTorch() {
+  return CameraManager.hasTorch();
+}
+
 const RNCamera = requireNativeComponent('RNCamera', Camera, {
   nativeOnly: {
     accessibilityComponentType: true,

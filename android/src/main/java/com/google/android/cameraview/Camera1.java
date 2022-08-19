@@ -177,12 +177,17 @@ class Camera1 extends CameraViewImpl implements MediaRecorder.OnInfoListener,
                 // it may have been destroyed already.
                 // Do not lock as it would freeze the UI if the camera is being released
                 if (mCamera != null) {
-                    try {
-                        // mCamera.setPreviewCallback(null); // Not needed as stop() already clears it
-                        mCamera.setPreviewDisplay(null); // needed to prevent buffer abandoned logs
-                    } catch (Exception e) {
-                        Log.e("CAMERA_1::", "onSurfaceDestroyed preview cleanup failed", e);
-                    }
+                    // After a lot of testing, setPreviewDisplay may cause ANRs if called on the UI
+                    // thread. The buffer abandoned warning ended up being harmess, so we can comment this
+                    // out for now until the surface change events are dispatched in a non-UI thread.
+                    // Therefore, the below lines are no longer needed and will prevent the app from
+                    // hanging in some situations, or even make the app more responsive when unmounting.
+                    // try {
+                    //     // mCamera.setPreviewCallback(null); // Not needed as stop() already clears it
+                    //     mCamera.setPreviewDisplay(null); // needed to prevent buffer abandoned logs
+                    // } catch (Exception e) {
+                    //     Log.e("CAMERA_1::", "onSurfaceDestroyed preview cleanup failed", e);
+                    // }
                     mBgHandler.post(new Runnable() {
                         @Override
                         public void run() {
