@@ -151,7 +151,7 @@ type TrackedBarcodeFeature = {
   }[],
   emails?: Email[],
   phones?: Phone[],
-  urls: ?(string[]),
+  urls?: (string[]),
   name?: {
     firstName?: string,
     lastName?: string,
@@ -263,8 +263,8 @@ type PropsType = typeof View.props & {
   onRecordingEnd?: Function,
   onTap?: Function,
   onDoubleTap?: Function,
-  onGoogleVisionBarcodesDetected?: ({ barcodes: Array<TrackedBarcodeFeature> }) => void,
-  onSubjectAreaChanged?: ({ nativeEvent: { prevPoint: {| x: number, y: number |} } }) => void,
+  onGoogleVisionBarcodesDetected?: (barcodes: Array<TrackedBarcodeFeature>) => void,
+  onSubjectAreaChanged?: (nativeEvent: {prevPoint: {x: number, y: number}}) => void,
   faceDetectionMode?: number,
   trackingEnabled?: boolean,
   flashMode?: number | string,
@@ -277,8 +277,8 @@ type PropsType = typeof View.props & {
   autoFocus?: string | boolean | number,
   autoFocusPointOfInterest?: { x: number, y: number },
   faceDetectionClassifications?: number,
-  onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
-  onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
+  onFacesDetected?: (faces: Array<TrackedFaceFeature>) => void,
+  onTextRecognized?: (textBlocks: Array<TrackedTextFeature>) => void,
   captureAudio?: boolean,
   keepAudioSession?: boolean,
   useCamera2Api?: boolean,
@@ -476,16 +476,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
     permissionDialogMessage: '',
     androidCameraPermissionOptions: null,
     androidRecordAudioPermissionOptions: null,
-    notAuthorizedView: (
-      <View style={styles.authorizationContainer}>
-        <Text style={styles.notAuthorizedText}>Camera not authorized</Text>
-      </View>
-    ),
-    pendingAuthorizationView: (
-      <View style={styles.authorizationContainer}>
-        <ActivityIndicator size="small" />
-      </View>
-    ),
     captureAudio: true,
     keepAudioSession: false,
     useCamera2Api: false,
@@ -496,10 +486,10 @@ export default class Camera extends React.Component<PropsType, StateType> {
     mirrorVideo: false,
   };
 
-  _cameraRef: ?Object;
-  _cameraHandle: ?number;
-  _lastEvents: { [string]: string };
-  _lastEventsTimes: { [string]: Date };
+  _cameraRef?: Object;
+  _cameraHandle?: number;
+  _lastEvents: { [event: string]: string };
+  _lastEventsTimes: { [event: string]: Date };
   _isMounted: boolean;
 
   constructor(props: PropsType) {
@@ -702,7 +692,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
-  _onObjectDetected = (callback: ?Function) => ({ nativeEvent }: EventCallbackArgumentsType) => {
+  _onObjectDetected = (callback?: Function) => ({ nativeEvent }: EventCallbackArgumentsType) => {
     const { type } = nativeEvent;
     if (
       this._lastEvents[type] &&
@@ -726,7 +716,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
-  _setReference = (ref: ?Object) => {
+  _setReference = (ref?: Object) => {
     if (ref) {
       this._cameraRef = ref;
       this._cameraHandle = findNodeHandle(ref);
@@ -824,9 +814,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
   };
 
   // FaCC = Function as Child Component;
-  hasFaCC = (): * => typeof this.props.children === 'function';
+  hasFaCC = () => typeof this.props.children === 'function';
 
-  renderChildren = (): * => {
+  renderChildren = () => {
     if (this.hasFaCC()) {
       return this.props.children({
         camera: this,
@@ -837,12 +827,12 @@ export default class Camera extends React.Component<PropsType, StateType> {
     return this.props.children;
   };
 
-  render() {
-    const { style, ...nativeProps } = this._convertNativeProps(this.props);
+  render(): React.ReactNode {
+    const {...nativeProps } = this._convertNativeProps(this.props);
 
     if (this.state.isAuthorized || this.hasFaCC()) {
       return (
-        <View style={style}>
+        <View style={{height: '100%', width: '100%'}}>
           <RNCamera
             {...nativeProps}
             style={StyleSheet.absoluteFill}
@@ -863,11 +853,25 @@ export default class Camera extends React.Component<PropsType, StateType> {
           />
           {this.renderChildren()}
         </View>
-      );
+      )
     } else if (!this.state.isAuthorizationChecked) {
-      return this.props.pendingAuthorizationView;
+      // return this.props.pendingAuthorizationView;
+      return null;
+      // console.log('pending authorization view')
+      // return (
+      //   <View>
+      //     <Text>pending authorization view</Text>
+      //   </View>
+      // )
     } else {
-      return this.props.notAuthorizedView;
+      // return this.props.notAuthorizedView;
+      // console.log('Not authorized view')
+      // return (
+      //   <View>
+      //     <Text>Not authorized view</Text>
+      //   </View>
+      // )
+      return null;
     }
   }
 
@@ -901,7 +905,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     return newProps;
   }
 
-  _convertProp(value: *, key: string): * {
+  _convertProp(value: any, key: string): any {
     if (typeof value === 'string' && Camera.ConversionTables[key]) {
       return Camera.ConversionTables[key][value];
     }
