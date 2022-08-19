@@ -5,7 +5,7 @@ import {
   findNodeHandle,
   Platform,
   NativeModules,
-  ViewPropTypes,
+  ViewProps,
   requireNativeComponent,
   View,
   ActivityIndicator,
@@ -394,7 +394,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
   };
 
   static propTypes = {
-    ...ViewPropTypes,
+    ...ViewProps,
     zoom: PropTypes.number,
     useNativeZoom: PropTypes.bool,
     maxZoom: PropTypes.number,
