@@ -5,7 +5,6 @@ import {
   findNodeHandle,
   Platform,
   NativeModules,
-  ViewPropTypes,
   requireNativeComponent,
   View,
   ActivityIndicator,
@@ -13,6 +12,7 @@ import {
   StyleSheet,
   PermissionsAndroid,
 } from 'react-native';
+import ViewPropTypes from 'deprecated-react-native-prop-types';
 
 import type { FaceFeature } from './FaceDetector';
 
@@ -67,8 +67,8 @@ const requestPermissions = async (
         // eslint-disable-next-line no-console
         console.warn(
           `The 'captureAudio' property set on RNCamera instance but 'RECORD_AUDIO' permissions not defined in the applications 'AndroidManifest.xml'. ` +
-            `If you want to record audio you will have to add '<uses-permission android:name="android.permission.RECORD_AUDIO"/>' to your 'AndroidManifest.xml'. ` +
-            `Otherwise you should set the 'captureAudio' property on the component instance to 'false'.`,
+          `If you want to record audio you will have to add '<uses-permission android:name="android.permission.RECORD_AUDIO"/>' to your 'AndroidManifest.xml'. ` +
+          `Otherwise you should set the 'captureAudio' property on the component instance to 'false'.`,
         );
       }
     } else if (Platform.OS === 'windows') {
@@ -265,28 +265,28 @@ type PropsType = typeof View.props & {
   onDoubleTap?: Function,
   onGoogleVisionBarcodesDetected?: ({ barcodes: Array<TrackedBarcodeFeature> }) => void,
   onSubjectAreaChanged?: ({ nativeEvent: { prevPoint: {| x: number, y: number |} } }) => void,
-  faceDetectionMode?: number,
-  trackingEnabled?: boolean,
-  flashMode?: number | string,
-  exposure?: number,
-  barCodeTypes?: Array<string>,
-  googleVisionBarcodeType?: number,
-  googleVisionBarcodeMode?: number,
-  whiteBalance?: number | string | {temperature: number, tint: number, redGainOffset?: number, greenGainOffset?: number, blueGainOffset?: number },
-  faceDetectionLandmarks?: number,
-  autoFocus?: string | boolean | number,
-  autoFocusPointOfInterest?: { x: number, y: number },
-  faceDetectionClassifications?: number,
-  onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
-  onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
-  captureAudio?: boolean,
-  keepAudioSession?: boolean,
-  useCamera2Api?: boolean,
-  playSoundOnCapture?: boolean,
-  playSoundOnRecord?: boolean,
-  videoStabilizationMode?: number | string,
-  pictureSize?: string,
-  rectOfInterest: Rect,
+    faceDetectionMode ?: number,
+    trackingEnabled ?: boolean,
+    flashMode ?: number | string,
+    exposure ?: number,
+    barCodeTypes ?: Array < string >,
+    googleVisionBarcodeType ?: number,
+    googleVisionBarcodeMode ?: number,
+    whiteBalance ?: number | string | { temperature: number, tint: number, redGainOffset?: number, greenGainOffset?: number, blueGainOffset?: number },
+    faceDetectionLandmarks ?: number,
+    autoFocus ?: string | boolean | number,
+    autoFocusPointOfInterest ?: { x: number, y: number },
+    faceDetectionClassifications ?: number,
+    onFacesDetected ?: ({ faces: Array < TrackedFaceFeature > }) => void,
+      onTextRecognized ?: ({ textBlocks: Array < TrackedTextFeature > }) => void,
+        captureAudio ?: boolean,
+        keepAudioSession ?: boolean,
+        useCamera2Api ?: boolean,
+        playSoundOnCapture ?: boolean,
+        playSoundOnRecord ?: boolean,
+        videoStabilizationMode ?: number | string,
+        pictureSize ?: string,
+        rectOfInterest: Rect,
 };
 
 type StateType = {
@@ -315,33 +315,33 @@ const RecordAudioPermissionStatusEnum: {
 
 const CameraManager: Object = NativeModules.RNCameraManager ||
   NativeModules.RNCameraModule || {
-    stubbed: true,
-    Type: {
-      back: 1,
+  stubbed: true,
+  Type: {
+    back: 1,
+  },
+  AutoFocus: {
+    on: 1,
+  },
+  FlashMode: {
+    off: 1,
+  },
+  WhiteBalance: {},
+  BarCodeType: {},
+  FaceDetection: {
+    fast: 1,
+    Mode: {},
+    Landmarks: {
+      none: 0,
     },
-    AutoFocus: {
-      on: 1,
+    Classifications: {
+      none: 0,
     },
-    FlashMode: {
-      off: 1,
-    },
-    WhiteBalance: {},
-    BarCodeType: {},
-    FaceDetection: {
-      fast: 1,
-      Mode: {},
-      Landmarks: {
-        none: 0,
-      },
-      Classifications: {
-        none: 0,
-      },
-    },
-    GoogleVisionBarcodeDetection: {
-      BarcodeType: 0,
-      BarcodeMode: 0,
-    },
-  };
+  },
+  GoogleVisionBarcodeDetection: {
+    BarcodeType: 0,
+    BarcodeMode: 0,
+  },
+};
 
 const EventThrottleMs = 500;
 
@@ -428,10 +428,12 @@ export default class Camera extends React.Component<PropsType, StateType> {
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     exposure: PropTypes.number,
     whiteBalance: PropTypes.oneOfType([PropTypes.string, PropTypes.number,
-      PropTypes.shape({ temperature: PropTypes.number, tint: PropTypes.number,
-        redGainOffset: PropTypes.number,
-        greenGainOffset: PropTypes.number,
-        blueGainOffset: PropTypes.number })]),
+    PropTypes.shape({
+      temperature: PropTypes.number, tint: PropTypes.number,
+      redGainOffset: PropTypes.number,
+      greenGainOffset: PropTypes.number,
+      blueGainOffset: PropTypes.number
+    })]),
     autoFocus: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
     autoFocusPointOfInterest: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number }),
     permissionDialogTitle: PropTypes.string,
