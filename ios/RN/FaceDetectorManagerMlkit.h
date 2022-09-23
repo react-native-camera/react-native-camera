@@ -2,6 +2,7 @@
 #import <UIKit/UIKit.h>
 #if __has_include(<MLKitFaceDetection/MLKitFaceDetection.h>)
   @import MLKitFaceDetection;
+@import MLKitVision;
 
   typedef NS_ENUM(NSInteger, RNFaceDetectionMode) {
       RNFaceDetectionFastMode = MLKFaceDetectorPerformanceModeFast,
