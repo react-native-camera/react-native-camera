@@ -8,9 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0314E39D1B661A460092D183 /* CameraFocusSquare.m in Sources */ = {isa = PBXBuildFile; fileRef = 0314E39C1B661A460092D183 /* CameraFocusSquare.m */; };
-		1354413B2487FF390024C19F /* BarcodeDetectorManagerMlkit.m in Sources */ = {isa = PBXBuildFile; fileRef = 1354413A2487FF390024C19F /* BarcodeDetectorManagerMlkit.m */; };
-		2647D6712256BBD5007D2F91 /* FaceDetectorManagerMlkit.m in Sources */ = {isa = PBXBuildFile; fileRef = 2647D6702256BBD5007D2F91 /* FaceDetectorManagerMlkit.m */; };
-		2647D6742256BBE8007D2F91 /* RNFaceDetectorModuleMLKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 2647D6722256BBE8007D2F91 /* RNFaceDetectorModuleMLKit.m */; };
 		4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */; };
 		454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */; };
@@ -21,6 +18,10 @@
 		71C7FFD62013C824006EB75A /* RNFileSystem.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFD52013C824006EB75A /* RNFileSystem.m */; };
 		9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */; };
 		A7D02BC9243627E100C0EDE6 /* RNCustomWhiteBalanceSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = A7D02BC8243627E100C0EDE6 /* RNCustomWhiteBalanceSettings.m */; };
+		E5130DA828DCF7E000F7CBAF /* TextDetectorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E5130DA728DCF7E000F7CBAF /* TextDetectorManager.m */; };
+		E5DB060A28DD11B700011C94 /* BarcodeDetectorManagerMlkit.m in Sources */ = {isa = PBXBuildFile; fileRef = E5DB060828DD11B700011C94 /* BarcodeDetectorManagerMlkit.m */; };
+		E5DB060B28DD11B700011C94 /* FaceDetectorManagerMlkit.m in Sources */ = {isa = PBXBuildFile; fileRef = E5DB060928DD11B700011C94 /* FaceDetectorManagerMlkit.m */; };
+		E5DB060E28DD11BF00011C94 /* RNFaceDetectorModuleMLKit.m in Sources */ = {isa = PBXBuildFile; fileRef = E5DB060C28DD11BF00011C94 /* RNFaceDetectorModuleMLKit.m */; };
 		F8393BEC21469C0000AB1995 /* RNSensorOrientationChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = F8393BEB21469C0000AB1995 /* RNSensorOrientationChecker.m */; };
 /* End PBXBuildFile section */
 
@@ -39,12 +40,6 @@
 /* Begin PBXFileReference section */
 		0314E39B1B661A0C0092D183 /* CameraFocusSquare.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CameraFocusSquare.h; sourceTree = "<group>"; };
 		0314E39C1B661A460092D183 /* CameraFocusSquare.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraFocusSquare.m; sourceTree = "<group>"; };
-		135441392487FF390024C19F /* BarcodeDetectorManagerMlkit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BarcodeDetectorManagerMlkit.h; sourceTree = "<group>"; };
-		1354413A2487FF390024C19F /* BarcodeDetectorManagerMlkit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarcodeDetectorManagerMlkit.m; sourceTree = "<group>"; };
-		2647D66F2256BBD5007D2F91 /* FaceDetectorManagerMlkit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceDetectorManagerMlkit.h; sourceTree = "<group>"; };
-		2647D6702256BBD5007D2F91 /* FaceDetectorManagerMlkit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceDetectorManagerMlkit.m; sourceTree = "<group>"; };
-		2647D6722256BBE8007D2F91 /* RNFaceDetectorModuleMLKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNFaceDetectorModuleMLKit.m; sourceTree = "<group>"; };
-		2647D6732256BBE8007D2F91 /* RNFaceDetectorModuleMLKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNFaceDetectorModuleMLKit.h; sourceTree = "<group>"; };
 		4107012F1ACB723B00C6AA39 /* libRNCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		410701471ACB732B00C6AA39 /* RCTCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTCamera.h; sourceTree = "<group>"; };
 		410701481ACB732B00C6AA39 /* RCTCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCamera.m; sourceTree = "<group>"; };
@@ -64,8 +59,16 @@
 		9FE592B11CA3CBF500788287 /* RCTSensorOrientationChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTSensorOrientationChecker.h; sourceTree = "<group>"; };
 		9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTSensorOrientationChecker.m; sourceTree = "<group>"; };
 		A7D02BC7243627E100C0EDE6 /* RNCustomWhiteBalanceSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNCustomWhiteBalanceSettings.h; sourceTree = "<group>"; };
-		C5627D22245D10A100B761CF /* NSMutableDictionary+ImageMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+ImageMetadata.h"; sourceTree = "<group>"; };
 		A7D02BC8243627E100C0EDE6 /* RNCustomWhiteBalanceSettings.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNCustomWhiteBalanceSettings.m; sourceTree = "<group>"; };
+		C5627D22245D10A100B761CF /* NSMutableDictionary+ImageMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+ImageMetadata.h"; sourceTree = "<group>"; };
+		E5130DA628DCF7E000F7CBAF /* TextDetectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextDetectorManager.h; sourceTree = "<group>"; };
+		E5130DA728DCF7E000F7CBAF /* TextDetectorManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextDetectorManager.m; sourceTree = "<group>"; };
+		E5DB060628DD11B600011C94 /* FaceDetectorManagerMlkit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceDetectorManagerMlkit.h; sourceTree = "<group>"; };
+		E5DB060728DD11B600011C94 /* BarcodeDetectorManagerMlkit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BarcodeDetectorManagerMlkit.h; sourceTree = "<group>"; };
+		E5DB060828DD11B700011C94 /* BarcodeDetectorManagerMlkit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarcodeDetectorManagerMlkit.m; sourceTree = "<group>"; };
+		E5DB060928DD11B700011C94 /* FaceDetectorManagerMlkit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceDetectorManagerMlkit.m; sourceTree = "<group>"; };
+		E5DB060C28DD11BF00011C94 /* RNFaceDetectorModuleMLKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNFaceDetectorModuleMLKit.m; sourceTree = "<group>"; };
+		E5DB060D28DD11BF00011C94 /* RNFaceDetectorModuleMLKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNFaceDetectorModuleMLKit.h; sourceTree = "<group>"; };
 		F8393BEA21469C0000AB1995 /* RNSensorOrientationChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSensorOrientationChecker.h; sourceTree = "<group>"; };
 		F8393BEB21469C0000AB1995 /* RNSensorOrientationChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSensorOrientationChecker.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -118,16 +121,18 @@
 		714166162013E1B600EE9FCC /* RN */ = {
 			isa = PBXGroup;
 			children = (
-				135441392487FF390024C19F /* BarcodeDetectorManagerMlkit.h */,
-				1354413A2487FF390024C19F /* BarcodeDetectorManagerMlkit.m */,
+				E5DB060D28DD11BF00011C94 /* RNFaceDetectorModuleMLKit.h */,
+				E5DB060C28DD11BF00011C94 /* RNFaceDetectorModuleMLKit.m */,
+				E5DB060728DD11B600011C94 /* BarcodeDetectorManagerMlkit.h */,
+				E5DB060828DD11B700011C94 /* BarcodeDetectorManagerMlkit.m */,
+				E5DB060628DD11B600011C94 /* FaceDetectorManagerMlkit.h */,
+				E5DB060928DD11B700011C94 /* FaceDetectorManagerMlkit.m */,
 				F8393BEA21469C0000AB1995 /* RNSensorOrientationChecker.h */,
+				E5130DA628DCF7E000F7CBAF /* TextDetectorManager.h */,
+				E5130DA728DCF7E000F7CBAF /* TextDetectorManager.m */,
 				F8393BEB21469C0000AB1995 /* RNSensorOrientationChecker.m */,
-				2647D66F2256BBD5007D2F91 /* FaceDetectorManagerMlkit.h */,
-				2647D6702256BBD5007D2F91 /* FaceDetectorManagerMlkit.m */,
 				71C7FFD42013C824006EB75A /* RNFileSystem.h */,
 				71C7FFD52013C824006EB75A /* RNFileSystem.m */,
-				2647D6732256BBE8007D2F91 /* RNFaceDetectorModuleMLKit.h */,
-				2647D6722256BBE8007D2F91 /* RNFaceDetectorModuleMLKit.m */,
 				71C7FFD12013C817006EB75A /* RNImageUtils.h */,
 				71C7FFD22013C817006EB75A /* RNImageUtils.m */,
 				71C7FFCE2013C7E5006EB75A /* RNCameraUtils.h */,
@@ -198,20 +203,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2647D6742256BBE8007D2F91 /* RNFaceDetectorModuleMLKit.m in Sources */,
 				0314E39D1B661A460092D183 /* CameraFocusSquare.m in Sources */,
 				454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */,
 				71C7FFD62013C824006EB75A /* RNFileSystem.m in Sources */,
 				A7D02BC9243627E100C0EDE6 /* RNCustomWhiteBalanceSettings.m in Sources */,
+				E5DB060B28DD11B700011C94 /* FaceDetectorManagerMlkit.m in Sources */,
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,
+				E5DB060E28DD11BF00011C94 /* RNFaceDetectorModuleMLKit.m in Sources */,
 				4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */,
-				1354413B2487FF390024C19F /* BarcodeDetectorManagerMlkit.m in Sources */,
+				E5DB060A28DD11B700011C94 /* BarcodeDetectorManagerMlkit.m in Sources */,
 				F8393BEC21469C0000AB1995 /* RNSensorOrientationChecker.m in Sources */,
 				71C7FFD02013C7E5006EB75A /* RNCameraUtils.m in Sources */,
+				E5130DA828DCF7E000F7CBAF /* TextDetectorManager.m in Sources */,
 				7162BE682013EAA400FE51FF /* RNCameraManager.m in Sources */,
 				7162BE672013EAA100FE51FF /* RNCamera.m in Sources */,
 				9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */,
-				2647D6712256BBD5007D2F91 /* FaceDetectorManagerMlkit.m in Sources */,
 				71C7FFD32013C817006EB75A /* RNImageUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -222,12 +228,21 @@
 		410701291ACB719800C6AA39 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../../React/**",
+					"$(SRCROOT)/../../react-native/React/**",
+				);
+				"HEADER_SEARCH_PATHS[arch=*]" = "";
 			};
 			name = Debug;
 		};
 		4107012A1ACB719800C6AA39 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../../React",
+					"$(SRCROOT)/../../react-native/React",
+				);
 			};
 			name = Release;
 		};
@@ -271,8 +286,9 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../../React/**",
-					"$(SRCROOT)/../../react-native/React/**",
+					"$(SRCROOT)/../../../../ios/Pods/Headers/Public/**",
+					"$(SRCROOT)/../../react-native/React",
+					"$(SRCROOT)/../../../React",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				LIBRARY_SEARCH_PATHS = "";
@@ -318,10 +334,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../../React/**",
-					"$(SRCROOT)/../../react-native/React/**",
-				);
+				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				LIBRARY_SEARCH_PATHS = "";
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -343,7 +356,7 @@
 				4107012A1ACB719800C6AA39 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		410701411ACB723B00C6AA39 /* Build configuration list for PBXNativeTarget "RNCamera" */ = {
 			isa = XCConfigurationList;
@@ -352,7 +365,7 @@
 				410701431ACB723B00C6AA39 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
