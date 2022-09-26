@@ -855,22 +855,8 @@ export default class Camera extends React.Component<PropsType, StateType> {
         </View>
       )
     } else if (!this.state.isAuthorizationChecked) {
-      // return this.props.pendingAuthorizationView;
       return null;
-      // console.log('pending authorization view')
-      // return (
-      //   <View>
-      //     <Text>pending authorization view</Text>
-      //   </View>
-      // )
     } else {
-      // return this.props.notAuthorizedView;
-      // console.log('Not authorized view')
-      // return (
-      //   <View>
-      //     <Text>Not authorized view</Text>
-      //   </View>
-      // )
       return null;
     }
   }
