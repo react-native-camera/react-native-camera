@@ -19,3 +19,4 @@ pravka1
 pravka2
 pravka3
 pravka 1/1
+pravka 2/1
