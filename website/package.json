@@ -9,6 +9,14 @@
     "rename-version": "docusaurus-rename-version"
   },
   "devDependencies": {
-    "docusaurus": "^1.11.0"
+    "docusaurus": "^1.14.7"
+  },
+  "resolutions": {
+    "shell-quote": "1.7.3",
+    "immer": "9.0.6"
+  },
+  "dependencies": {
+    "immer": "9.0.16",
+    "shell-quote": "1.7.4"
   }
 }
