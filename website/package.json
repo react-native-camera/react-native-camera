@@ -10,5 +10,13 @@
   },
   "devDependencies": {
     "docusaurus": "^1.11.0"
+  },
+  "resolutions": {
+    "immer": "9.0.6",
+    "shell-quote": "1.7.3"
+  },
+  "dependencies": {
+    "immer": "9.0.16",
+    "shell-quote": "1.7.4"
   }
 }
