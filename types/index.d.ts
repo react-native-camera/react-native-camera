@@ -12,8 +12,7 @@
  * If you are seeing this from the future, please, send us your cutting-edge technology :) (if it exists)
  */
 import { Component, ReactNode } from 'react';
-import { NativeMethods, findNodeHandle } from 'react-native';
-import { ViewProperties } from 'deprecated-react-native-prop-types';
+import { NativeMethods, ViewProperties, findNodeHandle } from 'react-native';
 
 type Orientation = Readonly<{
   auto: any;
