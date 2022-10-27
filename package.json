@@ -23,7 +23,7 @@
     "@semantic-release/release-notes-generator": "^10.0.3",
     "@types/react": "^18.0.23",
     "@types/react-native": "^0.70.6",
-    "babel-eslint": "^10.1.0",
+    "@babel/eslint-parser": "^7.5.4",
     "commitizen": "^4.2.5",
     "eslint": "^8.26.0",
     "eslint-plugin-flowtype": "^8.0.3",

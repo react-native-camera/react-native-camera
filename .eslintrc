@@ -1,5 +1,5 @@
 {
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "env": {
     "browser": true,
     "node": true,
@@ -9,6 +9,7 @@
   "plugins": ["react", "react-native", "flowtype", "import"],
   "parserOptions": {
     "ecmaVersion": 6,
+    "requireConfigFile": false,
     "sourceType": "module",
     "ecmaFeatures": {
       "modules": true
