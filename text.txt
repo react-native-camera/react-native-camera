@@ -1,1 +1,2 @@
 Second branch
+How to merge it
