@@ -1,0 +1,1717 @@
+[33mcommit 6895e36b6015ff66a041b993c2801c4d8dfba235[m[33m ([m[1;36mHEAD -> [m[1;32mbr1[m[33m, [m[1;31morigin/br1[m[33m)[m
+Author: Alex <lexuniverse@bk.ru>
+Date:   Tue Mar 7 15:32:25 2023 +0300
+
+    Commit 3
+
+[33mcommit a34585356b5e846ebcb80e37d11a6e48fc6a7bd8[m
+Author: Alex <lexuniverse@bk.ru>
+Date:   Tue Mar 7 15:32:10 2023 +0300
+
+    Commit 2
+
+[33mcommit 5eebdb50a21039ecf96f18aec8afc2f4892355f8[m
+Author: Alex <lexuniverse@bk.ru>
+Date:   Tue Mar 7 15:31:57 2023 +0300
+
+    Commit 1
+
+[33mcommit d88edcb9a5b212b5887e4b4b28043e0538160091[m[33m ([m[1;31morigin/deprecation-note[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Marc Rousavy <me@mrousavy.com>
+Date:   Mon Jan 3 16:22:50 2022 +0100
+
+    Update README.md
+
+[33mcommit a959bc7ed08d30ad4fd17c3c0b4bf3cbb76c0dd7[m
+Author: Marc Rousavy <me@mrousavy.com>
+Date:   Mon Jan 3 16:20:45 2022 +0100
+
+    Update README.md
+
+[33mcommit 835be8f58fd66261712fcd351257467ef8528e14[m
+Author: Marc Rousavy <me@mrousavy.com>
+Date:   Mon Jan 3 16:20:16 2022 +0100
+
+    Update README.md
+
+[33mcommit e6867131aac5d8dca73529ac7cd023aa552b7ee7[m
+Author: Marc Rousavy <me@mrousavy.com>
+Date:   Mon Jan 3 16:17:15 2022 +0100
+
+    deprecate.
+
+[33mcommit 7cdfb6ec127decf1ac5686635afb7f07557becc5[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Tue Sep 21 19:39:52 2021 +0000
+
+    chore(release): 4.2.1 [skip ci]
+    
+    ## [4.2.1](https://github.com/react-native-community/react-native-camera/compare/v4.2.0...v4.2.1) (2021-09-21)
+    
+    ### Bug Fixes
+    
+    * Remove the `mCamera.setPreviewDisplay` call on surface destroy as it may cause ANRs or slow down the UI when unmounting.  The side effect of this is a nasty warning `BufferQueue has been abandoned` that can be ignored. ([#3331](https://github.com/react-native-community/react-native-camera/issues/3331)) ([9c0b87e](https://github.com/react-native-community/react-native-camera/commit/9c0b87e7da10735b94cbcb833078c3cc7e95738a))
+
+[33mcommit 9c0b87e7da10735b94cbcb833078c3cc7e95738a[m
+Author: Cristiano Coelho <48869228+cristianoccazinsp@users.noreply.github.com>
+Date:   Tue Sep 21 16:37:50 2021 -0300
+
+    fix: Remove the `mCamera.setPreviewDisplay` call on surface destroy as it may cause ANRs or slow down the UI when unmounting.  The side effect of this is a nasty warning `BufferQueue has been abandoned` that can be ignored. (#3331)
+    
+    Co-authored-by: Cristiano Coelho <cristianocca@hotmail.com>
+
+[33mcommit 0defb57b4907fe254fea6048010698f3e65be83e[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Mon Sep 13 12:13:14 2021 +0000
+
+    chore(release): 4.2.0 [skip ci]
+    
+    # [4.2.0](https://github.com/react-native-community/react-native-camera/compare/v4.1.1...v4.2.0) (2021-09-13)
+    
+    ### Features
+    
+    * added hasTorch method ([#3340](https://github.com/react-native-community/react-native-camera/issues/3340)) ([f7fbbbf](https://github.com/react-native-community/react-native-camera/commit/f7fbbbf0fa2f37d0d6e694c2a44bb0be857305ca))
+
+[33mcommit f7fbbbf0fa2f37d0d6e694c2a44bb0be857305ca[m
+Author: hamzaouhssain1993 <63846472+hamzaouhssain1993@users.noreply.github.com>
+Date:   Mon Sep 13 14:12:04 2021 +0200
+
+    feat: added hasTorch method (#3340)
+    
+    * added hasTorch call to check if device has torch or not, for both Ios and Android
+    
+    * correction new line
+    
+    Co-authored-by: ouhssaha <hamza.ouhssain@arhs-developments.com>
+
+[33mcommit b0b86698ed2130b65153d4440e459e46f3bcc51a[m
+Author: Himadu2000 <49078336+Himadu2000@users.noreply.github.com>
+Date:   Sat Sep 4 20:26:52 2021 +0530
+
+    Update README.md (#3339)
+
+[33mcommit 6bc7eb711a1c76d9bcc965c1033ac274c4a094b4[m
+Author: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+Date:   Mon Aug 30 09:35:28 2021 -0300
+
+    docs: updating README.MD
+
+[33mcommit 637c896762c4cf3a057a0adac8c963bc699a781b[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Fri Aug 27 00:15:37 2021 +0000
+
+    chore(release): 4.1.1 [skip ci]
+    
+    ## [4.1.1](https://github.com/react-native-community/react-native-camera/compare/v4.1.0...v4.1.1) (2021-08-27)
+    
+    ### Bug Fixes
+    
+    * default variable to empty string to match RN props ([#3330](https://github.com/react-native-community/react-native-camera/issues/3330)) ([4523c06](https://github.com/react-native-community/react-native-camera/commit/4523c0684ba0340c80ec649dd1dac5b88166023f))
+
+[33mcommit 4523c0684ba0340c80ec649dd1dac5b88166023f[m
+Author: Cristiano Coelho <48869228+cristianoccazinsp@users.noreply.github.com>
+Date:   Thu Aug 26 21:14:28 2021 -0300
+
+    fix: default variable to empty string to match RN props (#3330)
+    
+    This prevents a double call to `setCameraId` as JS side sets the default id to ''
+    
+    Co-authored-by: Cristiano Coelho <cristianocca@hotmail.com>
+
+[33mcommit 8d3981c5d5aa994c17a76da5472934944448395e[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Tue Aug 24 21:20:48 2021 +0000
+
+    chore(release): 4.1.0 [skip ci]
+    
+    # [4.1.0](https://github.com/react-native-community/react-native-camera/compare/v4.0.3...v4.1.0) (2021-08-24)
+    
+    ### Features
+    
+    * implement onCameraReady event on Windows ([#3324](https://github.com/react-native-community/react-native-camera/issues/3324)) ([7b897b0](https://github.com/react-native-community/react-native-camera/commit/7b897b0c012b4a94f1ac48a205b5a7b3af0354e2))
+
+[33mcommit 7b897b0c012b4a94f1ac48a205b5a7b3af0354e2[m
+Author: Burton Rodman <burtonrodman@hotmail.com>
+Date:   Tue Aug 24 17:19:17 2021 -0400
+
+    feat: implement onCameraReady event on Windows (#3324)
+    
+    * add onCameraReady event to InitializeAsync
+    
+    * changed null to nullptr
+    
+    * treat onCameraReady as a native event
+    
+    * register onCameraReady event constant
+    
+    Co-authored-by: Burton Rodman <brodman@apterainc.com>
+    Co-authored-by: Ethan <epalmer@apterainc.com>
+
+[33mcommit 6e33553489b51486c2334a7dba870d02ebddf53d[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Wed Aug 18 14:24:50 2021 +0000
+
+    chore(release): 4.0.3 [skip ci]
+    
+    ## [4.0.3](https://github.com/react-native-community/react-native-camera/compare/v4.0.2...v4.0.3) (2021-08-18)
+    
+    ### Bug Fixes
+    
+    * Missing TS type definition ([#3320](https://github.com/react-native-community/react-native-camera/issues/3320)) ([01333a9](https://github.com/react-native-community/react-native-camera/commit/01333a928d883f698d5817e120f6ff5a2e085958))
+
+[33mcommit 01333a928d883f698d5817e120f6ff5a2e085958[m
+Author: Ash <ashmat.parwany@gmail.com>
+Date:   Wed Aug 18 16:23:51 2021 +0200
+
+    fix: Missing TS type definition (#3320)
+    
+    * Update index.d.ts
+    
+    * Add HardwareCamera type
+    
+    * remove facing
+
+[33mcommit 7891aecdebba8de025e53c15ba2bf15022daa137[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Tue Aug 17 20:23:15 2021 +0000
+
+    chore(release): 4.0.2 [skip ci]
+    
+    ## [4.0.2](https://github.com/react-native-community/react-native-camera/compare/v4.0.1...v4.0.2) (2021-08-17)
+    
+    ### Bug Fixes
+    
+    * Improve surface destroy handling. ([#3316](https://github.com/react-native-community/react-native-camera/issues/3316)) ([5d36cf1](https://github.com/react-native-community/react-native-camera/commit/5d36cf1efc4c5009e841fe1431abb75328a93a1b))
+
+[33mcommit 5d36cf1efc4c5009e841fe1431abb75328a93a1b[m
+Author: Cristiano Coelho <48869228+cristianoccazinsp@users.noreply.github.com>
+Date:   Tue Aug 17 17:22:10 2021 -0300
+
+    fix: Improve surface destroy handling. (#3316)
+    
+    Prevents UI freezes due to the lock being acquired on the surface destroyed callback.
+    
+    Co-authored-by: Cristiano Coelho <cristianocca@hotmail.com>
+
+[33mcommit 6a2561b3169e947083afe2417c079f65eb21c16d[m
+Merge: e602d80 7b27b0f
+Author: Renato Benkendorf <renatobenkendorfs@gmail.com>
+Date:   Sun Aug 8 23:58:10 2021 -0300
+
+    Merge pull request #3292 from Sidebook/fix-format-finding-condition
+
+[33mcommit 7b27b0fd852a97a2fdfccc31b4e07d95d47fc823[m
+Merge: 817e8fc e602d80
+Author: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+Date:   Fri Aug 6 20:32:16 2021 -0300
+
+    Merge branch 'master' into fix-format-finding-condition
+
+[33mcommit e602d80af1674662b954c7f545aa0d7d131ab384[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Fri Aug 6 20:23:13 2021 +0000
+
+    chore(release): 4.0.1 [skip ci]
+    
+    ## [4.0.1](https://github.com/react-native-community/react-native-camera/compare/v4.0.0...v4.0.1) (2021-08-06)
+    
+    ### Bug Fixes
+    
+    * Workaround for hardware JPEG rotation bug on some Samsung devices ([#3305](https://github.com/react-native-community/react-native-camera/issues/3305)) ([381f958](https://github.com/react-native-community/react-native-camera/commit/381f9586ccc75cf27627c022f5642a6c137c73b8)), closes [/github.com/react-native-camera/react-native-camera/issues/3060#issuecomment-892583205](https://github.com//github.com/react-native-camera/react-native-camera/issues/3060/issues/issuecomment-892583205) [/github.com/react-native-camera/react-native-camera/pull/3305#issuecomment-893819348](https://github.com//github.com/react-native-camera/react-native-camera/pull/3305/issues/issuecomment-893819348)
+
+[33mcommit 381f9586ccc75cf27627c022f5642a6c137c73b8[m
+Author: drash-course <35761976+drash-course@users.noreply.github.com>
+Date:   Fri Aug 6 22:22:05 2021 +0200
+
+    fix: Workaround for hardware JPEG rotation bug on some Samsung devices (#3305)
+    
+    * apply patch from https://github.com/react-native-camera/react-native-camera/issues/3060#issuecomment-892583205
+    
+    * Fix: don't assume that in case mSoftwareRotation is non-zero, the image has Exif attribute TAG_ORIENTATION equals to ORIENTATION_NORMAL and does not need to be rotated again
+    
+    * add 2 device models to the BROKEN_ROTATION_DEVICE_MODELS list
+    
+    models from https://github.com/react-native-camera/react-native-camera/pull/3305#issuecomment-893819348
+    
+    * fix inconsistent use of blank space for try/catch statements
+    
+    * add SM-T819 to the list of BROKEN_ROTATION_DEVICE_MODELS
+
+[33mcommit 817e8fc3171cd8bf9719e851d87116c4dfb6a1f6[m
+Author: ryuwakimoto <sidebook37@gmail.com>
+Date:   Thu Jul 22 21:38:06 2021 +0900
+
+    fix the format finding logic when fps is specified
+
+[33mcommit 215b5643ba7f8c5e291958a51f92be310589a2f1[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Fri Jul 16 16:24:52 2021 +0000
+
+    chore(release): 4.0.0 [skip ci]
+    
+    # [4.0.0](https://github.com/react-native-community/react-native-camera/compare/v3.44.3...v4.0.0) (2021-07-16)
+    
+    ### Features
+    
+    * migrate android to google ML Kit ([#3272](https://github.com/react-native-community/react-native-camera/issues/3272)) ([f72289f](https://github.com/react-native-community/react-native-camera/commit/f72289f1522abd32052321a157a01545bfbb1f03))
+    * migrate to google ML Kit ([#3241](https://github.com/react-native-community/react-native-camera/issues/3241)) [skip ci] ([670b973](https://github.com/react-native-community/react-native-camera/commit/670b973a8b4581d934e5b42ddbe5812be1916a71))
+    
+    ### BREAKING CHANGES
+    
+    * migrate to Google ML Kit
+    
+    * migrate to google ML Kit
+    
+    * refactor: migrate android to google ML Kit
+    
+    * refactor: migrate android general flavor to mlkit
+    
+    * docs: update docs for MLKit
+    
+    * docs: update installation doc
+    
+    Co-authored-by: Mike Duminy <michael-james.duminy@klarna.com>
+    Co-authored-by: Zhang Xuan <xuan.zhang@xiaobao100.com>
+
+[33mcommit f72289f1522abd32052321a157a01545bfbb1f03[m
+Author: Sean <seancheung@users.noreply.github.com>
+Date:   Sat Jul 17 00:23:58 2021 +0800
+
+    feat: migrate android to google ML Kit (#3272)
+    
+    BREAKING CHANGE: migrate to Google ML Kit
+    
+    * migrate to google ML Kit
+    
+    * refactor: migrate android to google ML Kit
+    
+    * refactor: migrate android general flavor to mlkit
+    
+    * docs: update docs for MLKit
+    
+    * docs: update installation doc
+    
+    Co-authored-by: Mike Duminy <michael-james.duminy@klarna.com>
+    Co-authored-by: Zhang Xuan <xuan.zhang@xiaobao100.com>
+
+[33mcommit 670b973a8b4581d934e5b42ddbe5812be1916a71[m
+Author: Mike Duminy <4092035+michaelduminy@users.noreply.github.com>
+Date:   Thu Jul 15 21:26:45 2021 +0200
+
+    feat: migrate to google ML Kit (#3241) [skip ci]
+    
+    Co-authored-by: Mike Duminy <michael-james.duminy@klarna.com>
+
+[33mcommit 0359c32be5d93e2a11a8536eaf228c522d331284[m
+Author: Marc Rousavy <marcrousavy@hotmail.com>
+Date:   Wed Jul 7 04:23:56 2021 +0200
+
+    docs: Add links to alternative libraries (#3270)
+
+[33mcommit dbe42722b2af8bb1cfb65ad495af96e72cda6fb4[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Fri Jul 2 17:36:00 2021 +0000
+
+    chore(release): 3.44.3 [skip ci]
+    
+    ## [3.44.3](https://github.com/react-native-community/react-native-camera/compare/v3.44.2...v3.44.3) (2021-07-02)
+    
+    ### Bug Fixes
+    
+    * fast capture orientation. ([#3269](https://github.com/react-native-community/react-native-camera/issues/3269)) ([afa7bb1](https://github.com/react-native-community/react-native-camera/commit/afa7bb1905585def69e2dc0d18732e3d868bb1d0))
+
+[33mcommit afa7bb1905585def69e2dc0d18732e3d868bb1d0[m
+Author: Cristiano Coelho <48869228+cristianoccazinsp@users.noreply.github.com>
+Date:   Fri Jul 2 14:34:34 2021 -0300
+
+    fix: fast capture orientation. (#3269)
+    
+    Make sure orientation value stays consistent from the beginning to the end of the capture process.
+    
+    Co-authored-by: Cristiano Coelho <cristianocca@hotmail.com>
+
+[33mcommit df0418eb00d046f009188797641decd6eee20be7[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Thu Jul 1 18:57:58 2021 +0000
+
+    chore(release): 3.44.2 [skip ci]
+    
+    ## [3.44.2](https://github.com/react-native-community/react-native-camera/compare/v3.44.1...v3.44.2) (2021-07-01)
+    
+    ### Bug Fixes
+    
+    * handle file writing errors ([#3268](https://github.com/react-native-community/react-native-camera/issues/3268)) ([2be9213](https://github.com/react-native-community/react-native-camera/commit/2be9213764874ffb95827b0eeea26aa94b0bb97d))
+
+[33mcommit 2be9213764874ffb95827b0eeea26aa94b0bb97d[m
+Author: Cristiano Coelho <48869228+cristianoccazinsp@users.noreply.github.com>
+Date:   Thu Jul 1 15:56:52 2021 -0300
+
+    fix: handle file writing errors (#3268)
+    
+    Co-authored-by: Cristiano Coelho <cristianocca@hotmail.com>
+
+[33mcommit 7108d6934db7cffe51dcd11c54287e0180fb5d25[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Tue Jun 29 13:28:05 2021 -0300
+
+    chore(deps): bump prismjs from 1.23.0 to 1.24.0 in /website (#3266)
+    
+    Bumps [prismjs](https://github.com/PrismJS/prism) from 1.23.0 to 1.24.0.
+    - [Release notes](https://github.com/PrismJS/prism/releases)
+    - [Changelog](https://github.com/PrismJS/prism/blob/master/CHANGELOG.md)
+    - [Commits](https://github.com/PrismJS/prism/compare/v1.23.0...v1.24.0)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: prismjs
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit ba4d3a555ba3109fa991d3b2336df887396314ca[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Tue Jun 22 21:23:37 2021 -0300
+
+    chore(deps): bump color-string in /examples/advanced/advanced (#3262)
+    
+    Bumps [color-string](https://github.com/Qix-/color-string) from 1.5.3 to 1.5.5.
+    - [Release notes](https://github.com/Qix-/color-string/releases)
+    - [Changelog](https://github.com/Qix-/color-string/blob/master/CHANGELOG.md)
+    - [Commits](https://github.com/Qix-/color-string/commits/1.5.5)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: color-string
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit a0ae0e65d3cdc63debbf472b5816262e548c0761[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Tue Jun 22 18:17:17 2021 -0300
+
+    chore(deps): bump set-getter from 0.1.0 to 0.1.1 in /website (#3261)
+    
+    Bumps [set-getter](https://github.com/doowb/set-getter) from 0.1.0 to 0.1.1.
+    - [Release notes](https://github.com/doowb/set-getter/releases)
+    - [Commits](https://github.com/doowb/set-getter/commits/0.1.1)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: set-getter
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 5bd45a0f4007fbf39477540dbcc3a36d500a77d8[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu Jun 17 20:32:33 2021 -0300
+
+    chore(deps): bump postcss from 7.0.35 to 7.0.36 in /website (#3258)
+    
+    Bumps [postcss](https://github.com/postcss/postcss) from 7.0.35 to 7.0.36.
+    - [Release notes](https://github.com/postcss/postcss/releases)
+    - [Changelog](https://github.com/postcss/postcss/blob/main/CHANGELOG.md)
+    - [Commits](https://github.com/postcss/postcss/compare/7.0.35...7.0.36)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: postcss
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 0c63324ff53d547d3260ec073008c57252621cde[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu Jun 10 22:30:24 2021 -0300
+
+    chore(deps): bump yargs-parser from 13.1.1 to 13.1.2 in /examples/mlkit (#3252)
+    
+    Bumps [yargs-parser](https://github.com/yargs/yargs-parser) from 13.1.1 to 13.1.2.
+    - [Release notes](https://github.com/yargs/yargs-parser/releases)
+    - [Changelog](https://github.com/yargs/yargs-parser/blob/master/docs/CHANGELOG-full.md)
+    - [Commits](https://github.com/yargs/yargs-parser/commits)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: yargs-parser
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 99b6b901eb534433ad752695656ecbd6bc007d98[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu Jun 10 22:03:36 2021 -0300
+
+    chore(deps): bump glob-parent from 5.1.1 to 5.1.2 (#3248)
+    
+    Bumps [glob-parent](https://github.com/gulpjs/glob-parent) from 5.1.1 to 5.1.2.
+    - [Release notes](https://github.com/gulpjs/glob-parent/releases)
+    - [Changelog](https://github.com/gulpjs/glob-parent/blob/main/CHANGELOG.md)
+    - [Commits](https://github.com/gulpjs/glob-parent/compare/v5.1.1...v5.1.2)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: glob-parent
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit d9de5aee64af338109b91eb41ba71cc5efaccc31[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu Jun 10 21:56:39 2021 -0300
+
+    chore(deps): bump glob-parent from 5.1.1 to 5.1.2 in /examples/tests (#3251)
+    
+    Bumps [glob-parent](https://github.com/gulpjs/glob-parent) from 5.1.1 to 5.1.2.
+    - [Release notes](https://github.com/gulpjs/glob-parent/releases)
+    - [Changelog](https://github.com/gulpjs/glob-parent/blob/main/CHANGELOG.md)
+    - [Commits](https://github.com/gulpjs/glob-parent/compare/v5.1.1...v5.1.2)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: glob-parent
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 80320e0be9ef653846f7d9330f4a42e5b5a27c87[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu Jun 10 14:13:32 2021 -0300
+
+    chore(deps): bump glob-parent in /examples/advanced/advanced (#3253)
+    
+    Bumps [glob-parent](https://github.com/gulpjs/glob-parent) from 5.1.0 to 5.1.2.
+    - [Release notes](https://github.com/gulpjs/glob-parent/releases)
+    - [Changelog](https://github.com/gulpjs/glob-parent/blob/main/CHANGELOG.md)
+    - [Commits](https://github.com/gulpjs/glob-parent/compare/v5.1.0...v5.1.2)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: glob-parent
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 5b4c16d8333b24d8fc09454c30c8959ddce88051[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jun 9 14:53:34 2021 -0700
+
+    chore(deps): bump trim-newlines from 3.0.0 to 3.0.1 (#3247)
+    
+    Bumps [trim-newlines](https://github.com/sindresorhus/trim-newlines) from 3.0.0 to 3.0.1.
+    - [Release notes](https://github.com/sindresorhus/trim-newlines/releases)
+    - [Commits](https://github.com/sindresorhus/trim-newlines/commits)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: trim-newlines
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+    Co-authored-by: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+
+[33mcommit a6e956793d05c56d8bdbe5fe7e11b18ac3affbba[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jun 9 18:45:49 2021 -0300
+
+    chore(deps): bump normalize-url from 5.1.0 to 5.3.1 (#3249)
+    
+    Bumps [normalize-url](https://github.com/sindresorhus/normalize-url) from 5.1.0 to 5.3.1.
+    - [Release notes](https://github.com/sindresorhus/normalize-url/releases)
+    - [Commits](https://github.com/sindresorhus/normalize-url/commits)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: normalize-url
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 80d8ae4b380c6bc343caca95fcd25b4ad2d2ccf0[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Sun Jun 6 03:06:16 2021 +0000
+
+    chore(release): 3.44.1 [skip ci]
+    
+    ## [3.44.1](https://github.com/react-native-community/react-native-camera/compare/v3.44.0...v3.44.1) (2021-06-06)
+    
+    ### Bug Fixes
+    
+    * swapped min/max labels in CameraModule.getSupportedPreviewFpsRange() output ([#3246](https://github.com/react-native-community/react-native-camera/issues/3246)) ([69b3c7f](https://github.com/react-native-community/react-native-camera/commit/69b3c7fb0407887720c6e90e384af1b96de49154))
+
+[33mcommit 69b3c7fb0407887720c6e90e384af1b96de49154[m
+Author: Tam <56276625+tam-nguyen-senseye@users.noreply.github.com>
+Date:   Sat Jun 5 20:05:11 2021 -0700
+
+    fix: swapped min/max labels in CameraModule.getSupportedPreviewFpsRange() output (#3246)
+
+[33mcommit cc3b56a910ecfbc267dfbc1df0f6f6073e2286ca[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Mon May 31 15:58:39 2021 +0000
+
+    chore(release): 3.44.0 [skip ci]
+    
+    # [3.44.0](https://github.com/react-native-community/react-native-camera/compare/v3.43.9...v3.44.0) (2021-05-31)
+    
+    ### Features
+    
+    * Improve hardware iOS orientation sensor usage. ([#3113](https://github.com/react-native-community/react-native-camera/issues/3113)) ([f77ab1b](https://github.com/react-native-community/react-native-camera/commit/f77ab1bf8793e67f3707530cc30da297e8fec0b3))
+
+[33mcommit f77ab1bf8793e67f3707530cc30da297e8fec0b3[m
+Author: Cristiano Coelho <48869228+cristianoccazinsp@users.noreply.github.com>
+Date:   Mon May 31 12:57:28 2021 -0300
+
+    feat: Improve hardware iOS orientation sensor usage. (#3113)
+    
+    * Improve hardware iOS orientation sensor usage.
+    Revert photo preset change to Photo quality.
+    
+    * missing update interval value
+    
+    * Further improve sensor usage, do not use dedicated queue. Keep sensor running while the camera is live.
+    
+    Co-authored-by: Cristiano Coelho <cristianocca@hotmail.com>
+
+[33mcommit d1b39d954505d1b43a074a5c5d1637173981dcdc[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Tue May 18 22:42:43 2021 +0000
+
+    chore(release): 3.43.9 [skip ci]
+    
+    ## [3.43.9](https://github.com/react-native-community/react-native-camera/compare/v3.43.8...v3.43.9) (2021-05-18)
+    
+    ### Bug Fixes
+    
+    * crash for devices that does not support bitrate setup. ([#3150](https://github.com/react-native-community/react-native-camera/issues/3150)) ([316ebed](https://github.com/react-native-community/react-native-camera/commit/316ebed9daf7f960bcabcb8d8e95d023b9e7e156))
+
+[33mcommit 316ebed9daf7f960bcabcb8d8e95d023b9e7e156[m
+Author: Cristiano Coelho <48869228+cristianoccazinsp@users.noreply.github.com>
+Date:   Tue May 18 19:41:19 2021 -0300
+
+    fix: crash for devices that does not support bitrate setup. (#3150)
+    
+    Co-authored-by: Cristiano Coelho <cristianocca@hotmail.com>
+
+[33mcommit 4992839fd18838eedf5137ab9ff1201f2d8aa2cd[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Wed May 12 14:25:05 2021 +0000
+
+    chore(release): 3.43.8 [skip ci]
+    
+    ## [3.43.8](https://github.com/react-native-community/react-native-camera/compare/v3.43.7...v3.43.8) (2021-05-12)
+    
+    ### Bug Fixes
+    
+    * **type definitions for typescript:** add type to missing prop `cameraId` on camera component ([e020999](https://github.com/react-native-community/react-native-camera/commit/e0209993ac47c3a9a63c3d74f7878bdbb39cce9d))
+
+[33mcommit d055c5fa7c6124dc0443fe4a20dd5424d19f9c3a[m
+Merge: 9468177 f9be9ae
+Author: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+Date:   Wed May 12 11:24:00 2021 -0300
+
+    Merge pull request #3196 from renatobenks/fix/type-prop-cameraid
+    
+    fix(type definitions for typescript): add type to missing prop `cameraId` on camera component
+
+[33mcommit f9be9aec54e29d0fedd771db9c685e30f7a03c5d[m
+Merge: e020999 9468177
+Author: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+Date:   Wed May 12 11:18:45 2021 -0300
+
+    Merge branch 'master' into fix/type-prop-cameraid
+
+[33mcommit 94681773d37a1dd529e487683731007a0ca4fc84[m
+Author: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+Date:   Wed May 12 11:17:44 2021 -0300
+
+    chore: Updating security warnings (#3228)
+    
+    * fix: security issues with website
+    
+    * fix: security deps at core
+    
+    * fix: security deps
+
+[33mcommit 776d4285f68d77b0095c4b5ecdf8a8730fbcc5ca[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed May 12 11:00:59 2021 -0300
+
+    chore(deps): bump handlebars from 4.5.3 to 4.7.7 in /examples/mlkit (#3209)
+    
+    Bumps [handlebars](https://github.com/wycats/handlebars.js) from 4.5.3 to 4.7.7.
+    - [Release notes](https://github.com/wycats/handlebars.js/releases)
+    - [Changelog](https://github.com/handlebars-lang/handlebars.js/blob/master/release-notes.md)
+    - [Commits](https://github.com/wycats/handlebars.js/compare/v4.5.3...v4.7.7)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 98ceb4778629bc92e481087e416e1882c7b1b9a9[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Wed May 12 13:31:19 2021 +0000
+
+    chore(release): 3.43.7 [skip ci]
+    
+    ## [3.43.7](https://github.com/react-native-community/react-native-camera/compare/v3.43.6...v3.43.7) (2021-05-12)
+    
+    ### Bug Fixes
+    
+    * typo at android toDegreeMinuteSecods method ([#3226](https://github.com/react-native-community/react-native-camera/issues/3226)) ([c353ea2](https://github.com/react-native-community/react-native-camera/commit/c353ea2419c05c471c03a7c2b539a1b61f400f09))
+
+[33mcommit c353ea2419c05c471c03a7c2b539a1b61f400f09[m
+Author: Hugo Medina <hugomedina102192@gmail.com>
+Date:   Wed May 12 15:30:01 2021 +0200
+
+    fix: typo at android toDegreeMinuteSecods method (#3226)
+
+[33mcommit a001927449a217b61403220cacb9fad2f6b102cd[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Mon May 10 18:45:24 2021 -0300
+
+    chore(deps): bump lodash from 4.17.19 to 4.17.21 in /examples/basic (#3213)
+    
+    Bumps [lodash](https://github.com/lodash/lodash) from 4.17.19 to 4.17.21.
+    - [Release notes](https://github.com/lodash/lodash/releases)
+    - [Commits](https://github.com/lodash/lodash/compare/4.17.19...4.17.21)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 5e9910f426c7db7f10dbca9a861e21f504817193[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Mon May 10 16:55:28 2021 -0300
+
+    chore(deps): bump hosted-git-info from 2.8.5 to 2.8.9 in /examples/mlkit (#3216)
+    
+    Bumps [hosted-git-info](https://github.com/npm/hosted-git-info) from 2.8.5 to 2.8.9.
+    - [Release notes](https://github.com/npm/hosted-git-info/releases)
+    - [Changelog](https://github.com/npm/hosted-git-info/blob/v2.8.9/CHANGELOG.md)
+    - [Commits](https://github.com/npm/hosted-git-info/compare/v2.8.5...v2.8.9)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 7173504c773766681c60df2297485f618e741e05[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Sun May 9 20:19:33 2021 -0300
+
+    chore(deps): bump hosted-git-info in /examples/advanced/advanced (#3218)
+    
+    Bumps [hosted-git-info](https://github.com/npm/hosted-git-info) from 2.8.5 to 2.8.9.
+    - [Release notes](https://github.com/npm/hosted-git-info/releases)
+    - [Changelog](https://github.com/npm/hosted-git-info/blob/v2.8.9/CHANGELOG.md)
+    - [Commits](https://github.com/npm/hosted-git-info/compare/v2.8.5...v2.8.9)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit f6119b14a6e8b815968f1397f63dceb1f0c41c8e[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Fri May 7 16:26:03 2021 -0300
+
+    chore(deps): bump hosted-git-info from 2.8.8 to 2.8.9 (#3220)
+    
+    Bumps [hosted-git-info](https://github.com/npm/hosted-git-info) from 2.8.8 to 2.8.9.
+    - [Release notes](https://github.com/npm/hosted-git-info/releases)
+    - [Changelog](https://github.com/npm/hosted-git-info/blob/v2.8.9/CHANGELOG.md)
+    - [Commits](https://github.com/npm/hosted-git-info/compare/v2.8.8...v2.8.9)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit feef359b75bdae0ddd663731b2ce11c6b2f665c2[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Fri May 7 16:14:57 2021 -0300
+
+    chore(deps): bump hosted-git-info from 2.7.1 to 2.8.9 in /examples/basic (#3219)
+    
+    Bumps [hosted-git-info](https://github.com/npm/hosted-git-info) from 2.7.1 to 2.8.9.
+    - [Release notes](https://github.com/npm/hosted-git-info/releases)
+    - [Changelog](https://github.com/npm/hosted-git-info/blob/v2.8.9/CHANGELOG.md)
+    - [Commits](https://github.com/npm/hosted-git-info/compare/v2.7.1...v2.8.9)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit d2ca2584d6c25481ef7cee9c1d511affd9e0f005[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Fri May 7 15:30:08 2021 -0300
+
+    chore(deps): bump handlebars from 4.5.3 to 4.7.7 in /examples/basic (#3212)
+    
+    Bumps [handlebars](https://github.com/wycats/handlebars.js) from 4.5.3 to 4.7.7.
+    - [Release notes](https://github.com/wycats/handlebars.js/releases)
+    - [Changelog](https://github.com/handlebars-lang/handlebars.js/blob/master/release-notes.md)
+    - [Commits](https://github.com/wycats/handlebars.js/compare/v4.5.3...v4.7.7)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit b0f28a15d641ef2f7f031c81a0e6287722f1380d[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Fri May 7 15:20:39 2021 -0300
+
+    chore(deps): bump lodash from 4.17.19 to 4.17.21 in /website (#3214)
+    
+    Bumps [lodash](https://github.com/lodash/lodash) from 4.17.19 to 4.17.21.
+    - [Release notes](https://github.com/lodash/lodash/releases)
+    - [Commits](https://github.com/lodash/lodash/compare/4.17.19...4.17.21)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 1664bd3cae8c05bd2b6171a2b1bd1ffba8dd6909[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Fri May 7 14:24:22 2021 -0300
+
+    chore(deps): bump ua-parser-js in /examples/advanced/advanced (#3207)
+    
+    Bumps [ua-parser-js](https://github.com/faisalman/ua-parser-js) from 0.7.20 to 0.7.28.
+    - [Release notes](https://github.com/faisalman/ua-parser-js/releases)
+    - [Commits](https://github.com/faisalman/ua-parser-js/compare/0.7.20...0.7.28)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 4b3edf60738fd6e83a3c6f7901f731b04df066f7[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Fri May 7 14:10:39 2021 -0300
+
+    chore(deps): bump ua-parser-js from 0.7.18 to 0.7.28 in /examples/basic (#3200)
+    
+    Bumps [ua-parser-js](https://github.com/faisalman/ua-parser-js) from 0.7.18 to 0.7.28.
+    - [Release notes](https://github.com/faisalman/ua-parser-js/releases)
+    - [Commits](https://github.com/faisalman/ua-parser-js/compare/0.7.18...0.7.28)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 2a2c692883d8d240a2619491c1d2f8920b868b36[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Fri May 7 12:09:11 2021 -0300
+
+    chore(deps): bump ua-parser-js from 0.7.21 to 0.7.28 in /examples/tests (#3204)
+    
+    Bumps [ua-parser-js](https://github.com/faisalman/ua-parser-js) from 0.7.21 to 0.7.28.
+    - [Release notes](https://github.com/faisalman/ua-parser-js/releases)
+    - [Commits](https://github.com/faisalman/ua-parser-js/compare/0.7.21...0.7.28)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit b9060d9a399355d76e0c90afb4eaf366e0020f1a[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Fri May 7 11:55:20 2021 -0300
+
+    chore(deps): bump lodash from 4.17.19 to 4.17.21 in /examples/mlkit (#3211)
+    
+    Bumps [lodash](https://github.com/lodash/lodash) from 4.17.19 to 4.17.21.
+    - [Release notes](https://github.com/lodash/lodash/releases)
+    - [Commits](https://github.com/lodash/lodash/compare/4.17.19...4.17.21)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 9db0abfda5d3a04187d96ea5d77aa961eccac213[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Fri May 7 11:44:18 2021 -0300
+
+    chore(deps): bump lodash from 4.17.19 to 4.17.21 in /examples/tests (#3203)
+    
+    Bumps [lodash](https://github.com/lodash/lodash) from 4.17.19 to 4.17.21.
+    - [Release notes](https://github.com/lodash/lodash/releases)
+    - [Commits](https://github.com/lodash/lodash/compare/4.17.19...4.17.21)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 57911d6d9045f0a0272a467d86773e8e2906a275[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Fri May 7 11:27:53 2021 -0300
+
+    chore(deps): bump underscore in /examples/advanced/advanced (#3205)
+    
+    Bumps [underscore](https://github.com/jashkenas/underscore) from 1.9.1 to 1.12.1.
+    - [Release notes](https://github.com/jashkenas/underscore/releases)
+    - [Commits](https://github.com/jashkenas/underscore/compare/1.9.1...1.12.1)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit bd2934980f15e5ac9da700386d261cfde3e75101[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu May 6 22:38:42 2021 -0300
+
+    chore(deps): bump handlebars in /examples/advanced/advanced (#3206)
+    
+    Bumps [handlebars](https://github.com/wycats/handlebars.js) from 4.7.6 to 4.7.7.
+    - [Release notes](https://github.com/wycats/handlebars.js/releases)
+    - [Changelog](https://github.com/handlebars-lang/handlebars.js/blob/master/release-notes.md)
+    - [Commits](https://github.com/wycats/handlebars.js/compare/v4.7.6...v4.7.7)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 1e379736ee0d6af51497013d2bab63e0c3bc3b85[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu May 6 22:27:32 2021 -0300
+
+    chore(deps): bump lodash in /examples/advanced/advanced (#3208)
+    
+    Bumps [lodash](https://github.com/lodash/lodash) from 4.17.19 to 4.17.21.
+    - [Release notes](https://github.com/lodash/lodash/releases)
+    - [Commits](https://github.com/lodash/lodash/compare/4.17.19...4.17.21)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 7d10c1b61ff92c663738a5aded33597365454121[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu May 6 20:00:38 2021 -0300
+
+    chore(deps): bump ua-parser-js from 0.7.21 to 0.7.28 (#3201)
+    
+    Bumps [ua-parser-js](https://github.com/faisalman/ua-parser-js) from 0.7.21 to 0.7.28.
+    - [Release notes](https://github.com/faisalman/ua-parser-js/releases)
+    - [Commits](https://github.com/faisalman/ua-parser-js/compare/0.7.21...0.7.28)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 36c39102b7df4ff4df3b00d62a2edaa2da6a6c5e[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu May 6 19:42:19 2021 -0300
+
+    chore(deps): bump ua-parser-js from 0.7.20 to 0.7.28 in /examples/mlkit (#3202)
+    
+    Bumps [ua-parser-js](https://github.com/faisalman/ua-parser-js) from 0.7.20 to 0.7.28.
+    - [Release notes](https://github.com/faisalman/ua-parser-js/releases)
+    - [Commits](https://github.com/faisalman/ua-parser-js/compare/0.7.20...0.7.28)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit e0209993ac47c3a9a63c3d74f7878bdbb39cce9d[m
+Author: Renato Benkendorf <51369951+renatobenks@users.noreply.github.com>
+Date:   Wed Apr 28 15:08:41 2021 -0300
+
+    fix(type definitions for typescript): add type to missing prop `cameraId` on camera component
+
+[33mcommit 8d2bd11798dff49de1468dc9438c14c10c77fb88[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Sun Apr 18 11:20:18 2021 -0400
+
+    chore(deps): bump ssri from 6.0.1 to 6.0.2 (#3189)
+    
+    Bumps [ssri](https://github.com/npm/ssri) from 6.0.1 to 6.0.2.
+    - [Release notes](https://github.com/npm/ssri/releases)
+    - [Changelog](https://github.com/npm/ssri/blob/v6.0.2/CHANGELOG.md)
+    - [Commits](https://github.com/npm/ssri/compare/v6.0.1...v6.0.2)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 4a5556b635cd20b9ee124d7838873400470a360f[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Sun Apr 18 15:06:44 2021 +0000
+
+    chore(release): 3.43.6 [skip ci]
+    
+    ## [3.43.6](https://github.com/react-native-community/react-native-camera/compare/v3.43.5...v3.43.6) (2021-04-18)
+    
+    ### Bug Fixes
+    
+    * Adding mavenCentral() as jcenter() is shutting ([#3188](https://github.com/react-native-community/react-native-camera/issues/3188)) ([c04a339](https://github.com/react-native-community/react-native-camera/commit/c04a3391ac8bf7e4c25516e56c16426a26fdd868))
+
+[33mcommit c04a3391ac8bf7e4c25516e56c16426a26fdd868[m
+Author: Mrinal Maheshwari <maheshwari.mrinal@gmail.com>
+Date:   Sun Apr 18 20:34:08 2021 +0530
+
+    fix: Adding mavenCentral() as jcenter() is shutting (#3188)
+
+[33mcommit 941536592cb8ad6f65f3cb50e2fe814b7c70c093[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Sun Apr 11 15:06:22 2021 +0000
+
+    chore(release): 3.43.5 [skip ci]
+    
+    ## [3.43.5](https://github.com/react-native-community/react-native-camera/compare/v3.43.4...v3.43.5) (2021-04-11)
+    
+    ### Bug Fixes
+    
+    * error handling android ([#3179](https://github.com/react-native-community/react-native-camera/issues/3179)) ([b579e8e](https://github.com/react-native-community/react-native-camera/commit/b579e8ef794390e9d4171e5c2a2578ceeecf5b79))
+
+[33mcommit b579e8ef794390e9d4171e5c2a2578ceeecf5b79[m
+Author: Jeremy Deal <jeremy.n.deal@gmail.com>
+Date:   Sun Apr 11 09:04:54 2021 -0600
+
+    fix: error handling android (#3179)
+
+[33mcommit b215648cbbc8dd7676f89e377741349bff5b6550[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Fri Apr 9 22:04:14 2021 +0000
+
+    chore(release): 3.43.4 [skip ci]
+    
+    ## [3.43.4](https://github.com/react-native-community/react-native-camera/compare/v3.43.3...v3.43.4) (2021-04-09)
+    
+    ### Bug Fixes
+    
+    * rect of interest issue  ([#3176](https://github.com/react-native-community/react-native-camera/issues/3176)) ([f8ee52b](https://github.com/react-native-community/react-native-camera/commit/f8ee52b7864c85315761ed7f45ad6b7cc6bb623a))
+
+[33mcommit f8ee52b7864c85315761ed7f45ad6b7cc6bb623a[m
+Author: haris523 <33039018+haris523@users.noreply.github.com>
+Date:   Sat Apr 10 00:03:21 2021 +0200
+
+    fix: rect of interest issue  (#3176)
+    
+    Rect of interest for typescript definition said that the rectOfInterest property is a Point. Point only has x and y, and rectOfInterest prop requires width and height also so I fixed the type definition
+
+[33mcommit 853c5e066b937d8d2d09d9e6fad88e3095ba306a[m
+Author: Steven Vanderschaeve <steven@ontoforce.com>
+Date:   Fri Apr 9 14:08:22 2021 +0200
+
+    Update RNCamera.md (#3174)
+    
+    Type transalted --> translated
+
+[33mcommit dd33fccd7df8fcc0edfcf5a155a351bcade07ac6[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Mon Apr 5 09:36:14 2021 -0300
+
+    chore(deps): bump y18n in /examples/advanced/advanced (#3165)
+    
+    Bumps [y18n](https://github.com/yargs/y18n) from 4.0.0 to 4.0.1.
+    - [Release notes](https://github.com/yargs/y18n/releases)
+    - [Changelog](https://github.com/yargs/y18n/blob/master/CHANGELOG.md)
+    - [Commits](https://github.com/yargs/y18n/commits)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 94f7c5b350d4ee62fc06528b17aef79279681160[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Mon Apr 5 12:28:56 2021 +0000
+
+    chore(release): 3.43.3 [skip ci]
+    
+    ## [3.43.3](https://github.com/react-native-community/react-native-camera/compare/v3.43.2...v3.43.3) (2021-04-05)
+    
+    ### Bug Fixes
+    
+    * iOS mirroring video always outputs low quality video ([#3172](https://github.com/react-native-community/react-native-camera/issues/3172)) ([b102e1c](https://github.com/react-native-community/react-native-camera/commit/b102e1c6806316cbc7f4835fc892affa0bf5dc6d))
+
+[33mcommit b102e1c6806316cbc7f4835fc892affa0bf5dc6d[m
+Author: Thomas Hessler <hessler.thomas93@gmail.com>
+Date:   Mon Apr 5 05:27:48 2021 -0700
+
+    fix: iOS mirroring video always outputs low quality video (#3172)
+    
+    * fix the preset to be set to the session preset and not hardcoded to 480
+    
+    * update to include default preset
+    
+    * updates to fix current preset
+    
+    * comments
+
+[33mcommit 522f3f10e47000c3c984b4ea330bc70a7f611df2[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu Apr 1 12:03:29 2021 -0300
+
+    chore(deps): bump y18n from 3.2.1 to 3.2.2 (#3162)
+    
+    Bumps [y18n](https://github.com/yargs/y18n) from 3.2.1 to 3.2.2.
+    - [Release notes](https://github.com/yargs/y18n/releases)
+    - [Changelog](https://github.com/yargs/y18n/blob/master/CHANGELOG.md)
+    - [Commits](https://github.com/yargs/y18n/commits)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 42f6d023676e5329784db889b07b36ee1ad50cbc[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Thu Apr 1 14:55:41 2021 +0000
+
+    chore(release): 3.43.2 [skip ci]
+    
+    ## [3.43.2](https://github.com/react-native-community/react-native-camera/compare/v3.43.1...v3.43.2) (2021-04-01)
+    
+    ### Bug Fixes
+    
+    * iOS captureAudio race condition fix ([#3168](https://github.com/react-native-community/react-native-camera/issues/3168)) ([01e75ef](https://github.com/react-native-community/react-native-camera/commit/01e75eff5694e91762886f85145e659687149722))
+
+[33mcommit 01e75eff5694e91762886f85145e659687149722[m
+Author: Cristiano Coelho <48869228+cristianoccazinsp@users.noreply.github.com>
+Date:   Thu Apr 1 11:54:43 2021 -0300
+
+    fix: iOS captureAudio race condition fix (#3168)
+    
+    * Fix audio session concurrency issue in record.
+    
+    * make this async
+    
+    Co-authored-by: Cristiano Coelho <cristianocca@hotmail.com>
+    Co-authored-by: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+
+[33mcommit 3bb92dc1349f6e52cd99b7d91cd6ba166e73e102[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu Apr 1 11:47:18 2021 -0300
+
+    chore(deps): bump y18n from 4.0.0 to 4.0.1 in /examples/tests (#3169)
+    
+    Bumps [y18n](https://github.com/yargs/y18n) from 4.0.0 to 4.0.1.
+    - [Release notes](https://github.com/yargs/y18n/releases)
+    - [Changelog](https://github.com/yargs/y18n/blob/master/CHANGELOG.md)
+    - [Commits](https://github.com/yargs/y18n/commits)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit ed84c27ff840f3d499377645b4e314c43cd39059[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Tue Mar 30 18:21:19 2021 -0300
+
+    chore(deps): bump y18n from 4.0.0 to 4.0.1 in /examples/mlkit (#3161)
+    
+    Bumps [y18n](https://github.com/yargs/y18n) from 4.0.0 to 4.0.1.
+    - [Release notes](https://github.com/yargs/y18n/releases)
+    - [Changelog](https://github.com/yargs/y18n/blob/master/CHANGELOG.md)
+    - [Commits](https://github.com/yargs/y18n/commits)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 15fce862a8e88028ef091f10f7bf6cc739ef2d2d[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Tue Mar 30 18:15:19 2021 -0300
+
+    chore(deps): bump y18n from 3.2.1 to 3.2.2 in /examples/basic (#3163)
+    
+    Bumps [y18n](https://github.com/yargs/y18n) from 3.2.1 to 3.2.2.
+    - [Release notes](https://github.com/yargs/y18n/releases)
+    - [Changelog](https://github.com/yargs/y18n/blob/master/CHANGELOG.md)
+    - [Commits](https://github.com/yargs/y18n/commits)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 637080a21be7feeddf8c5d5797b8ee0d98515ee8[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Fri Mar 26 19:28:06 2021 +0000
+
+    chore(release): 3.43.1 [skip ci]
+    
+    ## [3.43.1](https://github.com/react-native-community/react-native-camera/compare/v3.43.0...v3.43.1) (2021-03-26)
+    
+    ### Bug Fixes
+    
+    * Use release instead of close to support to prevent issues from SDKs < 29. ([#3156](https://github.com/react-native-community/react-native-camera/issues/3156)) ([38403de](https://github.com/react-native-community/react-native-camera/commit/38403deba13f09b65c4a61f8f03f110bd9b9e4c4))
+
+[33mcommit 38403deba13f09b65c4a61f8f03f110bd9b9e4c4[m
+Author: Cristiano Coelho <48869228+cristianoccazinsp@users.noreply.github.com>
+Date:   Fri Mar 26 16:26:24 2021 -0300
+
+    fix: Use release instead of close to support to prevent issues from SDKs < 29. (#3156)
+    
+    Co-authored-by: Cristiano Coelho <cristianocca@hotmail.com>
+
+[33mcommit c591e9d4e07fdd973e8c1cf681d2c5e10025aa0f[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Mon Mar 1 17:38:31 2021 -0300
+
+    chore(deps): bump prismjs from 1.21.0 to 1.23.0 in /website (#3136)
+    
+    Bumps [prismjs](https://github.com/PrismJS/prism) from 1.21.0 to 1.23.0.
+    - [Release notes](https://github.com/PrismJS/prism/releases)
+    - [Changelog](https://github.com/PrismJS/prism/blob/master/CHANGELOG.md)
+    - [Commits](https://github.com/PrismJS/prism/compare/v1.21.0...v1.23.0)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 0973d0f3aa16c015ac32d92bfc7bb52707de1c54[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Thu Feb 25 22:20:19 2021 +0000
+
+    chore(release): 3.43.0 [skip ci]
+    
+    # [3.43.0](https://github.com/react-native-community/react-native-camera/compare/v3.42.3...v3.43.0) (2021-02-25)
+    
+    ### Features
+    
+    * android method to check for corrupted videos ([#3087](https://github.com/react-native-community/react-native-camera/issues/3087)) ([8aad81d](https://github.com/react-native-community/react-native-camera/commit/8aad81d6ebd42c73b70cbb45784d69f24db80ea9))
+
+[33mcommit 8aad81d6ebd42c73b70cbb45784d69f24db80ea9[m
+Author: Cristiano Coelho <48869228+cristianoccazinsp@users.noreply.github.com>
+Date:   Thu Feb 25 19:18:49 2021 -0300
+
+    feat: android method to check for corrupted videos (#3087)
+    
+    * - Implement android checkIfVideoIsValid to handle corrupted recordings.
+    - Add missing try/catch
+    - Add missing types
+    
+    * handle undefined / crash in resource close.
+    
+    * catch all exceptions
+    
+    * Improve detection code to handle false positives or unavailable source
+    
+    * add some comments about the path parameter format.
+    
+    * additional error handling and cleanup on camera open fail.
+    
+    * Bump android compile version of test and sample projects.
+    
+    * bump compile/target SDK version in main project
+    
+    * update gradle dependency and docs to fix build/test errors. Gradle will match RN template version.
+    
+    Co-authored-by: Cristiano Coelho <cristianocca@hotmail.com>
+
+[33mcommit 004658202f8bf566661f5045a05c9559fb683b81[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Tue Feb 23 00:37:11 2021 +0000
+
+    chore(release): 3.42.3 [skip ci]
+    
+    ## [3.42.3](https://github.com/react-native-community/react-native-camera/compare/v3.42.2...v3.42.3) (2021-02-23)
+    
+    ### Bug Fixes
+    
+    * Use empty string for undefined cameraId ([#3117](https://github.com/react-native-community/react-native-camera/issues/3117)) ([bed16e9](https://github.com/react-native-community/react-native-camera/commit/bed16e96f357f3930df7b2ae7fee1dc0f9290daf))
+
+[33mcommit bed16e96f357f3930df7b2ae7fee1dc0f9290daf[m
+Author: Cristiano Coelho <48869228+cristianoccazinsp@users.noreply.github.com>
+Date:   Mon Feb 22 21:36:17 2021 -0300
+
+    fix: Use empty string for undefined cameraId (#3117)
+    
+    * Make cameraId default to empty string instead of null to avoid "defaultViews"
+    
+    * bugfix
+    
+    Co-authored-by: Cristiano Coelho <cristianocca@hotmail.com>
+
+[33mcommit 6a81dea6574389add42e4d3f005dabda89115b8c[m
+Author: ThaJay <ThaJay@users.noreply.github.com>
+Date:   Thu Feb 11 13:49:13 2021 +0100
+
+    docs: Update react-navigation.md (#3106)
+    
+    Update docs to reflect react-navigation 5x with hooks
+
+[33mcommit 8d7b4a80068ef2eb21a758de8beff9e4a8443c47[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Wed Feb 10 21:19:19 2021 +0000
+
+    chore(release): 3.42.2 [skip ci]
+    
+    ## [3.42.2](https://github.com/react-native-community/react-native-camera/compare/v3.42.1...v3.42.2) (2021-02-10)
+    
+    ### Bug Fixes
+    
+    * spelling: "Tab" -> "Tap" ([#3107](https://github.com/react-native-community/react-native-camera/issues/3107)) ([e56b0f7](https://github.com/react-native-community/react-native-camera/commit/e56b0f7f71a74a20547a70f8ee7c9f21663cbe0a))
+
+[33mcommit e56b0f7f71a74a20547a70f8ee7c9f21663cbe0a[m
+Author: tam-nguyen-senseye <56276625+tam-nguyen-senseye@users.noreply.github.com>
+Date:   Wed Feb 10 15:18:03 2021 -0600
+
+    fix: spelling: "Tab" -> "Tap" (#3107)
+
+[33mcommit 7cb797916e995fa1d4b859b4287b5c46eb21b0b1[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Wed Feb 10 01:29:16 2021 +0000
+
+    chore(release): 3.42.1 [skip ci]
+    
+    ## [3.42.1](https://github.com/react-native-community/react-native-camera/compare/v3.42.0...v3.42.1) (2021-02-10)
+    
+    ### Bug Fixes
+    
+    * Remove exif thumbnail generation that may affect some devices. ([#3103](https://github.com/react-native-community/react-native-camera/issues/3103)) ([e6b8417](https://github.com/react-native-community/react-native-camera/commit/e6b84174be36137feea0d1d950f0c105b8112623))
+
+[33mcommit e6b84174be36137feea0d1d950f0c105b8112623[m
+Author: Cristiano Coelho <48869228+cristianoccazinsp@users.noreply.github.com>
+Date:   Tue Feb 9 22:28:18 2021 -0300
+
+    fix: Remove exif thumbnail generation that may affect some devices. (#3103)
+    
+    Co-authored-by: Cristiano Coelho <cristianocca@hotmail.com>
+
+[33mcommit 366d415eab03aafcb0533c1cf6ad014bf55bff24[m
+Merge: 2649b71 39a017e
+Author: Frieder Bluemle <frieder.bluemle@gmail.com>
+Date:   Tue Feb 9 11:14:52 2021 -0800
+
+    Merge pull request #3102 from cristianoccazinsp/upgrade-exif
+    
+    update exif dependency
+
+[33mcommit 39a017e2368852518241ea494d24043e5318b4fa[m
+Author: Cristiano Coelho <cristianocca@hotmail.com>
+Date:   Tue Feb 9 11:41:21 2021 -0300
+
+    update exif dependency
+
+[33mcommit 2649b710f87857217226d218fb06137bcbe7d184[m
+Author: Atabekov Farrukh <32008802+augini@users.noreply.github.com>
+Date:   Fri Jan 22 20:07:21 2021 +0900
+
+    example: Update build.gradle (#3093)
+    
+    There should be a comma after index. js inside
+    project.ext.react = [
+        entryFile: "index.js",
+        enableHermes: false,  // clean and rebuild if changing
+    ]
+    Otherwise, it throws an error to try out the advanced example. People might have a difficulty to find that. Thanks
+
+[33mcommit 743b1409bb6a9ea514776efacc428630c797014f[m
+Author: luisantos1986 <ing.luisantos@gmail.com>
+Date:   Sat Jan 16 16:12:24 2021 -0600
+
+    chore: example Update Podfile (#3083)
+    
+    issues with jscallInvoker
+    https://github.com/facebook/react-native/issues/28408#issuecomment-656697750
+    
+    outdated version for FBReactNativeSpec
+
+[33mcommit 30967b90edcfe9d58a4717a4a28874a4f0850661[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Tue Jan 12 14:39:31 2021 +0000
+
+    chore(release): 3.42.0 [skip ci]
+    
+    # [3.42.0](https://github.com/react-native-community/react-native-camera/compare/v3.41.0...v3.42.0) (2021-01-12)
+    
+    ### Features
+    
+    * Take pictures in PNG format on iOS ([#2785](https://github.com/react-native-community/react-native-camera/issues/2785)) ([7638c64](https://github.com/react-native-community/react-native-camera/commit/7638c648bcd1c904503cafcfbdc1da5fae69f415))
+
+[33mcommit 7638c648bcd1c904503cafcfbdc1da5fae69f415[m
+Author: René Fischer <rfischer41@gmail.com>
+Date:   Tue Jan 12 15:37:33 2021 +0100
+
+    feat: Take pictures in PNG format on iOS (#2785)
+    
+    * feat(ios): take pictures in JPEG or PNG format
+    
+    * fixed typescript definition for imageType
+    
+    * fix(ios): always apply compression quality for jpeg images
+    
+    Co-authored-by: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+
+[33mcommit a2f3f5da0102490abff1b0dde85118e56fff15e0[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Fri Jan 8 13:52:53 2021 +0000
+
+    chore(release): 3.41.0 [skip ci]
+    
+    # [3.41.0](https://github.com/react-native-community/react-native-camera/compare/v3.40.5...v3.41.0) (2021-01-08)
+    
+    ### Features
+    
+    * [Android] add playSoundOnRecord ([#3065](https://github.com/react-native-community/react-native-camera/issues/3065)) ([19d6865](https://github.com/react-native-community/react-native-camera/commit/19d68650e0c4e3bde0a58cfd3169f1019f8e54f3))
+
+[33mcommit 19d68650e0c4e3bde0a58cfd3169f1019f8e54f3[m
+Author: Tuan Luong <tuanluong.it@gmail.com>
+Date:   Fri Jan 8 20:50:49 2021 +0700
+
+    feat: [Android] add playSoundOnRecord (#3065)
+    
+    * add playSoundOnRecord
+    
+    * fix missing functions
+    
+    Co-authored-by: Tuan Luong <tuanluong@Tuans-MacBook-Pro.local>
+    Co-authored-by: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+
+[33mcommit 5b318c143f26f8d1067c29ad379b638d68d2917e[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Wed Jan 6 20:14:33 2021 +0000
+
+    chore(release): 3.40.5 [skip ci]
+    
+    ## [3.40.5](https://github.com/react-native-community/react-native-camera/compare/v3.40.4...v3.40.5) (2021-01-06)
+    
+    ### Bug Fixes
+    
+    * Enable multidexing to fix [#3029](https://github.com/react-native-community/react-native-camera/issues/3029) ([#3030](https://github.com/react-native-community/react-native-camera/issues/3030)) ([c2bb6ba](https://github.com/react-native-community/react-native-camera/commit/c2bb6ba166ce32306f8414781807bb2f0037fb58))
+
+[33mcommit c2bb6ba166ce32306f8414781807bb2f0037fb58[m
+Author: Ben Kiefer <ben.a.kiefer@gmail.com>
+Date:   Wed Jan 6 14:13:03 2021 -0600
+
+    fix: Enable multidexing to fix #3029 (#3030)
+    
+    Co-authored-by: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+
+[33mcommit f632e3412e57ceae1d40d9432313e45d8724db98[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Wed Jan 6 19:54:00 2021 +0000
+
+    chore(release): 3.40.4 [skip ci]
+    
+    ## [3.40.4](https://github.com/react-native-community/react-native-camera/compare/v3.40.3...v3.40.4) (2021-01-06)
+    
+    ### Bug Fixes
+    
+    * face detection on iOS ([#2992](https://github.com/react-native-community/react-native-camera/issues/2992)) ([d569892](https://github.com/react-native-community/react-native-camera/commit/d5698922a6a49c27a3d04f4ec36174ce14cac6fc))
+
+[33mcommit d5698922a6a49c27a3d04f4ec36174ce14cac6fc[m
+Author: moddather rashed <moddather.developer@gmail.com>
+Date:   Wed Jan 6 20:52:31 2021 +0100
+
+    fix: face detection on iOS (#2992)
+    
+    Co-authored-by: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+
+[33mcommit 0aad4595f2970c2ca768fb7aca0a2df9443f09ee[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Wed Jan 6 19:45:42 2021 +0000
+
+    chore(release): 3.40.3 [skip ci]
+    
+    ## [3.40.3](https://github.com/react-native-community/react-native-camera/compare/v3.40.2...v3.40.3) (2021-01-06)
+    
+    ### Bug Fixes
+    
+    * **android:** Prevent deleting exifData after saving it to the response ([#2833](https://github.com/react-native-community/react-native-camera/issues/2833)) ([cec34fe](https://github.com/react-native-community/react-native-camera/commit/cec34fe37efa39c0b9607ff743233fea1f4638d2))
+
+[33mcommit cec34fe37efa39c0b9607ff743233fea1f4638d2[m
+Author: Valentin <valio@vsite.org>
+Date:   Wed Jan 6 21:43:38 2021 +0200
+
+    fix(android): Prevent deleting exifData after saving it to the response (#2833)
+    
+    * fix(android): Prevent deleting exifData after saving it to the response
+    
+    * Use merge instead of copy for compatibility with RN 0.59
+    
+    Co-authored-by: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+
+[33mcommit c931fa907b879d57bfbb7725f16dc7dc4fed0f9f[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Wed Jan 6 19:32:38 2021 +0000
+
+    chore(release): 3.40.2 [skip ci]
+    
+    ## [3.40.2](https://github.com/react-native-community/react-native-camera/compare/v3.40.1...v3.40.2) (2021-01-06)
+    
+    ### Bug Fixes
+    
+    * call onDoubleTap instead of onTap on native double tap ([#3009](https://github.com/react-native-community/react-native-camera/issues/3009)) ([4381f34](https://github.com/react-native-community/react-native-camera/commit/4381f34081ef3fd76ae7863e301c8fe91be28336))
+
+[33mcommit 4381f34081ef3fd76ae7863e301c8fe91be28336[m
+Author: SimonErm <33630884+SimonErm@users.noreply.github.com>
+Date:   Wed Jan 6 20:29:38 2021 +0100
+
+    fix: call onDoubleTap instead of onTap on native double tap (#3009)
+    
+    Co-authored-by: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+
+[33mcommit 76f94864cfbc5d0736e954fe4c6089d30060a45a[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Wed Jan 6 19:19:41 2021 +0000
+
+    chore(release): 3.40.1 [skip ci]
+    
+    ## [3.40.1](https://github.com/react-native-community/react-native-camera/compare/v3.40.0...v3.40.1) (2021-01-06)
+    
+    ### Bug Fixes
+    
+    * calculation for RNW root folder ([#3052](https://github.com/react-native-community/react-native-camera/issues/3052)) ([841e27a](https://github.com/react-native-community/react-native-camera/commit/841e27a9112d676b6cc377a5f584955a9d2c5963))
+
+[33mcommit 841e27a9112d676b6cc377a5f584955a9d2c5963[m
+Author: Jon Thysell <jthysell@microsoft.com>
+Date:   Wed Jan 6 11:17:23 2021 -0800
+
+    fix: calculation for RNW root folder (#3052)
+    
+    Switches to search for `node_modules/react-native-windows` to the
+    root of the (app) solution being built, not the camera project, to
+    ensure libraries build off the same version of RNW as the app
+    
+    Co-authored-by: Mateus Andrade <15278828+MateusAndrade@users.noreply.github.com>
+
+[33mcommit 460a9532017178a7f42141de151a6c9468a059b6[m
+Merge: fc4f3f7 6419267
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 19:05:35 2021 +0000
+
+    Merge pull request #3025 from react-native-camera/dependabot/npm_and_yarn/semantic-release-17.2.3
+
+[33mcommit 641926767908f468964df666cd8ead59c8f48a99[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 18:59:18 2021 +0000
+
+    chore(deps-dev): bump semantic-release from 17.1.1 to 17.2.3
+    
+    Bumps [semantic-release](https://github.com/semantic-release/semantic-release) from 17.1.1 to 17.2.3.
+    - [Release notes](https://github.com/semantic-release/semantic-release/releases)
+    - [Commits](https://github.com/semantic-release/semantic-release/compare/v17.1.1...v17.2.3)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit fc4f3f7eb2d4577602eeb29ec15652325f90a388[m
+Merge: dd097e2 7a4c056
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 18:58:26 2021 +0000
+
+    Merge pull request #2969 from react-native-camera/dependabot/npm_and_yarn/examples/advanced/advanced/yargs-parser-13.1.2
+
+[33mcommit 7a4c0567e8edbea90e6ef34734a4f2d99a7d36e4[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 18:51:09 2021 +0000
+
+    chore(deps): bump yargs-parser in /examples/advanced/advanced
+    
+    Bumps [yargs-parser](https://github.com/yargs/yargs-parser) from 7.0.0 to 13.1.2.
+    - [Release notes](https://github.com/yargs/yargs-parser/releases)
+    - [Changelog](https://github.com/yargs/yargs-parser/blob/master/CHANGELOG.md)
+    - [Commits](https://github.com/yargs/yargs-parser/commits)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit dd097e26a401f5451a04c8ccf705a2c5cede46fb[m
+Merge: 95e3bf1 cbb96f2
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 18:50:01 2021 +0000
+
+    Merge pull request #3002 from react-native-camera/dependabot/npm_and_yarn/npm-user-validate-1.0.1
+
+[33mcommit cbb96f2b18804e617f626fce571bc4ff65f8a6cb[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 18:41:43 2021 +0000
+
+    chore(deps): bump npm-user-validate from 1.0.0 to 1.0.1
+    
+    Bumps [npm-user-validate](https://github.com/npm/npm-user-validate) from 1.0.0 to 1.0.1.
+    - [Release notes](https://github.com/npm/npm-user-validate/releases)
+    - [Commits](https://github.com/npm/npm-user-validate/compare/v1.0.0...v1.0.1)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit 95e3bf1e188a0381a010145b01c0123acd35648d[m
+Merge: bfeb271 eae1cb2
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 18:40:47 2021 +0000
+
+    Merge pull request #3034 from react-native-camera/dependabot/npm_and_yarn/website/highlight.js-9.18.5
+
+[33mcommit eae1cb2f957cd02234c953e43319ee5653c3e2ef[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 18:32:29 2021 +0000
+
+    chore(deps): bump highlight.js from 9.15.8 to 9.18.5 in /website
+    
+    Bumps [highlight.js](https://github.com/highlightjs/highlight.js) from 9.15.8 to 9.18.5.
+    - [Release notes](https://github.com/highlightjs/highlight.js/releases)
+    - [Changelog](https://github.com/highlightjs/highlight.js/blob/9.18.5/CHANGES.md)
+    - [Commits](https://github.com/highlightjs/highlight.js/compare/9.15.8...9.18.5)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit bfeb271858a8b13cf2fe6e352effb4330582926d[m
+Merge: 468b041 acd1222
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 18:30:07 2021 +0000
+
+    Merge pull request #3073 from react-native-camera/dependabot/npm_and_yarn/examples/basic/ini-1.3.8
+
+[33mcommit acd12223abf2c46893124bbb18e432d0d6f693f4[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 18:09:57 2021 +0000
+
+    chore(deps): bump ini from 1.3.5 to 1.3.8 in /examples/basic
+    
+    Bumps [ini](https://github.com/isaacs/ini) from 1.3.5 to 1.3.8.
+    - [Release notes](https://github.com/isaacs/ini/releases)
+    - [Commits](https://github.com/isaacs/ini/compare/v1.3.5...v1.3.8)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit 468b0412c67a83362b9748f44d7e6211af52b46e[m
+Merge: af00707 1e2023d
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 18:08:32 2021 +0000
+
+    Merge pull request #3074 from react-native-camera/dependabot/npm_and_yarn/examples/mlkit/ini-1.3.8
+
+[33mcommit 1e2023d8c34389ac58e9596166a452d6b8feafe4[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 17:59:19 2021 +0000
+
+    chore(deps): bump ini from 1.3.5 to 1.3.8 in /examples/mlkit
+    
+    Bumps [ini](https://github.com/isaacs/ini) from 1.3.5 to 1.3.8.
+    - [Release notes](https://github.com/isaacs/ini/releases)
+    - [Commits](https://github.com/isaacs/ini/compare/v1.3.5...v1.3.8)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit af007072d85f55941d59aafd1aa216b691b615a4[m
+Merge: b4e85e5 b3c53aa
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 17:58:25 2021 +0000
+
+    Merge pull request #3075 from react-native-camera/dependabot/npm_and_yarn/ini-1.3.8
+
+[33mcommit b3c53aa33cc08296c4bc9e8109e0eddbd6e9c935[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 17:52:15 2021 +0000
+
+    chore(deps): bump ini from 1.3.5 to 1.3.8
+    
+    Bumps [ini](https://github.com/isaacs/ini) from 1.3.5 to 1.3.8.
+    - [Release notes](https://github.com/isaacs/ini/releases)
+    - [Commits](https://github.com/isaacs/ini/compare/v1.3.5...v1.3.8)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit b4e85e5b2f8776fc9e3c38c3606659bbc312dd1d[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Wed Jan 6 14:50:50 2021 -0300
+
+    chore(deps): bump ini from 1.3.5 to 1.3.7 in /website (#3049)
+    
+    Bumps [ini](https://github.com/isaacs/ini) from 1.3.5 to 1.3.7.
+    - [Release notes](https://github.com/isaacs/ini/releases)
+    - [Commits](https://github.com/isaacs/ini/compare/v1.3.5...v1.3.7)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 42388be530f4a791ff6822b430b346248c2a40af[m
+Merge: d973dba 4b65edf
+Author: Felippe Rodrigo Puhle <felippe.puhle@gmail.com>
+Date:   Tue Oct 20 17:06:53 2020 -0300
+
+    Merge pull request #3005 from doranteseduardo/master
+    
+    Fixed documentation URL
+
+[33mcommit 4b65edfe84991fa1421f9aa0b913a117e03373fe[m
+Author: Eduardo Dorantes <eduardo.dorantes.07@gmail.com>
+Date:   Mon Oct 19 21:18:59 2020 -0500
+
+    Fixed documentation URL
+
+[33mcommit d973dbaab68f4b79d82d56099b1f813e672ac4d3[m
+Author: Sibelius Seraphini <sibeliusseraphini@gmail.com>
+Date:   Wed Oct 14 10:15:37 2020 -0300
+
+    improve
+
+[33mcommit b01531189ade9b9aa119f6169af4fb677eccf8cb[m
+Author: Sibelius Seraphini <sibeliusseraphini@gmail.com>
+Date:   Wed Oct 14 10:15:14 2020 -0300
+
+    Looking for Maintainers
+
+[33mcommit 819ba0d526b5e60003895a12213cb24f5030f8f8[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Fri Sep 18 14:43:23 2020 +0000
+
+    chore(release): 3.40.0 [skip ci]
+    
+    # [3.40.0](https://github.com/react-native-community/react-native-camera/compare/v3.39.1...v3.40.0) (2020-09-18)
+    
+    ### Features
+    
+    * **ios:** Optimize invertColors / fix memory leak ([#2955](https://github.com/react-native-community/react-native-camera/issues/2955)) ([43f2a0f](https://github.com/react-native-community/react-native-camera/commit/43f2a0f77493f1e30d8ab69753dc02cc0e14e127)), closes [#2904](https://github.com/react-native-community/react-native-camera/issues/2904) [#2950](https://github.com/react-native-community/react-native-camera/issues/2950)
+
+[33mcommit 43f2a0f77493f1e30d8ab69753dc02cc0e14e127[m
+Author: stanleykerr <kerrs1@unlv.nevada.edu>
+Date:   Fri Sep 18 07:41:27 2020 -0700
+
+    feat(ios): Optimize invertColors / fix memory leak (#2955)
+    
+    Releases the CGImage that was created in order to populate the UIImage's CGImage property. This probably relates to #2904 and possibly #2950.
+
+[33mcommit 90ec544cd2aa46cf9599df5abd5a600cbf64078b[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Fri Sep 18 07:55:25 2020 -0300
+
+    chore(deps): bump logkitty in /examples/advanced/advanced (#2976)
+    
+    Bumps [logkitty](https://github.com/zamotany/logkitty) from 0.6.1 to 0.7.1.
+    - [Release notes](https://github.com/zamotany/logkitty/releases)
+    - [Commits](https://github.com/zamotany/logkitty/compare/v0.6.1...v0.7.1)
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+
+[33mcommit 5c1187ed421db47c3cda8cf155128eeb9c0d79b3[m
+Author: semantic-release-bot <semantic-release-bot@martynus.net>
+Date:   Thu Sep 17 15:10:17 2020 +0000
+
+    chore(release): 3.39.1 [skip ci]
+    
+    ## [3.39.1](https://github.com/react-native-community/react-native-camera/compare/v3.39.0...v3.39.1) (2020-09-17)
+    
+    ### Bug Fixes
+    
+    * Xcode 12 compatibility ([#2975](https://github.com/react-native-community/react-native-camera/issues/2975)) ([1e7152e](https://github.com/react-native-community/react-native-camera/commit/1e7152e1
