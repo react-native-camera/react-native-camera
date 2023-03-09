@@ -328,7 +328,7 @@ BOOL _sessionInterrupted = NO;
 -(AVCaptureSessionPreset)getDefaultPreset
 {
     AVCaptureSessionPreset preset =
-    ([self pictureSize] && [[self pictureSize] integerValue] >= 0) ? [self pictureSize] : AVCaptureSessionPresetPhoto;
+    ([self pictureSize] && [[self pictureSize] integerValue] >= 0) ? [self pictureSize] : AVCaptureSessionPresetHigh;
 
     return preset;
 }
@@ -342,6 +342,26 @@ BOOL _sessionInterrupted = NO;
     ([self defaultVideoQuality]) ? [RNCameraUtils captureSessionPresetForVideoResolution:[[self defaultVideoQuality] integerValue]] : AVCaptureSessionPresetHigh;
 
     return preset;
+}
+
+-(CGFloat)getMinFocusDistance
+{
+    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    CGFloat deviceMinimumFocusDistance = device.minimumFocusDistance;
+    if(deviceMinimumFocusDistance == -1){
+        return 1.0f;
+    }
+
+    CGFloat deviceFieldOfView = device.activeFormat.videoFieldOfView;
+    CGFloat radians = (deviceFieldOfView / 2) * M_PI / 180;
+    CGFloat filledCodeSize = 20 / _rectOfInterest.size.width;
+    CGFloat minimumSubjectDistanceForCode = filledCodeSize / tan(radians);
+    if(minimumSubjectDistanceForCode < deviceMinimumFocusDistance) {
+        CGFloat zoomFactor = deviceMinimumFocusDistance / minimumSubjectDistanceForCode;
+        return zoomFactor;
+    }
+
+    return 1.0f;
 }
 
 - (void)lockDevice:(AVCaptureDevice *)device andApplySettings:(void (^)(void))applySettings {

@@ -578,6 +578,14 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   };
 
+  getMinFocusDistance = async () => {
+    if (Platform.OS === 'ios') {
+      return CameraManager.getMinFocusDistance(this._cameraHandle);
+    } else {
+      throw new Error('getMinFocusDistance is not supported on Android');
+    }
+  }
+
   getAvailablePictureSizes = async (): string[] => {
     //$FlowFixMe
     return await CameraManager.getAvailablePictureSizes(this.props.ratio, this._cameraHandle);

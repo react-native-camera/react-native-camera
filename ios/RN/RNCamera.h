@@ -114,5 +114,6 @@
 - (void)onBarcodesDetected:(NSDictionary *)event;
 - (bool)isRecording;
 - (void)onSubjectAreaChanged:(NSDictionary *)event;
+- (double)getMinFocusDistance;
 
 @end

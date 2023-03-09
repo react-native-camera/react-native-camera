@@ -542,6 +542,23 @@ RCT_REMAP_METHOD(getAvailablePictureSizes,
     resolve([[[self class] pictureSizes] allKeys]);
 }
 
+RCT_REMAP_METHOD(getMinFocusDistance,
+				 reactTag:(nonnull NSNumber *)reactTag
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
+{
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
+        RNCamera *view = viewRegistry[reactTag];
+        if (![view isKindOfClass:[RNCamera class]]) {
+        	RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
+            resolve(false);
+        } else {
+        	CGFloat zoomFactor = [view getMinFocusDistance];
+        	resolve(@(zoomFactor));
+        }
+    }];
+}
+
 RCT_EXPORT_METHOD(isRecording:(nonnull NSNumber *)reactTag
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
