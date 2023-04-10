@@ -5,7 +5,6 @@ import {
   findNodeHandle,
   Platform,
   NativeModules,
-  ViewPropTypes,
   requireNativeComponent,
   View,
   ActivityIndicator,
@@ -15,6 +14,7 @@ import {
 } from 'react-native';
 
 import type { FaceFeature } from './FaceDetector';
+import {ViewPropTypes} from 'deprecated-react-native-prop-types'
 
 const Rationale = PropTypes.shape({
   title: PropTypes.string.isRequired,
