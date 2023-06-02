@@ -5,7 +5,6 @@ import {
   findNodeHandle,
   Platform,
   NativeModules,
-  ViewPropTypes,
   requireNativeComponent,
   View,
   ActivityIndicator,
