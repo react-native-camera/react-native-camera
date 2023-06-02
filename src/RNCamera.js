@@ -14,6 +14,8 @@ import {
   PermissionsAndroid,
 } from 'react-native';
 
+import {ViewPropTypes} from 'deprecated-react-native-prop-types';
+
 import type { FaceFeature } from './FaceDetector';
 
 const Rationale = PropTypes.shape({
