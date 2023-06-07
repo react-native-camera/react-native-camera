@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "prop-types": "^15.6.2",
-    "deprecated-react-native-prop-types": "^4.1.0",
+    "deprecated-react-native-prop-types": "^4.1.0"
   },
   "devDependencies": {
     "@babel/runtime": "^7.3.1",
